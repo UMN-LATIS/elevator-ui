@@ -1,0 +1,148 @@
+{
+  "templateId": "68",
+  "templateName": "All Fields Test",
+  "widgetArray": [{
+    "widgetId": 3276,
+    "type": "text",
+    "allowMultiple": true,
+    "attemptAutocomplete": false,
+    "fieldTitle": "title_1",
+    "label": "Title",
+    "tooltip": "",
+    "fieldData": []
+  }, {
+    "widgetId": 3277,
+    "type": "checkbox",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "coolstuff_1",
+    "label": "Cool Stuff",
+    "tooltip": "",
+    "fieldData": []
+  }, {
+    "widgetId": 3278,
+    "type": "date",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "creation_1",
+    "label": "Creation",
+    "tooltip": "",
+    "fieldData": []
+  }, {
+    "widgetId": 3279,
+    "type": "location",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "location_1",
+    "label": "Location",
+    "tooltip": "",
+    "fieldData": []
+  }, {
+    "widgetId": 3280,
+    "type": "multiselect",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "cascadeselect_1",
+    "label": "Cascade Select",
+    "tooltip": "",
+    "fieldData": {
+      "country": {
+        "usa": {
+          "state": {
+            "minnesota": {
+              "city": {
+                "mankato": {
+                  "neighborhood": ["campus", "downtown"]
+                },
+                "minneapolis": {
+                  "neighborhood": ["uptown", "downtown"]
+                }
+              }
+            },
+            "wisconsin": {
+              "city": ["madison", "milwaukee"]
+            }
+          }
+        },
+        "canada": {
+          "state": {
+            "quebec": {
+              "city": ["montreal"]
+            },
+            "alberta": {
+              "city": ["fakeville", "faketown"]
+            }
+          }
+        }
+      }
+    }
+  }, {
+    "widgetId": 3281,
+    "type": "related asset",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "relatedstuff_1",
+    "label": "Related Stuff",
+    "tooltip": "",
+    "fieldData": {
+      "nestData": true,
+      "showLabel": true,
+      "matchAgainst": [0],
+      "displayInline": false,
+      "thumbnailView": false,
+      "defaultTemplate": 0,
+      "ignoreForDateSearch": false,
+      "ignoreForDigitalAsset": false,
+      "collapseNestedChildren": false,
+      "ignoreForLocationSearch": false
+    }
+  }, {
+    "widgetId": 3282,
+    "type": "select",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "globalsearch_1",
+    "label": "Global Search",
+    "tooltip": "",
+    "fieldData": {
+      "multiSelect": false,
+      "selectGroup": ["option 1", "option 2", "option 3"]
+    }
+  }, {
+    "widgetId": 3283,
+    "type": "tag list",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "sometags_1",
+    "label": "Some tags",
+    "tooltip": "",
+    "fieldData": []
+  }, {
+    "widgetId": 3284,
+    "type": "text area",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "bigtext_1",
+    "label": "Big Text",
+    "tooltip": "",
+    "fieldData": []
+  }, {
+    "widgetId": 3285,
+    "type": "upload",
+    "allowMultiple": false,
+    "attemptAutocomplete": false,
+    "fieldTitle": "image_1",
+    "label": "Image",
+    "tooltip": "",
+    "fieldData": {
+      "extractDate": true,
+      "forceTiling": false,
+      "enableDendro": false,
+      "enableIframe": false,
+      "enableTiling": true,
+      "extractLocation": true,
+      "enableAnnotation": false,
+      "interactiveTranscript": false
+    }
+  }]
+}

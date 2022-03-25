@@ -1,0 +1,71 @@
+{
+    "image_1": [{
+        "loc": null,
+        "fileId": "623dee6471cc11744319be01",
+        "fileType": "jpeg",
+        "sidecars": {
+            "ppm": ""
+        },
+        "isPrimary": false,
+        "searchData": null,
+        "fileDescription": ""
+    }],
+    "title_1": [{
+        "isPrimary": true,
+        "fieldContents": "Test Asset"
+    }, {
+        "isPrimary": false,
+        "fieldContents": "Alt Title"
+    }],
+    "bigtext_1": [{
+        "isPrimary": false,
+        "fieldContents": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>"
+    }],
+    "creation_1": [{
+        "end": {
+            "text": "",
+            "numeric": ""
+        },
+        "label": "A birthday",
+        "start": {
+            "text": "10/23/1985",
+            "numeric": "498873600"
+        },
+        "isPrimary": false
+    }],
+    "location_1": [{
+        "loc": {
+            "type": "Point",
+            "coordinates": [-93.2424052, 44.9703314]
+        },
+        "address": "Rarig Center",
+        "isPrimary": false,
+        "locationLabel": "Rarig"
+    }],
+    "sometags_1": [{
+        "tags": ["tag", "list", "is", "fun"],
+        "isPrimary": false
+    }],
+    "coolstuff_1": [{
+        "isPrimary": false,
+        "fieldContents": true
+    }],
+    "globalsearch_1": [{
+        "isPrimary": false,
+        "fieldContents": "option 1"
+    }],
+    "relatedstuff_1": [{
+        "label": "",
+        "isPrimary": false,
+        "targetAssetId": "623dee383392272653676221"
+    }],
+    "cascadeselect_1": [{
+        "isPrimary": false,
+        "fieldContents": {
+            "city": "montreal",
+            "state": "quebec",
+            "country": "canada",
+            "neighborhood": ""
+        }
+    }]
+}
