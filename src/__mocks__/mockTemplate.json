@@ -9,7 +9,14 @@
     "fieldTitle": "title_1",
     "label": "Title",
     "tooltip": "",
-    "fieldData": []
+    "fieldData": [],
+    "display": true,
+    "displayInPreview": true,
+    "required": false,
+    "searchable": true,
+    "directSearch": false,
+    "clickToSearch": true,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3277,
     "type": "checkbox",
@@ -18,7 +25,14 @@
     "fieldTitle": "coolstuff_1",
     "label": "Cool Stuff",
     "tooltip": "",
-    "fieldData": []
+    "fieldData": [],
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3278,
     "type": "date",
@@ -27,7 +41,14 @@
     "fieldTitle": "creation_1",
     "label": "Creation",
     "tooltip": "",
-    "fieldData": []
+    "fieldData": [],
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3279,
     "type": "location",
@@ -36,7 +57,14 @@
     "fieldTitle": "location_1",
     "label": "Location",
     "tooltip": "",
-    "fieldData": []
+    "fieldData": [],
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3280,
     "type": "multiselect",
@@ -75,7 +103,14 @@
           }
         }
       }
-    }
+    },
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": true,
+    "directSearch": false,
+    "clickToSearch": true,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3281,
     "type": "related asset",
@@ -95,7 +130,14 @@
       "ignoreForDigitalAsset": false,
       "collapseNestedChildren": false,
       "ignoreForLocationSearch": false
-    }
+    },
+    "display": true,
+    "displayInPreview": true,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3282,
     "type": "select",
@@ -107,7 +149,14 @@
     "fieldData": {
       "multiSelect": false,
       "selectGroup": ["option 1", "option 2", "option 3"]
-    }
+    },
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": true,
+    "clickToSearchType": 0
   }, {
     "widgetId": 3283,
     "type": "tag list",
@@ -116,7 +165,14 @@
     "fieldTitle": "sometags_1",
     "label": "Some tags",
     "tooltip": "",
-    "fieldData": []
+    "fieldData": [],
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3284,
     "type": "text area",
@@ -125,7 +181,14 @@
     "fieldTitle": "bigtext_1",
     "label": "Big Text",
     "tooltip": "",
-    "fieldData": []
+    "fieldData": [],
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
   }, {
     "widgetId": 3285,
     "type": "upload",
@@ -143,6 +206,64 @@
       "extractLocation": true,
       "enableAnnotation": false,
       "interactiveTranscript": false
-    }
-  }]
+    },
+    "display": true,
+    "displayInPreview": false,
+    "required": false,
+    "searchable": false,
+    "directSearch": false,
+    "clickToSearch": false,
+    "clickToSearchType": 1
+  }],
+  "collections": {
+    "74": {
+      "API Import": {
+        "75": "Bennington Test Collection"
+      }
+    },
+    "25": {
+      "Blank Generation": {
+        "28": {
+          "fades": {
+            "1": "Initial Collection"
+          }
+        },
+        "23": "Test Collection - Don't use"
+      }
+    },
+    "78": "blarg",
+    "20": "Collection two",
+    "29": "Date testing - Don't use",
+    "27": "Don't use - Really Blank but Also Really LongReally Blank but Also Really Long",
+    "71": "GeoTime Test",
+    "26": "Lang Center New",
+    "24": "Language Center",
+    "40": "new test collection - don't use",
+    "35": "Obama Speeches",
+    "79": "Related Asset Testing",
+    "72": "Research Paper 1",
+    "41": "Speeches 2 - Don't use",
+    "42": "Tree Cores"
+  },
+  "allowedCollections": {
+    "74": "API Import",
+    "75": "Bennington Test Collection",
+    "25": "Blank Generation",
+    "78": "blarg",
+    "20": "Collection two",
+    "29": "Date testing - Don't use",
+    "27": "Don't use - Really Blank but Also Really LongReally Blank but Also Really Long",
+    "28": "fades",
+    "71": "GeoTime Test",
+    "1": "Initial Collection",
+    "26": "Lang Center New",
+    "24": "Language Center",
+    "40": "new test collection - don't use",
+    "35": "Obama Speeches",
+    "79": "Related Asset Testing",
+    "72": "Research Paper 1",
+    "41": "Speeches 2 - Don't use",
+    "23": "Test Collection - Don't use",
+    "42": "Tree Cores"
+  }
 }

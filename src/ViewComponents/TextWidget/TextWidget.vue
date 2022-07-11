@@ -1,40 +1,23 @@
 <template>
-    <p><strong>{{ template.label }}:</strong></p>
-    <ul>
-        <li v-for="(content, key) in contents" :key="key">{{ clickToSearch(template, content.fieldContents) }}</li>
-    </ul>
+  <p><strong>{{ widget.label }}:</strong></p>
+  <ul>
+    <li v-for="(content, key) in contents" :key="key">
+      <Link :widget="widget" :linkText="content.fieldContents" />
+    </li>
+  </ul>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
-import { clickToSearch } from "../DisplayUtils.js"
+import Link from "@/Helpers/Link/Link.vue";
+import { Widget, WidgetContents } from "@/types";
 
-const props = defineProps({
-  template: Object().isRequired,
-  contents:Object().isRequired
-});
 
+interface Props {
+  widget: Widget;
+  contents: WidgetContents[];
+}
+
+const props = defineProps<Props>();
 
 </script>
-
-<style scoped>
-p {
-    display: inline-block;
-    padding-right: 0.3em;
-}
-ul {
-  display: inline;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-ul li {
-  display: inline;
-}
-
-ul li + li:before {
-    content: ", ";
-}
-
-</style>

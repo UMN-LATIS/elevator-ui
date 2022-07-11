@@ -1,7 +1,7 @@
 import TextWidget from "./TextWidget.vue";
 import mockAsset from "../../__mocks__/mockAsset.json";
 import mockTemplate from "../../__mocks__/mockTemplate.json";
-import { getField } from "../DisplayUtils.js";
+import { getField } from "../../Helpers/displayUtils";
 
 export default {
   title: "View/Widgets/TextWidget",
@@ -25,11 +25,11 @@ const Template = (args) => ({
 });
 
 let field = "title_1"
-let widget = mockAsset[field];
+let widgetContents = mockAsset[field];
 let template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    contents: widget,
-    template: template
+    contents: widgetContents,
+    widget: template
 };
