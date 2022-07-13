@@ -1,9 +1,11 @@
 <template>
     <span v-if="props.widget.clickToSearch">
-        <a :href="linkURL">{{ linkText }}</a>
+        <a :href="linkURL">
+            <slot />
+        </a>
     </span>
     <span v-else>
-        {{ linkText }}
+        <slot />
     </span>
 </template>
 
@@ -16,7 +18,6 @@ import { getBaseURL } from "@/Helpers/displayUtils";
 interface Props {
     widget: Widget;
     linkText: string;
-    displayText?: string;
 }
 
 const props = defineProps<Props>();
@@ -31,12 +32,5 @@ const linkURL = computed(() => {
     }
 });
 
-const linkText = computed(() => {
-    let presentationText = props.linkText;
-    if (props.displayText) {
-        presentationText = props.displayText;
-    }
-    return presentationText.trim();
-})
 
 </script>

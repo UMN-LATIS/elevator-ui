@@ -16,7 +16,9 @@
     "searchable": true,
     "directSearch": false,
     "clickToSearch": true,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 1,
+    "templateOrder": 1
   }, {
     "widgetId": 3277,
     "type": "checkbox",
@@ -32,7 +34,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 2,
+    "templateOrder": 2
   }, {
     "widgetId": 3278,
     "type": "date",
@@ -48,7 +52,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 3,
+    "templateOrder": 3
   }, {
     "widgetId": 3279,
     "type": "location",
@@ -64,7 +70,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 4,
+    "templateOrder": 4
   }, {
     "widgetId": 3280,
     "type": "multiselect",
@@ -110,7 +118,9 @@
     "searchable": true,
     "directSearch": false,
     "clickToSearch": true,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 5,
+    "templateOrder": 5
   }, {
     "widgetId": 3281,
     "type": "related asset",
@@ -137,7 +147,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 6,
+    "templateOrder": 6
   }, {
     "widgetId": 3282,
     "type": "select",
@@ -156,7 +168,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": true,
-    "clickToSearchType": 0
+    "clickToSearchType": 0,
+    "viewOrder": 7,
+    "templateOrder": 7
   }, {
     "widgetId": 3283,
     "type": "tag list",
@@ -172,7 +186,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 8,
+    "templateOrder": 8
   }, {
     "widgetId": 3284,
     "type": "text area",
@@ -188,7 +204,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 9,
+    "templateOrder": 9
   }, {
     "widgetId": 3285,
     "type": "upload",
@@ -213,7 +231,9 @@
     "searchable": false,
     "directSearch": false,
     "clickToSearch": false,
-    "clickToSearchType": 1
+    "clickToSearchType": 1,
+    "viewOrder": 10,
+    "templateOrder": 10
   }],
   "collections": {
     "74": {

@@ -1,6 +1,7 @@
 <template>
     <li v-for="(content, key) in contentAsArray" :key="key">
-        <Link :widget="widget" :linkText="getDisplayText(content)" :displayText="getDisplayText(content)">
+        <Link :widget="widget" :linkText="getDisplayText(content)">
+        {{ getDisplayText(content) }}
         </Link>
     </li>
 </template>
