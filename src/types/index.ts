@@ -34,3 +34,9 @@ export interface WidgetContents {
     "fieldContents": any;
 }
 
+
+export interface RelatedWidgetContents {
+    "isPrimary": boolean;
+    "targetAssetId": string;
+    "label": string;
+}

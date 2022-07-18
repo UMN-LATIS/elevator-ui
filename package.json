@@ -13,6 +13,7 @@
     "@fontsource/material-icons": "^4.5.4",
     "@mdx-js/react": "^2.1.2",
     "autolink-js": "^1.0.2",
+    "axios": "^0.27.2",
     "tsconfig-paths-webpack-plugin": "^3.5.2",
     "vue": "^3.2.25"
   },

@@ -1,5 +1,74 @@
-{
-    "image_1": [{
+	{
+	    "title_1": [{
+	        "fieldContents": "Test Asset",
+	        "isPrimary": true
+	    }, {
+	        "fieldContents": "Alt Title",
+	        "isPrimary": false
+	    }],
+	    "coolstuff_1": [{
+	        "fieldContents": true,
+	        "isPrimary": false
+	    }],
+	    "creation_1": [{
+	        "label": "A birthday",
+	        "start": {
+	            "text": "10\/23\/1985",
+	            "numeric": "498873600"
+	        },
+	        "end": {
+	            "text": "",
+	            "numeric": ""
+	        },
+	        "isPrimary": false
+	    }],
+	    "location_1": [{
+	        "locationLabel": "Rarig",
+	        "address": "Rarig Center",
+	        "loc": {
+	            "type": "Point",
+	            "coordinates": [-93.2424052, 44.9703314]
+	        },
+	        "isPrimary": false
+	    }],
+	    "cascadeselect_1": [{
+	        "fieldContents": {
+	            "city": "montreal",
+	            "state": "quebec",
+	            "country": "canada",
+	            "neighborhood": ""
+	        },
+	        "isPrimary": false
+	    }],
+	    "relatedstuff_1": [{
+	        "targetAssetId": "623dee383392272653676221",
+	        "label": "",
+	        "isPrimary": false
+	    }],
+	    "globalsearch_1": [{
+	        "fieldContents": "option 1",
+	        "isPrimary": false
+	    }],
+	    "sometags_1": [{
+	        "tags": ["tag", "list", "is", "fun"],
+	        "isPrimary": false
+	    }],
+	    "bigtext_1": [{
+	        "fieldContents": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<\/p>",
+	        "isPrimary": false
+	    }],
+	    "image_1": [{
+	        "fileId": "623dee6471cc11744319be01",
+	        "fileDescription": "",
+	        "fileType": "jpeg",
+	        "searchData": null,
+	        "loc": null,
+	        "sidecars": {
+	            "ppm": ""
+	        },
+	        "isPrimary": false
+	    },
+    {
         "loc": null,
         "fileId": "623dee6471cc11744319be01",
         "fileType": "jpeg",
@@ -8,64 +77,29 @@
         },
         "isPrimary": false,
         "searchData": null,
-        "fileDescription": ""
+        "fileDescription": "plane"
     }],
-    "title_1": [{
-        "isPrimary": true,
-        "fieldContents": "Test Asset"
-    }, {
-        "isPrimary": false,
-        "fieldContents": "Alt Title"
-    }],
-    "bigtext_1": [{
-        "isPrimary": false,
-        "fieldContents": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>"
-    }],
-    "creation_1": [{
-        "end": {
-            "text": "",
-            "numeric": ""
-        },
-        "label": "A birthday",
-        "start": {
-            "text": "10/23/1985",
-            "numeric": "498873600"
-        },
-        "isPrimary": false
-    }],
-    "location_1": [{
-        "loc": {
-            "type": "Point",
-            "coordinates": [-93.2424052, 44.9703314]
-        },
-        "address": "Rarig Center",
-        "isPrimary": false,
-        "locationLabel": "Rarig"
-    }],
-    "sometags_1": [{
-        "tags": ["tag", "list", "is", "fun"],
-        "isPrimary": false
-    }],
-    "coolstuff_1": [{
-        "isPrimary": false,
-        "fieldContents": true
-    }],
-    "globalsearch_1": [{
-        "isPrimary": false,
-        "fieldContents": "option 1"
-    }],
-    "relatedstuff_1": [{
-        "label": "",
-        "isPrimary": false,
-        "targetAssetId": "623dee383392272653676221"
-    }],
-    "cascadeselect_1": [{
-        "isPrimary": false,
-        "fieldContents": {
-            "city": "montreal",
-            "state": "quebec",
-            "country": "canada",
-            "neighborhood": ""
-        }
-    }]
-}
+	    "templateId": 68,
+	    "readyForDisplay": true,
+	    "collectionId": 25,
+	    "availableAfter": null,
+	    "modified": {
+	        "date": "2022-03-25 16:31:39.000000",
+	        "timezone_type": 3,
+	        "timezone": "UTC"
+	    },
+	    "modifiedBy": 26,
+	    "createdBy": "",
+	    "collectionMigration": null,
+	    "deleted": false,
+	    "deletedBy": null,
+	    "deletedAt": null,
+	    "csvBatch": null,
+	    "relatedAssetCache": {
+	        "623dee383392272653676221": {
+	            "primaryHandler": null,
+	            "readyForDisplay": true,
+	            "relatedAssetTitle": ["Test"]
+	        }
+	    }
+	}
