@@ -12,21 +12,23 @@
   "dependencies": {
     "@fontsource/material-icons": "^4.5.4",
     "@mdx-js/react": "^2.1.2",
+    "@storybook/client-api": "^6.5.9",
     "autolink-js": "^1.0.2",
     "axios": "^0.27.2",
     "pinia": "^2.0.17",
-    "tsconfig-paths-webpack-plugin": "^3.5.2",
-    "vue": "^3.2.25"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vue": "^3.2.37"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.8",
-    "@storybook/addon-actions": "^6.4.19",
-    "@storybook/addon-essentials": "^6.4.19",
-    "@storybook/addon-links": "^6.4.19",
-    "@storybook/vue3": "^6.4.19",
-    "@vitejs/plugin-vue": "^2.2.0",
-    "babel-loader": "^8.2.3",
-    "vite": "^2.8.0",
-    "vue-loader": "^16.8.3"
+    "@storybook/addon-actions": "^6.5.9",
+    "@storybook/addon-essentials": "^6.5.9",
+    "@storybook/addon-interactions": "^6.5.9",
+    "@storybook/addon-links": "^6.5.9",
+    "@storybook/builder-vite": "^0.2.2",
+    "@storybook/testing-library": "^0.0.13",
+    "@storybook/vue3": "^6.5.9",
+    "@vitejs/plugin-vue": "^3.0.1",
+    "vite": "^3.0.3"
   }
 }
