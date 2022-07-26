@@ -2,7 +2,6 @@
   <p><strong>{{ widget.label }}:</strong></p>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-
       <component :is="type" :content="content" :widget="widget" :assetCache="getAssetCache(content)"></component>
     </li>
   </ul>

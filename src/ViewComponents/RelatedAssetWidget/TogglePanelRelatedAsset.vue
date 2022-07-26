@@ -1,6 +1,12 @@
 <template>
     <div>
-        <a href="#" @click.prevent="show = !show">{{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}</a>
+        <a href="#" @click.prevent="show = !show">
+            <img v-if="assetCache.primaryHandler" :src="getTinyURL(assetCache.primaryHandler)"
+                :alt="assetCache.relatedAssetTitle[0]" class="tinyImage" />
+            {{
+                    getRelatedAssetTitle(assetCache.relatedAssetTitle)
+            }}
+        </a>
         <ViewWrapper v-if="show" :objectId="content.targetAssetId"></ViewWrapper>
     </div>
 </template>
@@ -8,7 +14,7 @@
 <script setup lang="ts">
 import { Widget, RelatedWidgetContents } from "@/types";
 import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
-import { getAssetLink, getRelatedAssetTitle, getAsset, getTemplate } from "@/Helpers/displayUtils";
+import { getAssetLink, getRelatedAssetTitle, getTinyURL, getAsset, getTemplate } from "@/Helpers/displayUtils";
 import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 import { onMounted, ref } from 'vue';
 
@@ -40,5 +46,10 @@ onMounted(async () => {
 <style scoped>
 div {
     border: 1px solid #ccc;
-}
+    }
+    
+    .tinyImage {
+        max-width: 50px;
+        max-height: 50px;
+    }
 </style>
