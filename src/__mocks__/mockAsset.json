@@ -97,7 +97,7 @@
 	    "csvBatch": null,
 	    "relatedAssetCache": {
 	        "623dee383392272653676221": {
-	            "primaryHandler": null,
+	            "primaryHandler": "623dee6471cc11744319be01",
 	            "readyForDisplay": true,
 	            "relatedAssetTitle": ["Test"]
 	        }
