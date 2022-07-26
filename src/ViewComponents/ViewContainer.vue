@@ -2,8 +2,9 @@
     <div>
         <template v-for="widget in sortedWidgetArray" :key="widget.id">
             <div class="assetWidget">
-                <component v-if="widget.display && getType(widget.type)" :is="components[getType(widget.type)]"
-                    :widget="widget" :contents="asset[widget.fieldTitle]" :asset="asset">
+                <component v-if="widget.display && getType(widget.type) && asset[widget.fieldTitle]"
+                    :is="components[getType(widget.type)]" :widget="widget" :contents="asset[widget.fieldTitle]"
+                    :asset="asset">
                 </component>
             </div>
         </template>

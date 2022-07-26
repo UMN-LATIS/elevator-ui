@@ -124,7 +124,7 @@
   }, {
     "widgetId": 3281,
     "type": "related asset",
-    "allowMultiple": false,
+    "allowMultiple": true,
     "attemptAutocomplete": false,
     "fieldTitle": "relatedstuff_1",
     "label": "Related Stuff",
@@ -210,7 +210,7 @@
   }, {
     "widgetId": 3285,
     "type": "upload",
-    "allowMultiple": false,
+    "allowMultiple": true,
     "attemptAutocomplete": false,
     "fieldTitle": "image_1",
     "label": "Image",
