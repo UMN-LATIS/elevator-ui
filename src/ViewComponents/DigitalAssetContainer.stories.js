@@ -16,9 +16,10 @@ const Template = (args) => ({
 });
 
 
-// import { useAssetStore } from '@/stores/assetStore'
-// const store = useAssetStore();
-// store.objectId = "623dee6471cc11744319be01";
+import { useAssetStore } from '@/stores/assetStore'
+const store = useAssetStore();
+store.objectId = "623dee393392272653676222";
+store.fileObjectId = "623dee6471cc11744319be01";
 
 export const Default = Template.bind({});
 Default.args = {

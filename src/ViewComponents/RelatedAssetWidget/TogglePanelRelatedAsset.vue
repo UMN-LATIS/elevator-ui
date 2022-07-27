@@ -1,22 +1,27 @@
 <template>
     <div>
+
+        <img v-if="assetCache.primaryHandler" :src="getTinyURL(assetCache.primaryHandler)"
+            :alt="assetCache.relatedAssetTitle[0]" class="tinyImage"
+            @click="setAssetInStore(assetCache.primaryHandler, content.targetAssetId)" />
         <a href="#" @click.prevent="show = !show">
-            <img v-if="assetCache.primaryHandler" :src="getTinyURL(assetCache.primaryHandler)"
-                :alt="assetCache.relatedAssetTitle[0]" class="tinyImage" />
             {{
-                    getRelatedAssetTitle(assetCache.relatedAssetTitle)
+            getRelatedAssetTitle(assetCache.relatedAssetTitle)
             }}
         </a>
-        <ViewWrapper v-if="show" :objectId="content.targetAssetId"></ViewWrapper>
+        <ViewWrapper v-if=" show" :objectId="content.targetAssetId"></ViewWrapper>
     </div>
 </template>
 
 <script setup lang="ts">
 import { Widget, RelatedWidgetContents } from "@/types";
 import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
-import { getAssetLink, getRelatedAssetTitle, getTinyURL, getAsset, getTemplate } from "@/Helpers/displayUtils";
+import { getAssetLink, getRelatedAssetTitle, getTinyURL, getAsset, setAssetInStore } from "@/Helpers/displayUtils";
 import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 import { onMounted, ref } from 'vue';
+import { useTemplateStore } from "@/stores/templateStore";
+
+const templateStore = useTemplateStore();
 
 interface Props {
     widget: Widget;
@@ -34,7 +39,7 @@ onMounted(async () => {
     if (props.content.targetAssetId) {
         nestedAsset.value = await getAsset(props.content.targetAssetId);
         if (nestedAsset.value.templateId) {
-            nestedTemplate.value = await getTemplate(nestedAsset.value.templateId);
+            nestedTemplate.value = await templateStore.loadTemplate(nestedAsset.value.templateId);
         }
 
     }

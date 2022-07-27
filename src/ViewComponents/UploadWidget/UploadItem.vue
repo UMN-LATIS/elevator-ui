@@ -1,10 +1,10 @@
 <template>
-    <img :src="thumbURL" :alt="content.fileDescription" />
+    <img :src="thumbURL" :alt="content.fileDescription" @click="setAssetInStore(content.fileId, null)" />
 </template>
 
 <script setup lang="ts">
 import { Widget, WidgetContents } from "@/types";
-import { getBaseURL } from "@/Helpers/displayUtils";
+import { getBaseURL, setAssetInStore } from "@/Helpers/displayUtils";
 import { computed } from "vue";
 
 interface FileContents {

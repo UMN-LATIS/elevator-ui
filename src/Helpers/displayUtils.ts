@@ -24,6 +24,10 @@ export const getAssetLink = (objectId) => {
     return getBaseURL() + "asset/viewAsset/" + objectId;
 }
 
+export const getEmbedLink = (fileObjectId, parentObjectId) => {
+    return getBaseURL() + "asset/getEmbed/" + fileObjectId + "/" + parentObjectId??"";
+};
+
 export const getRelatedAssetTitle = (relatedAssetTitleCache) => {
     if(relatedAssetTitleCache && relatedAssetTitleCache.length > 0) {
         return relatedAssetTitleCache[0];
@@ -42,6 +46,19 @@ export const getAsset = (assetId: string) => {
             // todo
             alert(err);
         });
+}
+
+import { useAssetStore } from "../stores/assetStore";
+const assetStore = useAssetStore();
+export const setAssetInStore = (fileObjectId: string, objectId: string | null) => {
+    assetStore.fileObjectId = fileObjectId;
+    if (objectId) {
+        assetStore.objectId = objectId;
+    }
+    else {
+        assetStore.objectId = null;
+    }
+    
 }
 
 export const getTemplate = (templateId: string) => {

@@ -1,5 +1,7 @@
 <template>
-    <div>
+
+    <div v-if="template">
+
         <template v-for="widget in sortedWidgetArray" :key="widget.id">
             <div class="assetWidget">
                 <component v-if="widget.display && getType(widget.type) && asset[widget.fieldTitle]"
@@ -16,7 +18,7 @@
 
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import TextWidget from "./TextWidget/TextWidget.vue";
 import TextAreaWidget from "./TextAreaWidget/TextAreaWidget.vue";
 import CheckBoxWidget from "./CheckBoxWidget/CheckBoxWidget.vue";
@@ -26,9 +28,14 @@ import MultiSelectWidget from "./MultiSelectWidget/MultiSelectWidget.vue";
 import LocationWidget from "./LocationWidget/LocationWidget.vue";
 import UploadWidget from "./UploadWidget/UploadWidget.vue";
 import RelatedAssetWidget from "./RelatedAssetWidget/RelatedAssetWidget.vue";
+import { useAssetStore } from "@/stores/assetStore";
+import { useTemplateStore } from "@/stores/templateStore";
 
 import { Widget } from "@/types";
+import { getAsset } from "@/Helpers/displayUtils";
 
+const store = useAssetStore();
+const templateStore = useTemplateStore();
 const components = {
     TextWidget,
     SelectWidget,
@@ -41,9 +48,12 @@ const components = {
     RelatedAssetWidget
 };
 
+const asset: any = ref(null);
+const template: any = ref(null);
+
 interface Props {
-    asset: any;
-    template: any;
+    objectId: string;
+    isPrimaryElement: boolean;
 }
 
 const widgetMap = {
@@ -66,10 +76,24 @@ function getType(widgetType) {
 
 
 const sortedWidgetArray = computed((): Widget[] => {
-    const sortedArray = props.template.widgetArray.sort((a, b) => {
+    const sortedArray = template.value.widgetArray.sort((a, b) => {
         return a.viewOrder - b.viewOrder;
     });
     return sortedArray;
+});
+
+
+
+onMounted(async () => {
+    asset.value = await getAsset(props.objectId);
+    if (asset && asset.value && asset.value.templateId) {
+        template.value = await templateStore.loadTemplate(asset.value.templateId);
+        if (props.isPrimaryElement && asset.value.firstFileHandlerId) {
+            store.fileObjectId = asset.value.firstFileHandlerId;
+            store.objectId = asset.value.firstObjectId;
+        }
+
+    }
 });
 
 </script>
