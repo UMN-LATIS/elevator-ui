@@ -1,8 +1,6 @@
-import '../src/app.css';
-
+import "../src/app.css";
 import "@fontsource/material-icons";
-
-window.baseURL = "https://dev.elevator.umn.edu/defaultinstance/"
+window.baseURL = "https://dev.elevator.umn.edu/defaultinstance/";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -12,4 +10,4 @@ export const parameters = {
       date: /Date$/,
     },
   },
-}
+};
