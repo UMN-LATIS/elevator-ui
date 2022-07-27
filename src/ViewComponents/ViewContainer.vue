@@ -1,5 +1,4 @@
 <template>
-
     <div v-if="template">
 
         <template v-for="widget in sortedWidgetArray" :key="widget.id">
@@ -89,6 +88,7 @@ onMounted(async () => {
     if (asset && asset.value && asset.value.templateId) {
         template.value = await templateStore.loadTemplate(asset.value.templateId);
         if (props.isPrimaryElement && asset.value.firstFileHandlerId) {
+
             store.fileObjectId = asset.value.firstFileHandlerId;
             store.objectId = asset.value.firstObjectId;
         }
