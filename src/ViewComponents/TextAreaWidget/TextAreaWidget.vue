@@ -3,15 +3,14 @@
   <p><strong>{{ widget.label }}:</strong></p>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <span v-html="content.fieldContents"> </span>
+      <TextAreaItem :widget="widget" :fieldContents="content.fieldContents" />
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import Link from "@/Helpers/Link/Link.vue";
 import { Widget, WidgetContents } from "@/types";
-
+import TextAreaItem from "@/ViewComponents/TextAreaWidget/TextAreaItem.vue";
 
 interface Props {
   widget: Widget;
@@ -19,5 +18,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
 
 </script>

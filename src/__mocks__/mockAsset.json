@@ -1,1 +1,116 @@
-{"title_1":[{"fieldContents":"Test Asset","isPrimary":true},{"fieldContents":"Alt Title","isPrimary":false}],"coolstuff_1":[{"fieldContents":true,"isPrimary":false}],"creation_1":[{"label":"A birthday","start":{"text":"10\/23\/1985","numeric":"498873600"},"end":{"text":"","numeric":""},"isPrimary":false}],"location_1":[{"locationLabel":"Rarig","address":"Rarig Center","loc":{"type":"Point","coordinates":[-93.2424052,44.9703314]},"isPrimary":false}],"relatedstuff_1":[{"targetAssetId":"623dee383392272653676221","label":"","isPrimary":true},{"targetAssetId":"62e058363014725cb2193843","label":"","isPrimary":false}],"globalsearch_1":[{"fieldContents":"option 1","isPrimary":false}],"sometags_1":[{"tags":["tag","list","is","fun"],"isPrimary":false}],"bigtext_1":[{"fieldContents":"<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<\/p>","isPrimary":false}],"image_1":[{"fileId":"623dee6471cc11744319be01","fileDescription":"","fileType":"jpeg","searchData":null,"loc":null,"sidecars":{"ppm":""},"isPrimary":true},{"fileId":"62e0581e3014725cb2193841","fileDescription":"","fileType":"heic","searchData":"[]","loc":null,"sidecars":{"ppm":""},"isPrimary":false}],"collapsedjoinrecord_1":[{"targetAssetId":"62ec091e8927c27c3017ac82","label":null,"isPrimary":true}],"templateId":68,"readyForDisplay":true,"collectionId":25,"availableAfter":null,"modified":{"date":"2022-08-04 18:01:39.000000","timezone_type":3,"timezone":"UTC"},"modifiedBy":1,"createdBy":"","collectionMigration":null,"deleted":false,"deletedBy":null,"deletedAt":null,"csvBatch":null,"relatedAssetCache":{"623dee383392272653676221":{"primaryHandler":null,"readyForDisplay":true,"relatedAssetTitle":["Test"]},"62e058363014725cb2193843":{"primaryHandler":"62e058313014725cb2193842","readyForDisplay":true,"relatedAssetTitle":["Asset with Photo"]},"62ec091e8927c27c3017ac82":{"primaryHandler":null,"readyForDisplay":true,"relatedAssetTitle":["Colin McFadden"]}},"firstFileHandlerId":"623dee6471cc11744319be01","firstObjectId":null}
+{
+    "title_1": [{
+        "fieldContents": "Test Asset",
+        "isPrimary": true
+    }, {
+        "fieldContents": "Alt Title",
+        "isPrimary": false
+    }],
+    "coolstuff_1": [{
+        "fieldContents": true,
+        "isPrimary": false
+    }],
+    "creation_1": [{
+        "label": "A birthday",
+        "start": {
+            "text": "10\/23\/1985",
+            "numeric": "498873600"
+        },
+        "end": {
+            "text": "",
+            "numeric": ""
+        },
+        "isPrimary": false
+    }],
+    "location_1": [{
+        "locationLabel": "Rarig",
+        "address": "Rarig Center",
+        "loc": {
+            "type": "Point",
+            "coordinates": [-93.2424052, 44.9703314]
+        },
+        "isPrimary": false
+    }],
+    "relatedstuff_1": [{
+        "targetAssetId": "623dee383392272653676221",
+        "label": "",
+        "isPrimary": true
+    }, {
+        "targetAssetId": "62e058363014725cb2193843",
+        "label": "",
+        "isPrimary": false
+    }],
+    "globalsearch_1": [{
+        "fieldContents": "option 1",
+        "isPrimary": false
+    }],
+    "sometags_1": [{
+        "tags": ["tag", "list", "is", "fun"],
+        "isPrimary": false
+    }],
+    "bigtext_1": [{
+        "fieldContents": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<\/p>",
+        "isPrimary": false
+    }],
+    "image_1": [{
+        "fileId": "623dee6471cc11744319be01",
+        "fileDescription": "",
+        "fileType": "jpeg",
+        "searchData": null,
+        "loc": null,
+        "sidecars": {
+            "ppm": ""
+        },
+        "isPrimary": true
+    }, {
+        "fileId": "62e0581e3014725cb2193841",
+        "fileDescription": "",
+        "fileType": "heic",
+        "searchData": "[]",
+        "loc": null,
+        "sidecars": {
+            "ppm": ""
+        },
+        "isPrimary": false
+    }],
+    "collapsedjoinrecord_1": [{
+        "targetAssetId": "62ec091e8927c27c3017ac82",
+        "label": null,
+        "isPrimary": true
+    }],
+    "templateId": 68,
+    "readyForDisplay": true,
+    "collectionId": 25,
+    "availableAfter": null,
+    "modified": {
+        "date": "2022-08-04 18:01:39.000000",
+        "timezone_type": 3,
+        "timezone": "UTC"
+    },
+    "modifiedBy": 1,
+    "createdBy": "",
+    "collectionMigration": null,
+    "deleted": false,
+    "deletedBy": null,
+    "deletedAt": null,
+    "csvBatch": null,
+    "relatedAssetCache": {
+        "623dee383392272653676221": {
+            "primaryHandler": null,
+            "readyForDisplay": true,
+            "relatedAssetTitle": ["Test"]
+        },
+        "62e058363014725cb2193843": {
+            "primaryHandler": "62e058313014725cb2193842",
+            "readyForDisplay": true,
+            "relatedAssetTitle": ["Asset with Photo"]
+        },
+        "62ec091e8927c27c3017ac82": {
+            "primaryHandler": null,
+            "readyForDisplay": true,
+            "relatedAssetTitle": ["Colin McFadden"]
+        }
+    },
+    "firstFileHandlerId": "623dee6471cc11744319be01",
+    "firstObjectId": null
+}

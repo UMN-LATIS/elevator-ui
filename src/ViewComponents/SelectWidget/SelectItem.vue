@@ -6,7 +6,8 @@
     </li>
 </template>
 
-<script setup lang="ts">
+
+<script setup  lang="ts">
 import { computed } from "vue";
 import Link from "@/Helpers/Link/Link.vue";
 import { Widget } from "@/types";
