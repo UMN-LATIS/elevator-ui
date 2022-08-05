@@ -5,7 +5,7 @@
             <ViewWrapper v-if="store.objectId" :objectId="store.objectId" />
         </div>
         <div class="flex-child">
-            <TitleDisplay :asset="asset" :template="template"></TitleDisplay>
+            <TitleDisplay :asset="asset"></TitleDisplay>
             <ViewContainer :asset="asset" :template="template" :isPrimaryElement="true" />
         </div>
     </div>

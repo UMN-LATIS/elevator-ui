@@ -1,14 +1,14 @@
 
 export enum WidgetType {
-    "checkbox",
-    "date",
-    "location",
-    "multiselect",
-    "related asset",
-    "select",
-    "tag list",
-    "text",
-    "upload"
+    "checkbox" = "checkbox",
+    "date" = "date",
+    "location" = "location",
+    "multiselect" = "multiselect",
+    "related asset" = "related asset",
+    "select" = "select",
+    "tag list" = "tag list",
+    "text" = "text",
+    "upload" = "upload"
 }
 
 export interface Widget {

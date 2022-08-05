@@ -72,7 +72,10 @@ export const getTemplate = (templateId: string) => {
         });
 }
 
-export const getTitleWidget = (asset: any, template: any) => {
+import { useTemplateStore } from "@/stores/templateStore";
+export const getTitleWidget = async (asset: any) => {
+    const templateStore = useTemplateStore();
+    const template = await templateStore.loadTemplate(asset.templateId);
     if (!asset.titleObject) {
         return null;
     }

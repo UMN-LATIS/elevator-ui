@@ -11,11 +11,10 @@ import { defineProps } from 'vue';
 import { getTitleWidget } from '@/Helpers/displayUtils';
 import Link from '@/Helpers/Link/Link.vue';
 interface Props {
-    asset: any;
-    template: any;
+    asset: any
 }
 const props = defineProps<Props>();
 
-const titleWidget = getTitleWidget(props.asset, props.template);
+const titleWidget = getTitleWidget(props.asset);
 const title = props.asset.title || "No Title";
 </script>
