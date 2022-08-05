@@ -1,6 +1,4 @@
 <template>
-  <p><strong>{{ widget.label }}:</strong></p>
-
   <ul>
     <li v-for="(content, key) in contents" :key="key">
       <span class="material-icons" v-if="content.fieldContents == true">

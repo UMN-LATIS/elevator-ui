@@ -9,7 +9,8 @@
             getRelatedAssetTitle(assetCache.relatedAssetTitle)
             }}
         </a>
-        <ViewWrapper v-if=" show" :objectId="content.targetAssetId"></ViewWrapper>
+        <ViewContainer v-if="show" :objectId="content.targetAssetId" :isPrimaryElement="false">
+        </ViewContainer>
     </div>
 </template>
 
@@ -17,9 +18,9 @@
 import { Widget, RelatedWidgetContents } from "@/types";
 import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 import { getAssetLink, getRelatedAssetTitle, getTinyURL, getAsset, setAssetInStore } from "@/Helpers/displayUtils";
-import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 import { onMounted, ref } from 'vue';
 import { useTemplateStore } from "@/stores/templateStore";
+import ViewContainer from "../ViewContainer.vue";
 
 const templateStore = useTemplateStore();
 

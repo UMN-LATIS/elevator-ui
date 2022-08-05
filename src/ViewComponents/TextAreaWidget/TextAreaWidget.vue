@@ -1,6 +1,5 @@
 <!-- todo: need to add text truncation, maybe with a show more modal -->
 <template>
-  <p><strong>{{ widget.label }}:</strong></p>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
       <TextAreaItem :widget="widget" :fieldContents="content.fieldContents" />

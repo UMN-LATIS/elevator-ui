@@ -1,6 +1,5 @@
 <!-- todo need to fix all the hover state stuff, decide if that matters-->
 <template>
-  <p><strong>{{ widget.label }}:</strong></p>
   <ul class="imageList">
     <li v-for="(content, key) in contents" :key="key">
       <div class="imageContainer">

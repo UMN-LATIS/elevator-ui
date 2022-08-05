@@ -1,5 +1,4 @@
 <template>
-  <p><strong>{{ widget.label }}:</strong></p>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
       <component :is="type" :content="content" :widget="widget" :assetCache="getAssetCache(content)"></component>
@@ -14,6 +13,7 @@ import ThumbnailRelatedAsset from "@/ViewComponents/RelatedAssetWidget/Thumbnail
 import TogglePanelRelatedAsset from "@/ViewComponents/RelatedAssetWidget/TogglePanelRelatedAsset.vue";
 import { Widget, RelatedWidgetContents } from "@/types";
 import { computed } from "vue";
+
 
 const components = {
   CollapsedInlineRelatedAsset,

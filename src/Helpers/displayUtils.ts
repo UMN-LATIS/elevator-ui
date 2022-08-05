@@ -71,3 +71,14 @@ export const getTemplate = (templateId: string) => {
             alert(err);
         });
 }
+
+export const getTitleWidget = (asset: any, template: any) => {
+    if (!asset.titleObject) {
+        return null;
+    }
+    const titleField: string = asset.titleObject;
+
+    const titleFieldObject = getField(template, titleField);
+    return titleFieldObject;
+
+}

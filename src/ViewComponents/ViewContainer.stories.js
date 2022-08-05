@@ -1,11 +1,16 @@
 import ViewContainer from "./ViewContainer.vue";
+import mockAsset from "../__mocks__/mockAsset.json";
+import mockTemplate from "../__mocks__/mockTemplate.json";
 
 export default {
   title: "View/ViewContainer",
   component: ViewContainer,
   argTypes: {
-    objectId: {
-        type: "string",
+    asset: {
+        type: "object",
+    },
+    template: {
+      type: "object"
     },
     isPrimaryElement: {
         type: "boolean"
@@ -22,9 +27,9 @@ const Template = (args) => ({
 });
 
 
-
 export const Default = Template.bind({});
 Default.args = {
-  objectId: "62e058363014725cb2193843",
+  asset: mockAsset,
+  template: mockTemplate,
   isPrimaryElement: true
 };

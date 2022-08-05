@@ -1,5 +1,4 @@
 <template>
-  <p><strong>{{ widget.label }}:</strong></p>
   <ul>
     <template v-for="(content, key) in contents" :key="key">
       <SelectItem :selectValues="content" :widget="widget"></SelectItem>

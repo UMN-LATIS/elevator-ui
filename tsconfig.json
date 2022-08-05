@@ -17,7 +17,12 @@
     "paths": {
       "@/*": ["*"]
     },
-    "sourceMap": true
+    "sourceMap": true,
+    "types": [
+      "vite/client", // if using vite
+      // ...
+    ],
+    "exclude": ["**/*.stories.ts"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "*.stories.*", "vendor"]

@@ -1,7 +1,8 @@
 <template>
     <div>
         {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
-        <ViewWrapper :objectId="content.targetAssetId"></ViewWrapper>
+        <ViewContainer :objectId="content.targetAssetId" :isPrimaryElement="false">
+        </ViewContainer>
     </div>
 </template>
 
@@ -10,7 +11,6 @@ import { Widget, RelatedWidgetContents } from "@/types";
 import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
 import ViewContainer from "@/ViewComponents/ViewContainer.vue";
-import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 
 interface Props {
     widget: Widget;

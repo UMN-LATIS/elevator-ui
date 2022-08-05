@@ -1,5 +1,4 @@
 <template>
-  <p><strong>{{ widget.label }}:</strong></p>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
       <Link :widget="widget" :linkText="content.fieldContents"><span

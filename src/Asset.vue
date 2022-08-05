@@ -1,11 +1,12 @@
 <template>
-    <div class="flex-container">
+    <div class="flex-container" v-if="asset && template">
         <div class="flex-child">
             <DigitalAssetContainer />
-            <ViewContainer v-if="store.objectId" :objectId="store.objectId" :isPrimaryElement="false" />
+            <ViewWrapper v-if="store.objectId" :objectId="store.objectId" />
         </div>
         <div class="flex-child">
-            <ViewContainer v-if="objectId" :objectId="objectId" :isPrimaryElement="true" />
+            <TitleDisplay :asset="asset" :template="template"></TitleDisplay>
+            <ViewContainer :asset="asset" :template="template" :isPrimaryElement="true" />
         </div>
     </div>
 </template>
@@ -15,9 +16,13 @@ import { onMounted } from "@vue/runtime-core";
 import { ref } from "vue";
 import { getAsset, getTemplate } from "@/Helpers/displayUtils";
 import ViewContainer from "@/ViewComponents/ViewContainer.vue";
+import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 import DigitalAssetContainer from "@/ViewComponents/DigitalAssetContainer.vue";
+import TitleDisplay from "@/ViewComponents/TitleDisplay.vue";
 import { useAssetStore } from "@/stores/assetStore";
+import { useTemplateStore } from "@/stores/templateStore";
 
+const templateStore = useTemplateStore();
 const store = useAssetStore();
 
 store.objectId = null;
@@ -28,8 +33,18 @@ interface Props {
 }
 
 const asset: any = ref(null);
-const template = ref(null);
+const template: any = ref(null);
 
+onMounted(async () => {
+    asset.value = await getAsset(props.objectId);
+    if (asset && asset.value && asset.value.templateId) {
+        template.value = await templateStore.loadTemplate(asset.value.templateId);
+        if (asset.value.firstFileHandlerId) {
+            store.fileObjectId = asset.value.firstFileHandlerId;
+            store.objectId = asset.value.firstObjectId;
+        }
+    }
+});
 const props = defineProps<Props>();
 
 
