@@ -1,5 +1,5 @@
 <template>
-    <div v-html="fieldContents" ref="truncateText" :id="elementId"> </div>
+    <div v-html="fieldContents" ref="truncateText"> </div>
     <a href="#" @click.prevent="show = !show" v-if="isTruncated">Show More</a>
     <div v-if="show" v-html="fieldContents">
     </div>
@@ -8,6 +8,7 @@
 <script setup lang="ts">
 import { Widget } from "@/types";
 import { computed, ref, onMounted, onUnmounted, nextTick } from "vue";
+import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from 'shave';
 
 interface Props {
@@ -16,33 +17,31 @@ interface Props {
 }
 const props = defineProps<Props>();
 const show = ref(false);
-const truncateText = ref(HTMLDivElement);
+const truncateText = ref<HTMLDivElement | null>(null);
 const isTruncated = ref(false);
-const elementId = "f" + Math.floor(Math.random() * 100000000000).toString(36);
 
 
-onMounted(() => {
-    // some sorta race condition means sometimes the element can't be fetched with a querySelector
-    // during onMounted, need to wait for nextTick
-    nextTick(() => updateShave());
-    window.addEventListener('resize', () => {
-        updateShave();
-    });
-});
-onUnmounted(() => {
-    window.removeEventListener('resize', () => {
-        updateShave();
-    });
-});
+const debouncedShave = useDebounceFn(() => {
+    updateShave()
+}, 50)
 
 function updateShave() {
+    if (!truncateText.value) {
+        return;
+    }
     let shaveLength = 100;
     if (window.textTruncationLength !== undefined) {
         shaveLength = window.textTruncationLength;
     }
-    const selector = `#${elementId}`;
-    shave(selector, shaveLength);
-    isTruncated.value = document.querySelector(`${selector} .js-shave-char`) !== null;
+
+    shave([truncateText.value] as unknown as NodeList, shaveLength);
+    isTruncated.value = truncateText.value.querySelector<HTMLElement>(".js-shave") !== null
 }
+
+useResizeObserver(truncateText, debouncedShave);
+onMounted(() => {
+    updateShave();
+});
+
 
 </script>

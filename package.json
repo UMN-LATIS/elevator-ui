@@ -13,6 +13,7 @@
     "@fontsource/material-icons": "^4.5.4",
     "@mdx-js/react": "^2.1.2",
     "@storybook/client-api": "^6.5.9",
+    "@vueuse/core": "^9.1.0",
     "autolink-js": "^1.0.2",
     "axios": "^0.27.2",
     "pinia": "^2.0.17",
