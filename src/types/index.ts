@@ -40,3 +40,54 @@ export interface RelatedWidgetContents {
     "targetAssetId": string;
     "label": string;
 }
+
+                                  
+    
+export interface DateComponent {
+    "text": string;
+    "numeric": BigInt;
+}
+    
+export interface LocationComponent {
+    "type": string;
+    coordinates: number[];
+}
+export interface DateResult {
+    "start": DateComponent;
+    "end": DateComponent;
+    "loc": LocationComponent;
+    "label": string;
+    "fileId": string;
+    "fileType": string;
+    "sidecars": any;
+    "isPrimary": boolean;
+    "searchData": string;
+    "fileDescription": string;
+}
+
+export interface CollectionEntry {
+    "id": number;
+    "title": string;
+}
+
+export interface TemplateEntry {
+    "id": number;
+    "name": string;
+}
+export interface SearchResultEntry {
+    "title": string | string[];
+    "dates": DateResult[];
+    "locations": LocationComponent[];
+    "objectId": string;
+    "lastModified": string;
+    "collectionHierarchy": CollectionEntry[];
+    "template": TemplateEntry;
+    "entries": any[];
+}
+
+export interface SearchResult {
+    "totalResults": number;
+    "matches": SearchResultEntry[];
+    "searchResults": string[];
+    "searchId": string;
+}
