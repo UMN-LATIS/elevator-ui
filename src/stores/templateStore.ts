@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import { getTemplate } from "@/Helpers/displayUtils.ts";
+import { getTemplate } from "@/Helpers/displayUtils";
 export const useTemplateStore = defineStore("template", {
   state: () => {
     return {
