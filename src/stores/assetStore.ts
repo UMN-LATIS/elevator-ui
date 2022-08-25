@@ -1,11 +1,10 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-
-export const useAssetStore = defineStore('asset', {
+export const useAssetStore = defineStore("asset", {
   state: () => {
     return {
       objectId: null as string | null,
       fileObjectId: null as string | null,
-    }
-  }
-})
+    };
+  },
+});

@@ -1,7 +1,7 @@
 <template>
-    <a :href="getAssetLink(widget.targetAssetId)">
-        {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
-    </a>
+  <a :href="getAssetLink(widget.targetAssetId)">
+    {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
+  </a>
 </template>
 
 <script setup lang="ts">
@@ -10,12 +10,10 @@ import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 import { getAssetLink, getRelatedAssetTitle } from "@/Helpers/displayUtils";
 
 interface Props {
-    widget: Widget;
-    contents: RelatedWidgetContents;
-    assetCache: any;
+  widget: Widget;
+  contents: RelatedWidgetContents;
+  assetCache: any;
 }
 
 const props = defineProps<Props>();
-
-
 </script>

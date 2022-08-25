@@ -1,11 +1,10 @@
 import "../src/app.css";
 import "@fontsource/material-icons";
 
-import { app } from '@storybook/vue3';
-import { createPinia } from 'pinia';
+import { app } from "@storybook/vue3";
+import { createPinia } from "pinia";
 
 const pinia = createPinia();
-
 
 app.use(pinia);
 export const parameters = {

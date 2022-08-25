@@ -1,9 +1,9 @@
 <template>
-    <div>
-        {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
-        <ViewContainer :objectId="content.targetAssetId" :isPrimaryElement="false">
-        </ViewContainer>
-    </div>
+  <div>
+    {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
+    <ViewContainer :objectId="content.targetAssetId" :isPrimaryElement="false">
+    </ViewContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -13,19 +13,16 @@ import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
 import ViewContainer from "@/ViewComponents/ViewContainer.vue";
 
 interface Props {
-    widget: Widget;
-    content: RelatedWidgetContents;
-    assetCache: any;
+  widget: Widget;
+  content: RelatedWidgetContents;
+  assetCache: any;
 }
 
 const props = defineProps<Props>();
-
-
-
 </script>
 
 <style scoped>
 div {
-    border: 1px solid #ccc;
+  border: 1px solid #ccc;
 }
 </style>

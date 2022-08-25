@@ -8,11 +8,11 @@ export default {
   component: MultiSelectWidget,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -24,12 +24,12 @@ const Template = (args) => ({
   template: `<MultiSelectWidget v-bind="args"></MultiSelectWidget>`,
 });
 
-let field = "cascadeselect_1"
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "cascadeselect_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    contents: widgetContents,
-    widget: template
+  contents: widgetContents,
+  widget: template,
 };

@@ -5,9 +5,8 @@ export default {
   component: Asset,
   argTypes: {
     objectId: {
-        type: "string",
+      type: "string",
     },
-    
   },
 };
 
@@ -19,9 +18,7 @@ const Template = (args) => ({
   template: `<Asset v-bind="args"></Asset>`,
 });
 
-
-
 export const Default = Template.bind({});
 Default.args = {
-    objectId: "62e058363014725cb2193843",
+  objectId: "62e058363014725cb2193843",
 };

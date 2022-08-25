@@ -21,7 +21,6 @@ interface Props {
 const props = defineProps<Props>();
 </script>
 
-
 <style scoped>
 .squareItem {
   width: 100px;
@@ -43,7 +42,7 @@ ul {
   display: block;
 }
 
-ul li+li:before {
+ul li + li:before {
   content: none;
 }
 
@@ -52,6 +51,5 @@ ul li+li:before {
   width: 100px;
   height: 100px;
   display: inline;
-
 }
 </style>

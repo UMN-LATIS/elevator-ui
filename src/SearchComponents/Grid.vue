@@ -1,9 +1,12 @@
 <template>
-    <div class="grid">
-        <SearchResultItem v-for="searchResultItem in searchResults.matches" :key="searchResultItem.objectId"
-            :searchResult="searchResultItem">
-        </SearchResultItem>
-    </div>
+  <div class="grid">
+    <SearchResultItem
+      v-for="searchResultItem in searchResults.matches"
+      :key="searchResultItem.objectId"
+      :searchResult="searchResultItem"
+    >
+    </SearchResultItem>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -11,18 +14,16 @@ import { SearchResult } from "@/types";
 import SearchResultItem from "@/SearchComponents/SearchResultItem.vue";
 
 interface Props {
-    searchResults: SearchResult;
+  searchResults: SearchResult;
 }
 
 const props = defineProps<Props>();
-
 </script>
 
 <style scoped>
 .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-gap: 10px;
-
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 10px;
 }
 </style>

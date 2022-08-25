@@ -14,12 +14,10 @@
 <script setup lang="ts">
 import { Widget, WidgetContents } from "@/types";
 
-
 interface Props {
   widget: Widget;
   contents: WidgetContents[];
 }
 
 const props = defineProps<Props>();
-
 </script>

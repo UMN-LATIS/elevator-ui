@@ -8,11 +8,11 @@ export default {
   component: TagWidget,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -24,21 +24,21 @@ const Template = (args) => ({
   template: `<TagWidget v-bind="args"></TagWidget>`,
 });
 
-let field = "sometags_1"
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "sometags_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    contents: widgetContents,
-    widget: template
+  contents: widgetContents,
+  widget: template,
 };
 
-let templateWithLinks = JSON.parse(JSON.stringify(template));
+const templateWithLinks = JSON.parse(JSON.stringify(template));
 templateWithLinks.clickToSearch = true;
 
 export const ClickToSearch = Template.bind({});
 ClickToSearch.args = {
-    contents: widgetContents,
-    widget: templateWithLinks
+  contents: widgetContents,
+  widget: templateWithLinks,
 };
