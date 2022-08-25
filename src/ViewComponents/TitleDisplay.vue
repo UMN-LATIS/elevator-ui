@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import { getTitleWidget } from '@/Helpers/displayUtils';
 import Link from '@/Helpers/Link/Link.vue';
 interface Props {
