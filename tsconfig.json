@@ -9,19 +9,25 @@
     "moduleResolution": "Node",
     "noImplicitAny": false,
     "allowJs": true,
+    "skipLibCheck": true,
     "baseUrl": "src",
     // this enables the use of `import` statements in TypeScript files
     // like `import { Component } from '@/components';
     // requires `tsconfig-paths-webpack-plugin` in order to work
     // with webpack's `alias` feature
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["*"],
+      // this is to prevent an issue with storybook interpreting
+      // a vue file as react
+      // @see: https://github.com/johnsoncodehk/volar/discussions/592#discussioncomment-2163181
+      "react": ["./types/stub-react.d.ts"]
     },
     "sourceMap": true,
     "types": [
       "vite/client" // if using vite
-      // ...
+
     ],
+
     "exclude": ["**/*.stories.ts"]
   },
   "include": ["src"],
