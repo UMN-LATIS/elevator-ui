@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,700;1,300;1,700&display=swap');
+
+body {
+  font-family: Prompt, sans-serif;
+  color: #111;
+}
+
 .assetWidget ul {
   display: inline;
   list-style: none;
