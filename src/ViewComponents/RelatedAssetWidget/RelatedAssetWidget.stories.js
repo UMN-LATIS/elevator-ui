@@ -8,14 +8,14 @@ export default {
   component: RelatedAssetWidget,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
+      type: "object",
     },
     asset: {
-      type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -27,7 +27,7 @@ const Template = (args) => ({
   template: `<RelatedAssetWidget v-bind="args"></RelatedAssetWidget>`,
 });
 
-let field = "relatedstuff_1"
+let field = "relatedstuff_1";
 let widgetContents = mockAsset[field];
 let template = getField(mockTemplate, field);
 
@@ -35,9 +35,9 @@ let collapseItem = JSON.parse(JSON.stringify(template));
 collapseItem.fieldData.collapseNestedChildren = true;
 export const CollapsedInlineRelatedAsset = Template.bind({});
 CollapsedInlineRelatedAsset.args = {
-    contents: widgetContents,
-    widget: collapseItem,
-    asset: mockAsset
+  contents: widgetContents,
+  widget: collapseItem,
+  asset: mockAsset,
 };
 
 let templateThumb = JSON.parse(JSON.stringify(template));
@@ -45,20 +45,19 @@ templateThumb.fieldData.collapseNestedChildren = false;
 templateThumb.fieldData.thumbnailView = true;
 export const ThumbnailView = Template.bind({});
 ThumbnailView.args = {
-    contents: widgetContents,
-    widget: templateThumb,
-    asset: mockAsset
+  contents: widgetContents,
+  widget: templateThumb,
+  asset: mockAsset,
 };
-
 
 let linkedItem = JSON.parse(JSON.stringify(template));
 linkedItem.fieldData.nestData = false;
 linkedItem.fieldData.collapseNestedChildren = false;
 export const LinkedItemRelatedAsset = Template.bind({});
 LinkedItemRelatedAsset.args = {
-    contents: widgetContents,
-    widget: linkedItem,
-    asset: mockAsset
+  contents: widgetContents,
+  widget: linkedItem,
+  asset: mockAsset,
 };
 
 let togglePanel = JSON.parse(JSON.stringify(template));
@@ -67,8 +66,7 @@ togglePanel.fieldData.collapseNestedChildren = false;
 togglePanel.fieldData.thumbnailView = false;
 export const TogglePanelRelatedAsset = Template.bind({});
 TogglePanelRelatedAsset.args = {
-    contents: widgetContents,
-    widget: togglePanel,
-    asset: mockAsset
+  contents: widgetContents,
+  widget: togglePanel,
+  asset: mockAsset,
 };
-

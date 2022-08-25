@@ -7,14 +7,14 @@ export default {
   component: ViewContainer,
   argTypes: {
     asset: {
-        type: "object",
+      type: "object",
     },
     template: {
-      type: "object"
+      type: "object",
     },
     isPrimaryElement: {
-        type: "boolean"
-    }
+      type: "boolean",
+    },
   },
 };
 
@@ -26,10 +26,9 @@ const Template = (args) => ({
   template: `<ViewContainer v-bind="args"></ViewContainer>`,
 });
 
-
 export const Default = Template.bind({});
 Default.args = {
   asset: mockAsset,
   template: mockTemplate,
-  isPrimaryElement: true
+  isPrimaryElement: true,
 };

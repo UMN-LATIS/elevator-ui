@@ -7,11 +7,11 @@ export default {
   component: Link,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     linkText: {
-        type: "string"
-    }
+      type: "string",
+    },
   },
 };
 
@@ -23,11 +23,11 @@ const Template = (args) => ({
   template: `<Link v-bind="args"></Link>`,
 });
 
-let field = "title_1"
+let field = "title_1";
 let template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    linkText: "My Text",
-    widget: template
+  linkText: "My Text",
+  widget: template,
 };

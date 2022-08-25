@@ -8,11 +8,11 @@ export default {
   component: CheckBoxWidget,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -24,20 +24,20 @@ const Template = (args) => ({
   template: `<CheckBoxWidget v-bind="args"></CheckBoxWidget>`,
 });
 
-let field = "coolstuff_1"
+let field = "coolstuff_1";
 let widgetContents = mockAsset[field];
 let template = getField(mockTemplate, field);
 
 export const Checked = Template.bind({});
 Checked.args = {
-    contents: widgetContents,
-    widget: template
+  contents: widgetContents,
+  widget: template,
 };
 
 let widgetContentsUncheck = JSON.parse(JSON.stringify(widgetContents));
 widgetContentsUncheck[0].fieldContents = false;
 export const UnChecked = Template.bind({});
 UnChecked.args = {
-    contents: widgetContentsUncheck,
-    widget: template
+  contents: widgetContentsUncheck,
+  widget: template,
 };

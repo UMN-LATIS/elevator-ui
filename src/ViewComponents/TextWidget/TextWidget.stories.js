@@ -8,11 +8,11 @@ export default {
   component: TextWidget,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -24,14 +24,14 @@ const Template = (args) => ({
   template: `<TextWidget v-bind="args"></TextWidget>`,
 });
 
-let field = "title_1"
+let field = "title_1";
 let widgetContents = mockAsset[field];
 let template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    contents: widgetContents,
-    widget: template
+  contents: widgetContents,
+  widget: template,
 };
 
 let templateWithoutLink = JSON.parse(JSON.stringify(template));
@@ -42,6 +42,6 @@ contentWithLink[0].fieldContents = "http://www.fun.com";
 
 export const AutoLink = Template.bind({});
 AutoLink.args = {
-    contents: contentWithLink,
-    widget: templateWithoutLink
+  contents: contentWithLink,
+  widget: templateWithoutLink,
 };

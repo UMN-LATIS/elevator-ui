@@ -8,11 +8,11 @@ export default {
   component: DateWidget,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -24,12 +24,12 @@ const Template = (args) => ({
   template: `<DateWidget v-bind="args"></TextWidget>`,
 });
 
-let field = "creation_1"
+let field = "creation_1";
 let widgetContents = mockAsset[field];
 let template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    contents: widgetContents,
-    widget: template
+  contents: widgetContents,
+  widget: template,
 };

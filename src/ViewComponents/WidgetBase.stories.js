@@ -8,11 +8,11 @@ export default {
   component: WidgetBase,
   argTypes: {
     widget: {
-        type: "object",
+      type: "object",
     },
     contents: {
-        type: "object"
-    }
+      type: "object",
+    },
   },
 };
 
@@ -24,14 +24,13 @@ const Template = (args) => ({
   template: `<WidgetBase v-bind="args"></WidgetBase>`,
 });
 
-let field = "title_1"
+let field = "title_1";
 let widgetContents = mockAsset[field];
 let template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
-    contents: widgetContents,
-    widget: template,
-    asset: mockAsset
+  contents: widgetContents,
+  widget: template,
+  asset: mockAsset,
 };
-

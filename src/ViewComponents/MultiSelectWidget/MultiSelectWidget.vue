@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { Widget, WidgetContents } from "@/types";
 import MultiSelectItem from "@/ViewComponents/MultiSelectWidget/MultiSelectItem.vue";
 
@@ -17,7 +16,4 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-
-
 </script>

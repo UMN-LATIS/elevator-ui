@@ -1,8 +1,9 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <Link :widget="widget" :linkText="content.fieldContents"><span
-        v-html="autolinkText(content.fieldContents)"></span></Link>
+      <Link :widget="widget" :linkText="content.fieldContents"
+        ><span v-html="autolinkText(content.fieldContents)"></span
+      ></Link>
     </li>
   </ul>
 </template>
@@ -23,8 +24,7 @@ function autolinkText(text: string): string {
   // if this text contains tags, just leave it as is
   if (textWithStrippedTags != text) {
     return text;
-  }
-  else {
+  } else {
     //otherwise, try to autolink urls
     return text.replace(
       /(https?:\/\/[a-zA-Z0-9\-_.:@!~*'(¥);/?&=+$,%#]+)/g,
@@ -32,5 +32,4 @@ function autolinkText(text: string): string {
     );
   }
 }
-
 </script>

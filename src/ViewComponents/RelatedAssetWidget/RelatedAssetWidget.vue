@@ -1,7 +1,12 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <component :is="type" :content="content" :widget="widget" :assetCache="getAssetCache(content)"></component>
+      <component
+        :is="type"
+        :content="content"
+        :widget="widget"
+        :assetCache="getAssetCache(content)"
+      ></component>
     </li>
   </ul>
 </template>
@@ -14,14 +19,11 @@ import TogglePanelRelatedAsset from "@/ViewComponents/RelatedAssetWidget/ToggleP
 import { Widget, RelatedWidgetContents } from "@/types";
 import { computed } from "vue";
 
-
 const components = {
   CollapsedInlineRelatedAsset,
   LinkedItemRelatedAsset,
-  ThumbnailRelatedAsset
+  ThumbnailRelatedAsset,
 };
-
-
 
 interface Props {
   widget: Widget;
@@ -43,13 +45,9 @@ const type = computed(() => {
   }
 
   return TogglePanelRelatedAsset;
-
-
-
 });
 
 const getAssetCache = (content) => {
-  return props.asset.relatedAssetCache[content.targetAssetId]
+  return props.asset.relatedAssetCache[content.targetAssetId];
 };
-
 </script>

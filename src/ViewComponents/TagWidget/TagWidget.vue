@@ -3,11 +3,9 @@
     <li v-for="(content, key) in contents" :key="key">
       <ul class="taglist">
         <li v-for="tag in content.tags" :key="tag">
-          <Link :widget="widget" :linkText="tag">{{ tag }}
-          </Link>
+          <Link :widget="widget" :linkText="tag">{{ tag }} </Link>
         </li>
       </ul>
-
     </li>
   </ul>
 </template>
@@ -22,7 +20,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 </script>
 
 <style scoped>
@@ -37,7 +34,7 @@ const props = defineProps<Props>();
   display: inline;
 }
 
-.taglist li+li:before {
+.taglist li + li:before {
   content: ", ";
 }
 </style>
