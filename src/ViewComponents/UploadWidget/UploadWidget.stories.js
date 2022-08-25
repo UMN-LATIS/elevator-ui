@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<UploadWidget v-bind="args"></UploadWidget>`,
 });
 
-let field = "image_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "image_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

@@ -27,11 +27,11 @@ const Template = (args) => ({
   template: `<RelatedAssetWidget v-bind="args"></RelatedAssetWidget>`,
 });
 
-let field = "relatedstuff_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "relatedstuff_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
-let collapseItem = JSON.parse(JSON.stringify(template));
+const collapseItem = JSON.parse(JSON.stringify(template));
 collapseItem.fieldData.collapseNestedChildren = true;
 export const CollapsedInlineRelatedAsset = Template.bind({});
 CollapsedInlineRelatedAsset.args = {
@@ -40,7 +40,7 @@ CollapsedInlineRelatedAsset.args = {
   asset: mockAsset,
 };
 
-let templateThumb = JSON.parse(JSON.stringify(template));
+const templateThumb = JSON.parse(JSON.stringify(template));
 templateThumb.fieldData.collapseNestedChildren = false;
 templateThumb.fieldData.thumbnailView = true;
 export const ThumbnailView = Template.bind({});
@@ -50,7 +50,7 @@ ThumbnailView.args = {
   asset: mockAsset,
 };
 
-let linkedItem = JSON.parse(JSON.stringify(template));
+const linkedItem = JSON.parse(JSON.stringify(template));
 linkedItem.fieldData.nestData = false;
 linkedItem.fieldData.collapseNestedChildren = false;
 export const LinkedItemRelatedAsset = Template.bind({});
@@ -60,7 +60,7 @@ LinkedItemRelatedAsset.args = {
   asset: mockAsset,
 };
 
-let togglePanel = JSON.parse(JSON.stringify(template));
+const togglePanel = JSON.parse(JSON.stringify(template));
 togglePanel.fieldData.nestData = true;
 togglePanel.fieldData.collapseNestedChildren = false;
 togglePanel.fieldData.thumbnailView = false;

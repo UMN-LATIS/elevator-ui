@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<TextAreaWidget v-bind="args"></TextAreaWidget>`,
 });
 
-let field = "bigtext_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "bigtext_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

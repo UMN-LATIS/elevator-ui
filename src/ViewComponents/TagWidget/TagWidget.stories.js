@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<TagWidget v-bind="args"></TagWidget>`,
 });
 
-let field = "sometags_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "sometags_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
@@ -34,7 +34,7 @@ Default.args = {
   widget: template,
 };
 
-let templateWithLinks = JSON.parse(JSON.stringify(template));
+const templateWithLinks = JSON.parse(JSON.stringify(template));
 templateWithLinks.clickToSearch = true;
 
 export const ClickToSearch = Template.bind({});

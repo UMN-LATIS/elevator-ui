@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<WidgetBase v-bind="args"></WidgetBase>`,
 });
 
-let field = "title_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "title_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

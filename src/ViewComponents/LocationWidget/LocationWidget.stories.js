@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<LocationWidget v-bind="args"></LocationWidget>`,
 });
 
-let field = "location_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "location_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
@@ -34,7 +34,7 @@ Default.args = {
   widget: template,
 };
 
-let widgetContentsNoLabel = JSON.parse(JSON.stringify(widgetContents));
+const widgetContentsNoLabel = JSON.parse(JSON.stringify(widgetContents));
 widgetContentsNoLabel[0].locationLabel = "";
 export const NoLabel = Template.bind({});
 NoLabel.args = {
@@ -42,7 +42,9 @@ NoLabel.args = {
   widget: template,
 };
 
-let widgetContentsNoAddress = JSON.parse(JSON.stringify(widgetContentsNoLabel));
+const widgetContentsNoAddress = JSON.parse(
+  JSON.stringify(widgetContentsNoLabel)
+);
 widgetContentsNoAddress[0].address = "";
 export const NoAddress = Template.bind({});
 NoAddress.args = {

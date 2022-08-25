@@ -23,8 +23,8 @@ const Template = (args) => ({
   template: `<Link v-bind="args"></Link>`,
 });
 
-let field = "title_1";
-let template = getField(mockTemplate, field);
+const field = "title_1";
+const template = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

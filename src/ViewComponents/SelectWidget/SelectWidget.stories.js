@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<SelectWidget v-bind="args"></SelectWidget>`,
 });
 
-let field = "globalsearch_1";
-let widgetContents = mockAsset[field];
-let widget = getField(mockTemplate, field);
+const field = "globalsearch_1";
+const widgetContents = mockAsset[field];
+const widget = getField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
@@ -34,7 +34,7 @@ Default.args = {
   widget: widget,
 };
 
-let widgetContentsWithMultipleValues = JSON.parse(
+const widgetContentsWithMultipleValues = JSON.parse(
   JSON.stringify(widgetContents)
 );
 widgetContentsWithMultipleValues[0].fieldContents = ["option 1", "option 2"];
@@ -45,7 +45,7 @@ MultipleSelections.args = {
   widget: widget,
 };
 
-let widgetWithKVPairs = JSON.parse(JSON.stringify(widget));
+const widgetWithKVPairs = JSON.parse(JSON.stringify(widget));
 widgetWithKVPairs.fieldData.selectGroup = {
   "option 1": "many values go here good friend",
   "option 2": "but some good here",

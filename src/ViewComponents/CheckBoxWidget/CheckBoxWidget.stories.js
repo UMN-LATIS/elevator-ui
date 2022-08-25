@@ -24,9 +24,9 @@ const Template = (args) => ({
   template: `<CheckBoxWidget v-bind="args"></CheckBoxWidget>`,
 });
 
-let field = "coolstuff_1";
-let widgetContents = mockAsset[field];
-let template = getField(mockTemplate, field);
+const field = "coolstuff_1";
+const widgetContents = mockAsset[field];
+const template = getField(mockTemplate, field);
 
 export const Checked = Template.bind({});
 Checked.args = {
@@ -34,7 +34,7 @@ Checked.args = {
   widget: template,
 };
 
-let widgetContentsUncheck = JSON.parse(JSON.stringify(widgetContents));
+const widgetContentsUncheck = JSON.parse(JSON.stringify(widgetContents));
 widgetContentsUncheck[0].fieldContents = false;
 export const UnChecked = Template.bind({});
 UnChecked.args = {

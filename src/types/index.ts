@@ -41,7 +41,7 @@ export interface RelatedWidgetContents {
 
 export interface DateComponent {
   text: string;
-  numeric: BigInt;
+  numeric: bigint;
 }
 
 export interface LocationComponent {
