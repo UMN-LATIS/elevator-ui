@@ -4,7 +4,7 @@
 
 body {
   font-family: Inter, sans-serif;
-  color: #111;
+  color: #171717;
 }
 
 @supports (font-variation-settings: normal) {
@@ -44,11 +44,14 @@ body {
   }
 }
 
-
-
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+.material-icons-outlined,
+.material-icons {
+  font-family: 'Material Icons';
 }
+
+/* .material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+} */
 
 /**
 * text will write vertically from bottom to top

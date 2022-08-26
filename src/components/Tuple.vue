@@ -15,7 +15,7 @@
       >{{ label }}</span
     >
     <span
-      class="tuple__value block"
+      class="tuple__value block text-neutral-600"
       :class="{
         'col-span-2': variant === 'inline',
       }"
