@@ -1,8 +1,93 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,700;1,300;1,700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-  font-family: Prompt, sans-serif;
+  font-family: Inter, sans-serif;
   color: #111;
+}
+
+@supports (font-variation-settings: normal) {
+  body {
+    font-family: "InterVariable";
+    font-variation-settings: "wght" 400;
+  }
+}
+
+@layer utilities {
+  .font-thin {
+      font-variation-settings: 'wght' 100;
+  }
+  .font-extralight {
+      font-variation-settings: 'wght' 200;
+  }
+  .font-light {
+      font-variation-settings: 'wght' 300;
+  }
+  .font-normal {
+      font-variation-settings: 'wght' 400;
+  }
+  .font-medium {
+      font-variation-settings: 'wght' 500;
+  }
+  .font-semibold {
+      font-variation-settings: 'wght' 600;
+  }
+  .font-bold {
+      font-variation-settings: 'wght' 700;
+  }
+  .font-extrabold {
+      font-variation-settings: 'wght' 800;
+  }
+  .font-black {
+      font-variation-settings: 'wght' 900;
+  }
+}
+
+
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+}
+
+/**
+* text will write vertically from bottom to top
+*/
+.sideways {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: #1e40af;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/**
+* adapted from from a11y project's `visually-hidden` class
+* changed from `absolute` to `fixed` positioning
+* to avoid an issue when using this within a flexbox
+**/
+.visually-hidden,
+.sr-only {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .assetWidget ul {

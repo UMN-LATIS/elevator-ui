@@ -3,7 +3,6 @@ import Button from "./Button.vue";
 import { Meta, StoryFn } from "@storybook/vue3";
 
 export default {
-  title: "Button",
   component: Button,
 } as Meta<typeof Button>;
 
