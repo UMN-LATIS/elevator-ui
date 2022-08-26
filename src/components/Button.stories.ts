@@ -20,24 +20,20 @@ Primary.args = {
   variant: "primary",
 };
 
-//👇 Each story then reuses that template
-export const PrimaryIcon = Template.bind({});
-PrimaryIcon.args = {
-  slot: "Primary Button",
-  variant: "primary",
-  icon: "arrow_forward",
-};
-
-export const PrimaryIconLink = Template.bind({});
-PrimaryIconLink.args = {
-  slot: "Primary Link",
-  variant: "primary",
-  icon: "launch",
-  href: "https://umn.edu",
-};
-
 export const Secondary = Template.bind({});
 Secondary.args = { slot: "Secondary Button", variant: "secondary" };
 
 export const Tertiary = Template.bind({});
 Tertiary.args = { slot: "Tertiary Button", variant: "tertiary" };
+
+export const withIcon = Template.bind({});
+withIcon.args = {
+  slot: "Button with Icon",
+  icon: "arrow_forward",
+};
+
+export const asLink = Template.bind({});
+asLink.args = {
+  slot: "Link appears as Button",
+  href: "https://umn.edu",
+};

@@ -3,7 +3,7 @@
     :is="href ? 'a' : 'button'"
     :href="href"
     :title="label"
-    class="inline-flex items-center gap-2 no-underline hover:no-underline p-4 rounded-md border-2 border-neutral-900 justify-center leading-none"
+    class="inline-flex items-center gap-2 no-underline hover:no-underline p-4 rounded-md border-2 border-neutral-900 justify-center leading-none text-neutral-900"
     :class="{
       'bg-neutral-900 text-white': variant === 'primary',
       'border-neutral-100 uppercase text-xs font-bold bg-neutral-100 hover:bg-neutral-200 transition-colors ease-in-out':
