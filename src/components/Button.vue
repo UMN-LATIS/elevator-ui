@@ -25,7 +25,7 @@ withDefaults(
     icon?: string;
     label?: string;
     href?: string;
-    variant: "primary" | "secondary" | "tertiary";
+    variant?: "primary" | "secondary" | "tertiary";
   }>(),
   {
     icon: undefined,
