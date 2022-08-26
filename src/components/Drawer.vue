@@ -1,96 +1,49 @@
 <template>
-  <div
-    class="drawer min-h-full flex sm:max-w-[50%] md:max-w-[33%] lg:max-w-[25%]"
+  <section
+    class="drawer bg-neutral-100 w-[28rem] absolute bottom-0 left-0"
     :class="{
-      'bg-neutral-50': color === 'light',
-      'bg-neutral-300': color === 'gray',
-      'drawer--color-dark bg-neutral-800': color === 'dark',
+      'h-full': isOpen,
     }"
   >
     <header
-      class="sideways hidden sm:flex gap-8 items-center justify-start p-2 2xl:px-4 whitespace-nowrap cursor-pointer bg-transparent-black-100"
+      class="flex justify-between bg-neutral-900 text-white"
       :class="{
-        invert: color === 'dark',
+        'items-baseline p-4': isOpen,
+        'items-center ': !isOpen,
       }"
-      aria-role="button"
-      @click="$emit('toggle')"
     >
-      <div class="flex gap-4 items-center justify-start">
-        <div class="rounded-full p-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            :class="{
-              'rotate-180': isOpen,
-            }"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </div>
-        <h1 class="font-bold uppercase tracking-wider">
-          {{ label }}
-        </h1>
-      </div>
-      <ul
-        v-if="details"
-        class="text-sm flex content-center gap-4 text-neutral-500 overflow-hidden"
+      <h1
+        class="font-bold relative"
         :class="{
-          hidden: isOpen,
+          'text-3xl p-4': isOpen,
+          'p-4': !isOpen,
         }"
       >
-        <li v-for="(item, i) in details" :key="i">
-          {{ item }}
-        </li>
-      </ul>
+        {{ label }}
+      </h1>
+      <button
+        class="flex place-content-center p-4 leading-none"
+        @click="isOpen = !isOpen"
+      >
+        <span class="material-icons">
+          {{ isOpen ? "expand_more" : "expand_less" }}
+        </span>
+        <span class="sr-only">
+          {{ isOpen ? "Close" : "Open" }}
+        </span>
+      </button>
     </header>
-
-    <article
-      class="p-4 overflow-y-auto w-full"
-      :class="{
-        invert: color === 'dark',
-        'sm:hidden': !isOpen,
-      }"
-    >
-      <SectionHeading>{{ label }}</SectionHeading>
-      <div class="text-neutral-500 flex flex-col gap-8">
-        <slot />
-      </div>
-    </article>
-  </div>
+    <div v-show="isOpen" class="text-neutral-500 flex flex-col gap-8 p-8">
+      <slot />
+    </div>
+  </section>
 </template>
 <script setup lang="ts">
-import SectionHeading from "./SectionHeading.vue";
+import { ref } from "vue";
 
-withDefaults(
-  defineProps<{
-    isOpen: boolean;
-    color: "light" | "dark" | "gray";
-    label: string;
-    details?: string[];
-    size?: "xs" | "sm" | "md" | "lg";
-  }>(),
-  {
-    isOpen: false,
-    color: "gray",
-    details: () => [],
-    size: "sm",
-  }
-);
-
-defineEmits<{
-  (eventName: "toggle"): void;
+defineProps<{
+  label: string;
 }>();
+
+const isOpen = ref(true);
 </script>
-<style>
-.drawer--color-dark img {
-  filter: invert(1);
-}
-</style>
