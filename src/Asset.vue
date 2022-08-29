@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container" v-if="asset && template">
+  <div v-if="asset && template" class="flex-container">
     <div class="flex-child">
       <DigitalAssetContainer />
       <ViewWrapper v-if="store.objectId" :objectId="store.objectId" />
@@ -16,9 +16,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "@vue/runtime-core";
+import { onMounted } from "vue";
 import { ref } from "vue";
-import { getAsset, getTemplate } from "@/Helpers/displayUtils";
+import { getAsset } from "@/Helpers/displayUtils";
 import ViewContainer from "@/ViewComponents/ViewContainer.vue";
 import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 import DigitalAssetContainer from "@/ViewComponents/DigitalAssetContainer.vue";
@@ -41,9 +41,9 @@ const template: any = ref(null);
 
 onMounted(async () => {
   asset.value = await getAsset(props.objectId);
-  if (asset && asset.value && asset.value.templateId) {
+  if (asset.value?.templateId) {
     template.value = await templateStore.loadTemplate(asset.value.templateId);
-    if (asset.value.firstFileHandlerId) {
+    if (asset.value?.firstFileHandlerId) {
       store.fileObjectId = asset.value.firstFileHandlerId;
       store.objectId = asset.value.firstObjectId;
     }
@@ -58,7 +58,7 @@ const props = defineProps<Props>();
 }
 .flex-child {
   flex: 1;
-  margin-let: 1em;
+  margin-left: 1em;
   margin-right: 1em;
 }
 </style>
