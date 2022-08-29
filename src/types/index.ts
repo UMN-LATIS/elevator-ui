@@ -18,7 +18,7 @@ export interface Widget {
   fieldTitle: string;
   label: string;
   tooltip: string;
-  fieldData: any;
+  fieldData: unknown;
   display: boolean;
   displayInPreview: boolean;
   required: boolean;
@@ -30,7 +30,7 @@ export interface Widget {
 
 export interface WidgetContents {
   isPrimary: boolean;
-  fieldContents: any;
+  fieldContents: unknown;
 }
 
 export interface RelatedWidgetContents {
@@ -55,7 +55,7 @@ export interface DateResult {
   label: string;
   fileId: string;
   fileType: string;
-  sidecars: any;
+  sidecars: unknown;
   isPrimary: boolean;
   searchData: string;
   fileDescription: string;
@@ -78,7 +78,7 @@ export interface SearchResultEntry {
   lastModified: string;
   collectionHierarchy: CollectionEntry[];
   template: TemplateEntry;
-  entries: any[];
+  entries: unknown[];
 }
 
 export interface SearchResult {
