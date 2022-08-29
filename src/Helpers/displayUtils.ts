@@ -1,4 +1,6 @@
 import axios from "axios";
+import { useTemplateStore } from "@/stores/templateStore";
+import { useAssetStore } from "@/stores/assetStore";
 
 declare global {
   interface Window {
@@ -61,7 +63,6 @@ export const getAsset = (assetId: string) => {
     });
 };
 
-import { useAssetStore } from "../stores/assetStore";
 const assetStore = useAssetStore();
 export const setAssetInStore = (
   fileObjectId: string,
@@ -87,7 +88,6 @@ export const getTemplate = (templateId: string) => {
     });
 };
 
-import { useTemplateStore } from "@/stores/templateStore";
 export const getTitleWidget = async (asset: any) => {
   const templateStore = useTemplateStore();
   const template = await templateStore.loadTemplate(asset.templateId);
