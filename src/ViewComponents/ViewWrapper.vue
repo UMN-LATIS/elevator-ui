@@ -19,9 +19,9 @@ const props = defineProps<Props>();
 
 onMounted(async () => {
     if (props.objectId) {
-        nestedAsset.value = await getAsset(props.objectId);
-        if (nestedAsset.value.templateId) {
-            nestedTemplate.value = await templateStore.loadTemplate(nestedAsset.value.templateId);
+        asset.value = await getAsset(props.objectId);
+        if (asset.value.templateId) {
+            template.value = await templateStore.loadTemplate(asset.value.templateId);
         }
 
     }

@@ -9,8 +9,8 @@
             getRelatedAssetTitle(assetCache.relatedAssetTitle)
             }}
         </a>
-        <ViewContainer v-if="show" :objectId="content.targetAssetId" :isPrimaryElement="false">
-        </ViewContainer>
+        <ViewWrapper v-if="show" :objectId="content.targetAssetId" :isPrimaryElement="false">
+        </ViewWrapper>
     </div>
 </template>
 
@@ -20,7 +20,7 @@ import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 import { getAssetLink, getRelatedAssetTitle, getTinyURL, getAsset, setAssetInStore } from "@/Helpers/displayUtils";
 import { onMounted, ref } from 'vue';
 import { useTemplateStore } from "@/stores/templateStore";
-import ViewContainer from "../ViewContainer.vue";
+import ViewWrapper from "../ViewWrapper.vue";
 
 const templateStore = useTemplateStore();
 
@@ -32,19 +32,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const nestedAsset: any = ref(null);
-const nestedTemplate = ref(null);
 const show = ref(false);
 
-onMounted(async () => {
-    if (props.content.targetAssetId) {
-        nestedAsset.value = await getAsset(props.content.targetAssetId);
-        if (nestedAsset.value.templateId) {
-            nestedTemplate.value = await templateStore.loadTemplate(nestedAsset.value.templateId);
-        }
-
-    }
-});
 
 
 </script>
