@@ -2,8 +2,8 @@
   <div v-if="template">
     <template v-for="widget in sortedWidgetArray" :key="widget.id">
       <div
-        class="assetWidget"
         v-if="widget.display && asset[widget.fieldTitle]"
+        class="assetWidget"
       >
         <WidgetBase
           :contents="asset[widget.fieldTitle]"
@@ -17,15 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useAssetStore } from "@/stores/assetStore";
-import { useTemplateStore } from "@/stores/templateStore";
+import { computed } from "vue";
 import { Widget } from "@/types";
-import { getAsset } from "@/Helpers/displayUtils";
 import WidgetBase from "./WidgetBase.vue";
-
-const store = useAssetStore();
-const templateStore = useTemplateStore();
 
 interface Props {
   template: any;
@@ -36,7 +30,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const sortedWidgetArray = computed((): Widget[] => {
-  const sortedArray = props.template.widgetArray.sort((a, b) => {
+  const sortedArray = [...props.template.widgetArray].sort((a, b) => {
     return a.viewOrder - b.viewOrder;
   });
   return sortedArray;
