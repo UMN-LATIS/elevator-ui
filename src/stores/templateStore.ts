@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
-
 import { getTemplate } from "@/Helpers/displayUtils";
+import type { Template } from "@/types";
+
 export const useTemplateStore = defineStore("template", {
   state: () => {
     return {
-      templates: [] as any[],
+      templates: [] as Template[],
     };
   },
   actions: {
