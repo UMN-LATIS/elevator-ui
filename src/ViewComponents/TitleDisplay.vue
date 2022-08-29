@@ -14,6 +14,6 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const titleWidget = getTitleWidget(props.asset);
+const titleWidget = await getTitleWidget(props.asset);
 const title = props.asset.title || "No Title";
 </script>
