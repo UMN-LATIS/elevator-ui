@@ -87,3 +87,36 @@ export interface SearchResult {
   searchResults: string[];
   searchId: string;
 }
+
+export interface DateTime {
+  date: string;
+  timezone_type: number;
+  timezone: string;
+}
+
+export interface RelatedAsset {
+  primaryHandler: unknown | null;
+  readyForDisplay: boolean;
+  relatedAssetTitle: string[];
+}
+export interface Asset {
+  templateId: number;
+  readyForDisplay: boolean;
+  collectionId: number;
+  availableAfter: unknown | null;
+  modified: DateTime;
+  modifiedBy: number;
+  createdBy: number;
+  deletedBy: number | null;
+  relatedAssetCache: Record<string, RelatedAsset>;
+  firstFileHandlerId?: string | null;
+  firstObjectId?: string | null;
+  titleObject: string;
+  [key: string]: unknown;
+}
+export interface Template {
+  teamplteId: string;
+  telmateName: string;
+  widgetArray: Widget[];
+  collections?: Record<string, string | unknown>;
+}
