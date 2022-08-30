@@ -30,6 +30,56 @@ export interface Widget {
   templateOrder: number;
 }
 
+interface WidgetWithoutFieldData extends Widget {
+  fieldData: [];
+}
+
+export type TextWidget = WidgetWithoutFieldData;
+export type CheckboxWidget = WidgetWithoutFieldData;
+export type DateWidget = WidgetWithoutFieldData;
+export type LocationWidget = WidgetWithoutFieldData;
+export type TagListWidget = WidgetWithoutFieldData;
+export type TextAreaWidget = WidgetWithoutFieldData;
+
+export interface MultiselectWidget extends Widget {
+  fieldData: Record<string, unknown>;
+}
+
+export interface RelatedAssetWidget extends Widget {
+  fieldData: {
+    nestData: boolean;
+    showLabel: boolean;
+    matchAgainst: number[];
+    displayInline: boolean;
+    thumbnailView: boolean;
+    defaultTemplate: number;
+    ignoreForDateSearch: boolean;
+    ignoreForDigitalAsset: boolean;
+    collapseNestedChildren: boolean;
+    ignoreForLocationSearch: boolean;
+  };
+}
+export interface SelectWidget extends Widget {
+  fieldData: {
+    multiSelect: boolean;
+    selectGroup: string[];
+  };
+}
+
+export interface UploadWidget extends Widget {
+  fieldData: {
+    extractDate?: boolean;
+    forceTiling?: boolean;
+    enableDendro?: boolean;
+    enableIframe?: boolean;
+    enableTiling?: boolean;
+    extractLocation?: boolean;
+    enableAnnotation?: boolean;
+    interactiveTranscript?: boolean;
+    ignoreForDigitalAsset?: boolean;
+  };
+}
+
 export interface WidgetContents {
   isPrimary: boolean;
   fieldContents: unknown;
