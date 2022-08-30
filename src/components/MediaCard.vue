@@ -10,7 +10,7 @@
         <li v-for="(item, i) in details" :key="i">{{ item }}</li>
       </ul>
       <div class="flex justify-end items-center my-2">
-        <IconButton
+        <Button
           :href="href"
           label="Read More"
           icon="arrow_forward"
@@ -22,7 +22,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import IconButton from "./IconButton.vue";
+import Button from "./Button.vue";
 import ThumbnailImage from "./ThumbnailImage.vue";
 
 withDefaults(
