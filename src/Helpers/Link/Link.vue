@@ -22,7 +22,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const linkURL = computed(() => {
-  let cleanedLinkText = props.linkText
+  const cleanedLinkText = props.linkText
     .trim()
     .replace("?", "")
     .replace("...", "");
