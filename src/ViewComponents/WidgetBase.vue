@@ -1,20 +1,19 @@
 <!-- todo need to fix all the hover state stuff, decide if that matters-->
 <template>
-  <label v-if="!shouldSuppress">
-    <div>{{ widget.label }}</div>
+  <Tuple v-if="!shouldSuppress" :label="widget.label">
     <component
-      v-if="getType(widget.type)"
       :is="components[getType(widget.type)]"
+      v-if="getType(widget.type)"
       :widget="widget"
       :contents="contents"
       :asset="asset"
     >
     </component>
-  </label>
+  </Tuple>
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents, WidgetType } from "@/types";
+import { Asset, Widget, WidgetContents, WidgetType } from "@/types";
 import TextWidget from "./TextWidget/TextWidget.vue";
 import TextAreaWidget from "./TextAreaWidget/TextAreaWidget.vue";
 import CheckBoxWidget from "./CheckBoxWidget/CheckBoxWidget.vue";
@@ -27,11 +26,12 @@ import RelatedAssetWidget from "./RelatedAssetWidget/RelatedAssetWidget.vue";
 import TagWidget from "./TagWidget/TagWidget.vue";
 import { getTitleWidget } from "@/Helpers/displayUtils";
 import { onMounted, ref } from "vue";
+import Tuple from "@/components/Tuple.vue";
 
 interface Props {
   widget: Widget;
   contents: WidgetContents[];
-  asset: any;
+  asset: Asset;
 }
 
 const props = defineProps<Props>();
@@ -86,13 +86,3 @@ function getType(widgetType) {
   return widgetMap[widgetType] ?? false;
 }
 </script>
-
-<style scoped>
-label div {
-  font-weight: bold;
-  font-size: 1.1em;
-  margin-bottom: 0.4em;
-  color: gray;
-  font-family: "Roboto", sans-serif;
-}
-</style>
