@@ -16,19 +16,13 @@ import CollapsedInlineRelatedAsset from "@/ViewComponents/RelatedAssetWidget/Col
 import LinkedItemRelatedAsset from "@/ViewComponents/RelatedAssetWidget/LinkedItemRelatedAsset.vue";
 import ThumbnailRelatedAsset from "@/ViewComponents/RelatedAssetWidget/ThumbnailRelatedAsset.vue";
 import TogglePanelRelatedAsset from "@/ViewComponents/RelatedAssetWidget/TogglePanelRelatedAsset.vue";
-import { Widget, RelatedWidgetContents } from "@/types";
+import { RelatedAssetWidget, RelatedWidgetContents, Asset } from "@/types";
 import { computed } from "vue";
 
-const components = {
-  CollapsedInlineRelatedAsset,
-  LinkedItemRelatedAsset,
-  ThumbnailRelatedAsset,
-};
-
 interface Props {
-  widget: Widget;
+  widget: RelatedAssetWidget;
   contents: RelatedWidgetContents[];
-  asset: any;
+  asset: Asset;
 }
 
 const props = defineProps<Props>();

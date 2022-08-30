@@ -41,7 +41,7 @@ export type LocationWidget = WidgetWithoutFieldData;
 export type TagListWidget = WidgetWithoutFieldData;
 export type TextAreaWidget = WidgetWithoutFieldData;
 
-export interface MultiselectWidget extends Widget {
+export interface MultiSelectWidget extends Widget {
   fieldData: Record<string, unknown>;
 }
 

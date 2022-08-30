@@ -13,11 +13,11 @@
 <script setup lang="ts">
 import { recursiveSort, uniqueValues } from "./MultiSelectWidget";
 import { computed } from "vue";
-import { Widget, WidgetContents } from "@/types";
+import { WidgetContents, MultiSelectWidget } from "@/types";
 import Link from "@/Helpers/Link/Link.vue";
 
 interface Props {
-  widget: Widget;
+  widget: MultiSelectWidget;
   content: WidgetContents;
 }
 
@@ -28,7 +28,7 @@ const organizedSelectCategories = computed(() => {
 });
 
 const contentsUpToCategory = (targetCategory) => {
-  let returnValue: string[] = [];
+  const returnValue: string[] = [];
   for (const category of organizedSelectCategories.value) {
     returnValue.push(props.content.fieldContents[category]);
     if (category == targetCategory) {
