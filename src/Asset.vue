@@ -1,10 +1,10 @@
 <template>
-  <div v-if="asset && template" class="flex-container">
-    <div class="flex-child">
+  <div v-if="asset && template" class="grid grid-cols-2 gap-8">
+    <div>
       <DigitalAssetContainer />
       <ViewWrapper v-if="assetStore.objectId" :objectId="assetStore.objectId" />
     </div>
-    <div class="flex-child">
+    <div>
       <TitleDisplay :asset="asset"></TitleDisplay>
       <ViewContainer
         :asset="asset"
@@ -54,14 +54,3 @@ onMounted(async () => {
 });
 const props = defineProps<Props>();
 </script>
-
-<style scoped>
-.flex-container {
-  display: flex;
-}
-.flex-child {
-  flex: 1;
-  margin-left: 1em;
-  margin-right: 1em;
-}
-</style>
