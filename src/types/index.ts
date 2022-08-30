@@ -177,6 +177,10 @@ export interface UploadWidgetContents extends WidgetContents {
   sidecars: unknown; // object
 }
 
+export interface MultiSelectWidgetContents extends WidgetContents {
+  fieldContents: object;
+}
+
 export interface DateComponent {
   text: string;
   numeric: bigint;
