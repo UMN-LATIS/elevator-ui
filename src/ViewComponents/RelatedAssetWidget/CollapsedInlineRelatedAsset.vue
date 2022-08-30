@@ -1,28 +1,19 @@
 <template>
   <div>
     {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
-    <ViewContainer :objectId="content.targetAssetId" :isPrimaryElement="false">
-    </ViewContainer>
+    <ViewWrapper :objectId="content.targetAssetId" :isPrimaryElement="false">
+    </ViewWrapper>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedWidgetContents } from "@/types";
-import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
+import { Widget, RelatedWidgetContents, RelatedAsset } from "@/types";
 import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
-import ViewContainer from "@/ViewComponents/ViewContainer.vue";
+import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 
-interface Props {
+defineProps<{
   widget: Widget;
   content: RelatedWidgetContents;
-  assetCache: any;
-}
-
-const props = defineProps<Props>();
+  assetCache: RelatedAsset;
+}>();
 </script>
-
-<style scoped>
-div {
-  border: 1px solid #ccc;
-}
-</style>

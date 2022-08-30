@@ -1,19 +1,16 @@
 <template>
-  <a :href="getAssetLink(widget.targetAssetId)">
+  <a :href="getAssetLink(contents.targetAssetId)">
     {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
   </a>
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedWidgetContents } from "@/types";
-import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
+import { Widget, RelatedWidgetContents, RelatedAsset } from "@/types";
 import { getAssetLink, getRelatedAssetTitle } from "@/Helpers/displayUtils";
 
-interface Props {
+defineProps<{
   widget: Widget;
   contents: RelatedWidgetContents;
-  assetCache: any;
-}
-
-const props = defineProps<Props>();
+  assetCache: RelatedAsset;
+}>();
 </script>
