@@ -1,20 +1,25 @@
 <template>
-  <div v-html="fieldContents" ref="truncateText"></div>
-  <a href="#" @click.prevent="show = !show" v-if="isTruncated">Show More</a>
+  <div ref="truncateText" v-html="fieldContents"></div>
+  <button v-if="isTruncated" @click="show = !show">Show More</button>
   <div v-if="show" v-html="fieldContents"></div>
 </template>
 
 <script setup lang="ts">
 import { Widget } from "@/types";
-import { computed, ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, onMounted } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
 
-interface Props {
-  fieldContents: string;
-  widget: Widget;
-}
-const props = defineProps<Props>();
+const props = withDefaults(
+  defineProps<{
+    fieldContents: string;
+    widget: Widget;
+    textTruncationLength?: number;
+  }>(),
+  {
+    textTruncationLength: 75,
+  }
+);
 const show = ref(false);
 const truncateText = ref<HTMLDivElement | null>(null);
 const isTruncated = ref(false);
@@ -27,12 +32,11 @@ function updateShave() {
   if (!truncateText.value) {
     return;
   }
-  let shaveLength = 100;
-  if (window.textTruncationLength !== undefined) {
-    shaveLength = window.textTruncationLength;
-  }
 
-  shave([truncateText.value] as unknown as NodeList, shaveLength);
+  shave(
+    [truncateText.value] as unknown as NodeList,
+    props.textTruncationLength
+  );
   isTruncated.value =
     truncateText.value.querySelector<HTMLElement>(".js-shave") !== null;
 }
