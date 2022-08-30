@@ -20,7 +20,13 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedWidgetContents } from "@/types";
+import {
+  Widget,
+  RelatedWidgetContents,
+  RelatedAsset,
+  Template,
+  Asset,
+} from "@/types";
 import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 import {
   getAssetLink,
@@ -38,13 +44,13 @@ const templateStore = useTemplateStore();
 interface Props {
   widget: Widget;
   content: RelatedWidgetContents;
-  assetCache: any;
+  assetCache: RelatedAsset;
 }
 
 const props = defineProps<Props>();
 
-const nestedAsset: any = ref(null);
-const nestedTemplate = ref(null);
+const nestedAsset = ref<Asset | null>(null);
+const nestedTemplate = ref<Template | null>(null);
 const show = ref(false);
 
 onMounted(async () => {

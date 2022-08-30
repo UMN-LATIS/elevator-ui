@@ -70,6 +70,11 @@ onMounted(async () => {
 // If the title is the same as this element and wouldn't look different, we don't draw it.
 async function calculateShouldSuppressTitle() {
   const titleWidget = await getTitleWidget(props.asset);
+  if (!titleWidget) {
+    throw new Error(
+      "Cannot calcuate if title should be supressed: no title widget"
+    );
+  }
 
   if (
     props.widget.fieldTitle == titleWidget.fieldTitle &&
