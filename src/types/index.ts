@@ -47,22 +47,22 @@ export interface MultiSelectWidget extends Widget {
 
 export interface RelatedAssetWidget extends Widget {
   fieldData: {
-    nestData: boolean;
-    showLabel: boolean;
-    matchAgainst: number[];
-    displayInline: boolean;
-    thumbnailView: boolean;
-    defaultTemplate: number;
-    ignoreForDateSearch: boolean;
-    ignoreForDigitalAsset: boolean;
-    collapseNestedChildren: boolean;
-    ignoreForLocationSearch: boolean;
+    nestData?: boolean;
+    showLabel?: boolean;
+    matchAgainst?: number[];
+    displayInline?: boolean;
+    thumbnailView?: boolean;
+    defaultTemplate?: number;
+    ignoreForDateSearch?: boolean;
+    ignoreForDigitalAsset?: boolean;
+    collapseNestedChildren?: boolean;
+    ignoreForLocationSearch?: boolean;
   };
 }
 export interface SelectWidget extends Widget {
   fieldData: {
-    multiSelect: boolean;
-    selectGroup: string[];
+    multiSelect?: boolean;
+    selectGroup?: string[];
   };
 }
 
@@ -80,15 +80,101 @@ export interface UploadWidget extends Widget {
   };
 }
 
+/**
+ * Widget contents are the contents of a specific
+ * widget type for a given asset.
+ *
+ * This data will be part of the asset's json,
+ * not the template's json.
+ *
+ * @example
+ * Within the asset, there will be data like:
+  ```json
+  // asset.json
+  {
+    "templateId": 68
+    "title_1": [
+        {
+          "fieldContents": "Test Asset",
+          "isPrimary": true
+        },
+        {
+          "fieldContents": "Alt Title",
+          "isPrimary": false
+        }
+      ],
+    }
+    ...
+  ```
+ *
+ * The associated template (68) will tell us what
+ * widget is used for rendering the asset.
+ * In this case, the widget with
+ * `fieldTitle === title_1` is a `text` widget.
+ *
+ * And within the asset file, the value associated
+ * with `title_1` array of objects of type
+ * `TextWidgetContents`.
+ */
 export interface WidgetContents {
   isPrimary: boolean;
-  fieldContents: unknown;
+  [key: string]: unknown;
+}
+export interface TextWidgetContents extends WidgetContents {
+  fieldContents: string;
 }
 
-export interface RelatedWidgetContents {
-  isPrimary: boolean;
+export interface CheckboxWidgetContents extends WidgetContents {
+  fieldContents: boolean;
+}
+
+export interface DateWidgetContents extends WidgetContents {
+  label: string;
+  start: {
+    text: string;
+    numeric: string; // number cast as a string
+  };
+  end: {
+    text: string;
+    numeric: string;
+  };
+}
+
+export type Coordinates = [number, number];
+
+export interface LocationWidgetContents extends WidgetContents {
+  locationLabel: string;
+  address: string;
+  loc: {
+    type: string;
+    coordinates: Coordinates;
+  };
+}
+
+export interface RelatedWidgetContents extends WidgetContents {
   targetAssetId: string;
   label: string;
+}
+
+export interface SelectWidgetContents extends WidgetContents {
+  fieldContents: string;
+}
+
+export interface TagListWidgetContents extends WidgetContents {
+  tags: string[];
+}
+
+export interface TextAreaWidgetContents extends WidgetContents {
+  fieldContents: string; // HTML?
+}
+
+export interface UploadWidgetContents extends WidgetContents {
+  fileId: string; // hash
+  fileDescription: string;
+  fileType: string;
+  searchData: string | null;
+  loc: unknown | null;
+  sidecars: unknown; // object
 }
 
 export interface DateComponent {
