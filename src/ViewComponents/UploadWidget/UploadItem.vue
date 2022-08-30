@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents } from "@/types";
+import { Widget } from "@/types";
 import { getBaseURL, setAssetInStore } from "@/Helpers/displayUtils";
 import { computed } from "vue";
 
