@@ -115,7 +115,7 @@ export interface Asset {
   [key: string]: unknown;
 }
 export interface Template {
-  teamplteId: string;
+  templateId: string;
   telmateName: string;
   widgetArray: Widget[];
   collections?: Record<string, string | unknown>;

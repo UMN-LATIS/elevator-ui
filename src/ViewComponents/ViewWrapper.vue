@@ -1,5 +1,6 @@
 <template>
   <ViewContainer
+    v-if="asset && template"
     :asset="asset"
     :template="template"
     :isPrimaryElement="false"
@@ -11,21 +12,18 @@ import { getAsset } from "@/Helpers/displayUtils";
 import ViewContainer from "@/ViewComponents/ViewContainer.vue";
 import { onMounted, ref } from "vue";
 import { useTemplateStore } from "@/stores/templateStore";
-const asset: any = ref(null);
-const template = ref(null);
-const templateStore = useTemplateStore();
-interface Props {
-  objectId: string;
-}
+import { Asset, Template } from "@/types";
 
-const props = defineProps<Props>();
+const asset = ref<Asset | null>(null);
+const template = ref<Template | null>(null);
+const templateStore = useTemplateStore();
+
+const props = defineProps<{
+  objectId: string;
+}>();
 
 onMounted(async () => {
-  if (props.objectId) {
-    asset.value = await getAsset(props.objectId);
-    if (asset.value.templateId) {
-      template.value = await templateStore.loadTemplate(asset.value.templateId);
-    }
-  }
+  asset.value = await getAsset(props.objectId);
+  template.value = await templateStore.loadTemplate(asset.value.templateId);
 });
 </script>

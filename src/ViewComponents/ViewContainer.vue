@@ -1,12 +1,12 @@
 <template>
-  <div v-if="template">
+  <div>
     <template v-for="widget in sortedWidgetArray" :key="widget.id">
       <div
         v-if="widget.display && asset[widget.fieldTitle]"
         class="assetWidget"
       >
         <WidgetBase
-          :contents="asset[widget.fieldTitle]"
+          :contents="(asset[widget.fieldTitle] as WidgetContents[])"
           :widget="widget"
           :asset="asset"
         >
@@ -18,12 +18,12 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Widget } from "@/types";
+import { Asset, Template, Widget, WidgetContents } from "@/types";
 import WidgetBase from "./WidgetBase.vue";
 
 interface Props {
-  template: any;
-  asset: any;
+  template: Template;
+  asset: Asset;
   isPrimaryElement: boolean;
 }
 
@@ -36,10 +36,3 @@ const sortedWidgetArray = computed((): Widget[] => {
   return sortedArray;
 });
 </script>
-
-<style scoped>
-.assetWidget {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-</style>

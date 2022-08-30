@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useTemplateStore } from "@/stores/templateStore";
 import { useAssetStore } from "@/stores/assetStore";
+import { Asset } from "@/types";
+import { Template } from "@/types";
 
 declare global {
   interface Window {
@@ -12,7 +14,7 @@ export const getBaseURL = () => {
   return window.baseURL ?? "/";
 };
 
-export const getField = (template, field) => {
+export const getField = (template: Template, field: string) => {
   return template.widgetArray.filter(
     (widget) => widget.fieldTitle === field
   )[0];
@@ -51,7 +53,7 @@ export const getRelatedAssetTitle = (relatedAssetTitleCache) => {
   }
 };
 
-export const getAsset = (assetId: string) => {
+export const getAsset = (assetId: string): Promise<Asset> => {
   return axios
     .get(getBaseURL() + "asset/viewAsset/" + assetId + "/true")
     .then((res) => {
@@ -76,7 +78,7 @@ export const setAssetInStore = (
   }
 };
 
-export const getTemplate = (templateId: string) => {
+export const getTemplate = (templateId: string | number) => {
   return axios
     .get(getBaseURL() + "assetManager/getTemplate/" + templateId)
     .then((res) => {
@@ -88,7 +90,7 @@ export const getTemplate = (templateId: string) => {
     });
 };
 
-export const getTitleWidget = async (asset: any) => {
+export const getTitleWidget = async (asset: Asset) => {
   const templateStore = useTemplateStore();
   const template = await templateStore.loadTemplate(asset.templateId);
   if (!asset.titleObject) {

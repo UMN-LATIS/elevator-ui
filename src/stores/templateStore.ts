@@ -9,14 +9,15 @@ export const useTemplateStore = defineStore("template", {
     };
   },
   actions: {
-    async loadTemplate(templateId: string) {
+    async loadTemplate(templateId: string | number): Promise<Template> {
       if (this.templates[templateId]) {
         return this.templates[templateId];
-      } else {
-        const template = await getTemplate(templateId);
-        this.templates[templateId] = template;
-        return template;
       }
+
+      const template = await getTemplate(templateId);
+      this.templates[templateId] = template;
+
+      return template;
     },
   },
 });
