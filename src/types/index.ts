@@ -26,6 +26,8 @@ export interface Widget {
   directSearch: boolean;
   clickToSearch: boolean;
   clickToSearchType: number;
+  viewOrder: number;
+  templateOrder: number;
 }
 
 export interface WidgetContents {

@@ -1,7 +1,7 @@
 import TagWidget from "./TagWidget.vue";
 import mockAsset from "../../__mocks__/mockAsset.json";
 import mockTemplate from "../../__mocks__/mockTemplate.json";
-import { getField } from "../../Helpers/displayUtils";
+import { getWidgetByField } from "../../Helpers/displayUtils";
 
 export default {
   title: "View/Widgets/TagWidget",
@@ -26,7 +26,7 @@ const Template = (args) => ({
 
 const field = "sometags_1";
 const widgetContents = mockAsset[field];
-const template = getField(mockTemplate, field);
+const template = getWidgetByField(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {
