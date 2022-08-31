@@ -18,15 +18,13 @@
 </template>
 
 <script lang="ts" setup>
-import { SearchResultEntry } from "@/types";
+import { SearchResultMatch } from "@/types";
 import { getThumbURL } from "@/Helpers/displayUtils";
 import { computed } from "vue";
 
-interface Props {
-  searchResult: SearchResultEntry;
-}
-
-const props = defineProps<Props>();
+const props = defineProps<{
+  searchResult: SearchResultMatch;
+}>();
 
 const title = computed(() => {
   if (Array.isArray(props.searchResult.title)) {

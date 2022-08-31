@@ -212,7 +212,14 @@ export interface TemplateEntry {
   id: number;
   name: string;
 }
-export interface SearchResultEntry {
+
+export interface SearchResultMatchEntry {
+  label: string;
+  entries: string[];
+  Related_asset: boolean; // capitalized snake_case?
+}
+
+export interface SearchResultMatch {
   title: string | string[];
   dates: DateResult[];
   locations: LocationComponent[];
@@ -220,12 +227,12 @@ export interface SearchResultEntry {
   lastModified: string;
   collectionHierarchy: CollectionEntry[];
   template: TemplateEntry;
-  entries: unknown[];
+  entries: SearchResultMatchEntry[];
 }
 
 export interface SearchResult {
   totalResults: number;
-  matches: SearchResultEntry[];
+  matches: SearchResultMatch[];
   searchResults: string[];
   searchId: string;
 }
@@ -237,7 +244,7 @@ export interface DateTime {
 }
 
 export interface RelatedAsset {
-  primaryHandler: unknown | null;
+  primaryHandler: string | null;
   readyForDisplay: boolean;
   relatedAssetTitle: string[];
 }

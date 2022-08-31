@@ -8,17 +8,12 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedWidgetContents } from "@/types";
-import UploadItem from "@/ViewComponents/UploadWidget/UploadItem";
+import { Widget, RelatedWidgetContents, RelatedAsset } from "@/types";
 import { getTinyURL, setAssetInStore } from "@/Helpers/displayUtils";
-import { useTemplateStore } from "@/stores/templateStore";
-const templateStore = useTemplateStore();
 
-interface Props {
+defineProps<{
   widget: Widget;
   content: RelatedWidgetContents;
-  assetCache: any;
-}
-
-const props = defineProps<Props>();
+  assetCache: RelatedAsset;
+}>();
 </script>

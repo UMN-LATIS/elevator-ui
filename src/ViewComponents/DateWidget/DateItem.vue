@@ -23,7 +23,7 @@ interface DateContent {
   label: string;
   start: DateMoment;
   end: DateMoment;
-  "range?": boolean;
+  range?: boolean;
 }
 
 interface Props {

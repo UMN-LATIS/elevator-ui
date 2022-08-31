@@ -10,12 +10,12 @@
     <a href="#" @click.prevent="show = !show">
       {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
     </a>
-    <ViewContainer
+    <ViewWrapper
       v-if="show"
       :objectId="content.targetAssetId"
       :isPrimaryElement="false"
     >
-    </ViewContainer>
+    </ViewWrapper>
   </div>
 </template>
 
@@ -27,9 +27,7 @@ import {
   Template,
   Asset,
 } from "@/types";
-import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 import {
-  getAssetLink,
   getRelatedAssetTitle,
   getTinyURL,
   getAsset,
@@ -37,7 +35,7 @@ import {
 } from "@/Helpers/displayUtils";
 import { onMounted, ref } from "vue";
 import { useTemplateStore } from "@/stores/templateStore";
-import ViewContainer from "../ViewContainer.vue";
+import ViewWrapper from "../ViewWrapper.vue";
 
 const templateStore = useTemplateStore();
 

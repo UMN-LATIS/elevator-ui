@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <IconButton
+    <Button
       label="open more options menu"
       icon="more_vert"
       class="inline-flex items-center text-center p-1 text-neutral-400 rounded-full"
@@ -25,7 +25,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import IconButton from "./IconButton.vue";
+import Button from "./Button.vue";
 withDefaults(
   defineProps<{
     openDirection?: "up" | "down";
