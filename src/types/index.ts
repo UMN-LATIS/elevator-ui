@@ -228,6 +228,12 @@ export interface SearchResultMatch {
   collectionHierarchy: CollectionEntry[];
   template: TemplateEntry;
   entries: SearchResultMatchEntry[];
+  fileAssets?: number;
+  primaryHandlerId?: string; // hash
+  primaryHandlerTiny?: string; // URI
+  primaryHandlerTiny2x?: string; // URI
+  primaryHandlerThumbnail?: string; //URI
+  primaryHandlerThumbnail2x?: string; //URI
 }
 
 export interface SearchResult {
