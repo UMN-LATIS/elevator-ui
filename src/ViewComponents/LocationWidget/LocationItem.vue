@@ -3,7 +3,7 @@
     <span
       ><a href="#" @click.prevent="show = true">{{ locationLabel }}</a></span
     >
-    <Modal @close="show = false" :show="show">
+    <Modal :show="show" @close="show = false">
       It's a map!
       {{ latitude }}, {{ longitude }}
     </Modal>
@@ -14,35 +14,35 @@
 </template>
 
 <script setup lang="ts">
-import { Widget } from "@/types";
+import { LocationWidget, LocationWidgetContents } from "@/types";
 import { computed, ref } from "vue";
 import Modal from "@/Helpers/Modal/Modal.vue";
 
-interface LocationObject {
-  type: string;
-  coordinates: number[];
-}
+// interface LocationObject {
+//   type: string;
+//   coordinates: number[];
+// }
 
-interface LocationContent {
-  loc: LocationObject;
-  address: string;
-  isPrimary: boolean;
-  locationLabel: string;
-}
+// interface LocationContent {
+//   loc: LocationObject;
+//   address: string;
+//   isPrimary: boolean;
+//   locationLabel: string;
+// }
 
 interface Props {
-  locationContent: LocationContent;
-  widget: Widget;
+  locationContent: LocationWidgetContents;
+  widget: LocationWidget;
 }
 
 const props = defineProps<Props>();
 
 const latitude = computed(() => {
-  return props.locationContent.loc.coordinates[1].toFixed(2);
+  return props.locationContent.loc?.coordinates[1].toFixed(2) ?? 0;
 });
 
 const longitude = computed(() => {
-  return props.locationContent.loc.coordinates[0].toFixed(2);
+  return props.locationContent.loc?.coordinates[0].toFixed(2) ?? 0;
 });
 
 const locationLabel = computed(() => {
@@ -66,10 +66,7 @@ const locationLabel = computed(() => {
 });
 
 const haveLocation = computed(() => {
-  return (
-    props.locationContent.loc.coordinates[0] !== 0 &&
-    props.locationContent.loc.coordinates[1] !== 0
-  );
+  return longitude.value !== 0 && latitude.value !== 0;
 });
 
 const show = ref(false);

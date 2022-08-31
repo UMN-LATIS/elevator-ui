@@ -130,27 +130,28 @@ export interface CheckboxWidgetContents extends WidgetContents {
   fieldContents: boolean;
 }
 
+export interface DateMoment {
+  text: string | null;
+  numeric: number | null;
+}
 export interface DateWidgetContents extends WidgetContents {
   label: string;
-  start: {
-    text: string | null;
-    numeric: string | null; // number cast as a string
-  };
-  end: {
-    text: string | null;
-    numeric: string | null;
-  };
+  start: DateMoment;
+  end: DateMoment;
+  range?: boolean;
 }
 
 export type Coordinates = [number, number];
 
+export interface LocationObject {
+  type: string;
+  coordinates: Coordinates;
+}
+
 export interface LocationWidgetContents extends WidgetContents {
   locationLabel: string | null;
   address: string | null;
-  loc: {
-    type: string;
-    coordinates: Coordinates;
-  } | null;
+  loc: LocationObject | null;
 }
 
 export interface RelatedAssetWidgetContents extends WidgetContents {
@@ -188,14 +189,10 @@ export interface DateComponent {
   numeric: bigint;
 }
 
-export interface LocationComponent {
-  type: string;
-  coordinates: Coordinates;
-}
 export interface DateResult {
   start: DateComponent;
   end: DateComponent;
-  loc: LocationComponent;
+  loc: LocationObject;
   label: string;
   fileId: string;
   fileType: string;
@@ -224,7 +221,7 @@ export interface SearchResultMatchEntry {
 export interface SearchResultMatch {
   title: string | string[];
   dates: DateResult[];
-  locations: LocationComponent[];
+  locations: LocationObject[];
   objectId: string;
   lastModified: string;
   collectionHierarchy: CollectionEntry[];

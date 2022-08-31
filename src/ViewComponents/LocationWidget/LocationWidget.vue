@@ -7,13 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents } from "@/types";
+import { LocationWidget, LocationWidgetContents } from "@/types";
 import LocationItem from "@/ViewComponents/LocationWidget/LocationItem.vue";
 
 interface Props {
-  widget: Widget;
-  contents: WidgetContents[];
+  widget: LocationWidget;
+  contents: LocationWidgetContents[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 </script>

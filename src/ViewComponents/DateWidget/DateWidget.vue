@@ -7,13 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents } from "@/types";
+import { DateWidget, DateWidgetContents } from "@/types";
 import DateItem from "@/ViewComponents/DateWidget/DateItem.vue";
 
 interface Props {
-  widget: Widget;
-  contents: WidgetContents[];
+  widget: DateWidget;
+  contents: DateWidgetContents[];
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 </script>

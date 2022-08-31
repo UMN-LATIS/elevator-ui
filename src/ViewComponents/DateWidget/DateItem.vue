@@ -12,23 +12,11 @@
 <script setup lang="ts">
 import Link from "@/Helpers/Link/Link.vue";
 import { computed } from "vue";
-import { Widget } from "@/types";
-
-interface DateMoment {
-  text: string;
-  numeric: number;
-}
-
-interface DateContent {
-  label: string;
-  start: DateMoment;
-  end: DateMoment;
-  range?: boolean;
-}
+import { DateWidget, DateWidgetContents } from "@/types";
 
 interface Props {
-  dateContent: DateContent;
-  widget: Widget;
+  dateContent: DateWidgetContents;
+  widget: DateWidget;
 }
 
 const props = defineProps<Props>();
