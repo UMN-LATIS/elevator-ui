@@ -8,13 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents } from "@/types";
+import { TextAreaWidget, TextAreaWidgetContents } from "@/types";
 import TextAreaItem from "@/ViewComponents/TextAreaWidget/TextAreaItem.vue";
 
-interface Props {
-  widget: Widget;
-  contents: WidgetContents[];
-}
-
-const props = defineProps<Props>();
+defineProps<{
+  widget: TextAreaWidget;
+  contents: TextAreaWidgetContents[];
+}>();
 </script>

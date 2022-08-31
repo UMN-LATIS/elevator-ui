@@ -5,11 +5,11 @@
       :src="getTinyURL(assetCache.primaryHandler)"
       :alt="assetCache.relatedAssetTitle[0]"
       class="tinyImage"
-      @click="setAssetInStore(assetCache.primaryHandler, content.targetAssetId)"
+      @click="handleImageClick"
     />
-    <a href="#" @click.prevent="show = !show">
+    <button @click="show = !show">
       {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
-    </a>
+    </button>
     <ViewWrapper
       v-if="show"
       :objectId="content.targetAssetId"
@@ -61,6 +61,13 @@ onMounted(async () => {
     }
   }
 });
+
+function handleImageClick() {
+  if (!props.assetCache?.primaryHandler) {
+    throw new Error("No assetCache primary hanrdler");
+  }
+  setAssetInStore(props.assetCache.primaryHandler, props.content.targetAssetId);
+}
 </script>
 
 <style scoped>

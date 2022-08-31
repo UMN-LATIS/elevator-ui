@@ -3,7 +3,7 @@
     v-if="assetCache.primaryHandler"
     :src="getTinyURL(assetCache.primaryHandler)"
     :alt="assetCache.relatedAssetTitle[0]"
-    @click="setAssetInStore(assetCache.primaryHandler, content.targetAssetId)"
+    @click="handleImageClick"
   />
 </template>
 
@@ -11,9 +11,17 @@
 import { Widget, RelatedWidgetContents, RelatedAsset } from "@/types";
 import { getTinyURL, setAssetInStore } from "@/Helpers/displayUtils";
 
-defineProps<{
+const props = defineProps<{
   widget: Widget;
   content: RelatedWidgetContents;
   assetCache: RelatedAsset;
 }>();
+
+function handleImageClick() {
+  if (!props.assetCache?.primaryHandler) {
+    throw new Error("Cannot set asset in store: no assetCache primaryHandler");
+  }
+
+  setAssetInStore(props.assetCache.primaryHandler, props.content.targetAssetId);
+}
 </script>
