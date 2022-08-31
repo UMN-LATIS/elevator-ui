@@ -31,7 +31,7 @@ export interface Widget {
 }
 
 interface WidgetWithoutFieldData extends Widget {
-  fieldData: [];
+  fieldData: [] | null;
 }
 
 export type TextWidget = WidgetWithoutFieldData;
@@ -59,10 +59,12 @@ export interface RelatedAssetWidget extends Widget {
     ignoreForLocationSearch?: boolean;
   };
 }
+
 export interface SelectWidget extends Widget {
   fieldData: {
     multiSelect?: boolean;
-    selectGroup?: string[];
+    // TODO: This could be a key/value pair
+    selectGroup?: string[] | Record<string | number, string>;
   };
 }
 
@@ -131,41 +133,41 @@ export interface CheckboxWidgetContents extends WidgetContents {
 export interface DateWidgetContents extends WidgetContents {
   label: string;
   start: {
-    text: string;
-    numeric: string; // number cast as a string
+    text: string | null;
+    numeric: string | null; // number cast as a string
   };
   end: {
-    text: string;
-    numeric: string;
+    text: string | null;
+    numeric: string | null;
   };
 }
 
 export type Coordinates = [number, number];
 
 export interface LocationWidgetContents extends WidgetContents {
-  locationLabel: string;
-  address: string;
+  locationLabel: string | null;
+  address: string | null;
   loc: {
     type: string;
     coordinates: Coordinates;
-  };
+  } | null;
 }
 
-export interface RelatedWidgetContents extends WidgetContents {
-  targetAssetId: string;
-  label: string;
+export interface RelatedAssetWidgetContents extends WidgetContents {
+  targetAssetId: string | null;
+  label: string | null;
 }
 
 export interface SelectWidgetContents extends WidgetContents {
-  fieldContents: string;
+  fieldContents: string | null;
 }
 
 export interface TagListWidgetContents extends WidgetContents {
-  tags: string[];
+  tags: string[] | null;
 }
 
 export interface TextAreaWidgetContents extends WidgetContents {
-  fieldContents: string; // HTML?
+  fieldContents: string | null;
 }
 
 export interface UploadWidgetContents extends WidgetContents {
@@ -188,7 +190,7 @@ export interface DateComponent {
 
 export interface LocationComponent {
   type: string;
-  coordinates: number[];
+  coordinates: Coordinates;
 }
 export interface DateResult {
   start: DateComponent;
@@ -263,15 +265,15 @@ export interface Asset {
   modifiedBy: number;
   createdBy: number;
   deletedBy: number | null;
-  relatedAssetCache: Record<string, RelatedAsset>;
+  relatedAssetCache: Record<string, RelatedAsset> | null;
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
-  titleObject: string;
+  titleObject?: string | null;
   [key: string]: unknown;
 }
 export interface Template {
   templateId: string;
-  telmateName: string;
+  templateName: string;
   widgetArray: Widget[];
   collections?: Record<string, string | unknown>;
 }

@@ -11,7 +11,7 @@
       {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
     </button>
     <ViewWrapper
-      v-if="show"
+      v-if="show && content.targetAssetId"
       :objectId="content.targetAssetId"
       :isPrimaryElement="false"
     >
@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {
   RelatedAssetWidget,
-  RelatedWidgetContents,
+  RelatedAssetWidgetContents,
   RelatedAsset,
   Template,
   Asset,
@@ -41,7 +41,7 @@ const templateStore = useTemplateStore();
 
 interface Props {
   widget: RelatedAssetWidget;
-  content: RelatedWidgetContents;
+  content: RelatedAssetWidgetContents;
   assetCache: RelatedAsset;
 }
 

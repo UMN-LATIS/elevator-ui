@@ -2,7 +2,10 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <TextAreaItem :widget="widget" :fieldContents="content.fieldContents" />
+      <TextAreaItem
+        :widget="widget"
+        :fieldContents="content.fieldContents ?? ''"
+      />
     </li>
   </ul>
 </template>

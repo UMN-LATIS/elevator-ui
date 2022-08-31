@@ -1,8 +1,8 @@
 <template>
   <h1 v-if="title">
     <!-- FIXME: TS Errors -->
-    <Link :widget="titleWidget" :linkText="title[0]">
-      {{ title[0] }}
+    <Link v-if="titleWidget" :widget="titleWidget" :linkText="title">
+      {{ title }}
     </Link>
   </h1>
 </template>
@@ -17,5 +17,5 @@ const props = defineProps<{
 }>();
 
 const titleWidget = await getTitleWidget(props.asset);
-const title = props.asset.title || "No Title";
+const title = props.asset.titleObject || "No Title";
 </script>

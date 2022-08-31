@@ -7,13 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedWidgetContents, RelatedAsset } from "@/types";
+import { Widget, RelatedAssetWidgetContents, RelatedAsset } from "@/types";
 import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
 import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 
 defineProps<{
   widget: Widget;
-  content: RelatedWidgetContents;
+  content: RelatedAssetWidgetContents;
   assetCache: RelatedAsset;
 }>();
 </script>

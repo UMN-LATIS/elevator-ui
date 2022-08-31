@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useTemplateStore } from "@/stores/templateStore";
 import { useAssetStore } from "@/stores/assetStore";
-import { Asset, Widget } from "@/types";
+import { Asset, TextWidget, Widget } from "@/types";
 import { Template } from "@/types";
 
 declare global {
@@ -17,10 +17,11 @@ export const getBaseURL = () => {
 export const getWidgetByFieldTitle = (
   template: Template,
   fieldTitle: string
-) => {
+): TextWidget | null => {
   return (
-    template.widgetArray.find((widget) => widget.fieldTitle === fieldTitle) ??
-    null
+    template.widgetArray.find<TextWidget>(
+      (widget: Widget): widget is TextWidget => widget.fieldTitle === fieldTitle
+    ) ?? null
   );
 };
 
@@ -94,14 +95,15 @@ export const getTemplate = (templateId: string | number) => {
     });
 };
 
-export const getTitleWidget = async (asset: Asset): Promise<Widget | null> => {
+export const getTitleWidget = async (
+  asset: Asset
+): Promise<TextWidget | null> => {
   const templateStore = useTemplateStore();
   const template = await templateStore.loadTemplate(asset.templateId);
+
   if (!asset.titleObject) {
     return null;
   }
-  const titleField: string = asset.titleObject;
 
-  const titleFieldObject = getWidgetByFieldTitle(template, titleField);
-  return titleFieldObject;
+  return getWidgetByFieldTitle(template, asset.titleObject);
 };

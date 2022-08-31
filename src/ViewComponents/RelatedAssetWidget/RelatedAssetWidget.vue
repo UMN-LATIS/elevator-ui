@@ -16,12 +16,12 @@ import CollapsedInlineRelatedAsset from "@/ViewComponents/RelatedAssetWidget/Col
 import LinkedItemRelatedAsset from "@/ViewComponents/RelatedAssetWidget/LinkedItemRelatedAsset.vue";
 import ThumbnailRelatedAsset from "@/ViewComponents/RelatedAssetWidget/ThumbnailRelatedAsset.vue";
 import TogglePanelRelatedAsset from "@/ViewComponents/RelatedAssetWidget/TogglePanelRelatedAsset.vue";
-import { RelatedAssetWidget, RelatedWidgetContents, Asset } from "@/types";
+import { RelatedAssetWidget, RelatedAssetWidgetContents, Asset } from "@/types";
 import { computed } from "vue";
 
 interface Props {
   widget: RelatedAssetWidget;
-  contents: RelatedWidgetContents[];
+  contents: RelatedAssetWidgetContents[];
   asset: Asset;
 }
 
@@ -41,7 +41,10 @@ const type = computed(() => {
   return TogglePanelRelatedAsset;
 });
 
-const getAssetCache = (content) => {
-  return props.asset.relatedAssetCache[content.targetAssetId];
+const getAssetCache = (content: RelatedAssetWidgetContents) => {
+  if (content.targetAssetId === null) {
+    throw new Error("Cannot get asset cache. `targetAssetId` is null");
+  }
+  return props.asset.relatedAssetCache?.[content.targetAssetId] ?? null;
 };
 </script>
