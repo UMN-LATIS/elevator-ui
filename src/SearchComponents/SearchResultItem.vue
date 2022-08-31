@@ -29,11 +29,13 @@ const props = defineProps<{
 const title = computed(() => {
   if (Array.isArray(props.searchResult.title)) {
     return props.searchResult.title.join(",");
-  } else if (props.searchResult.title && props.searchResult.title.length > 0) {
-    return props.searchResult.title;
-  } else {
-    return "(no title)";
   }
+
+  if (props.searchResult.title && props.searchResult.title.length > 0) {
+    return props.searchResult.title;
+  }
+
+  return "(no title)";
 });
 </script>
 

@@ -7,25 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { Widget } from "@/types";
+import { UploadWidgetContents, Widget } from "@/types";
 import { getBaseURL, setAssetInStore } from "@/Helpers/displayUtils";
 import { computed } from "vue";
 
-interface FileContents {
-  loc: object;
-  fileId: string;
-  fileType: string;
-  sidecars: object;
-  isPrimary: boolean;
-  searchData: string;
-  fileDescription: string;
-}
-
-interface Props {
+const props = defineProps<{
   widget: Widget;
-  content: FileContents;
-}
-const props = defineProps<Props>();
+  content: UploadWidgetContents;
+}>();
 
 const thumbURL = computed(() => {
   return (

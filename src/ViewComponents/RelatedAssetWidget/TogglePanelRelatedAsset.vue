@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import {
-  Widget,
+  RelatedAssetWidget,
   RelatedWidgetContents,
   RelatedAsset,
   Template,
@@ -40,7 +40,7 @@ import ViewWrapper from "../ViewWrapper.vue";
 const templateStore = useTemplateStore();
 
 interface Props {
-  widget: Widget;
+  widget: RelatedAssetWidget;
   content: RelatedWidgetContents;
   assetCache: RelatedAsset;
 }

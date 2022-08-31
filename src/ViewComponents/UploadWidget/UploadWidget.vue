@@ -10,15 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents } from "@/types";
+import { UploadWidget, UploadWidgetContents } from "@/types";
 import UploadItem from "@/ViewComponents/UploadWidget/UploadItem.vue";
 
-interface Props {
-  widget: Widget;
-  contents: WidgetContents[];
-}
-
-const props = defineProps<Props>();
+defineProps<{
+  widget: UploadWidget;
+  contents: UploadWidgetContents[];
+}>();
 </script>
 
 <style scoped>
