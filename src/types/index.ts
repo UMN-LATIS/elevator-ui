@@ -1,13 +1,14 @@
 export enum WidgetType {
-  "checkbox" = "checkbox",
-  "date" = "date",
-  "location" = "location",
-  "multiselect" = "multiselect",
-  "related asset" = "related asset",
-  "select" = "select",
-  "tag list" = "tag list",
-  "text" = "text",
-  "upload" = "upload",
+  Checkbox = "checkbox",
+  Date = "date",
+  Location = "location",
+  MultiSelect = "multiselect",
+  RelatedAsset = "related asset",
+  Select = "select",
+  TagList = "tag list",
+  Text = "text",
+  Upload = "upload",
+  TextArea = "text area",
 }
 
 export interface Widget {
@@ -84,7 +85,7 @@ export interface UploadWidget extends Widget {
 
 /**
  * Widget contents are the contents of a specific
- * widget type for a given asset.
+ * widget for a given asset.
  *
  * This data will be part of the asset's json,
  * not the template's json.
