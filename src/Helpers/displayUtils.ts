@@ -172,3 +172,18 @@ export function getSortedWidgets({
     )
     .sort((a, b) => a.viewOrder - b.viewOrder);
 }
+
+export function getAssetTitle({
+  asset,
+  template,
+}: {
+  asset: Asset | null;
+  template: Template | null;
+}): string {
+  if (!asset || !template) return "";
+  if (!asset.titleObject) return "Untitled";
+
+  const titleWidget = getWidgetByFieldTitle(template, asset.titleObject);
+
+  return titleWidget?.label || "Untitled";
+}

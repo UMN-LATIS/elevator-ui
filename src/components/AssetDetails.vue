@@ -13,10 +13,7 @@ import { useAssetStore } from "@/stores/newAssetStore";
 import Widget from "@/components/Widget.vue";
 import type { Asset, Template } from "@/types";
 import Drawer from "./Drawer.vue";
-import {
-  getWidgetByFieldTitle,
-  getSortedWidgets,
-} from "@/Helpers/displayUtils";
+import { getSortedWidgets, getAssetTitle } from "@/Helpers/displayUtils";
 
 const props = defineProps<{
   assetId: string;
@@ -36,17 +33,9 @@ watchEffect(async () => {
     : null;
 });
 
-const assetTitle = computed(() => {
-  if (!asset.value || !template.value) return "";
-  if (!asset.value.titleObject) return "Untitled";
-
-  const titleWidget = getWidgetByFieldTitle(
-    template.value,
-    asset.value.titleObject
-  );
-
-  return titleWidget?.label || "Untitled";
-});
+const assetTitle = computed(() =>
+  getAssetTitle({ asset: asset.value, template: template.value })
+);
 
 const widgets = computed(() =>
   getSortedWidgets({ asset: asset.value, template: template.value })

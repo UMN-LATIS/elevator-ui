@@ -12,7 +12,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Asset, Widget, WidgetContents } from "@/types";
+import type { Asset, Widget } from "@/types";
 import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple.vue";
 import TextWidget from "@/ViewComponents/TextWidget/TextWidget.vue";

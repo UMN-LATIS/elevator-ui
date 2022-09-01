@@ -1,13 +1,19 @@
 <template>
-  <div class="object-details">
-    <h1>Object Details</h1>
-    <pre>{{ objectAsset }}</pre>
+  <div v-if="objectAsset" class="asset-details">
+    <Drawer label="Details" variant="secondary">
+      <template v-for="widget in widgets" :key="widget.id">
+        <Widget :widget="widget" :asset="objectAsset" :template="template" />
+      </template>
+    </Drawer>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, watchEffect, computed } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
-import { Asset } from "@/types";
+import { Asset, Template } from "@/types";
+import { getSortedWidgets } from "@/Helpers/displayUtils";
+import Drawer from "./Drawer.vue";
+import Widget from "./Widget.vue";
 
 const props = defineProps<{
   objectId: string;
@@ -15,15 +21,20 @@ const props = defineProps<{
 
 const objectAsset = ref<Asset | null>(null);
 const assetStore = useAssetStore();
-
-function getObjectAsset(objectId: string) {
-  if (!objectId) return null;
-  return assetStore.fetchAsset(props.objectId);
-}
+const template = ref<Template | null>(null);
 
 watchEffect(async () => {
-  objectAsset.value = await getObjectAsset(props.objectId);
+  objectAsset.value = props.objectId
+    ? await assetStore.fetchAsset(props.objectId)
+    : null;
+  template.value = objectAsset.value
+    ? await assetStore.fetchTemplateForAsset(props.objectId)
+    : null;
 });
+
+const widgets = computed(() =>
+  getSortedWidgets({ asset: objectAsset.value, template: template.value })
+);
 </script>
 
 <style scoped></style>

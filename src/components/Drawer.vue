@@ -1,15 +1,21 @@
 <template>
   <section
-    class="drawer bg-neutral-100 w-[28rem] max-w-full fixed bottom-0 left-0 overflow-auto"
+    class="drawer overflow-auto"
     :class="{
       'h-full': isOpen,
+      'bg-neutral-100': variant === 'primary',
+      'bg-white': variant === 'secondary',
     }"
   >
     <header
-      class="flex justify-between bg-neutral-900 text-white"
+      class="flex justify-between"
       :class="{
         'items-baseline p-4': isOpen,
         'items-center ': !isOpen,
+        'bg-neutral-900 text-white border-y border-neutral-900':
+          variant === 'primary',
+        'bg-neutral-50 text-neutral-900 border-y border-neutral-200':
+          variant === 'secondary',
       }"
     >
       <h1
@@ -41,9 +47,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-defineProps<{
-  label: string;
-}>();
+withDefaults(
+  defineProps<{
+    label: string;
+    variant?: "primary" | "secondary";
+  }>(),
+  {
+    variant: "primary",
+  }
+);
 
 const isOpen = ref(true);
 </script>
