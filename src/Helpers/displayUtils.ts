@@ -1,7 +1,14 @@
 import axios from "axios";
 import { useTemplateStore } from "@/stores/templateStore";
 import { useAssetStore } from "@/stores/assetStore";
-import { Asset, TextWidget, Widget, WidgetContents, Template } from "@/types";
+import {
+  Asset,
+  TextWidget,
+  Widget,
+  WidgetContents,
+  Template,
+  WidgetType,
+} from "@/types";
 import config from "@/config";
 
 export const getWidgetByFieldTitle = (
@@ -103,4 +110,65 @@ export function getWidgetContents({
   widget: Widget;
 }) {
   return asset[widget.fieldTitle] as WidgetContents[];
+}
+
+/**
+ * determines if a widget matches the asset title,
+ * so that we can skip rendering it as it will be duplicated
+ */
+export function widgetMatchesTitleWidget({
+  widget,
+  template,
+  asset,
+}: {
+  widget: Widget;
+  template: Template | null;
+  asset: Asset | null;
+}): boolean {
+  // if no titleObject, then this widget doesn't match
+  if (!asset || !template || !asset.titleObject) return false;
+
+  const titleWidget = getWidgetByFieldTitle(template, asset.titleObject);
+  const widgetContents = getWidgetContents({ asset: asset, widget });
+
+  return (
+    !!titleWidget &&
+    widget.type === WidgetType.Text &&
+    widget.fieldTitle === titleWidget.fieldTitle &&
+    widgetContents.length === 1
+  );
+}
+
+export function assetHasWidgetContents({
+  asset,
+  widget,
+}: {
+  asset: Asset;
+  widget: Widget;
+}) {
+  const contents = getWidgetContents({ asset, widget });
+  return contents !== null && contents !== undefined;
+}
+
+export function getSortedWidgets({
+  asset,
+  template,
+}: {
+  asset: Asset | null;
+  template: Template | null;
+}): Widget[] {
+  if (!(template && asset)) return [];
+
+  return [...template.widgetArray]
+    .filter((widget) => widget.display)
+    .filter((widget) => assetHasWidgetContents({ asset, widget }))
+    .filter(
+      (widget) =>
+        !widgetMatchesTitleWidget({
+          widget,
+          asset,
+          template,
+        })
+    )
+    .sort((a, b) => a.viewOrder - b.viewOrder);
 }

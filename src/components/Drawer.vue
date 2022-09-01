@@ -1,6 +1,6 @@
 <template>
   <section
-    class="drawer bg-neutral-100 w-[28rem] absolute bottom-0 left-0 overflow-auto"
+    class="drawer bg-neutral-100 w-[28rem] max-w-full fixed bottom-0 left-0 overflow-auto"
     :class="{
       'h-full': isOpen,
     }"
