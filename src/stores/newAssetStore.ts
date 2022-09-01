@@ -1,8 +1,9 @@
 import axios from "axios";
-import { Asset } from "@/types";
+import { Asset, Template } from "@/types";
 import { defineStore } from "pinia";
 import handleAxiosError from "@/utils/handleAxiosError";
 import config from "@/config";
+import { useTemplateStore } from "./newTemplateStore";
 
 export interface AssetStoreState {
   assets: Map<string, Asset>;
@@ -94,6 +95,14 @@ export const useAssetStore = defineStore("asset2", {
         handleAxiosError(err);
         return null;
       }
+    },
+
+    async fetchTemplateForAsset(assetId: string): Promise<Template | null> {
+      const templateStore = useTemplateStore();
+      const asset = await this.fetchAsset(assetId);
+
+      if (!asset) return null;
+      return templateStore.fetchTemplate(asset.templateId);
     },
 
     resetActiveAsset() {
