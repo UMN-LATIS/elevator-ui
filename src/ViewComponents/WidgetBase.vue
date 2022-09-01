@@ -78,7 +78,7 @@ async function calculateShouldSuppressTitle() {
 
   if (
     props.widget.fieldTitle == titleWidget.fieldTitle &&
-    props.widget.type === WidgetType[WidgetType.text] &&
+    props.widget.type === WidgetType.Text &&
     props.contents.length == 1
   ) {
     shouldSuppress.value = true;
