@@ -1,8 +1,7 @@
 import axios from "axios";
 import { useTemplateStore } from "@/stores/templateStore";
 import { useAssetStore } from "@/stores/assetStore";
-import { Asset, TextWidget, Widget } from "@/types";
-import { Template } from "@/types";
+import { Asset, TextWidget, Widget, WidgetContents, Template } from "@/types";
 import config from "@/config";
 
 export const getWidgetByFieldTitle = (
@@ -95,3 +94,13 @@ export const getTitleWidget = async (
 
   return getWidgetByFieldTitle(template, asset.titleObject);
 };
+
+export function getWidgetContents({
+  asset,
+  widget,
+}: {
+  asset: Asset;
+  widget: Widget;
+}) {
+  return asset[widget.fieldTitle] as WidgetContents[];
+}
