@@ -10,7 +10,11 @@ const config: StorybookViteConfig = {
         alias: {
           "@": "/src"
         }
-      }
+      },
+      define: {
+        ...config.define,
+        global: "window",
+      },
     });
   },
 
