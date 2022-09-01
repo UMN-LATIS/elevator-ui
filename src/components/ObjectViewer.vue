@@ -1,10 +1,10 @@
 <template>
-  <section class="object-viewer">
+  <section class="object-viewer w-full h-full">
     <h2 class="sr-only">Object Viewer</h2>
     <iframe
       v-if="embedLink"
+      class="object-viewer__iframe w-full h-full"
       :src="embedLink"
-      :style="{ width: '100%', height: '100%' }"
       frameBorder="0"
       allowfullscreen="true"
     ></iframe>
