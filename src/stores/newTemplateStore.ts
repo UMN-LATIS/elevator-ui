@@ -16,7 +16,7 @@ export const useTemplateStore = defineStore("template2", {
 
       try {
         const res = await axios.get<Template>(
-          `${config.baseUrl}/assetManager/getTemplate/templateId`
+          `${config.baseUrl}/assetManager/getTemplate/${templateId}`
         );
         this.templates.set(templateId, res.data);
         return res.data;

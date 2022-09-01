@@ -38,13 +38,6 @@ export const getAssetLink = (objectId) => {
   return config.baseUrl + "/asset/viewAsset/" + objectId;
 };
 
-export const getEmbedLink = (fileObjectId, parentObjectId) => {
-  return (
-    config.baseUrl + "/asset/getEmbed/" + fileObjectId + "/" + parentObjectId ??
-    ""
-  );
-};
-
 export const getRelatedAssetTitle = (relatedAssetTitleCache) => {
   if (relatedAssetTitleCache && relatedAssetTitleCache.length > 0) {
     return relatedAssetTitleCache[0];

@@ -1,7 +1,7 @@
 <template>
   <iframe
-    v-if="store.fileObjectId"
-    :src="getEmbedLink(store.fileObjectId, store.objectId ?? null)"
+    v-if="fileObjectId"
+    :src="embedLink"
     :style="{ width: '100%', height: '100%' }"
     frameBorder="0"
     allowfullscreen="true"
@@ -9,8 +9,16 @@
 </template>
 
 <script setup lang="ts">
-import { useAssetStore } from "@/stores/assetStore";
-import { getEmbedLink } from "@/Helpers/displayUtils";
+import { computed } from "vue";
+import config from "@/config";
 
-const store = useAssetStore();
+const props = defineProps<{
+  fileObjectId: string;
+  objectId: string;
+}>();
+
+const embedLink = computed(
+  () =>
+    `${config.baseUrl}/asset/getEmbed/${props.fileObjectId}/${props.objectId}`
+);
 </script>
