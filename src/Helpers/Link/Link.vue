@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { Widget } from "@/types";
-import { getBaseURL } from "@/Helpers/displayUtils";
+import config from "@/config";
 
 interface Props {
   widget: Widget;
@@ -28,12 +28,14 @@ const linkURL = computed(() => {
     .replace("...", "");
   if (props.widget.clickToSearchType == 0) {
     return (
-      getBaseURL() + "search/querySearch/" + encodeURIComponent(cleanedLinkText)
+      config.baseUrl +
+      "/search/querySearch/" +
+      encodeURIComponent(cleanedLinkText)
     );
   } else {
     return (
-      getBaseURL() +
-      "search/scopedQuerySearch/" +
+      config.baseUrl +
+      "/search/scopedQuerySearch/" +
       props.widget.fieldTitle +
       "/" +
       encodeURIComponent(cleanedLinkText)

@@ -12,21 +12,25 @@ export const useNotificationStore = defineStore("notification", {
   state: () => ({
     active: false,
     autoHide: true,
+    timeout: 5000,
     notifications: [] as Notification[],
   }),
 
   actions: {
-    showNotification(notification) {
-      this.notifications.push({
-        ...notification,
+    show(message: string) {
+      const notification = {
         id: getRandomId(),
-      });
+        message,
+      };
+      this.notifications.push(notification);
+
+      if (this.autoHide) {
+        setTimeout(() => this.hide(notification.id), this.timeout);
+      }
     },
 
-    hideNotification(data) {
-      this.notifications = this.notifications.filter((notification) => {
-        return notification.id != data.id;
-      });
+    hide(id: string) {
+      this.notifications = this.notifications.filter((item) => id !== item.id);
     },
   },
 });

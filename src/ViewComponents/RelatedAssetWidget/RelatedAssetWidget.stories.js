@@ -1,7 +1,7 @@
 import RelatedAssetWidget from "./RelatedAssetWidget.vue";
 import mockAsset from "../../__mocks__/mockAsset.json";
 import mockTemplate from "../../__mocks__/mockTemplate.json";
-import { getWidgetByField } from "../../Helpers/displayUtils";
+import { getWidgetByFieldTitle } from "../../Helpers/displayUtils";
 
 export default {
   title: "View/Widgets/RelatedAssetWidget",
@@ -29,7 +29,7 @@ const Template = (args) => ({
 
 const field = "relatedstuff_1";
 const widgetContents = mockAsset[field];
-const template = getWidgetByField(mockTemplate, field);
+const template = getWidgetByFieldTitle(mockTemplate, field);
 
 const collapseItem = JSON.parse(JSON.stringify(template));
 collapseItem.fieldData.collapseNestedChildren = true;

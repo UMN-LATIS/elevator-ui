@@ -6,6 +6,13 @@
       class="notification-item"
     >
       {{ notification.message }}
+
+      <button
+        v-if="!notificationStore.autoHide"
+        @click="notificationStore.hide(notification.id)"
+      >
+        Close
+      </button>
       >
     </div>
   </div>

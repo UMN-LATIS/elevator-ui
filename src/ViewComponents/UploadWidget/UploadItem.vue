@@ -8,7 +8,8 @@
 
 <script setup lang="ts">
 import { UploadWidgetContents, Widget } from "@/types";
-import { getBaseURL, setAssetInStore } from "@/Helpers/displayUtils";
+import { setAssetInStore } from "@/Helpers/displayUtils";
+import config from "@/config";
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -18,8 +19,8 @@ const props = defineProps<{
 
 const thumbURL = computed(() => {
   return (
-    getBaseURL() +
-    "fileManager/getDerivativeById/" +
+    config.baseUrl +
+    "/fileManager/getDerivativeById/" +
     props.content.fileId +
     "/tiny2x"
   );

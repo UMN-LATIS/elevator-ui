@@ -3,16 +3,7 @@ import { useTemplateStore } from "@/stores/templateStore";
 import { useAssetStore } from "@/stores/assetStore";
 import { Asset, TextWidget, Widget } from "@/types";
 import { Template } from "@/types";
-
-declare global {
-  interface Window {
-    baseURL: string;
-  }
-}
-
-export const getBaseURL = () => {
-  return window.baseURL ?? "/";
-};
+import config from "@/config";
 
 export const getWidgetByFieldTitle = (
   template: Template,
@@ -27,26 +18,30 @@ export const getWidgetByFieldTitle = (
 
 export const getTinyURL = (fileObjectId) => {
   return (
-    getBaseURL() + "fileManager/getDerivativeById/" + fileObjectId + "/tiny2x"
+    config.baseUrl +
+    "/fileManager/getDerivativeById/" +
+    fileObjectId +
+    "/tiny2x"
   );
 };
 
 export const getThumbURL = (fileObjectId) => {
   return (
-    getBaseURL() +
-    "fileManager/getDerivativeById/" +
+    config.baseUrl +
+    "/fileManager/getDerivativeById/" +
     fileObjectId +
     "/thumbnail2x"
   );
 };
 
 export const getAssetLink = (objectId) => {
-  return getBaseURL() + "asset/viewAsset/" + objectId;
+  return config.baseUrl + "/asset/viewAsset/" + objectId;
 };
 
 export const getEmbedLink = (fileObjectId, parentObjectId) => {
   return (
-    getBaseURL() + "asset/getEmbed/" + fileObjectId + "/" + parentObjectId ?? ""
+    config.baseUrl + "/asset/getEmbed/" + fileObjectId + "/" + parentObjectId ??
+    ""
   );
 };
 
@@ -60,7 +55,7 @@ export const getRelatedAssetTitle = (relatedAssetTitleCache) => {
 
 export const getAsset = (assetId: string): Promise<Asset> => {
   return axios
-    .get(getBaseURL() + "asset/viewAsset/" + assetId + "/true")
+    .get(config.baseUrl + "/asset/viewAsset/" + assetId + "/true")
     .then((res) => {
       return res.data;
     })
@@ -85,7 +80,7 @@ export const setAssetInStore = (
 
 export const getTemplate = (templateId: string | number) => {
   return axios
-    .get(getBaseURL() + "assetManager/getTemplate/" + templateId)
+    .get(config.baseUrl + "/assetManager/getTemplate/" + templateId)
     .then((res) => {
       return res.data;
     })
