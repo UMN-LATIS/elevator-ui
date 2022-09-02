@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts" setup>
-import { SearchResult } from "@/types";
+import { Search } from "@/types";
 import SearchResultItem from "@/SearchComponents/SearchResultItem.vue";
 
 interface Props {
-  searchResults: SearchResult;
+  searchResults: Search;
 }
 
 const props = defineProps<Props>();

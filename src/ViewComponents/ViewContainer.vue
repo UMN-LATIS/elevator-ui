@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Asset, Template, Widget, WidgetContents } from "@/types";
-import WidgetBase from "./WidgetBase.vue";
+import WidgetBase from "@/components/Widget.vue";
 
 interface Props {
   template: Template;

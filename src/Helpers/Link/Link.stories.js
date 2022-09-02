@@ -1,5 +1,5 @@
 import Link from "./Link.vue";
-import mockTemplate from "../../__mocks__/mockTemplate.json";
+import mockTemplate from "../../__mocks__/mockTemplate";
 import { getWidgetByFieldTitle } from "@/Helpers/displayUtils";
 
 export default {

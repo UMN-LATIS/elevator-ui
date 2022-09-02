@@ -11,7 +11,7 @@
   </Tuple>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { type Component, computed } from "vue";
 import type { Asset, Widget } from "@/types";
 import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple.vue";
@@ -39,17 +39,17 @@ const widgetContents = computed(() =>
 );
 
 // map widgetTypeToComponent
-const widgetMap = {
-  [WidgetType.Text]: TextWidget,
-  [WidgetType.Select]: SelectWidget,
-  [WidgetType.Checkbox]: CheckBoxWidget,
-  [WidgetType.TextArea]: TextAreaWidget,
-  [WidgetType.Date]: DateWidget,
-  [WidgetType.MultiSelect]: MultiSelectWidget,
-  [WidgetType.Location]: LocationWidget,
-  [WidgetType.Upload]: UploadWidget,
-  [WidgetType.TagList]: TagWidget,
-  [WidgetType.RelatedAsset]: RelatedAssetWidget,
+const widgetMap: Record<WidgetType, Component> = {
+  text: TextWidget,
+  select: SelectWidget,
+  checkbox: CheckBoxWidget,
+  "text area": TextAreaWidget,
+  date: DateWidget,
+  multiselect: MultiSelectWidget,
+  location: LocationWidget,
+  upload: UploadWidget,
+  "tag list": TagWidget,
+  "related asset": RelatedAssetWidget,
 };
 
 function getWidgetComponentByType(type: string) {

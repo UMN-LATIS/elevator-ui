@@ -18,18 +18,6 @@ import { LocationWidget, LocationWidgetContents } from "@/types";
 import { computed, ref } from "vue";
 import Modal from "@/Helpers/Modal/Modal.vue";
 
-// interface LocationObject {
-//   type: string;
-//   coordinates: number[];
-// }
-
-// interface LocationContent {
-//   loc: LocationObject;
-//   address: string;
-//   isPrimary: boolean;
-//   locationLabel: string;
-// }
-
 interface Props {
   locationContent: LocationWidgetContents;
   widget: LocationWidget;
@@ -38,11 +26,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const latitude = computed(() => {
-  return props.locationContent.loc?.coordinates[1].toFixed(2) ?? 0;
+  return props.locationContent.loc?.coordinates?.[1].toFixed(2) ?? 0;
 });
 
 const longitude = computed(() => {
-  return props.locationContent.loc?.coordinates[0].toFixed(2) ?? 0;
+  return props.locationContent.loc?.coordinates?.[0].toFixed(2) ?? 0;
 });
 
 const locationLabel = computed(() => {

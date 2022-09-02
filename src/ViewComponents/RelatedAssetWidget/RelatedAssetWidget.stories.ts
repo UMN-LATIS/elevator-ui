@@ -1,34 +1,32 @@
+import { Meta, StoryFn } from "@storybook/vue3";
 import RelatedAssetWidget from "./RelatedAssetWidget.vue";
-import mockAsset from "../../__mocks__/mockAsset.json";
-import mockTemplate from "../../__mocks__/mockTemplate.json";
+import mockAsset from "../../__mocks__/mockAsset";
+import mockTemplate from "../../__mocks__/mockTemplate";
+// import mockAsset from "@/__mocks__/assetViewPage/crazedFruitAsset";
+// import mockTemplate from "@/__mocks__/assetViewPage/crazedFruitAssetTemplate";
 import { getWidgetByFieldTitle } from "../../Helpers/displayUtils";
+import { RelatedAssetWidgetContents } from "@/types";
 
 export default {
-  title: "View/Widgets/RelatedAssetWidget",
   component: RelatedAssetWidget,
-  argTypes: {
-    widget: {
-      type: "object",
-    },
-    contents: {
-      type: "object",
-    },
-    asset: {
-      type: "object",
-    },
-  },
-};
+} as Meta<typeof RelatedAssetWidget>;
 
-const Template = (args) => ({
+const Template: StoryFn<typeof RelatedAssetWidget> = (args) => ({
   components: { RelatedAssetWidget },
   setup() {
     return { args };
   },
-  template: `<RelatedAssetWidget v-bind="args"></RelatedAssetWidget>`,
+  template: `
+    <RelatedAssetWidget v-bind="args">
+    </RelatedAssetWidget>
+  `,
 });
 
+export const Default = Template.bind({});
+Default.args = {};
+
 const field = "relatedstuff_1";
-const widgetContents = mockAsset[field];
+const widgetContents = mockAsset[field] as RelatedAssetWidgetContents;
 const template = getWidgetByFieldTitle(mockTemplate, field);
 
 const collapseItem = JSON.parse(JSON.stringify(template));

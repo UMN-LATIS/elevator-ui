@@ -1,6 +1,6 @@
 import UploadWidget from "./UploadWidget.vue";
-import mockAsset from "../../__mocks__/mockAsset.json";
-import mockTemplate from "../../__mocks__/mockTemplate.json";
+import mockAsset from "../../__mocks__/mockAsset";
+import mockTemplate from "../../__mocks__/mockTemplate";
 import { getWidgetByFieldTitle } from "../../Helpers/displayUtils";
 
 export default {

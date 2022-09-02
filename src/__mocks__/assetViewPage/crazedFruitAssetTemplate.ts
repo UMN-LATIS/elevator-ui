@@ -1,7 +1,9 @@
 // 20220901084317
 // https://dev.elevator.umn.edu/dcl/assetManager/getTemplate/26
 
-export default {
+import { Template } from "@/types";
+
+const mockTemplate: Template = {
   templateId: "26",
   templateName: "Old DCL Works",
   widgetArray: [
@@ -387,3 +389,5 @@ export default {
   },
   allowedCollections: [],
 };
+
+export default mockTemplate;

@@ -1,15 +1,14 @@
-export enum WidgetType {
-  Checkbox = "checkbox",
-  Date = "date",
-  Location = "location",
-  MultiSelect = "multiselect",
-  RelatedAsset = "related asset",
-  Select = "select",
-  TagList = "tag list",
-  Text = "text",
-  Upload = "upload",
-  TextArea = "text area",
-}
+export type WidgetType =
+  | "checkbox"
+  | "date"
+  | "location"
+  | "multiselect"
+  | "related asset"
+  | "select"
+  | "tag list"
+  | "text"
+  | "upload"
+  | "text area";
 
 export interface Widget {
   widgetId: number;
@@ -31,22 +30,38 @@ export interface Widget {
   templateOrder: number;
 }
 
-interface WidgetWithoutFieldData extends Widget {
+export interface TextWidget extends Widget {
+  type: "text";
+  fieldData: [] | null;
+}
+export interface CheckboxWidget extends Widget {
+  type: "checkbox";
+  fieldData: [] | null;
+}
+export interface DateWidget extends Widget {
+  type: "date";
+  fieldData: [] | null;
+}
+export interface LocationWidget extends Widget {
+  type: "location";
+  fieldData: [] | null;
+}
+export interface TagListWidget extends Widget {
+  type: "tag list";
+  fieldData: [] | null;
+}
+export interface TextAreaWidget extends Widget {
+  type: "text area";
   fieldData: [] | null;
 }
 
-export type TextWidget = WidgetWithoutFieldData;
-export type CheckboxWidget = WidgetWithoutFieldData;
-export type DateWidget = WidgetWithoutFieldData;
-export type LocationWidget = WidgetWithoutFieldData;
-export type TagListWidget = WidgetWithoutFieldData;
-export type TextAreaWidget = WidgetWithoutFieldData;
-
 export interface MultiSelectWidget extends Widget {
+  type: "multiselect";
   fieldData: Record<string, unknown>;
 }
 
 export interface RelatedAssetWidget extends Widget {
+  type: "related asset";
   fieldData: {
     nestData?: boolean;
     showLabel?: boolean;
@@ -62,6 +77,7 @@ export interface RelatedAssetWidget extends Widget {
 }
 
 export interface SelectWidget extends Widget {
+  type: "select";
   fieldData: {
     multiSelect?: boolean;
     // TODO: This could be a key/value pair
@@ -70,6 +86,7 @@ export interface SelectWidget extends Widget {
 }
 
 export interface UploadWidget extends Widget {
+  type: "upload";
   fieldData: {
     extractDate?: boolean;
     forceTiling?: boolean;
@@ -145,8 +162,10 @@ export interface DateWidgetContents extends WidgetContents {
 export type Coordinates = [number, number];
 
 export interface LocationObject {
-  type: string;
-  coordinates: Coordinates;
+  label?: string;
+  entries?: unknown[];
+  type?: string;
+  coordinates?: Coordinates;
 }
 
 export interface LocationWidgetContents extends WidgetContents {
@@ -191,16 +210,18 @@ export interface DateComponent {
 }
 
 export interface DateResult {
-  start: DateComponent;
-  end: DateComponent;
-  loc: LocationObject;
-  label: string;
-  fileId: string;
-  fileType: string;
-  sidecars: unknown;
-  isPrimary: boolean;
-  searchData: string;
-  fileDescription: string;
+  start?: DateComponent;
+  end?: DateComponent;
+  loc?: LocationObject;
+  label?: string;
+  fileId?: string;
+  fileType?: string;
+  sidecars?: unknown;
+  isPrimary?: boolean;
+  searchData?: string;
+  fileDescription?: string;
+  dateAsset?: object[];
+  [key: string]: unknown;
 }
 
 export interface CollectionEntry {
@@ -214,33 +235,40 @@ export interface TemplateEntry {
 }
 
 export interface SearchResultMatchEntry {
-  label: string;
-  entries: string[];
-  Related_asset: boolean; // capitalized snake_case?
+  entries?: string[];
+  Related_asset?: boolean;
+  Date?: boolean;
+  Select?: boolean;
+  Location?: boolean;
+  label?: string;
+  Text?: boolean;
 }
 
 export interface SearchResultMatch {
-  title: string | string[];
+  title: string | string[] | null;
   dates: DateResult[];
   locations: LocationObject[];
   objectId: string;
   lastModified: string;
   collectionHierarchy: CollectionEntry[];
   template: TemplateEntry;
-  entries: SearchResultMatchEntry[];
+  entries?: SearchResultMatchEntry[];
   fileAssets?: number;
   primaryHandlerId?: string; // hash
+  primaryHandlerType?: string;
   primaryHandlerTiny?: string; // URI
   primaryHandlerTiny2x?: string; // URI
   primaryHandlerThumbnail?: string; //URI
   primaryHandlerThumbnail2x?: string; //URI
 }
 
-export interface SearchResult {
+export interface Search {
   totalResults: number;
   matches: SearchResultMatch[];
   searchResults: string[];
   searchId: string;
+  success?: boolean;
+  searchEntry: unknown;
 }
 
 export interface DateTime {
@@ -260,9 +288,9 @@ export interface Asset {
   collectionId: number;
   availableAfter: unknown | null;
   modified: DateTime;
-  modifiedBy: number;
-  createdBy: number;
-  deletedBy: number | null;
+  modifiedBy: number | string;
+  createdBy: number | string;
+  deletedBy: number | string | null;
   relatedAssetCache: Record<string, RelatedAsset> | null;
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
@@ -273,5 +301,6 @@ export interface Template {
   templateId: string;
   templateName: string;
   widgetArray: Widget[];
-  collections?: Record<string, string | unknown>;
+  collections?: Record<string | number, string | unknown>;
+  allowedCollections?: Record<string | number, string | unknown> | unknown[];
 }

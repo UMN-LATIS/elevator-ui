@@ -1,7 +1,9 @@
 // 20220901084012
 // https://dev.elevator.umn.edu/dcl/asset/viewAsset/56a3bb007d58ae8a488b4657/true
 
-export default {
+import { Asset } from "@/types";
+
+const mockAsset: Asset = {
   workid_7: [
     {
       fieldContents: "WK1109683",
@@ -170,3 +172,5 @@ export default {
   title: ["Crazed Fruit", "Kurutta Kajitsu"],
   titleObject: "worktitle_7",
 };
+
+export default mockAsset;

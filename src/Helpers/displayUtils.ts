@@ -133,7 +133,7 @@ export function widgetMatchesTitleWidget({
 
   return (
     !!titleWidget &&
-    widget.type === WidgetType.Text &&
+    widget.type === "text" &&
     widget.fieldTitle === titleWidget.fieldTitle &&
     widgetContents.length === 1
   );
