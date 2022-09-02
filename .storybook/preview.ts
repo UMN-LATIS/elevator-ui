@@ -1,12 +1,8 @@
 import { app } from "@storybook/vue3";
 import { createPinia } from "pinia";
-import config from '@/config';
+import config from "@/config";
 
-import "@fontsource/material-icons";
-import "@fontsource/open-sans";
-import "@fontsource/open-sans/700.css";
 import "../src/app.css";
-
 
 const pinia = createPinia();
 app.use(pinia);

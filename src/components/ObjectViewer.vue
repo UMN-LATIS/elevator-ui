@@ -1,5 +1,5 @@
 <template>
-  <section class="object-viewer w-full h-full">
+  <section class="object-viewer bg-neutral-300">
     <h2 class="sr-only">Object Viewer</h2>
     <iframe
       v-if="embedLink"
@@ -42,8 +42,3 @@ onMounted(async () => {
   objectAsset.value = await assetStore.fetchAsset(props.objectId);
 });
 </script>
-<style scoped>
-.object-viewer {
-  background: #ddd;
-}
-</style>

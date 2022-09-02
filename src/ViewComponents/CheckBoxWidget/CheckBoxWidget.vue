@@ -1,10 +1,16 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <span class="material-icons" v-if="content.fieldContents == true">
+      <span
+        v-if="content.fieldContents == true"
+        class="material-symbols-outlined"
+      >
         check_circle
       </span>
-      <span class="material-icons" v-else-if="content.fieldContents == false">
+      <span
+        v-else-if="content.fieldContents == false"
+        class="material-symbols-outlined"
+      >
         cancel
       </span>
     </li>

@@ -12,7 +12,7 @@
   >
     <slot />
     <div v-if="icon" class="inline-flex place-content-center">
-      <span class="material-icons-outlined">
+      <span class="material-symbols-outlined">
         {{ icon }}
       </span>
       <span class="sr-only">{{ label }}</span>

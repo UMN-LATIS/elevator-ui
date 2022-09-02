@@ -20,3 +20,6 @@ export const Default = Template.bind({});
 Default.args = {
   assetId: "56a3bb007d58ae8a488b4657",
 };
+Default.parameters = {
+  layout: "fullscreen",
+};

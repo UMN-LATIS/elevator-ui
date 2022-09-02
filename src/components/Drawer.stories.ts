@@ -51,7 +51,14 @@ const Template: StoryFn<typeof Drawer> = (args) => ({
   `,
 });
 
-export const Default = Template.bind({});
-Default.args = {
-  label: "Gehry Residence",
+export const Primary = Template.bind({});
+Primary.args = {
+  label: "Primary Drawer Title",
+  variant: "primary",
+};
+
+export const Secondary = Template.bind({});
+Secondary.args = {
+  label: "Secondary Drawer Title",
+  variant: "secondary",
 };

@@ -1,6 +1,6 @@
 <template>
   <div v-if="asset" class="asset-details">
-    <Drawer :label="assetTitle">
+    <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
       <template v-for="widget in widgets" :key="widget.id">
         <Widget :widget="widget" :asset="asset" :template="template" />
       </template>
@@ -15,8 +15,18 @@ import type { Asset, Template } from "@/types";
 import Drawer from "./Drawer.vue";
 import { getSortedWidgets, getAssetTitle } from "@/Helpers/displayUtils";
 
-const props = defineProps<{
-  assetId: string;
+const props = withDefaults(
+  defineProps<{
+    assetId: string;
+    isOpen?: boolean;
+  }>(),
+  {
+    isOpen: true,
+  }
+);
+
+defineEmits<{
+  (eventName: "toggle");
 }>();
 
 const assetStore = useAssetStore();
