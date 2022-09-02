@@ -12,7 +12,7 @@
 </template>
 <script setup lang="ts">
 import { type Component, computed } from "vue";
-import type { Asset, Widget } from "@/types";
+import type { Asset, WidgetProps } from "@/types";
 import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple.vue";
 import TextWidget from "@/ViewComponents/TextWidget/TextWidget.vue";
@@ -24,12 +24,13 @@ import MultiSelectWidget from "@/ViewComponents/MultiSelectWidget/MultiSelectWid
 import LocationWidget from "@/ViewComponents/LocationWidget/LocationWidget.vue";
 import UploadWidget from "@/ViewComponents/UploadWidget/UploadWidget.vue";
 import TagWidget from "@/ViewComponents/TagWidget/TagWidget.vue";
-import RelatedAssetWidget from "@/ViewComponents/RelatedAssetWidget/RelatedAssetWidget.vue";
+// import RelatedAssetWidget from "@/ViewComponents/RelatedAssetWidget/RelatedAssetWidget.vue";
 import { getWidgetContents } from "@/Helpers/displayUtils";
 // import { useTemplateStore } from "@/stores/newTemplateStore";
+import RelatedAssetWidget from "@/components/widgets/RelatedAssetWidget.vue";
 
 const props = defineProps<{
-  widget: Widget;
+  widget: WidgetProps;
   asset: Asset;
   // template: Template;
 }>();

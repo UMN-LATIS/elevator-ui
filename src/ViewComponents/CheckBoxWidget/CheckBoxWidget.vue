@@ -18,10 +18,10 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, WidgetContents } from "@/types";
+import { WidgetProps, WidgetContents } from "@/types";
 
 interface Props {
-  widget: Widget;
+  widget: WidgetProps;
   contents: WidgetContents[];
 }
 

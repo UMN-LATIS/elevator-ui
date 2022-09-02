@@ -5,11 +5,11 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedAssetWidgetContents, RelatedAsset } from "@/types";
+import { WidgetProps, RelatedAssetWidgetContents, RelatedAsset } from "@/types";
 import { getAssetLink, getRelatedAssetTitle } from "@/Helpers/displayUtils";
 
 defineProps<{
-  widget: Widget;
+  widget: WidgetProps;
   contents: RelatedAssetWidgetContents;
   assetCache: RelatedAsset;
 }>();

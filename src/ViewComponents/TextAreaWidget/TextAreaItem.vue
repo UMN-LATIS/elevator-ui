@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Widget } from "@/types";
+import { WidgetProps } from "@/types";
 import { ref, onMounted } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
@@ -13,7 +13,7 @@ import shave from "shave";
 const props = withDefaults(
   defineProps<{
     fieldContents: string;
-    widget: Widget;
+    widget: WidgetProps;
     textTruncationLength?: number;
   }>(),
   {

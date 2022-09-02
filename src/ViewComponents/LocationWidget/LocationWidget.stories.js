@@ -1,7 +1,7 @@
 import LocationWidget from "./LocationWidget.vue";
 import mockAsset from "../../__mocks__/mockAsset";
 import mockTemplate from "../../__mocks__/mockTemplate";
-import { getWidgetByFieldTitle } from "../../Helpers/displayUtils";
+import { getWidgetPropsByFieldTitle } from "../../Helpers/displayUtils";
 
 export default {
   title: "View/Widgets/LocationWidget",
@@ -26,7 +26,7 @@ const Template = (args) => ({
 
 const field = "location_1";
 const widgetContents = mockAsset[field];
-const template = getWidgetByFieldTitle(mockTemplate, field);
+const template = getWidgetPropsByFieldTitle(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

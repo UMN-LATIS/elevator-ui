@@ -11,11 +11,11 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { Widget } from "@/types";
+import { WidgetProps } from "@/types";
 import config from "@/config";
 
 interface Props {
-  widget: Widget;
+  widget: WidgetProps;
   linkText: string;
 }
 

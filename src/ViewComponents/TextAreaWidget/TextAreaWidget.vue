@@ -11,11 +11,11 @@
 </template>
 
 <script setup lang="ts">
-import { TextAreaWidget, TextAreaWidgetContents } from "@/types";
+import { TextAreaWidgetProps, TextAreaWidgetContents } from "@/types";
 import TextAreaItem from "@/ViewComponents/TextAreaWidget/TextAreaItem.vue";
 
 defineProps<{
-  widget: TextAreaWidget;
+  widget: TextAreaWidgetProps;
   contents: TextAreaWidgetContents[];
 }>();
 </script>

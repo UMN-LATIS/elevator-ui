@@ -4,7 +4,7 @@ import mockAsset from "../../__mocks__/mockAsset";
 import mockTemplate from "../../__mocks__/mockTemplate";
 // import mockAsset from "@/__mocks__/assetViewPage/crazedFruitAsset";
 // import mockTemplate from "@/__mocks__/assetViewPage/crazedFruitAssetTemplate";
-import { getWidgetByFieldTitle } from "../../Helpers/displayUtils";
+import { getWidgetPropsByFieldTitle } from "../../Helpers/displayUtils";
 import { RelatedAssetWidgetContents } from "@/types";
 
 export default {
@@ -27,7 +27,7 @@ Default.args = {};
 
 const field = "relatedstuff_1";
 const widgetContents = mockAsset[field] as RelatedAssetWidgetContents;
-const template = getWidgetByFieldTitle(mockTemplate, field);
+const template = getWidgetPropsByFieldTitle(mockTemplate, field);
 
 const collapseItem = JSON.parse(JSON.stringify(template));
 collapseItem.fieldData.collapseNestedChildren = true;

@@ -1,7 +1,7 @@
 import SelectWidget from "./SelectWidget.vue";
 import mockAsset from "../../__mocks__/mockAsset";
 import mockTemplate from "../../__mocks__/mockTemplate";
-import { getWidgetByFieldTitle } from "../../Helpers/displayUtils";
+import { getWidgetPropsByFieldTitle } from "../../Helpers/displayUtils";
 
 export default {
   title: "View/Widgets/SelectWidget",
@@ -26,7 +26,7 @@ const Template = (args) => ({
 
 const field = "globalsearch_1";
 const widgetContents = mockAsset[field];
-const widget = getWidgetByFieldTitle(mockTemplate, field);
+const widget = getWidgetPropsByFieldTitle(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

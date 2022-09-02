@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Asset, Template, Widget, WidgetContents } from "@/types";
+import { Asset, Template, WidgetProps, WidgetContents } from "@/types";
 import WidgetBase from "@/components/Widget.vue";
 
 interface Props {
@@ -29,7 +29,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const sortedWidgetArray = computed((): Widget[] => {
+const sortedWidgetArray = computed((): WidgetProps[] => {
   const sortedArray = [...props.template.widgetArray].sort((a, b) => {
     return a.viewOrder - b.viewOrder;
   });

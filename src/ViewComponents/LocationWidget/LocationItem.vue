@@ -14,13 +14,13 @@
 </template>
 
 <script setup lang="ts">
-import { LocationWidget, LocationWidgetContents } from "@/types";
+import { LocationWidgetProps, LocationWidgetContents } from "@/types";
 import { computed, ref } from "vue";
 import Modal from "@/Helpers/Modal/Modal.vue";
 
 interface Props {
   locationContent: LocationWidgetContents;
-  widget: LocationWidget;
+  widget: LocationWidgetProps;
 }
 
 const props = defineProps<Props>();

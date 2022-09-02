@@ -111,7 +111,7 @@ onMounted(async () => {
 
   .asset-view-page.is-asset-details-open.is-object-details-open {
     /* constrain the object details height */
-    grid-template-rows: 1fr 50vh;
+    grid-template-rows: 1fr 33vh;
   }
 }
 </style>

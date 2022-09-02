@@ -7,13 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import { UploadWidgetContents, Widget } from "@/types";
+import { UploadWidgetContents, WidgetProps } from "@/types";
 import { setAssetInStore } from "@/Helpers/displayUtils";
 import config from "@/config";
 import { computed } from "vue";
 
 const props = defineProps<{
-  widget: Widget;
+  widget: WidgetProps;
   content: UploadWidgetContents;
 }>();
 

@@ -10,10 +10,10 @@
 
 <script setup lang="ts">
 import Link from "@/Helpers/Link/Link.vue";
-import { TextWidget, TextWidgetContents } from "@/types";
+import { TextWidgetProps, TextWidgetContents } from "@/types";
 
 interface Props {
-  widget: TextWidget;
+  widget: TextWidgetProps;
   contents: TextWidgetContents[];
 }
 

@@ -3,24 +3,23 @@ import { useTemplateStore } from "@/stores/templateStore";
 import { useAssetStore } from "@/stores/assetStore";
 import {
   Asset,
-  TextWidget,
-  Widget,
+  TextWidgetProps,
+  WidgetProps,
   WidgetContents,
   Template,
-  WidgetType,
 } from "@/types";
 import config from "@/config";
 
-export const getWidgetByFieldTitle = (
+export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
   template: Template,
   fieldTitle: string
-): TextWidget | null => {
+): T | null {
   return (
-    template.widgetArray.find<TextWidget>(
-      (widget: Widget): widget is TextWidget => widget.fieldTitle === fieldTitle
+    (template.widgetArray as T[]).find(
+      (widget: T) => widget.fieldTitle === fieldTitle
     ) ?? null
   );
-};
+}
 
 export const getTinyURL = (fileObjectId) => {
   return (
@@ -91,7 +90,7 @@ export const getTemplate = (templateId: string | number) => {
 
 export const getTitleWidget = async (
   asset: Asset
-): Promise<TextWidget | null> => {
+): Promise<TextWidgetProps | null> => {
   const templateStore = useTemplateStore();
   const template = await templateStore.loadTemplate(asset.templateId);
 
@@ -99,17 +98,17 @@ export const getTitleWidget = async (
     return null;
   }
 
-  return getWidgetByFieldTitle(template, asset.titleObject);
+  return getWidgetPropsByFieldTitle<TextWidgetProps>(
+    template,
+    asset.titleObject
+  );
 };
 
-export function getWidgetContents({
-  asset,
-  widget,
-}: {
-  asset: Asset;
-  widget: Widget;
-}) {
-  return asset[widget.fieldTitle] as WidgetContents[];
+export function getWidgetContents<
+  T extends WidgetProps,
+  U extends WidgetContents
+>({ asset, widget }: { asset: Asset; widget: T }) {
+  return asset[widget.fieldTitle] as U[];
 }
 
 /**
@@ -121,14 +120,14 @@ export function widgetMatchesTitleWidget({
   template,
   asset,
 }: {
-  widget: Widget;
+  widget: WidgetProps;
   template: Template | null;
   asset: Asset | null;
 }): boolean {
   // if no titleObject, then this widget doesn't match
   if (!asset || !template || !asset.titleObject) return false;
 
-  const titleWidget = getWidgetByFieldTitle(template, asset.titleObject);
+  const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
   const widgetContents = getWidgetContents({ asset: asset, widget });
 
   return (
@@ -144,7 +143,7 @@ export function assetHasWidgetContents({
   widget,
 }: {
   asset: Asset;
-  widget: Widget;
+  widget: WidgetProps;
 }) {
   const contents = getWidgetContents({ asset, widget });
   return contents !== null && contents !== undefined;
@@ -156,7 +155,7 @@ export function getSortedWidgets({
 }: {
   asset: Asset | null;
   template: Template | null;
-}): Widget[] {
+}): WidgetProps[] {
   if (!(template && asset)) return [];
 
   return [...template.widgetArray]
@@ -183,7 +182,7 @@ export function getAssetTitle({
   if (!asset || !template) return "";
   if (!asset.titleObject) return "Untitled";
 
-  const titleWidget = getWidgetByFieldTitle(template, asset.titleObject);
+  const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
 
   return titleWidget?.label || "Untitled";
 }

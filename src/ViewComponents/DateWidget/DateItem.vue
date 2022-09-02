@@ -12,11 +12,11 @@
 <script setup lang="ts">
 import Link from "@/Helpers/Link/Link.vue";
 import { computed } from "vue";
-import { DateWidget, DateWidgetContents } from "@/types";
+import { DateWidgetProps, DateWidgetContents } from "@/types";
 
 interface Props {
   dateContent: DateWidgetContents;
-  widget: DateWidget;
+  widget: DateWidgetProps;
 }
 
 const props = defineProps<Props>();

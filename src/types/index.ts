@@ -10,7 +10,7 @@ export type WidgetType =
   | "upload"
   | "text area";
 
-export interface Widget {
+export interface WidgetProps {
   widgetId: number;
   type: WidgetType;
   allowMultiple: boolean;
@@ -30,37 +30,37 @@ export interface Widget {
   templateOrder: number;
 }
 
-export interface TextWidget extends Widget {
+export interface TextWidgetProps extends WidgetProps {
   type: "text";
   fieldData: [] | null;
 }
-export interface CheckboxWidget extends Widget {
+export interface CheckboxWidgetProps extends WidgetProps {
   type: "checkbox";
   fieldData: [] | null;
 }
-export interface DateWidget extends Widget {
+export interface DateWidgetProps extends WidgetProps {
   type: "date";
   fieldData: [] | null;
 }
-export interface LocationWidget extends Widget {
+export interface LocationWidgetProps extends WidgetProps {
   type: "location";
   fieldData: [] | null;
 }
-export interface TagListWidget extends Widget {
+export interface TagListWidgetProps extends WidgetProps {
   type: "tag list";
   fieldData: [] | null;
 }
-export interface TextAreaWidget extends Widget {
+export interface TextAreaWidgetProps extends WidgetProps {
   type: "text area";
   fieldData: [] | null;
 }
 
-export interface MultiSelectWidget extends Widget {
+export interface MultiSelectWidgetProps extends WidgetProps {
   type: "multiselect";
   fieldData: Record<string, unknown>;
 }
 
-export interface RelatedAssetWidget extends Widget {
+export interface RelatedAssetWidgetProps extends WidgetProps {
   type: "related asset";
   fieldData: {
     nestData?: boolean;
@@ -76,7 +76,7 @@ export interface RelatedAssetWidget extends Widget {
   };
 }
 
-export interface SelectWidget extends Widget {
+export interface SelectWidgetProps extends WidgetProps {
   type: "select";
   fieldData: {
     multiSelect?: boolean;
@@ -85,7 +85,7 @@ export interface SelectWidget extends Widget {
   };
 }
 
-export interface UploadWidget extends Widget {
+export interface UploadWidgetProps extends WidgetProps {
   type: "upload";
   fieldData: {
     extractDate?: boolean;
@@ -300,7 +300,7 @@ export interface Asset {
 export interface Template {
   templateId: string;
   templateName: string;
-  widgetArray: Widget[];
+  widgetArray: WidgetProps[];
   collections?: Record<string | number, string | unknown>;
   allowedCollections?: Record<string | number, string | unknown> | unknown[];
 }

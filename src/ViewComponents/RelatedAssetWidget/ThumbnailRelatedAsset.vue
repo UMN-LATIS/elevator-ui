@@ -8,11 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { Widget, RelatedAssetWidgetContents, RelatedAsset } from "@/types";
+import { WidgetProps, RelatedAssetWidgetContents, RelatedAsset } from "@/types";
 import { getTinyURL, setAssetInStore } from "@/Helpers/displayUtils";
 
 const props = defineProps<{
-  widget: Widget;
+  widget: WidgetProps;
   content: RelatedAssetWidgetContents;
   assetCache: RelatedAsset;
 }>();

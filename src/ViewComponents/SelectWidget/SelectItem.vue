@@ -9,11 +9,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Link from "@/Helpers/Link/Link.vue";
-import { SelectWidget, SelectWidgetContents } from "@/types";
+import { SelectWidgetProps, SelectWidgetContents } from "@/types";
 
 const props = defineProps<{
   selectValues: SelectWidgetContents;
-  widget: SelectWidget;
+  widget: SelectWidgetProps;
 }>();
 
 const contentAsArray = computed(() => {

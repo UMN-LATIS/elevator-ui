@@ -1,6 +1,6 @@
 import Link from "./Link.vue";
 import mockTemplate from "../../__mocks__/mockTemplate";
-import { getWidgetByFieldTitle } from "@/Helpers/displayUtils";
+import { getWidgetPropsByFieldTitle } from "@/Helpers/displayUtils";
 
 export default {
   title: "Helpers/Link",
@@ -24,7 +24,7 @@ const Template = (args) => ({
 });
 
 const field = "title_1";
-const template = getWidgetByFieldTitle(mockTemplate, field);
+const template = getWidgetPropsByFieldTitle(mockTemplate, field);
 
 export const Default = Template.bind({});
 Default.args = {

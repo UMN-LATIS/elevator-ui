@@ -16,11 +16,15 @@ import CollapsedInlineRelatedAsset from "@/ViewComponents/RelatedAssetWidget/Col
 import LinkedItemRelatedAsset from "@/ViewComponents/RelatedAssetWidget/LinkedItemRelatedAsset.vue";
 import ThumbnailRelatedAsset from "@/ViewComponents/RelatedAssetWidget/ThumbnailRelatedAsset.vue";
 import TogglePanelRelatedAsset from "@/ViewComponents/RelatedAssetWidget/TogglePanelRelatedAsset.vue";
-import { RelatedAssetWidget, RelatedAssetWidgetContents, Asset } from "@/types";
+import {
+  RelatedAssetWidgetProps,
+  RelatedAssetWidgetContents,
+  Asset,
+} from "@/types";
 import { computed } from "vue";
 
 interface Props {
-  widget: RelatedAssetWidget;
+  widget: RelatedAssetWidgetProps;
   contents: RelatedAssetWidgetContents[];
   asset: Asset;
 }

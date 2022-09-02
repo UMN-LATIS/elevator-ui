@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import {
-  RelatedAssetWidget,
+  RelatedAssetWidgetProps,
   RelatedAssetWidgetContents,
   RelatedAsset,
 } from "@/types";
@@ -20,7 +20,7 @@ import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
 import ViewWrapper from "@/ViewComponents/ViewWrapper.vue";
 
 defineProps<{
-  widget: RelatedAssetWidget;
+  widget: RelatedAssetWidgetProps;
   content: RelatedAssetWidgetContents;
   assetCache: RelatedAsset;
 }>();
