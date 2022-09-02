@@ -52,8 +52,8 @@ onMounted(async () => {
   .asset-view-page {
     display: grid;
     height: 100vh;
-    grid-template-columns: 1fr 2fr;
-    grid-template-rows: 1fr min-content;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
     grid-template-areas:
       "viewer viewer"
       "asset-details object-details";

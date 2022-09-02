@@ -1,8 +1,8 @@
 <template>
   <section
-    class="drawer overflow-auto"
+    class="drawer overflow-auto h-full"
     :class="{
-      'h-full': isOpen,
+      // 'h-full': isOpen,
       'bg-neutral-100': variant === 'primary',
       'bg-white': variant === 'secondary',
     }"
@@ -14,10 +14,16 @@
           variant === 'primary',
         'bg-neutral-50 text-neutral-900 border-y border-neutral-200':
           variant === 'secondary',
+        'h-full': !isOpen,
       }"
     >
       <slot name="header">
-        <h1 class="font-bold relative p-4">
+        <h1
+          class="font-bold relative p-4"
+          :class="{
+            'md:text-2xl': variant === 'primary',
+          }"
+        >
           {{ label }}
         </h1>
         <button
