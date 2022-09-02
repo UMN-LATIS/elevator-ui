@@ -1,6 +1,6 @@
 import ViewContainer from "./ViewContainer.vue";
-import mockAsset from "../__mocks__/mockAsset.json";
-import mockTemplate from "../__mocks__/mockTemplate.json";
+import mockAsset from "../__mocks__/mockAsset";
+import mockTemplate from "../__mocks__/mockTemplate";
 
 export default {
   title: "View/ViewContainer",
