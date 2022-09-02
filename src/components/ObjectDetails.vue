@@ -1,7 +1,12 @@
 <template>
   <div v-if="objectAsset" class="asset-details">
-    <Drawer label="Details" variant="secondary" :isOpen="isOpen">
-      <template #header>
+    <Drawer
+      label="Details"
+      variant="secondary"
+      :isOpen="isOpen"
+      @toggle="$emit('toggle')"
+    >
+      <template #header-utils>
         <div class="flex justify-between items-center w-full px-4 py-2">
           <div class="flex gap-1 items-center leading-none">
             <button class="p-2 flex items-center">
@@ -13,14 +18,6 @@
             <button class="p-2 flex items-center">
               <span class="material-symbols-outlined">share</span>
             </button>
-          </div>
-          <div class="flex items-center">
-            <Button
-              :icon="isOpen ? 'arrow_downward' : 'arrow_upward'"
-              class="p-2"
-              @click="$emit('toggle')"
-              >Details</Button
-            >
           </div>
         </div>
       </template>
@@ -38,7 +35,6 @@ import { Asset, Template } from "@/types";
 import { getSortedWidgets } from "@/Helpers/displayUtils";
 import Drawer from "./Drawer.vue";
 import Widget from "./Widget.vue";
-import Button from "./Button.vue";
 
 const props = withDefaults(
   defineProps<{

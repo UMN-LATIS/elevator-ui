@@ -1,5 +1,5 @@
 <template>
-  <section class="object-viewer bg-neutral-300">
+  <section class="object-viewer bg-neutral-400">
     <h2 class="sr-only">Object Viewer</h2>
     <iframe
       v-if="embedLink"

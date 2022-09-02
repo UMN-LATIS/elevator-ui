@@ -38,7 +38,7 @@ const props = defineProps<{
   assetId: string;
 }>();
 
-const isAssetDetailsOpen = ref(false);
+const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
 
 const assetStore = useAssetStore();
@@ -48,36 +48,62 @@ onMounted(async () => {
 });
 </script>
 <style scoped>
+.asset-view-page {
+  display: grid;
+  height: 100vh;
+}
+.asset-view-page__viewer {
+  grid-area: viewer;
+}
+
+.asset-view-page__asset-details {
+  grid-area: asset-details;
+}
+
+.asset-view-page__object-details {
+  grid-area: object-details;
+}
+
+@media (max-width: 639px) {
+  .asset-view-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto min-content min-content;
+    grid-template-areas:
+      "viewer"
+      "asset-details"
+      "object-details";
+  }
+  .asset-view-page.is-asset-details-open:not(.is-object-details-open) {
+    grid-template-rows: auto 50vh min-content;
+  }
+
+  .asset-view-page.is-object-details-open:not(.is-asset-details-open) {
+    grid-template-rows: auto min-content 50vh;
+  }
+
+  .asset-view-page.is-object-details-open.is-asset-details-open {
+    grid-template-rows: 1fr 33vh 33vh;
+  }
+}
+
 @media (min-width: 640px) {
   .asset-view-page {
-    display: grid;
-    height: 100vh;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr min-content;
     grid-template-areas:
       "viewer viewer"
       "asset-details object-details";
   }
 
-  .asset-view-page__viewer {
-    grid-area: viewer;
-  }
-
-  .asset-view-page__asset-details {
-    grid-area: asset-details;
-  }
-
-  .asset-view-page__object-details {
-    grid-area: object-details;
-  }
-
   .asset-view-page.is-asset-details-open {
+    grid-template-columns: minmax(400px, 1fr) 2fr;
     grid-template-areas:
       "asset-details viewer"
       "asset-details object-details";
   }
 
   .asset-view-page.is-object-details-open:not(.is-asset-details-open) {
+    grid-template-columns: 2fr 1fr;
     grid-template-areas:
       "viewer object-details"
       "asset-details object-details";
