@@ -1,13 +1,15 @@
 <template>
-  <div v-if="asset && template" class="widget-list flex flex-col gap-8">
-    <Widget
-      v-for="widget in widgets"
-      :key="widget.widgetId"
-      :widget="widget"
-      :asset="asset"
-      :template="template"
-    />
-  </div>
+  <Transition name="fade">
+    <div v-if="asset && template" class="widget-list flex flex-col gap-8">
+      <Widget
+        v-for="widget in widgets"
+        :key="widget.widgetId"
+        :widget="widget"
+        :asset="asset"
+        :template="template"
+      />
+    </div>
+  </Transition>
 </template>
 <script setup lang="ts">
 /**
@@ -54,3 +56,13 @@ provide(getWidgetNestingDepthProviderKey, () => {
   return prevNestingDepth + 1;
 });
 </script>
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

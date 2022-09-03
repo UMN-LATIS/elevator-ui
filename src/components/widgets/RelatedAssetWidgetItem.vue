@@ -21,7 +21,6 @@
 import { inject } from "vue";
 import Accordion from "@/components/Accordion.vue";
 import WidgetList from "../WidgetList.vue";
-import Button from "../Button.vue";
 import { getAssetUrl } from "@/Helpers/displayUtils";
 import { getWidgetNestingDepthProviderKey } from "@/constants";
 
