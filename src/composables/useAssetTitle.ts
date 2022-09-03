@@ -2,44 +2,38 @@ import { ref, type Ref, watch, isRef } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
 import { getWidgetPropsByFieldTitle } from "@/Helpers/displayUtils";
 
+const assetStore = useAssetStore();
+
+async function fetchAssetTitle(assetId): Promise<string> {
+  if (!assetId) return "";
+
+  const [asset, template] = await Promise.all([
+    assetStore.fetchAsset(assetId),
+    assetStore.fetchTemplateForAsset(assetId),
+  ]);
+
+  if (!asset || !template) return "(Not Found)";
+
+  if (!asset.titleObject) return "Untitled";
+
+  const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
+
+  return titleWidget?.label ?? "Untitled";
+}
+
 /**
- * reactively get an asset's title by an id
+ * gets a ref with the asset's title for
+ * a given asset id
+ * while the asset is fetching the ref will be ''
  */
-export function useAssetTitle(
-  assetId: Ref<string | null> | string | null
-): Ref<string> {
-  const assetStore = useAssetStore();
+export function useAssetTitle(assetId: string | null): Ref<string> {
   const title = ref("");
 
-  // turn into ref if it's not
-  const assetIdRef = isRef(assetId) ? assetId : ref(assetId);
-
-  watch(assetIdRef, async () => {
-    if (!assetIdRef.value) {
-      // reset to empty string if nullish
-      title.value = "";
-      return;
-    }
-
-    const [asset, template] = await Promise.all([
-      assetStore.fetchAsset(assetIdRef.value),
-      assetStore.fetchTemplateForAsset(assetIdRef.value),
-    ]);
-
-    if (!asset || !template) {
-      title.value = "(Not Found)";
-      return;
-    }
-
-    if (!asset.titleObject) {
-      title.value = "Untitled";
-      return;
-    }
-
-    const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
-
-    title.value = titleWidget?.label || "Untitled";
-  });
-
+  watch(
+    () => assetId,
+    async () => (title.value = await fetchAssetTitle(assetId)),
+    // run when first called
+    { immediate: true }
+  );
   return title;
 }
