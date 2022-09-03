@@ -11,14 +11,14 @@
       class="asset-view-page__viewer"
       :objectId="assetStore.activeObjectId"
     />
-    <AssetDetails
+    <AssetDetailsDrawer
       v-if="assetStore.activeAssetId"
       class="asset-view-page__asset-details"
       :assetId="assetStore.activeAssetId"
       :isOpen="isAssetDetailsOpen"
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
-    <ObjectDetails
+    <ObjectDetailsDrawer
       v-if="assetStore.activeObjectId"
       class="asset-viewpage__object-details"
       :objectId="assetStore.activeObjectId"
@@ -31,8 +31,8 @@
 import { onMounted, ref } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
 import ObjectViewer from "@/components/ObjectViewer.vue";
-import ObjectDetails from "@/components/ObjectDetails.vue";
-import AssetDetails from "@/components/AssetDetails.vue";
+import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer.vue";
+import AssetDetailsDrawer from "@/components/AssetDetailsDrawer.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -111,7 +111,7 @@ onMounted(async () => {
 
   .asset-view-page.is-asset-details-open.is-object-details-open {
     /* constrain the object details height */
-    grid-template-rows: 1fr 33vh;
+    grid-template-rows: 1fr 50vh;
   }
 }
 </style>

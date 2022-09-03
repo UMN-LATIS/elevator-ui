@@ -14,11 +14,12 @@
  * lists all the asset's widget as defined by the asset
  * template
  */
-import { ref, watchEffect, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
 import type { Template, Asset } from "@/types";
-import { getSortedWidgets } from "@/Helpers/displayUtils";
+import { getWidgetsForDisplay } from "@/Helpers/displayUtils";
 import Widget from "@/components/Widget.vue";
+import { assetHasWidgetContents } from "@/Helpers/displayUtils";
 
 const props = defineProps<{
   assetId: string;
@@ -28,16 +29,22 @@ const assetStore = useAssetStore();
 const asset = ref<Asset | null>(null);
 const template = ref<Template | null>(null);
 
-watchEffect(async () => {
-  asset.value = props.assetId
-    ? await assetStore.fetchAsset(props.assetId)
-    : null;
-  template.value = asset.value
-    ? await assetStore.fetchTemplateForAsset(props.assetId)
-    : null;
-});
+watch(
+  () => props.assetId,
+  async () => {
+    [asset.value, template.value] = await Promise.all([
+      assetStore.fetchAsset(props.assetId),
+      assetStore.fetchTemplateForAsset(props.assetId),
+    ]);
+  },
+  { immediate: true }
+);
 
 const widgets = computed(() =>
-  getSortedWidgets({ asset: asset.value, template: template.value })
+  getWidgetsForDisplay({ asset: asset.value, template: template.value })
 );
+
+watch(widgets, () => console.log({ widgets: widgets.value }), {
+  immediate: true,
+});
 </script>

@@ -1,29 +1,30 @@
 <template>
   <div class="related-asset-widget">
-    <Accordion :label="widget.label" @toggle="handleAccordionToggle">
-      <Tuple
-        v-for="(relatedAsset, i) in contents"
-        :key="relatedAsset.targetAssetId || i"
-        :label="relatedAsset.label || 'Unknown'"
-      >
-        <Suspense>
-          {{ getAssetValue(relatedAsset.targetAssetId) }}
-          <template #loading> Loading... </template>
-        </Suspense>
-      </Tuple>
-    </Accordion>
+    <Tuple
+      v-for="relatedAsset in contentsWithAssetId"
+      :key="relatedAsset.targetAssetId"
+      :label="relatedAsset.label ?? ''"
+    >
+      <RelatedAssetWidgetItem
+        :assetId="relatedAsset.targetAssetId"
+        :title="
+          asset.relatedAssetCache?.[relatedAsset.targetAssetId]
+            ?.relatedAssetTitle?.[0] ?? '(no title)'
+        "
+      />
+    </Tuple>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import {
   Asset,
   RelatedAssetWidgetProps,
   RelatedAssetWidgetContents,
 } from "@/types";
-import Accordion from "../Accordion.vue";
 import Tuple from "../Tuple.vue";
-import { useAssetStore } from "@/stores/newAssetStore";
+import RelatedAssetWidgetItem from "./RelatedAssetWidgetItem.vue";
+import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
 
 const props = defineProps<{
   widget: RelatedAssetWidgetProps;
@@ -31,23 +32,13 @@ const props = defineProps<{
   asset: Asset;
 }>();
 
-const assetStore = useAssetStore();
+type WithTargetAssetId<T> = T & { targetAssetId: string };
 
-function handleAccordionToggle() {
-  // props.contents.forEach(({ targetAssetId, label }) => {});
-}
-
-async function getAssetValue(id: string | null): Promise<string> {
-  if (!id) return "-";
-
-  const asset = await assetStore.fetchAsset(id);
-  return JSON.stringify(asset);
-}
-
-console.log({
-  widget: props.widget,
-  contents: props.contents,
-  asset: props.asset,
-});
+const contentsWithAssetId = computed(() =>
+  props.contents.filter(
+    (item): item is WithTargetAssetId<RelatedAssetWidgetContents> =>
+      !!item.targetAssetId
+  )
+);
 </script>
 <style scoped></style>

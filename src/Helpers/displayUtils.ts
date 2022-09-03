@@ -149,7 +149,7 @@ export function assetHasWidgetContents({
   return contents !== null && contents !== undefined;
 }
 
-export function getSortedWidgets({
+export function getWidgetsForDisplay({
   asset,
   template,
 }: {
@@ -158,17 +158,20 @@ export function getSortedWidgets({
 }): WidgetProps[] {
   if (!(template && asset)) return [];
 
-  return [...template.widgetArray]
+  const filteredWidgets = template.widgetArray
     .filter((widget) => widget.display)
-    .filter((widget) => assetHasWidgetContents({ asset, widget }))
-    .filter(
-      (widget) =>
-        !widgetMatchesTitleWidget({
-          widget,
-          asset,
-          template,
-        })
-    )
+    .filter((widget) => assetHasWidgetContents({ asset, widget }));
+
+  // if there's less than 2 items, we're done
+  // as there's nothing to be sorted
+  if (filteredWidgets.length < 2) {
+    return filteredWidgets;
+  }
+
+  // otherwise, remove any widgets that might be a duplicate
+  // with the asset title and then sort
+  return filteredWidgets
+    .filter((widget) => !widgetMatchesTitleWidget({ widget, template, asset }))
     .sort((a, b) => a.viewOrder - b.viewOrder);
 }
 
