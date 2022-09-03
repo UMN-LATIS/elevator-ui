@@ -1,19 +1,17 @@
 <template>
   <div v-if="asset" class="asset-details">
     <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
-      <template v-for="widget in widgets" :key="widget.id">
-        <Widget :widget="widget" :asset="asset" :template="template" />
-      </template>
+      <WidgetList :assetId="assetId" />
     </Drawer>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watchEffect, computed } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
-import Widget from "@/components/Widget.vue";
 import type { Asset, Template } from "@/types";
 import Drawer from "./Drawer.vue";
-import { getSortedWidgets, getAssetTitle } from "@/Helpers/displayUtils";
+import { getAssetTitle } from "@/Helpers/displayUtils";
+import WidgetList from "./WidgetList.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -45,10 +43,6 @@ watchEffect(async () => {
 
 const assetTitle = computed(() =>
   getAssetTitle({ asset: asset.value, template: template.value })
-);
-
-const widgets = computed(() =>
-  getSortedWidgets({ asset: asset.value, template: template.value })
 );
 </script>
 <style scoped></style>

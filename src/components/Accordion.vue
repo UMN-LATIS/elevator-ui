@@ -6,7 +6,7 @@
       class="accordion__header flex w-full justify-start items-center p-4 gap-2 bg-neutral-200 border-none rounded-b-none"
       label="expand more"
       icon="expand_more"
-      @click="isOpen = !isOpen"
+      @click="handleAccordionToggle"
     >
       <span class="flex-1 block text-left font-normal">{{ label }}</span>
     </Button>
@@ -30,6 +30,15 @@ withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  (eventName: "toggle");
+}>();
+
 const isOpen = ref(false);
+
+function handleAccordionToggle() {
+  isOpen.value = !isOpen.value;
+  emit("toggle");
+}
 </script>
 <style scoped></style>
