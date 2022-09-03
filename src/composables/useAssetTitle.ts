@@ -1,4 +1,4 @@
-import { ref, type Ref, watch, isRef } from "vue";
+import { ref, type Ref, watch } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
 import { getWidgetPropsByFieldTitle } from "@/Helpers/displayUtils";
 
@@ -13,18 +13,15 @@ async function fetchAssetTitle(assetId): Promise<string> {
   ]);
 
   if (!asset || !template) return "(Not Found)";
-
   if (!asset.titleObject) return "Untitled";
 
   const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
-
   return titleWidget?.label ?? "Untitled";
 }
 
 /**
  * gets a ref with the asset's title for
  * a given asset id
- * while the asset is fetching the ref will be ''
  */
 export function useAssetTitle(assetId: string | null): Ref<string> {
   const title = ref("");
