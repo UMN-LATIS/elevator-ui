@@ -39,8 +39,8 @@ export const getThumbURL = (fileObjectId) => {
   );
 };
 
-export const getAssetLink = (objectId) => {
-  return config.baseUrl + "/asset/viewAsset/" + objectId;
+export const getAssetUrl = (assetId: string) => {
+  return config.baseUrl + "/asset/viewAsset/" + assetId;
 };
 
 export const getRelatedAssetTitle = (relatedAssetTitleCache) => {

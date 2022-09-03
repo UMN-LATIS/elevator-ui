@@ -1,16 +1,21 @@
 <template>
-  <a :href="getAssetLink(contents.targetAssetId)">
+  <component :is="href ? 'a' : 'span'" :href="href">
     {{ getRelatedAssetTitle(assetCache.relatedAssetTitle) }}
-  </a>
+  </component>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { WidgetProps, RelatedAssetWidgetContents, RelatedAsset } from "@/types";
-import { getAssetLink, getRelatedAssetTitle } from "@/Helpers/displayUtils";
+import { getAssetUrl, getRelatedAssetTitle } from "@/Helpers/displayUtils";
 
-defineProps<{
+const props = defineProps<{
   widget: WidgetProps;
-  contents: RelatedAssetWidgetContents;
+  content: RelatedAssetWidgetContents;
   assetCache: RelatedAsset;
 }>();
+
+const href = computed(() =>
+  props.content.targetAssetId ? getAssetUrl(props.content.targetAssetId) : ""
+);
 </script>

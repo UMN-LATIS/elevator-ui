@@ -24,7 +24,6 @@ import {
 } from "@/types";
 import Tuple from "../Tuple.vue";
 import RelatedAssetWidgetItem from "./RelatedAssetWidgetItem.vue";
-import { getRelatedAssetTitle } from "@/Helpers/displayUtils";
 
 const props = defineProps<{
   widget: RelatedAssetWidgetProps;

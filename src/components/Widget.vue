@@ -25,14 +25,12 @@ import LocationWidget from "@/ViewComponents/LocationWidget/LocationWidget.vue";
 import UploadWidget from "@/ViewComponents/UploadWidget/UploadWidget.vue";
 import TagWidget from "@/ViewComponents/TagWidget/TagWidget.vue";
 // import RelatedAssetWidget from "@/ViewComponents/RelatedAssetWidget/RelatedAssetWidget.vue";
-import { getWidgetContents } from "@/Helpers/displayUtils";
-// import { useTemplateStore } from "@/stores/newTemplateStore";
 import RelatedAssetWidget from "@/components/widgets/RelatedAssetWidget.vue";
+import { getWidgetContents } from "@/Helpers/displayUtils";
 
 const props = defineProps<{
   widget: WidgetProps;
   asset: Asset;
-  // template: Template;
 }>();
 
 const widgetContents = computed(() =>

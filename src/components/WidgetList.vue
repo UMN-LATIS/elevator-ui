@@ -14,12 +14,12 @@
  * lists all the asset's widget as defined by the asset
  * template
  */
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, provide, inject } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
 import type { Template, Asset } from "@/types";
 import { getWidgetsForDisplay } from "@/Helpers/displayUtils";
 import Widget from "@/components/Widget.vue";
-import { assetHasWidgetContents } from "@/Helpers/displayUtils";
+import { getWidgetNestingDepthProviderKey } from "@/constants";
 
 const props = defineProps<{
   assetId: string;
@@ -46,5 +46,11 @@ const widgets = computed(() =>
 
 watch(widgets, () => console.log({ widgets: widgets.value }), {
   immediate: true,
+});
+
+const getWidgetNestingDepth = inject(getWidgetNestingDepthProviderKey, () => 0);
+provide(getWidgetNestingDepthProviderKey, () => {
+  const prevNestingDepth = getWidgetNestingDepth();
+  return prevNestingDepth + 1;
 });
 </script>

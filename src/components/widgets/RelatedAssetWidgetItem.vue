@@ -1,21 +1,36 @@
 <template>
   <div class="related-asset-widget-item">
-    <Accordion :label="title">
+    <!-- if we're at max nesting depth, just link to the asset -->
+    <a
+      v-if="getWidgetNestingDepth() > maxWidgetNestingDepth"
+      :href="getAssetUrl(assetId)"
+    >
+      {{ title }}
+    </a>
+
+    <!-- otherwise show an accordion -->
+    <Accordion
+      v-if="getWidgetNestingDepth() <= maxWidgetNestingDepth"
+      :label="title"
+    >
       <WidgetList :assetId="assetId" />
     </Accordion>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { inject } from "vue";
 import Accordion from "@/components/Accordion.vue";
-import { useAssetTitle } from "@/composables/useAssetTitle";
-import { useAssetStore } from "@/stores/newAssetStore";
 import WidgetList from "../WidgetList.vue";
-import { Asset } from "@/types";
+import Button from "../Button.vue";
+import { getAssetUrl } from "@/Helpers/displayUtils";
+import { getWidgetNestingDepthProviderKey } from "@/constants";
 
-const props = defineProps<{
+defineProps<{
   assetId: string;
   title: string;
 }>();
+
+const maxWidgetNestingDepth = 1;
+const getWidgetNestingDepth = inject(getWidgetNestingDepthProviderKey, () => 0);
 </script>
 <style scoped></style>
