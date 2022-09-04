@@ -5,7 +5,7 @@
       :class="{
         'bg-neutral-900 text-white border-y border-neutral-900':
           variant === 'primary',
-        'bg-neutral-300 text-neutral-900 border-y border-neutral-300':
+        'bg-neutral-50 text-neutral-900 border-y border-neutral-300':
           variant === 'secondary',
         'h-full': !isOpen,
         'md:py-8': variant === 'primary' && isOpen,
