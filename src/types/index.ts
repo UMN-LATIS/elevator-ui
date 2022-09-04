@@ -295,6 +295,7 @@ export interface Asset {
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
   titleObject?: string | null;
+  title?: string[];
   [key: string]: unknown;
 }
 export interface Template {

@@ -1,22 +1,12 @@
 import { ref, type Ref, watch } from "vue";
 import { useAssetStore } from "@/stores/newAssetStore";
-import { getWidgetPropsByFieldTitle } from "@/Helpers/displayUtils";
 
 const assetStore = useAssetStore();
 
 async function fetchAssetTitle(assetId): Promise<string> {
   if (!assetId) return "";
-
-  const [asset, template] = await Promise.all([
-    assetStore.fetchAsset(assetId),
-    assetStore.fetchTemplateForAsset(assetId),
-  ]);
-
-  if (!asset || !template) return "(Not Found)";
-  if (!asset.titleObject) return "Untitled";
-
-  const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
-  return titleWidget?.label ?? "Untitled";
+  const asset = await assetStore.fetchAsset(assetId);
+  return asset?.title?.[0] ?? "(No Title)";
 }
 
 /**
