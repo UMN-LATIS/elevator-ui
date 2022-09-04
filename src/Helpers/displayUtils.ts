@@ -63,18 +63,18 @@ export const getAsset = (assetId: string): Promise<Asset> => {
     });
 };
 
-const assetStore = useAssetStore();
-export const setAssetInStore = (
-  fileObjectId: string,
-  objectId: string | null
-) => {
-  assetStore.fileObjectId = fileObjectId;
-  if (objectId) {
-    assetStore.objectId = objectId;
-  } else {
-    assetStore.objectId = null;
-  }
-};
+// const assetStore = useAssetStore();
+// export const setAssetInStore = (
+//   fileObjectId: string,
+//   objectId: string | null
+// ) => {
+//   assetStore.fileObjectId = fileObjectId;
+//   if (objectId) {
+//     assetStore.objectId = objectId;
+//   } else {
+//     assetStore.objectId = null;
+//   }
+// };
 
 export const getTemplate = (templateId: string | number) => {
   return axios
@@ -88,21 +88,21 @@ export const getTemplate = (templateId: string | number) => {
     });
 };
 
-export const getTitleWidget = async (
-  asset: Asset
-): Promise<TextWidgetProps | null> => {
-  const templateStore = useTemplateStore();
-  const template = await templateStore.loadTemplate(asset.templateId);
+// export const getTitleWidget = async (
+//   asset: Asset
+// ): Promise<TextWidgetProps | null> => {
+//   const templateStore = useTemplateStore();
+//   const template = await templateStore.loadTemplate(asset.templateId);
 
-  if (!asset.titleObject) {
-    return null;
-  }
+//   if (!asset.titleObject) {
+//     return null;
+//   }
 
-  return getWidgetPropsByFieldTitle<TextWidgetProps>(
-    template,
-    asset.titleObject
-  );
-};
+//   return getWidgetPropsByFieldTitle<TextWidgetProps>(
+//     template,
+//     asset.titleObject
+//   );
+// };
 
 export function getWidgetContents<
   T extends WidgetProps,
@@ -175,17 +175,6 @@ export function getWidgetsForDisplay({
     .sort((a, b) => a.viewOrder - b.viewOrder);
 }
 
-export function getAssetTitle({
-  asset,
-  template,
-}: {
-  asset: Asset | null;
-  template: Template | null;
-}): string {
-  if (!asset || !template) return "";
-  if (!asset.titleObject) return "Untitled";
-
-  const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
-
-  return titleWidget?.label || "Untitled";
+export function getAssetTitle(asset: Asset): string {
+  return asset?.title?.[0] ?? "(No Title)";
 }

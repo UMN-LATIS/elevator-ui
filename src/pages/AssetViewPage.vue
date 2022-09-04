@@ -28,11 +28,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useAssetStore } from "@/stores/newAssetStore";
-import ObjectViewer from "@/components/ObjectViewer.vue";
-import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer.vue";
-import AssetDetailsDrawer from "@/components/AssetDetailsDrawer.vue";
+import { ref, watch } from "vue";
+import { useAssetStore } from "@/stores/assetStore";
+import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
+import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
+import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -43,9 +43,13 @@ const isObjectDetailsOpen = ref(false);
 
 const assetStore = useAssetStore();
 
-onMounted(async () => {
-  await assetStore.setActiveAsset(props.assetId);
-});
+watch(
+  () => props.assetId,
+  async () => {
+    await assetStore.setActiveAsset(props.assetId);
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 .asset-view-page {

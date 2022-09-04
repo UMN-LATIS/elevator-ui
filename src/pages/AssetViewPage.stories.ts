@@ -23,3 +23,11 @@ Default.args = {
 Default.parameters = {
   layout: "fullscreen",
 };
+
+export const MockAssetPage = Template.bind({});
+MockAssetPage.args = {
+  assetId: "623dee393392272653676222",
+};
+MockAssetPage.parameters = {
+  layout: "fullscreen",
+};
