@@ -1,5 +1,5 @@
 <template>
-  <section class="drawer overflow-auto h-full bg-neutral-200">
+  <section class="drawer h-full bg-neutral-200 flex flex-col">
     <header
       class="flex items-center sticky top-0 left-0 justify-between"
       :class="{
@@ -36,7 +36,7 @@
 
     <div
       v-show="isOpen"
-      class="text-neutral-500 flex flex-col gap-8 px-4 py-8 md:p-8"
+      class="text-neutral-500 flex flex-col gap-8 px-4 py-8 md:p-8 flex-1 h-min overflow-auto"
     >
       <slot />
     </div>
@@ -59,3 +59,24 @@ defineEmits<{
   (eventName: "toggle");
 }>();
 </script>
+<style scoped>
+/* width */
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 33%);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>
