@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { inject } from "vue";
 import Accordion from "@/components/Accordion.vue";
-import WidgetList from "../WidgetList.vue";
+import WidgetList from "@/components/WidgetList.vue";
 import { getAssetUrl } from "@/Helpers/displayUtils";
 import { getWidgetNestingDepthProviderKey } from "@/constants";
 

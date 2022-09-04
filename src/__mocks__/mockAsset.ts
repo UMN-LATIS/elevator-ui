@@ -31,6 +31,17 @@ const mockAsset: Asset = {
       isPrimary: false,
     },
   ],
+  cascadeselect_1: [
+    {
+      fieldContents: {
+        city: "faketown",
+        state: "alberta",
+        country: "canada",
+        neighborhood: "",
+      },
+      isPrimary: false,
+    },
+  ],
   location_1: [
     {
       locationLabel: "Rarig",

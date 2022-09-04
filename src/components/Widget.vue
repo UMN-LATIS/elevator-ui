@@ -15,17 +15,17 @@ import { type Component, computed } from "vue";
 import type { Asset, WidgetProps } from "@/types";
 import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple.vue";
-import TextWidget from "@/ViewComponents/TextWidget/TextWidget.vue";
-import SelectWidget from "@/ViewComponents/SelectWidget/SelectWidget.vue";
-import CheckBoxWidget from "@/ViewComponents/CheckBoxWidget/CheckBoxWidget.vue";
-import TextAreaWidget from "@/ViewComponents/TextAreaWidget/TextAreaWidget.vue";
-import DateWidget from "@/ViewComponents/DateWidget/DateWidget.vue";
-import MultiSelectWidget from "@/ViewComponents/MultiSelectWidget/MultiSelectWidget.vue";
-import LocationWidget from "@/ViewComponents/LocationWidget/LocationWidget.vue";
-import UploadWidget from "@/ViewComponents/UploadWidget/UploadWidget.vue";
-import TagWidget from "@/ViewComponents/TagWidget/TagWidget.vue";
-// import RelatedAssetWidget from "@/ViewComponents/RelatedAssetWidget/RelatedAssetWidget.vue";
-import RelatedAssetWidget from "@/components/widgets/RelatedAssetWidget.vue";
+import TextWidget from "@/components/widgets/TextWidget/TextWidget.vue";
+import SelectWidget from "@/components/widgets/SelectWidget/SelectWidget.vue";
+import CheckBoxWidget from "@/components/widgets/CheckBoxWidget/CheckBoxWidget.vue";
+import TextAreaWidget from "@/components/widgets/TextAreaWidget/TextAreaWidget.vue";
+import DateWidget from "@/components/widgets/DateWidget/DateWidget.vue";
+import MultiSelectWidget from "@/components/widgets/MultiSelectWidget/MultiSelectWidget.vue";
+import LocationWidget from "@/components/widgets/LocationWidget/LocationWidget.vue";
+import UploadWidget from "@/components/widgets/UploadWidget/UploadWidget.vue";
+import TagWidget from "@/components/widgets/TagWidget/TagWidget.vue";
+// import RelatedAssetWidget from "@/components/widgets/RelatedAssetWidget/RelatedAssetWidget.vue";
+import RelatedAssetWidget from "@/components/widgets/RelatedAssetWidget/RelatedAssetWidget.vue";
 import { getWidgetContents } from "@/Helpers/displayUtils";
 
 const props = defineProps<{

@@ -9,6 +9,7 @@ import mockTemplate from "@/__mocks__/assetViewPage/crazedFruitAssetTemplate";
 import { RelatedAssetWidgetProps, RelatedAssetWidgetContents } from "@/types";
 
 export default {
+  title: "Widgets/RelatedAssetWidget",
   component: RelatedAssetWidget,
 } as Meta<typeof RelatedAssetWidget>;
 

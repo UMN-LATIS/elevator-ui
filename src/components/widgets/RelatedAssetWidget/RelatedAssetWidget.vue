@@ -22,7 +22,7 @@ import {
   RelatedAssetWidgetProps,
   RelatedAssetWidgetContents,
 } from "@/types";
-import Tuple from "../Tuple.vue";
+import Tuple from "@/components/Tuple.vue";
 import RelatedAssetWidgetItem from "./RelatedAssetWidgetItem.vue";
 
 const props = defineProps<{
