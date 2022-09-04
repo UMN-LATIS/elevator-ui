@@ -1,5 +1,8 @@
 import { Asset } from "@/types";
 
+// 20220903204823
+// https://dev.elevator.umn.edu/defaultinstance/asset/viewAsset/623dee393392272653676222/true
+
 const mockAsset: Asset = {
   title_1: [
     {
@@ -31,17 +34,6 @@ const mockAsset: Asset = {
       isPrimary: false,
     },
   ],
-  cascadeselect_1: [
-    {
-      fieldContents: {
-        city: "faketown",
-        state: "alberta",
-        country: "canada",
-        neighborhood: "",
-      },
-      isPrimary: false,
-    },
-  ],
   location_1: [
     {
       locationLabel: "Rarig",
@@ -49,6 +41,17 @@ const mockAsset: Asset = {
       loc: {
         type: "Point",
         coordinates: [-93.2424052, 44.9703314],
+      },
+      isPrimary: false,
+    },
+  ],
+  cascadeselect_1: [
+    {
+      fieldContents: {
+        city: "faketown",
+        state: "alberta",
+        country: "canada",
+        neighborhood: "",
       },
       isPrimary: false,
     },
@@ -79,8 +82,15 @@ const mockAsset: Asset = {
   ],
   bigtext_1: [
     {
-      fieldContents:
-        "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Posuere morbi leo urna molestie at. Euismod elementum nisi quis eleifend. Pellentesque nec nam aliquam sem et. Lacus suspendisse faucibus interdum posuere lorem ipsum dolor. Sed euismod nisi porta lorem mollis aliquam ut. Dolor magna eget est lorem ipsum dolor sit amet consectetur. Lacus sed viverra tellus in. Pulvinar etiam non quam lacus suspendisse. Mauris rhoncus aenean vel elit scelerisque mauris pellentesque pulvinar. Vehicula ipsum a arcu cursus vitae congue mauris.</p><p>Montes nascetur ridiculus mus mauris. At tellus at urna condimentum mattis pellentesque id nibh. Integer feugiat scelerisque varius morbi enim nunc. Commodo sed egestas egestas fringilla phasellus. Nam aliquam sem et tortor consequat id porta nibh. Blandit turpis cursus in hac habitasse platea dictumst. Id aliquet lectus proin nibh nisl condimentum id venenatis. Auctor elit sed vulputate mi sit amet mauris commodo quis. Fermentum et sollicitudin ac orci phasellus egestas tellus. Mauris cursus mattis molestie a iaculis. Odio ut enim blandit volutpat. Quam adipiscing vitae proin sagittis.</p><p>Lorem sed risus ultricies tristique nulla aliquet enim tortor at. Quis vel eros donec ac odio tempor orci dapibus ultrices. At urna condimentum mattis pellentesque id nibh. Enim sed faucibus turpis in eu mi. Aliquam nulla facilisi cras fermentum odio eu. Potenti nullam ac tortor vitae purus. Nisl condimentum id venenatis a condimentum vitae sapien. Eget est lorem ipsum dolor sit amet consectetur adipiscing. Etiam erat velit scelerisque in dictum. Tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada. Adipiscing elit duis tristique sollicitudin. Nunc mattis enim ut tellus elementum sagittis vitae. Lobortis mattis aliquam faucibus purus. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. Gravida cum sociis natoque penatibus et. Volutpat commodo sed egestas egestas fringilla. Viverra nibh cras pulvinar mattis nunc sed blandit libero. Amet risus nullam eget felis. Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Ullamcorper malesuada proin libero nunc consequat interdum varius sit.</p>",
+      fieldContents: `
+A grain elevator is a facility designed to stockpile or store grain. In the grain trade, the term "grain elevator" also describes a tower containing a bucket elevator or a pneumatic conveyor, which scoops up grain from a lower level and deposits it in a silo or other storage facility.
+
+In most cases, the term "grain elevator" also describes the entire elevator complex, including receiving and testing offices, weighbridges, and storage facilities. It may also mean organizations that operate or control several individual elevators, in different locations. In Australia, the term describes only the lifting mechanism.
+
+Before the advent of the grain elevator, grain was usually handled in bags rather than in bulk (large quantities of loose grain). Dart's Elevator was a major innovation. It was invented by Joseph Dart, a merchant, and Robert Dunbar, an engineer, in 1842 and 1843, in Buffalo, New York. Using the steam-powered flour mills of Oliver Evans as their model, they invented the marine leg, which scooped loose grain out of the hulls of ships and elevated it to the top of a marine tower.[1]
+
+Early grain elevators and bins were often built of framed or cribbed wood, and were prone to fire. Grain-elevator bins, tanks, and silos are now usually made of steel or reinforced concrete. Bucket elevators are used to lift grain to a distributor or consignor, from which it falls through spouts and/or conveyors and into one or more bins, silos, or tanks in a facility. When desired, silos, bins, and tanks are emptied by gravity flow, sweep augers, and conveyors. As grain is emptied from bins, tanks, and silos, it is conveyed, blended, and weighted into trucks, railroad cars, or barges for shipment
+`,
       isPrimary: false,
     },
   ],
@@ -120,7 +130,7 @@ const mockAsset: Asset = {
   collectionId: 25,
   availableAfter: null,
   modified: {
-    date: "2022-08-04 18:22:03.000000",
+    date: "2022-08-30 21:27:46.000000",
     timezone_type: 3,
     timezone: "UTC",
   },
@@ -150,6 +160,7 @@ const mockAsset: Asset = {
   },
   firstFileHandlerId: "623dee6471cc11744319be01",
   firstObjectId: null,
+  title: ["Test Asset", "Alt Title"],
   titleObject: "title_1",
 };
 
