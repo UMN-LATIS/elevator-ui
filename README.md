@@ -1,7 +1,19 @@
-# Vue 3 + Vite
+# Elevator UI
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+> Components for [Elevator App](https://github.com/UMN-LATIS/elevator), a multi-asset digital repository.
 
-## Recommended IDE Setup
+## Usage
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+TBD
+
+## Development
+
+This UI uses [StorybookJS](https://storybook.js.org/) for component development, to see the stories run:
+
+```sh
+$ yarn storybook
+```
+
+## Contact
+
+Email: elevator@umn.edu
