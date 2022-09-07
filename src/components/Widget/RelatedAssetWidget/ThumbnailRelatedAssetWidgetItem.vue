@@ -2,14 +2,14 @@
   <div class="thumbnail-related-asset-widget-item">
     <button @click="assetStore.setActiveObject(assetId)">
       <figure
-        class="w-[100px] h-[100px] overflow-hidden rounded border border-white"
+        class="w-[6rem] h-[6rem] overflow-hidden rounded border border-white"
         :class="{
           'outline outline-2 outline-offset-2': isActiveObject,
         }"
       >
         <img
           v-if="assetCache.primaryHandler"
-          class="object-fit"
+          class="object-cover"
           :src="getTinyURL(assetCache.primaryHandler)"
           :alt="title"
         />
