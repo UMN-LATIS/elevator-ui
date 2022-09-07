@@ -8,10 +8,7 @@
       <component
         :is="widgetType"
         :assetId="relatedAsset.targetAssetId"
-        :title="
-          asset.relatedAssetCache?.[relatedAsset.targetAssetId]
-            ?.relatedAssetTitle?.[0] ?? '(no title)'
-        "
+        :assetCache="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
       ></component>
     </Tuple>
   </div>

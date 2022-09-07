@@ -80,8 +80,7 @@ export interface SelectWidgetProps extends WidgetProps {
   type: "select";
   fieldData: {
     multiSelect?: boolean;
-    // TODO: This could be a key/value pair
-    selectGroup?: string[] | Record<string | number, string>;
+    selectGroup?: string[] | Record<string | number, string | undefined>;
   };
 }
 
@@ -277,11 +276,17 @@ export interface DateTime {
   timezone: string;
 }
 
-export interface RelatedAsset {
+export interface RelatedAssetCacheItem {
   primaryHandler: string | null;
   readyForDisplay: boolean;
   relatedAssetTitle: string[];
 }
+
+type RelatedAssetCache = Record<
+  string,
+  RelatedAssetCacheItem | null | undefined
+>;
+
 export interface Asset {
   templateId: number;
   readyForDisplay: boolean;
@@ -291,7 +296,7 @@ export interface Asset {
   modifiedBy: number | string;
   createdBy: number | string;
   deletedBy: number | string | null;
-  relatedAssetCache: Record<string, RelatedAsset> | null;
+  relatedAssetCache: RelatedAssetCache | null;
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
   titleObject?: string | null;
@@ -302,6 +307,8 @@ export interface Template {
   templateId: string;
   templateName: string;
   widgetArray: WidgetProps[];
-  collections?: Record<string | number, string | unknown>;
-  allowedCollections?: Record<string | number, string | unknown> | unknown[];
+  collections?: Record<string | number, string | undefined | unknown>;
+  allowedCollections?:
+    | Record<string | number, string | undefined | unknown>
+    | unknown[];
 }

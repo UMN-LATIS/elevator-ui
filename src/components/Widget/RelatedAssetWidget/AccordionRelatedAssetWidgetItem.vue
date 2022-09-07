@@ -6,12 +6,17 @@
   </div>
 </template>
 <script setup lang="ts">
+import { computed } from "vue";
 import Accordion from "@/components/Accordion/Accordion.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
+import { RelatedAssetCacheItem } from "@/types";
+import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 
-defineProps<{
+const props = defineProps<{
   assetId: string;
-  title: string;
+  assetCache: RelatedAssetCacheItem | null;
 }>();
+
+const title = computed(() => getTitleFromCacheItem(props.assetCache));
 </script>
 <style scoped></style>

@@ -15,12 +15,15 @@
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { onMounted, ref, computed } from "vue";
-import { Asset } from "@/types";
+import type { Asset, RelatedAssetCacheItem } from "@/types";
+import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 
 const props = defineProps<{
   assetId: string;
-  title: string;
+  assetCache: RelatedAssetCacheItem | null;
 }>();
+
+const title = computed(() => getTitleFromCacheItem(props.assetCache));
 
 const asset = ref<Asset | null>(null);
 
