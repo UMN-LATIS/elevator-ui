@@ -1,13 +1,5 @@
 import axios from "axios";
-import { useTemplateStore } from "@/stores/templateStore";
-import { useAssetStore } from "@/stores/assetStore";
-import {
-  Asset,
-  TextWidgetProps,
-  WidgetProps,
-  WidgetContents,
-  Template,
-} from "@/types";
+import { Asset, WidgetProps, WidgetContents, Template } from "@/types";
 import config from "@/config";
 
 export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
@@ -63,19 +55,6 @@ export const getAsset = (assetId: string): Promise<Asset> => {
     });
 };
 
-// const assetStore = useAssetStore();
-// export const setAssetInStore = (
-//   fileObjectId: string,
-//   objectId: string | null
-// ) => {
-//   assetStore.fileObjectId = fileObjectId;
-//   if (objectId) {
-//     assetStore.objectId = objectId;
-//   } else {
-//     assetStore.objectId = null;
-//   }
-// };
-
 export const getTemplate = (templateId: string | number) => {
   return axios
     .get(config.baseUrl + "/assetManager/getTemplate/" + templateId)
@@ -87,22 +66,6 @@ export const getTemplate = (templateId: string | number) => {
       alert(err);
     });
 };
-
-// export const getTitleWidget = async (
-//   asset: Asset
-// ): Promise<TextWidgetProps | null> => {
-//   const templateStore = useTemplateStore();
-//   const template = await templateStore.loadTemplate(asset.templateId);
-
-//   if (!asset.titleObject) {
-//     return null;
-//   }
-
-//   return getWidgetPropsByFieldTitle<TextWidgetProps>(
-//     template,
-//     asset.titleObject
-//   );
-// };
 
 export function getWidgetContents<
   T extends WidgetProps,
