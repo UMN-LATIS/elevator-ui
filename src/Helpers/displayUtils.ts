@@ -1,44 +1,46 @@
 import axios from "axios";
+import { useTemplateStore } from "@/stores/templateStore";
+import { useAssetStore } from "@/stores/assetStore";
+import {
+  Asset,
+  TextWidgetProps,
+  WidgetProps,
+  WidgetContents,
+  Template,
+} from "@/types";
+import config from "@/config";
 
-declare global {
-  interface Window {
-    baseURL: string;
-  }
+export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
+  template: Template,
+  fieldTitle: string
+): T | null {
+  return (
+    (template.widgetArray as T[]).find(
+      (widget: T) => widget.fieldTitle === fieldTitle
+    ) ?? null
+  );
 }
-
-export const getBaseURL = () => {
-  return window.baseURL ?? "/";
-};
-
-export const getField = (template, field) => {
-  return template.widgetArray.filter(
-    (widget) => widget.fieldTitle === field
-  )[0];
-};
 
 export const getTinyURL = (fileObjectId) => {
   return (
-    getBaseURL() + "fileManager/getDerivativeById/" + fileObjectId + "/tiny2x"
+    config.baseUrl +
+    "/fileManager/getDerivativeById/" +
+    fileObjectId +
+    "/tiny2x"
   );
 };
 
 export const getThumbURL = (fileObjectId) => {
   return (
-    getBaseURL() +
-    "fileManager/getDerivativeById/" +
+    config.baseUrl +
+    "/fileManager/getDerivativeById/" +
     fileObjectId +
     "/thumbnail2x"
   );
 };
 
-export const getAssetLink = (objectId) => {
-  return getBaseURL() + "asset/viewAsset/" + objectId;
-};
-
-export const getEmbedLink = (fileObjectId, parentObjectId) => {
-  return (
-    getBaseURL() + "asset/getEmbed/" + fileObjectId + "/" + parentObjectId ?? ""
-  );
+export const getAssetUrl = (assetId: string) => {
+  return config.baseUrl + "/asset/viewAsset/" + assetId;
 };
 
 export const getRelatedAssetTitle = (relatedAssetTitleCache) => {
@@ -49,9 +51,9 @@ export const getRelatedAssetTitle = (relatedAssetTitleCache) => {
   }
 };
 
-export const getAsset = (assetId: string) => {
+export const getAsset = (assetId: string): Promise<Asset> => {
   return axios
-    .get(getBaseURL() + "asset/viewAsset/" + assetId + "/true")
+    .get(config.baseUrl + "/asset/viewAsset/" + assetId + "/true")
     .then((res) => {
       return res.data;
     })
@@ -61,23 +63,22 @@ export const getAsset = (assetId: string) => {
     });
 };
 
-import { useAssetStore } from "../stores/assetStore";
-const assetStore = useAssetStore();
-export const setAssetInStore = (
-  fileObjectId: string,
-  objectId: string | null
-) => {
-  assetStore.fileObjectId = fileObjectId;
-  if (objectId) {
-    assetStore.objectId = objectId;
-  } else {
-    assetStore.objectId = null;
-  }
-};
+// const assetStore = useAssetStore();
+// export const setAssetInStore = (
+//   fileObjectId: string,
+//   objectId: string | null
+// ) => {
+//   assetStore.fileObjectId = fileObjectId;
+//   if (objectId) {
+//     assetStore.objectId = objectId;
+//   } else {
+//     assetStore.objectId = null;
+//   }
+// };
 
-export const getTemplate = (templateId: string) => {
+export const getTemplate = (templateId: string | number) => {
   return axios
-    .get(getBaseURL() + "assetManager/getTemplate/" + templateId)
+    .get(config.baseUrl + "/assetManager/getTemplate/" + templateId)
     .then((res) => {
       return res.data;
     })
@@ -87,15 +88,93 @@ export const getTemplate = (templateId: string) => {
     });
 };
 
-import { useTemplateStore } from "@/stores/templateStore";
-export const getTitleWidget = async (asset: any) => {
-  const templateStore = useTemplateStore();
-  const template = await templateStore.loadTemplate(asset.templateId);
-  if (!asset.titleObject) {
-    return null;
-  }
-  const titleField: string = asset.titleObject;
+// export const getTitleWidget = async (
+//   asset: Asset
+// ): Promise<TextWidgetProps | null> => {
+//   const templateStore = useTemplateStore();
+//   const template = await templateStore.loadTemplate(asset.templateId);
 
-  const titleFieldObject = getField(template, titleField);
-  return titleFieldObject;
-};
+//   if (!asset.titleObject) {
+//     return null;
+//   }
+
+//   return getWidgetPropsByFieldTitle<TextWidgetProps>(
+//     template,
+//     asset.titleObject
+//   );
+// };
+
+export function getWidgetContents<
+  T extends WidgetProps,
+  U extends WidgetContents
+>({ asset, widget }: { asset: Asset; widget: T }) {
+  return asset[widget.fieldTitle] as U[];
+}
+
+/**
+ * determines if a widget matches the asset title,
+ * so that we can skip rendering it as it will be duplicated
+ */
+export function widgetMatchesTitleWidget({
+  widget,
+  template,
+  asset,
+}: {
+  widget: WidgetProps;
+  template: Template | null;
+  asset: Asset | null;
+}): boolean {
+  // if no titleObject, then this widget doesn't match
+  if (!asset || !template || !asset.titleObject) return false;
+
+  const titleWidget = getWidgetPropsByFieldTitle(template, asset.titleObject);
+  const widgetContents = getWidgetContents({ asset: asset, widget });
+
+  return (
+    !!titleWidget &&
+    widget.type === "text" &&
+    widget.fieldTitle === titleWidget.fieldTitle &&
+    widgetContents.length === 1
+  );
+}
+
+export function assetHasWidgetContents({
+  asset,
+  widget,
+}: {
+  asset: Asset;
+  widget: WidgetProps;
+}) {
+  const contents = getWidgetContents({ asset, widget });
+  return contents !== null && contents !== undefined;
+}
+
+export function getWidgetsForDisplay({
+  asset,
+  template,
+}: {
+  asset: Asset | null;
+  template: Template | null;
+}): WidgetProps[] {
+  if (!(template && asset)) return [];
+
+  const filteredWidgets = template.widgetArray
+    .filter((widget) => widget.display)
+    .filter((widget) => assetHasWidgetContents({ asset, widget }));
+
+  // if there's less than 2 items, we're done
+  // as there's nothing to be sorted
+  if (filteredWidgets.length < 2) {
+    return filteredWidgets;
+  }
+
+  // otherwise, remove any widgets that might be a duplicate
+  // with the asset title and then sort
+  return filteredWidgets
+    .filter((widget) => !widgetMatchesTitleWidget({ widget, template, asset }))
+    .sort((a, b) => a.viewOrder - b.viewOrder);
+}
+
+export function getAssetTitle(asset: Asset): string {
+  return asset?.title?.[0] ?? "(No Title)";
+}
