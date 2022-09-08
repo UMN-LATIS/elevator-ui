@@ -13,12 +13,12 @@
 <script setup lang="ts">
 import { recursiveSort, uniqueValues } from "./MultiSelectWidget";
 import { computed } from "vue";
-import { MultiSelectWidgetContents, MultiSelectWidgetProps } from "@/types";
+import { MultiSelectWidgetContent, MultiSelectWidgetProps } from "@/types";
 import Link from "@/components/Link/Link.vue";
 
 interface Props {
   widget: MultiSelectWidgetProps;
-  content: MultiSelectWidgetContents;
+  content: MultiSelectWidgetContent;
 }
 
 const props = defineProps<Props>();

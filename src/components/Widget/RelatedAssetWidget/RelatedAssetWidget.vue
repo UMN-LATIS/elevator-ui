@@ -18,7 +18,7 @@ import { type Component, computed } from "vue";
 import {
   Asset,
   RelatedAssetWidgetProps,
-  RelatedAssetWidgetContents,
+  RelatedAssetWidgetContent,
 } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.vue";
@@ -28,7 +28,7 @@ import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
 
 const props = defineProps<{
   widget: RelatedAssetWidgetProps;
-  contents: RelatedAssetWidgetContents[];
+  contents: RelatedAssetWidgetContent[];
   asset: Asset;
 }>();
 
@@ -52,7 +52,7 @@ const widgetType = computed((): Component => {
 
 const contentsWithAssetId = computed(() =>
   props.contents.filter(
-    (item): item is WithTargetAssetId<RelatedAssetWidgetContents> =>
+    (item): item is WithTargetAssetId<RelatedAssetWidgetContent> =>
       !!item.targetAssetId
   )
 );

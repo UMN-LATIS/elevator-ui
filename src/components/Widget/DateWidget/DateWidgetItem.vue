@@ -12,10 +12,10 @@
 <script setup lang="ts">
 import Link from "@/components/Link/Link.vue";
 import { computed } from "vue";
-import { DateWidgetProps, DateWidgetContents } from "@/types";
+import { DateWidgetProps, DateWidgetContent } from "@/types";
 
 interface Props {
-  dateContent: DateWidgetContents;
+  dateContent: DateWidgetContent;
   widget: DateWidgetProps;
 }
 

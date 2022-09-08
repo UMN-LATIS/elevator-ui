@@ -18,10 +18,10 @@
 </template>
 
 <script setup lang="ts">
-import { WidgetProps, WidgetContents } from "@/types";
+import { WidgetProps, WidgetContent } from "@/types";
 
 defineProps<{
   widget: WidgetProps;
-  contents: WidgetContents[];
+  contents: WidgetContent[];
 }>();
 </script>

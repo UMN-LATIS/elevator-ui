@@ -10,11 +10,11 @@
 
 <script setup lang="ts">
 import Link from "@/components/Link/Link.vue";
-import { TextWidgetProps, TextWidgetContents } from "@/types";
+import { TextWidgetProps, TextWidgetContent } from "@/types";
 
 defineProps<{
   widget: TextWidgetProps;
-  contents: TextWidgetContents[];
+  contents: TextWidgetContent[];
 }>();
 
 function autolinkText(text: string): string {

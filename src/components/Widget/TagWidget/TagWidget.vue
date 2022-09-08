@@ -12,11 +12,11 @@
 
 <script setup lang="ts">
 import Link from "@/components/Link/Link.vue";
-import { WidgetProps, WidgetContents } from "@/types";
+import { WidgetProps, WidgetContent } from "@/types";
 
 interface Props {
   widget: WidgetProps;
-  contents: WidgetContents[];
+  contents: WidgetContent[];
 }
 
 const props = defineProps<Props>();

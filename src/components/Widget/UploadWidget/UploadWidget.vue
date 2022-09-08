@@ -14,11 +14,11 @@
 </template>
 
 <script setup lang="ts">
-import { UploadWidgetProps, UploadWidgetContents } from "@/types";
+import { UploadWidgetProps, UploadWidgetContent } from "@/types";
 import UploadWidgetItem from "./UploadWidgetItem.vue";
 
 defineProps<{
   widget: UploadWidgetProps;
-  contents: UploadWidgetContents[];
+  contents: UploadWidgetContent[];
 }>();
 </script>

@@ -1,4 +1,4 @@
-import { Asset, WidgetProps, WidgetContents, Template } from "@/types";
+import { Asset, WidgetProps, WidgetContent, Template } from "@/types";
 import config from "@/config";
 
 export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
@@ -23,7 +23,7 @@ export const getAssetUrl = (assetId: string): string =>
 
 export function getWidgetContents<
   T extends WidgetProps,
-  U extends WidgetContents
+  U extends WidgetContent
 >({ asset, widget }: { asset: Asset; widget: T }) {
   return asset[widget.fieldTitle] as U[];
 }

@@ -135,15 +135,15 @@ export interface UploadWidgetProps extends WidgetProps {
  * with `title_1` array of objects of type
  * `TextWidgetContents`.
  */
-export interface WidgetContents {
+export interface WidgetContent {
   isPrimary: boolean;
   [key: string]: unknown;
 }
-export interface TextWidgetContents extends WidgetContents {
+export interface TextWidgetContent extends WidgetContent {
   fieldContents: string;
 }
 
-export interface CheckboxWidgetContents extends WidgetContents {
+export interface CheckboxWidgetContent extends WidgetContent {
   fieldContents: boolean;
 }
 
@@ -151,7 +151,7 @@ export interface DateMoment {
   text: string | null;
   numeric: number | null;
 }
-export interface DateWidgetContents extends WidgetContents {
+export interface DateWidgetContent extends WidgetContent {
   label: string;
   start: DateMoment;
   end: DateMoment;
@@ -167,30 +167,30 @@ export interface LocationObject {
   coordinates?: Coordinates;
 }
 
-export interface LocationWidgetContents extends WidgetContents {
+export interface LocationWidgetContent extends WidgetContent {
   locationLabel: string | null;
   address: string | null;
   loc: LocationObject | null;
 }
 
-export interface RelatedAssetWidgetContents extends WidgetContents {
+export interface RelatedAssetWidgetContent extends WidgetContent {
   targetAssetId: string | null;
   label: string | null;
 }
 
-export interface SelectWidgetContents extends WidgetContents {
+export interface SelectWidgetContent extends WidgetContent {
   fieldContents: string | null;
 }
 
-export interface TagListWidgetContents extends WidgetContents {
+export interface TagListWidgetContent extends WidgetContent {
   tags: string[] | null;
 }
 
-export interface TextAreaWidgetContents extends WidgetContents {
+export interface TextAreaWidgetContent extends WidgetContent {
   fieldContents: string | null;
 }
 
-export interface UploadWidgetContents extends WidgetContents {
+export interface UploadWidgetContent extends WidgetContent {
   fileId: string; // hash
   fileDescription: string;
   fileType: string;
@@ -199,7 +199,7 @@ export interface UploadWidgetContents extends WidgetContents {
   sidecars: unknown; // object
 }
 
-export interface MultiSelectWidgetContents extends WidgetContents {
+export interface MultiSelectWidgetContent extends WidgetContent {
   fieldContents: object;
 }
 
