@@ -7,9 +7,8 @@
     }"
   >
     <ObjectViewer
-      v-if="assetStore.activeObjectId"
       class="asset-view-page__viewer rounded-2xl overflow-hidden bg-neutral-100"
-      :objectId="assetStore.activeObjectId"
+      :fileHandlerId="assetStore.activeFileObjectId"
     />
     <AssetDetailsDrawer
       v-if="assetStore.activeAssetId"
@@ -19,7 +18,6 @@
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
     <ObjectDetailsDrawer
-      v-if="assetStore.activeObjectId"
       class="asset-viewpage__object-details rounded-2xl overflow-hidden"
       :objectId="assetStore.activeObjectId"
       :isOpen="isObjectDetailsOpen"

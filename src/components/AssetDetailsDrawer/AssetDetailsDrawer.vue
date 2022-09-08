@@ -2,6 +2,20 @@
   <div class="asset-details">
     <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
       <WidgetList :assetId="assetId" />
+      <!-- For development only? -->
+      <footer v-if="assetId" class="flex gap-2">
+        <Button :href="getAssetUrl(assetId)" icon="image" target="_blank">
+          View
+        </Button>
+        <Button
+          :href="`${getAssetUrl(assetId)}/true`"
+          label="Asset Json"
+          icon="data_object"
+          target="_blank"
+        >
+          Data
+        </Button>
+      </footer>
     </Drawer>
   </div>
 </template>
@@ -11,7 +25,8 @@ import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import type { Asset } from "@/types";
-import { getAssetTitle } from "@/helpers/displayUtils";
+import { getAssetTitle, getAssetUrl } from "@/helpers/displayUtils";
+import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
   defineProps<{
