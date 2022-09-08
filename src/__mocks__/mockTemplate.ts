@@ -254,7 +254,7 @@ const mockTemplate: Template = {
         defaultTemplate: 72,
         ignoreForDateSearch: false,
         ignoreForDigitalAsset: false,
-        collapseNestedChildren: false,
+        collapseNestedChildren: true,
         ignoreForLocationSearch: false,
       },
       display: true,

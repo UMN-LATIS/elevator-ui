@@ -1,8 +1,6 @@
 <template>
   <div class="linked-related-asset-widget-item">
-    <a :href="assetUrl">
-      {{ title }}
-    </a>
+    <a :href="assetUrl">{{ title }}</a>
   </div>
 </template>
 <script setup lang="ts">
