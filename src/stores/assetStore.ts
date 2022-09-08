@@ -43,31 +43,31 @@ export const useAssetStore = defineStore("asset2", {
       return activeAsset;
     },
 
-    // /**
-    //  * An Asset contains objects. This makes makes an object
-    //  * in a given asset active
-    //  *
-    //  * @returns the active object
-    //  */
-    // async setActiveObject(objectId: string): Promise<Asset | null> {
-    //   const activeObject = await this.fetchAsset(objectId);
+    /**
+     * An Asset contains objects. This makes makes an object
+     * in a given asset active
+     *
+     * @returns the active object
+     */
+    async setActiveObject(objectId: string): Promise<Asset | null> {
+      const activeObject = await this.fetchAsset(objectId);
 
-    //   // if no object with this ID, reset the active
-    //   // objectid and file object id to null
-    //   if (!activeObject) {
-    //     this.resetActiveObject();
-    //     return null;
-    //   }
+      // if no object with this ID, reset the active
+      // objectid and file object id to null
+      if (!activeObject) {
+        this.resetActiveObject();
+        return null;
+      }
 
-    //   // otherwise, make the objectId active
-    //   this.activeObjectId = objectId;
+      // otherwise, make the objectId active
+      this.activeObjectId = objectId;
 
-    //   // and, if it exists, make the first (and only?)
-    //   // filehandler in this object active
-    //   this.activeFileObjectId = activeObject.firstFileHandlerId ?? null;
+      // and, if it exists, make the first (and only?)
+      // filehandler in this object active
+      this.activeFileObjectId = activeObject.firstFileHandlerId ?? null;
 
-    //   return activeObject;
-    // },
+      return activeObject;
+    },
 
     /**
      * gets an asset from the store or retrieves it from the api

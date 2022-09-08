@@ -80,8 +80,7 @@ export interface SelectWidgetProps extends WidgetProps {
   type: "select";
   fieldData: {
     multiSelect?: boolean;
-    // TODO: This could be a key/value pair
-    selectGroup?: string[] | Record<string | number, string>;
+    selectGroup?: string[] | Record<string | number, string | undefined>;
   };
 }
 
@@ -136,15 +135,15 @@ export interface UploadWidgetProps extends WidgetProps {
  * with `title_1` array of objects of type
  * `TextWidgetContents`.
  */
-export interface WidgetContents {
+export interface WidgetContent {
   isPrimary: boolean;
   [key: string]: unknown;
 }
-export interface TextWidgetContents extends WidgetContents {
+export interface TextWidgetContent extends WidgetContent {
   fieldContents: string;
 }
 
-export interface CheckboxWidgetContents extends WidgetContents {
+export interface CheckboxWidgetContent extends WidgetContent {
   fieldContents: boolean;
 }
 
@@ -152,7 +151,7 @@ export interface DateMoment {
   text: string | null;
   numeric: number | null;
 }
-export interface DateWidgetContents extends WidgetContents {
+export interface DateWidgetContent extends WidgetContent {
   label: string;
   start: DateMoment;
   end: DateMoment;
@@ -168,30 +167,30 @@ export interface LocationObject {
   coordinates?: Coordinates;
 }
 
-export interface LocationWidgetContents extends WidgetContents {
+export interface LocationWidgetContent extends WidgetContent {
   locationLabel: string | null;
   address: string | null;
   loc: LocationObject | null;
 }
 
-export interface RelatedAssetWidgetContents extends WidgetContents {
+export interface RelatedAssetWidgetContent extends WidgetContent {
   targetAssetId: string | null;
   label: string | null;
 }
 
-export interface SelectWidgetContents extends WidgetContents {
+export interface SelectWidgetContent extends WidgetContent {
   fieldContents: string | null;
 }
 
-export interface TagListWidgetContents extends WidgetContents {
+export interface TagListWidgetContent extends WidgetContent {
   tags: string[] | null;
 }
 
-export interface TextAreaWidgetContents extends WidgetContents {
+export interface TextAreaWidgetContent extends WidgetContent {
   fieldContents: string | null;
 }
 
-export interface UploadWidgetContents extends WidgetContents {
+export interface UploadWidgetContent extends WidgetContent {
   fileId: string; // hash
   fileDescription: string;
   fileType: string;
@@ -200,7 +199,7 @@ export interface UploadWidgetContents extends WidgetContents {
   sidecars: unknown; // object
 }
 
-export interface MultiSelectWidgetContents extends WidgetContents {
+export interface MultiSelectWidgetContent extends WidgetContent {
   fieldContents: object;
 }
 
@@ -277,11 +276,17 @@ export interface DateTime {
   timezone: string;
 }
 
-export interface RelatedAsset {
+export interface RelatedAssetCacheItem {
   primaryHandler: string | null;
   readyForDisplay: boolean;
   relatedAssetTitle: string[];
 }
+
+type RelatedAssetCache = Record<
+  string,
+  RelatedAssetCacheItem | null | undefined
+>;
+
 export interface Asset {
   templateId: number;
   readyForDisplay: boolean;
@@ -291,7 +296,7 @@ export interface Asset {
   modifiedBy: number | string;
   createdBy: number | string;
   deletedBy: number | string | null;
-  relatedAssetCache: Record<string, RelatedAsset> | null;
+  relatedAssetCache: RelatedAssetCache | null;
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
   titleObject?: string | null;
@@ -302,6 +307,8 @@ export interface Template {
   templateId: string;
   templateName: string;
   widgetArray: WidgetProps[];
-  collections?: Record<string | number, string | unknown>;
-  allowedCollections?: Record<string | number, string | unknown> | unknown[];
+  collections?: Record<string | number, string | undefined | unknown>;
+  allowedCollections?:
+    | Record<string | number, string | undefined | unknown>
+    | unknown[];
 }

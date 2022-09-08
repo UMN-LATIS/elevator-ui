@@ -4,6 +4,11 @@ import Tuple from "@/components/Tuple/Tuple.vue";
 
 export default {
   component: Accordion,
+  parameters: {
+    backgrounds: {
+      default: "neutral-200",
+    },
+  },
 } as Meta<typeof Accordion>;
 
 const Template: StoryFn<typeof Accordion> = (args) => ({

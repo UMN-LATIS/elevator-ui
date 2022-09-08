@@ -6,7 +6,6 @@
         :key="widget.widgetId"
         :widget="widget"
         :asset="asset"
-        :template="template"
       />
     </div>
   </Transition>
@@ -16,12 +15,11 @@
  * lists all the asset's widget as defined by the asset
  * template
  */
-import { ref, watch, computed, provide, inject } from "vue";
+import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import type { Template, Asset } from "@/types";
 import { getWidgetsForDisplay } from "@/helpers/displayUtils";
 import Widget from "@/components/Widget/Widget.vue";
-import { getWidgetNestingDepthProviderKey } from "@/constants";
 
 const props = defineProps<{
   assetId: string;
@@ -45,12 +43,6 @@ watch(
 const widgets = computed(() =>
   getWidgetsForDisplay({ asset: asset.value, template: template.value })
 );
-
-const getWidgetNestingDepth = inject(getWidgetNestingDepthProviderKey, () => 0);
-provide(getWidgetNestingDepthProviderKey, () => {
-  const prevNestingDepth = getWidgetNestingDepth();
-  return prevNestingDepth + 1;
-});
 </script>
 <style scoped>
 .fade-enter-active,

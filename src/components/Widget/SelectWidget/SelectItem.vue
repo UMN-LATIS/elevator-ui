@@ -9,10 +9,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Link from "@/components/Link/Link.vue";
-import { SelectWidgetProps, SelectWidgetContents } from "@/types";
+import { SelectWidgetProps, SelectWidgetContent } from "@/types";
 
 const props = defineProps<{
-  selectValues: SelectWidgetContents;
+  selectValues: SelectWidgetContent;
   widget: SelectWidgetProps;
 }>();
 

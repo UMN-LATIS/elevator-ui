@@ -15,4 +15,29 @@ export const parameters = {
       date: /Date$/,
     },
   },
+  backgrounds: {
+    default: "white",
+    values: [
+      {
+        name: "white",
+        value: "#fff",
+      },
+      {
+        name: "neutral-50",
+        value: "#fafafa",
+      },
+      {
+        name: "neutral-100",
+        value: "#f5f5f5",
+      },
+      {
+        name: "neutral-200",
+        value: "#e5e5e5",
+      },
+      {
+        name: "neutral-900",
+        value: "#171717",
+      },
+    ],
+  },
 };
