@@ -7,7 +7,10 @@
       @click.self="$emit('close')"
     >
       <div class="modal__contents" v-bind="$attrs">
-        <XButton class="modal__close-button" @click="$emit('close')" />
+        <header class="flex justify-between items-start mb-4">
+          <h2 class="flex-1 font-bold text-xl">{{ label }}</h2>
+          <XButton @click="$emit('close')" />
+        </header>
         <slot />
       </div>
     </div>
@@ -17,9 +20,16 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import XButton from "../XButton/XButton.vue";
 
-const props = defineProps<{
-  isOpen: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    label?: string;
+    isOpen: boolean;
+  }>(),
+  {
+    label: "",
+    isOpen: false,
+  }
+);
 
 const emit = defineEmits<{
   (eventName: "close"): void;
@@ -64,10 +74,5 @@ onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
   overflow: auto;
   padding: 2rem;
   border-radius: 1rem;
-}
-.modal__close-button {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
 }
 </style>

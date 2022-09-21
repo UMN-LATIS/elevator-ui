@@ -8,6 +8,7 @@
       'bg-neutral-900 text-white': variant === 'primary',
       'border-none uppercase text-xs font-bold hover:bg-neutral-200 transition-colors ease-in-out':
         variant === 'tertiary',
+      'flex-row-reverse': iconPosition === 'start',
     }"
   >
     <slot />
@@ -23,6 +24,7 @@
 withDefaults(
   defineProps<{
     icon?: string;
+    iconPosition: "start" | "end";
     label?: string;
     href?: string;
     variant?: "primary" | "secondary" | "tertiary";
@@ -32,6 +34,7 @@ withDefaults(
     variant: "secondary",
     label: undefined,
     href: undefined,
+    iconPosition: "end",
   }
 );
 </script>
