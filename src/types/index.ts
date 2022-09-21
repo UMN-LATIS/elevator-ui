@@ -1,3 +1,5 @@
+import { MAP_STYLES } from "@/constants";
+
 export type WidgetType =
   | "checkbox"
   | "date"
@@ -83,7 +85,6 @@ export interface SelectWidgetProps extends WidgetProps {
     selectGroup?: string[] | Record<string | number, string | undefined>;
   };
 }
-
 export interface UploadWidgetProps extends WidgetProps {
   type: "upload";
   fieldData: {
@@ -312,3 +313,12 @@ export interface Template {
     | Record<string | number, string | undefined | unknown>
     | unknown[];
 }
+
+export interface LngLat {
+  lng: number;
+  lat: number;
+}
+
+export type BoundingBox = [[number, number], [number, number]];
+
+export type MapStyle = keyof typeof MAP_STYLES;
