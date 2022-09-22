@@ -1,6 +1,6 @@
 <template>
   <div
-    class="accordion overflow-hidden bg-neutral-50 w-full mt-2 shadow-sm rounded-lg"
+    class="accordion overflow-hidden bg-neutral-50 w-full mt-2 shadow-sm rounded"
   >
     <button
       class="accordion__header flex w-full justify-between items-center p-4 gap-2 bg-neutral-100 border-none rounded-b-none"

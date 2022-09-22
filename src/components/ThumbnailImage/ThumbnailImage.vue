@@ -1,7 +1,7 @@
 <template>
   <component
     :is="href ? 'a' : 'div'"
-    class="block rounded-md overflow-hidden hover:shadow-md"
+    class="block rounded overflow-hidden hover:shadow-md"
     :href="href"
   >
     <img :src="src" class="w-full h-full object-cover" :alt="alt" />
