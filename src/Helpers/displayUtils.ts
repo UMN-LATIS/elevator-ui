@@ -95,3 +95,26 @@ export function getWidgetsForDisplay({
 export function getAssetTitle(asset: Asset): string {
   return asset?.title?.[0] ?? "(No Title)";
 }
+
+export function toClickToSearchUrl(
+  linkText: string,
+  widgetProps: WidgetProps
+): string {
+  const cleanedLinkText = linkText.trim().replace("?", "").replace("...", "");
+
+  if (widgetProps.clickToSearchType === 0) {
+    return (
+      config.baseUrl +
+      "/search/querySearch/" +
+      encodeURIComponent(cleanedLinkText)
+    );
+  }
+
+  return (
+    config.baseUrl +
+    "/search/scopedQuerySearch/" +
+    widgetProps.fieldTitle +
+    "/" +
+    encodeURIComponent(cleanedLinkText)
+  );
+}

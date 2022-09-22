@@ -1,6 +1,6 @@
 <template>
   <span v-if="props.widget.clickToSearch">
-    <a :href="linkURL">
+    <a :href="linkUrl">
       <slot />
     </a>
   </span>
@@ -10,36 +10,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { WidgetProps } from "@/types";
-import config from "@/config";
+import { toClickToSearchUrl } from "@/helpers/displayUtils";
 
 interface Props {
-  widget: WidgetProps;
   linkText: string;
+  widget: WidgetProps;
 }
 
 const props = defineProps<Props>();
 
-const linkURL = computed(() => {
-  const cleanedLinkText = props.linkText
-    .trim()
-    .replace("?", "")
-    .replace("...", "");
-  if (props.widget.clickToSearchType == 0) {
-    return (
-      config.baseUrl +
-      "/search/querySearch/" +
-      encodeURIComponent(cleanedLinkText)
-    );
-  } else {
-    return (
-      config.baseUrl +
-      "/search/scopedQuerySearch/" +
-      props.widget.fieldTitle +
-      "/" +
-      encodeURIComponent(cleanedLinkText)
-    );
-  }
-});
+const linkUrl = computed((): string =>
+  toClickToSearchUrl(props.linkText, props.widget)
+);
 </script>

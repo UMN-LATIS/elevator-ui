@@ -4,7 +4,7 @@
     :href="href"
     class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-transparent-black-100 hover:no-underline no-underline text-neutral-700"
     :class="{
-      'border border-neutral-300 cursor-pointer hover:border-neutral-600 hover:bg-neutral-200 transition-colors ease-in-out':
+      'border border-blue-700  bg-blue-100 text-blue-700 cursor-pointer hover:bg-blue-700 hover:text-white transition-colors ease-in-out':
         href,
     }"
   >

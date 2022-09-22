@@ -1,9 +1,11 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <ul class="taglist">
-        <li v-for="tag in content.tags" :key="tag">
-          <Link :widget="widget" :linkText="tag">{{ tag }} </Link>
+      <ul class="flex gap-2">
+        <li v-for="(tag, index) in content.tags" :key="index">
+          <Chip :href="toClickToSearchUrl(tag, widget)">
+            {{ tag }}
+          </Chip>
         </li>
       </ul>
     </li>
@@ -11,30 +13,12 @@
 </template>
 
 <script setup lang="ts">
-import Link from "@/components/Link/Link.vue";
-import { WidgetProps, WidgetContent } from "@/types";
+import { TagListWidgetProps, TagListWidgetContent } from "@/types";
+import { toClickToSearchUrl } from "@/helpers/displayUtils";
+import Chip from "@/components/Chip/Chip.vue";
 
-interface Props {
-  widget: WidgetProps;
-  contents: WidgetContent[];
-}
-
-const props = defineProps<Props>();
+defineProps<{
+  widget: TagListWidgetProps;
+  contents: TagListWidgetContent[];
+}>();
 </script>
-
-<style scoped>
-.taglist {
-  display: inline;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.taglist li {
-  display: inline;
-}
-
-.taglist li + li:before {
-  content: ", ";
-}
-</style>
