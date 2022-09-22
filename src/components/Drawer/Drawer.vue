@@ -24,12 +24,12 @@
             :class="{
               'sm:text-3xl md:text-4xl': variant === 'primary' && isOpen,
               'sm:text-2xl md:text-3xl':
-                label.length >= 100 && label.length < 200,
-              'sm:text-xl md:text-xl': label.length >= 200,
+                label.length >= 100 && label.length < 200 && isOpen,
+              'sm:text-xl md:text-xl': label.length >= 200 && isOpen,
             }"
             :title="label"
           >
-            {{ label }}
+            <span class="min-w-0 block">{{ label }}</span>
           </h1>
         </slot>
       </button>
@@ -82,5 +82,20 @@ defineEmits<{
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.ticker {
+  animation: 8s ticker infinite linear;
+}
+
+@keyframes ticker {
+  0% {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
 }
 </style>
