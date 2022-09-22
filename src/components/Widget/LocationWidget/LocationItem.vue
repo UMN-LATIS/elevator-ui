@@ -1,9 +1,9 @@
 <template>
   <div class="location-item p-4 bg-transparent-white-800 shadow-sm rounded">
-    <p>{{ locationLabel }}</p>
+    <p v-if="locationLabel">{{ locationLabel }}</p>
     <div class="my-4 flex gap-4 w-min">
-      <Tuple label="Latitude" class="w-auto">{{ latitude || "-" }}</Tuple>
-      <Tuple label="Longitude" class="w-auto">{{ longitude || "-" }}</Tuple>
+      <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
+      <Tuple label="Longitude" class="w-auto">{{ lngStr }}</Tuple>
     </div>
     <Button
       v-if="hasLocation"
@@ -25,8 +25,8 @@
       <MapMarker :lng="mapCenter.lng" :lat="mapCenter.lat" />
     </Map>
     <div class="my-4 flex gap-4 w-min">
-      <Tuple label="Latitude" class="w-auto">{{ latitude || "-" }}</Tuple>
-      <Tuple label="Longitude" class="w-auto">{{ longitude || "-" }}</Tuple>
+      <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
+      <Tuple label="Longitude" class="w-auto">{{ lngStr }}</Tuple>
     </div>
   </Modal>
 </template>
@@ -48,44 +48,31 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const latitude = computed(() => {
-  return props.locationContent.loc?.coordinates?.[1].toFixed(4) ?? 0;
+const lat = computed((): number => {
+  return props.locationContent.loc?.coordinates?.[1] ?? 0;
 });
 
-const longitude = computed(() => {
-  return props.locationContent.loc?.coordinates?.[0].toFixed(4) ?? 0;
+const lng = computed((): number => {
+  return props.locationContent.loc?.coordinates?.[0] ?? 0;
 });
+
+const lngStr = computed((): string => (lng.value ? lng.value.toFixed(4) : "-"));
+const latStr = computed((): string => (lat.value ? lat.value.toFixed(4) : "-"));
 
 const mapCenter = computed(
   () =>
     ({
-      lng: longitude.value,
-      lat: latitude.value,
+      lng: lng.value,
+      lat: lat.value,
     } as LngLat)
 );
 
-const locationLabel = computed(() => {
-  let label = "";
-  if (
-    props.locationContent.locationLabel &&
-    props.locationContent.locationLabel.length > 0
-  ) {
-    label = props.locationContent.locationLabel;
-  } else {
-    if (
-      props.locationContent.address &&
-      props.locationContent.address.length > 0
-    ) {
-      label = props.locationContent.address;
-    } else {
-      label = latitude.value + ", " + longitude.value;
-    }
-  }
-  return label;
-});
+const locationLabel = computed(
+  () => props.locationContent.locationLabel || props.locationContent.address
+);
 
 const hasLocation = computed(() => {
-  return longitude.value !== 0 && latitude.value !== 0;
+  return lng.value !== 0 && lat.value !== 0;
 });
 
 const isOpen = ref(false);

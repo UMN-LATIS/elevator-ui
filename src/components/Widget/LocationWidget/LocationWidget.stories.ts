@@ -3,6 +3,7 @@ import LocationWidget from "./LocationWidget.vue";
 import mockAsset from "@/__mocks__/mockAsset";
 import mockTemplate from "@/__mocks__/mockTemplate";
 import { getWidgetPropsByFieldTitle } from "@/helpers/displayUtils";
+import { LocationWidgetContent, LocationWidgetProps } from "@/types";
 
 export default {
   title: "Widgets/LocationWidget",
@@ -21,8 +22,11 @@ const Template: StoryFn<typeof LocationWidget> = (args) => ({
 });
 
 const field = "location_1";
-const widgetContents = mockAsset[field];
-const template = getWidgetPropsByFieldTitle(mockTemplate, field);
+const widgetContents = mockAsset[field] as LocationWidgetContent[];
+const template = getWidgetPropsByFieldTitle<LocationWidgetProps>(
+  mockTemplate,
+  field
+);
 
 export const Default = Template.bind({});
 Default.args = {
@@ -30,8 +34,8 @@ Default.args = {
   widget: template,
 };
 
-const widgetContentsNoLabel = JSON.parse(JSON.stringify(widgetContents));
-widgetContentsNoLabel[0].locationLabel = "";
+const widgetContentsNoLabel = structuredClone(widgetContents);
+widgetContentsNoLabel[0].locationLabel = null;
 export const NoLabel = Template.bind({});
 NoLabel.args = {
   contents: widgetContentsNoLabel,
