@@ -8,11 +8,11 @@
         'bg-neutral-50 text-neutral-900 border-y border-neutral-300':
           variant === 'secondary',
         'h-full': !isOpen,
-        'md:py-8': variant === 'primary' && isOpen,
+        'md:py-4': variant === 'primary' && isOpen,
       }"
     >
       <button
-        class="flex items-center p-4 leading-none gap-4 flex-1"
+        class="flex items-center p-4 leading-tight gap-4 flex-1"
         @click="$emit('toggle')"
       >
         <span class="material-symbols-outlined">
@@ -20,10 +20,14 @@
         </span>
         <slot name="header-label">
           <h1
-            class="font-bold relative"
+            class="header-label font-bold relative text-left"
             :class="{
               'sm:text-3xl md:text-4xl': variant === 'primary' && isOpen,
+              'sm:text-2xl md:text-3xl':
+                label.length >= 100 && label.length < 200,
+              'sm:text-xl md:text-xl': label.length >= 200,
             }"
+            :title="label"
           >
             {{ label }}
           </h1>
