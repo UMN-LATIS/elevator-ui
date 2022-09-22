@@ -1,7 +1,15 @@
 <template>
   <div class="asset-details">
     <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
-      <WidgetList :assetId="assetId" />
+      <WidgetList v-if="assetId" :assetId="assetId" />
+      <div v-if="!assetId">
+        <h2 class="text-xl font-bold text-neutral-900 mb-4">
+          😢 Sorry. Something's off.
+        </h2>
+        <p>No asset found.</p>
+        <code class="text-sm">assetId: {{ assetId ?? "null" }}</code>
+      </div>
+
       <!-- For development only? -->
       <footer v-if="assetId" class="flex gap-2">
         <Button :href="getAssetUrl(assetId)" icon="image" target="_blank">
@@ -30,7 +38,7 @@ import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
   defineProps<{
-    assetId: string;
+    assetId: string | null;
     isOpen?: boolean;
   }>(),
   {
@@ -51,6 +59,10 @@ const assetTitle = computed(() =>
 watch(
   () => props.assetId,
   async () => {
+    if (!props.assetId) {
+      console.error("No assetId");
+      return;
+    }
     asset.value = await assetStore.fetchAsset(props.assetId);
   },
   { immediate: true }

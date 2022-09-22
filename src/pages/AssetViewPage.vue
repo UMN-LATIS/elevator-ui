@@ -11,7 +11,6 @@
       :fileHandlerId="assetStore.activeFileObjectId"
     />
     <AssetDetailsDrawer
-      v-if="assetStore.activeAssetId"
       class="asset-view-page__asset-details rounded-2xl overflow-hidden"
       :assetId="assetStore.activeAssetId"
       :isOpen="isAssetDetailsOpen"

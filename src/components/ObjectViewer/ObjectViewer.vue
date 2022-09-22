@@ -10,10 +10,10 @@
     ></iframe>
     <div
       v-else
-      class="w-full h-full min-h-[20rem] bg-neutral-400 place-items-center"
+      class="w-full h-full min-h-[20rem] bg-neutral-400 place-items-center p-8"
     >
-      <h3 class="text-3xl">No Asset File Found</h3>
-      <p>{{ fileHandlerId }}</p>
+      <p>No asset file found.</p>
+      <code class="text-sm">FileHandlerId: {{ fileHandlerId ?? "null" }}</code>
     </div>
   </section>
 </template>
