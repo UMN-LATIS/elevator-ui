@@ -1,23 +1,23 @@
 <template>
   <div
-    class="asset-view-page bg-neutral-300 p-4 gap-4"
+    class="asset-view-page bg-neutral-300"
     :class="{
       'is-asset-details-open': isAssetDetailsOpen,
       'is-object-details-open': isObjectDetailsOpen,
     }"
   >
     <ObjectViewer
-      class="asset-view-page__viewer rounded-2xl overflow-hidden bg-neutral-100"
+      class="asset-view-page__viewer overflow-hidden bg-neutral-100"
       :fileHandlerId="assetStore.activeFileObjectId"
     />
     <AssetDetailsDrawer
-      class="asset-view-page__asset-details rounded-2xl overflow-hidden"
+      class="asset-view-page__asset-details overflow-hidden"
       :assetId="assetStore.activeAssetId"
       :isOpen="isAssetDetailsOpen"
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
     <ObjectDetailsDrawer
-      class="asset-viewpage__object-details rounded-2xl overflow-hidden"
+      class="asset-viewpage__object-details overflow-hidden"
       :objectId="assetStore.activeObjectId"
       :isOpen="isObjectDetailsOpen"
       @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
@@ -97,12 +97,14 @@ watch(
   }
 
   .asset-view-page.is-asset-details-open {
+    grid-template-columns: minmax(0, 30rem) minmax(50%, 1fr);
     grid-template-areas:
       "asset-details viewer"
       "asset-details object-details";
   }
 
   .asset-view-page.is-object-details-open:not(.is-asset-details-open) {
+    grid-template-columns: minmax(50%, 1fr) minmax(0, 30rem);
     grid-template-areas:
       "viewer object-details"
       "asset-details object-details";
@@ -110,7 +112,7 @@ watch(
 
   .asset-view-page.is-asset-details-open.is-object-details-open {
     /* constrain the object details height */
-    grid-template-rows: 1fr 50vh;
+    grid-template-rows: 1fr 20rem;
   }
 }
 </style>
