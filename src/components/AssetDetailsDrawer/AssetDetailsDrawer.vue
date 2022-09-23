@@ -4,16 +4,22 @@
       <WidgetList v-if="assetId" :assetId="assetId" />
       <!-- For development only? -->
       <footer v-if="assetId" class="flex gap-2">
-        <Button :href="getAssetUrl(assetId)" icon="image" target="_blank">
-          View
+        <Button
+          :href="getAssetUrl(assetId)"
+          icon="image"
+          target="_blank"
+          variant="tertiary"
+        >
+          Old View
         </Button>
         <Button
           :href="`${getAssetUrl(assetId)}/true`"
           label="Asset Json"
           icon="data_object"
           target="_blank"
+          variant="tertiary"
         >
-          Data
+          JSON
         </Button>
       </footer>
     </Drawer>

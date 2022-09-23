@@ -1,9 +1,15 @@
 <template>
   <div v-if="!show" ref="truncateText" v-html="fieldContents"></div>
-  <Button :icon="show ? 'expand_less' : 'expand_more'" @click="show = !show">
+
+  <div v-if="show" v-html="fieldContents"></div>
+  <Button
+    class="py-1"
+    :icon="show ? 'expand_less' : 'expand_more'"
+    variant="tertiary"
+    @click="show = !show"
+  >
     Show {{ show ? "Less" : "More" }}
   </Button>
-  <div v-if="show" v-html="fieldContents"></div>
 </template>
 
 <script setup lang="ts">

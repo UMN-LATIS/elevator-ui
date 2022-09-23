@@ -3,10 +3,15 @@
     :is="href ? 'a' : 'button'"
     :href="href"
     :title="label"
-    class="inline-flex items-center gap-2 no-underline hover:no-underline p-2 rounded border-2 border-neutral-900 justify-center leading-none text-neutral-900"
+    class="inline-flex items-center gap-2 no-underline hover:no-underline p-2 rounded border-2 justify-center leading-none transition-colors ease-in-out"
     :class="{
-      'bg-neutral-900 text-white': variant === 'primary',
-      'border-none uppercase text-xs font-bold hover:bg-neutral-200 transition-colors ease-in-out':
+      'bg-neutral-900 border-neutral-900 text-white hover:bg-blue-600 hover:border-blue-600':
+        variant === 'primary',
+      ' border-neutral-900 text-neutral-900 hover:text-blue-600 hover:border-blue-600':
+        variant === 'secondary',
+      // 'border-none uppercase text-xs font-bold hover:bg-neutral-200 transition-colors ease-in-out':
+      //   variant === 'tertiary',
+      'bg-transparent-white-600 shadow-sm my-2 px-4 py-2 font-normal uppercase text-xs border-none hover:white hover:text-blue-600 text-blue-800':
         variant === 'tertiary',
       'flex-row-reverse': iconPosition === 'start',
     }"
