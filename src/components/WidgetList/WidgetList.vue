@@ -1,11 +1,11 @@
 <template>
   <Transition name="fade">
-    <div v-if="asset && template" class="widget-list flex flex-col gap-8">
+    <div v-if="assetRef && templateRef" class="widget-list flex flex-col gap-8">
       <Widget
         v-for="widget in widgets"
         :key="widget.widgetId"
         :widget="widget"
-        :asset="asset"
+        :asset="assetRef"
       />
     </div>
   </Transition>
@@ -26,22 +26,25 @@ const props = defineProps<{
 }>();
 
 const assetStore = useAssetStore();
-const asset = ref<Asset | null>(null);
-const template = ref<Template | null>(null);
+const assetRef = ref<Asset | null>(null);
+const templateRef = ref<Template | null>(null);
 
+// TODO: Do we need this here? Could this just be at the Page View?
 watch(
   () => props.assetId,
   async () => {
-    [asset.value, template.value] = await Promise.all([
-      assetStore.fetchAsset(props.assetId),
-      assetStore.fetchTemplateForAsset(props.assetId),
-    ]);
+    const { asset, template } = await assetStore.getAssetWithTemplate(
+      props.assetId
+    );
+
+    assetRef.value = asset;
+    templateRef.value = template;
   },
   { immediate: true }
 );
 
 const widgets = computed(() =>
-  getWidgetsForDisplay({ asset: asset.value, template: template.value })
+  getWidgetsForDisplay({ asset: assetRef.value, template: templateRef.value })
 );
 </script>
 <style scoped>

@@ -1,12 +1,11 @@
 import axios from "axios";
 import { Asset, Template } from "@/types";
 import { defineStore } from "pinia";
-import handleAxiosError from "@/utils/handleAxiosError";
 import config from "@/config";
-import { useTemplateStore } from "./TemplateStore";
 
 export interface AssetStoreState {
   assets: Map<string, Asset>;
+  templates: Map<string, Template>;
   activeAssetId: string | null;
   activeObjectId: string | null;
   activeFileObjectId: string | null;
@@ -15,32 +14,72 @@ export interface AssetStoreState {
 export const useAssetStore = defineStore("asset2", {
   state: (): AssetStoreState => ({
     assets: new Map<string, Asset>(),
+    templates: new Map<string, Template>(),
     activeAssetId: null,
     activeObjectId: null,
     activeFileObjectId: null,
   }),
   actions: {
+    async fetchAsset(assetId: string): Promise<Asset | null> {
+      if (this.assets.has(assetId)) {
+        return this.assets.get(assetId) as Asset | null;
+      }
+
+      const res = await axios.get<Asset>(
+        `${config.baseUrl}/asset/viewAsset/${assetId}/true`
+      );
+      return res.data ?? null;
+    },
+
+    async fetchTemplate(templateId: string): Promise<Template | null> {
+      if (this.templates.has(templateId)) {
+        return this.templates.get(templateId) as Template | null;
+      }
+
+      const res = await axios.get<Template>(
+        `${config.baseUrl}/assetManager/getTemplate/${templateId}`
+      );
+      return res.data ?? null;
+    },
+
+    /**
+     * gets the asset with the corresponding template
+     */
+    async getAssetWithTemplate(assetId: string) {
+      const asset =
+        this.assets.get(assetId) || (await this.fetchAsset(assetId));
+
+      if (!asset || !asset?.templateId) {
+        console.error(
+          `Cannot load asset ${assetId} with template. No templateId.`
+        );
+        return { asset: null, template: null };
+      }
+
+      // load the template
+      const template =
+        this.templates.get(String(asset.templateId)) ||
+        (await this.fetchTemplate(String(asset.templateId)));
+
+      // return the asset and template
+      return { asset, template };
+    },
+
     /**
      * This makes a given asset active and sets the
      * active object with the firstObjectId
      * @returns active
      */
     async setActiveAsset(assetId: string): Promise<Asset | null> {
-      const activeAsset = await this.fetchAsset(assetId);
-
-      // if no asset with this id, reset active asset id,
-      // active object id, and active file id to null
-      if (!activeAsset) {
-        this.resetActiveAsset();
-        return null;
-      }
+      // make sure the asset and its template are in the store
+      const { asset } = await this.getAssetWithTemplate(assetId);
 
       // set the active asset
-      this.activeAssetId = assetId;
-      this.activeFileObjectId = activeAsset.firstFileHandlerId ?? null;
-      this.activeObjectId = activeAsset.firstObjectId ?? null;
+      this.activeAssetId = asset ? assetId : null;
+      this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
+      this.activeObjectId = asset?.firstObjectId ?? null;
 
-      return activeAsset;
+      return asset;
     },
 
     /**
@@ -50,61 +89,13 @@ export const useAssetStore = defineStore("asset2", {
      * @returns the active object
      */
     async setActiveObject(objectId: string): Promise<Asset | null> {
-      const activeObject = await this.fetchAsset(objectId);
+      const { asset } = await this.getAssetWithTemplate(objectId);
 
-      // if no object with this ID, reset the active
-      // objectid and file object id to null
-      if (!activeObject) {
-        this.resetActiveObject();
-        return null;
-      }
+      // if asset exists, set the objectId to active, otherwise null
+      this.activeObjectId = asset ? objectId : null;
+      this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
 
-      // otherwise, make the objectId active
-      this.activeObjectId = objectId;
-
-      // and, if it exists, make the first (and only?)
-      // filehandler in this object active
-      this.activeFileObjectId = activeObject.firstFileHandlerId ?? null;
-
-      return activeObject;
-    },
-
-    /**
-     * gets an asset from the store or retrieves it from the api
-     */
-    async fetchAsset(assetId: string): Promise<Asset | null> {
-      if (this.assets.has(assetId)) {
-        return this.assets.get(assetId) as Asset;
-      }
-
-      try {
-        const res = await axios.get<Asset>(
-          `${config.baseUrl}/asset/viewAsset/${assetId}/true`
-        );
-        this.assets.set(assetId, res.data);
-        return res.data;
-      } catch (err) {
-        handleAxiosError(err);
-        return null;
-      }
-    },
-
-    async fetchTemplateForAsset(assetId: string): Promise<Template | null> {
-      const templateStore = useTemplateStore();
-      const asset = await this.fetchAsset(assetId);
-
-      if (!asset) return null;
-      return templateStore.fetchTemplate(asset.templateId);
-    },
-
-    resetActiveAsset() {
-      this.activeAssetId = null;
-      this.resetActiveObject();
-    },
-
-    resetActiveObject() {
-      this.activeObjectId = null;
-      this.activeFileObjectId = null;
+      return asset;
     },
   },
 });
