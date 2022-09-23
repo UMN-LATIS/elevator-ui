@@ -57,10 +57,7 @@ const assetTitle = computed(() =>
 watch(
   () => props.assetId,
   async () => {
-    if (!props.assetId) {
-      console.error("No assetId");
-      return;
-    }
+    if (!props.assetId) return;
     asset.value = await assetStore.fetchAsset(props.assetId);
   },
   { immediate: true }
