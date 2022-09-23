@@ -28,7 +28,11 @@ export const useAssetStore = defineStore("asset2", {
       const res = await axios.get<Asset>(
         `${config.baseUrl}/asset/viewAsset/${assetId}/true`
       );
-      return res.data ?? null;
+
+      const asset = res.data ?? null;
+
+      this.assets.set(assetId, asset);
+      return asset;
     },
 
     async fetchTemplate(templateId: string): Promise<Template | null> {
@@ -39,7 +43,10 @@ export const useAssetStore = defineStore("asset2", {
       const res = await axios.get<Template>(
         `${config.baseUrl}/assetManager/getTemplate/${templateId}`
       );
-      return res.data ?? null;
+
+      const template = res.data ?? null;
+      this.templates.set(templateId, template);
+      return template;
     },
 
     /**
