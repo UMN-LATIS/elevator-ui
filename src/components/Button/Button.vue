@@ -27,7 +27,7 @@
 withDefaults(
   defineProps<{
     icon?: string;
-    iconPosition: "start" | "end";
+    iconPosition?: "start" | "end";
     label?: string;
     href?: string;
     variant?: "primary" | "secondary" | "tertiary";
