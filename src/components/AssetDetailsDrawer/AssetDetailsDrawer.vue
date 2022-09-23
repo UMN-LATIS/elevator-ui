@@ -2,14 +2,6 @@
   <div class="asset-details">
     <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
       <WidgetList v-if="assetId" :assetId="assetId" />
-      <div v-if="!assetId">
-        <h2 class="text-xl font-bold text-neutral-900 mb-4">
-          😢 Sorry. Something's off.
-        </h2>
-        <p>No asset found.</p>
-        <code class="text-sm">assetId: {{ assetId ?? "null" }}</code>
-      </div>
-
       <!-- For development only? -->
       <footer v-if="assetId" class="flex gap-2">
         <Button :href="getAssetUrl(assetId)" icon="image" target="_blank">

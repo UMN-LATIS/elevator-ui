@@ -29,7 +29,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import Button from "@/components/Button/Button.vue";
+
 withDefaults(
   defineProps<{
     label: string;

@@ -1,26 +1,20 @@
 <template>
   <div
-    class="tuple w-full"
+    class="tuple"
     :class="{
-      'max-w-lg grid grid-cols-3 justify-start items-baseline gap-4':
-        variant === 'inline',
+      'w-full': variant === 'stacked',
+      'inline-flex items-baseline gap-2': variant === 'inline',
     }"
   >
     <span
-      class="tuple__label text-xs block uppercase font-bold text-neutral-900 leading-none mb-1 tracking-wide"
+      class="tuple__label text-xs block uppercase text-neutral-900 leading-none mb-1 tracking-wide"
       :class="{
-        'text-right': variant === 'inline',
+        'font-bold': variant === 'stacked',
         'sr-only': variant === 'value-only',
       }"
       >{{ label }}</span
     >
-    <span
-      class="tuple__value block text-neutral-600"
-      :class="{
-        'col-span-2': variant === 'inline',
-      }"
-      v-bind="$attrs"
-    >
+    <span class="tuple__value block text-neutral-600" v-bind="$attrs">
       <slot> - </slot>
     </span>
   </div>

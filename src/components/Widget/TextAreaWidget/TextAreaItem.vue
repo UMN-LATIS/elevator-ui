@@ -1,6 +1,8 @@
 <template>
-  <div ref="truncateText" v-html="fieldContents"></div>
-  <button v-if="isTruncated" @click="show = !show">Show More</button>
+  <div v-if="!show" ref="truncateText" v-html="fieldContents"></div>
+  <Button :icon="show ? 'expand_less' : 'expand_more'" @click="show = !show">
+    Show {{ show ? "Less" : "More" }}
+  </Button>
   <div v-if="show" v-html="fieldContents"></div>
 </template>
 
@@ -9,6 +11,7 @@ import { WidgetProps } from "@/types";
 import { ref, onMounted } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
+import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
   defineProps<{

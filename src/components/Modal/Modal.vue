@@ -22,7 +22,7 @@ import XButton from "../XButton/XButton.vue";
 
 const props = withDefaults(
   defineProps<{
-    label?: string;
+    label?: string | null;
     isOpen: boolean;
   }>(),
   {

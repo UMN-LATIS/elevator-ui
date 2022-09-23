@@ -1,7 +1,9 @@
 <template>
   <Link :widget="widget" :linkText="dateString">
     <template v-if="dateContent.label">
-      {{ dateContent.label }} <span class="date_value">({{ dateString }})</span>
+      <Tuple :label="dateContent.label" variant="inline"
+        >{{ dateString }}
+      </Tuple>
     </template>
     <template v-else>
       {{ dateString }}
@@ -13,6 +15,7 @@
 import Link from "@/components/Link/Link.vue";
 import { computed } from "vue";
 import { DateWidgetProps, DateWidgetContent } from "@/types";
+import Tuple from "@/components/Tuple/Tuple.vue";
 
 interface Props {
   dateContent: DateWidgetContent;

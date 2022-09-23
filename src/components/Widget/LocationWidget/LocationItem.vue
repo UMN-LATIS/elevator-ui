@@ -1,7 +1,17 @@
 <template>
-  <div class="location-item p-4 bg-transparent-white-800 shadow-sm rounded">
-    <p v-if="locationLabel">{{ locationLabel }}</p>
-    <div class="my-4 flex gap-4 w-min">
+  <Accordion>
+    <template #label>
+      <div v-if="!locationLabel" class="flex gap-6">
+        <Tuple label="Latitude" class="w-auto" variant="inline">{{
+          latStr
+        }}</Tuple>
+        <Tuple label="Longitude" class="w-auto" variant="inline">{{
+          lngStr
+        }}</Tuple>
+      </div>
+      <span v-else>{{ locationLabel }}</span>
+    </template>
+    <div v-if="locationLabel" class="my-4 flex gap-4 w-min">
       <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
       <Tuple label="Longitude" class="w-auto">{{ lngStr }}</Tuple>
     </div>
@@ -12,7 +22,7 @@
       @click="isOpen = true"
       >Show Location</Button
     >
-  </div>
+  </Accordion>
 
   <Modal :isOpen="isOpen" :label="locationLabel" @close="isOpen = false">
     <Map
@@ -40,6 +50,7 @@ import config from "@/config";
 import MapMarker from "@/components/MapMarker/MapMarker.vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Button from "@/components/Button/Button.vue";
+import Accordion from "@/components/Accordion/Accordion.vue";
 
 interface Props {
   locationContent: LocationWidgetContent;
@@ -68,7 +79,9 @@ const mapCenter = computed(
 );
 
 const locationLabel = computed(
-  () => props.locationContent.locationLabel || props.locationContent.address
+  () =>
+    (props.locationContent.locationLabel || props.locationContent.address) ??
+    null
 );
 
 const hasLocation = computed(() => {
