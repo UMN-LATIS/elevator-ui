@@ -3,7 +3,6 @@
 
   <div v-if="show" v-html="fieldContents"></div>
   <Button
-    class="py-1"
     :icon="show ? 'expand_less' : 'expand_more'"
     variant="tertiary"
     @click="show = !show"

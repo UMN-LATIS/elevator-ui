@@ -9,9 +9,7 @@
         variant === 'primary',
       ' border-neutral-900 text-neutral-900 hover:text-blue-600 hover:border-blue-600':
         variant === 'secondary',
-      // 'border-none uppercase text-xs font-bold hover:bg-neutral-200 transition-colors ease-in-out':
-      //   variant === 'tertiary',
-      'bg-transparent-white-600 shadow-sm my-2 px-4 py-2 font-normal uppercase text-xs border-none hover:white hover:text-blue-600 text-blue-800':
+      'bg-transparent-white-600 shadow-sm my-2 px-4 py-2 font-normal uppercase text-xs border-none hover:bg-white text-neutral-900 hover:text-blue-600 ':
         variant === 'tertiary',
       'flex-row-reverse': iconPosition === 'start',
     }"
