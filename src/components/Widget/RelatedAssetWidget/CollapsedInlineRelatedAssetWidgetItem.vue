@@ -1,14 +1,9 @@
 <template>
   <section
-    class="collapsed-inline-related-asset-widget-item"
-    :class="{
-      'bg-transparent-black-50 p-4 rounded': isAssetReady,
-    }"
+    class="collapsed-inline-related-asset-widget-item flex flex-col gap-8"
   >
     <h3>{{ title }}</h3>
-    <div v-if="isAssetReady" class="mt-4">
-      <WidgetList :assetId="assetId" />
-    </div>
+    <WidgetList :assetId="assetId" />
   </section>
 </template>
 <script setup lang="ts">
