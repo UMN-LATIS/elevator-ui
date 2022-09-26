@@ -42,5 +42,44 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [
+    require("@tailwindcss/typography"),
+
+    /**
+     * expose tailwind colors as CSS variables
+     * like: `--color-blue-200`
+     * or default colors as: `--color-blue`
+     *
+     * @example
+     * ```css
+     *   a { color: var(--color-blue-600); }
+     *   a:hover { color: var(--color-fuchsia); }
+     * ```
+     *
+     * @see https://gist.github.com/Merott/d2a19b32db07565e94f10d13d11a8574
+     * @see https://tailwindcss.com/docs/customizing-colors
+     */
+    function ({ addBase, theme }) {
+      function extractColorVars(colorObj, colorGroup = "") {
+        return Object.keys(colorObj).reduce((vars, colorKey) => {
+          const value = colorObj[colorKey];
+          const cssVariable =
+            colorKey === "DEFAULT"
+              ? `--color${colorGroup}`
+              : `--color${colorGroup}-${colorKey}`;
+
+          const newVars =
+            typeof value === "string"
+              ? { [cssVariable]: value }
+              : extractColorVars(value, `-${colorKey}`);
+
+          return { ...vars, ...newVars };
+        }, {});
+      }
+
+      addBase({
+        ":root": extractColorVars(theme("colors")),
+      });
+    },
+  ],
 };
