@@ -1,3 +1,6 @@
+// 20220926150513
+// https://dev.elevator.umn.edu/defaultinstance/assetManager/getTemplate/68
+
 import { Template } from "@/types";
 
 const mockTemplate: Template = {
@@ -5,7 +8,7 @@ const mockTemplate: Template = {
   templateName: "All Fields Test",
   widgetArray: [
     {
-      widgetId: 3379,
+      widgetId: 3418,
       type: "text",
       allowMultiple: true,
       attemptAutocomplete: false,
@@ -24,7 +27,7 @@ const mockTemplate: Template = {
       templateOrder: 1,
     },
     {
-      widgetId: 3380,
+      widgetId: 3419,
       type: "checkbox",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -43,7 +46,7 @@ const mockTemplate: Template = {
       templateOrder: 2,
     },
     {
-      widgetId: 3381,
+      widgetId: 3420,
       type: "date",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -62,7 +65,7 @@ const mockTemplate: Template = {
       templateOrder: 3,
     },
     {
-      widgetId: 3382,
+      widgetId: 3421,
       type: "location",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -81,7 +84,7 @@ const mockTemplate: Template = {
       templateOrder: 4,
     },
     {
-      widgetId: 3383,
+      widgetId: 3422,
       type: "multiselect",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -94,17 +97,27 @@ const mockTemplate: Template = {
             state: {
               minnesota: {
                 city: {
-                  mankato: { neighborhood: ["campus", "downtown"] },
-                  minneapolis: { neighborhood: ["uptown", "downtown"] },
+                  mankato: {
+                    neighborhood: ["campus", "downtown"],
+                  },
+                  minneapolis: {
+                    neighborhood: ["uptown", "downtown"],
+                  },
                 },
               },
-              wisconsin: { city: ["madison", "milwaukee"] },
+              wisconsin: {
+                city: ["madison", "milwaukee"],
+              },
             },
           },
           canada: {
             state: {
-              quebec: { city: ["montreal"] },
-              alberta: { city: ["fakeville", "faketown"] },
+              quebec: {
+                city: ["montreal"],
+              },
+              alberta: {
+                city: ["fakeville", "faketown"],
+              },
             },
           },
         },
@@ -120,7 +133,7 @@ const mockTemplate: Template = {
       templateOrder: 5,
     },
     {
-      widgetId: 3384,
+      widgetId: 3423,
       type: "related asset",
       allowMultiple: true,
       attemptAutocomplete: false,
@@ -150,7 +163,7 @@ const mockTemplate: Template = {
       templateOrder: 6,
     },
     {
-      widgetId: 3385,
+      widgetId: 3424,
       type: "select",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -172,7 +185,7 @@ const mockTemplate: Template = {
       templateOrder: 7,
     },
     {
-      widgetId: 3386,
+      widgetId: 3425,
       type: "tag list",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -191,7 +204,7 @@ const mockTemplate: Template = {
       templateOrder: 8,
     },
     {
-      widgetId: 3387,
+      widgetId: 3426,
       type: "text area",
       allowMultiple: false,
       attemptAutocomplete: false,
@@ -210,7 +223,7 @@ const mockTemplate: Template = {
       templateOrder: 9,
     },
     {
-      widgetId: 3388,
+      widgetId: 3427,
       type: "upload",
       allowMultiple: true,
       attemptAutocomplete: false,
@@ -238,7 +251,7 @@ const mockTemplate: Template = {
       templateOrder: 10,
     },
     {
-      widgetId: 3389,
+      widgetId: 3428,
       type: "related asset",
       allowMultiple: true,
       attemptAutocomplete: false,
@@ -254,7 +267,7 @@ const mockTemplate: Template = {
         defaultTemplate: 72,
         ignoreForDateSearch: false,
         ignoreForDigitalAsset: false,
-        collapseNestedChildren: true,
+        collapseNestedChildren: false,
         ignoreForLocationSearch: false,
       },
       display: true,
@@ -269,48 +282,36 @@ const mockTemplate: Template = {
     },
   ],
   collections: {
-    74: { "API Import": { 75: "Bennington Test Collection" } },
-    25: {
+    "20": "Collection two",
+    "24": "Language Center",
+    "25": {
       "Blank Generation": {
-        28: { fades: { 1: "Initial Collection" } },
-        23: "Test Collection - Don't use",
+        "23": "Test Collection - Don't use",
+        "28": {
+          fades: {
+            "1": "Initial Collection",
+          },
+        },
       },
     },
-    78: "blarg",
-    20: "Collection two",
-    29: "Date testing - Don't use",
-    27: "Don't use - Really Blank but Also Really LongReally Blank but Also Really Long",
-    71: "GeoTime Test",
-    26: "Lang Center New",
-    24: "Language Center",
-    40: "new test collection - don't use",
-    35: "Obama Speeches",
-    79: "Related Asset Testing",
-    72: "Research Paper 1",
-    41: "Speeches 2 - Don't use",
-    42: "Tree Cores",
+    "26": "Lang Center New",
+    "27": "Don't use - Really Blank but Also Really LongReally Blank but Also Really Long",
+    "29": "Date testing - Don't use",
+    "35": "Obama Speeches",
+    "40": "new test collection - don't use",
+    "41": "Speeches 2 - Don't use",
+    "42": "Tree Cores",
+    "71": "GeoTime Test",
+    "72": "Research Paper 1",
+    "74": {
+      "API Import": {
+        "75": "Bennington Test Collection",
+      },
+    },
+    "78": "blarg",
+    "79": "Related Asset Testing",
   },
-  allowedCollections: {
-    74: "API Import",
-    75: "Bennington Test Collection",
-    25: "Blank Generation",
-    78: "blarg",
-    20: "Collection two",
-    29: "Date testing - Don't use",
-    27: "Don't use - Really Blank but Also Really LongReally Blank but Also Really Long",
-    28: "fades",
-    71: "GeoTime Test",
-    1: "Initial Collection",
-    26: "Lang Center New",
-    24: "Language Center",
-    40: "new test collection - don't use",
-    35: "Obama Speeches",
-    79: "Related Asset Testing",
-    72: "Research Paper 1",
-    41: "Speeches 2 - Don't use",
-    23: "Test Collection - Don't use",
-    42: "Tree Cores",
-  },
+  allowedCollections: [],
 };
 
 export default mockTemplate;
