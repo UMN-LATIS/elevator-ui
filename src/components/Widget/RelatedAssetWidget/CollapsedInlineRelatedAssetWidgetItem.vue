@@ -1,5 +1,6 @@
 <template>
   <section
+    v-if="isAssetReady"
     class="collapsed-inline-related-asset-widget-item flex flex-col gap-8"
   >
     <h3>{{ title }}</h3>
