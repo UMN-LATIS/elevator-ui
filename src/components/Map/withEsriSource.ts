@@ -1,17 +1,19 @@
 import { TiledMapService } from "mapbox-gl-esri-sources";
 import { Map as MapLibreMap } from "maplibre-gl";
 
-export const withEsriSource = () => (map: MapLibreMap) => {
-  new TiledMapService("imagery-source", map, {
-    url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
-  });
+export const withEsriSource =
+  ({ url }: { url: string }) =>
+  (map: MapLibreMap) => {
+    map.on("load", () => {
+      new TiledMapService("imagery-source", map, { url });
 
-  // And then add it as a layer to your map
-  map.addLayer({
-    id: "imagery-layer",
-    type: "raster",
-    source: "imagery-source",
-  });
+      // And then add it as a layer to your map
+      map.addLayer({
+        id: "imagery-layer",
+        type: "raster",
+        source: "imagery-source",
+      });
+    });
 
-  return map;
-};
+    return map;
+  };

@@ -12,11 +12,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { LngLat } from "@/types";
 import { MapInjectionKey } from "@/constants";
+import pipe from "ramda/es/pipe";
+import { withEsriSource } from "./withEsriSource";
+import { withMapControls } from "./withMapControls";
 
 const props = defineProps<{
   center: LngLat | null;
   zoom: number;
   apiKey: string;
+  esriSourceUrl?: string;
 }>();
 
 const emit = defineEmits<{
@@ -34,15 +38,23 @@ onMounted(() => {
 
   const basemapEnum = "ArcGIS:Topographic";
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   mapRef.value = new MapLibreMap({
     container: mapContainerRef.value,
     center: props.center ? [props.center.lng, props.center.lat] : undefined,
     style: `https://basemaps-api.arcgis.com/arcgis/rest/services/styles/${basemapEnum}?type=style&token=${props.apiKey}`,
-
     zoom: props.zoom,
   });
   //@ts-check
+
+  // additional options
+  const withMapAdditions = [
+    props.esriSourceUrl && withEsriSource({ url: props.esriSourceUrl }),
+    withMapControls(),
+  ].filter(Boolean);
+
+  mapRef.value = pipe(...withMapAdditions)(mapRef.value) as MapLibreMap;
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {
@@ -69,6 +81,7 @@ onMounted(() => {
 
 // ignore because of error about type instantiation being excessively deep
 // and possibly infinite
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 provide(MapInjectionKey, mapRef as Ref<MapLibreMap | null>);
 // @ts-check
