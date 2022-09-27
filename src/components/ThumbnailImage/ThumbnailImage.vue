@@ -2,9 +2,9 @@
   <component
     :is="href ? 'a' : 'div'"
     :href="href"
-    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative"
+    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm"
     :class="{
-      'ring ring-offset-2 ring-blue-600': isActive,
+      'ring ring-offset-1 ring-blue-600': isActive,
     }"
   >
     <div
@@ -41,7 +41,7 @@ withDefaults(
 </script>
 <style scoped>
 .thumbnail-image:hover .thumbnail-image__img {
-  transform: scale(1.1);
+  transform: scale(1.05);
   opacity: 1;
 }
 .thumbnail-image:hover .thumbnail-image__icon {

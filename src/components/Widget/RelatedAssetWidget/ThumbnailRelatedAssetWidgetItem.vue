@@ -1,7 +1,7 @@
 <template>
   <button
     :title="title"
-    class="inline-flex"
+    class="inline-block mr-2 last:mr-0"
     @click="assetStore.setActiveObject(assetId)"
   >
     <ThumbnailImage
@@ -9,6 +9,7 @@
       :src="getTinyURL(assetCache.primaryHandler)"
       :alt="title"
       :isActive="isActiveObject"
+      iconOnHover="arrow_forward"
     />
     <div v-else>
       <Icon>image</Icon>

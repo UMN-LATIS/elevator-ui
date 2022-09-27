@@ -1,6 +1,6 @@
 <!-- todo need to fix all the hover state stuff, decide if that matters-->
 <template>
-  <div class="upload-widget flex gap-1 flex-wrap">
+  <div class="upload-widget flex gap-2 flex-wrap">
     <button
       v-for="(content, key) in contents"
       :key="key"

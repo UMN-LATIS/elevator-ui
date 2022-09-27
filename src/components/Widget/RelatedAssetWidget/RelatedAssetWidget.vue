@@ -1,16 +1,13 @@
 <template>
   <div class="related-asset-widget">
-    <Tuple
+    <component
+      :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"
       :key="relatedAsset.targetAssetId"
+      :assetId="relatedAsset.targetAssetId"
+      :assetCache="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
       :label="relatedAsset.label ?? ''"
-    >
-      <component
-        :is="widgetType"
-        :assetId="relatedAsset.targetAssetId"
-        :assetCache="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
-      ></component>
-    </Tuple>
+    ></component>
   </div>
 </template>
 <script setup lang="ts">
@@ -20,7 +17,6 @@ import {
   RelatedAssetWidgetProps,
   RelatedAssetWidgetContent,
 } from "@/types";
-import Tuple from "@/components/Tuple/Tuple.vue";
 import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.vue";
 import CollapsedInlineRelatedAssetWidgetItem from "./CollapsedInlineRelatedAssetWidgetItem.vue";
 import ThumbnailRelatedAssetWidgetItem from "./ThumbnailRelatedAssetWidgetItem.vue";
