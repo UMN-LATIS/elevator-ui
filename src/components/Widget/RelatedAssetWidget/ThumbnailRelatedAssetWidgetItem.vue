@@ -1,26 +1,20 @@
 <template>
-  <div class="thumbnail-related-asset-widget-item">
-    <button @click="assetStore.setActiveObject(assetId)">
-      <figure
-        class="w-[6rem] h-[6rem] overflow-hidden rounded border border-white"
-        :class="{
-          'outline outline-2 outline-offset-2': isActiveObject,
-        }"
-      >
-        <img
-          v-if="assetCache.primaryHandler"
-          class="object-cover"
-          :src="getTinyURL(assetCache.primaryHandler)"
-          :alt="title"
-        />
-        <div v-else>
-          <span class="material-symbols-outlined"> image </span>
-          {{ title }}
-        </div>
-        <figcaption>{{ title }}</figcaption>
-      </figure>
-    </button>
-  </div>
+  <button
+    :title="title"
+    class="inline-flex"
+    @click="assetStore.setActiveObject(assetId)"
+  >
+    <ThumbnailImage
+      v-if="assetCache.primaryHandler"
+      :src="getTinyURL(assetCache.primaryHandler)"
+      :alt="title"
+      :isActive="isActiveObject"
+    />
+    <div v-else>
+      <Icon>image</Icon>
+      <p>{{ title }}</p>
+    </div>
+  </button>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
@@ -28,6 +22,8 @@ import { getTinyURL } from "@/Helpers/displayUtils";
 import type { RelatedAssetCacheItem } from "@/types";
 import { useAssetStore } from "@/stores/assetStore";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
+import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
+import Icon from "@/components/Icon/Icon.vue";
 
 const props = defineProps<{
   assetId: string;
