@@ -18,7 +18,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  color: "#111",
+  color: "#f43f5e",
   draggable: false,
 });
 

@@ -7959,6 +7959,11 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
+mapbox-gl-esri-sources@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/mapbox-gl-esri-sources/-/mapbox-gl-esri-sources-0.0.4.tgz#54aef6ca43c9dd6c880d48544f30d599d0394718"
+  integrity sha512-BN0AmcXB+WWquNdILqNiAJavyu5QEff0KJ9IPFR9NTelZFPq78a+HiUJ9WU8pbSNEFqhQ3RsmsmLxORxq54vQQ==
+
 mapbox-gl@^2.10.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-2.10.0.tgz#bd6eb0a156d0ef3a72c3348598330ded75412c47"

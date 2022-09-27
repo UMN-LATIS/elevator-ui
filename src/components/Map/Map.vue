@@ -16,18 +16,17 @@ import {
   ScaleControl,
   MapMouseEvent,
 } from "mapbox-gl";
-import type { LngLat, BoundingBox, MapStyle } from "@/types";
-import { MapInjectionKey, MAP_STYLES } from "@/constants";
+import { withEsriSource } from "./withEsriSource";
+
+import type { LngLat, BoundingBox } from "@/types";
+import { MapInjectionKey } from "@/constants";
 
 const props = defineProps<{
   center: LngLat | null;
   zoom: number;
   bounds?: BoundingBox | null;
-  mapStyle: MapStyle;
   accessToken: string;
 }>();
-
-console.log({ props });
 
 const emit = defineEmits<{
   (eventName: "click", mapMouseEvent: MapMouseEvent, mapboxMap: MapboxMap);
@@ -36,19 +35,6 @@ const emit = defineEmits<{
 
 const mapContainerRef = ref<HTMLDivElement>();
 const mapRef = ref<MapboxMap | null>(null);
-
-// satellite gets a bit too pixelated up close
-const getMaxZoomForStyle = (mapStyle) => (mapStyle === "satellite" ? 18 : 20);
-
-// watch style changes
-watch(
-  () => props.mapStyle,
-  () => {
-    if (!mapRef.value) return;
-    mapRef.value.setStyle(MAP_STYLES[props.mapStyle]);
-    mapRef.value.setMaxZoom(getMaxZoomForStyle(props.mapStyle));
-  }
-);
 
 // watch map bounds changes
 watch([() => props.bounds, mapRef], () => {
@@ -64,14 +50,14 @@ onMounted(() => {
     );
   }
 
-  mapRef.value = new MapboxMap({
-    container: mapContainerRef.value,
-    style: MAP_STYLES[props.mapStyle],
-    center: props.center ? [props.center.lng, props.center.lat] : undefined,
-    zoom: props.zoom,
-    accessToken: props.accessToken,
-    maxZoom: getMaxZoomForStyle(props.mapStyle),
-  });
+  mapRef.value = withEsriSource(
+    new MapboxMap({
+      container: mapContainerRef.value,
+      center: props.center ? [props.center.lng, props.center.lat] : undefined,
+      zoom: props.zoom,
+      accessToken: props.accessToken,
+    })
+  );
 
   mapRef.value
     .addControl(new FullscreenControl())
