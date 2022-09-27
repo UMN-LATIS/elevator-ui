@@ -6,25 +6,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, provide } from "vue";
+import { ref, onMounted, provide } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "mapbox-gl/dist/mapbox-gl.css";
-import {
-  Map as MapboxMap,
-  FullscreenControl,
-  GeolocateControl,
-  ScaleControl,
-  MapMouseEvent,
-} from "mapbox-gl";
+import { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import { withEsriSource } from "./withEsriSource";
+import { pipe } from "ramda/es/pipe";
 
-import type { LngLat, BoundingBox } from "@/types";
+import type { LngLat } from "@/types";
 import { MapInjectionKey } from "@/constants";
+import { withMapControls } from "./withMapControls";
 
 const props = defineProps<{
   center: LngLat | null;
   zoom: number;
-  bounds?: BoundingBox | null;
   accessToken: string;
 }>();
 
@@ -36,12 +31,6 @@ const emit = defineEmits<{
 const mapContainerRef = ref<HTMLDivElement>();
 const mapRef = ref<MapboxMap | null>(null);
 
-// watch map bounds changes
-watch([() => props.bounds, mapRef], () => {
-  if (!mapRef.value || !props.bounds) return;
-  mapRef.value.fitBounds(props.bounds, { padding: 64 });
-});
-
 onMounted(() => {
   if (!mapContainerRef.value) {
     throw Error(
@@ -50,7 +39,9 @@ onMounted(() => {
     );
   }
 
-  mapRef.value = withEsriSource(
+  const withMapEnhancements = pipe(withEsriSource(), withMapControls());
+
+  mapRef.value = withMapEnhancements(
     new MapboxMap({
       container: mapContainerRef.value,
       center: props.center ? [props.center.lng, props.center.lat] : undefined,
@@ -58,25 +49,6 @@ onMounted(() => {
       accessToken: props.accessToken,
     })
   );
-
-  mapRef.value
-    .addControl(new FullscreenControl())
-    .addControl(
-      new GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true,
-        },
-        // When active the map will receive updates to the device's location as it changes.
-        trackUserLocation: true,
-        // Draw an arrow next to the location dot to indicate which direction the device is heading.
-        showUserHeading: true,
-      })
-    )
-    .addControl(new ScaleControl({ unit: "imperial" }));
-
-  if (props.bounds) {
-    mapRef.value.fitBounds(props.bounds, { padding: 64 });
-  }
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {

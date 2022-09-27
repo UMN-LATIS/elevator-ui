@@ -22,6 +22,7 @@
     "mapbox-gl": "^2.10.0",
     "mapbox-gl-esri-sources": "^0.0.4",
     "pinia": "^2.0.20",
+    "ramda": "^0.28.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "shave": "^5.0.0",
