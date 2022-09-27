@@ -1,5 +1,5 @@
 <template>
-  <div class="mapbox-map">
+  <div class="maplibre-map">
     <div ref="mapContainerRef" class="map-container" />
     <slot />
   </div>
@@ -8,19 +8,15 @@
 <script setup lang="ts">
 import { ref, onMounted, provide } from "vue";
 import { useResizeObserver } from "@vueuse/core";
-import "mapbox-gl/dist/mapbox-gl.css";
-import { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
-import { withEsriSource } from "./withEsriSource";
-import { pipe } from "ramda/es/pipe";
-
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Map as MapboxMap, MapMouseEvent } from "maplibre-gl";
 import type { LngLat } from "@/types";
 import { MapInjectionKey } from "@/constants";
-import { withMapControls } from "./withMapControls";
 
 const props = defineProps<{
   center: LngLat | null;
   zoom: number;
-  accessToken: string;
+  apiKey: string;
 }>();
 
 const emit = defineEmits<{
@@ -39,16 +35,15 @@ onMounted(() => {
     );
   }
 
-  const withMapEnhancements = pipe(withEsriSource(), withMapControls());
+  const basemapEnum = "ArcGIS:Topographic";
 
-  mapRef.value = withMapEnhancements(
-    new MapboxMap({
-      container: mapContainerRef.value,
-      center: props.center ? [props.center.lng, props.center.lat] : undefined,
-      zoom: props.zoom,
-      accessToken: props.accessToken,
-    })
-  );
+  mapRef.value = new MapboxMap({
+    container: mapContainerRef.value,
+    center: props.center ? [props.center.lng, props.center.lat] : undefined,
+    style: `https://basemaps-api.arcgis.com/arcgis/rest/services/styles/${basemapEnum}?type=style&token=${props.apiKey}`,
+
+    zoom: props.zoom,
+  });
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {

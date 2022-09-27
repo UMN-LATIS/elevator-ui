@@ -5,7 +5,7 @@
 </template>
 <script setup lang="ts">
 import { watch, ref, unref } from "vue";
-import { Marker } from "mapbox-gl";
+import { Marker } from "maplibre-gl";
 import { inject, provide } from "vue";
 import { MapInjectionKey, MarkerInjectionKey } from "@/constants";
 import { LngLat } from "@/types";

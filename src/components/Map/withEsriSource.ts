@@ -1,7 +1,7 @@
 import { TiledMapService } from "mapbox-gl-esri-sources";
-import { Map as MapboxMap } from "mapbox-gl";
+import { Map as MapLibreMap } from "maplibre-gl";
 
-export const withEsriSource = () => (map: MapboxMap) => {
+export const withEsriSource = () => (map: MapLibreMap) => {
   new TiledMapService("imagery-source", map, {
     url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
   });
