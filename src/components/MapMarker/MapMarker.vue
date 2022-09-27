@@ -41,7 +41,6 @@ watch(
       return;
     }
 
-    console.log("Adding marker");
     // remove old marker if it exists
     const oldMarker = unref(marker);
     if (oldMarker) oldMarker.remove();
@@ -64,5 +63,7 @@ watch(
   { immediate: true }
 );
 
+// @ts-ignore
 provide(MarkerInjectionKey, marker);
+// @ts-check
 </script>

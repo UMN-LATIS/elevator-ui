@@ -11,8 +11,8 @@ export const UMN_LNGLAT: LngLat = {
   lng: -93.24287,
 };
 
-export const MapInjectionKey: InjectionKey<Ref<MapLibreMap>> =
+export const MapInjectionKey: InjectionKey<Ref<MapLibreMap | null>> =
   Symbol("MapLibreGLMap");
 
-export const MarkerInjectionKey: InjectionKey<Ref<Marker>> =
+export const MarkerInjectionKey: InjectionKey<Ref<Marker | null>> =
   Symbol("MapLibreGLMarker");

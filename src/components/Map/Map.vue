@@ -6,10 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, provide } from "vue";
+import { ref, onMounted, provide, type Ref } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Map as MapboxMap, MapMouseEvent } from "maplibre-gl";
+import { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { LngLat } from "@/types";
 import { MapInjectionKey } from "@/constants";
 
@@ -20,30 +20,29 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (eventName: "click", mapMouseEvent: MapMouseEvent, mapboxMap: MapboxMap);
-  (eventName: "load", mapboxMap: MapboxMap);
+  (eventName: "click", mapMouseEvent: MapMouseEvent, mapboxMap: MapLibreMap);
+  (eventName: "load", mapboxMap: MapLibreMap);
 }>();
 
-const mapContainerRef = ref<HTMLDivElement>();
-const mapRef = ref<MapboxMap | null>(null);
+const mapContainerRef = ref<HTMLDivElement | null>(null);
+const mapRef = ref<MapLibreMap | null>(null);
 
 onMounted(() => {
   if (!mapContainerRef.value) {
-    throw Error(
-      "Cannot create Map: container not defined:",
-      mapContainerRef.value
-    );
+    throw Error("Cannot create Map: container not defined:");
   }
 
   const basemapEnum = "ArcGIS:Topographic";
 
-  mapRef.value = new MapboxMap({
+  // @ts-ignore
+  mapRef.value = new MapLibreMap({
     container: mapContainerRef.value,
     center: props.center ? [props.center.lng, props.center.lat] : undefined,
     style: `https://basemaps-api.arcgis.com/arcgis/rest/services/styles/${basemapEnum}?type=style&token=${props.apiKey}`,
 
     zoom: props.zoom,
   });
+  //@ts-check
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {
@@ -52,14 +51,14 @@ onMounted(() => {
       throw new Error("there was a click but no map");
     }
 
-    emit("click", event, mapRef.value);
+    emit("click", event, mapRef.value as MapLibreMap);
   });
 
   mapRef.value.on("load", () => {
     if (!mapRef.value) {
       throw new Error("cannot emit load event: no mapRef");
     }
-    emit("load", mapRef.value);
+    emit("load", mapRef.value as MapLibreMap);
   });
 
   useResizeObserver(mapContainerRef, () => {
@@ -68,7 +67,11 @@ onMounted(() => {
   });
 });
 
-provide(MapInjectionKey, mapRef);
+// ignore because of error about type instantiation being excessively deep
+// and possibly infinite
+// @ts-ignore
+provide(MapInjectionKey, mapRef as Ref<MapLibreMap | null>);
+// @ts-check
 </script>
 
 <style scoped>

@@ -5,17 +5,22 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
-    node: true
+    node: true,
   },
-  extends: ["plugin:vue/vue3-recommended", "@vue/eslint-config-typescript/recommended", "@vue/eslint-config-prettier", "plugin:storybook/recommended"],
+  extends: [
+    "plugin:vue/vue3-recommended",
+    "@vue/eslint-config-typescript/recommended",
+    "@vue/eslint-config-prettier",
+    "plugin:storybook/recommended",
+  ],
   parserOptions: {
     ecmaVersion: "latest",
     parser: "@typescript-eslint/parser",
-    sourceType: "module"
+    sourceType: "module",
   },
-  plugins: ["vue", "@typescript-eslint"],
+  plugins: ["vue"],
   rules: {
     "vue/multi-word-component-names": "off",
-    "vue/attribute-hyphenation": ["error", "never"]
-  }
+    "vue/attribute-hyphenation": ["error", "never"],
+  },
 };
