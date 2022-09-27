@@ -33,6 +33,11 @@ import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDraw
 
 const props = defineProps<{
   assetId: string;
+  // id of object being viewed
+  // if it's not given then the assetStore will use
+  // the firstObjectId
+  // this is the part after the # in the route
+  objectId?: string;
 }>();
 
 const isAssetDetailsOpen = ref(true);
@@ -41,9 +46,9 @@ const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
 
 watch(
-  () => props.assetId,
+  [() => props.assetId],
   async () => {
-    await assetStore.setActiveAsset(props.assetId);
+    await assetStore.setActiveAsset(props.assetId, props.objectId);
   },
   { immediate: true }
 );

@@ -77,15 +77,26 @@ export const useAssetStore = defineStore("asset2", {
      * active object with the firstObjectId
      * @returns active
      */
-    async setActiveAsset(assetId: string): Promise<Asset | null> {
+    async setActiveAsset(
+      assetId: string,
+      objectId?: string
+    ): Promise<Asset | null> {
       // make sure the asset and its template are in the store
       const { asset } = await this.getAssetWithTemplate(assetId);
 
       // set the active asset
       this.activeAssetId = asset ? assetId : null;
-      this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
-      this.activeObjectId = asset?.firstObjectId ?? null;
 
+      // if an objectId is provided, use it to set
+      // the active object
+      if (objectId) {
+        return this.setActiveObject(objectId);
+      }
+
+      // if no objectId is provided, use the asset's
+      // firstObjectId and firstFileHandler
+      this.activeObjectId = asset?.firstObjectId ?? null;
+      this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
       return asset;
     },
 
