@@ -1,5 +1,3 @@
-import { MAP_STYLES } from "@/constants";
-
 export type WidgetType =
   | "checkbox"
   | "date"
@@ -320,5 +318,3 @@ export interface LngLat {
 }
 
 export type BoundingBox = [[number, number], [number, number]];
-
-export type MapStyle = keyof typeof MAP_STYLES;

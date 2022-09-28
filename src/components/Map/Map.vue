@@ -1,96 +1,99 @@
 <template>
-  <div class="mapbox-map">
+  <div class="maplibre-map">
+    <div class="flex gap-4 justify-end items-center my-2">
+      <button
+        v-for="(style, key) in mapStyles"
+        :key="key"
+        class="text-sm uppercase"
+        :class="{
+          'font-bold border-b-2 border-b-neutral-900':
+            key === activeMapStyleKey,
+          'text-neutral-500': key !== activeMapStyleKey,
+        }"
+        @click="handleStyleButtonClick(key)"
+      >
+        {{ style.label }}
+      </button>
+    </div>
     <div ref="mapContainerRef" class="map-container" />
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, provide } from "vue";
+import { ref, watch, provide, type Ref, onMounted } from "vue";
 import { useResizeObserver } from "@vueuse/core";
-import "mapbox-gl/dist/mapbox-gl.css";
-import {
-  Map as MapboxMap,
-  FullscreenControl,
-  GeolocateControl,
-  ScaleControl,
-  MapMouseEvent,
-} from "mapbox-gl";
-import type { LngLat, BoundingBox, MapStyle } from "@/types";
-import { MapInjectionKey, MAP_STYLES } from "@/constants";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
+import type { LngLat } from "@/types";
+import { MapInjectionKey, UMN_LNGLAT } from "@/constants";
+import { withMapControls } from "./withMapControls";
 
 const props = defineProps<{
   center: LngLat | null;
   zoom: number;
-  bounds?: BoundingBox | null;
-  mapStyle: MapStyle;
-  accessToken: string;
+  apiKey: string;
+  esriSourceUrl?: string;
 }>();
-
-console.log({ props });
 
 const emit = defineEmits<{
-  (eventName: "click", mapMouseEvent: MapMouseEvent, mapboxMap: MapboxMap);
-  (eventName: "load", mapboxMap: MapboxMap);
+  (eventName: "click", mapMouseEvent: MapMouseEvent, mapboxMap: MapLibreMap);
+  (eventName: "load", mapboxMap: MapLibreMap);
 }>();
 
-const mapContainerRef = ref<HTMLDivElement>();
-const mapRef = ref<MapboxMap | null>(null);
+const mapContainerRef = ref<HTMLDivElement | null>(null);
+const mapRef = ref<MapLibreMap | null>(null);
 
-// satellite gets a bit too pixelated up close
-const getMaxZoomForStyle = (mapStyle) => (mapStyle === "satellite" ? 18 : 20);
+const mapStyles = {
+  satellite: {
+    label: "Satellite",
+    name: "ArcGIS:Imagery",
+    type: "style",
+  },
+  streets: {
+    label: "Street",
+    name: "ArcGIS:Navigation",
+    type: "style",
+  },
+};
+
+type MapStyle = keyof typeof mapStyles;
+const activeMapStyleKey = ref<MapStyle>("satellite");
+
+const toArcGISUrl = (styleKey: string) => {
+  const baseUrl = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles`;
+  const { name, type, url } = mapStyles[styleKey];
+  return url || `${baseUrl}/${name}?type=${type}&token=${props.apiKey}`;
+};
+
+const handleStyleButtonClick = (newStyleKey: MapStyle) => {
+  activeMapStyleKey.value = newStyleKey;
+};
 
 // watch style changes
-watch(
-  () => props.mapStyle,
-  () => {
-    if (!mapRef.value) return;
-    mapRef.value.setStyle(MAP_STYLES[props.mapStyle]);
-    mapRef.value.setMaxZoom(getMaxZoomForStyle(props.mapStyle));
-  }
-);
+function updateStyle() {
+  if (!mapRef.value) return;
+  mapRef.value.setStyle(toArcGISUrl(activeMapStyleKey.value));
+}
 
-// watch map bounds changes
-watch([() => props.bounds, mapRef], () => {
-  if (!mapRef.value || !props.bounds) return;
-  mapRef.value.fitBounds(props.bounds, { padding: 64 });
-});
+watch(activeMapStyleKey, updateStyle);
 
 onMounted(() => {
   if (!mapContainerRef.value) {
-    throw Error(
-      "Cannot create Map: container not defined:",
-      mapContainerRef.value
-    );
+    throw Error("Cannot create Map: container not defined:");
   }
 
-  mapRef.value = new MapboxMap({
-    container: mapContainerRef.value,
-    style: MAP_STYLES[props.mapStyle],
-    center: props.center ? [props.center.lng, props.center.lat] : undefined,
-    zoom: props.zoom,
-    accessToken: props.accessToken,
-    maxZoom: getMaxZoomForStyle(props.mapStyle),
-  });
-
-  mapRef.value
-    .addControl(new FullscreenControl())
-    .addControl(
-      new GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true,
-        },
-        // When active the map will receive updates to the device's location as it changes.
-        trackUserLocation: true,
-        // Draw an arrow next to the location dot to indicate which direction the device is heading.
-        showUserHeading: true,
-      })
-    )
-    .addControl(new ScaleControl({ unit: "imperial" }));
-
-  if (props.bounds) {
-    mapRef.value.fitBounds(props.bounds, { padding: 64 });
-  }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  mapRef.value = withMapControls(
+    new MapLibreMap({
+      container: mapContainerRef.value,
+      center: props.center ? [props.center.lng, props.center.lat] : [0, 0],
+      style: toArcGISUrl(activeMapStyleKey.value),
+      zoom: props.zoom,
+    })
+  );
+  //@ts-check
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {
@@ -99,14 +102,14 @@ onMounted(() => {
       throw new Error("there was a click but no map");
     }
 
-    emit("click", event, mapRef.value);
+    emit("click", event, mapRef.value as MapLibreMap);
   });
 
   mapRef.value.on("load", () => {
     if (!mapRef.value) {
       throw new Error("cannot emit load event: no mapRef");
     }
-    emit("load", mapRef.value);
+    emit("load", mapRef.value as MapLibreMap);
   });
 
   useResizeObserver(mapContainerRef, () => {
@@ -115,7 +118,12 @@ onMounted(() => {
   });
 });
 
-provide(MapInjectionKey, mapRef);
+// ignore because of error about type instantiation being excessively deep
+// and possibly infinite
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+provide(MapInjectionKey, mapRef as Ref<MapLibreMap | null>);
+// @ts-check
 </script>
 
 <style scoped>
@@ -123,7 +131,7 @@ provide(MapInjectionKey, mapRef);
 .map-container {
   width: 100%;
   height: 100%;
-  min-height: 20rem;
+  min-height: 50vh;
   background: #ddd;
 }
 </style>

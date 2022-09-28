@@ -6,10 +6,13 @@
       :class="{ 'modal--is-open': isOpen }"
       @click.self="$emit('close')"
     >
-      <div class="modal__contents" v-bind="$attrs">
+      <div class="modal__contents p-4 md:p-8" v-bind="$attrs">
+        <XButton
+          class="absolute right-4 top-4 md:top-8 md:right-8"
+          @click="$emit('close')"
+        />
         <header class="flex justify-between items-start mb-4">
-          <h2 class="flex-1 font-bold text-xl">{{ label }}</h2>
-          <XButton @click="$emit('close')" />
+          <h2 class="flex-1 font-bold text-2xl">{{ label }}</h2>
         </header>
         <slot />
       </div>
@@ -68,11 +71,10 @@ onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
   background: #f3f3f3;
   border: 1px solid transparent;
   position: absolute;
-  max-height: 80vh;
+  max-height: 90vh;
   width: 90vw;
-  max-width: 40rem;
+  max-width: 60rem;
   overflow: auto;
-  padding: 2rem;
   border-radius: 1rem;
 }
 </style>

@@ -29,7 +29,7 @@
       :center="mapCenter"
       :zoom="10"
       mapStyle="streets"
-      :accessToken="config.mapBox.accessToken"
+      :apiKey="config.arcgis.apiKey"
       class="rounded bg-neutral-100 p-1"
     >
       <MapMarker :lng="mapCenter.lng" :lat="mapCenter.lat" />

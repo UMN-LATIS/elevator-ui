@@ -5,7 +5,7 @@
 </template>
 <script setup lang="ts">
 import { watch, ref, unref } from "vue";
-import { Marker } from "mapbox-gl";
+import { Marker } from "maplibre-gl";
 import { inject, provide } from "vue";
 import { MapInjectionKey, MarkerInjectionKey } from "@/constants";
 import { LngLat } from "@/types";
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  color: "#111",
+  color: "#f43f5e",
   draggable: false,
 });
 
@@ -41,7 +41,6 @@ watch(
       return;
     }
 
-    console.log("Adding marker");
     // remove old marker if it exists
     const oldMarker = unref(marker);
     if (oldMarker) oldMarker.remove();
@@ -64,5 +63,7 @@ watch(
   { immediate: true }
 );
 
+// @ts-ignore
 provide(MarkerInjectionKey, marker);
+// @ts-check
 </script>
