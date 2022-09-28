@@ -22,6 +22,5 @@ export const Default = Template.bind({});
 Default.args = {
   center: UMN_LNGLAT,
   zoom: 9,
-  mapStyle: "streets",
-  accessToken: config.mapBox.accessToken,
+  apiKey: config.arcgis.apiKey,
 };
