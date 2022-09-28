@@ -3,6 +3,9 @@ import MetaDataOnlyPage from "./MetaDataOnlyPage.vue";
 
 export default {
   component: MetaDataOnlyPage,
+  parameters: {
+    layout: "fullscreen",
+  },
 } as Meta<typeof MetaDataOnlyPage>;
 
 const Template: StoryFn<typeof MetaDataOnlyPage> = (args) => ({
