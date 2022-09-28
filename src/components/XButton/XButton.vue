@@ -22,10 +22,11 @@ defineEmits<{
   align-items: center;
   justify-content: center;
   transition: all ease 0.2s;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .x-button:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: red;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
 }
 </style>

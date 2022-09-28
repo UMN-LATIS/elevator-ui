@@ -24,12 +24,3 @@ Default.args = {
   zoom: 9,
   apiKey: config.arcgis.apiKey,
 };
-
-export const UsingEsriSource = Template.bind({});
-UsingEsriSource.args = {
-  center: UMN_LNGLAT,
-  zoom: 9,
-  apiKey: config.arcgis.apiKey,
-  esriSourceUrl:
-    "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
-};

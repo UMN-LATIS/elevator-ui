@@ -5,7 +5,7 @@ import {
   ScaleControl,
 } from "maplibre-gl";
 
-export const withMapControls = () => (map: MapboxMap) => {
+export const withMapControls = (map: MapboxMap) => {
   return map
     .addControl(
       new FullscreenControl({

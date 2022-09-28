@@ -32,7 +32,7 @@ import { ref } from "vue";
 
 withDefaults(
   defineProps<{
-    label: string;
+    label?: string;
   }>(),
   {
     label: "-",
