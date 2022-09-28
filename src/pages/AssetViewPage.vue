@@ -1,5 +1,7 @@
 <template>
+  <MetaDataOnlyPage v-if="!hasObjectFileToView" :assetId="assetId" />
   <div
+    v-else
     class="asset-view-page bg-neutral-300"
     :class="{
       'is-asset-details-open': isAssetDetailsOpen,
@@ -25,11 +27,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
+import type { Asset } from "@/types";
+import { getAssetTitle } from "@/helpers/displayUtils";
+import MetaDataOnlyPage from "./MetaDataOnlyPage.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -42,8 +47,8 @@ const props = defineProps<{
 
 const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
-
 const assetStore = useAssetStore();
+const hasObjectFileToView = computed(() => assetStore.activeFileObjectId);
 
 watch(
   [() => props.assetId],
@@ -68,6 +73,17 @@ watch(
 
 .asset-view-page__object-details {
   grid-area: object-details;
+}
+
+.asset-view-page.has-no-object-file-to-view {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "asset-details"
+    "object-details";
+}
+
+.asset-view-page.has-no-object-file-to-view .asset-view-page__viewer {
+  display: none;
 }
 
 @media (max-width: 639px) {
