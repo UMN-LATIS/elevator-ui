@@ -1,11 +1,8 @@
 <template>
-  <div v-if="pageStatus !== 'loading'">
-    <MetaDataOnlyPage
-      v-if="pageStatus === 'metadata-only-page'"
-      :assetId="assetId"
-    />
+  <div v-if="isPageLoaded">
+    <MetaDataOnlyPage v-if="isMetaDataOnly" :assetId="assetId" />
     <div
-      v-if="pageStatus === 'asset-with-viewer-page'"
+      v-else
       class="asset-view-page bg-neutral-300"
       :class="{
         'is-asset-details-open': isAssetDetailsOpen,
@@ -32,7 +29,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
@@ -52,8 +49,8 @@ const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
 
-type PageStatus = "loading" | "metadata-only-page" | "asset-with-viewer-page";
-const pageStatus = ref<PageStatus>("loading");
+const isPageLoaded = ref(false);
+const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
 
 watch(
   [() => props.assetId],
@@ -65,18 +62,13 @@ watch(
     // once the asset is loaded, we can determine if this should be a
     // `metadata-only-page` or a `asset-with-viewer-page`
 
-    pageStatus.value = "loading";
-    const asset = await assetStore.setActiveAsset(
-      props.assetId,
-      props.objectId
-    );
+    isPageLoaded.value = false;
+    await assetStore.setActiveAsset(props.assetId, props.objectId);
 
     // if this has no firstFileObjectId, then there's
     // nothing to view, and thus metadata only. Otherwise
     // we need a viewer
-    pageStatus.value = asset?.firstFileHandlerId
-      ? "asset-with-viewer-page"
-      : "metadata-only-page";
+    isPageLoaded.value = true;
   },
   { immediate: true }
 );
