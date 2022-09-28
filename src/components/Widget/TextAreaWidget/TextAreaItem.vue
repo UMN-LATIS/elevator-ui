@@ -1,22 +1,21 @@
 <template>
   <div v-if="!show" ref="truncateText" v-html="fieldContents"></div>
-
   <div v-if="show" v-html="fieldContents"></div>
-  <Button
-    :icon="show ? 'expand_less' : 'expand_more'"
-    variant="tertiary"
+
+  <button
+    class="flex items-center uppercase text-xs text-blue-600"
     @click="show = !show"
   >
     Show {{ show ? "Less" : "More" }}
-  </Button>
+    <Icon>{{ show ? "expand_less" : "expand_more" }} </Icon>
+  </button>
 </template>
-
 <script setup lang="ts">
 import { WidgetProps } from "@/types";
 import { ref, onMounted } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
-import Button from "@/components/Button/Button.vue";
+import Icon from "@/components/Icon/Icon.vue";
 
 const props = withDefaults(
   defineProps<{
