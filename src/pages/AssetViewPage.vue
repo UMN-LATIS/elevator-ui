@@ -1,6 +1,6 @@
 <template>
   <div v-if="isPageLoaded">
-    <MetaDataOnlyPage
+    <MetaDataOnlyView
       v-if="isMetaDataOnly"
       :assetId="assetStore.activeAssetId"
     />
@@ -37,7 +37,7 @@ import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
-import MetaDataOnlyPage from "./MetaDataOnlyPage.vue";
+import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 
 const props = defineProps<{
   assetId: string;
