@@ -2,14 +2,14 @@
   <div class="object-toolbar">
     <div class="flex justify-between items-center w-full px-4 py-2">
       <div class="flex gap-1 items-center leading-none">
-        <ObjectToolbarButton>info</ObjectToolbarButton>
-        <ObjectToolbarButton>download</ObjectToolbarButton>
-        <ObjectToolbarButton>share</ObjectToolbarButton>
+        <ActiveFileViewButton>info</ActiveFileViewButton>
+        <ActiveFileViewButton>download</ActiveFileViewButton>
+        <ActiveFileViewButton>share</ActiveFileViewButton>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import ObjectToolbarButton from "./ObjectToolbarButton.vue";
+import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 </script>
 <style scoped></style>

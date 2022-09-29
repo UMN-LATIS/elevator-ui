@@ -4,7 +4,7 @@
       v-if="!objectId"
       class="bg-neutral-50 text-neutral-900 border-y border-neutral-300 flex justify-end"
     >
-      <ObjectToolbar />
+      <ActiveFileViewToolbar />
     </div>
     <Drawer
       v-if="objectId"
@@ -14,7 +14,7 @@
       @toggle="$emit('toggle')"
     >
       <template #header-utils>
-        <ObjectToolbar />
+        <ActiveFileViewToolbar />
       </template>
 
       <WidgetList :assetId="objectId" />
@@ -41,7 +41,7 @@ import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import Button from "@/components/Button/Button.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
-import ObjectToolbar from "@/components/ObjectToolbar/ObjectToolbar.vue";
+import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
 
 withDefaults(
   defineProps<{
