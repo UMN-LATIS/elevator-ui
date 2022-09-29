@@ -1,10 +1,10 @@
 <template>
   <div class="h-screen bg-neutral-300 sm:p-8">
     <article
-      class="m-auto sm:max-w-xl bg-white h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-8"
+      class="m-auto sm:max-w-3xl bg-white h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-8"
     >
       <h2
-        class="text-3xl mb-12 md:text-5xl font-bold py-8 after:content-[''] after:w-8 after:bg-neutral-900 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
+        class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:bg-neutral-900 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
       >
         {{ assetTitle }}
       </h2>
