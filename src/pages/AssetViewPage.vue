@@ -1,35 +1,43 @@
 <template>
-  <div
-    class="asset-view-page bg-neutral-300"
-    :class="{
-      'is-asset-details-open': isAssetDetailsOpen,
-      'is-object-details-open': isObjectDetailsOpen,
-    }"
-  >
-    <ObjectViewer
-      class="asset-view-page__viewer overflow-hidden bg-neutral-100"
-      :fileHandlerId="assetStore.activeFileObjectId"
-    />
-    <AssetDetailsDrawer
-      class="asset-view-page__asset-details overflow-hidden"
+  <div v-if="isPageLoaded">
+    <MetaDataOnlyPage
+      v-if="isMetaDataOnly"
       :assetId="assetStore.activeAssetId"
-      :isOpen="isAssetDetailsOpen"
-      @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
-    <ObjectDetailsDrawer
-      class="asset-viewpage__object-details overflow-hidden"
-      :objectId="assetStore.activeObjectId"
-      :isOpen="isObjectDetailsOpen"
-      @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
-    />
+    <div
+      v-else
+      class="asset-view-page bg-neutral-300"
+      :class="{
+        'is-asset-details-open': isAssetDetailsOpen,
+        'is-object-details-open': isObjectDetailsOpen,
+      }"
+    >
+      <ObjectViewer
+        class="asset-view-page__viewer overflow-hidden bg-neutral-100"
+        :fileHandlerId="assetStore.activeFileObjectId"
+      />
+      <AssetDetailsDrawer
+        class="asset-view-page__asset-details overflow-hidden"
+        :assetId="assetStore.activeAssetId"
+        :isOpen="isAssetDetailsOpen"
+        @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
+      />
+      <ObjectDetailsDrawer
+        class="asset-viewpage__object-details overflow-hidden"
+        :objectId="assetStore.activeObjectId"
+        :isOpen="isObjectDetailsOpen"
+        @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
+      />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
+import MetaDataOnlyPage from "./MetaDataOnlyPage.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -42,13 +50,28 @@ const props = defineProps<{
 
 const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
-
 const assetStore = useAssetStore();
+
+const isPageLoaded = ref(false);
+const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
 
 watch(
   [() => props.assetId],
   async () => {
+    // to prevent page format from shifting from MetaDataOnlyPage
+    // to the normal AssetViewPage, we need to track the page status
+
+    // to begin, whenever the assetId changes, the page is a `loading` state
+    // once the asset is loaded, we can determine if this should be a
+    // `metadata-only-page` or a `asset-with-viewer-page`
+
+    isPageLoaded.value = false;
     await assetStore.setActiveAsset(props.assetId, props.objectId);
+
+    // if this has no firstFileObjectId, then there's
+    // nothing to view, and thus metadata only. Otherwise
+    // we need a viewer
+    isPageLoaded.value = true;
   },
   { immediate: true }
 );
@@ -68,6 +91,17 @@ watch(
 
 .asset-view-page__object-details {
   grid-area: object-details;
+}
+
+.asset-view-page.has-no-object-file-to-view {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "asset-details"
+    "object-details";
+}
+
+.asset-view-page.has-no-object-file-to-view .asset-view-page__viewer {
+  display: none;
 }
 
 @media (max-width: 639px) {
