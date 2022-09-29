@@ -1,32 +1,26 @@
 <template>
   <div class="asset-details">
+    <div
+      v-if="!objectId"
+      class="bg-neutral-50 text-neutral-900 border-y border-neutral-300 flex justify-end"
+    >
+      <ObjectToolbar />
+    </div>
     <Drawer
+      v-if="objectId"
       label="Details"
       variant="secondary"
       :isOpen="isOpen"
       @toggle="$emit('toggle')"
     >
       <template #header-utils>
-        <div class="flex justify-between items-center w-full px-4 py-2">
-          <div class="flex gap-1 items-center leading-none">
-            <button class="p-2 flex items-center">
-              <span class="material-symbols-outlined">info</span>
-            </button>
-            <button class="p-2 flex items-center">
-              <span class="material-symbols-outlined">download</span>
-            </button>
-            <button class="p-2 flex items-center">
-              <span class="material-symbols-outlined">share</span>
-            </button>
-          </div>
-        </div>
+        <ObjectToolbar />
       </template>
 
-      <WidgetList v-if="objectId" :assetId="objectId" />
-      <p v-else>No details.</p>
+      <WidgetList :assetId="objectId" />
 
       <!-- For development only? -->
-      <footer v-if="objectId" class="flex gap-2">
+      <footer class="flex gap-2">
         <Button :href="getAssetUrl(objectId)" icon="image" target="_blank">
           View
         </Button>
@@ -47,6 +41,7 @@ import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import Button from "@/components/Button/Button.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
+import ObjectToolbar from "@/components/ObjectToolbar/ObjectToolbar.vue";
 
 withDefaults(
   defineProps<{
