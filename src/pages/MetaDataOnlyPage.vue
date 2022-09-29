@@ -9,7 +9,7 @@
         {{ assetTitle }}
       </h2>
 
-      <WidgetList :assetId="assetId" />
+      <WidgetList v-if="assetId" :assetId="assetId" />
     </article>
   </div>
 </template>
@@ -21,13 +21,13 @@ import { getAssetTitle } from "@/helpers/displayUtils";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 
 const props = defineProps<{
-  assetId: string;
+  assetId: string | null;
 }>();
 
 const asset = ref<Asset | null>(null);
 const assetStore = useAssetStore();
 const assetTitle = computed(() =>
-  asset.value ? getAssetTitle(asset.value) : ""
+  asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
 
 watch(

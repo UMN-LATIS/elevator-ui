@@ -1,6 +1,9 @@
 <template>
   <div v-if="isPageLoaded">
-    <MetaDataOnlyPage v-if="isMetaDataOnly" :assetId="assetId" />
+    <MetaDataOnlyPage
+      v-if="isMetaDataOnly"
+      :assetId="assetStore.activeAssetId"
+    />
     <div
       v-else
       class="asset-view-page bg-neutral-300"
