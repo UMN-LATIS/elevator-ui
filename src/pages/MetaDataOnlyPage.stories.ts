@@ -21,5 +21,5 @@ const Template: StoryFn<typeof MetaDataOnlyPage> = (args) => ({
 
 export const Default = Template.bind({});
 Default.args = {
-  assetId: "56a3bb007d58ae8a488b465c",
+  assetId: "6334d6997591f67a5976fbd1",
 };
