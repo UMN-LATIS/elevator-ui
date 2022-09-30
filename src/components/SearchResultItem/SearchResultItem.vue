@@ -1,26 +1,41 @@
 <template>
-  <div>
-    <img
-      v-if="searchResult.primaryHandlerId"
-      :src="getThumbURL(searchResult.primaryHandlerId)"
-    />
-    <h1>{{ title }}</h1>
-    Assets: {{ searchResult.fileAssets }}
-    <template v-for="entry in props.searchResult.entries" :key="entry.label">
-      <ul>
-        <strong>{{ entry.label }}:</strong>
-        <li v-for="entryInner in entry.entries" :key="entryInner">
-          {{ entryInner }}
-        </li>
-      </ul>
-    </template>
-  </div>
+  <MediaCard
+    :title="title"
+    :imgSrc="thumbnailImgSrc"
+    :imgAlt="title"
+    class="hover:shadow-lg transition-shadow"
+  >
+    <dl v-if="props.searchResult?.entries" class="flex flex-col gap-4">
+      <div v-for="(entry, index) in props.searchResult.entries" :key="index">
+        <dt class="text-xs text-neutral-400 uppercase">
+          {{ entry?.label || "Item" }}
+        </dt>
+
+        <dd v-if="entry.entries && entry.entries.length > 1" class="flex gap-2">
+          <Chip v-for="listItem in entry.entries" :key="listItem" class="my-1">
+            {{ listItem }}
+          </Chip>
+        </dd>
+        <dd v-else>{{ entry.entries?.join(" ") }}</dd>
+      </div>
+    </dl>
+    <div class="flex justify-end">
+      <button
+        class="flex justify-center items-center bg-neutral-100 p-2 rounded-full hover:bg-neutral-900 hover:text-white"
+      >
+        <Icon>arrow_forward</Icon>
+      </button>
+    </div>
+  </MediaCard>
 </template>
 
 <script lang="ts" setup>
 import { SearchResultMatch } from "@/types";
 import { getThumbURL } from "@/helpers/displayUtils";
 import { computed } from "vue";
+import Icon from "@/components/Icon/Icon.vue";
+import Chip from "@/components/Chip/Chip.vue";
+import MediaCard from "../MediaCard/MediaCard.vue";
 
 const props = defineProps<{
   searchResult: SearchResultMatch;
@@ -36,6 +51,11 @@ const title = computed(() => {
   }
 
   return "(no title)";
+});
+
+const thumbnailImgSrc = computed(() => {
+  const { primaryHandlerId } = props.searchResult;
+  return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
 });
 </script>
 
