@@ -1,6 +1,6 @@
 <template>
   <section
-    v-if="isAssetReady"
+    v-if="asset"
     class="collapsed-inline-related-asset-widget-item flex flex-col gap-8"
   >
     <h3>{{ title }}</h3>
@@ -9,10 +9,10 @@
 </template>
 <script setup lang="ts">
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
-import { useAssetStore } from "@/stores/assetStore";
-import { onMounted, ref, computed } from "vue";
-import type { Asset, RelatedAssetCacheItem } from "@/types";
+import { computed } from "vue";
+import type { RelatedAssetCacheItem } from "@/types";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
+import { useAsset } from "@/helpers/useAsset";
 
 const props = defineProps<{
   assetId: string;
@@ -20,17 +20,7 @@ const props = defineProps<{
 }>();
 
 const title = computed(() => getTitleFromCacheItem(props.assetCache));
-
-const asset = ref<Asset | null>(null);
-
-// check if the asset is successfull loaded
-// before rendering the WidgetList to prevent weird
-// styling where content should be
-const isAssetReady = computed((): boolean => !!asset.value);
-
-onMounted(async () => {
-  const assetStore = useAssetStore();
-  asset.value = await assetStore.fetchAsset(props.assetId);
-});
+const assetIdRef = computed(() => props.assetId);
+const { asset } = useAsset(assetIdRef);
 </script>
 <style scoped></style>

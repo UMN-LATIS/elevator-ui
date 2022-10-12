@@ -260,7 +260,7 @@ export interface SearchResultMatch {
   primaryHandlerThumbnail2x?: string; //URI
 }
 
-export interface Search {
+export interface SearchResponse {
   totalResults: number;
   matches: SearchResultMatch[];
   searchResults: string[];

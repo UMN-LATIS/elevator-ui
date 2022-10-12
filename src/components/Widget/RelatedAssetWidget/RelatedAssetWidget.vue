@@ -7,7 +7,13 @@
       :assetId="relatedAsset.targetAssetId"
       :assetCache="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
       :label="relatedAsset.label ?? ''"
-    ></component>
+    >
+      <div class="flex justify-end items-center gap-2">
+        <ArrowButton
+          @click="assetStore.setActiveAsset(relatedAsset.targetAssetId)"
+        />
+      </div>
+    </component>
   </div>
 </template>
 <script setup lang="ts">
@@ -21,12 +27,16 @@ import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.v
 import CollapsedInlineRelatedAssetWidgetItem from "./CollapsedInlineRelatedAssetWidgetItem.vue";
 import ThumbnailRelatedAssetWidgetItem from "./ThumbnailRelatedAssetWidgetItem.vue";
 import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
+import { useAssetStore } from "@/stores/assetStore";
+import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 
 const props = defineProps<{
   widget: RelatedAssetWidgetProps;
   contents: RelatedAssetWidgetContent[];
   asset: Asset;
 }>();
+
+const assetStore = useAssetStore();
 
 type WithTargetAssetId<T> = T & { targetAssetId: string };
 

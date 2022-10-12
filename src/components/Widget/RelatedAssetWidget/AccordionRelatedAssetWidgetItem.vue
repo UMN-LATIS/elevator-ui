@@ -17,6 +17,7 @@
         </div>
       </template>
       <WidgetList :assetId="assetId" />
+      <slot />
     </Accordion>
   </div>
 </template>

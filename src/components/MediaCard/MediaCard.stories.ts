@@ -12,6 +12,7 @@ const Template: StoryFn<typeof MediaCard> = (args) => ({
   },
   template: `
     <MediaCard v-bind="args">
+      <h1 class="text-lg font-bold">So cute!</h1>
       Lorem ipsum dolor sit amet netus sollicitudin porttitor condimentum integer. Pharetra leo luctus curabitur nisl id auctor habitasse mauris tristique auctor.
     </MediaCard>
   `,
@@ -19,7 +20,6 @@ const Template: StoryFn<typeof MediaCard> = (args) => ({
 
 export const Default = Template.bind({});
 Default.args = {
-  title: "So Cute",
   imgSrc: "/img/cat-unsplash.jpg",
   imgAlt: "A cat",
 };

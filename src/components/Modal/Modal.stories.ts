@@ -23,4 +23,6 @@ const Template: StoryFn<typeof Modal> = (args) => ({
 });
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  label: "Modal Title",
+};
