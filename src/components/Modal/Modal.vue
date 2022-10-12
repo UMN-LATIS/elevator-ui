@@ -2,11 +2,17 @@
   <Teleport to="body">
     <div
       ref="modal"
-      class="modal"
-      :class="{ 'modal--is-open': isOpen }"
+      :class="{
+        'flex bg-transparent-black-700 fixed inset-0 z-50 justify-center items-center':
+          isOpen,
+        hidden: !isOpen,
+      }"
       @click.self="$emit('close')"
     >
-      <div class="modal__contents p-4 md:p-8" v-bind="$attrs">
+      <div
+        class="bg-neutral-50 border absolute inset-4 overflow-auto rounded-2xl p-4 md:p-8"
+        v-bind="$attrs"
+      >
         <XButton
           class="absolute right-4 top-4 md:top-8 md:right-8"
           @click="$emit('close')"

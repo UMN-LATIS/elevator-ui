@@ -41,6 +41,7 @@ withDefaults(
 
 const emit = defineEmits<{
   (eventName: "toggle");
+  (eventName: "open");
 }>();
 
 const isOpen = ref(false);
@@ -48,6 +49,7 @@ const isOpen = ref(false);
 function handleAccordionToggle() {
   isOpen.value = !isOpen.value;
   emit("toggle");
+  if (isOpen.value) emit("open");
 }
 </script>
 <style scoped></style>

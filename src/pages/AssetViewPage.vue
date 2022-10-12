@@ -24,6 +24,7 @@
       />
       <ObjectDetailsDrawer
         class="asset-viewpage__object-details overflow-hidden"
+        :moreLikeThisItems="moreLikeThisItems"
         :objectId="assetStore.activeObjectId"
         :isOpen="isObjectDetailsOpen"
         @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
@@ -38,6 +39,7 @@ import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
+import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
 
 const props = defineProps<{
   assetId: string;
@@ -55,16 +57,17 @@ const assetStore = useAssetStore();
 const isPageLoaded = ref(false);
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
 
+const assetIdRef = computed(() => props.assetId);
+const { matches: moreLikeThisItems } = useMoreLikeThis(assetIdRef);
+
 watch(
   [() => props.assetId],
   async () => {
     // to prevent page format from shifting from MetaDataOnlyPage
     // to the normal AssetViewPage, we need to track the page status
-
     // to begin, whenever the assetId changes, the page is a `loading` state
     // once the asset is loaded, we can determine if this should be a
     // `metadata-only-page` or a `asset-with-viewer-page`
-
     isPageLoaded.value = false;
     await assetStore.setActiveAsset(props.assetId, props.objectId);
 
@@ -151,7 +154,7 @@ watch(
 
   .asset-view-page.is-asset-details-open.is-object-details-open {
     /* constrain the object details height */
-    grid-template-rows: 1fr 20rem;
+    grid-template-rows: 1fr 50vh;
   }
 }
 </style>

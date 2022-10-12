@@ -2,8 +2,12 @@
   <div class="asset-details">
     <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
       <WidgetList v-if="assetId" :assetId="assetId" />
-      <!-- For development only? -->
       <footer v-if="assetId" class="flex gap-2">
+        <MoreLikeThis
+          :items="moreLikeThisItems"
+          :isOpen="isMoreLikeThisOpen"
+          @close="isMoreLikeThisOpen = false"
+        />
         <Button
           :href="getAssetUrl(assetId)"
           icon="image"
@@ -26,13 +30,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { computed, ref } from "vue";
 import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
-import { useAssetStore } from "@/stores/assetStore";
-import type { Asset } from "@/types";
 import { getAssetTitle, getAssetUrl } from "@/helpers/displayUtils";
 import Button from "@/components/Button/Button.vue";
+import { useAsset } from "@/helpers/useAsset";
+import Chip from "../Chip/Chip.vue";
+import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
+import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
 
 const props = withDefaults(
   defineProps<{
@@ -48,19 +54,14 @@ defineEmits<{
   (eventName: "toggle");
 }>();
 
-const assetStore = useAssetStore();
-const asset = ref<Asset | null>(null);
+const assetIdRef = computed(() => props.assetId);
+const { asset } = useAsset(assetIdRef);
+
+const isMoreLikeThisOpen = ref(false);
+const { matches: moreLikeThisItems } = useMoreLikeThis(assetIdRef);
+
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : ""
-);
-
-watch(
-  () => props.assetId,
-  async () => {
-    if (!props.assetId) return;
-    asset.value = await assetStore.fetchAsset(props.assetId);
-  },
-  { immediate: true }
 );
 </script>
 <style scoped></style>

@@ -1,11 +1,11 @@
 <template>
   <Transition name="fade">
-    <div v-if="assetRef && templateRef" class="widget-list flex flex-col gap-8">
+    <div v-if="asset && template" class="widget-list flex flex-col gap-8">
       <Widget
         v-for="widget in widgets"
         :key="widget.widgetId"
         :widget="widget"
-        :asset="assetRef"
+        :asset="asset"
       />
     </div>
   </Transition>
@@ -15,36 +15,20 @@
  * lists all the asset's widget as defined by the asset
  * template
  */
-import { ref, watch, computed } from "vue";
-import { useAssetStore } from "@/stores/assetStore";
-import type { Template, Asset } from "@/types";
+import { computed } from "vue";
 import { getWidgetsForDisplay } from "@/helpers/displayUtils";
+
 import Widget from "@/components/Widget/Widget.vue";
+import { useAsset } from "@/helpers/useAsset";
 
 const props = defineProps<{
   assetId: string;
 }>();
 
-const assetStore = useAssetStore();
-const assetRef = ref<Asset | null>(null);
-const templateRef = ref<Template | null>(null);
-
-// TODO: Do we need this here? Could this just be at the Page View?
-watch(
-  () => props.assetId,
-  async () => {
-    const { asset, template } = await assetStore.getAssetWithTemplate(
-      props.assetId
-    );
-
-    assetRef.value = asset;
-    templateRef.value = template;
-  },
-  { immediate: true }
-);
-
+const assetIdRef = computed(() => props.assetId);
+const { asset, template } = useAsset(assetIdRef);
 const widgets = computed(() =>
-  getWidgetsForDisplay({ asset: assetRef.value, template: templateRef.value })
+  getWidgetsForDisplay({ asset: asset.value, template: template.value })
 );
 </script>
 <style scoped>

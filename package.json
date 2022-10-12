@@ -27,6 +27,7 @@
     "react-dom": "^18.2.0",
     "shave": "^5.0.0",
     "vue": "^3.2.39",
+    "vue-router": "4",
     "vue-toasted": "^1.1.28"
   },
   "devDependencies": {

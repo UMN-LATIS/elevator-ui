@@ -14,29 +14,19 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useAssetStore } from "@/stores/assetStore";
-import type { Asset } from "@/types";
+import { computed } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
+import { useAsset } from "@/helpers/useAsset";
 
 const props = defineProps<{
   assetId: string | null;
 }>();
 
-const asset = ref<Asset | null>(null);
-const assetStore = useAssetStore();
+const assetIdRef = computed(() => props.assetId);
+const { asset } = useAsset(assetIdRef);
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
-);
-
-watch(
-  () => props.assetId,
-  async () => {
-    if (!props.assetId) return;
-    asset.value = await assetStore.fetchAsset(props.assetId);
-  },
-  { immediate: true }
 );
 </script>
 <style scoped>
