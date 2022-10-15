@@ -1,9 +1,9 @@
 <template>
   <div
-    class="accordion overflow-hidden bg-neutral-50 w-full mt-2 shadow-sm rounded"
+    class="accordion overflow-hidden bg-neutral-50 w-full mt-2 rounded border"
   >
     <button
-      class="accordion__header flex w-full justify-between items-center p-4 gap-2 bg-neutral-100 border-none rounded-b-none"
+      class="accordion__header flex w-full justify-between items-center p-4 gap-2 bg-white border-none rounded-b-none"
       :label="isOpen ? 'close' : 'open'"
       :icon="isOpen ? 'expand_less' : 'expand_more'"
       @click="handleAccordionToggle"
@@ -21,7 +21,7 @@
     </button>
     <div
       v-if="isOpen"
-      class="accordion__panel p-4 pt-6 flex flex-col gap-6 bg-white"
+      class="accordion__panel p-4 pt-6 flex flex-col gap-6 border-t"
     >
       <slot />
     </div>

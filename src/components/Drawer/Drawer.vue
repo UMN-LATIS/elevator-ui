@@ -1,12 +1,10 @@
 <template>
-  <section class="drawer bg-neutral-200 flex flex-col">
+  <section class="drawer bg-neutral-100 flex flex-col">
     <header
       class="flex items-center sticky top-0 left-0 justify-between z-10"
       :class="{
-        'bg-neutral-900 text-white border-y border-neutral-900':
-          variant === 'primary',
-        'bg-neutral-50 text-neutral-900 border-y border-neutral-300':
-          variant === 'secondary',
+        'bg-neutral-50': variant === 'primary',
+        'bg-neutral-900 text-neutral-200': variant === 'secondary',
         'h-full': !isOpen,
         'md:py-4': variant === 'primary' && isOpen,
       }"
@@ -32,6 +30,9 @@
     <div
       v-show="isOpen"
       class="text-neutral-500 flex flex-col gap-8 px-4 py-8 md:p-8 flex-1 h-min overflow-auto"
+      :class="{
+        'bg-neutral-200': variant === 'secondary',
+      }"
     >
       <slot />
     </div>

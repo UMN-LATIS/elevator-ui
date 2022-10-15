@@ -4,6 +4,7 @@
       :label="assetTitle"
       :isOpen="isOpen"
       :showToggle="showToggle"
+      class="h-full"
       @toggle="$emit('toggle')"
     >
       <WidgetList v-if="assetId" :assetId="assetId" />
@@ -59,7 +60,6 @@ defineEmits<{
 const assetIdRef = computed(() => props.assetId);
 const { asset } = useAsset(assetIdRef);
 
-const isMoreLikeThisOpen = ref(false);
 const { matches: moreLikeThisItems } = useMoreLikeThis(assetIdRef);
 
 const assetTitle = computed(() =>

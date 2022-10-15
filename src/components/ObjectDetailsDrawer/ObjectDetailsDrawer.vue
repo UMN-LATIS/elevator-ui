@@ -12,6 +12,7 @@
       variant="secondary"
       :isOpen="isOpen"
       :showToggle="showToggle"
+      class="h-full"
       @toggle="$emit('toggle')"
     >
       <template #header-utils>
