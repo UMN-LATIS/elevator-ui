@@ -2,12 +2,15 @@ import axios from "axios";
 import config from "@/config";
 import { Asset, SearchResultMatch, Template, SearchResponse } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
+import { FileDownloadResponse } from "@/types/FileDownloadTypes";
+import { file } from "@babel/types";
 
 // caches for api results
 const assets = new Map<string, Asset | null>();
 const templates = new Map<string, Template | null>();
 const searchMatches = new Map<string, SearchResultMatch[]>();
 const fileMetaData = new Map<string, FileMetaData>();
+const fileDownloadResponses = new Map<string, FileDownloadResponse>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -45,6 +48,17 @@ async function fetchMoreLikeThis(
 async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
   const res = await axios.get<FileMetaData>(
     `${config.baseUrl}/fileManager/getMetadataForObject/${fileId}`
+  );
+
+  return res.data;
+}
+
+async function fetchFileDownloadInfo(
+  fileId: string,
+  parentObjectId?: string | null
+) {
+  const res = await axios.get<FileDownloadResponse>(
+    `${config.baseUrl}/asset/getEmbedAsJson/${fileId}/${parentObjectId ?? ""}`
   );
 
   return res.data;
@@ -92,5 +106,21 @@ export default {
     // cache metadata
     fileMetaData.set(fileId, metadata);
     return metadata;
+  },
+
+  async getFileDownloadInfo(
+    fileId: string | null,
+    parentObjectId?: string | null
+  ) {
+    if (!fileId) return null;
+
+    const key = `${fileId}.${parentObjectId}`;
+    const fileDownloadInfo =
+      fileDownloadResponses.get(key) ||
+      (await fetchFileDownloadInfo(fileId, parentObjectId));
+
+    fileDownloadResponses.set(key, fileDownloadInfo);
+
+    return fileDownloadInfo;
   },
 };

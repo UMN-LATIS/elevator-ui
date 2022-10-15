@@ -30,7 +30,7 @@
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
     <ObjectDetailsDrawer
-      class="md:absolute md:overflow-y-scroll"
+      class="md:absolute"
       :class="{
         'md:bottom-0 md:right-0 md:h-16 md:left-sm':
           !isObjectDetailsOpen && isAssetDetailsOpen, // just asset open

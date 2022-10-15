@@ -1,5 +1,5 @@
 <template>
-  <div class="asset-details">
+  <div class="object-details">
     <div
       v-if="!objectId"
       class="bg-neutral-900 text-neutral-300 h-full flex justify-end"
