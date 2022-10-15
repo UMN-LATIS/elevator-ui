@@ -2,7 +2,78 @@
   <div class="object-toolbar">
     <div class="flex justify-between items-center w-full px-4 py-2">
       <div class="flex gap-1 items-center leading-none">
-        <ActiveFileViewButton>info</ActiveFileViewButton>
+        <ActiveFileViewButton @click="handleInfoButtonClick">
+          info
+          <Modal
+            label="File Info"
+            :isOpen="isFileInfoOpen"
+            class="max-w-lg m-auto"
+            @close="isFileInfoOpen = false"
+          >
+            <div v-if="!isFileMetaDataReady">
+              <Skeleton v-for="index in 10" :key="index" />
+            </div>
+
+            <div v-if="isFileMetaDataReady">
+              <span v-if="!fileMetaData">No meta data found.</span>
+
+              <section v-if="fileMetaData" class="flex flex-col gap-6">
+                <Tuple label="File Type">
+                  {{ fileMetaData.exif.File.FileType }}
+                </Tuple>
+                <Tuple label="Original Name">
+                  {{ fileMetaData.sourcefile }}
+                </Tuple>
+                <Tuple label="File Size">
+                  {{ fileMetaData.exif.File.FileSize }}
+                </Tuple>
+                <Tuple label="Image Size">
+                  {{ fileMetaData.width }}x{{ fileMetaData.height }}
+                </Tuple>
+                <Tuple v-if="fileMetaData.coordinates" label="Location">
+                  <div class="bg-neutral-200 p-4 rounded-xl">
+                    <Map
+                      :center="{
+                        lng: fileMetaData.coordinates[0],
+                        lat: fileMetaData.coordinates[1],
+                      }"
+                      :zoom="10"
+                      mapStyle="streets"
+                      :apiKey="config.arcgis.apiKey"
+                      class=""
+                    >
+                      <MapMarker
+                        :lng="fileMetaData.coordinates[0]"
+                        :lat="fileMetaData.coordinates[1]"
+                      />
+                    </Map>
+                  </div>
+                </Tuple>
+              </section>
+              <section v-if="fileMetaData?.exif">
+                <h2 class="text-xl font-bold mt-6 border-t pt-6">
+                  EXIF Details
+                </h2>
+                <Accordion
+                  v-for="(
+                    exifSectionProps, exifSectionLabel
+                  ) in fileMetaData.exif"
+                  :key="exifSectionLabel"
+                  :label="exifSectionLabel"
+                  class="border mt-6"
+                >
+                  <Tuple
+                    v-for="(value, key) in exifSectionProps"
+                    :key="key"
+                    :label="key"
+                  >
+                    {{ value }}
+                  </Tuple>
+                </Accordion>
+              </section>
+            </div>
+          </Modal>
+        </ActiveFileViewButton>
         <ActiveFileViewButton>download</ActiveFileViewButton>
         <ActiveFileViewButton>share</ActiveFileViewButton>
       </div>
@@ -10,6 +81,31 @@
   </div>
 </template>
 <script setup lang="ts">
+import { ref } from "vue";
 import ActiveFileViewButton from "./ActiveFileViewButton.vue";
+import Modal from "../Modal/Modal.vue";
+import { FileMetaData } from "@/types/FileMetaDataTypes";
+import api from "@/helpers/api";
+import { useAssetStore } from "@/stores/assetStore";
+import Skeleton from "../Skeleton/Skeleton.vue";
+import { computed } from "vue";
+import Tuple from "../Tuple/Tuple.vue";
+import Map from "@/components/Map/Map.vue";
+import MapMarker from "@/components/MapMarker/MapMarker.vue";
+import config from "@/config";
+import { file } from "@babel/types";
+import Accordion from "../Accordion/Accordion.vue";
+
+const isFileInfoOpen = ref(false);
+const fileMetaData = ref<FileMetaData | null | undefined>(undefined);
+const isFileMetaDataReady = computed(() => fileMetaData.value !== undefined);
+
+const assetStore = useAssetStore();
+
+async function handleInfoButtonClick() {
+  isFileInfoOpen.value = !isFileInfoOpen.value;
+  fileMetaData.value = undefined;
+  fileMetaData.value = await api.getFileMetaData(assetStore.activeFileObjectId);
+}
 </script>
 <style scoped></style>

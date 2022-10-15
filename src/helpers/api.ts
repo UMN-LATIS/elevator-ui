@@ -1,11 +1,13 @@
 import axios from "axios";
 import config from "@/config";
 import { Asset, SearchResultMatch, Template, SearchResponse } from "@/types";
+import { FileMetaData } from "@/types/FileMetaDataTypes";
 
 // caches for api results
 const assets = new Map<string, Asset | null>();
 const templates = new Map<string, Template | null>();
 const searchMatches = new Map<string, SearchResultMatch[]>();
+const fileMetaData = new Map<string, FileMetaData>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -35,7 +37,17 @@ async function fetchMoreLikeThis(
     formdata
   );
 
-  return res.data.matches;
+  // response may return asset within the search, so filter it out
+  // if it does so that "more"
+  return res.data.matches.filter((match) => match.objectId !== assetId);
+}
+
+async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
+  const res = await axios.get<FileMetaData>(
+    `${config.baseUrl}/fileManager/getMetadataForObject/${fileId}`
+  );
+
+  return res.data;
 }
 
 export default {
@@ -69,5 +81,16 @@ export default {
     // cache matches
     searchMatches.set(assetId, matches);
     return matches;
+  },
+
+  async getFileMetaData(fileId: string | null): Promise<FileMetaData | null> {
+    if (!fileId) return null;
+
+    const metadata =
+      fileMetaData.get(fileId) || (await fetchFileMetaData(fileId));
+
+    // cache metadata
+    fileMetaData.set(fileId, metadata);
+    return metadata;
   },
 };

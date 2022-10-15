@@ -44,7 +44,7 @@ import { SearchResultMatch } from "@/types";
 import { getThumbURL } from "@/helpers/displayUtils";
 import { computed } from "vue";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
-import ThumbnailImage from "../ThumbnailImage/ThumbnailImage.vue";
+import Icon from "@/components/Icon/Icon.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;

@@ -1,3 +1,5 @@
+export type FetchStatus = "idle" | "fetching" | "success" | "error";
+
 export type WidgetType =
   | "checkbox"
   | "date"
@@ -318,3 +320,20 @@ export interface LngLat {
 }
 
 export type BoundingBox = [[number, number], [number, number]];
+
+export interface MenuItem {
+  name: string;
+  to?: string;
+  href?: string;
+}
+
+export type ChildMenuItem = MenuItem | string | null;
+
+export interface MenuItemWithOptionalChildren extends MenuItem {
+  children?: ChildMenuItem[];
+}
+
+export interface Image {
+  src: string;
+  alt: string;
+}

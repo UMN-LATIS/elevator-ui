@@ -1,15 +1,15 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <Link :widget="widget" :linkText="content.fieldContents"
+      <ClickToSearchLink :widget="widget" :linkText="content.fieldContents"
         ><span v-html="autolinkText(content.fieldContents)"></span
-      ></Link>
+      ></ClickToSearchLink>
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import Link from "@/components/Link/Link.vue";
+import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 import { TextWidgetProps, TextWidgetContent } from "@/types";
 
 defineProps<{

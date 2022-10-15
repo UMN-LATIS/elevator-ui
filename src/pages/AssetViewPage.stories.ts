@@ -14,8 +14,8 @@ const Template: StoryFn<typeof AssetViewPage> = (args) => ({
     return { args };
   },
   template: `
-    <AssetViewPage v-bind="args">
-    </AssetViewPage>
+      <AssetViewPage v-bind="args">
+      </AssetViewPage>
   `,
 });
 

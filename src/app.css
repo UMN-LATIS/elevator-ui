@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /*
+   * these should inherit from tailwind using the variable
+   * plugin. See tailwind.config.js
+   */
+  --color-link: var(--color-blue-600);
+}
+
 body {
   font-family: "Work Sans", sans-serif;
   color: #171717;
@@ -28,7 +36,8 @@ body {
 
 a {
   text-decoration: none;
-  color: #1d4ed8;
+  /* color: #1d4ed8; */
+  color: var(--color-link);
 }
 
 a:hover {

@@ -1,22 +1,18 @@
 <template>
-  <div role="status" class="max-w-sm animate-pulse">
-    <div
-      class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"
-    ></div>
-    <div
-      class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"
-    ></div>
-    <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
-    <div
-      class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"
-    ></div>
-    <div
-      class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-2.5"
-    ></div>
-    <div
-      class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"
-    ></div>
-    <span class="sr-only">Loading...</span>
+  <div class="rounded-md max-w-sm w-full py-4">
+    <div class="animate-pulse flex space-x-4">
+      <div class="flex-1 space-y-6 py-1">
+        <div class="h-4 bg-neutral-300 rounded w-1/2"></div>
+        <div class="h-2 bg-neutral-300 rounded"></div>
+        <div class="space-y-3">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="h-2 bg-neutral-300 rounded col-span-2"></div>
+            <div class="h-2 bg-neutral-300 rounded col-span-1"></div>
+          </div>
+          <div class="h-2 bg-neutral-50 rounded"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts"></script>

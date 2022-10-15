@@ -1,8 +1,8 @@
 <template>
-  <button
+  <RouterLink
     :title="title"
     class="inline-block mr-2 last:mr-0"
-    @click="assetStore.setActiveObject(assetId)"
+    :to="`#${assetId}`"
   >
     <ThumbnailImage
       v-if="assetCache.primaryHandler"
@@ -15,7 +15,7 @@
       <Icon>image</Icon>
       <p>{{ title }}</p>
     </div>
-  </button>
+  </RouterLink>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";

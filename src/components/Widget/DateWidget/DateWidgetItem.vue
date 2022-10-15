@@ -1,5 +1,5 @@
 <template>
-  <Link :widget="widget" :linkText="dateString">
+  <ClickToSearchLink :widget="widget" :linkText="dateString">
     <template v-if="dateContent.label">
       <Tuple :label="dateContent.label" variant="inline"
         >{{ dateString }}
@@ -8,11 +8,11 @@
     <template v-else>
       {{ dateString }}
     </template>
-  </Link>
+  </ClickToSearchLink>
 </template>
 
 <script setup lang="ts">
-import Link from "@/components/Link/Link.vue";
+import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 import { computed } from "vue";
 import { DateWidgetProps, DateWidgetContent } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";

@@ -1,27 +1,22 @@
 <template>
-  <span v-if="props.widget.clickToSearch">
-    <a :href="linkUrl">
-      <slot />
-    </a>
-  </span>
-  <span v-else>
+  <component
+    :is="to ? RouterLink : 'a'"
+    :to="to"
+    :href="href"
+    class="cursor-pointer"
+  >
     <slot />
-  </span>
+  </component>
 </template>
-
 <script setup lang="ts">
-import { computed } from "vue";
-import { WidgetProps } from "@/types";
-import { toClickToSearchUrl } from "@/helpers/displayUtils";
+import { RouterLink } from "vue-router";
 
-interface Props {
-  linkText: string;
-  widget: WidgetProps;
-}
-
-const props = defineProps<Props>();
-
-const linkUrl = computed((): string =>
-  toClickToSearchUrl(props.linkText, props.widget)
-);
+defineProps<{
+  /**
+   * makes a RouterLink
+   */
+  to?: string;
+  href?: string;
+}>();
 </script>
+<style scoped></style>

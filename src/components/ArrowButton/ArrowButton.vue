@@ -1,7 +1,7 @@
 <template>
   <component
     :is="componentType"
-    class="flex justify-center items-center bg-neutral-100 p-2 rounded-full hover:bg-neutral-900 hover:text-white gap-2 hover:no-underline text-neutral-900"
+    class="flex justify-center items-center bg-neutral-100 p-2 rounded-full hover:bg-neutral-900 hover:text-white gap-2 hover:no-underline text-neutral-900 cursor-pointer"
     v-bind="props"
   >
     <slot />
@@ -14,7 +14,7 @@ import Icon from "@/components/Icon/Icon.vue";
 import { RouterLink } from "vue-router";
 
 const props = defineProps<{
-  to?: string; // for <router-links>
+  to?: string; // for <router-link>
   href?: string; // for <a>
 }>();
 

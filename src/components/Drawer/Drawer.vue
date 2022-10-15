@@ -1,7 +1,7 @@
 <template>
-  <section class="drawer h-full bg-neutral-200 flex flex-col">
+  <section class="drawer bg-neutral-200 flex flex-col">
     <header
-      class="flex items-center sticky top-0 left-0 justify-between"
+      class="flex items-center sticky top-0 left-0 justify-between z-10"
       :class="{
         'bg-neutral-900 text-white border-y border-neutral-900':
           variant === 'primary',
@@ -12,27 +12,18 @@
       }"
     >
       <button
+        :disabled="!showToggle"
         class="flex items-center p-4 leading-tight gap-4 flex-1"
         @click="$emit('toggle')"
       >
-        <span class="material-symbols-outlined">
+        <span v-if="showToggle" class="material-symbols-outlined">
           {{ isOpen ? "expand_more" : "expand_less" }}
         </span>
         <slot name="header-label">
-          <h1
-            class="header-label font-bold relative text-left"
-            :class="{
-              'sm:text-3xl md:text-4xl': variant === 'primary' && isOpen,
-              'sm:text-2xl md:text-3xl':
-                label.length >= 100 && label.length < 200 && isOpen,
-              'sm:text-xl md:text-xl': label.length >= 200 && isOpen,
-            }"
-            :title="label"
-          >
-            <span class="min-w-0 block">{{ label }}</span>
-          </h1>
+          <DrawerLabel :label="label" :variant="variant" :isOpen="isOpen" />
         </slot>
       </button>
+
       <div>
         <slot name="header-utils"></slot>
       </div>
@@ -47,14 +38,17 @@
   </section>
 </template>
 <script setup lang="ts">
+import DrawerLabel from "./DrawerLabel.vue";
 withDefaults(
   defineProps<{
     label: string;
     variant?: "primary" | "secondary";
     isOpen?: boolean;
+    showToggle?: boolean;
   }>(),
   {
     isOpen: true,
+    showToggle: true,
     variant: "primary",
   }
 );

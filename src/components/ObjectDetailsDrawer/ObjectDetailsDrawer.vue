@@ -1,7 +1,7 @@
 <template>
   <div class="asset-details">
     <div
-      v-if="!hasDetailedContentToShow"
+      v-if="!objectId"
       class="bg-neutral-50 text-neutral-900 border-y border-neutral-300 flex justify-end"
     >
       <ActiveFileViewToolbar />
@@ -11,6 +11,7 @@
       label="Details"
       variant="secondary"
       :isOpen="isOpen"
+      :showToggle="showToggle"
       @toggle="$emit('toggle')"
     >
       <template #header-utils>
@@ -21,8 +22,9 @@
 
       <!-- For development only? -->
       <footer v-if="objectId" class="flex gap-2">
+        <ArrowButton v-if="assetUrl" :to="assetUrl" />
         <Button
-          :href="getAssetUrl(objectId)"
+          :href="`${config.baseUrl}/${assetUrl}`"
           icon="image"
           target="_blank"
           variant="tertiary"
@@ -30,7 +32,7 @@
           Old View
         </Button>
         <Button
-          :href="`${getAssetUrl(objectId)}/true`"
+          :href="`${config.baseUrl}/${assetUrl}/true`"
           label="Asset Json"
           icon="data_object"
           target="_blank"
@@ -49,16 +51,18 @@ import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import Button from "@/components/Button/Button.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
 import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
-import { SearchResultMatch } from "@/types";
+import config from "@/config";
+import ArrowButton from "../ArrowButton/ArrowButton.vue";
 
 const props = withDefaults(
   defineProps<{
     objectId: string | null;
-    moreLikeThisItems: SearchResultMatch[];
     isOpen: boolean;
+    showToggle?: boolean;
   }>(),
   {
     isOpen: false,
+    showToggle: true,
   }
 );
 
@@ -66,8 +70,8 @@ defineEmits<{
   (eventName: "toggle");
 }>();
 
-const hasDetailedContentToShow = computed(
-  () => !!(props.objectId || props.moreLikeThisItems.length)
+const assetUrl = computed(() =>
+  props.objectId ? getAssetUrl(props.objectId) : null
 );
 </script>
 

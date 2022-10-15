@@ -1,13 +1,14 @@
 <template>
   <div class="asset-details">
-    <Drawer :label="assetTitle" :isOpen="isOpen" @toggle="$emit('toggle')">
+    <Drawer
+      :label="assetTitle"
+      :isOpen="isOpen"
+      :showToggle="showToggle"
+      @toggle="$emit('toggle')"
+    >
       <WidgetList v-if="assetId" :assetId="assetId" />
       <footer v-if="assetId" class="flex gap-2">
-        <MoreLikeThis
-          :items="moreLikeThisItems"
-          :isOpen="isMoreLikeThisOpen"
-          @close="isMoreLikeThisOpen = false"
-        />
+        <MoreLikeThis :items="moreLikeThisItems" />
         <Button
           :href="getAssetUrl(assetId)"
           icon="image"
@@ -36,7 +37,6 @@ import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { getAssetTitle, getAssetUrl } from "@/helpers/displayUtils";
 import Button from "@/components/Button/Button.vue";
 import { useAsset } from "@/helpers/useAsset";
-import Chip from "../Chip/Chip.vue";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
 
@@ -44,9 +44,11 @@ const props = withDefaults(
   defineProps<{
     assetId: string | null;
     isOpen?: boolean;
+    showToggle?: boolean;
   }>(),
   {
     isOpen: true,
+    showToggle: true,
   }
 );
 

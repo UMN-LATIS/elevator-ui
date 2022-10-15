@@ -19,7 +19,7 @@ export const getThumbURL = (fileObjectId: string): string =>
   `${config.baseUrl}/fileManager/getDerivativeById/${fileObjectId}/thumbnail2x`;
 
 export const getAssetUrl = (assetId: string): string =>
-  `${config.baseUrl}/asset/viewAsset/${assetId}`;
+  `/asset/viewAsset/${assetId}`;
 
 export function getWidgetContents<
   T extends WidgetProps,

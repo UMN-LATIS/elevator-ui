@@ -10,17 +10,21 @@
       @click.self="$emit('close')"
     >
       <div
-        class="bg-neutral-50 border absolute inset-4 overflow-auto rounded-2xl p-4 md:p-8"
+        class="bg-neutral-50 border absolute inset-4 md:inset-16 rounded-2xl flex flex-col overflow-hidden"
         v-bind="$attrs"
       >
         <XButton
           class="absolute right-4 top-4 md:top-8 md:right-8"
           @click="$emit('close')"
         />
-        <header class="flex justify-between items-start mb-4">
+        <header
+          class="flex justify-between items-start p-4 md:p-8 border-b bg-neutral-100"
+        >
           <h2 class="flex-1 font-bold text-2xl">{{ label }}</h2>
         </header>
-        <slot />
+        <div class="flex-1 overflow-auto p-4 md:p-8">
+          <slot />
+        </div>
       </div>
     </div>
   </Teleport>
@@ -82,5 +86,23 @@ onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
   max-width: 60rem;
   overflow: auto;
   border-radius: 1rem;
+}
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 33%);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #aaa;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>

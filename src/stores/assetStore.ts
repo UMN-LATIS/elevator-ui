@@ -21,8 +21,8 @@ export const useAssetStore = defineStore("asset2", {
      * @returns active
      */
     async setActiveAsset(
-      assetId: string,
-      objectId?: string
+      assetId: string | null,
+      objectId?: string | null
     ): Promise<Asset | null> {
       const { asset } = await api.getAssetWithTemplate(assetId);
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen bg-neutral-300 sm:p-8">
+  <div class="h-full bg-neutral-300 sm:p-8">
     <article
       class="m-auto sm:max-w-3xl bg-white h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-8"
     >

@@ -4,6 +4,14 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      spacing: {
+        xs: "20rem" /* 320px */,
+        sm: "24rem" /* 384px */,
+        md: "28rem" /* 448px */,
+        lg: "32rem" /* 512px */,
+        xl: "36rem" /* 576px */,
+        "2xl": "42rem" /* 672px */,
+      },
       colors: {
         umn: {
           maroon: "#7a0019",

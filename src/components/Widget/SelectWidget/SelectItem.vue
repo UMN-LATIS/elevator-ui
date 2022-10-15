@@ -1,14 +1,14 @@
 <template>
   <li v-for="(content, key) in contentAsArray" :key="key">
-    <Link :widget="widget" :linkText="getDisplayText(content)">
+    <ClickToSearch :widget="widget" :linkText="getDisplayText(content)">
       <div v-html="getDisplayText(content)" />
-    </Link>
+    </ClickToSearch>
   </li>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import Link from "@/components/Link/Link.vue";
+import ClickToSearch from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 import { SelectWidgetProps, SelectWidgetContent } from "@/types";
 
 const props = defineProps<{
