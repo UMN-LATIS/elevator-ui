@@ -93,7 +93,6 @@ import Tuple from "../Tuple/Tuple.vue";
 import Map from "@/components/Map/Map.vue";
 import MapMarker from "@/components/MapMarker/MapMarker.vue";
 import config from "@/config";
-import { file } from "@babel/types";
 import Accordion from "../Accordion/Accordion.vue";
 
 const isFileInfoOpen = ref(false);

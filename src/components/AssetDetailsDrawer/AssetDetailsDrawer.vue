@@ -8,10 +8,10 @@
       @toggle="$emit('toggle')"
     >
       <WidgetList v-if="assetId" :assetId="assetId" />
+      <MoreLikeThis :items="moreLikeThisItems" />
       <footer v-if="assetId" class="flex gap-2">
-        <MoreLikeThis :items="moreLikeThisItems" />
         <Button
-          :href="getAssetUrl(assetId)"
+          :href="`${config.baseUrl}/${getAssetUrl(assetId)}`"
           icon="image"
           target="_blank"
           variant="tertiary"
@@ -19,7 +19,7 @@
           Old View
         </Button>
         <Button
-          :href="`${getAssetUrl(assetId)}/true`"
+          :href="`${config.baseUrl}/${getAssetUrl(assetId)}/true`"
           label="Asset Json"
           icon="data_object"
           target="_blank"
@@ -40,6 +40,7 @@ import Button from "@/components/Button/Button.vue";
 import { useAsset } from "@/helpers/useAsset";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
+import config from "@/config";
 
 const props = withDefaults(
   defineProps<{

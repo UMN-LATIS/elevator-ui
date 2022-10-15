@@ -5,7 +5,11 @@
     class="hover:shadow-lg transition-shadow"
   >
     <div class="h-full pb-16 relative">
-      <h1 class="font-bold text-xl mb-2">{{ title }}</h1>
+      <Link :to="getAssetUrl(searchMatch.objectId)"
+        ><h1 class="font-bold text-xl mb-2 text-neutral-900">
+          {{ title }}
+        </h1>
+      </Link>
       <dl v-if="props.searchMatch?.entries" class="grid gap-3">
         <template
           v-for="(entry, index) in props.searchMatch.entries"
@@ -24,7 +28,7 @@
         </template>
       </dl>
       <ArrowButton
-        :href="getAssetUrl(searchMatch.objectId)"
+        :to="getAssetUrl(searchMatch.objectId)"
         class="absolute bottom-0 right-0"
       />
     </div>
@@ -37,6 +41,7 @@ import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
 import { computed } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
+import Link from "@/components/Link/Link.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;

@@ -2,7 +2,7 @@
   <div class="asset-details">
     <div
       v-if="!objectId"
-      class="bg-neutral-50 text-neutral-900 border-y border-neutral-300 flex justify-end"
+      class="bg-neutral-900 text-neutral-300 h-full flex justify-end"
     >
       <ActiveFileViewToolbar />
     </div>
