@@ -1,13 +1,9 @@
 <template>
-  <div class="relative">
+  <Tooltip>
     <ActiveFileViewButton @click="handleDownloadFileClick">
       download
     </ActiveFileViewButton>
-    <div
-      v-if="isShowingDownloadOptions"
-      ref="optionsContainer"
-      class="absolute bottom-full right-0 z-30 bg-neutral-100 w-xs p-4 rounded-lg"
-    >
+    <template #content>
       <h2 class="text-sm uppercase text-neutral-400 pb-2 border-b mb-4">
         File Downloads
       </h2>
@@ -18,21 +14,21 @@
             <a
               :href="`${config.baseUrl}/fileManager/getDerivativeById/${assetStore.activeFileObjectId}/screen`"
             >
-              Download Derivative
-              {{
+              Download Derivative ({{
                 getExtensionFromFilename(
                   downloadFileInfo.screen.originalFilename
                 )
-              }}
+              }})
             </a>
           </li>
         </ul>
       </div>
-    </div>
-  </div>
+    </template>
+  </Tooltip>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
+import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -40,7 +36,6 @@ import api from "@/helpers/api";
 import config from "@/config";
 
 const assetStore = useAssetStore();
-const optionsContainer = ref<HTMLDivElement | null>(null);
 const isShowingDownloadOptions = ref(false);
 const downloadFileInfo = ref<FileDownloadResponse | null | undefined>(
   undefined

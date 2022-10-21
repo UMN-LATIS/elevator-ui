@@ -4,7 +4,7 @@
     <Modal
       label="File Info"
       :isOpen="isFileInfoOpen"
-      class="max-w-lg m-auto"
+      class="max-w-4xl m-auto"
       @close="isFileInfoOpen = false"
     >
       <div v-if="!isFileMetaDataReady">
