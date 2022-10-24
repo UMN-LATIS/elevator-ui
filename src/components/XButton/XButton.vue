@@ -1,32 +1,16 @@
 <template>
-  <button class="x-button" @click="$emit('click')">
-    <span class="material-symbols-outlined">close</span>
-    <span class="sr-only">Close</span>
+  <button
+    class="x-button inline-flex bg-transparent-black-50 text-neutral-700 w-8 h-8 rounded-full leading-none items-center justify-center transition ease-in-out hover:bg-transparent-black-900 hover:text-white"
+    @click="$emit('click')"
+  >
+    <Icon label="close">close</Icon>
   </button>
 </template>
 <script setup lang="ts">
+import Icon from "../Icon/Icon.vue";
+
 defineEmits<{
   (eventName: "click");
 }>();
 </script>
-<style scoped>
-.x-button {
-  display: inline-flex;
-  background: transparent;
-  color: #111;
-  border: 0;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  line-height: 1;
-  align-items: center;
-  justify-content: center;
-  transition: all ease 0.2s;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.x-button:hover {
-  background: rgba(0, 0, 0, 0.9);
-  color: white;
-}
-</style>
+<style scoped></style>

@@ -17,7 +17,7 @@
         </slot>
       </div>
     </button>
-    <div v-if="isOpen" class="relative">
+    <div v-if="isOpen" class="relative z-10">
       <slot />
     </div>
   </div>

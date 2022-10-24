@@ -52,6 +52,7 @@ module.exports = {
   },
   plugins: [
     require("@tailwindcss/typography"),
+    require("@tailwindcss/forms"),
 
     /**
      * expose tailwind colors as CSS variables

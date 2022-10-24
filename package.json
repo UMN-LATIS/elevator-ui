@@ -43,6 +43,7 @@
     "@storybook/builder-vite": "^0.2.2",
     "@storybook/testing-library": "^0.0.13",
     "@storybook/vue3": "^6.5.12",
+    "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.7",
     "@types/geojson": "^7946.0.10",
     "@types/react": "^18.0.21",
