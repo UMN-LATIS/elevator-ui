@@ -2,12 +2,7 @@
   <ActiveFileViewButton @click="handleDownloadFileClick">
     download
   </ActiveFileViewButton>
-  <Modal
-    label="File Downloads"
-    :isOpen="isOpen"
-    class="h-fit m-auto"
-    @close="isOpen = false"
-  >
+  <Modal label="File Downloads" :isOpen="isOpen" @close="isOpen = false">
     <div v-if="isDownloadFileInfoReady">
       <span v-if="!downloadFileInfo">No Downloads available</span>
       <ul v-if="downloadFileInfo">

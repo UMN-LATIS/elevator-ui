@@ -10,7 +10,7 @@
       @click.self="$emit('close')"
     >
       <div
-        class="bg-neutral-50 border absolute inset-4 md:inset-16 rounded-2xl flex flex-col overflow-hidden"
+        class="bg-neutral-50 border absolute inset-4 md:inset-16 rounded-2xl flex flex-col overflow-hidden h-fit max-h-[90%] max-w-fit m-auto"
         v-bind="$attrs"
       >
         <XButton
@@ -20,7 +20,7 @@
         <header
           class="flex justify-between items-start p-4 md:p-8 border-b bg-neutral-100"
         >
-          <h2 class="flex-1 font-bold text-2xl">{{ label }}</h2>
+          <h2 class="flex-1 font-bold text-2xl mr-12">{{ label }}</h2>
         </header>
         <div class="flex-1 overflow-auto p-4 md:p-8">
           <slot />
