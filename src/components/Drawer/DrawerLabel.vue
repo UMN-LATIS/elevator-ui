@@ -9,7 +9,7 @@
     }"
     :title="label"
   >
-    <span class="min-w-0 block">{{ label }}</span>
+    <span class="min-w-0 block" v-html="label"></span>
   </h1>
 </template>
 <script setup lang="ts">

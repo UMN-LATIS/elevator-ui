@@ -27,7 +27,7 @@ import Accordion from "@/components/Accordion/Accordion.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { RelatedAssetCacheItem } from "@/types";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
-import { getTinyURL } from "@/Helpers/displayUtils";
+import { getTinyURL } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   assetId: string;

@@ -19,7 +19,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { getTinyURL } from "@/Helpers/displayUtils";
+import { getTinyURL } from "@/helpers/displayUtils";
 import type { RelatedAssetCacheItem } from "@/types";
 import { useAssetStore } from "@/stores/assetStore";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
