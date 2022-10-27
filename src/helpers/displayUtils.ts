@@ -13,7 +13,7 @@ export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
 }
 
 export const getTinyURL = (fileObjectId: string): string =>
-  `${config.baseUrl}/fileManager/getDerivativeById/${fileObjectId}/tiny2x`;
+  `${config.baseUrl}/fileManager/tinyImageByFileId/${fileObjectId}/true`;
 
 export const getThumbURL = (fileObjectId: string): string =>
   `${config.baseUrl}/fileManager/getDerivativeById/${fileObjectId}/thumbnail2x`;

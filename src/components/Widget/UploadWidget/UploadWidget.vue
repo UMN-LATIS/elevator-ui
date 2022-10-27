@@ -7,7 +7,7 @@
       @click="assetStore.activeFileObjectId = content.fileId"
     >
       <ThumbnailImage
-        :src="`${config.baseUrl}/fileManager/getDerivativeById/${content.fileId}/tiny2x`"
+        :src="`${config.baseUrl}/fileManager//fileManager/tinyImageByFileId/$/${content.fileId}/true`"
         :alt="content.fileDescription"
         :isActive="isFileActive(content.fileId)"
         iconOnHover="arrow_forward"
