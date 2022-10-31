@@ -21,6 +21,7 @@ declare global {
     Elevator?: {
       config?: Partial<AppConfig>;
     };
+    location: Location;
   }
 }
 
