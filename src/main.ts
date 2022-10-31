@@ -6,8 +6,6 @@ import routes from "@/routes";
 import config from "@/config";
 import "./app.css";
 
-console.log("hello there", config);
-
 const app = createApp(App);
 const pinia = createPinia();
 const router = createRouter({
