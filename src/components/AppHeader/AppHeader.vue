@@ -1,7 +1,7 @@
 <template>
   <header class="bg-umn-gold-light flex justify-between items-center p-4">
     <div class="flex items-center gap-4">
-      <a :href="config.baseUrl">
+      <a :href="config.base.url">
         <h1 class="h-12">
           <img
             src="https://dev.elevator.umn.edu/assets/instanceAssets/7.png"

@@ -11,7 +11,7 @@
       <MoreLikeThis :items="moreLikeThisItems" />
       <footer v-if="assetId" class="flex gap-2">
         <Button
-          :href="`${config.baseUrl}/${getAssetUrl(assetId)}`"
+          :href="`${config.base.url}/${getAssetUrl(assetId)}`"
           icon="image"
           target="_blank"
           variant="tertiary"
@@ -19,7 +19,7 @@
           Old View
         </Button>
         <Button
-          :href="`${config.baseUrl}/${getAssetUrl(assetId)}/true`"
+          :href="`${config.base.url}/${getAssetUrl(assetId)}/true`"
           label="Asset Json"
           icon="data_object"
           target="_blank"

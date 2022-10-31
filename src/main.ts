@@ -9,7 +9,7 @@ import "./app.css";
 const app = createApp(App);
 const pinia = createPinia();
 const router = createRouter({
-  history: createWebHistory(config.baseUrl),
+  history: createWebHistory(config.base.path),
   routes,
 });
 

@@ -1,7 +1,14 @@
 export interface AppConfig {
-  baseUrl: string;
+  base: {
+    origin: string;
+    path: string;
+    url: string;
+  };
   arcgis: {
     apiKey: string;
+  };
+  routes: {
+    test: string | null;
   };
 }
 

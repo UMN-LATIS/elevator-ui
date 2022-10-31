@@ -8,7 +8,7 @@
       <ul v-if="downloadFileInfo">
         <li v-if="downloadFileInfo.screen?.ready">
           <a
-            :href="`${config.baseUrl}/fileManager/getDerivativeById/${assetStore.activeFileObjectId}/screen`"
+            :href="`${config.base.url}/fileManager/getDerivativeById/${assetStore.activeFileObjectId}/screen`"
           >
             Download Derivative ({{
               getExtensionFromFilename(

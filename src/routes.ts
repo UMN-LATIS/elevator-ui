@@ -1,12 +1,12 @@
 import { RouteRecordRaw } from "vue-router";
 import AssetViewPage from "@/pages/AssetViewPage.vue";
 import NotFoundPage from "@/pages/NotFoundPage.vue";
+import config from "@/config";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/test",
-    redirect:
-      "asset/viewAsset/56a3bb007d58ae8a488b4657#632dfcc223e48b6a531c8832",
+    redirect: config.routes.test ?? "/404",
   },
   {
     /**

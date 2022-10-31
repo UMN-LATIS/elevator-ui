@@ -5,13 +5,13 @@
     >
       <li>
         <a
-          :href="`${config.baseUrl}/loginManager/remoteLogin/?redirect=${$route.fullPath}`"
+          :href="`${config.base.url}/loginManager/remoteLogin/?redirect=${$route.fullPath}`"
           >University Login</a
         >
       </li>
       <li>
         <a
-          :href="`${config.baseUrl}/loginManager/localLogin/?redirect=${$route.fullPath}`"
+          :href="`${config.base.url}/loginManager/localLogin/?redirect=${$route.fullPath}`"
         >
           Guest Login
         </a>

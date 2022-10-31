@@ -3,7 +3,6 @@ import config from "@/config";
 import { Asset, SearchResultMatch, Template, SearchResponse } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
-import { file } from "@babel/types";
 
 // caches for api results
 const assets = new Map<string, Asset | null>();
@@ -12,9 +11,11 @@ const searchMatches = new Map<string, SearchResultMatch[]>();
 const fileMetaData = new Map<string, FileMetaData>();
 const fileDownloadResponses = new Map<string, FileDownloadResponse>();
 
+console.log(config.base.url);
+
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
-    `${config.baseUrl}/asset/viewAsset/${assetId}/true`
+    `${config.base.url}/asset/viewAsset/${assetId}/true`
   );
 
   return res.data ?? null;
@@ -22,7 +23,7 @@ async function fetchAsset(assetId: string): Promise<Asset | null> {
 
 async function fetchTemplate(templateId: string): Promise<Template | null> {
   const res = await axios.get<Template>(
-    `${config.baseUrl}/assetManager/getTemplate/${templateId}`
+    `${config.base.url}/assetManager/getTemplate/${templateId}`
   );
   return res.data ?? null;
 }
@@ -36,7 +37,7 @@ async function fetchMoreLikeThis(
   formdata.append("searchQuery", JSON.stringify({ searchText: assetId }));
 
   const res = await axios.post<SearchResponse>(
-    `${config.baseUrl}/search/searchResults`,
+    `${config.base.url}/search/searchResults`,
     formdata
   );
 
@@ -47,7 +48,7 @@ async function fetchMoreLikeThis(
 
 async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
   const res = await axios.get<FileMetaData>(
-    `${config.baseUrl}/fileManager/getMetadataForObject/${fileId}`
+    `${config.base.url}/fileManager/getMetadataForObject/${fileId}`
   );
 
   return res.data;
@@ -58,7 +59,7 @@ async function fetchFileDownloadInfo(
   parentObjectId?: string | null
 ) {
   const res = await axios.get<FileDownloadResponse>(
-    `${config.baseUrl}/asset/getEmbedAsJson/${fileId}/${parentObjectId ?? ""}`
+    `${config.base.url}/asset/getEmbedAsJson/${fileId}/${parentObjectId ?? ""}`
   );
 
   return res.data;
