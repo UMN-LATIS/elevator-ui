@@ -18,5 +18,6 @@ export default defineConfig({
         chunkFileNames: "assets/[name].js",
       },
     },
+    sourcemap: true,
   },
 });
