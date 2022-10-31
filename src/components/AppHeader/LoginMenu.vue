@@ -5,13 +5,13 @@
     >
       <li>
         <a
-          :href="`${config.baseUrl}/loginManager/remoteLogin/?redirect=${$route.fullPath}`"
+          :href="`${config.base.url}/loginManager/remoteLogin/?redirect=${location}`"
           >University Login</a
         >
       </li>
       <li>
         <a
-          :href="`${config.baseUrl}/loginManager/localLogin/?redirect=${$route.fullPath}`"
+          :href="`${config.base.url}/loginManager/localLogin/?redirect=${location}`"
         >
           Guest Login
         </a>
@@ -22,5 +22,8 @@
 <script setup lang="ts">
 import MenuAccordion from "./MenuAccordion.vue";
 import config from "@/config";
+import { computed } from "vue";
+
+const location = computed(() => window.location.href);
 </script>
 <style scoped></style>

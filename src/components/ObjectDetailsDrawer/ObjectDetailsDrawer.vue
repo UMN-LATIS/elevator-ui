@@ -25,7 +25,7 @@
       <footer v-if="objectId" class="flex gap-2">
         <ArrowButton v-if="assetUrl" :to="assetUrl" />
         <Button
-          :href="`${config.baseUrl}/${assetUrl}`"
+          :href="`${config.base.url}/${assetUrl}`"
           icon="image"
           target="_blank"
           variant="tertiary"
@@ -33,7 +33,7 @@
           Old View
         </Button>
         <Button
-          :href="`${config.baseUrl}/${assetUrl}/true`"
+          :href="`${config.base.url}/${assetUrl}/true`"
           label="Asset Json"
           icon="data_object"
           target="_blank"

@@ -34,7 +34,7 @@ const removeExtraWhitespace = (str: string) => str.replace(/\s+/g, " ").trim();
 const isOpen = ref(false);
 const linkValue = computed(
   () =>
-    `${config.baseUrl}/asset/getEmbed/${assetStore.activeFileObjectId}/null/true`
+    `${config.base.url}/asset/getEmbed/${assetStore.activeFileObjectId}/null/true`
 );
 
 const embedValue = computed(() => {

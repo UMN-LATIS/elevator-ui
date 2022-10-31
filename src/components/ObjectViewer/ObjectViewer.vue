@@ -4,7 +4,7 @@
     <iframe
       v-if="fileHandlerId"
       class="object-viewer__iframe w-full h-full min-h-[20rem]"
-      :src="`${config.baseUrl}/asset/getEmbed/${fileHandlerId}`"
+      :src="`${config.base.url}/asset/getEmbed/${fileHandlerId}`"
       frameBorder="0"
       allowfullscreen="true"
     ></iframe>

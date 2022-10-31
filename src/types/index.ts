@@ -1,3 +1,30 @@
+export interface AppConfig {
+  base: {
+    origin: string;
+    path: string;
+    url: string;
+  };
+  arcgis: {
+    apiKey: string;
+  };
+  routes: {
+    test: string | null;
+  };
+}
+
+/**
+ * settings for the app may also appear on
+ * window.Elevator.config
+ */
+declare global {
+  interface Window {
+    Elevator?: {
+      config?: Partial<AppConfig>;
+    };
+    location: Location;
+  }
+}
+
 export type FetchStatus = "idle" | "fetching" | "success" | "error";
 
 export type WidgetType =
