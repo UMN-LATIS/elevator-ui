@@ -1,13 +1,5 @@
-import { defineAsyncComponent } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 import config from "@/config";
-
-const AssetViewPage = defineAsyncComponent(
-  () => import("@/pages/AssetViewPage.vue")
-);
-const NotFoundPage = defineAsyncComponent(
-  () => import("@/pages/NotFoundPage.vue")
-);
 
 const router = createRouter({
   history: createWebHistory(config.base.path),
@@ -20,7 +12,7 @@ const router = createRouter({
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
       path: "/asset/viewAsset/:assetId",
-      component: AssetViewPage,
+      component: () => import("@/pages/AssetViewPage.vue"),
       props: (route) => ({
         assetId: route.params.assetId,
         objectId: route.hash?.substring(1),
@@ -28,7 +20,7 @@ const router = createRouter({
     },
     {
       path: "/:pathMatch(.*)",
-      component: NotFoundPage,
+      component: () => import("@/pages/NotFoundPage.vue"),
       props: (route) => ({
         route,
       }),
