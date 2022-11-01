@@ -1,6 +1,4 @@
 import { RouteRecordRaw } from "vue-router";
-import AssetViewPage from "@/pages/AssetViewPage.vue";
-import NotFoundPage from "@/pages/NotFoundPage.vue";
 import config from "@/config";
 
 const routes: RouteRecordRaw[] = [
@@ -13,8 +11,7 @@ const routes: RouteRecordRaw[] = [
      * /asset/viewAsset/:assetId#:objectId?
      */
     path: "/asset/viewAsset/:assetId",
-    component: () => AssetViewPage,
-    // props: true,
+    component: () => import("@/pages/AssetViewPage.vue"),
     props: (route) => ({
       assetId: route.params.assetId,
       objectId: route.hash?.substring(1),
@@ -22,7 +19,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/:pathMatch(.*)",
-    component: NotFoundPage,
+    component: () => import("@/pages/NotFoundPage.vue"),
     props: (route) => ({
       route,
     }),
