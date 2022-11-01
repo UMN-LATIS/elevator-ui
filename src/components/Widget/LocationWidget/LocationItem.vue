@@ -43,14 +43,17 @@
 
 <script setup lang="ts">
 import { LocationWidgetProps, LocationWidgetContent, LngLat } from "@/types";
-import { computed, ref } from "vue";
+import { computed, ref, defineAsyncComponent } from "vue";
 import Modal from "@/components/Modal/Modal.vue";
-import Map from "@/components/Map/Map.vue";
 import config from "@/config";
-import MapMarker from "@/components/MapMarker/MapMarker.vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Button from "@/components/Button/Button.vue";
 import Accordion from "@/components/Accordion/Accordion.vue";
+
+const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
+const MapMarker = defineAsyncComponent(
+  () => import("@/components/MapMarker/MapMarker.vue")
+);
 
 interface Props {
   locationContent: LocationWidgetContent;

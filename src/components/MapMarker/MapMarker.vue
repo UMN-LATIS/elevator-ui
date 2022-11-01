@@ -7,7 +7,7 @@
 import { watch, ref, unref } from "vue";
 import { Marker } from "maplibre-gl";
 import { inject, provide } from "vue";
-import { MapInjectionKey, MarkerInjectionKey } from "@/constants";
+import { MapInjectionKey, MarkerInjectionKey } from "@/constants/mapConstants";
 import { LngLat } from "@/types";
 
 interface Props {

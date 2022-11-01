@@ -38,7 +38,7 @@ withDefaults(
 );
 
 defineEmits<{
-  (eventName: "input", event: InputEvent);
+  (eventName: "input", event: Event);
 }>();
 </script>
 <style scoped></style>

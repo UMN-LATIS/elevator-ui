@@ -14,10 +14,10 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
-import MetaDataOnlyView from "./MetaDataOnlyView.vue";
-import AssetView from "./AssetView.vue";
 import { useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AssetView from "./AssetView.vue";
+import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 
 const assetStore = useAssetStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
