@@ -11,8 +11,6 @@ const searchMatches = new Map<string, SearchResultMatch[]>();
 const fileMetaData = new Map<string, FileMetaData>();
 const fileDownloadResponses = new Map<string, FileDownloadResponse>();
 
-console.log(config.base.url);
-
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
     `${config.base.url}/asset/viewAsset/${assetId}/true`

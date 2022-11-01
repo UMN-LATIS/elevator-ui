@@ -38,7 +38,6 @@ const objectId = computed(
 watch(
   [() => props.assetId, () => route.params?.assetId],
   async () => {
-    console.log("asset change", { props, routeparams: route.params });
     // to prevent page format from shifting from MetaDataOnlyPage
     // to the normal AssetViewPage, we need to track the page status
     // to begin, whenever the assetId changes, the page is a `loading` state
