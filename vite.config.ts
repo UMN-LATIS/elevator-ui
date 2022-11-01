@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [vue()],
   // this added so that dynamic components load properly on
   // production
-  base: mode === "production" ? "assets/elevator-ui/dist/" : "/",
+  base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
