@@ -11,43 +11,21 @@
   </Tuple>
 </template>
 <script setup lang="ts">
-import { type Component, computed, defineAsyncComponent } from "vue";
-import { Asset, WidgetProps, WidgetType } from "@/types";
-import { getWidgetContents } from "@/helpers/displayUtils";
+import { type Component, computed } from "vue";
+import type { Asset, WidgetProps } from "@/types";
+import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
-
-const SelectWidget = defineAsyncComponent(
-  () => import("@/components/Widget/SelectWidget/SelectWidget.vue")
-);
-const CheckBoxWidget = defineAsyncComponent(
-  () => import("@/components/Widget/CheckBoxWidget/CheckBoxWidget.vue")
-);
-const TextAreaWidget = defineAsyncComponent(
-  () => import("@/components/Widget/TextAreaWidget/TextAreaWidget.vue")
-);
-const DateWidget = defineAsyncComponent(
-  () => import("@/components/Widget/DateWidget/DateWidget.vue")
-);
-const MultiSelectWidget = defineAsyncComponent(
-  () => import("@/components/Widget/MultiSelectWidget/MultiSelectWidget.vue")
-);
-const LocationWidget = defineAsyncComponent(
-  () => import("@/components/Widget/LocationWidget/LocationWidget.vue")
-);
-const UploadWidget = defineAsyncComponent(
-  () => import("@/components/Widget/UploadWidget/UploadWidget.vue")
-);
-const TagWidget = defineAsyncComponent(
-  () => import("@/components/Widget/TagWidget/TagWidget.vue")
-);
-const RelatedAssetWidget = defineAsyncComponent(
-  () => import("@/components/Widget/RelatedAssetWidget/RelatedAssetWidget.vue")
-);
-
-// async components
-const TextWidget = defineAsyncComponent(
-  () => import("@/components/Widget/TextWidget/TextWidget.vue")
-);
+import TextWidget from "@/components/Widget/TextWidget/TextWidget.vue";
+import SelectWidget from "@/components/Widget/SelectWidget/SelectWidget.vue";
+import CheckBoxWidget from "@/components/Widget/CheckBoxWidget/CheckBoxWidget.vue";
+import TextAreaWidget from "@/components/Widget/TextAreaWidget/TextAreaWidget.vue";
+import DateWidget from "@/components/Widget/DateWidget/DateWidget.vue";
+import MultiSelectWidget from "@/components/Widget/MultiSelectWidget/MultiSelectWidget.vue";
+import LocationWidget from "@/components/Widget/LocationWidget/LocationWidget.vue";
+import UploadWidget from "@/components/Widget/UploadWidget/UploadWidget.vue";
+import TagWidget from "@/components/Widget/TagWidget/TagWidget.vue";
+import RelatedAssetWidget from "@/components/Widget/RelatedAssetWidget/RelatedAssetWidget.vue";
+import { getWidgetContents } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   widget: WidgetProps;

@@ -12,15 +12,12 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed, defineAsyncComponent } from "vue";
+import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-
-const MetaDataOnlyView = defineAsyncComponent(
-  () => import("./MetaDataOnlyView.vue")
-);
-const AssetView = defineAsyncComponent(() => import("./AssetView.vue"));
+import AssetView from "./AssetView.vue";
+import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 
 const assetStore = useAssetStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
