@@ -26,7 +26,7 @@ import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { LngLat } from "@/types";
-import { MapInjectionKey } from "@/constants";
+import { MapInjectionKey } from "@/constants/mapConstants";
 import { withMapControls } from "./withMapControls";
 
 const props = defineProps<{

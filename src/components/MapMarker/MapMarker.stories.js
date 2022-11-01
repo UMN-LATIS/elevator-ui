@@ -1,7 +1,7 @@
 import MapMarker from "./MapMarker.vue";
 import Map from "../Map/Map.vue";
 import { Default as MapStory } from "@/components/Map/Map.stories";
-import { UMN_LNGLAT } from "@/constants";
+import { UMN_LNGLAT } from "@/constants/constants";
 
 export default {
   component: MapMarker,

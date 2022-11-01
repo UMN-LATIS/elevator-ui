@@ -69,7 +69,7 @@
   </ActiveFileViewButton>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -78,10 +78,13 @@ import { useAssetStore } from "@/stores/assetStore";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { computed } from "vue";
 import Tuple from "../Tuple/Tuple.vue";
-import Map from "@/components/Map/Map.vue";
-import MapMarker from "@/components/MapMarker/MapMarker.vue";
-import config from "@/config";
 import Accordion from "../Accordion/Accordion.vue";
+import config from "@/config";
+
+const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
+const MapMarker = defineAsyncComponent(
+  () => import("@/components/MapMarker/MapMarker.vue")
+);
 
 const isFileInfoOpen = ref(false);
 const fileMetaData = ref<FileMetaData | null | undefined>(undefined);

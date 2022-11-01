@@ -1,6 +1,6 @@
 import { Meta, StoryFn } from "@storybook/vue3";
 import Map from "./Map.vue";
-import { UMN_LNGLAT } from "@/constants";
+import { UMN_LNGLAT } from "@/constants/constants";
 import config from "@/config";
 
 export default {
