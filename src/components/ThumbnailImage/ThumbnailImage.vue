@@ -17,6 +17,7 @@
       :src="src"
       class="thumbnail-image__img w-full h-full object-cover opacity-80 transition-all ease-in"
       :alt="alt"
+      loading="lazy"
     />
     <slot />
   </component>

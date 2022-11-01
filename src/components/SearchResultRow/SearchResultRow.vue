@@ -9,6 +9,7 @@
         v-if="imgSrc"
         :src="imgSrc"
         :alt="title"
+        loading="lazy"
         class="w-full h-full object-cover"
       />
       <Icon v-else>{{ "image" }}</Icon>
