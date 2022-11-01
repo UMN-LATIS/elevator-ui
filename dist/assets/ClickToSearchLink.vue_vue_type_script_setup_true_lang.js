@@ -1,2 +1,0 @@
-import{t as l}from"./WidgetList.js";import{a as c,e as i,o as t,j as s,k as p,l as n,u as d}from"./index.js";const k={key:0},_=["href"],u={key:1},T=c({__name:"ClickToSearchLink",props:{linkText:null,widget:null},setup(a){const e=a,r=i(()=>l(e.linkText,e.widget));return(o,f)=>e.widget.clickToSearch?(t(),s("span",k,[p("a",{href:d(r)},[n(o.$slots,"default")],8,_)])):(t(),s("span",u,[n(o.$slots,"default")]))}});export{T as _};
-//# sourceMappingURL=ClickToSearchLink.vue_vue_type_script_setup_true_lang.js.map
