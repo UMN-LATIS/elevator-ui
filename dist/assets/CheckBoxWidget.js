@@ -1,0 +1,2 @@
+import{a,o as e,j as t,F as o,x as c,h as r}from"./index.js";const i={key:0,class:"material-symbols-outlined"},u={key:1,class:"material-symbols-outlined"},p=a({__name:"CheckBoxWidget",props:{widget:null,contents:null},setup(s){return(m,d)=>(e(),t("ul",null,[(e(!0),t(o,null,c(s.contents,(n,l)=>(e(),t("li",{key:l},[n.fieldContents==!0?(e(),t("span",i," check_circle ")):n.fieldContents==!1?(e(),t("span",u," cancel ")):r("",!0)]))),128))]))}});export{p as default};
+//# sourceMappingURL=CheckBoxWidget.js.map
