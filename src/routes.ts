@@ -1,5 +1,13 @@
+import { defineAsyncComponent } from "vue";
 import { RouteRecordRaw } from "vue-router";
 import config from "@/config";
+
+const AssetViewPage = defineAsyncComponent(
+  () => import("@/pages/AssetViewPage.vue")
+);
+const NotFoundPage = defineAsyncComponent(
+  () => import("@/pages/NotFoundPage.vue")
+);
 
 const routes: RouteRecordRaw[] = [
   {
@@ -10,7 +18,7 @@ const routes: RouteRecordRaw[] = [
     // this route is really `/asset/viewAsset/:assetId#:objectId?`
     // but we can't use `#` in the path
     path: "/asset/viewAsset/:assetId",
-    component: () => import("@/pages/AssetViewPage.vue"),
+    component: AssetViewPage,
     props: (route) => ({
       assetId: route.params.assetId,
       objectId: route.hash?.substring(1),
@@ -18,7 +26,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/:pathMatch(.*)",
-    component: () => import("@/pages/NotFoundPage.vue"),
+    component: NotFoundPage,
     props: (route) => ({
       route,
     }),
