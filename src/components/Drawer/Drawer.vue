@@ -15,8 +15,8 @@
         @click="$emit('toggle')"
       >
         <span v-if="showToggle">
-          <ChevronUpIcon v-if="isOpen" />
-          <ChevronDownIcon v-else />
+          <ChevronDownIcon v-if="isOpen" />
+          <ChevronUpIcon v-if="!isOpen" />
         </span>
         <slot name="header-label">
           <DrawerLabel :label="label" :variant="variant" :isOpen="isOpen" />
