@@ -14,8 +14,9 @@
         class="flex items-center p-4 leading-tight gap-4 flex-1"
         @click="$emit('toggle')"
       >
-        <span v-if="showToggle" class="material-symbols-outlined">
-          {{ isOpen ? "expand_more" : "expand_less" }}
+        <span v-if="showToggle">
+          <ChevronUpIcon v-if="isOpen" />
+          <ChevronDownIcon v-else />
         </span>
         <slot name="header-label">
           <DrawerLabel :label="label" :variant="variant" :isOpen="isOpen" />
@@ -40,6 +41,9 @@
 </template>
 <script setup lang="ts">
 import DrawerLabel from "./DrawerLabel.vue";
+import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
+import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
+
 withDefaults(
   defineProps<{
     label: string;

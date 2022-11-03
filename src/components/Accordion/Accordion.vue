@@ -13,9 +13,8 @@
       </slot>
       <div class="flex place-items-center">
         <slot name="label-icon">
-          <span class="material-symbols-outlined">
-            {{ isOpen ? "expand_less" : "expand_more" }}
-          </span>
+          <ChevronUpIcon v-if="isOpen" />
+          <ChevronDownIcon v-else />
         </slot>
       </div>
     </button>
@@ -29,6 +28,8 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
+import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
+import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
 
 withDefaults(
   defineProps<{

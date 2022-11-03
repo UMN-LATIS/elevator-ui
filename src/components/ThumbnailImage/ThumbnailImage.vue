@@ -8,10 +8,9 @@
     }"
   >
     <div
-      v-if="iconOnHover"
       class="thumbnail-image__icon absolute z-10 bg-transparent-white-500 rounded-full w-12 h-12 flex justify-center items-center backdrop-blur-sm top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all"
     >
-      <Icon class="text-neutral-900">{{ iconOnHover }}</Icon>
+      <ArrowForwardIcon class="text-neutral-900" />
     </div>
     <LazyLoadImage
       :src="src"
@@ -22,20 +21,18 @@
   </component>
 </template>
 <script setup lang="ts">
-import Icon from "@/components/Icon/Icon.vue";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
+import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 
 withDefaults(
   defineProps<{
     src: string;
     alt: string;
     href?: string;
-    iconOnHover?: string;
     isActive?: boolean;
   }>(),
   {
     href: undefined,
-    iconOnHover: undefined,
     isActive: false,
   }
 );

@@ -18,14 +18,14 @@
       v-if="!isImageLoadComplete"
       class="absolute inset-0 z-10 flex justify-center items-center bg-neutral-200 border border-neutral-300 text-neutral-400"
     >
-      <Icon>image</Icon>
+      <ImageIcon />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { useIntersectionObserver } from "@vueuse/core";
 import { ref, onMounted } from "vue";
-import Icon from "../Icon/Icon.vue";
+import ImageIcon from "@/icons/ImageIcon.vue";
 import getScrollParent from "./getScrollParent";
 
 defineProps<{

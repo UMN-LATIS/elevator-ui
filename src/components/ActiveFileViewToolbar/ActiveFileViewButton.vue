@@ -1,9 +1,7 @@
 <template>
   <button class="p-2 flex items-center">
-    <Icon><slot /></Icon>
+    <slot />
   </button>
 </template>
-<script setup lang="ts">
-import Icon from "../Icon/Icon.vue";
-</script>
+<script setup lang="ts"></script>
 <style scoped></style>

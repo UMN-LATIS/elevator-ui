@@ -12,7 +12,7 @@
       iconOnHover="arrow_forward"
     />
     <div v-else>
-      <Icon>image</Icon>
+      <ImageIcon />
       <p>{{ title }}</p>
     </div>
   </RouterLink>
@@ -24,7 +24,7 @@ import type { RelatedAssetCacheItem } from "@/types";
 import { useAssetStore } from "@/stores/assetStore";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
-import Icon from "@/components/Icon/Icon.vue";
+import ImageIcon from "@/icons/ImageIcon.vue";
 
 const props = defineProps<{
   assetId: string;

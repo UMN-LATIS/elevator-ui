@@ -1,5 +1,5 @@
 import { Meta, StoryFn } from "@storybook/vue3";
-import AssetViewPage from "@/pages/AssetViewPage.vue";
+import AssetViewPage from "./AssetViewPage.vue";
 
 export default {
   component: AssetViewPage,

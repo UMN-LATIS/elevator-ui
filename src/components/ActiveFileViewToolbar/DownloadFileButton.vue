@@ -1,6 +1,6 @@
 <template>
   <ActiveFileViewButton @click="handleDownloadFileClick">
-    download
+    <DownloadIcon />
   </ActiveFileViewButton>
   <Modal label="File Downloads" :isOpen="isOpen" @close="isOpen = false">
     <div v-if="isDownloadFileInfoReady">
@@ -26,6 +26,7 @@ import { ref, computed } from "vue";
 import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
+import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/helpers/api";
 import config from "@/config";
 import Modal from "../Modal/Modal.vue";
