@@ -11,16 +11,12 @@
         </h1>
       </a>
     </div>
-    <div class="flex items-center gap-4">
-      <LoginMenu />
-    </div>
   </header>
 </template>
 <script setup lang="ts">
 import { MenuItem, Image } from "@/types";
 import defaultLogoImg from "./defaultLogoImg";
 import defaultPageMenuItems from "./defaultPageMenuItems";
-import LoginMenu from "./LoginMenu.vue";
 import config from "@/config";
 
 withDefaults(
