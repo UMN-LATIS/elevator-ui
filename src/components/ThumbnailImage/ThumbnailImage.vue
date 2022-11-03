@@ -2,7 +2,7 @@
   <component
     :is="href ? 'a' : 'div'"
     :href="href"
-    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm"
+    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm opacity-75 hover:opacity-100"
     :class="{
       'ring ring-offset-1 ring-blue-600': isActive,
     }"
@@ -13,17 +13,17 @@
     >
       <Icon class="text-neutral-900">{{ iconOnHover }}</Icon>
     </div>
-    <img
+    <LazyLoadImage
       :src="src"
-      class="thumbnail-image__img w-full h-full object-cover opacity-80 transition-all ease-in"
       :alt="alt"
-      loading="lazy"
+      class="hover:scale-110 w-full h-full object-cover transition-all"
     />
     <slot />
   </component>
 </template>
 <script setup lang="ts">
 import Icon from "@/components/Icon/Icon.vue";
+import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
 
 withDefaults(
   defineProps<{
@@ -40,12 +40,4 @@ withDefaults(
   }
 );
 </script>
-<style scoped>
-.thumbnail-image:hover .thumbnail-image__img {
-  transform: scale(1.05);
-  opacity: 1;
-}
-.thumbnail-image:hover .thumbnail-image__icon {
-  opacity: 1;
-}
-</style>
+<style scoped></style>
