@@ -21,26 +21,8 @@
 
       <WidgetList v-if="objectId" :assetId="objectId" />
 
-      <!-- For development only? -->
       <footer v-if="objectId" class="flex gap-2">
         <ArrowButton v-if="assetUrl" :to="assetUrl" />
-        <Button
-          :href="`${config.base.url}/${assetUrl}`"
-          icon="image"
-          target="_blank"
-          variant="tertiary"
-        >
-          Old View
-        </Button>
-        <Button
-          :href="`${config.base.url}/${assetUrl}/true`"
-          label="Asset Json"
-          icon="data_object"
-          target="_blank"
-          variant="tertiary"
-        >
-          JSON
-        </Button>
       </footer>
     </Drawer>
   </div>
@@ -49,10 +31,8 @@
 import { computed } from "vue";
 import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
-import Button from "@/components/Button/Button.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
 import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
-import config from "@/config";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
 
 const props = withDefaults(

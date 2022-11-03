@@ -11,6 +11,7 @@
               :src="getTinyURL(assetCache.primaryHandler)"
               :alt="title"
               class="object-cover w-full h-full"
+              loading="lazy"
             />
           </div>
           <h3>{{ title }}</h3>

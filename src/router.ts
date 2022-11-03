@@ -9,10 +9,14 @@ const router = createRouter({
       redirect: config.routes.test ?? "/404",
     },
     {
+      path: "/test/lazy",
+      component: () => import("@/pages/TestPages/LazyLoadImageTest.vue"),
+    },
+    {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
       path: "/asset/viewAsset/:assetId",
-      component: () => import("@/pages/AssetViewPage.vue"),
+      component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),
       props: (route) => ({
         assetId: route.params.assetId,
         objectId: route.hash?.substring(1),
@@ -20,7 +24,7 @@ const router = createRouter({
     },
     {
       path: "/:pathMatch(.*)",
-      component: () => import("@/pages/NotFoundPage.vue"),
+      component: () => import("@/pages/NotFoundPage/NotFoundPage.vue"),
       props: (route) => ({
         route,
       }),

@@ -7,6 +7,7 @@
         v-if="imgSrc"
         :src="imgSrc"
         :alt="imgAlt || 'Untitled'"
+        loading="lazy"
         class="w-full h-full object-cover"
       />
       <Icon v-else>{{ fallbackThumbnailIcon || "image" }}</Icon>

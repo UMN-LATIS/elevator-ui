@@ -9,38 +9,17 @@
     >
       <WidgetList v-if="assetId" :assetId="assetId" />
       <MoreLikeThis :items="moreLikeThisItems" />
-      <footer v-if="assetId" class="flex gap-2">
-        <Button
-          :href="`${config.base.url}/${getAssetUrl(assetId)}`"
-          icon="image"
-          target="_blank"
-          variant="tertiary"
-        >
-          Old View
-        </Button>
-        <Button
-          :href="`${config.base.url}/${getAssetUrl(assetId)}/true`"
-          label="Asset Json"
-          icon="data_object"
-          target="_blank"
-          variant="tertiary"
-        >
-          JSON
-        </Button>
-      </footer>
     </Drawer>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
-import { getAssetTitle, getAssetUrl } from "@/helpers/displayUtils";
-import Button from "@/components/Button/Button.vue";
+import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
-import config from "@/config";
 
 const props = withDefaults(
   defineProps<{
