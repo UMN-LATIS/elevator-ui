@@ -1,7 +1,7 @@
 <template>
   <div
     ref="imgContainer"
-    class="lazy-load-image relative w-full h-full min-w-16 min-h-16"
+    class="lazy-load-image relative w-full h-full min-w-[4rem] min-h-[4rem]"
   >
     <img
       v-if="isLoaded"
@@ -26,18 +26,12 @@
 import { useIntersectionObserver } from "@vueuse/core";
 import { ref, onMounted } from "vue";
 import Icon from "../Icon/Icon.vue";
+import getScrollParent from "./getScrollParent";
+
 defineProps<{
   src: string;
   alt: string;
 }>();
-
-const observerOptions = {
-  // load images when they are `rootMargin` pixels away from the viewport
-  rootMargin: "640px",
-  // load images when they are `threshold` within the viewport
-  // (0 when just a tiny tiny bit, 1 when 100%)
-  threshold: 0,
-};
 
 const imgContainer = ref<HTMLDivElement | null>(null);
 const isLoaded = ref(false);
@@ -56,6 +50,18 @@ function onIntersectionChange(
 }
 
 onMounted(() => {
+  const observerOptions = {
+    // root needs to be a scrollable element
+    // if the document body isn't scrollable, then rootMargin won't work
+    root: getScrollParent(imgContainer.value),
+
+    // load images when they are `rootMargin` pixels away from the viewport
+    rootMargin: "640px",
+
+    // load images when they are `threshold` within the viewport
+    // (0 when just a tiny tiny bit, 1 when 100%)
+    threshold: 0,
+  };
   useIntersectionObserver(imgContainer, onIntersectionChange, observerOptions);
 });
 </script>
