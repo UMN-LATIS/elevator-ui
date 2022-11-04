@@ -2,26 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+* ELEVATOR DEFAULT THEME
+* Note: tailwind color vars can be used as `--color-{palette}-{shade}`
+* e.g. `--color-blue-500`
+*/
 :root {
-  /*
-   * these should inherit from tailwind using the variable
-   * plugin. See tailwind.config.js
-   */
-  --color-link: var(--color-blue-600);
+  --el-font-family: "Work Sans", sans-serif;
+  --el-bg-color: #fff;
+  --el-panel-border-color: #111;
+  --el-heading-color: #111;
+  --el-text-color: #777;
+  --el-accordion-header-bg: #e3e3e3;
+  --el-accordion-content-bg: transparent;
+  --el-accordion-border-color: #ccc;
+  --el-link-color: var(--color-blue-600);
+  --el-link-hover-color: var(--color-blue-700);
+  --el-link-text-decoration: none;
+  --el-link-hover-text-decoration: underline;
+  --el-wordmark-color: var(--color-neutral-900);
 }
 
-body {
-  font-family: "Work Sans", sans-serif;
-  color: #171717;
+.theme-umn-maroon {
 }
-
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+.theme-umn-gold {
+}
+.theme-thomas {
+}
+.theme-olaf {
 }
 
 /**
-* text will write vertically from bottom to top
+* Global styles
 */
+
+body {
+  font-family: var(--el-font-family);
+  color: var(--el-text-color);
+  background-color: var(--el-bg-color);
+}
+
+a {
+  text-decoration: var(--el-link-text-decoration);
+  color: var(--el-color-link);
+}
+
+a:hover {
+  text-decoration: var(--el-link-hover-text-decoration);
+}
+
+/**
+* Utility classes
+*/
+
+/* text will write vertically from bottom to top */
 .sideways {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -32,16 +66,6 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-a {
-  text-decoration: none;
-  /* color: #1d4ed8; */
-  color: var(--color-link);
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 /**
