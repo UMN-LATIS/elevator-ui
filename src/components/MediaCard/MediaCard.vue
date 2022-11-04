@@ -10,7 +10,7 @@
         loading="lazy"
         class="w-full h-full object-cover"
       />
-      <Icon v-else>{{ fallbackThumbnailIcon || "image" }}</Icon>
+      <ImageIcon v-else />
     </div>
 
     <div class="p-4 bg-white flex-1">
@@ -19,12 +19,11 @@
   </article>
 </template>
 <script setup lang="ts">
-import Icon from "@/components/Icon/Icon.vue";
+import ImageIcon from "@/icons/ImageIcon.vue";
 
 defineProps<{
   imgSrc?: string | null;
   imgAlt?: string | null;
-  fallbackThumbnailIcon?: string;
 }>();
 </script>
 <style scoped></style>

@@ -5,13 +5,13 @@
     v-bind="props"
   >
     <slot />
-    <Icon>arrow_forward</Icon>
+    <ArrowForwardIcon />
   </component>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import Icon from "@/components/Icon/Icon.vue";
 import { RouterLink } from "vue-router";
+import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 
 const props = defineProps<{
   to?: string; // for <router-link>

@@ -7,7 +7,8 @@
     @click="show = !show"
   >
     Show {{ show ? "Less" : "More" }}
-    <Icon>{{ show ? "expand_less" : "expand_more" }} </Icon>
+    <ChevronUpIcon v-if="show" />
+    <ChevronDownIcon v-else />
   </button>
 </template>
 <script setup lang="ts">
@@ -15,7 +16,8 @@ import { WidgetProps } from "@/types";
 import { ref, onMounted } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
-import Icon from "@/components/Icon/Icon.vue";
+import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
+import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
 
 const props = withDefaults(
   defineProps<{

@@ -63,6 +63,7 @@ watch(
   { immediate: true }
 );
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 provide(MarkerInjectionKey, marker);
 // @ts-check

@@ -1,5 +1,7 @@
 <template>
-  <ActiveFileViewButton @click="isOpen = !isOpen">share</ActiveFileViewButton>
+  <ActiveFileViewButton @click="isOpen = !isOpen">
+    <ShareIcon />
+  </ActiveFileViewButton>
   <Modal
     label="Share"
     :isOpen="isOpen"
@@ -27,6 +29,7 @@ import config from "@/config";
 import Modal from "../Modal/Modal.vue";
 import CopyableTextArea from "../CopyableTextArea/CopyableTextArea.vue";
 import Button from "../Button/Button.vue";
+import ShareIcon from "@/icons/ShareIcon.vue";
 
 const assetStore = useAssetStore();
 const removeExtraWhitespace = (str: string) => str.replace(/\s+/g, " ").trim();

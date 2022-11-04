@@ -5,14 +5,12 @@
     <div
       class="placeholder-image bg-neutral-300 max-h-full h-32 aspect-square flex justify-center items-center overflow-hidden rounded-lg border m-2"
     >
-      <img
+      <LazyLoadImage
         v-if="imgSrc"
         :src="imgSrc"
         :alt="title"
-        loading="lazy"
         class="w-full h-full object-cover"
       />
-      <Icon v-else>{{ "image" }}</Icon>
     </div>
     <div class="flex-1">
       <h1 class="font-bold text-xl mt-4 mb-2">{{ title }}</h1>
@@ -45,7 +43,7 @@ import { SearchResultMatch } from "@/types";
 import { getThumbURL } from "@/helpers/displayUtils";
 import { computed } from "vue";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
-import Icon from "@/components/Icon/Icon.vue";
+import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;

@@ -26,14 +26,14 @@ Secondary.args = { slot: "Secondary Button", variant: "secondary" };
 export const Tertiary = Template.bind({});
 Tertiary.args = { slot: "Tertiary Button", variant: "tertiary" };
 
-export const withIcon = Template.bind({});
-withIcon.args = {
+export const WithIcon = Template.bind({});
+WithIcon.args = {
   slot: "Button with Icon",
   icon: "arrow_forward",
 };
 
-export const asLink = Template.bind({});
-asLink.args = {
+export const AsLink = Template.bind({});
+AsLink.args = {
   slot: "Link appears as Button",
   href: "https://umn.edu",
 };
