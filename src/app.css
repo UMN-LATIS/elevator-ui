@@ -8,19 +8,44 @@
 * e.g. `--color-blue-500`
 */
 :root {
-  --el-font-family: "Work Sans", sans-serif;
-  --el-bg-color: #fff;
-  --el-panel-border-color: #111;
-  --el-heading-color: #111;
-  --el-text-color: #777;
-  --el-accordion-header-bg: #e3e3e3;
-  --el-accordion-content-bg: transparent;
-  --el-accordion-border-color: #ccc;
-  --el-link-color: var(--color-blue-600);
-  --el-link-hover-color: var(--color-blue-700);
-  --el-link-text-decoration: none;
-  --el-link-hover-text-decoration: underline;
-  --el-wordmark-color: var(--color-neutral-900);
+  --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif;
+  --app-textColor: var(--color-neutral-900);
+  --app-backgroundColor: var(--color-neutral-100);
+  --app-borderColor: var(--color-neutral-900);
+
+  --app-appHeader-backgroundColor: transparent;
+  --app-wordmark-textColor: var(--app-textColor);
+
+  --app-link-textColor: var(--color-blue-600);
+  --app-link-hover-textColor: var(--color-blue-700);
+
+  --app-panel-header-textColor: var(--app-textColor);
+  --app-panel-body-textColor: var(--app-textColor);
+  --app-panel-borderColor: var(--app-borderColor);
+  --app-panel-header-backgroundColor: transparent;
+  --app-panel-body-backgroundColor: transparent;
+  --app-panel-items-spacing: 1.5rem;
+
+  --app-assetPanel-header-textColor: var(--app-textColor);
+  --app-assetPanel-body-textColor: var(--app-textColor);
+  --app-assetPanel-header-backgroundColor: transparent;
+  --app-assetPanel-body-backgroundColor: transparent;
+  --app-assetPanel-header-fontSize: 1rem;
+
+  --app-detailsPanel-header-textColor: var(--app-textColor);
+  --app-detailsPanel-body-textColor: var(--app-textColor);
+  --app-detailsPanel-header-backgroundColor: transparent;
+  --app-detailsPanel-body-backgroundColor: transparent;
+
+  --app-objectViewer-backgroundColor: transparent;
+
+  --app-accordion-header-backgroundColor: transparent;
+  --app-accordion-body-backgroundColor: transparent;
+  --app-accordion-borderColor: var(--app-borderColor);
+}
+
+.theme-test {
+  /* background: red; */
 }
 
 .theme-umn-maroon {
@@ -32,54 +57,50 @@
 .theme-olaf {
 }
 
-/**
-* Global styles
-*/
+@layer base {
+  .app {
+    font-family: var(--app-fontFamily);
+    color: var(--app-textColor);
+    background-color: var(--app-backgroundColor);
+  }
 
-body {
-  font-family: var(--el-font-family);
-  color: var(--el-text-color);
-  background-color: var(--el-bg-color);
+  .app a {
+    text-decoration: none;
+    color: var(--app-color-link);
+  }
+
+  .app a:hover {
+    text-decoration: underline;
+  }
 }
 
-a {
-  text-decoration: var(--el-link-text-decoration);
-  color: var(--el-color-link);
-}
+@layer utilities {
+  /* text will write vertically from bottom to top */
+  .sideways {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
 
-a:hover {
-  text-decoration: var(--el-link-hover-text-decoration);
-}
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-/**
-* Utility classes
-*/
-
-/* text will write vertically from bottom to top */
-.sideways {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-}
-
-.line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/**
+  /**
 * adapted from from a11y project's `visually-hidden` class
 * changed from `absolute` to `fixed` positioning
 * to avoid an issue when using this within a flexbox
 **/
-.visually-hidden,
-.sr-only {
-  position: fixed;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
+  .visually-hidden,
+  .sr-only {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }

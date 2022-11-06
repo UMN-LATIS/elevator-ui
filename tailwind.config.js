@@ -4,7 +4,72 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        app: "var(--app-fontFamily)",
+      },
+      textColor: () => ({
+        app: {
+          DEFAULT: "var(--app-textColor)",
+          wordmark: "var(--app-wordmark-textColor)",
+          link: {
+            DEFAULT: "var(--app-link-textColor)",
+            hover: "var(--app-link-hover-textColor)",
+          },
+          panel: {
+            header: "var(--app-panel-header-textColor)",
+            body: "var(--app-panel-body-textColor)",
+          },
+          assetPanel: {
+            header: "var(--app-assetPanel-header-textColor)",
+            body: "var(--app-assetPanel-body-textColor)",
+          },
+          detailsPanel: {
+            header: "var(--app-detailsPanel-header-textColor)",
+            body: "var(--app-detailsPanel-body-textColor)",
+          },
+        },
+      }),
+      fontSize: () => ({
+        app: {
+          assetPanel: {
+            header: "var(--app-assetPanel-header-fontSize)",
+          },
+        },
+      }),
+      backgroundColor: () => ({
+        app: {
+          DEFAULT: "var(--app-backgroundColor)",
+          appHeader: "var(--app-appHeader-backgroundColor)",
+          accordion: {
+            header: "var(--app-accordion-header-backgroundColor)",
+            body: "var(--app-accordion-body-backgroundColor)",
+          },
+          objectViewer: "var(--app-objectViewer-backgroundColor)",
+          panel: {
+            header: "var(--app-panel-header-backgroundColor)",
+            body: "var(--app-panel-body-backgroundColor)",
+          },
+          assetPanel: {
+            header: "var(--app-assetPanel-header-backgroundColor)",
+            body: "var(--app-assetPanel-body-backgroundColor)",
+          },
+          detailsPanel: {
+            header: "var(--app-detailsPanel-header-backgroundColor)",
+            body: "var(--app-detailsPanel-body-backgroundColor)",
+          },
+        },
+      }),
+      borderColor: () => ({
+        DEFAULT: "var(--app-borderColor)",
+        panel: "var(--app-panel-borderColor)",
+        accordion: "var(--app-accordion-borderColor)",
+      }),
       spacing: {
+        app: {
+          panel: {
+            items: "var(--app-panel-items-spacing)",
+          },
+        },
         xs: "20rem" /* 320px */,
         sm: "24rem" /* 384px */,
         md: "28rem" /* 448px */,
