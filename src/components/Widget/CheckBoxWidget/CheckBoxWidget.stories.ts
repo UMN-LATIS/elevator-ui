@@ -15,8 +15,7 @@ const Template: StoryFn<typeof CheckboxWidget> = (args) => ({
     return { args };
   },
   template: `
-    <CheckboxWidget v-bind="args">
-    </CheckboxWidget>
+    <CheckboxWidget v-bind="args" />
   `,
 });
 
