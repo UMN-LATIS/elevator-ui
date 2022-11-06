@@ -1,5 +1,5 @@
 <template>
-  <Button class="rounded-full" variant="primary">
+  <Button class="rounded-full p-2" variant="primary">
     <slot />
     <ArrowForwardIcon />
   </Button>
