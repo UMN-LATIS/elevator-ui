@@ -1,14 +1,14 @@
 <template>
   <div class="h-full relative">
     <ObjectViewer
-      class="h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-x-app border-b-app"
+      class="h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-app"
       :class="{
-        'md:top-0 md:bottom-1/2 md:left-sm md:right-0':
+        'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-x-app':
           isAssetDetailsOpen && isObjectDetailsOpen, // both open
-        'md:top-0 md:bottom-16 md:left-sm md:right-0':
+        'md:top-0 md:bottom-16 md:left-sm md:right-0 border-x-app':
           isAssetDetailsOpen && !isObjectDetailsOpen, // just asset details
 
-        'md:top-0 md:bottom-16 md:left-0 md:right-sm':
+        'md:top-0 md:bottom-16 md:left-0 md:right-sm border-x-app':
           !isAssetDetailsOpen && isObjectDetailsOpen, // just object details
         'md:top-0 md:bottom-16 md:left-0 md:right-0':
           !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open

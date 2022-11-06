@@ -8,18 +8,27 @@
 * e.g. `--color-blue-500`
 */
 :root {
-  --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif; /* ✅ */
-  --app-textColor: var(--color-neutral-900); /* ✅ */
-  --app-backgroundColor: var(--color-neutral-100); /* ✅ */
-  --app-borderColor: var(--color-neutral-900); /* ✅ */
-  --app-borderWidth: 2px; /* ✅ */
+  --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif;
+  --app-textColor: var(--color-neutral-900);
+  --app-backgroundColor: var(--color-neutral-100);
+  --app-borderColor: var(--color-neutral-900);
+  --app-borderWidth: 2px;
 
+  /**
+  * App Header
+  */
   --app-appHeader-backgroundColor: transparent;
   --app-wordmark-textColor: var(--app-textColor);
 
+  /**
+  * Link
+  */
   --app-link-textColor: var(--color-blue-600);
   --app-link-hover-textColor: var(--color-blue-700);
 
+  /**
+  * Panel (Drawer)
+  */
   --app-panel-header-textColor: var(--app-textColor); /* ✅ */
   --app-panel-body-textColor: var(--app-textColor); /* ✅ */
   --app-panel-borderColor: var(--app-borderColor); /* ✅ */
@@ -28,27 +37,100 @@
   --app-panel-body-backgroundColor: transparent; /* ✅ */
   --app-panel-items-gap: 1.5rem; /* ✅ */
 
+  /**
+  * Object Viewer
+  */
+  --app-objectViewer-backgroundColor: var(--color-neutral-300);
+
+  /**
+  * Widget List
+  */
   --app-widgetList-gap: var(--app-panel-items-gap); /* ✅ */
 
-  --app-assetPanel-header-textColor: var(--app-textColor);
-  --app-assetPanel-body-textColor: var(--app-textColor);
-  --app-assetPanel-header-backgroundColor: transparent;
-  --app-assetPanel-body-backgroundColor: transparent;
-  --app-assetPanel-header-fontSize: 1rem;
-
-  --app-detailsPanel-header-textColor: var(--app-textColor);
-  --app-detailsPanel-body-textColor: var(--app-textColor);
-  --app-detailsPanel-header-backgroundColor: transparent;
-  --app-detailsPanel-body-backgroundColor: transparent;
-
-  --app-objectViewer-backgroundColor: transparent;
-
+  /**
+  * Accordion
+  */
   --app-accordion-header-backgroundColor: transparent; /* ✅ */
   --app-accordion-header-textColor: var(--app-textColor); /* ✅ */
   --app-accordion-body-backgroundColor: transparent; /* ✅ */
   --app-accordion-body-textColor: var(--app-textColor); /* ✅ */
   --app-accordion-outer-borderColor: var(--color-neutral-500); /* ✅ */
   --app-accordion-inner-borderColor: transparent; /* ✅ */
+
+  /*************************BUTTONS*************************/
+
+  /**
+  * Button Primary (default)
+  */
+  --app-button-primary-borderColor: var(--app-button-primary-backgroundColor);
+  --app-button-primary-backgroundColor: var(--color-neutral-900);
+  --app-button-primary-textColor: white;
+  --app-button-borderWidth: 1px; /* primary and secondary */
+
+  /* Button Primary :hover */
+  --app-button-primary-hover-borderColor: var(
+    --app-button-primary-hover-backgroundColor
+  );
+  --app-button-primary-hover-backgroundColor: var(--color-blue-700);
+  --app-button-primary-hover-textColor: white;
+
+  /* Button Primary :active */
+  --app-button-primary-active-borderColor: var(
+    --app-button-primary-active-backgroundColor
+  );
+  --app-button-primary-active-backgroundColor: var(--color-blue-800);
+  --app-button-primary-active-textColor: white;
+
+  /* Button Primary :disabled */
+  --app-button-primary-disabled-borderColor: var(
+    --app-button-primary-disabled-backgroundColor
+  );
+  --app-button-primary-disabled-backgroundColor: var(--color-neutral-200);
+  --app-button-primary-disabled-textColor: var(--color-neutral-400);
+
+  /**
+  * Button Secondary (default)
+  */
+  --app-button-secondary-borderColor: var(--color-neutral-900);
+  --app-button-secondary-backgroundColor: transparent;
+  --app-button-secondary-textColor: var(--color-neutral-900);
+
+  /* Button Secondary :hover */
+  --app-button-secondary-hover-borderColor: var(--color-blue-700);
+  --app-button-secondary-hover-backgroundColor: transparent;
+  --app-button-secondary-hover-textColor: var(--color-blue-700);
+
+  /* Button Secondary :active */
+  --app-button-secondary-active-borderColor: ar(--color-blue-700);
+  --app-button-secondary-active-backgroundColor: var(--color-blue-700);
+  --app-button-secondary-active-textColor: white;
+
+  /* Button Secondary :disabled */
+  --app-button-secondary-disabled-borderColor: var(--color-neutral-200);
+  --app-button-secondary-disabled-backgroundColor: var(--color-neutral-50);
+  --app-button-secondary-disabled-textColor: var(--color-neutral-400);
+
+  /**
+  * Button Tertiary (default)
+  */
+  --app-button-tertiary-borderColor: transparent;
+  --app-button-tertiary-backgroundColor: transparent;
+  --app-button-tertiary-textColor: var(--color-blue-600);
+
+  /* Button Tertiary :hover */
+  --app-button-tertiary-hover-borderColor: transparent
+  --app-button-tertiary-hover-backgroundColor: transparent;
+  --app-button-tertiary-hover-textColor: var(--color-purple-600);
+
+  /* Button Tertiary :active */
+  --app-button-tertiary-active-borderColor: tranparent;
+  --app-button-tertiary-active-backgroundColor: tranparent;
+  --app-button-tertiary-active-textColor: var(--color-fuchsia-500);
+
+  /* Button Tertiary :disabled */
+  --app-button-tertiary-disabled-borderColor: transparent;
+  --app-button-tertiary-disabled-backgroundColor: tranparent;
+  --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
 }
 
 .theme-test {

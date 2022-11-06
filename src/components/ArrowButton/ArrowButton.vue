@@ -1,27 +1,11 @@
 <template>
-  <component
-    :is="componentType"
-    class="flex justify-center items-center bg-neutral-100 p-2 rounded-full hover:bg-neutral-900 hover:text-white gap-2 hover:no-underline text-neutral-900 cursor-pointer"
-    v-bind="props"
-  >
+  <Button class="rounded-full" variant="primary">
     <slot />
     <ArrowForwardIcon />
-  </component>
+  </Button>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
-import { RouterLink } from "vue-router";
 import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
-
-const props = defineProps<{
-  to?: string; // for <router-link>
-  href?: string; // for <a>
-}>();
-
-const componentType = computed(() => {
-  if (!!props.to) return RouterLink;
-  if (!!props.href) return "a";
-  return "button";
-});
+import Button from "@/components/Button/Button.vue";
 </script>
 <style scoped></style>

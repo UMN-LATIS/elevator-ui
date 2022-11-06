@@ -19,13 +19,25 @@ module.exports = {
             header: "var(--app-panel-header-textColor)",
             body: "var(--app-panel-body-textColor)",
           },
-          assetPanel: {
-            header: "var(--app-assetPanel-header-textColor)",
-            body: "var(--app-assetPanel-body-textColor)",
-          },
-          detailsPanel: {
-            header: "var(--app-detailsPanel-header-textColor)",
-            body: "var(--app-detailsPanel-body-textColor)",
+          button: {
+            primary: {
+              DEFAULT: "var(--app-button-primary-textColor)",
+              hover: "var(--app-button-primary-hover-textColor)",
+              disabled: "var(--app-button-primary-disabled-textColor)",
+              active: "var(--app-button-primary-active-textColor)",
+            },
+            secondary: {
+              DEFAULT: "var(--app-button-secondary-textColor)",
+              hover: "var(--app-button-secondary-hover-textColor)",
+              disabled: "var(--app-button-secondary-disabled-textColor)",
+              active: "var(--app-button-secondary-active-textColor)",
+            },
+            tertiary: {
+              DEFAULT: "var(--app-button-tertiary-textColor)",
+              hover: "var(--app-button-tertiary-hover-textColor)",
+              disabled: "var(--app-button-tertiary-disabled-textColor)",
+              active: "var(--app-button-tertiary-active-textColor)",
+            },
           },
           accordion: {
             header: "var(--app-accordion-header-textColor)",
@@ -33,13 +45,7 @@ module.exports = {
           },
         },
       }),
-      fontSize: () => ({
-        app: {
-          assetPanel: {
-            header: "var(--app-assetPanel-header-fontSize)",
-          },
-        },
-      }),
+
       backgroundColor: () => ({
         app: {
           DEFAULT: "var(--app-backgroundColor)",
@@ -53,18 +59,31 @@ module.exports = {
             header: "var(--app-panel-header-backgroundColor)",
             body: "var(--app-panel-body-backgroundColor)",
           },
-          assetPanel: {
-            header: "var(--app-assetPanel-header-backgroundColor)",
-            body: "var(--app-assetPanel-body-backgroundColor)",
-          },
-          detailsPanel: {
-            header: "var(--app-detailsPanel-header-backgroundColor)",
-            body: "var(--app-detailsPanel-body-backgroundColor)",
+          button: {
+            primary: {
+              DEFAULT: "var(--app-button-primary-backgroundColor)",
+              hover: "var(--app-button-primary-hover-backgroundColor)",
+              disabled: "var(--app-button-primary-disabled-backgroundColor)",
+              active: "var(--app-button-primary-active-backgroundColor)",
+            },
+            secondary: {
+              DEFAULT: "var(--app-button-secondary-backgroundColor)",
+              hover: "var(--app-button-secondary-hover-backgroundColor)",
+              disabled: "var(--app-button-secondary-disabled-backgroundColor)",
+              active: "var(--app-button-secondary-active-backgroundColor)",
+            },
+            tertiary: {
+              DEFAULT: "var(--app-button-tertiary-backgroundColor)",
+              hover: "var(--app-button-tertiary-hover-backgroundColor)",
+              disabled: "var(--app-button-tertiary-disabled-backgroundColor)",
+              active: "var(--app-button-tertiary-active-backgroundColor)",
+            },
           },
         },
       }),
       borderWidth: () => ({
         app: "var(--app-borderWidth)",
+        "app-button-borderWidth": "var(--app-button-borderWidth)",
       }),
       borderColor: () => ({
         app: {
@@ -74,6 +93,26 @@ module.exports = {
           accordion: {
             outer: "var(--app-accordion-outer-borderColor)",
             inner: "var(--app-accordion-inner-borderColor)",
+          },
+          button: {
+            primary: {
+              DEFAULT: "var(--app-button-primary-borderColor)",
+              hover: "var(--app-button-primary-hover-borderColor)",
+              disabled: "var(--app-button-primary-disabled-borderColor)",
+              active: "var(--app-button-primary-active-borderColor)",
+            },
+            secondary: {
+              DEFAULT: "var(--app-button-secondary-borderColor)",
+              hover: "var(--app-button-secondary-hover-borderColor)",
+              disabled: "var(--app-button-secondary-disabled-borderColor)",
+              active: "var(--app-button-secondary-active-borderColor)",
+            },
+            tertiary: {
+              DEFAULT: "var(--app-button-tertiary-borderColor)",
+              hover: "var(--app-button-tertiary-hover-borderColor)",
+              disabled: "var(--app-button-tertiary-disabled-borderColor)",
+              active: "var(--app-button-tertiary-active-borderColor)",
+            },
           },
         },
       }),
