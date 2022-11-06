@@ -23,7 +23,8 @@
   --app-panel-header-textColor: var(--app-textColor); /* ✅ */
   --app-panel-body-textColor: var(--app-textColor); /* ✅ */
   --app-panel-borderColor: var(--app-borderColor); /* ✅ */
-  --app-panel-header-backgroundColor: transparent; /* ✅ */
+  --app-panel-header-backgroundColor: rgba(255 255 255 / 0.5); /* ✅ */
+  --app-panel-header-bottom-borderColor: white; /* ✅ */
   --app-panel-body-backgroundColor: transparent; /* ✅ */
   --app-panel-items-gap: 1.5rem; /* ✅ */
 

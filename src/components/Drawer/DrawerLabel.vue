@@ -7,7 +7,6 @@
 <script setup lang="ts">
 defineProps<{
   label: string;
-  isOpen: boolean;
 }>();
 </script>
 <style scoped></style>

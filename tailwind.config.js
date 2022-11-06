@@ -70,6 +70,7 @@ module.exports = {
         app: {
           DEFAULT: "var(--app-borderColor)",
           panel: "var(--app-panel-borderColor)",
+          "panel-header-bottom": "var(--app-panel-header-bottom-borderColor)",
           accordion: {
             outer: "var(--app-accordion-outer-borderColor)",
             inner: "var(--app-accordion-inner-borderColor)",

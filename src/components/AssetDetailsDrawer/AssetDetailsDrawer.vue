@@ -12,6 +12,14 @@
       class="h-full"
       @toggle="$emit('toggle')"
     >
+      <template #header-label>
+        <DrawerLabel
+          :label="assetTitle"
+          :class="{
+            'text-2xl': isOpen,
+          }"
+        />
+      </template>
       <WidgetList v-if="assetId" :assetId="assetId" />
       <MoreLikeThis :items="moreLikeThisItems" />
     </Drawer>
@@ -25,6 +33,7 @@ import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
+import DrawerLabel from "../Drawer/DrawerLabel.vue";
 
 const props = withDefaults(
   defineProps<{
