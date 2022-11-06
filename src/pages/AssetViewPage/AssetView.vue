@@ -1,7 +1,7 @@
 <template>
   <div class="h-full relative">
     <ObjectViewer
-      class="h-[75vh] md:h-auto md:absolute md:top-0"
+      class="h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-x-app border-b-app"
       :class="{
         'md:top-0 md:bottom-1/2 md:left-sm md:right-0':
           isAssetDetailsOpen && isObjectDetailsOpen, // both open
@@ -19,7 +19,7 @@
       class="md:absolute md:overflow-y-scroll"
       :class="{
         'md:bottom-0 md:left-0 md:top-0 md:w-sm': isAssetDetailsOpen, // both open + asset details open
-        'md:bottom-0 md:left-0 md:h-16 md:right-sm':
+        'md:bottom-0 md:left-0 md:h-16 md:right-sm border-r-app':
           !isAssetDetailsOpen && isObjectDetailsOpen, // just obj panel
         'md:bottom-0 md:left-0 md:h-16 md:w-1/2':
           !isAssetDetailsOpen && !isObjectDetailsOpen, //neither open
@@ -32,9 +32,10 @@
     <ObjectDetailsDrawer
       class="md:absolute"
       :class="{
+        'border-l-app': !isObjectDetailsOpen,
         'md:bottom-0 md:right-0 md:h-16 md:left-sm':
           !isObjectDetailsOpen && isAssetDetailsOpen, // just asset open
-        'md:bottom-0 md:right-0 md:h-1/2 md:left-sm':
+        'md:bottom-0 md:right-0 md:h-1/2 md:left-sm border-l-app':
           isObjectDetailsOpen && isAssetDetailsOpen, // both panels open
         'md:bottom-0 md:right-0 md:top-0 md:w-sm':
           isObjectDetailsOpen && !isAssetDetailsOpen, // just object open

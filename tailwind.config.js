@@ -63,6 +63,9 @@ module.exports = {
           },
         },
       }),
+      borderWidth: () => ({
+        app: "var(--app-borderWidth)",
+      }),
       borderColor: () => ({
         app: {
           DEFAULT: "var(--app-borderColor)",

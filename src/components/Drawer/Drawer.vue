@@ -1,7 +1,7 @@
 <template>
-  <section class="drawer flex flex-col border-app-panel overflow-auto">
+  <section class="drawer flex flex-col overflow-auto">
     <header
-      class="flex items-center sticky top-0 left-0 justify-between z-10 bg-app-panel-header text-app-panel-header backdrop-blur-sm border-top-none"
+      class="flex items-center sticky top-0 left-0 justify-between z-10 bg-app-panel-header text-app-panel-header backdrop-blur-sm"
       :class="{
         'h-full': !isOpen,
       }"
