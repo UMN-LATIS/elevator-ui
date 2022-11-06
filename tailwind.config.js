@@ -27,6 +27,10 @@ module.exports = {
             header: "var(--app-detailsPanel-header-textColor)",
             body: "var(--app-detailsPanel-body-textColor)",
           },
+          accordion: {
+            header: "var(--app-accordion-header-textColor)",
+            body: "var(--app-accordion-body-textColor)",
+          },
         },
       }),
       fontSize: () => ({
@@ -60,16 +64,24 @@ module.exports = {
         },
       }),
       borderColor: () => ({
-        DEFAULT: "var(--app-borderColor)",
-        panel: "var(--app-panel-borderColor)",
-        accordion: "var(--app-accordion-borderColor)",
-      }),
-      spacing: {
         app: {
-          panel: {
-            items: "var(--app-panel-items-spacing)",
+          DEFAULT: "var(--app-borderColor)",
+          panel: "var(--app-panel-borderColor)",
+          accordion: {
+            outer: "var(--app-accordion-outer-borderColor)",
+            inner: "var(--app-accordion-inner-borderColor)",
           },
         },
+      }),
+      gap: () => ({
+        // nesting doesn't seem to work here
+        // so we hyphenate to give a similar name schema
+        // to other props
+        "app-panel-items": "var(--app-panel-items-gap)",
+        "app-widgetList": "var(--app-widgetList-gap)",
+      }),
+      spacing: {
+        "app-panel-body-margin": "var(--app-panel-items-gap)",
         xs: "20rem" /* 320px */,
         sm: "24rem" /* 384px */,
         md: "28rem" /* 448px */,

@@ -8,10 +8,10 @@
 * e.g. `--color-blue-500`
 */
 :root {
-  --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif;
-  --app-textColor: var(--color-neutral-900);
-  --app-backgroundColor: var(--color-neutral-100);
-  --app-borderColor: var(--color-neutral-900);
+  --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif; /* ✅ */
+  --app-textColor: var(--color-neutral-900); /* ✅ */
+  --app-backgroundColor: var(--color-neutral-100); /* ✅ */
+  --app-borderColor: var(--color-neutral-900); /* ✅ */
 
   --app-appHeader-backgroundColor: transparent;
   --app-wordmark-textColor: var(--app-textColor);
@@ -19,12 +19,14 @@
   --app-link-textColor: var(--color-blue-600);
   --app-link-hover-textColor: var(--color-blue-700);
 
-  --app-panel-header-textColor: var(--app-textColor);
-  --app-panel-body-textColor: var(--app-textColor);
-  --app-panel-borderColor: var(--app-borderColor);
-  --app-panel-header-backgroundColor: transparent;
-  --app-panel-body-backgroundColor: transparent;
-  --app-panel-items-spacing: 1.5rem;
+  --app-panel-header-textColor: var(--app-textColor); /* ✅ */
+  --app-panel-body-textColor: var(--app-textColor); /* ✅ */
+  --app-panel-borderColor: var(--app-borderColor); /* ✅ */
+  --app-panel-header-backgroundColor: transparent; /* ✅ */
+  --app-panel-body-backgroundColor: transparent; /* ✅ */
+  --app-panel-items-gap: 1.5rem; /* ✅ */
+
+  --app-widgetList-gap: var(--app-panel-items-gap); /* ✅ */
 
   --app-assetPanel-header-textColor: var(--app-textColor);
   --app-assetPanel-body-textColor: var(--app-textColor);
@@ -39,13 +41,17 @@
 
   --app-objectViewer-backgroundColor: transparent;
 
-  --app-accordion-header-backgroundColor: transparent;
-  --app-accordion-body-backgroundColor: transparent;
-  --app-accordion-borderColor: var(--app-borderColor);
+  --app-accordion-header-backgroundColor: transparent; /* ✅ */
+  --app-accordion-header-textColor: var(--app-textColor); /* ✅ */
+  --app-accordion-body-backgroundColor: transparent; /* ✅ */
+  --app-accordion-body-textColor: var(--app-textColor); /* ✅ */
+  --app-accordion-outer-borderColor: var(--color-neutral-500); /* ✅ */
+  --app-accordion-inner-borderColor: transparent; /* ✅ */
 }
 
 .theme-test {
   /* background: red; */
+  /* --app-borderColor: var(--color-red-600); */
 }
 
 .theme-umn-maroon {
@@ -62,6 +68,7 @@
     font-family: var(--app-fontFamily);
     color: var(--app-textColor);
     background-color: var(--app-backgroundColor);
+    border-color: var(--app-borderColor);
   }
 
   .app a {
