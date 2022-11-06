@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-umn-gold-light flex justify-between items-center p-4 border-b-app"
+    class="bg-app-appHeader flex justify-between items-center p-4 border-b-app"
   >
     <div class="flex items-center gap-4">
       <a :href="config.base.url">
