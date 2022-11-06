@@ -1,12 +1,9 @@
 <template>
-  <section class="drawer bg-neutral-100 flex flex-col">
+  <section class="drawer flex flex-col border-app-panel overflow-auto">
     <header
-      class="flex items-center sticky top-0 left-0 justify-between z-10"
+      class="flex items-center sticky top-0 left-0 justify-between z-10 bg-app-panel-header text-app-panel-header backdrop-blur-sm border-top-none"
       :class="{
-        'bg-neutral-50': variant === 'primary',
-        'bg-neutral-900 text-neutral-200': variant === 'secondary',
         'h-full': !isOpen,
-        'md:py-4': variant === 'primary' && isOpen,
       }"
     >
       <button
@@ -15,11 +12,11 @@
         @click="$emit('toggle')"
       >
         <span v-if="showToggle">
-          <ChevronDownIcon v-if="isOpen" />
-          <ChevronUpIcon v-if="!isOpen" />
+          <ChevronDownIcon v-if="isOpen" class="w-5 h-5" />
+          <ChevronUpIcon v-if="!isOpen" class="w-5 h-5" />
         </span>
         <slot name="header-label">
-          <DrawerLabel :label="label" :variant="variant" :isOpen="isOpen" />
+          <DrawerLabel :label="label" :isOpen="isOpen" />
         </slot>
       </button>
 
@@ -30,10 +27,7 @@
 
     <div
       v-show="isOpen"
-      class="text-neutral-500 flex flex-col gap-8 px-4 py-8 md:p-8 flex-1 h-min overflow-auto"
-      :class="{
-        'bg-neutral-200': variant === 'secondary',
-      }"
+      class="text-app-panel-body flex flex-col gap-app-panel-items px-4 md:p-8 flex-1 bg-app-assetPanel-body"
     >
       <slot />
     </div>
@@ -47,14 +41,12 @@ import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
 withDefaults(
   defineProps<{
     label: string;
-    variant?: "primary" | "secondary";
     isOpen?: boolean;
     showToggle?: boolean;
   }>(),
   {
     isOpen: true,
     showToggle: true,
-    variant: "primary",
   }
 );
 

@@ -1,6 +1,9 @@
 <template>
   <Transition name="fade">
-    <div v-if="asset && template" class="widget-list flex flex-col gap-8">
+    <div
+      v-if="asset && template"
+      class="widget-list flex flex-col gap-app-widgetList"
+    >
       <Widget
         v-for="widget in widgets"
         :key="widget.widgetId"
