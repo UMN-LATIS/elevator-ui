@@ -92,7 +92,7 @@ const mockTemplate: Template = {
       label: "Cascade Select",
       tooltip: "",
       fieldData: {
-        country: {
+        "base country": {
           usa: {
             state: {
               minnesota: {

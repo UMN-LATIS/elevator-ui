@@ -50,7 +50,7 @@ const mockAsset: Asset = {
       fieldContents: {
         city: "faketown",
         state: "alberta",
-        country: "canada",
+        basecountry: "canada",
         neighborhood: "",
       },
       isPrimary: false,

@@ -26,8 +26,14 @@ interface Props {
 const props = defineProps<Props>();
 
 const organizedSelectCategories = computed(() => {
-  return uniqueValues(recursiveSort(props.widget.fieldData, false));
+  return uniqueValues(recursiveSort(props.widget.fieldData, false)).map(
+    makeSafeForTitle
+  );
 });
+
+const makeSafeForTitle = (title) => {
+  return title.replace(/[^a-zA-Z0-9]+/, "");
+};
 
 const contentsUpToCategory = (targetCategory) => {
   const returnValue: string[] = [];
