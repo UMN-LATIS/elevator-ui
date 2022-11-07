@@ -1,7 +1,5 @@
 <template>
-  <header
-    class="app-header bg-app-appHeader flex justify-between items-center p-4 border-b-app"
-  >
+  <header class="app-header flex justify-between items-center px-4 py-2">
     <div class="flex items-center gap-4">
       <a :href="config.base.url">
         <h1 class="h-12">
@@ -13,13 +11,21 @@
         </h1>
       </a>
     </div>
+    <div class="flex gap-2 items-center">
+      <ThemeSelector />
+      <Button variant="primary" class="rounded-full p-2"><MenuIcon /></Button>
+    </div>
   </header>
 </template>
 <script setup lang="ts">
 import { MenuItem, Image } from "@/types";
 import defaultLogoImg from "./defaultLogoImg";
 import defaultPageMenuItems from "./defaultPageMenuItems";
+import Button from "@/components/Button/Button.vue";
 import config from "@/config";
+import MenuIcon from "@/icons/MenuIcon.vue";
+import ThemeIcon from "@/icons/ThemeIcon.vue";
+import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";
 
 withDefaults(
   defineProps<{

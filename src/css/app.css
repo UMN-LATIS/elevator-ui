@@ -139,6 +139,12 @@
   --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
 }
 
+[data-theme="dark"] {
+  body {
+
+  }
+}
+
 .theme-test {
   /* background: red; */
   /* --app-borderColor: var(--color-red-600); */
