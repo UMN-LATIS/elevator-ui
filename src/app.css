@@ -154,19 +154,19 @@
 }
 
 @layer base {
-  .app {
+  body {
     font-family: var(--app-fontFamily);
     color: var(--app-textColor);
     background-color: var(--app-backgroundColor);
     border-color: var(--app-borderColor);
   }
 
-  .app a {
+  a {
     text-decoration: none;
     color: var(--app-color-link);
   }
 
-  .app a:hover {
+  a:hover {
     text-decoration: underline;
   }
 }

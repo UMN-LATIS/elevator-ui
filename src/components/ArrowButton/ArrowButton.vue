@@ -1,5 +1,9 @@
 <template>
-  <Button class="arrow-button rounded-full p-2" variant="primary">
+  <Button
+    class="arrow-button rounded-full p-2"
+    variant="primary"
+    v-bind="$attrs"
+  >
     <slot />
     <ArrowForwardIcon />
   </Button>

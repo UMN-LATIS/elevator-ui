@@ -1,7 +1,6 @@
 <template>
   <component
-    :is="href ? 'a' : 'button'"
-    :href="href"
+    :is="componentType"
     class="button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group"
     :class="{
       'button--primary p-4': variant === 'primary',
@@ -9,24 +8,34 @@
       'button--tertiary': variant === 'tertiary',
     }"
     v-bind="$attrs"
+    :to="to"
+    :href="href"
   >
     <slot />
   </component>
 </template>
 <script setup lang="ts">
-withDefaults(
+import { computed } from "vue";
+import { RouterLink } from "vue-router";
+
+const props = withDefaults(
   defineProps<{
     href?: string;
+    to?: string;
     variant?: "primary" | "secondary" | "tertiary";
   }>(),
   {
-    icon: undefined,
     variant: "secondary",
-    label: undefined,
     href: undefined,
-    iconPosition: "end",
+    to: undefined,
   }
 );
+
+const componentType = computed(() => {
+  if (props.href) return "a";
+  if (props.to) return RouterLink;
+  return "button";
+});
 </script>
 <style lang="postcss">
 .button {
