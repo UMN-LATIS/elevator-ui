@@ -29,13 +29,13 @@
   /**
   * Panel (Drawer)
   */
-  --app-panel-header-textColor: var(--app-textColor); /* ✅ */
-  --app-panel-body-textColor: var(--app-textColor); /* ✅ */
-  --app-panel-borderColor: var(--app-borderColor); /* ✅ */
-  --app-panel-header-backgroundColor: rgba(255 255 255 / 0.5); /* ✅ */
-  --app-panel-header-bottom-borderColor: white; /* ✅ */
-  --app-panel-body-backgroundColor: transparent; /* ✅ */
-  --app-panel-items-gap: 1.5rem; /* ✅ */
+  --app-panel-borderColor: var(--app-borderColor);
+  --app-panel-header-textColor: var(--app-textColor);
+  --app-panel-header-backgroundColor: rgba(255 255 255 / 0.5);
+  --app-panel-body-top-borderColor: white;
+  --app-panel-body-textColor: var(--app-textColor);
+  --app-panel-body-backgroundColor: transparent;
+  --app-panel-body-items-gap: 1.5rem;
 
   /**
   * Object Viewer
@@ -45,27 +45,33 @@
   /**
   * Widget List
   */
-  --app-widgetList-gap: var(--app-panel-items-gap); /* ✅ */
+  --app-widgetList-gap: var(--app-panel-body-items-gap);
 
   /**
   * Accordion
   */
-  --app-accordion-header-backgroundColor: transparent; /* ✅ */
-  --app-accordion-header-textColor: var(--app-textColor); /* ✅ */
-  --app-accordion-body-backgroundColor: transparent; /* ✅ */
-  --app-accordion-body-textColor: var(--app-textColor); /* ✅ */
-  --app-accordion-outer-borderColor: var(--color-neutral-500); /* ✅ */
-  --app-accordion-inner-borderColor: transparent; /* ✅ */
+  --app-accordion-header-backgroundColor: transparent;
+  --app-accordion-header-textColor: var(--app-textColor);
+  --app-accordion-body-backgroundColor: transparent;
+  --app-accordion-body-textColor: var(--app-textColor);
+  --app-accordion-outer-borderWidth: 1px;
+  --app-accordion-outer-borderColor: var(--color-neutral-500);
+  --app-accordion-inner-borderWidth: 1px;
+  --app-accordion-inner-borderColor: transparent;
 
   /*************************BUTTONS*************************/
+
+  /* primary and secondary have borders*/
+    --app-button-borderWidth: 2px;
+    --app-button-fontWeight: 500;
 
   /**
   * Button Primary (default)
   */
+
   --app-button-primary-borderColor: var(--app-button-primary-backgroundColor);
   --app-button-primary-backgroundColor: var(--color-neutral-900);
   --app-button-primary-textColor: white;
-  --app-button-borderWidth: 1px; /* primary and secondary */
 
   /* Button Primary :hover */
   --app-button-primary-hover-borderColor: var(

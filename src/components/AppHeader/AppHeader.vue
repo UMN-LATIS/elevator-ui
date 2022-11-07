@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-app-appHeader flex justify-between items-center p-4 border-b-app"
+    class="app-header bg-app-appHeader flex justify-between items-center p-4 border-b-app"
   >
     <div class="flex items-center gap-4">
       <a :href="config.base.url">
@@ -32,4 +32,9 @@ withDefaults(
   }
 );
 </script>
-<style scoped></style>
+<style scoped>
+.app-header {
+  background: var(--app-appHeader-backgroundColor);
+  border-bottom: var(--app-borderWidth) solid var(--app-borderColor);
+}
+</style>

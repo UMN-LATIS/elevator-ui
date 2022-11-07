@@ -1,7 +1,7 @@
 <template>
-  <section class="drawer flex flex-col overflow-auto">
+  <section class="panel flex flex-col overflow-auto">
     <header
-      class="flex items-center sticky top-0 left-0 justify-between z-10 bg-app-panel-header text-app-panel-header backdrop-blur-[2px] border-b-app border-b-app-panel-header-bottom"
+      class="panel__header flex items-center sticky top-0 left-0 justify-between z-10 backdrop-blur-[2px]"
       :class="{
         'h-full': !isOpen,
       }"
@@ -20,14 +20,14 @@
         </slot>
       </button>
 
-      <div>
+      <div class="panel__header-utils">
         <slot name="header-utils"></slot>
       </div>
     </header>
 
     <div
       v-show="isOpen"
-      class="text-app-panel-body flex flex-col gap-app-panel-items px-4 md:p-8 flex-1 bg-app-assetPanel-body"
+      class="panel__body flex flex-col gap-6 px-4 md:p-8 flex-1"
     >
       <slot />
     </div>
@@ -55,6 +55,21 @@ defineEmits<{
 }>();
 </script>
 <style scoped>
+.panel {
+  border-color: var(--app-panel-borderColor);
+}
+.panel__header {
+  background: var(--app-panel-header-backgroundColor);
+  color: var(--app-panel-header-textColor);
+}
+
+.panel__body {
+  background: var(--app-panel-body-backgroundColor);
+  color: var(--app-body-textColor);
+  border-top-color: var(--app-panel-body-top-borderColor);
+  gap: var(--app-panel-body-items-gap);
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 0.5rem;

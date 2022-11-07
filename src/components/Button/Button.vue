@@ -2,14 +2,11 @@
   <component
     :is="href ? 'a' : 'button'"
     :href="href"
-    class="inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group"
+    class="button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group"
     :class="{
-      'border-app-button-borderWidth border-app-button-primary bg-app-button-primary text-app-button-primary hover:bg-app-button-primary-hover hover:text-app-button-primary-hover hover:border-app-button-primary-hover disabled:bg-app-button-primary-disabled disabled:text-app-button-primary-disabled disabled:border-app-button-primary-disabled active:bg-app-button-primary-active active:border-app-button-primary-active active:text-app-button-primary-active p-4':
-        variant === 'primary',
-      'border-app-button-borderWidth border-app-button-secondary bg-app-button-secondary text-app-button-secondary hover:bg-app-button-secondary-hover hover:text-app-button-secondary-hover hover:border-app-button-secondary-hover disabled:bg-app-button-secondary-disabled disabled:text-app-button-secondary-disabled disabled:border-app-button-secondary-disabled active:bg-app-button-secondary-active active:text-app-button-secondary-active active:border-app-button-secondary-active p-4':
-        variant === 'secondary',
-      'font-medium uppercase text-sm px-2 border-app-button-tertiary bg-app-button-tertiary text-app-button-tertiary hover:bg-app-button-tertiary-hover hover:text-app-button-tertiary-hover hover:border-app-button-tertiary-hover disabled:bg-app-button-tertiary-disabled disabled:text-app-button-tertiary-disabled active:bg-app-button-tertiary-active active:text-app-button-tertiary-active disabled:line-through':
-        variant === 'tertiary',
+      'button--primary p-4': variant === 'primary',
+      'button--secondary p-4': variant === 'secondary',
+      'button--tertiary': variant === 'tertiary',
     }"
     v-bind="$attrs"
   >
@@ -31,4 +28,75 @@ withDefaults(
   }
 );
 </script>
-<style scoped></style>
+<style lang="postcss">
+.button {
+  border-width: var(--app-button-borderWidth);
+  border-style: solid;
+  font-weight: var(--app-button-fontWeight);
+}
+.button--primary {
+  color: var(--app-button-primary-textColor);
+  background: var(--app-button-primary-backgroundColor);
+  border-color: var(--app-button-primary-borderColor);
+  &:hover {
+    color: var(--app-button-primary-hover-textColor);
+    background: var(--app-button-primary-hover-backgroundColor);
+    border-color: var(--app-button-primary-hover-borderColor);
+  }
+  &:active {
+    color: var(--app-button-primary-active-textColor);
+    background: var(--app-button-primary-active-backgroundColor);
+    border-color: var(--app-button-primary-active-borderColor);
+  }
+  &:disabled {
+    color: var(--app-button-primary-disabled-textColor);
+    background: var(--app-button-primary-disabled-backgroundColor);
+    border-color: var(--app-button-primary-disabled-borderColor);
+  }
+}
+
+.button--secondary {
+  color: var(--app-button-secondary-textColor);
+  background: var(--app-button-secondary-backgroundColor);
+  border-color: var(--app-button-secondary-borderColor);
+  &:hover {
+    color: var(--app-button-secondary-hover-textColor);
+    background: var(--app-button-secondary-hover-backgroundColor);
+    border-color: var(--app-button-secondary-hover-borderColor);
+  }
+  &:active {
+    color: var(--app-button-secondary-active-textColor);
+    background: var(--app-button-secondary-active-backgroundColor);
+    border-color: var(--app-button-secondary-active-borderColor);
+  }
+  &:disabled {
+    color: var(--app-button-secondary-disabled-textColor);
+    background: var(--app-button-secondary-disabled-backgroundColor);
+    border-color: var(--app-button-secondary-disabled-borderColor);
+  }
+}
+
+.button--tertiary {
+  @apply text-sm px-2 uppercase font-medium;
+  color: var(--app-button-tertiary-textColor);
+  background: var(--app-button-tertiary-backgroundColor);
+  border-color: var(--app-button-tertiary-borderColor);
+  border: none;
+  &:hover {
+    color: var(--app-button-tertiary-hover-textColor);
+    background: var(--app-button-tertiary-hover-backgroundColor);
+    border-color: var(--app-button-tertiary-hover-borderColor);
+  }
+  &:active {
+    color: var(--app-button-tertiary-active-textColor);
+    background: var(--app-button-tertiary-active-backgroundColor);
+    border-color: var(--app-button-tertiary-active-borderColor);
+  }
+  &:disabled {
+    text-decoration: line-through;
+    color: var(--app-button-tertiary-disabled-textColor);
+    background: var(--app-button-tertiary-disabled-backgroundColor);
+    border-color: var(--app-button-tertiary-disabled-borderColor);
+  }
+}
+</style>
