@@ -3,6 +3,7 @@
   <div v-if="show" v-html="fieldContents"></div>
 
   <button
+    v-if="isTruncated"
     class="flex items-center uppercase text-xs text-blue-600"
     @click="show = !show"
   >
