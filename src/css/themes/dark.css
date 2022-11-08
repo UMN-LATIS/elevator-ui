@@ -157,4 +157,11 @@
   --app-scrollbar-thumb-backgroundColor: var(--darktheme-yellow-600);
   --app-scrollbar-thumb-hover-backgroundColor: var(--color-amber-700);
   --app-scrollbar-track-backgroundColor: var(--darktheme-blue-900);
+
+  /** Meta Data Only Page */
+  --app-metaDataOnlyView-backgroundColor: var(--darktheme-blue-800);
+  --app-metaDataOnlyView-contentViewer-backgroundColor: var(
+    --darktheme-blue-650
+  );
+  --app-metaDataOnlyView-contentViewer-textColor: var(--darktheme-yellow-500);
 }

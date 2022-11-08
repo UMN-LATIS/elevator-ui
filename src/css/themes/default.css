@@ -146,4 +146,9 @@
   --app-scrollbar-thumb-backgroundColor: #aaa;
   --app-scrollbar-thumb-hover-backgroundColor: #555;
   --app-scrollbar-track-backgroundColor: rgba(255, 255, 255, 33%);
+
+  /** Meta Data Only Page */
+  --app-metaDataOnlyView-backgroundColor: var(--color-neutral-300);
+  --app-metaDataOnlyView-contentViewer-backgroundColor: var(--color-neutral-50);
+  --app-metaDataOnlyView-contentViewer-textColor: var(--color-neutral-900);
 }

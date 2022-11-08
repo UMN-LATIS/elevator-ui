@@ -1,10 +1,10 @@
 <template>
-  <div class="h-full bg-neutral-300 sm:p-8">
+  <div class="meta-data-only-view h-full sm:p-8">
     <article
-      class="m-auto sm:max-w-3xl bg-white h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-8"
+      class="meta-data-only-view__article m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-12"
     >
       <h2
-        class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:bg-neutral-900 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
+        class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
       >
         {{ assetTitle }}
       </h2>
@@ -29,3 +29,16 @@ const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
 </script>
+<style scoped>
+.meta-data-only-view {
+  background: var(--app-metaDataOnlyView-backgroundColor);
+}
+.meta-data-only-view__article {
+  background: var(--app-metaDataOnlyView-contentViewer-backgroundColor);
+  color: var(--app-metaDataOnlyView-contentViewer-textColor);
+}
+
+.meta-data-only-view__article h2:after {
+  background: var(--app-metaDataOnlyView-contentViewer-textColor);
+}
+</style>
