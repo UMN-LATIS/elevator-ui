@@ -21,6 +21,7 @@ import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useTitle } from "@vueuse/core";
+import { striptags } from "striptags";
 
 const assetStore = useAssetStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
@@ -58,7 +59,7 @@ async function onAssetIdChange() {
 
   // if there's an asset, set the page title
   const assetTitle = getAssetTitle(asset);
-  pageTitle.value = `${assetTitle} | ${config.instance.name}`;
+  pageTitle.value = `${striptags(assetTitle)} | ${config.instance.name}`;
   useTitle(pageTitle);
 
   isPageLoaded.value = true;
