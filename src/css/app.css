@@ -5,22 +5,21 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    font-family: var(--app-fontFamily);
-    color: var(--app-textColor);
-    background-color: var(--app-backgroundColor);
-    border-color: var(--app-borderColor);
-  }
+body {
+  font-family: var(--app-fontFamily);
+  color: var(--app-textColor);
+  background-color: var(--app-backgroundColor);
+  border-color: var(--app-borderColor);
+}
 
-  a {
-    text-decoration: none;
-    color: var(--app-color-link);
-  }
+a {
+  text-decoration: none;
+  color: var(--app-link-textColor);
+}
 
-  a:hover {
-    text-decoration: underline;
-  }
+a:hover {
+  color: var(--app-link-hover-textColor);
+  text-decoration: underline;
 }
 
 @layer utilities {

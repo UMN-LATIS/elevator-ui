@@ -1,7 +1,10 @@
 <template>
   <header class="app-header flex justify-between items-center px-4 py-2">
     <div>
-      <a :href="config.base.url" class="flex items-center gap-4">
+      <a
+        :href="config.base.url"
+        class="flex items-center gap-4 hover:no-underline"
+      >
         <ElevatorIcon class="h-full app-header__icon" />
         <h1 class="app-header__wordmark font-bold text-xl">
           {{ title }}
@@ -49,9 +52,12 @@ withDefaults(
     var(--app-appHeader-borderBottomColor);
   color: var(--app-appHeader-textColor);
 }
+.app-header__wordmark {
+  color: var(--app-appHeader-wordmark-textColor);
+}
 
 .app-header__icon {
-  color: var(--app-appHeader-textColor);
+  color: var(--app-appHeader-logo-color);
 }
 
 .app-header__menu-button {
