@@ -13,10 +13,10 @@ export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
 }
 
 export const getTinyURL = (fileObjectId: string): string =>
-  `${config.base.url}/fileManager/tinyImageByFileId/${fileObjectId}/true`;
+  `${config.instance.base.url}/fileManager/tinyImageByFileId/${fileObjectId}/true`;
 
 export const getThumbURL = (fileObjectId: string): string =>
-  `${config.base.url}/fileManager/previewImageByFileId/${fileObjectId}/true`;
+  `${config.instance.base.url}/fileManager/previewImageByFileId/${fileObjectId}/true`;
 
 export const getAssetUrl = (assetId: string): string =>
   `/asset/viewAsset/${assetId}`;
@@ -104,14 +104,14 @@ export function toClickToSearchUrl(
 
   if (widgetProps.clickToSearchType === 0) {
     return (
-      config.base.url +
+      config.instance.base.url +
       "/search/querySearch/" +
       encodeURIComponent(cleanedLinkText)
     );
   }
 
   return (
-    config.base.url +
+    config.instance.base.url +
     "/search/scopedQuerySearch/" +
     widgetProps.fieldTitle +
     "/" +

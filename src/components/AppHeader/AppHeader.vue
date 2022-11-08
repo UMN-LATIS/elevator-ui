@@ -2,7 +2,7 @@
   <header class="app-header flex justify-between items-center px-4 py-2">
     <div>
       <a
-        :href="config.base.url"
+        :href="config.instance.base.url"
         class="flex items-center gap-4 hover:no-underline"
       >
         <ElevatorIcon class="h-full app-header__icon" />
@@ -41,7 +41,7 @@ withDefaults(
   {
     logoImg: () => defaultLogoImg,
     menuItems: () => defaultPageMenuItems,
-    title: () => config.title,
+    title: () => config.instance.name,
   }
 );
 </script>

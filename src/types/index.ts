@@ -1,9 +1,11 @@
 export interface AppConfig {
-  title: string;
-  base: {
-    origin: string;
-    path: string;
-    url: string;
+  instance: {
+    name: string;
+    base: {
+      origin: string;
+      path: string;
+      url: string;
+    };
   };
   arcgis: {
     apiKey: string;

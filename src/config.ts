@@ -2,11 +2,13 @@ import { mergeDeepRight } from "ramda";
 import { AppConfig } from "@/types";
 
 const defaultConfig: AppConfig = {
-  title: import.meta.env.VITE_BASE_TITLE ?? "Elevator",
-  base: {
-    origin: import.meta.env.VITE_BASE_ORIGIN ?? "https://localhost",
-    path: import.meta.env.VITE_BASE_PATH ?? "/",
-    url: import.meta.env.VITE_BASE_URL ?? "https://localhost/",
+  instance: {
+    name: import.meta.env.VITE_INSTANCE_NAME ?? "Elevator",
+    base: {
+      origin: import.meta.env.VITE_BASE_ORIGIN ?? "https://localhost",
+      path: import.meta.env.VITE_BASE_PATH ?? "/",
+      url: import.meta.env.VITE_BASE_URL ?? "https://localhost/",
+    },
   },
   arcgis: {
     apiKey:
@@ -18,6 +20,9 @@ const defaultConfig: AppConfig = {
 };
 
 // merge default config with anything on window.Elevator.config
-const config = mergeDeepRight(defaultConfig, window?.Elevator?.config ?? {});
+const config: AppConfig = mergeDeepRight(
+  defaultConfig,
+  window?.Elevator?.config ?? {}
+);
 
 export default config;
