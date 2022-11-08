@@ -10,7 +10,7 @@
       @click.self="$emit('close')"
     >
       <div
-        class="bg-neutral-50 border absolute inset-4 md:inset-16 rounded-2xl flex flex-col overflow-hidden max-w-[60rem] m-auto"
+        class="bg-neutral-50 border absolute rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[80vh] m-auto w-full"
         v-bind="$attrs"
       >
         <XButton
