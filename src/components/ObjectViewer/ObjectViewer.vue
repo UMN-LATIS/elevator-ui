@@ -1,5 +1,5 @@
 <template>
-  <section class="object-viewer bg-neutral-300">
+  <section class="object-viewer">
     <h2 class="sr-only">Object Viewer</h2>
     <iframe
       v-if="fileHandlerId"
@@ -25,3 +25,8 @@ defineProps<{
   fileHandlerId: string | null;
 }>();
 </script>
+<style scoped>
+.object-viewer {
+  background: var(--app-objectViewer-backgroundColor);
+}
+</style>

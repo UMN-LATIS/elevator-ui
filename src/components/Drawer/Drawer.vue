@@ -1,12 +1,9 @@
 <template>
-  <section class="drawer bg-neutral-100 flex flex-col">
+  <section class="panel flex flex-col overflow-auto">
     <header
-      class="flex items-center sticky top-0 left-0 justify-between z-10"
+      class="panel__header flex items-center sticky top-0 left-0 justify-between z-10 backdrop-blur-[2px]"
       :class="{
-        'bg-neutral-50': variant === 'primary',
-        'bg-neutral-900 text-neutral-200': variant === 'secondary',
         'h-full': !isOpen,
-        'md:py-4': variant === 'primary' && isOpen,
       }"
     >
       <button
@@ -15,25 +12,22 @@
         @click="$emit('toggle')"
       >
         <span v-if="showToggle">
-          <ChevronDownIcon v-if="isOpen" />
-          <ChevronUpIcon v-if="!isOpen" />
+          <ChevronDownIcon v-if="isOpen" class="w-5 h-5" />
+          <ChevronUpIcon v-if="!isOpen" class="w-5 h-5" />
         </span>
         <slot name="header-label">
-          <DrawerLabel :label="label" :variant="variant" :isOpen="isOpen" />
+          <DrawerLabel :label="label" :isOpen="isOpen" />
         </slot>
       </button>
 
-      <div>
+      <div class="panel__header-utils">
         <slot name="header-utils"></slot>
       </div>
     </header>
 
     <div
       v-show="isOpen"
-      class="text-neutral-500 flex flex-col gap-8 px-4 py-8 md:p-8 flex-1 h-min overflow-auto"
-      :class="{
-        'bg-neutral-200': variant === 'secondary',
-      }"
+      class="panel__body flex flex-col gap-6 px-4 md:p-8 flex-1"
     >
       <slot />
     </div>
@@ -47,14 +41,12 @@ import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
 withDefaults(
   defineProps<{
     label: string;
-    variant?: "primary" | "secondary";
     isOpen?: boolean;
     showToggle?: boolean;
   }>(),
   {
     isOpen: true,
     showToggle: true,
-    variant: "primary",
   }
 );
 
@@ -63,23 +55,15 @@ defineEmits<{
 }>();
 </script>
 <style scoped>
-/* width */
-::-webkit-scrollbar {
-  width: 0.5rem;
+.panel__header {
+  background: var(--app-panel-header-backgroundColor);
+  color: var(--app-panel-header-textColor);
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 33%);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #ccc;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.panel__body {
+  background: var(--app-panel-body-backgroundColor);
+  color: var(--app-body-textColor);
+  border-top-color: var(--app-panel-body-top-borderColor);
+  gap: var(--app-panel-body-items-gap);
 }
 </style>

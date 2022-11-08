@@ -1,0 +1,77 @@
+@import "themes/default.css";
+@import "themes/dark.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: var(--app-fontFamily);
+    color: var(--app-textColor);
+    background-color: var(--app-backgroundColor);
+    border-color: var(--app-borderColor);
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--app-color-link);
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+@layer utilities {
+  /* text will write vertically from bottom to top */
+  .sideways {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /**
+* adapted from from a11y project's `visually-hidden` class
+* changed from `absolute` to `fixed` positioning
+* to avoid an issue when using this within a flexbox
+**/
+  .visually-hidden,
+  .sr-only {
+    position: fixed;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  ::-webkit-scrollbar {
+    width: var(--app-scrollbar-width, 0.5rem);
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: var(
+      --app-scrollbar-track-backgroundColor,
+      rgba(255, 255, 255, 33%)
+    );
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: var(--app-scrollbar-thumb-backgroundColor, #aaa);
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--app-scrollbar-thumb-hover-backgroundColor, #555);
+  }
+}

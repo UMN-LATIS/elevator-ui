@@ -18,22 +18,26 @@ export const Primary = Template.bind({});
 Primary.args = {
   slot: "Primary Button",
   variant: "primary",
+  disabled: false,
 };
 
 export const Secondary = Template.bind({});
-Secondary.args = { slot: "Secondary Button", variant: "secondary" };
+Secondary.args = {
+  slot: "Secondary Button",
+  variant: "secondary",
+  disabled: false,
+};
 
 export const Tertiary = Template.bind({});
-Tertiary.args = { slot: "Tertiary Button", variant: "tertiary" };
-
-export const WithIcon = Template.bind({});
-WithIcon.args = {
-  slot: "Button with Icon",
-  icon: "arrow_forward",
+Tertiary.args = {
+  slot: "Tertiary Button",
+  variant: "tertiary",
+  disabled: false,
 };
 
 export const AsLink = Template.bind({});
 AsLink.args = {
   slot: "Link appears as Button",
   href: "https://umn.edu",
+  disabled: false,
 };

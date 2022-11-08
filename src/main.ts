@@ -7,7 +7,7 @@ import "@fontsource/work-sans/400-italic.css";
 import "@fontsource/work-sans/600.css";
 import "@fontsource/work-sans/600-italic.css";
 
-import "./app.css";
+import "./css/app.css";
 
 const app = createApp(App);
 const pinia = createPinia();

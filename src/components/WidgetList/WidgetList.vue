@@ -1,6 +1,6 @@
 <template>
   <Transition name="fade">
-    <div v-if="asset && template" class="widget-list flex flex-col gap-8">
+    <div v-if="asset && template" class="widget-list flex flex-col">
       <Widget
         v-for="widget in widgets"
         :key="widget.widgetId"
@@ -32,6 +32,10 @@ const widgets = computed(() =>
 );
 </script>
 <style scoped>
+.widget-list {
+  gap: var(--app-widgetList-gap);
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.5s ease;

@@ -2,6 +2,7 @@ import { mergeDeepRight } from "ramda";
 import { AppConfig } from "@/types";
 
 const defaultConfig: AppConfig = {
+  title: import.meta.env.VITE_BASE_TITLE ?? "Elevator",
   base: {
     origin: import.meta.env.VITE_BASE_ORIGIN ?? "https://localhost",
     path: import.meta.env.VITE_BASE_PATH ?? "/",
