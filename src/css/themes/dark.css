@@ -50,7 +50,7 @@
   /**
   * Object Viewer
   */
-  --app-objectViewer-backgroundColor: var(--color-neutral-200);
+  --app-objectViewer-backgroundColor: var(--darktheme-blue-800);
 
   /**
   * Widget List
@@ -164,4 +164,6 @@
     --darktheme-blue-650
   );
   --app-metaDataOnlyView-contentViewer-textColor: var(--darktheme-yellow-500);
+
+  /** Modal **/
 }
