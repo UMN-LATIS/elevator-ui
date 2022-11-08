@@ -14,10 +14,8 @@
 import Button from "@/components/Button/Button.vue";
 import config from "@/config";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { useRoute } from "vue-router";
+import { useTitle } from "@vueuse/core";
 
-const route = useRoute();
-
-console.log({ route });
+useTitle(`404 Not Found | ${config.instance.name}`);
 </script>
 <style scoped></style>
