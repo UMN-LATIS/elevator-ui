@@ -4,7 +4,7 @@
       <h1 class="text-8xl font-bold text-neutral-200">404</h1>
       <h2 class="text-4xl mb-8">Page not found</h2>
       <p class="my-4">Sorry. We couldn't find this page.</p>
-      <Button :href="config.base.url" icon="home" iconPosition="start">
+      <Button :href="config.instance.base.url" icon="home" iconPosition="start">
         Go Home
       </Button>
     </div>
