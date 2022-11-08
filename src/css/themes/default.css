@@ -23,6 +23,7 @@
   * Link
   */
   --app-link-textColor: var(--color-blue-600);
+  --app-link-textColor-inverse: var(--app-backgroundColor);
   --app-link-hover-textColor: var(--color-blue-700);
 
   /**
@@ -77,14 +78,14 @@
   --app-button-primary-hover-borderColor: var(
     --app-button-primary-hover-backgroundColor
   );
-  --app-button-primary-hover-backgroundColor: var(--color-blue-700);
+  --app-button-primary-hover-backgroundColor: var(--app-link-hover-textColor);
   --app-button-primary-hover-textColor: white;
 
   /* Button Primary :active */
   --app-button-primary-active-borderColor: var(
     --app-button-primary-active-backgroundColor
   );
-  --app-button-primary-active-backgroundColor: var(--color-blue-800);
+  --app-button-primary-active-backgroundColor: var(--app-link-textColor);
   --app-button-primary-active-textColor: white;
 
   /* Button Primary :disabled */
@@ -158,4 +159,7 @@
   --app-modalContents-textColor: var(--color-nuetral-900);
   --app-modalContents-header-backgroundColor: var(--color-neutral-200);
   --app-modalContents-header-textColor: var(--color-neutral-900);
+
+  /* Thumbnail Image */
+  --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
 }

@@ -4,7 +4,7 @@
     :href="href"
     class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm opacity-75 hover:opacity-100 group transition-all"
     :class="{
-      'ring ring-offset-1 ring-blue-600': isActive,
+      'thumbnail-image--is-active ring ring-offset-1 ring-blue-600': isActive,
     }"
   >
     <div
@@ -37,4 +37,8 @@ withDefaults(
   }
 );
 </script>
-<style scoped></style>
+<style scoped>
+.thumbnail-image--is-active {
+  --tw-ring-color: var(--app-thumbnailImage-active-ringColor);
+}
+</style>

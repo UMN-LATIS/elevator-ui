@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="asset"
-    class="collapsed-inline-related-asset-widget-item flex flex-col gap-8"
+    class="collapsed-inline-related-asset-widget-item flex flex-col"
   >
     <h3>{{ title }}</h3>
     <WidgetList :assetId="assetId" />
@@ -23,4 +23,8 @@ const title = computed(() => getTitleFromCacheItem(props.assetCache));
 const assetIdRef = computed(() => props.assetId);
 const { asset } = useAsset(assetIdRef);
 </script>
-<style scoped></style>
+<style scoped>
+.collapsed-inline-related-asset-widget-item {
+  gap: var(--app-panel-body-items-gap);
+}
+</style>

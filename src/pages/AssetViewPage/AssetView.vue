@@ -77,16 +77,16 @@ const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
 </script>
 <style scoped lang="postcss">
 .border-r-asset-view {
-  border-right: var(--app-panel-borderWidth) solid var(--app-borderColor);
+  border-right: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
 }
 .border-l-asset-view {
-  border-left: var(--app-panel-borderWidth) solid var(--app-borderColor);
+  border-left: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
 }
 .border-b-asset-view {
-  border-bottom: var(--app-panel-borderWidth) solid var(--app-borderColor);
+  border-bottom: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
 }
 .border-t-asset-view {
-  border-top: var(--app-panel-borderWidth) solid var(--app-borderColor);
+  border-top: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
 }
 
 .border-x-asset-view {

@@ -34,6 +34,7 @@
   * Link
   */
   --app-link-textColor: var(--darktheme-yellow-500);
+  --app-link-textColor-inverse: var(--app-backgroundColor);
   --app-link-hover-textColor: var(--darktheme-yellow-600);
 
   /**
@@ -171,6 +172,9 @@
   --app-modalContents-textColor: var(--darktheme-blue-500);
   --app-modalContents-header-backgroundColor: var(--darktheme-blue-650);
   --app-modalContents-header-textColor: var(--darktheme-yellow-500);
+
+  /* Thumbnail Image */
+  --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
 
   /* We can also can tweak styles with plain old CSS selectors */
   & .x-button {

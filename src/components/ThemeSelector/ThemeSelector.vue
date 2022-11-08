@@ -49,7 +49,10 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import { useTheme, type ThemeId } from "./useTheme";
 
-const { activeThemeId, availableThemes } = useTheme();
+const { activeThemeId, availableThemes } = useTheme({
+  themes: [{ id: "hotdog", name: "Hot Dog" }],
+});
+
 const activeThemeName = computed(() => {
   const theme = availableThemes.value.find(
     (theme) => theme.id === activeThemeId.value
@@ -58,7 +61,6 @@ const activeThemeName = computed(() => {
 });
 
 function setTheme(themeId: ThemeId) {
-  console.log(themeId);
   activeThemeId.value = themeId;
 }
 </script>
