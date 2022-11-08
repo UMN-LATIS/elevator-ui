@@ -1,4 +1,5 @@
 export interface AppConfig {
+  title: string;
   base: {
     origin: string;
     path: string;

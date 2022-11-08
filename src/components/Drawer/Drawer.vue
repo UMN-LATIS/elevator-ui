@@ -55,9 +55,6 @@ defineEmits<{
 }>();
 </script>
 <style scoped>
-.panel {
-  border-color: var(--app-panel-borderColor);
-}
 .panel__header {
   background: var(--app-panel-header-backgroundColor);
   color: var(--app-panel-header-textColor);
@@ -68,25 +65,5 @@ defineEmits<{
   color: var(--app-body-textColor);
   border-top-color: var(--app-panel-body-top-borderColor);
   gap: var(--app-panel-body-items-gap);
-}
-
-/* width */
-::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 33%);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #ccc;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 </style>

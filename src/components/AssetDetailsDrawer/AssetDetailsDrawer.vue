@@ -1,10 +1,5 @@
 <template>
-  <div
-    class="asset-details"
-    :class="{
-      'border-t': !isOpen,
-    }"
-  >
+  <div class="asset-details">
     <Drawer
       :label="assetTitle"
       :isOpen="isOpen"

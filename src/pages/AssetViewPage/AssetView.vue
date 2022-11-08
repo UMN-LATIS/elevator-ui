@@ -16,7 +16,7 @@
       :fileHandlerId="assetStore.activeFileObjectId"
     />
     <AssetDetailsDrawer
-      class="asset-view__asset-panel md:absolute md:overflow-y-scroll"
+      class="asset-view__asset-panel md:absolute"
       :class="{
         'asset-view__asset-panel--open': isAssetDetailsOpen,
         'md:bottom-0 md:left-0 md:top-0 md:w-sm': isAssetDetailsOpen, // both open + asset details open
@@ -77,16 +77,16 @@ const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
 </script>
 <style scoped lang="postcss">
 .border-r-asset-view {
-  border-right: var(--app-borderWidth) solid var(--app-borderColor);
+  border-right: var(--app-panel-borderWidth) solid var(--app-borderColor);
 }
 .border-l-asset-view {
-  border-left: var(--app-borderWidth) solid var(--app-borderColor);
+  border-left: var(--app-panel-borderWidth) solid var(--app-borderColor);
 }
 .border-b-asset-view {
-  border-bottom: var(--app-borderWidth) solid var(--app-borderColor);
+  border-bottom: var(--app-panel-borderWidth) solid var(--app-borderColor);
 }
 .border-t-asset-view {
-  border-top: var(--app-borderWidth) solid var(--app-borderColor);
+  border-top: var(--app-panel-borderWidth) solid var(--app-borderColor);
 }
 
 .border-x-asset-view {

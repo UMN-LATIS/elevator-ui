@@ -1,9 +1,6 @@
 <template>
   <div class="object-details">
-    <div
-      v-if="!objectId"
-      class="bg-neutral-900 text-neutral-300 h-full flex justify-end"
-    >
+    <div v-if="!objectId" class="h-full flex justify-end">
       <ActiveFileViewToolbar />
     </div>
     <Drawer

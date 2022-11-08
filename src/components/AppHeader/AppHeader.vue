@@ -1,19 +1,21 @@
 <template>
   <header class="app-header flex justify-between items-center px-4 py-2">
-    <div class="flex items-center gap-4">
-      <a :href="config.base.url">
-        <h1 class="h-12">
-          <img
-            src="https://dev.elevator.umn.edu/assets/instanceAssets/7.png"
-            alt="Elevator Digital Content Library logo"
-            class="max-h-full"
-          />
+    <div>
+      <a :href="config.base.url" class="flex items-center gap-4">
+        <ElevatorIcon class="h-full app-header__icon" />
+        <h1 class="app-header__wordmark font-bold text-xl">
+          {{ title }}
         </h1>
       </a>
     </div>
     <div class="flex gap-2 items-center">
       <ThemeSelector />
-      <Button variant="primary" class="rounded-full p-2"><MenuIcon /></Button>
+      <Button
+        variant="primary"
+        class="app-header__menu-button rounded-full p-2"
+      >
+        <AppMenuButton />
+      </Button>
     </div>
   </header>
 </template>
@@ -23,24 +25,49 @@ import defaultLogoImg from "./defaultLogoImg";
 import defaultPageMenuItems from "./defaultPageMenuItems";
 import Button from "@/components/Button/Button.vue";
 import config from "@/config";
-import MenuIcon from "@/icons/MenuIcon.vue";
-import ThemeIcon from "@/icons/ThemeIcon.vue";
+import AppMenuButton from "./AppMenuButton.vue";
 import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";
+import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 
 withDefaults(
   defineProps<{
     logoImg?: Image;
     menuItems?: MenuItem[];
+    title?: string;
   }>(),
   {
     logoImg: () => defaultLogoImg,
     menuItems: () => defaultPageMenuItems,
+    title: () => config.title,
   }
 );
 </script>
-<style scoped>
+<style scoped lang="postcss">
 .app-header {
   background: var(--app-appHeader-backgroundColor);
-  border-bottom: var(--app-borderWidth) solid var(--app-borderColor);
+  border-bottom: var(--app-borderWidth) solid
+    var(--app-appHeader-borderBottomColor);
+  color: var(--app-appHeader-textColor);
+}
+
+.app-header__icon {
+  color: var(--app-appHeader-textColor);
+}
+
+.app-header__menu-button {
+  background: var(--app-appHeader-menuButton-backgroundColor);
+  color: var(--app-appHeader-menuButton-textColor);
+  border: var(--app-appHeader-menuButton-borderWidth) solid
+    var(--app-appHeader-menuButton-borderColor);
+  &:hover {
+    background: var(--app-appHeader-menuButton-hover-backgroundColor);
+    color: var(--app-appHeader-menuButton-hover-textColor);
+    border-color: var(--app-appHeader-menuButton-hover-borderColor);
+  }
+  &:active {
+    background: var(--app-appHeader-menuButton-active-backgroundColor);
+    color: var(--app-appHeader-menuButton-active-textColor);
+    border-color: var(--app-appHeader-menuButton-active-borderColor);
+  }
 }
 </style>

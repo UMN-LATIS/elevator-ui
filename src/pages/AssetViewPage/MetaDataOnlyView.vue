@@ -29,23 +29,3 @@ const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
 </script>
-<style scoped>
-::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 33%);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #aaa;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-</style>
