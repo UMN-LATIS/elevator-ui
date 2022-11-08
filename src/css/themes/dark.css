@@ -166,4 +166,14 @@
   --app-metaDataOnlyView-contentViewer-textColor: var(--darktheme-yellow-500);
 
   /** Modal **/
+  --app-modalContents-backgroundColor: var(--darktheme-blue-700);
+  --app-modalContents-textColor: var(--darktheme-blue-500);
+  --app-modalContents-header-backgroundColor: var(--darktheme-blue-650);
+  --app-modalContents-header-textColor: var(--darktheme-yellow-500);
+
+  /* We can also can tweak styles with plain old CSS selectors */
+  & .x-button {
+    background: var(--darktheme-blue-900);
+    color: var(--darktheme-blue-500);
+  }
 }

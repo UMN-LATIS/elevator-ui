@@ -151,4 +151,10 @@
   --app-metaDataOnlyView-backgroundColor: var(--color-neutral-300);
   --app-metaDataOnlyView-contentViewer-backgroundColor: var(--color-neutral-50);
   --app-metaDataOnlyView-contentViewer-textColor: var(--color-neutral-900);
+
+  /** Modal **/
+  --app-modalContents-backgroundColor: var(--color-neutral-50);
+  --app-modalContents-textColor: var(--color-nuetral-900);
+  --app-modalContents-header-backgroundColor: var(--color-neutral-200);
+  --app-modalContents-header-textColor: var(--color-neutral-900);
 }
