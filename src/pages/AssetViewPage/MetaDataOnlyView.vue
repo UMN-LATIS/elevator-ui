@@ -10,14 +10,19 @@
       </h2>
 
       <WidgetList v-if="assetId" :assetId="assetId" />
+      <MoreLikeThis v-if="assetId" :assetId="assetId" />
     </article>
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
+
+const MoreLikeThis = defineAsyncComponent(
+  () => import("@/components/MoreLikeThis/MoreLikeThis.vue")
+);
 
 const props = defineProps<{
   assetId: string | null;

@@ -14,6 +14,7 @@
           !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
       }"
       :fileHandlerId="assetStore.activeFileObjectId"
+      @objectViewLoad="onObjectViewLoad"
     />
     <AssetDetailsDrawer
       class="asset-view__asset-panel md:absolute"
@@ -29,7 +30,9 @@
       :assetId="assetStore.activeAssetId"
       :isOpen="permitDrawerToggle ? isAssetDetailsOpen : true"
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
-    />
+    >
+      <MoreLikeThis v-if="assetId && isObjectViewLoaded" :assetId="assetId" />
+    </AssetDetailsDrawer>
     <ObjectDetailsDrawer
       class="asset-view__details-panel md:absolute"
       :class="{
@@ -45,7 +48,6 @@
           !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
       }"
       :showToggle="permitDrawerToggle"
-      :moreLikeThisItems="moreLikeThisItems"
       :objectId="assetStore.activeObjectId"
       :isOpen="permitDrawerToggle ? isObjectDetailsOpen : true"
       @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
@@ -53,25 +55,30 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, defineAsyncComponent } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
-import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
 import { useMediaQuery } from "@vueuse/core";
 
-const props = defineProps<{
+const MoreLikeThis = defineAsyncComponent(
+  () => import("@/components/MoreLikeThis/MoreLikeThis.vue")
+);
+
+defineProps<{
   assetId: string | null;
   objectId?: string | null;
 }>();
 
 const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
+const isObjectViewLoaded = ref(false);
 const assetStore = useAssetStore();
 
-const assetIdRef = computed(() => props.assetId);
-const { matches: moreLikeThisItems } = useMoreLikeThis(assetIdRef);
+function onObjectViewLoad() {
+  isObjectViewLoaded.value = true;
+}
 
 const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
 </script>

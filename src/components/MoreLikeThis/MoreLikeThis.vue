@@ -19,11 +19,26 @@
   </div>
 </template>
 <script setup lang="ts">
+import { onMounted, ref, watch } from "vue";
 import { SearchResultMatch } from "@/types";
 import SearchResultCard from "../SearchResultCard/SearchResultCard.vue";
+import api from "@/helpers/api";
 
-defineProps<{
-  items: SearchResultMatch[];
+const props = defineProps<{
+  assetId: string;
 }>();
+
+const items = ref<SearchResultMatch[]>([]);
+
+watch(
+  () => props.assetId,
+  async () => {
+    items.value = await api.getMoreLikeThis(props.assetId);
+  },
+  { immediate: true }
+);
+onMounted(() => {
+  console.log("MoreLikeThis mounted");
+});
 </script>
 <style scoped></style>

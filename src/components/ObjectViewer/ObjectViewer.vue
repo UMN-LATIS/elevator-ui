@@ -7,6 +7,7 @@
       :src="`${config.instance.base.url}/asset/getEmbed/${fileHandlerId}`"
       frameBorder="0"
       allowfullscreen="true"
+      @load="onIframeLoad"
     ></iframe>
     <div
       v-else
@@ -20,10 +21,24 @@
 
 <script setup lang="ts">
 import config from "@/config";
+import { onMounted } from "vue";
 
 defineProps<{
   fileHandlerId: string | null;
 }>();
+
+const emit = defineEmits<{
+  (eventName: "objectViewLoad");
+}>();
+
+onMounted(() => {
+  console.log("ObjectViewer mounted");
+});
+
+function onIframeLoad() {
+  console.log("ObjectViewer iframe loaded");
+  emit("objectViewLoad");
+}
 </script>
 <style scoped>
 .object-viewer {
