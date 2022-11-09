@@ -1,4 +1,4 @@
-import { watch, ref } from "vue";
+import { watch, ref, computed } from "vue";
 import { useStorage, usePreferredDark } from "@vueuse/core";
 
 export type ThemeId = "light" | "dark" | "auto" | string;
@@ -41,22 +41,22 @@ export const useTheme = (opts: UseThemeOptions = {}) => {
 
   const prefersDark = usePreferredDark();
 
+  // the theme that will be applied
+  // if the active theme is "auto", it will be based on the prefersDark value
+  const effectiveThemeId = computed(() => {
+    if (activeThemeId.value == "auto") {
+      return prefersDark.value ? "dark" : "light";
+    }
+    return activeThemeId.value;
+  });
+
   function onChange() {
     const themeId = activeThemeId.value;
     if (!isValidThemeId(themeId)) {
       throw new Error(`Invalid theme id: ${themeId}`);
     }
 
-    if (themeId === "auto") {
-      // set to dark or light based on preferred color scheme
-      document.documentElement.setAttribute(
-        "data-theme",
-        prefersDark.value ? "dark" : "light"
-      );
-      return;
-    }
-
-    document.documentElement.setAttribute("data-theme", themeId);
+    document.documentElement.setAttribute("data-theme", effectiveThemeId.value);
   }
 
   watch([activeThemeId, prefersDark], onChange, { immediate: true });
@@ -64,5 +64,6 @@ export const useTheme = (opts: UseThemeOptions = {}) => {
   return {
     availableThemes,
     activeThemeId,
+    effectiveThemeId,
   };
 };
