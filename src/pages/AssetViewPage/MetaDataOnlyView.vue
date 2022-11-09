@@ -10,14 +10,19 @@
       </h2>
 
       <WidgetList v-if="assetId" :assetId="assetId" />
+      <MoreLikeThis v-if="assetId && pageLoaded" :assetId="assetId" />
     </article>
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, defineAsyncComponent, onMounted, ref } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
+const MoreLikeThis = defineAsyncComponent({
+  loader: () => import("@/components/MoreLikeThis/MoreLikeThis.vue"),
+  delay: 500,
+});
 
 const props = defineProps<{
   assetId: string | null;
@@ -28,6 +33,11 @@ const { asset } = useAsset(assetIdRef);
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
+const pageLoaded = ref(false);
+
+onMounted(() => {
+  pageLoaded.value = true;
+});
 </script>
 <style scoped>
 .meta-data-only-view {

@@ -45,7 +45,6 @@
           !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
       }"
       :showToggle="permitDrawerToggle"
-      :moreLikeThisItems="moreLikeThisItems"
       :objectId="assetStore.activeObjectId"
       :isOpen="permitDrawerToggle ? isObjectDetailsOpen : true"
       @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
@@ -53,15 +52,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
-import { useMoreLikeThis } from "@/helpers/useMoreLikeThis";
 import { useMediaQuery } from "@vueuse/core";
 
-const props = defineProps<{
+defineProps<{
   assetId: string | null;
   objectId?: string | null;
 }>();
@@ -69,9 +67,6 @@ const props = defineProps<{
 const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
-
-const assetIdRef = computed(() => props.assetId);
-const { matches: moreLikeThisItems } = useMoreLikeThis(assetIdRef);
 
 const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
 </script>

@@ -11,20 +11,66 @@
       </span>
     </h3>
 
-    <SearchResultCard
-      v-for="searchMatch in items"
-      :key="searchMatch.objectId"
-      :searchMatch="searchMatch"
-    />
+    <div ref="containerRef">
+      <SearchResultCard
+        v-for="searchMatch in items"
+        :key="searchMatch.objectId"
+        :searchMatch="searchMatch"
+      />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
+import { ref, onMounted, watch } from "vue";
 import { SearchResultMatch } from "@/types";
 import SearchResultCard from "../SearchResultCard/SearchResultCard.vue";
+import { useIntersectionObserver } from "@vueuse/core";
+import getScrollParent from "../LazyLoadImage/getScrollParent";
+import api from "@/helpers/api";
 
-defineProps<{
-  items: SearchResultMatch[];
+const props = defineProps<{
+  assetId: string;
 }>();
+
+const items = ref<SearchResultMatch[]>([]);
+const containerRef = ref<HTMLElement | null>(null);
+const isReadyForLoad = ref(false);
+const isLoaded = ref(false);
+
+// if the container is in view, we set
+// isReadyForLoad to true
+// (and leave the rest to the watch)
+function onIntersectionChange(
+  entries: IntersectionObserverEntry[],
+  observer: IntersectionObserver
+) {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      isReadyForLoad.value = true;
+      observer.unobserve(entry.target);
+    }
+  });
+}
+
+onMounted(() => {
+  // set up an intersection observer to check if
+  // the container element is in view (only if immediate is false)
+  useIntersectionObserver(containerRef, onIntersectionChange, {
+    root: getScrollParent(containerRef.value),
+    rootMargin: "100px",
+    threshold: 0,
+  });
+});
+
+watch(
+  [() => props.assetId, isReadyForLoad],
+  async () => {
+    if (!isReadyForLoad.value) return;
+    items.value = await api.getMoreLikeThis(props.assetId);
+    isLoaded.value = true;
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 .more-like-this__title {
