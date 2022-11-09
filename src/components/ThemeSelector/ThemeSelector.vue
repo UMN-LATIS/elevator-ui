@@ -44,13 +44,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import { useTheme, type ThemeId } from "./useTheme";
 
-const { activeThemeId, availableThemes } = useTheme({
-  themes: [{ id: "hotdog", name: "Hot Dog" }],
+const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
+  themes: [
+    { id: "hotdog", name: "Hot Dog" },
+    { id: "folwell", name: "Folwell" },
+  ],
 });
 
 const activeThemeName = computed(() => {
@@ -63,4 +66,19 @@ const activeThemeName = computed(() => {
 function setTheme(themeId: ThemeId) {
   activeThemeId.value = themeId;
 }
+
+// load theme css dynamically
+watch(
+  activeThemeId,
+  async () => {
+    // light is the default, so we don't need to load any css
+    if (activeThemeId.value === "light") return;
+
+    // dyanmically load the css file
+    // we do this because we might need to also load fonts
+    // in the theme css
+    import(`../../css/themes/${effectiveThemeId.value}.css`);
+  },
+  { immediate: true }
+);
 </script>
