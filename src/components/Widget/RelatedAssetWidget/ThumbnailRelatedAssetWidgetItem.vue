@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :title="title"
-    class="inline-block mr-2 last:mr-0"
+    class="inline-flex mr-2 last:mr-0 thumbnail-related-asset-widget-image"
     :to="`#${assetId}`"
   >
     <ThumbnailImage
@@ -11,9 +11,9 @@
       :isActive="isActiveObject"
       iconOnHover="arrow_forward"
     />
-    <div v-else>
-      <ImageIcon />
+    <div v-else class="flex flex-col gap-2">
       <p>{{ title }}</p>
+      <ImageIcon />
     </div>
   </RouterLink>
 </template>
@@ -39,4 +39,9 @@ const isActiveObject = computed(
   (): boolean => assetStore.activeObjectId === props.assetId
 );
 </script>
-<style scoped></style>
+<style scoped>
+.thumbnail-related-asset-widget-image {
+  background: var(--app-thumbnailImage-backgroundColor);
+  color: var(--app-thumbnailImage-textColor);
+}
+</style>

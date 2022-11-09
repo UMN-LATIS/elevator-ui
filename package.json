@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:watch": "vite build --watch",
+    "build:remotedev": "vite build --mode development --base \"/assets/elevator-ui/dist/\"",
     "preview": "vite preview",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"

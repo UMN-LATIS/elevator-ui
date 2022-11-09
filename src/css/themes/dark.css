@@ -175,6 +175,9 @@
 
   /* Thumbnail Image */
   --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
+  --app-thumbnailImage-backgroundColor: var(--darktheme-blue-800);
+  /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
+  --app-thumbnailImage-textColor: var(--app-link-textColor);
 
   /* We can also can tweak styles with plain old CSS selectors */
   & .x-button {

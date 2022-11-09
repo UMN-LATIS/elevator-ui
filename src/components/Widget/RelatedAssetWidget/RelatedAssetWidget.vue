@@ -1,5 +1,5 @@
 <template>
-  <div class="related-asset-widget">
+  <div class="related-asset-widget flex gap-x-2 w-full">
     <component
       :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"

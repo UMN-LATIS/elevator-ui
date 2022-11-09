@@ -1,5 +1,5 @@
 <template>
-  <div class="accordion-related-asset-widget-item">
+  <div class="accordion-related-asset-widget-item w-full max-w-lg">
     <Accordion :label="title">
       <template v-if="assetCache?.primaryHandler" #label>
         <div
