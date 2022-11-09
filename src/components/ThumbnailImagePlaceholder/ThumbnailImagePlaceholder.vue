@@ -1,12 +1,18 @@
 <template>
   <div
-    class="inline-flex justify-center items-center bg-neutral-200 border border-neutral-300 text-neutral-400"
+    class="thumbnail-image-placeholder w-32 aspect-square inline-flex justify-center items-center flex-col border rounded"
   >
-    <ImageIcon />
+    <ImageIcon class="thumbnail-image-placeholder__icon" />
     <slot />
   </div>
 </template>
 <script setup lang="ts">
 import ImageIcon from "@/icons/ImageIcon.vue";
 </script>
-<style scoped></style>
+<style scoped>
+.thumbnail-image-placeholder {
+  border-color: var(--app-thumbnailImage-borderColor);
+  background: var(--app-thumbnailImage-backgroundColor);
+  color: var(--app-thumbnailImage-textColor);
+}
+</style>

@@ -161,5 +161,9 @@
   --app-modalContents-header-textColor: var(--color-neutral-900);
 
   /* Thumbnail Image */
+  --app-thumbnailImage-borderColor: transparent;
   --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
+  --app-thumbnailImage-backgroundColor: var(--color-neutral-200);
+  /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
+  --app-thumbnailImage-textColor: var(--color-neutral-400);
 }
