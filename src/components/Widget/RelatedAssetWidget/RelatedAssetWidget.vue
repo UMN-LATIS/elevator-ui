@@ -1,5 +1,5 @@
 <template>
-  <div class="related-asset-widget flex gap-x-2 w-full">
+  <div class="related-asset-widget gap-x-2 flex flex-wrap w-full">
     <component
       :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"
@@ -8,7 +8,7 @@
       :assetCache="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
       :label="relatedAsset.label ?? ''"
     >
-      <div class="flex justify-end items-center gap-2">
+      <div class="flex items-center justify-end gap-2">
         <ArrowButton :to="`/asset/viewAsset/${relatedAsset.targetAssetId}`" />
       </div>
     </component>

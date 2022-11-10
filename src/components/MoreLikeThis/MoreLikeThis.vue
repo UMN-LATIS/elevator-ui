@@ -1,11 +1,9 @@
 <template>
-  <div v-if="items.length" class="border-t border-neutral-900 mt-6 pt-6">
-    <h3
-      class="font-bold text-xl text-neutral-900 flex items-center gap-2 flex-wrap mb-4"
-    >
+  <div v-if="items.length" class="border-neutral-900 pt-6 mt-6 border-t">
+    <h3 class="flex flex-wrap items-center gap-2 mb-4 text-xl font-bold">
       More Like This
       <span
-        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-normal bg-neutral-900 text-neutral-100"
+        class="bg-neutral-900 text-neutral-100 inline-flex items-center px-2 py-1 text-xs font-normal rounded-full"
       >
         {{ items.length }}
       </span>
@@ -19,7 +17,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { SearchResultMatch } from "@/types";
 import SearchResultCard from "../SearchResultCard/SearchResultCard.vue";
 import api from "@/helpers/api";
@@ -37,8 +35,5 @@ watch(
   },
   { immediate: true }
 );
-onMounted(() => {
-  console.log("MoreLikeThis mounted");
-});
 </script>
 <style scoped></style>

@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :title="title"
-    class="inline-flex mr-2 last:mr-0 thumbnail-related-asset-widget-image"
+    class="last:mr-0 thumbnail-related-asset-widget-image inline-flex mr-2"
     :to="`#${assetId}`"
   >
     <ThumbnailImage
@@ -11,10 +11,9 @@
       :isActive="isActiveObject"
       iconOnHover="arrow_forward"
     />
-    <div v-else class="flex flex-col gap-2">
+    <ThumbnailImagePlaceholder v-else>
       <p>{{ title }}</p>
-      <ImageIcon />
-    </div>
+    </ThumbnailImagePlaceholder>
   </RouterLink>
 </template>
 <script setup lang="ts">
@@ -24,7 +23,7 @@ import type { RelatedAssetCacheItem } from "@/types";
 import { useAssetStore } from "@/stores/assetStore";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
-import ImageIcon from "@/icons/ImageIcon.vue";
+import ThumbnailImagePlaceholder from "@/components/ThumbnailImagePlaceholder/ThumbnailImagePlaceholder.vue";
 
 const props = defineProps<{
   assetId: string;

@@ -4,16 +4,15 @@
       <template v-if="assetCache?.primaryHandler" #label>
         <div
           v-if="assetCache?.primaryHandler"
-          class="flex gap-2 items-center w-full flex-1"
+          class="flex items-center flex-1 w-full gap-4 py-2 pl-2 pr-4"
         >
-          <div class="w-[2rem] h-[2rem] overflow-hidden rounded border">
-            <img
-              :src="getTinyURL(assetCache.primaryHandler)"
-              :alt="title"
-              class="object-cover w-full h-full"
-              loading="lazy"
-            />
-          </div>
+          <img
+            v-if="assetCache.primaryHandler"
+            :src="getTinyURL(assetCache.primaryHandler)"
+            :alt="title"
+            class="aspect-square h-10 overflow-hidden rounded"
+            loading="lazy"
+          />
           <h3>{{ title }}</h3>
         </div>
       </template>
