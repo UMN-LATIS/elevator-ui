@@ -166,4 +166,11 @@
   --app-thumbnailImage-backgroundColor: var(--color-neutral-200);
   /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
   --app-thumbnailImage-textColor: var(--color-neutral-400);
+
+  /* Media Card */
+  --app-mediaCard-backgroundColor: var(--app-accordion-body-backgroundColor);
+  --app-mediaCard-borderWidth: var(--app-accordion-outer-borderWidth);
+  --app-mediaCard-borderColor: var(--app-accordion-outer-borderColor);
+  --app-mediaCard-textColor: var(--app-accordion-body-textColor);
+  --app-mediaCard-title-textColor: var(--app-accordion-header-textColor);
 }

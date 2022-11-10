@@ -2,31 +2,27 @@
   <MediaCard
     :imgSrc="thumbnailImgSrc"
     :imgAlt="title"
-    class="hover:shadow-lg transition-shadow"
+    class="search-result-card hover:shadow-lg transition-shadow"
   >
-    <div class="h-full pb-16 relative">
+    <div class="relative h-full pb-16">
       <Link :to="getAssetUrl(searchMatch.objectId)"
-        ><h1 class="font-bold text-xl mb-2 text-neutral-900">
+        ><h1 class="search-result-card__title text-xl font-bold">
           {{ title }}
         </h1>
       </Link>
-      <dl v-if="props.searchMatch?.entries" class="grid gap-3">
+      <div
+        v-if="props.searchMatch?.entries"
+        class="search-result-card__contents"
+      >
         <template
           v-for="(entry, index) in props.searchMatch.entries"
           :key="index"
         >
-          <div>
-            <dt
-              class="text-xs text-neutral-400 uppercase col-span-1 flex items-start justify-start hyphens"
-            >
-              {{ entry?.label || "Item" }}
-            </dt>
-            <dd class="text-sm col-span-2">
-              {{ entry.entries?.join(", ") }}
-            </dd>
-          </div>
+          <Tuple :label="entry?.label ?? 'Item'">
+            <span class="text-sm"> {{ entry.entries?.join(", ") }}</span>
+          </Tuple>
         </template>
-      </dl>
+      </div>
       <ArrowButton
         :to="getAssetUrl(searchMatch.objectId)"
         class="absolute bottom-0 right-0"
@@ -42,6 +38,7 @@ import { computed } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
 import Link from "@/components/Link/Link.vue";
+import Tuple from "../Tuple/Tuple.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
@@ -64,8 +61,18 @@ const thumbnailImgSrc = computed(() => {
   return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
 });
 </script>
-
 <style scoped>
+.search-result-card__title {
+  color: var(--app-mediaCard-title-textColor);
+  margin-bottom: var(--app-panel-body-items-gap);
+}
+
+.search-result-card__contents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-panel-body-items-gap);
+}
+
 img {
   max-width: 100%;
 }
