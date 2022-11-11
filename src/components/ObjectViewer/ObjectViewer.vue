@@ -21,7 +21,6 @@
 
 <script setup lang="ts">
 import config from "@/config";
-import { onMounted } from "vue";
 
 defineProps<{
   fileHandlerId: string | null;
@@ -31,12 +30,7 @@ const emit = defineEmits<{
   (eventName: "objectViewLoad");
 }>();
 
-onMounted(() => {
-  console.log("ObjectViewer mounted");
-});
-
 function onIframeLoad() {
-  console.log("ObjectViewer iframe loaded");
   emit("objectViewLoad");
 }
 </script>
