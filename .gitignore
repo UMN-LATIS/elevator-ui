@@ -7,11 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+dist
 node_modules
 *.local
-
-# include build artifacts
-!dist
 
 # Editor directories and files
 .vscode/*
@@ -23,4 +21,5 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
 .env
