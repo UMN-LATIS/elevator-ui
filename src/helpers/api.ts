@@ -66,6 +66,11 @@ async function fetchFileDownloadInfo(
   return res.data;
 }
 
+async function fetchInterstitial() {
+  const res = await axios.get(`${config.instance.base.url}/home/interstitial`);
+  console.log(res);
+}
+
 export default {
   async getAssetWithTemplate(
     assetId: string | null
@@ -124,5 +129,9 @@ export default {
     fileDownloadResponses.set(key, fileDownloadInfo);
 
     return fileDownloadInfo;
+  },
+
+  addToPlugin(fileObjectId: string, elevatorSession) {
+    console.log("addToPlugin");
   },
 };
