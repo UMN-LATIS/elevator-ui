@@ -180,6 +180,7 @@
   /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
   --app-thumbnailImage-textColor: var(--app-link-textColor);
 
+  /* Media Card */
   --app-mediaCard-backgroundColor: var(--app-accordion-body-backgroundColor);
   --app-mediaCard-borderWidth: var(--app-accordion-outer-borderWidth);
   --app-mediaCard-borderColor: var(--app-accordion-outer-borderColor);
