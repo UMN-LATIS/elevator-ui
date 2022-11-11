@@ -31,7 +31,7 @@ async function fetchMoreLikeThis(
 ): Promise<SearchResultMatch[]> {
   const formdata = new FormData();
   formdata.append("suppressRecent", "true");
-  formdata.append("searchReleated", "true");
+  formdata.append("searchRelated", "true");
   formdata.append("searchQuery", JSON.stringify({ searchText: assetId }));
 
   const res = await axios.post<SearchResponse>(
