@@ -1,11 +1,11 @@
 <template>
-  <div v-if="items.length" class="border-t border-neutral-900 mt-6 pt-6">
+  <div v-if="items.length" class="more-like-this pt-6 mt-6">
     <h3
-      class="font-bold text-xl text-neutral-900 flex items-center gap-2 flex-wrap mb-4"
+      class="more-like-this__title flex flex-wrap items-center gap-2 mb-4 text-xl font-bold"
     >
       More Like This
       <span
-        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-normal bg-neutral-900 text-neutral-100"
+        class="more-like-this__count inline-flex items-center px-2 py-1 text-xs font-normal rounded-full"
       >
         {{ items.length }}
       </span>
@@ -26,4 +26,14 @@ defineProps<{
   items: SearchResultMatch[];
 }>();
 </script>
-<style scoped></style>
+<style scoped>
+.more-like-this__title {
+  color: var(--app-mediaCard-title-textColor);
+}
+.more-like-this__count {
+  background-color: var(--app-mediaCard-backgroundColor);
+  border: var(--app-mediaCard-borderWidth) solid
+    var(--app-mediaCard-borderColor);
+  font-weight: bold;
+}
+</style>
