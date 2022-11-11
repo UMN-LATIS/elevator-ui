@@ -1,7 +1,7 @@
 import { app } from "@storybook/vue3";
 import { createPinia } from "pinia";
 import vueRouter from "storybook-vue3-router";
-import "../src/app.css";
+import "../src/css/app.css";
 
 // allows usage of RouterLink in all stories
 export const decorators = [vueRouter()];

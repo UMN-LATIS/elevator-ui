@@ -1,4 +1,4 @@
-@import "themes/default.css";
+@import url("themes/default.css");
 
 @tailwind base;
 @tailwind components;
@@ -59,7 +59,7 @@ a:hover {
   ::-webkit-scrollbar-track {
     background: var(
       --app-scrollbar-track-backgroundColor,
-      rgba(255, 255, 255, 33%)
+      rgb(255 255 255 / 33%)
     );
   }
 

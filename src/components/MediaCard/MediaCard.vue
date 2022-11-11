@@ -1,19 +1,21 @@
 <template>
-  <article class="border shadow-sm rounded-md overflow-hidden flex flex-col">
+  <article
+    class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm"
+  >
     <div
-      class="placeholder-image bg-neutral-300 w-full aspect-video flex justify-center items-center overflow-hidden"
+      class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden"
     >
       <img
         v-if="imgSrc"
         :src="imgSrc"
         :alt="imgAlt || 'Untitled'"
         loading="lazy"
-        class="w-full h-full object-cover"
+        class="object-cover w-full h-full"
       />
       <ImageIcon v-else />
     </div>
 
-    <div class="p-4 bg-white flex-1">
+    <div class="flex-1 p-4">
       <slot />
     </div>
   </article>
@@ -26,4 +28,11 @@ defineProps<{
   imgAlt?: string | null;
 }>();
 </script>
-<style scoped></style>
+<style scoped>
+.media-card {
+  background: var(--app-mediaCard-backgroundColor);
+  color: var(--app-mediaCard-textColor);
+  border: var(--app-mediaCard-borderWidth) solid
+    var(--app-mediaCard-borderColor);
+}
+</style>
