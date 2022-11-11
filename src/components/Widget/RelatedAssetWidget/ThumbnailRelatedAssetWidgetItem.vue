@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :title="title"
-    class="inline-block mr-2 last:mr-0"
+    class="thumbnail-related-asset-widget-image inline-flex"
     :to="`#${assetId}`"
   >
     <ThumbnailImage
@@ -11,10 +11,9 @@
       :isActive="isActiveObject"
       iconOnHover="arrow_forward"
     />
-    <div v-else>
-      <ImageIcon />
-      <p>{{ title }}</p>
-    </div>
+    <ThumbnailGeneric v-else :isActive="isActiveObject">
+      {{ title }}
+    </ThumbnailGeneric>
   </RouterLink>
 </template>
 <script setup lang="ts">
@@ -24,7 +23,7 @@ import type { RelatedAssetCacheItem } from "@/types";
 import { useAssetStore } from "@/stores/assetStore";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
-import ImageIcon from "@/icons/ImageIcon.vue";
+import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -39,4 +38,9 @@ const isActiveObject = computed(
   (): boolean => assetStore.activeObjectId === props.assetId
 );
 </script>
-<style scoped></style>
+<style scoped>
+.thumbnail-related-asset-widget-image {
+  background: var(--app-thumbnailImage-backgroundColor);
+  color: var(--app-thumbnailImage-textColor);
+}
+</style>

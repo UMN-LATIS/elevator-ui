@@ -1,7 +1,7 @@
 <template>
   <Accordion>
     <template #label>
-      <div v-if="!locationLabel" class="flex gap-6">
+      <div v-if="!locationLabel" class="flex gap-6 p-4">
         <Tuple label="Latitude" class="w-auto" variant="inline">{{
           latStr
         }}</Tuple>
@@ -9,9 +9,9 @@
           lngStr
         }}</Tuple>
       </div>
-      <span v-else>{{ locationLabel }}</span>
+      <span v-else class="p-4">{{ locationLabel }}</span>
     </template>
-    <div v-if="locationLabel" class="my-4 flex gap-4 w-min">
+    <div v-if="locationLabel" class="w-min flex gap-4 my-4">
       <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
       <Tuple label="Longitude" class="w-auto">{{ lngStr }}</Tuple>
     </div>
@@ -30,11 +30,11 @@
       :zoom="10"
       mapStyle="streets"
       :apiKey="config.arcgis.apiKey"
-      class="rounded bg-neutral-100 p-1"
+      class="bg-neutral-100 p-1 rounded"
     >
       <MapMarker :lng="mapCenter.lng" :lat="mapCenter.lat" />
     </Map>
-    <div class="my-4 flex gap-4 w-min">
+    <div class="w-min flex gap-4 my-4">
       <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
       <Tuple label="Longitude" class="w-auto">{{ lngStr }}</Tuple>
     </div>

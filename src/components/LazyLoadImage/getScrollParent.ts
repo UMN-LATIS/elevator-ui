@@ -4,7 +4,7 @@
  * https://stackoverflow.com/questions/35939886/find-first-scrollable-parent
  */
 
-export function isScrollable(node) {
+export function isScrollable(node: HTMLElement) {
   const { overflowY, overflowX } = getComputedStyle(node);
   return (
     !overflowY.includes("hidden") &&
@@ -15,10 +15,12 @@ export function isScrollable(node) {
   );
 }
 
-export default function getScrollParent(node: HTMLElement | null): HTMLElement {
-  if (!node) return document.body;
+export default function getScrollParent(
+  node: HTMLElement | unknown | null
+): HTMLElement {
+  if (!node || !(node instanceof HTMLElement)) return document.body;
 
   return isScrollable(node)
     ? node
-    : getScrollParent(node.parentNode as HTMLElement);
+    : getScrollParent(node.parentNode) ?? document.body;
 }

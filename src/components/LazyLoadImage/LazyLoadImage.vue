@@ -5,7 +5,7 @@
   >
     <img
       v-if="isLoaded"
-      class="lazy-load-image__image block bg-neutral-100 opacity-0 transition-opacity"
+      class="lazy-load-image__image bg-neutral-100 block transition-opacity opacity-0"
       :class="{
         'opacity-100': isImageLoadComplete,
       }"
@@ -16,7 +16,7 @@
     />
     <div
       v-if="!isImageLoadComplete"
-      class="absolute inset-0 z-10 flex justify-center items-center bg-neutral-200 border border-neutral-300 text-neutral-400"
+      class="lazy-load-image__placeholder bg-neutral-200 border-neutral-300 text-neutral-400 absolute inset-0 z-10 flex items-center justify-center border"
     >
       <ImageIcon />
     </div>
@@ -65,4 +65,9 @@ onMounted(() => {
   useIntersectionObserver(imgContainer, onIntersectionChange, observerOptions);
 });
 </script>
-<style scoped></style>
+<style scoped>
+.lazy-load-image__placeholder {
+  background: var(--app-thumbnailImage-backgroundColor);
+  color: var(--app-thumbnailImage-textColor);
+}
+</style>

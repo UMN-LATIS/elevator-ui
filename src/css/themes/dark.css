@@ -63,7 +63,7 @@
   * Accordion
   */
   --app-accordion-header-backgroundColor: var(--darktheme-blue-800);
-  --app-accordion-header-textColor: var(--app-textColor);
+  --app-accordion-header-textColor: var(--darktheme-blue-300);
   --app-accordion-body-backgroundColor: var(--darktheme-blue-800);
   --app-accordion-body-textColor: var(--app-textColor);
   --app-accordion-outer-borderWidth: 1px;
@@ -151,7 +151,7 @@
   --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
 
   /* Tuple */
-  --app-tuple-label-textColor: var(--darktheme-blue-300);
+  --app-tuple-label-textColor: var(--darktheme-blue-400);
   --app-tuple-value-textColor: var(--app-textColor);
 
   /* Scrollbar */
@@ -174,7 +174,18 @@
   --app-modalContents-header-textColor: var(--darktheme-yellow-500);
 
   /* Thumbnail Image */
+  --app-thumbnailImage-borderColor: var(--darktheme-blue-700);
   --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
+  --app-thumbnailImage-backgroundColor: var(--darktheme-blue-800);
+  /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
+  --app-thumbnailImage-textColor: var(--app-link-textColor);
+
+  --app-mediaCard-backgroundColor: var(--app-accordion-body-backgroundColor);
+  --app-mediaCard-borderWidth: var(--app-accordion-outer-borderWidth);
+  --app-mediaCard-borderColor: var(--app-accordion-outer-borderColor);
+  --app-mediaCard-textColor: var(--app-accordion-body-textColor);
+  --app-mediaCard-title-textColor: var(--darktheme-blue-300);
+
 
   /* We can also can tweak styles with plain old CSS selectors */
   & .x-button {
