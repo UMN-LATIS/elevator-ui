@@ -367,3 +367,8 @@ export interface Image {
   src: string;
   alt: string;
 }
+
+export interface ApiInterstitialResponse {
+  haveInterstitial: boolean;
+  interstitialText?: string;
+}

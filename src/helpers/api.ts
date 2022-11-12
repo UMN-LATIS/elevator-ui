@@ -1,6 +1,12 @@
 import axios from "axios";
 import config from "@/config";
-import { Asset, SearchResultMatch, Template, SearchResponse } from "@/types";
+import {
+  Asset,
+  SearchResultMatch,
+  Template,
+  SearchResponse,
+  ApiInterstitialResponse,
+} from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 
@@ -66,9 +72,8 @@ async function fetchFileDownloadInfo(
   return res.data;
 }
 
-async function fetchInterstitial() {
-  const res = await axios.get(`${config.instance.base.url}/home/interstitial`);
-  console.log(res);
+function fetchInterstitial() {
+  return axios.get(`${config.instance.base.url}/home/interstitial`);
 }
 
 export default {
@@ -131,7 +136,8 @@ export default {
     return fileDownloadInfo;
   },
 
-  addToPlugin(fileObjectId: string, elevatorSession) {
-    console.log("addToPlugin");
+  async getEmbedPluginInterstitial(): Promise<ApiInterstitialResponse> {
+    const res = await fetchInterstitial();
+    return res.data;
   },
 };
