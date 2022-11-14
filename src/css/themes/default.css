@@ -144,7 +144,7 @@
   --app-tuple-value-textColor: var(--color-neutral-700);
 
   /* Scrollbar */
-  --app-scrollbar-width: 0.25rem;
+  --app-scrollbar-width: 0.5rem;
   --app-scrollbar-thumb-backgroundColor: #aaa;
   --app-scrollbar-thumb-hover-backgroundColor: #555;
   --app-scrollbar-track-backgroundColor: rgba(255, 255, 255, 33%);

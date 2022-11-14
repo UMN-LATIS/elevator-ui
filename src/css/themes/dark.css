@@ -155,7 +155,7 @@
   --app-tuple-value-textColor: var(--app-textColor);
 
   /* Scrollbar */
-  --app-scrollbar-width: 0.25rem;
+  --app-scrollbar-width: 0.5rem;
   --app-scrollbar-thumb-backgroundColor: var(--darktheme-yellow-600);
   --app-scrollbar-thumb-hover-backgroundColor: var(--color-amber-700);
   --app-scrollbar-track-backgroundColor: var(--darktheme-blue-900);
