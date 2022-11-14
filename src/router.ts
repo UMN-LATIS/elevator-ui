@@ -5,7 +5,7 @@ import {
 } from "vue-router";
 import config from "@/config";
 
-const devModeRoutes: RouteRecordRaw[] = [
+const routesForTesting: RouteRecordRaw[] = [
   {
     path: "/test",
     redirect: config.routes.test ?? "/404",
@@ -44,7 +44,8 @@ const router = createRouter({
         route,
       }),
     },
-    ...devModeRoutes,
+    // only add routes for testing if we're not in production
+    ...(config.mode !== "production" ? routesForTesting : []),
   ],
 });
 

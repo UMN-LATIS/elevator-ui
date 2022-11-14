@@ -13,6 +13,7 @@ export interface AppConfig {
   routes: {
     test: string | null;
   };
+  mode: "development" | "production" | string | null;
 }
 
 /**
@@ -371,4 +372,16 @@ export interface Image {
 export interface ApiInterstitialResponse {
   haveInterstitial: boolean;
   interstitialText?: string;
+}
+
+export type ElevatorPluginTypes = "Canvas" | "Wordpress" | string;
+export interface ElevatorSessionStorage {
+  // https://canvas.umn.edu/courses/365212/external_content/success/external_tool_dialog
+  returnURL?: string;
+  entangledSecret?: unknown;
+  elevatorPlugin?: ElevatorPluginTypes;
+  includeMetadata?: unknown;
+  elevatorCallbackType?: "lti" | "JS";
+  apiKey?: unknown;
+  timeStamp?: unknown;
 }
