@@ -140,4 +140,23 @@ export default {
     const res = await fetchInterstitial();
     return res.data;
   },
+
+  async postLtiPayload({
+    fileObjectId,
+    returnUrl,
+    excerptId,
+  }: {
+    fileObjectId: string;
+    returnUrl: string;
+    excerptId: string;
+  }) {
+    const formdata = new FormData();
+    formdata.append("fileObjectId", fileObjectId);
+
+    const res = await axios.post(
+      `${config.instance.base.url}/api/v1/lti/ltiPayload`,
+      formdata
+    );
+    return res.data;
+  },
 };

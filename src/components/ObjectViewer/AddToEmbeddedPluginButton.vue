@@ -28,7 +28,6 @@
 import { onMounted, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import api from "@/helpers/api";
-import { useSessionStorage } from "@vueuse/core";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";
 import AddIcon from "@/icons/AddIcon.vue";
@@ -36,7 +35,9 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import CircleXIcon from "@/icons/CircleXIcon.vue";
 
-const embeddedPlugin = useSessionStorage("embeddedPlugin", null);
+const embeddedPlugin = window.sessionStorage.get("embeddedPlugin") ?? null;
+const elevatorCallbackType =
+  window.sessionStorage.get("elevatorCallbackType") ?? null;
 
 const props = defineProps<{
   fileHandlerId: string | null;
@@ -83,10 +84,27 @@ function handleInterstitialConfirm() {
   isConfirmedToAdd.value = true;
 }
 
-function onConfirmedToAdd() {
-  console.log("doing things here with", props.fileHandlerId);
+async function onConfirmedToAdd() {
+  if (!props.fileHandlerId) {
+    addingToPluginStatus.value = "error";
+    throw new Error("File handler ID not set");
+  }
 
-  addingToPluginStatus.value = "success";
+  if (elevatorCallbackType.value === "lti") {
+    const data = await api.postLtiPayload({
+      fileObjectId: props.fileHandlerId,
+      excerptId: "",
+      returnUrl: window.sessionStorage.getItem("returnUrl") || "",
+    });
+    addingToPluginStatus.value = "success";
+    console.log({ data });
+    return data;
+  }
+
+  if (elevatorCallbackType.value === "wordpress") {
+    console.log("doing things with wordpress");
+    addingToPluginStatus.value = "success";
+  }
 }
 
 watch(isConfirmedToAdd, onConfirmedToAdd);
