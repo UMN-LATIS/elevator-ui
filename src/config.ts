@@ -17,6 +17,9 @@ const defaultConfig: AppConfig = {
   routes: {
     test: import.meta.env.VITE_TEST_ROUTE ?? null,
   },
+  moreLikeThis: {
+    maxInlineResults: 1,
+  },
 };
 
 // merge default config with anything on window.Elevator.config
