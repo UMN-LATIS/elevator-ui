@@ -1,5 +1,5 @@
 <template>
-  <Button variant="primary">
+  <Button>
     <slot />
     <MoreLikeThisCountChip>
       {{ count }}
