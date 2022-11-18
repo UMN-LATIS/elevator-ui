@@ -4,7 +4,8 @@
       <h3
         class="more-like-this__title flex flex-wrap items-center gap-2 mb-4 text-xl font-bold"
       >
-        More Like This
+        <span>More Like This</span>
+        <CountChip>{{ items.length }}</CountChip>
       </h3>
 
       <SearchResultCard
@@ -16,6 +17,7 @@
     <ButtonWithCount
       v-if="numOfSeeMoreResults"
       :count="numOfSeeMoreResults"
+      class="my-4"
       @click="isShowingFullListOfResults = true"
     >
       {{
@@ -28,7 +30,7 @@
       :isOpen="isShowingFullListOfResults"
       @close="isShowingFullListOfResults = false"
     >
-      <div class="grid grid-cols-3">
+      <div class="grid grid-cols-3 gap-2">
         <SearchResultCard
           v-for="searchMatch in items"
           :key="searchMatch.objectId"
@@ -45,6 +47,7 @@ import SearchResultCard from "../SearchResultCard/SearchResultCard.vue";
 import config from "@/config";
 import Modal from "../Modal/Modal.vue";
 import ButtonWithCount from "./ButtonWithCount.vue";
+import CountChip from "./CountChip.vue";
 
 const props = defineProps<{
   items: SearchResultMatch[];
