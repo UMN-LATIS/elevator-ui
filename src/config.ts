@@ -18,7 +18,7 @@ const defaultConfig: AppConfig = {
     test: import.meta.env.VITE_TEST_ROUTE ?? null,
   },
   moreLikeThis: {
-    maxInlineResults: 1,
+    maxInlineResults: 3,
   },
 };
 
