@@ -8,11 +8,13 @@
         <CountChip>{{ items.length }}</CountChip>
       </h3>
 
-      <SearchResultCard
-        v-for="searchMatch in inlineResultsList"
-        :key="searchMatch.objectId"
-        :searchMatch="searchMatch"
-      />
+      <div class="flex flex-col gap-2">
+        <SearchResultCard
+          v-for="searchMatch in inlineResultsList"
+          :key="searchMatch.objectId"
+          :searchMatch="searchMatch"
+        />
+      </div>
     </div>
     <ButtonWithCount
       v-if="numOfSeeMoreResults"
