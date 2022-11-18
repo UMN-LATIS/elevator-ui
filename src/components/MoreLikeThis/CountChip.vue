@@ -11,5 +11,6 @@
   background-color: var(--app-mediaCard-backgroundColor);
   border: var(--app-mediaCard-borderWidth) solid
     var(--app-mediaCard-borderColor);
+  color: var(--app-mediaCard-title-textColor);
 }
 </style>
