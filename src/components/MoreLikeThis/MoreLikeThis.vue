@@ -32,6 +32,10 @@
       :isOpen="isShowingFullListOfResults"
       @close="isShowingFullListOfResults = false"
     >
+      <template #label>
+        <span>More Like This</span>
+        <CountChip class="ml-2">{{ items.length }}</CountChip>
+      </template>
       <div class="grid grid-cols-3 gap-2">
         <SearchResultCard
           v-for="searchMatch in items"
