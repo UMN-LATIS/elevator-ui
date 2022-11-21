@@ -99,7 +99,7 @@ async function onConfirmedToAdd() {
 
     addingToPluginStatus.value = "success";
     console.log({ data });
-    return data;
+    return;
   }
 
   if (elevatorCallbackType.value === "JS") {

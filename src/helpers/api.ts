@@ -152,11 +152,30 @@ export default {
   }) {
     const formdata = new FormData();
     formdata.append("object", fileObjectId);
+    formdata.append("excerptId", excerptId);
 
     const res = await axios.post(
       `${config.instance.base.url}/api/v1/lti/ltiPayload`,
       formdata
     );
-    return res.data;
+
+    // post data from response to the return url
+    const resFromReturnUrl = await axios.post(
+      returnUrl,
+      {
+        lti_message_type: "ContentItemSelection",
+        lti_version: "LTI-1p0",
+        content_items: res.data,
+      },
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Access-Control-Allow-Origin": "*",
+          withCredentials: true,
+        },
+      }
+    );
+
+    return resFromReturnUrl.data;
   },
 };
