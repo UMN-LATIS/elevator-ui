@@ -18,6 +18,9 @@ const defaultConfig: AppConfig = {
     test: import.meta.env.VITE_TEST_ROUTE ?? null,
   },
   mode: import.meta.env.MODE ?? null,
+  moreLikeThis: {
+    maxInlineResults: 3,
+  },
 };
 
 const config: AppConfig = mergeDeepRight(

@@ -21,17 +21,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+import { computed, ref, watch } from "vue";
 import Drawer from "@/components/Drawer/Drawer.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
-import DrawerLabel from "@/components/Drawer/DrawerLabel.vue";
-
-const MoreLikeThis = defineAsyncComponent({
-  loader: () => import("@/components/MoreLikeThis/MoreLikeThis.vue"),
-  // delay: 500,
-});
+import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
+import DrawerLabel from "../Drawer/DrawerLabel.vue";
+import api from "@/helpers/api";
+import { SearchResultMatch } from "@/types";
 
 const props = withDefaults(
   defineProps<{
@@ -51,6 +49,15 @@ defineEmits<{
 
 const assetIdRef = computed(() => props.assetId);
 const { asset } = useAsset(assetIdRef);
+const moreLikeThisItems = ref<SearchResultMatch[]>([]);
+
+watch(
+  assetIdRef,
+  async () => {
+    moreLikeThisItems.value = await api.getMoreLikeThis(assetIdRef.value);
+  },
+  { immediate: true }
+);
 
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : ""

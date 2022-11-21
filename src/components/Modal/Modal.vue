@@ -20,7 +20,11 @@
         <header
           class="modal-contents__header flex justify-between items-start p-4 md:p-8"
         >
-          <h2 class="flex-1 font-bold text-2xl mr-12">{{ label }}</h2>
+          <h2 class="flex-1 font-bold text-2xl mr-12 flex items-center">
+            <slot name="label">
+              {{ label }}
+            </slot>
+          </h2>
         </header>
         <div class="modal-contents__body flex-1 overflow-auto p-4 md:p-8">
           <slot />
