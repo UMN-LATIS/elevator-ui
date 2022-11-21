@@ -383,14 +383,6 @@ export interface ApiInterstitialResponse {
   interstitialText?: string;
 }
 
-export type ElevatorPluginTypes = "Canvas" | "Wordpress" | string;
-export interface ElevatorSessionStorage {
-  // https://canvas.umn.edu/courses/365212/external_content/success/external_tool_dialog
-  returnURL?: string;
-  entangledSecret?: unknown;
-  elevatorPlugin?: ElevatorPluginTypes;
-  includeMetadata?: unknown;
-  elevatorCallbackType?: "lti" | "JS";
-  apiKey?: unknown;
-  timeStamp?: unknown;
-}
+export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
+
+export type ElevatorCallbackType = "lti" | "JS";

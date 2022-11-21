@@ -3,7 +3,7 @@
     class="object-viewer__button-bar flex justify-end items-center gap-2 p-2"
   >
     <Button
-      v-if="embeddedPlugin"
+      v-if="elevatorPlugin"
       class="block text-xs p-2 uppercase font-bold"
       variant="primary"
       @click="handleAddButtonClick"
@@ -12,11 +12,11 @@
       <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
       <CircleCheckIcon v-if="addingToPluginStatus === 'success'" />
       <CircleXIcon v-if="addingToPluginStatus === 'error'" />
-      Add to {{ embeddedPlugin }}
+      Add to {{ elevatorPlugin }}
     </Button>
     <ConfirmModal
       :isOpen="isInterstitialOpen"
-      :label="`Add to ${embeddedPlugin}`"
+      :label="`Add to ${elevatorPlugin}`"
       @close="handleCloseInterstitial"
       @confirm="handleInterstitialConfirm"
     >
@@ -34,10 +34,10 @@ import AddIcon from "@/icons/AddIcon.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import CircleXIcon from "@/icons/CircleXIcon.vue";
+import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
 
-const embeddedPlugin = sessionStorage.getItem("embeddedPlugin") ?? null;
-const elevatorCallbackType =
-  sessionStorage.getItem("elevatorCallbackType") ?? null;
+const { elevatorPlugin, elevatorCallbackType, returnUrl } =
+  useElevatorSessionStorage();
 
 const props = defineProps<{
   fileHandlerId: string | null;
@@ -90,18 +90,19 @@ async function onConfirmedToAdd() {
     throw new Error("File handler ID not set");
   }
 
-  if (elevatorCallbackType === "lti") {
+  if (elevatorCallbackType.value === "lti") {
     const data = await api.postLtiPayload({
       fileObjectId: props.fileHandlerId,
       excerptId: "",
-      returnUrl: sessionStorage.getItem("returnUrl") || "",
+      returnUrl: returnUrl.value ?? "",
     });
+
     addingToPluginStatus.value = "success";
     console.log({ data });
     return data;
   }
 
-  if (elevatorCallbackType === "wordpress") {
+  if (elevatorCallbackType.value === "JS") {
     console.log("doing things with wordpress");
     addingToPluginStatus.value = "success";
   }

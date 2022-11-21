@@ -151,7 +151,7 @@ export default {
     excerptId: string;
   }) {
     const formdata = new FormData();
-    formdata.append("fileObjectId", fileObjectId);
+    formdata.append("object", fileObjectId);
 
     const res = await axios.post(
       `${config.instance.base.url}/api/v1/lti/ltiPayload`,
