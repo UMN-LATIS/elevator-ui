@@ -35,9 +35,9 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import CircleXIcon from "@/icons/CircleXIcon.vue";
 
-const embeddedPlugin = window.sessionStorage.get("embeddedPlugin") ?? null;
+const embeddedPlugin = sessionStorage.getItem("embeddedPlugin") ?? null;
 const elevatorCallbackType =
-  window.sessionStorage.get("elevatorCallbackType") ?? null;
+  sessionStorage.getItem("elevatorCallbackType") ?? null;
 
 const props = defineProps<{
   fileHandlerId: string | null;
@@ -90,18 +90,18 @@ async function onConfirmedToAdd() {
     throw new Error("File handler ID not set");
   }
 
-  if (elevatorCallbackType.value === "lti") {
+  if (elevatorCallbackType === "lti") {
     const data = await api.postLtiPayload({
       fileObjectId: props.fileHandlerId,
       excerptId: "",
-      returnUrl: window.sessionStorage.getItem("returnUrl") || "",
+      returnUrl: sessionStorage.getItem("returnUrl") || "",
     });
     addingToPluginStatus.value = "success";
     console.log({ data });
     return data;
   }
 
-  if (elevatorCallbackType.value === "wordpress") {
+  if (elevatorCallbackType === "wordpress") {
     console.log("doing things with wordpress");
     addingToPluginStatus.value = "success";
   }

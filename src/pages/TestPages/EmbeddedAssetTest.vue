@@ -15,6 +15,6 @@ withDefaults(
 
 // when a page is launched from canvas the `embeddedPlugin` key
 // will be set to `Canvas` in sessionStorage.
-window.sessionStorage.setItem("embeddedPlugin", "WordPress");
+sessionStorage.setItem("embeddedPlugin", "WordPress");
 </script>
 <style scoped></style>

@@ -10,19 +10,18 @@
       </h2>
 
       <WidgetList v-if="assetId" :assetId="assetId" />
-      <MoreLikeThis v-if="assetId && pageLoaded" :assetId="assetId" />
+      <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />
     </article>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
-const MoreLikeThis = defineAsyncComponent({
-  loader: () => import("@/components/MoreLikeThis/MoreLikeThis.vue"),
-  delay: 500,
-});
+import { SearchResultMatch } from "@/types";
+import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
+import api from "@/helpers/api";
 
 const props = defineProps<{
   assetId: string | null;
@@ -33,11 +32,15 @@ const { asset } = useAsset(assetIdRef);
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
-const pageLoaded = ref(false);
+const moreLikeThisItems = ref<SearchResultMatch[]>([]);
 
-onMounted(() => {
-  pageLoaded.value = true;
-});
+watch(
+  assetIdRef,
+  async () => {
+    moreLikeThisItems.value = await api.getMoreLikeThis(assetIdRef.value);
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 .meta-data-only-view {

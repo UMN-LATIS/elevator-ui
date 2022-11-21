@@ -16,7 +16,7 @@
         />
       </template>
       <WidgetList v-if="assetId" :assetId="assetId" />
-      <MoreLikeThis v-if="assetId" :assetId="assetId" />
+      <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />
     </Drawer>
   </div>
 </template>
