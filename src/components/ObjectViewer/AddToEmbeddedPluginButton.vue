@@ -22,10 +22,19 @@
     >
       {{ interstitial?.interstitialText }}
     </ConfirmModal>
+    <form ref="returnForm" :action="returnUrl ?? ''" method="POST">
+      <input type="hidden" name="lti_version" value="LTI-1p0" />
+      <input
+        type="hidden"
+        name="lti_message_type"
+        value="ContentItemSelection"
+      />
+      <input type="hidden" name="content_items" :value="ltiContentItems" />
+    </form>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import Button from "@/components/Button/Button.vue";
 import api from "@/helpers/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
@@ -43,12 +52,14 @@ const props = defineProps<{
   fileHandlerId: string | null;
 }>();
 
+const returnForm = ref<HTMLFormElement | null>(null);
 const isInterstitialOpen = ref(false);
 const interstitial = ref<ApiInterstitialResponse | null>(null);
 const isConfirmedToAdd = ref(false);
 const addingToPluginStatus = ref<"idle" | "loading" | "success" | "error">(
   "idle"
 );
+const ltiContentItems = ref<string>("");
 
 onMounted(async () => {
   interstitial.value = await api.getEmbedPluginInterstitial();
@@ -97,15 +108,23 @@ async function onConfirmedToAdd() {
       returnUrl: returnUrl.value ?? "",
     });
 
+    ltiContentItems.value = JSON.stringify(data);
     addingToPluginStatus.value = "success";
-    console.log({ data });
-    return;
   }
 
   if (elevatorCallbackType.value === "JS") {
     console.log("doing things with wordpress");
     addingToPluginStatus.value = "success";
   }
+
+  nextTick(() => {
+    if (!returnForm.value) {
+      addingToPluginStatus.value = "error";
+      throw new Error("Return form not set");
+    }
+
+    returnForm.value.submit();
+  });
 }
 
 watch(isConfirmedToAdd, onConfirmedToAdd);

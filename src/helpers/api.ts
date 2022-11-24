@@ -143,7 +143,6 @@ export default {
 
   async postLtiPayload({
     fileObjectId,
-    returnUrl,
     excerptId,
   }: {
     fileObjectId: string;
@@ -159,23 +158,6 @@ export default {
       formdata
     );
 
-    // post data from response to the return url
-    const resFromReturnUrl = await axios.post(
-      returnUrl,
-      {
-        lti_message_type: "ContentItemSelection",
-        lti_version: "LTI-1p0",
-        content_items: res.data,
-      },
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "Access-Control-Allow-Origin": "*",
-          withCredentials: true,
-        },
-      }
-    );
-
-    return resFromReturnUrl.data;
+    return res.data;
   },
 };
