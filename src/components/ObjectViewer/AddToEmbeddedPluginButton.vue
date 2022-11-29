@@ -20,7 +20,11 @@
       @close="handleCloseInterstitial"
       @confirm="handleInterstitialConfirm"
     >
-      {{ interstitial?.interstitialText }}
+      <div
+        v-if="interstitial?.interstitialText"
+        v-html="interstitial?.interstitialText"
+      />
+      <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
     </ConfirmModal>
     <form
       v-if="elevatorCallbackType == 'lti'"
