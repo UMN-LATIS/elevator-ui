@@ -17,12 +17,12 @@ const defaultConfig: AppConfig = {
   routes: {
     test: import.meta.env.VITE_TEST_ROUTE ?? null,
   },
+  mode: import.meta.env.MODE ?? null,
   moreLikeThis: {
     maxInlineResults: 3,
   },
 };
 
-// merge default config with anything on window.Elevator.config
 const config: AppConfig = mergeDeepRight(
   defaultConfig,
   window?.Elevator?.config ?? {}

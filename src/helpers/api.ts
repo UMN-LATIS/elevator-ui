@@ -1,6 +1,12 @@
 import axios from "axios";
 import config from "@/config";
-import { Asset, SearchResultMatch, Template, SearchResponse } from "@/types";
+import {
+  Asset,
+  SearchResultMatch,
+  Template,
+  SearchResponse,
+  ApiInterstitialResponse,
+} from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 
@@ -65,6 +71,10 @@ async function fetchFileDownloadInfo(
   return res.data;
 }
 
+function fetchInterstitial() {
+  return axios.get(`${config.instance.base.url}/home/interstitial`);
+}
+
 export default {
   async getAssetWithTemplate(
     assetId: string | null
@@ -123,5 +133,30 @@ export default {
     fileDownloadResponses.set(key, fileDownloadInfo);
 
     return fileDownloadInfo;
+  },
+
+  async getEmbedPluginInterstitial(): Promise<ApiInterstitialResponse> {
+    const res = await fetchInterstitial();
+    return res.data;
+  },
+
+  async postLtiPayload({
+    fileObjectId,
+    excerptId,
+  }: {
+    fileObjectId: string;
+    returnUrl: string;
+    excerptId: string;
+  }) {
+    const formdata = new FormData();
+    formdata.append("object", fileObjectId);
+    formdata.append("excerptId", excerptId);
+
+    const res = await axios.post(
+      `${config.instance.base.url}/api/v1/lti/ltiPayload`,
+      formdata
+    );
+
+    return res.data;
   },
 };

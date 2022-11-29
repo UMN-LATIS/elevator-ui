@@ -1,9 +1,10 @@
 <template>
-  <section class="object-viewer">
+  <section class="object-viewer relative flex flex-col">
     <h2 class="sr-only">Object Viewer</h2>
+    <AddToEmbeddedPluginButton :fileHandlerId="fileHandlerId" />
     <iframe
       v-if="fileHandlerId"
-      class="object-viewer__iframe w-full h-full min-h-[20rem]"
+      class="object-viewer__iframe w-full flex-1"
       :src="`${config.instance.base.url}/asset/getEmbed/${fileHandlerId}`"
       frameBorder="0"
       allowfullscreen="true"
@@ -20,13 +21,10 @@
 
 <script setup lang="ts">
 import config from "@/config";
+import AddToEmbeddedPluginButton from "./AddToEmbeddedPluginButton.vue";
 
 defineProps<{
   fileHandlerId: string | null;
 }>();
 </script>
-<style scoped>
-.object-viewer {
-  background: var(--app-objectViewer-backgroundColor);
-}
-</style>
+<style scoped></style>

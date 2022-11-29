@@ -13,6 +13,7 @@ export interface AppConfig {
   routes: {
     test: string | null;
   };
+  mode: "development" | "production" | string | null;
   moreLikeThis: {
     /**
      * Number of results to show in More Like This
@@ -376,3 +377,12 @@ export interface Image {
   src: string;
   alt: string;
 }
+
+export interface ApiInterstitialResponse {
+  haveInterstitial: boolean;
+  interstitialText?: string;
+}
+
+export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
+
+export type ElevatorCallbackType = "lti" | "JS";

@@ -10,14 +10,18 @@
       </h2>
 
       <WidgetList v-if="assetId" :assetId="assetId" />
+      <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />
     </article>
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
+import { SearchResultMatch } from "@/types";
+import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
+import api from "@/helpers/api";
 
 const props = defineProps<{
   assetId: string | null;
@@ -27,6 +31,15 @@ const assetIdRef = computed(() => props.assetId);
 const { asset } = useAsset(assetIdRef);
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
+);
+const moreLikeThisItems = ref<SearchResultMatch[]>([]);
+
+watch(
+  assetIdRef,
+  async () => {
+    moreLikeThisItems.value = await api.getMoreLikeThis(assetIdRef.value);
+  },
+  { immediate: true }
 );
 </script>
 <style scoped>
