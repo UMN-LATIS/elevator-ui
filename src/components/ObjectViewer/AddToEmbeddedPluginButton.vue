@@ -44,13 +44,15 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import CircleXIcon from "@/icons/CircleXIcon.vue";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
-
-const { elevatorPlugin, elevatorCallbackType, returnUrl } =
-  useElevatorSessionStorage();
+import { useAssetStore } from "@/stores/assetStore";
 
 const props = defineProps<{
   fileHandlerId: string | null;
 }>();
+
+const assetStore = useAssetStore();
+const { elevatorPlugin, elevatorCallbackType, returnUrl } =
+  useElevatorSessionStorage();
 
 const returnForm = ref<HTMLFormElement | null>(null);
 const isInterstitialOpen = ref(false);
@@ -109,22 +111,34 @@ async function onConfirmedToAdd() {
     });
 
     ltiContentItems.value = JSON.stringify(data);
-    addingToPluginStatus.value = "success";
+
+    nextTick(() => {
+      if (!returnForm.value) {
+        addingToPluginStatus.value = "error";
+        throw new Error("Return form not set");
+      }
+
+      returnForm.value.submit();
+      addingToPluginStatus.value = "success";
+    });
   }
 
   if (elevatorCallbackType.value === "JS") {
-    console.log("doing things with wordpress");
+    // WordPress integration works by opening a new window with Elevator
+    // and then passing a message back to the original WordPress window
+    // by using `window.opener.postMessage`
+    window.opener.postMessage(
+      {
+        pluginResponse: true,
+        fileObjectId: assetStore.activeFileObjectId,
+        objectId: assetStore.activeObjectId,
+        currentLink: window.location.href,
+      },
+      "*"
+    );
     addingToPluginStatus.value = "success";
+    window.close();
   }
-
-  nextTick(() => {
-    if (!returnForm.value) {
-      addingToPluginStatus.value = "error";
-      throw new Error("Return form not set");
-    }
-
-    returnForm.value.submit();
-  });
 }
 
 watch(isConfirmedToAdd, onConfirmedToAdd);
