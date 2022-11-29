@@ -39,7 +39,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, nextTick } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import Button from "@/components/Button/Button.vue";
 import api from "@/helpers/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";

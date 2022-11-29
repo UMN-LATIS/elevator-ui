@@ -44,7 +44,6 @@ async function fetchMoreLikeThis(
     `${config.instance.base.url}/search/searchResults`,
     formdata
   );
-  console.log({ res });
 
   // response may return asset within the search, so filter it out
   // if it does so that "more"
