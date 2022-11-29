@@ -12,9 +12,16 @@ export function useElevatorSessionStorage() {
     null
   );
 
+  function clear() {
+    returnUrl.value = null;
+    elevatorPlugin.value = null;
+    elevatorCallbackType.value = null;
+  }
+
   return {
     returnUrl,
     elevatorPlugin,
     elevatorCallbackType,
+    clear,
   };
 }

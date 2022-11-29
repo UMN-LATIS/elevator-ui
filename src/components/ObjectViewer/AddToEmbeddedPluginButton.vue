@@ -39,7 +39,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch, nextTick } from "vue";
+import { onMounted, onUnmounted, ref, watch, nextTick } from "vue";
 import Button from "@/components/Button/Button.vue";
 import api from "@/helpers/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
@@ -56,8 +56,12 @@ const props = defineProps<{
 }>();
 
 const assetStore = useAssetStore();
-const { elevatorPlugin, elevatorCallbackType, returnUrl } =
-  useElevatorSessionStorage();
+const {
+  elevatorPlugin,
+  elevatorCallbackType,
+  returnUrl,
+  clear: clearElevatorSessionStorage,
+} = useElevatorSessionStorage();
 
 const returnForm = ref<HTMLFormElement | null>(null);
 const isInterstitialOpen = ref(false);
@@ -71,6 +75,13 @@ const ltiContentItems = ref<string>("");
 onMounted(async () => {
   interstitial.value = await api.getEmbedPluginInterstitial();
 });
+
+// clear the session storage
+// before closing this window/iframe to avoid
+// the "Add to" button from showing up
+// NOTE: this does not handle the case when the user cancels the LTI embed
+// in canvas. Maybe there's a better way to handle this?
+window.addEventListener("beforeunload", () => clearElevatorSessionStorage());
 
 async function handleAddButtonClick() {
   addingToPluginStatus.value = "loading";
