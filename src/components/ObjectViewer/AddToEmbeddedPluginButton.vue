@@ -22,7 +22,12 @@
     >
       {{ interstitial?.interstitialText }}
     </ConfirmModal>
-    <form ref="returnForm" :action="returnUrl ?? ''" method="POST">
+    <form
+      v-if="elevatorCallbackType == 'lti'"
+      ref="returnForm"
+      :action="returnUrl ?? ''"
+      method="POST"
+    >
       <input type="hidden" name="lti_version" value="LTI-1p0" />
       <input
         type="hidden"
