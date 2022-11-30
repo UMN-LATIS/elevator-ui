@@ -1,5 +1,6 @@
 <template>
   <nav class="app-menu flex flex-col max-w-md p-8 border">
+    <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header class="py-4 flex">
       <h1 class="text-2xl font-bold">{{ instanceStore.instance.name }}</h1>
     </header>
@@ -57,12 +58,16 @@
 </template>
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
-
 import { useInstanceStore } from "@/stores/instanceStore";
 import AppMenuFooter from "./AppMenuFooter.vue";
 import config from "@/config";
 import { Page } from "@/types";
 import { computed } from "vue";
+import XButton from "@/components/XButton/XButton.vue";
+
+defineEmits<{
+  (eventName: "close"): void;
+}>();
 
 const instanceStore = useInstanceStore();
 
@@ -161,8 +166,8 @@ const navItems = computed((): NavItem[] =>
 // ];
 </script>
 <style scoped>
-/* .app-menu {
+.app-menu {
   background: var(--app-menu-backgroundColor);
   color: var(--app-menu-textColor);
-} */
+}
 </style>

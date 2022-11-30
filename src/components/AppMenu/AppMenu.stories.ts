@@ -5,6 +5,9 @@ import AppMenuGroup from "./AppMenuGroup.vue";
 
 export default {
   component: AppMenu,
+  parameters: {
+    layout: "fullscreen",
+  },
 } as Meta<typeof AppMenu>;
 
 const Template: StoryFn<typeof AppMenu> = (args) => ({

@@ -1,18 +1,43 @@
 <template>
-  <button class="app-menu-button p-2 rounded-full">
+  <button class="app-menu-button p-2 rounded-full" @click="isOpen = true">
     <MenuIcon />
   </button>
-  <MenuPanel>
-    <template #header>
-      {{ instanceStore.instance.name }}
-    </template>
-  </MenuPanel>
+  <Teleport to="body">
+    <div
+      ref="appMenuContainer"
+      :class="{
+        'flex bg-transparent-black-700 fixed inset-0 z-30 justify-center items-center':
+          isOpen,
+        hidden: !isOpen,
+      }"
+      @click.self="isOpen = false"
+    >
+      <AppMenu
+        class="absolute right-0 top-0 bottom-0"
+        @close="isOpen = false"
+      />
+    </div>
+  </Teleport>
 </template>
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from "vue";
 import MenuIcon from "@/icons/MenuIcon.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import AppMenu from "../AppMenu/AppMenu.vue";
 
-const instanceStore = useInstanceStore();
+const appMenuContainer = ref<HTMLDivElement | null>(null);
+const isOpen = ref(false);
+
+function closeIfEsc(event: KeyboardEvent) {
+  if (isOpen.value && event.keyCode === 27) {
+    isOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("keydown", closeIfEsc);
+});
+
+onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
 </script>
 <style scoped lang="postcss">
 .app-menu-button {
