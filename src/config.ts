@@ -3,7 +3,6 @@ import { AppConfig } from "@/types";
 
 const defaultConfig: AppConfig = {
   instance: {
-    name: import.meta.env.VITE_INSTANCE_NAME ?? "Elevator",
     base: {
       origin: import.meta.env.VITE_BASE_ORIGIN ?? "https://localhost",
       path: import.meta.env.VITE_BASE_PATH ?? "/",

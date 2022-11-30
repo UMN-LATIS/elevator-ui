@@ -1,6 +1,5 @@
 export interface AppConfig {
   instance: {
-    name: string;
     base: {
       origin: string;
       path: string;
