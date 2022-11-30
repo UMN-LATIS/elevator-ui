@@ -88,7 +88,7 @@ function toNavItemWithoutChildren(page: Page) {
     id: page.id,
     name: page.title,
     isCurrentPage: getHrefForPage(page) === window.location.href,
-    href: page.children ? getHrefForPage(page) : null,
+    href: getHrefForPage(page),
   };
 }
 
@@ -96,7 +96,7 @@ const navItems = computed((): NavItem[] =>
   instanceStore.pages.map((page) => {
     const navItem = toNavItemWithoutChildren(page);
 
-    if (!page.children) return navItem;
+    if (!page.children || page.children.length === 0) return navItem;
 
     return {
       ...navItem,
