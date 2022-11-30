@@ -1,9 +1,9 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-2">
-    <div class="flex gap-2">
+  <header class="app-header flex justify-between items-center px-4 py-4">
+    <div class="flex gap-2 items-center">
       <a
         :href="config.instance.base.url"
-        class="flex items-center gap-2 hover:no-underline"
+        class="app-header__logo-link hover:no-underline"
       >
         <AppLogoMark />
       </a>
@@ -18,11 +18,7 @@
 import config from "@/config";
 import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
-import ElevatorIcon from "@/icons/ElevatorIcon.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import AppLogoMark from "../AppLogoMark/AppLogoMark.vue";
-
-const instanceStore = useInstanceStore();
 </script>
 <style scoped lang="postcss">
 .app-header {
@@ -31,6 +27,10 @@ const instanceStore = useInstanceStore();
     var(--app-appHeader-borderBottomColor);
   color: var(--app-appHeader-textColor);
 }
+.app-header__logo-link {
+  color: var(--app-appHeader-textColor);
+}
+
 .app-header__wordmark {
   color: var(--app-appHeader-wordmark-textColor);
 }
