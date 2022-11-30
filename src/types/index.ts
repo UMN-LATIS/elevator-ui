@@ -406,6 +406,7 @@ export interface ApiInstanceNavResponse {
 }
 
 export interface InstanceStoreState {
+  fetchStatus: FetchStatus;
   pages: Page[];
   currentUser: User | null;
   instance: ElevatorInstance;
