@@ -1,6 +1,5 @@
 <template>
   <header class="app-header-wrap flex">
-    <AppMenuButton class="w-12" />
     <div class="app-header flex justify-between items-center px-4 py-2 flex-1">
       <div class="flex gap-2">
         <a
@@ -21,17 +20,12 @@
       </div>
       <div class="flex gap-2 items-center">
         <ThemeSelector />
-        <Button
-          variant="primary"
-          class="app-header__menu-button rounded-full p-2"
-        >
-        </Button>
+        <AppMenuButton />
       </div>
     </div>
   </header>
 </template>
 <script setup lang="ts">
-import Button from "@/components/Button/Button.vue";
 import config from "@/config";
 import AppMenuButton from "./AppMenuButton.vue";
 import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";

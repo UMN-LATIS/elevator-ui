@@ -1,5 +1,5 @@
 <template>
-  <button class="app-menu-button p-4">
+  <button class="app-menu-button p-4 rounded-full">
     <MenuIcon />
   </button>
   <MenuPanel>
