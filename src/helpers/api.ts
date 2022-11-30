@@ -6,6 +6,7 @@ import {
   Template,
   SearchResponse,
   ApiInterstitialResponse,
+  ApiInstanceNavResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -157,6 +158,12 @@ export default {
       formdata
     );
 
+    return res.data;
+  },
+  async fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
+    const res = await axios.get<ApiInstanceNavResponse>(
+      `${config.instance.base.url}/home/getInstanceNav`
+    );
     return res.data;
   },
 };

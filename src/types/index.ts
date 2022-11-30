@@ -386,3 +386,58 @@ export interface ApiInterstitialResponse {
 export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
 
 export type ElevatorCallbackType = "lti" | "JS";
+
+export interface ApiInstanceNavResponse {
+  pages: Page[];
+  userIsloggedIn: boolean;
+  userCanCreateDrawers: boolean;
+  userCanManageAssets: boolean;
+  userId: number | null;
+  userDisplayName: string | null;
+  userIsAdmin: boolean;
+  userIsSuperAdmin: boolean;
+  instanceName: string;
+  instanceId: number;
+  instanceHasLogo: boolean;
+  instanceLogo: number;
+  contact: string;
+  useCentralAuth: boolean;
+  centralAuthLabel: string;
+  collections: AssetCollection[];
+}
+
+export interface InstanceStoreState {
+  pages: Page[];
+  currentUser: User | null;
+  instance: ElevatorInstance;
+  collections: AssetCollection[];
+}
+
+export interface ElevatorInstance {
+  id: number | null;
+  name: string | null;
+  logoImg: Image | null; // path to logo if one exists
+  contact: string | null; // email contact
+  useCentralAuth: boolean; // whether or not to use central auth
+  centralAuthLabel: string; // label for central auth
+}
+
+export interface AssetCollection {
+  id: number;
+  title: string;
+}
+
+export interface Page {
+  title: string;
+  id: number;
+  children: Page[];
+}
+
+export interface User {
+  id: number;
+  displayName: string;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
+  canManageDrawers: boolean;
+  canManageAssets: boolean;
+}
