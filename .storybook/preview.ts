@@ -22,6 +22,10 @@ export const parameters = {
     default: "transparent",
     values: [
       {
+        name: "transparent",
+        value: "transparent",
+      },
+      {
         name: "white",
         value: "#fff",
       },
