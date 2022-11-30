@@ -1,20 +1,21 @@
 <template>
-  <li class="app-menu-item my-2">
-    <Link :to="to" :href="href" class="app-menu-item__link">
-      <slot />
-    </Link>
-  </li>
+  <a
+    :href="item.href ?? '#'"
+    :class="[
+      item.isCurrentPage
+        ? 'bg-neutral-100 text-neutral-900'
+        : ' text-neutral-600 hover:bg-neutral-100  hover:text-neutral-900',
+      'group w-full flex items-center pl-2 py-2 font-medium rounded-md my-1 hover:no-underline',
+    ]"
+  >
+    {{ item.name }}
+  </a>
 </template>
 <script setup lang="ts">
-import Link from "@/components/Link/Link.vue";
+import { NavItem } from "@/types";
 
 defineProps<{
-  to?: string;
-  href?: string;
+  item: NavItem;
 }>();
 </script>
-<style scoped>
-.app-menu-item__link {
-  color: var(--app-menu-textColor);
-}
-</style>
+<style scoped></style>

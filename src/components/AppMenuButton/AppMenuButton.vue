@@ -6,9 +6,9 @@
     <div
       ref="appMenuContainer"
       :class="{
-        'flex bg-transparent-black-700 fixed inset-0 z-30 justify-center items-center':
+        'flex bg-transparent-black-700 fixed inset-0 z-30 justify-center items-center transition opacity-100 duration-1000':
           isOpen,
-        hidden: !isOpen,
+        'hidden opacity-0': !isOpen,
       }"
       @click.self="isOpen = false"
     >

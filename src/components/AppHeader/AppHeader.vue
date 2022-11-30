@@ -19,7 +19,6 @@ import config from "@/config";
 import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import AppLogoMark from "../AppLogoMark/AppLogoMark.vue";
-import AppMenu from "../AppMenu/AppMenu.vue";
 </script>
 <style scoped lang="postcss">
 .app-header {

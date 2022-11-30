@@ -1,12 +1,12 @@
 <template>
-  <footer class="py-4 flex flex-col items-center">
+  <footer class="py-4 flex flex-col items-center text-sm">
     <p>
       Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
     </p>
     <p>
       Made by
       <a href="https://umn.edu">
-        <UMNLogo class="inline-block" />
+        <UMNLogo class="inline-block w-6" />
       </a>
     </p>
   </footer>
