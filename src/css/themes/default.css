@@ -175,7 +175,7 @@
   --app-mediaCard-title-textColor: var(--app-accordion-header-textColor);
 
   /* App Menu */
-  --app-menu-backgroundColor: var(--color-neutral-900);
-  --app-menu-textColor: var(--color-neutral-50);
-  --app-menu-link-textColor: var(--color-neutral-50);
+  --app-menu-backgroundColor: var(--color-neutral-50);
+  --app-menu-textColor: var(--color-neutral-900);
+  --app-menu-link-textColor: var(--color-neutral-900);
 }
