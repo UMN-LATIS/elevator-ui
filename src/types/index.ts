@@ -430,7 +430,7 @@ export interface AssetCollection {
 export interface Page {
   title: string;
   id: number;
-  children: Page[];
+  children?: Page[];
 }
 
 export interface User {
