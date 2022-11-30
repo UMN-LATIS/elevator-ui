@@ -19,7 +19,7 @@ export const parameters = {
     },
   },
   backgrounds: {
-    default: "white",
+    default: "transparent",
     values: [
       {
         name: "white",
