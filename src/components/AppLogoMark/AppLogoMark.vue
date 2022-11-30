@@ -14,6 +14,7 @@
 </template>
 <script setup lang="ts">
 import { useInstanceStore } from "@/stores/instanceStore";
+import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 
 const instanceStore = useInstanceStore();
 </script>
