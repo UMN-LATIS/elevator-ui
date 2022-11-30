@@ -193,8 +193,8 @@
     color: var(--darktheme-blue-500);
   }
 
-  & .app-header__logo-img {
-    /* assuming the image was created with light mode */
+  /* assuming the image was created with light mode */
+  /* & .app-header__logo-img {
     filter: invert(1);
-  }
+  } */
 }

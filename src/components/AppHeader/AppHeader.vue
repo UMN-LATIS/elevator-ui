@@ -5,16 +5,7 @@
         :href="config.instance.base.url"
         class="flex items-center gap-2 hover:no-underline"
       >
-        <img
-          v-if="instanceStore.instance.logoImg"
-          :src="instanceStore.instance.logoImg.src"
-          :alt="instanceStore.instance.logoImg.alt"
-          class="app-header__logo-img h-8"
-        />
-        <ElevatorIcon v-else class="h-full app-header__icon" />
-        <h1 class="app-header__wordmark font-bold text-xl">
-          {{ instanceStore.instance.name }}
-        </h1>
+        <AppLogoMark />
       </a>
     </div>
     <div class="flex gap-2 items-center">
@@ -25,10 +16,11 @@
 </template>
 <script setup lang="ts">
 import config from "@/config";
-import AppMenuButton from "./AppMenuButton.vue";
-import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";
+import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
+import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import AppLogoMark from "../AppLogoMark/AppLogoMark.vue";
 
 const instanceStore = useInstanceStore();
 </script>
