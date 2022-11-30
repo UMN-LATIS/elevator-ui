@@ -1,27 +1,25 @@
 <template>
-  <header class="app-header-wrap flex">
-    <div class="app-header flex justify-between items-center px-4 py-2 flex-1">
-      <div class="flex gap-2">
-        <a
-          :href="config.instance.base.url"
-          class="flex items-center gap-2 hover:no-underline"
-        >
-          <img
-            v-if="instanceStore.instance.logoImg"
-            :src="instanceStore.instance.logoImg.src"
-            :alt="instanceStore.instance.logoImg.alt"
-            class="h-8"
-          />
-          <ElevatorIcon v-else class="h-full app-header__icon" />
-          <h1 class="app-header__wordmark font-bold text-xl">
-            {{ instanceStore.instance.name }}
-          </h1>
-        </a>
-      </div>
-      <div class="flex gap-2 items-center">
-        <ThemeSelector />
-        <AppMenuButton />
-      </div>
+  <header class="app-header flex justify-between items-center px-4 py-2">
+    <div class="flex gap-2">
+      <a
+        :href="config.instance.base.url"
+        class="flex items-center gap-2 hover:no-underline"
+      >
+        <img
+          v-if="instanceStore.instance.logoImg"
+          :src="instanceStore.instance.logoImg.src"
+          :alt="instanceStore.instance.logoImg.alt"
+          class="app-header__logo-img h-8"
+        />
+        <ElevatorIcon v-else class="h-full app-header__icon" />
+        <h1 class="app-header__wordmark font-bold text-xl">
+          {{ instanceStore.instance.name }}
+        </h1>
+      </a>
+    </div>
+    <div class="flex gap-2 items-center">
+      <ThemeSelector />
+      <AppMenuButton />
     </div>
   </header>
 </template>

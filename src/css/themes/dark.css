@@ -187,10 +187,14 @@
   --app-mediaCard-textColor: var(--app-accordion-body-textColor);
   --app-mediaCard-title-textColor: var(--darktheme-blue-300);
 
-
   /* We can also can tweak styles with plain old CSS selectors */
   & .x-button {
     background: var(--darktheme-blue-900);
     color: var(--darktheme-blue-500);
+  }
+
+  & .app-header__logo-img {
+    /* assuming the image was created with light mode */
+    filter: invert(1);
   }
 }
