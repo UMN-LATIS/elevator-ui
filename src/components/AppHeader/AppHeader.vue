@@ -1,49 +1,44 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-2">
-    <div>
-      <a
-        :href="config.instance.base.url"
-        class="flex items-center gap-4 hover:no-underline"
-      >
-        <ElevatorIcon class="h-full app-header__icon" />
-        <h1 class="app-header__wordmark font-bold text-xl">
-          {{ title }}
-        </h1>
-      </a>
-    </div>
-    <div class="flex gap-2 items-center">
-      <ThemeSelector />
-      <Button
-        variant="primary"
-        class="app-header__menu-button rounded-full p-2"
-      >
-        <AppMenuButton />
-      </Button>
+  <header class="app-header-wrap flex">
+    <AppMenuButton class="w-12" />
+    <div class="app-header flex justify-between items-center px-4 py-2 flex-1">
+      <div class="flex gap-2">
+        <a
+          :href="config.instance.base.url"
+          class="flex items-center gap-2 hover:no-underline"
+        >
+          <img
+            v-if="instanceStore.instance.logoImg"
+            :src="instanceStore.instance.logoImg.src"
+            :alt="instanceStore.instance.logoImg.alt"
+            class="h-8"
+          />
+          <ElevatorIcon v-else class="h-full app-header__icon" />
+          <h1 class="app-header__wordmark font-bold text-xl">
+            {{ instanceStore.instance.name }}
+          </h1>
+        </a>
+      </div>
+      <div class="flex gap-2 items-center">
+        <ThemeSelector />
+        <Button
+          variant="primary"
+          class="app-header__menu-button rounded-full p-2"
+        >
+        </Button>
+      </div>
     </div>
   </header>
 </template>
 <script setup lang="ts">
-import { MenuItem, Image } from "@/types";
-import defaultLogoImg from "./defaultLogoImg";
-import defaultPageMenuItems from "./defaultPageMenuItems";
 import Button from "@/components/Button/Button.vue";
 import config from "@/config";
 import AppMenuButton from "./AppMenuButton.vue";
 import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
-withDefaults(
-  defineProps<{
-    logoImg?: Image;
-    menuItems?: MenuItem[];
-    title?: string;
-  }>(),
-  {
-    logoImg: () => defaultLogoImg,
-    menuItems: () => defaultPageMenuItems,
-    title: () => config.instance.name,
-  }
-);
+const instanceStore = useInstanceStore();
 </script>
 <style scoped lang="postcss">
 .app-header {
