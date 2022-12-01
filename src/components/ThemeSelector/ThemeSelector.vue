@@ -2,11 +2,10 @@
   <Menu as="div" class="relative inline-block text-left">
     <div>
       <MenuButton
-        class="inline-flex w-full justify-center items-center rounded-md gap-2 px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+        class="inline-flex w-full justify-center items-center rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
       >
-        <h2 class="text-xs uppercase font-medium">Theme</h2>
-        <span>{{ activeThemeName ?? "-" }}</span>
-        <ChevronDownIcon class="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+        <span>Theme</span>
+        <ChevronDownIcon class="h-4 w-4" aria-hidden="true" />
       </MenuButton>
     </div>
 
@@ -29,8 +28,10 @@
           >
             <button
               :class="[
-                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                active ? 'bg-blue-100 text-neutral-900' : 'text-neutral-700',
                 'block px-4 py-2 text-sm w-full text-left',
+                isCurrentTheme(theme.id) &&
+                  'bg-amber-100 border-l-2 border-neutral-900 font-bold',
               ]"
               @click="setTheme(theme.id)"
             >
@@ -44,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import { useTheme, type ThemeId } from "./useTheme";
@@ -56,12 +57,9 @@ const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
   ],
 });
 
-const activeThemeName = computed(() => {
-  const theme = availableThemes.value.find(
-    (theme) => theme.id === activeThemeId.value
-  );
-  return theme?.name;
-});
+function isCurrentTheme(themeId: ThemeId) {
+  return themeId === activeThemeId.value;
+}
 
 function setTheme(themeId: ThemeId) {
   activeThemeId.value = themeId;
