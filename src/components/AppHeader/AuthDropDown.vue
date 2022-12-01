@@ -1,5 +1,9 @@
 <template>
-  <DropDownMenu :label="menuLabel">
+  <DropDown :label="menuLabel">
+    <template #label>
+      <Avatar v-if="currentUser" :name="currentUser.displayName" />
+      <span v-else>Login</span>
+    </template>
     <template v-if="currentUser">
       <DropDownItem
         v-if="currentUser.id"
@@ -7,13 +11,19 @@
       >
         Preferences
       </DropDownItem>
-      <DropDownItem :href="`${config.instance.base.url}/loginManager/logout`">
+      <DropDownItem
+        :href="`${
+          config.instance.base.url
+        }/loginManager/logout?redirect=${encodeURIComponent(
+          config.instance.base.url
+        )}`"
+      >
         Logout
       </DropDownItem>
     </template>
     <template v-else>
       <DropDownItem
-        v-if="instance.useCentralAuth"
+        v-if="instance.useCentralAuth && instance.centralAuthLabel"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
       >
         {{ instance.centralAuthLabel }} Login
@@ -24,13 +34,14 @@
         {{ instance.useCentralAuth && "Guest" }} Login
       </DropDownItem>
     </template>
-  </DropDownMenu>
+  </DropDown>
 </template>
 <script setup lang="ts">
 import { ElevatorInstance, User } from "@/types";
 import { computed } from "vue";
-import DropDownMenu from "@/components/DropDownMenu/DropDown.vue";
-import DropDownItem from "../DropDownMenu/DropDownItem.vue";
+import DropDown from "@/components/DropDownMenu/DropDown.vue";
+import DropDownItem from "@/components/DropDownMenu/DropDownItem.vue";
+import Avatar from "@/components/Avatar/Avatar.vue";
 import config from "@/config";
 import { useBrowserLocation } from "@vueuse/core";
 

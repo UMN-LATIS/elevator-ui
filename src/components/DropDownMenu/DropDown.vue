@@ -4,7 +4,9 @@
       <MenuButton
         class="inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
       >
-        {{ label }}
+        <slot name="label">
+          {{ label }}
+        </slot>
         <ChevronDownIcon class="h-4 w-4 m-1" aria-hidden="true" />
       </MenuButton>
     </div>
