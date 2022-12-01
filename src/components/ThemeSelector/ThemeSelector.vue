@@ -4,7 +4,7 @@
       <MenuButton
         class="inline-flex w-full justify-center items-center rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
       >
-        <span>Theme</span>
+        <ThemeIcon />
         <ChevronDownIcon class="h-4 w-4" aria-hidden="true" />
       </MenuButton>
     </div>
@@ -48,6 +48,8 @@
 import { watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
+import Popover from "@/components/Popover/Popover.vue";
+import ThemeIcon from "@/icons/ThemeIcon.vue";
 import { useTheme, type ThemeId } from "./useTheme";
 
 const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
