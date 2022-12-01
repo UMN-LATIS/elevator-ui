@@ -10,13 +10,9 @@
 </template>
 <script setup lang="ts">
 import { useInstanceStore } from "@/stores/instanceStore";
-// import AppMenuFooter from "./AppMenuFooter.vue";
 import config from "@/config";
 import { Page, NavItem } from "@/types";
 import { computed } from "vue";
-// import XButton from "@/components/XButton/XButton.vue";
-// import ExpandableNavSection from "./ExpandableNavSection.vue";
-// import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 import AppMenuPure from "./AppMenuPure.vue";
 
 defineEmits<{

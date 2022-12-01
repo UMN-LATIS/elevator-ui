@@ -1,5 +1,5 @@
 <template>
-  <section class="">
+  <section>
     <div v-if="!currentUser" class="flex flex-col gap-2">
       <Button
         v-if="instance.useCentralAuth"
