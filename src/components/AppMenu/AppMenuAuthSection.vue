@@ -4,13 +4,13 @@
       <Button
         v-if="instance.useCentralAuth"
         variant="primary"
-        :href="`${config.instance.base.origin}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
+        :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
       >
         {{ instance.centralAuthLabel }} Login
       </Button>
       <Button
         :variant="instance.useCentralAuth ? 'secondary' : 'primary'"
-        :href="`${config.instance.base.origin}/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
+        :href="`${config.instance.base.url}/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
       >
         {{ instance.useCentralAuth && "Guest" }} Login
       </Button>
@@ -25,7 +25,7 @@
       <div class="flex flex-col gap-2 mt-4">
         <Button
           variant="secondary"
-          :href="`${config.instance.base.origin}/loginManager/logout/?redirect=${encodedCallbackUrl}`"
+          :href="`${config.instance.base.url}/loginManager/logout/?redirect=${encodedCallbackUrl}`"
         >
           Logout
         </Button>
