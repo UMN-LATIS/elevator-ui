@@ -1,6 +1,6 @@
 <template>
   <Button
-    class="arrow-button rounded-full p-2 cursor-pointer"
+    class="arrow-button !rounded-full !p-2 cursor-pointer"
     variant="primary"
     v-bind="$attrs"
   >

@@ -6,7 +6,7 @@
       </div>
       <Disclosure v-else v-slot="{ open }" as="div" class="space-y-1">
         <DisclosureButton
-          class="group w-full flex items-center pl-2 pr-1 py-2 text-left font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 my-1 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+          class="group w-full flex items-center pl-2 pr-1 py-2 text-left font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 my-1 text-neutral-600 hover:bg-blue-100 hover:text-neutral-900"
         >
           <span class="flex-1">{{ item.name }}</span>
           <ChevronDownIcon
