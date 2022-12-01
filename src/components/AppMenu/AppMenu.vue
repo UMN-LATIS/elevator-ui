@@ -7,18 +7,6 @@
       @close="$emit('close')"
     />
   </div>
-
-  <!-- <nav class="app-menu flex flex-col w-md max-w-full p-8 border">
-    <XButton class="absolute right-4 top-4" @click="$emit('close')" />
-    <header class="flex mt-4 py-4">
-      <h1 class="text-2xl font-bold">{{ instanceStore.instance.name }}</h1>
-    </header>
-    <AppMenuAuthSection class="py-4" />
-    <div class="app-menu__items flex-1 my-4 py-4 border-y border-neutral-600">
-      <ExpandableNavSection :navItems="pageNavItems" />
-    </div>
-    <AppMenuFooter />
-  </nav> -->
 </template>
 <script setup lang="ts">
 import { useInstanceStore } from "@/stores/instanceStore";

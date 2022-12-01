@@ -16,15 +16,26 @@
       :currentUser="currentUser"
       class="py-4"
     />
-    <AppMenuFooter />
+    <footer class="py-4 flex flex-col items-center text-sm">
+      <p>
+        Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
+      </p>
+      <p>
+        Made by
+        <a href="https://umn.edu">
+          <UMNLogo class="inline-block w-6" />
+        </a>
+      </p>
+    </footer>
   </nav>
 </template>
 <script setup lang="ts">
-import AppMenuFooter from "./AppMenuFooter.vue";
 import XButton from "@/components/XButton/XButton.vue";
 import ExpandableNavSection from "./ExpandableNavSection.vue";
 import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 import { ElevatorInstance, NavItem, User } from "@/types";
+import UMNLogo from "@/icons/UMNLogo.vue";
+
 defineProps<{
   instance: ElevatorInstance;
   navItems: NavItem[];
