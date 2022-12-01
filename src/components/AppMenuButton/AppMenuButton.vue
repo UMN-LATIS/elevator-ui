@@ -3,17 +3,21 @@
     <MenuIcon />
   </button>
   <Teleport to="body">
-    <div
-      ref="appMenuContainer"
-      :class="{
-        'flex bg-transparent-black-700 fixed inset-0 z-30 justify-center items-center transition opacity-100 duration-1000':
-          isOpen,
-        'hidden opacity-0': !isOpen,
-      }"
-      @click.self="isOpen = false"
-    >
+    <div class="overflow-hidden fixed inset-0 pointer-events-none z-30">
+      <div
+        class="fixed inset-0 transition-opacity z-0"
+        :class="{
+          ' bg-black opacity-50 pointer-events-auto': isOpen,
+          'opacity-0': !isOpen,
+        }"
+        @click.self="isOpen = false"
+      />
       <AppMenu
-        class="absolute right-0 top-0 bottom-0"
+        class="absolute right-0 top-0 bottom-0 z-10 transition-transform transform-gpu pointer-events-auto"
+        :class="{
+          'translate-x-full': !isOpen,
+          'translate-x-0': isOpen,
+        }"
         @close="isOpen = false"
       />
     </div>
@@ -24,7 +28,6 @@ import { ref, onMounted, onUnmounted } from "vue";
 import MenuIcon from "@/icons/MenuIcon.vue";
 import AppMenu from "../AppMenu/AppMenu.vue";
 
-const appMenuContainer = ref<HTMLDivElement | null>(null);
 const isOpen = ref(false);
 
 function closeIfEsc(event: KeyboardEvent) {
