@@ -7,7 +7,7 @@
     <template v-if="currentUser">
       <DropDownItem
         v-if="currentUser.id"
-        :href="`${config.instance.base.url}/editUser/${currentUser.id}`"
+        :href="`${config.instance.base.url}/permissions/editUser/${currentUser.id}`"
       >
         Preferences
       </DropDownItem>
