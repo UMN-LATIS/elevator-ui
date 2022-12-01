@@ -22,18 +22,7 @@
       >
         <slot name="header" />
         <div class="py-1">
-          <MenuItem v-for="item in items" v-slot="{ active }" :key="item.label">
-            <a
-              href="item.href"
-              :class="[
-                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                'block px-4 py-2 text-sm',
-                item.current &&
-                  'font-bold border-l-2 border-neutral-900 bg-transparent-black-100',
-              ]"
-              >{{ item.label }}</a
-            >
-          </MenuItem>
+          <slot />
         </div>
         <slot name="footer" />
       </MenuItems>
@@ -42,15 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 
 defineProps<{
   label: string;
-  items: {
-    label: string;
-    href: string;
-    current?: boolean;
-  }[];
 }>();
 </script>

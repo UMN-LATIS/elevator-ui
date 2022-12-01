@@ -10,6 +10,10 @@
     </div>
     <div class="flex gap-2 items-center">
       <ThemeSelector />
+      <AuthDropDown
+        :currentUser="instanceStore.currentUser"
+        :instance="instanceStore.instance"
+      />
       <AppMenuButton />
     </div>
   </header>
@@ -19,6 +23,10 @@ import config from "@/config";
 import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import AppLogoMark from "../AppLogoMark/AppLogoMark.vue";
+import AuthDropDown from "./AuthDropDown.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
+
+const instanceStore = useInstanceStore();
 </script>
 <style scoped lang="postcss">
 .app-header {
