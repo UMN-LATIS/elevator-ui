@@ -1,6 +1,6 @@
 <template>
   <kbd
-    class="inline-flex items-center rounded border border-gray-200 px-2 font-sans text-sm font-medium text-gray-400"
+    class="inline-flex items-center rounded border border-neutral-400 px-1 font-sans text-sm font-medium text-neutral-400"
   >
     <slot />
   </kbd>

@@ -18,12 +18,16 @@
         :id="id"
         :type="type"
         :name="id"
-        class="block w-full rounded-md border-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 bg-transparent-black-100"
+        :value="value"
+        class="block w-full rounded-md border-none focus:ring-indigo-500 focus:ring-offset-2 focus:ring-2 sm:text-sm py-2 bg-transparent-black-100"
         :class="{
           'pl-10': $slots.prepend,
           'pr-10': $slots.append,
         }"
         v-bind="$attrs"
+        @focus="$emit('focus', $event)"
+        @blur="$emit('blur', $event)"
+        @input="$emit('input', $event)"
       />
       <div
         v-if="$slots.append"
@@ -40,6 +44,7 @@ withDefaults(
     id: string;
     label: string;
     labelHidden?: boolean;
+    value: string;
     type?: string;
   }>(),
   {
@@ -47,5 +52,11 @@ withDefaults(
     type: "text",
   }
 );
+
+defineEmits<{
+  (eventName: "focus", event: FocusEvent): void;
+  (eventName: "blur", event: FocusEvent): void;
+  (eventName: "input", event: InputEvent): void;
+}>();
 </script>
 <style scoped></style>

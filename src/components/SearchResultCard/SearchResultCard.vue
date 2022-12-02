@@ -2,7 +2,7 @@
   <MediaCard
     :imgSrc="thumbnailImgSrc"
     :imgAlt="title"
-    class="search-result-card hover:shadow-lg transition-shadow"
+    class="search-result-card hover:shadow-lg transition-shadow max-w-sm"
   >
     <div class="relative h-full pb-16">
       <Link :to="getAssetUrl(searchMatch.objectId)"
