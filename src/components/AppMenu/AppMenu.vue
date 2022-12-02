@@ -64,12 +64,12 @@ const navItems = computed((): NavItem[] => {
   const helpNavItem = navItemFactory.createHelpMenu({ instance });
 
   return [
-    // this spread stuff will add an item only if it's truthy
-    ...(adminNavItem ? [adminNavItem] : []),
     ...pageNavItems,
     navItemFactory.createCollectionsNavItem(),
     navItemFactory.createDrawersNavItem(),
+    // this spread stuff will add an item only if it's truthy
     ...(editNavItem ? [editNavItem] : []),
+    ...(adminNavItem ? [adminNavItem] : []),
     ...(helpNavItem ? [helpNavItem] : []),
   ];
 });
