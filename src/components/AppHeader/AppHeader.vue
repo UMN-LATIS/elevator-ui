@@ -8,7 +8,7 @@
         <AppLogoMark />
       </a>
     </div>
-    <SearchBar class="flex-1 max-w-lg" />
+    <SearchBar class="flex-1 w-full max-w-lg" />
     <div class="flex gap-2 items-center">
       <ThemeSelector
         v-show="config.instance.theming.enabled"
