@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen flex flex-col">
-    <AppHeader />
-    <div class="flex-1">
+    <AppHeader class="fixed top-0 w-full z-20 backdrop-blur-sm md:static" />
+    <div class="flex-1 mt-16 md:mt-0">
       <slot />
     </div>
   </div>

@@ -7,7 +7,7 @@
       class="app-header__logo-img h-8"
     />
     <ElevatorIcon v-else class="h-full app-header__icon" />
-    <h1 class="app-header__wordmark font-bold text-xl sr-only md:not-sr-only">
+    <h1 class="app-header__wordmark font-bold text-xl hidden sm:block">
       {{ instanceStore.instance.name }}
     </h1>
   </div>
