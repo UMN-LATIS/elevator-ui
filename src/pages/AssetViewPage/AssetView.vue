@@ -71,20 +71,23 @@ const assetStore = useAssetStore();
 const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
 </script>
 <style scoped lang="postcss">
-.border-r-asset-view {
-  border-right: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
+@media (min-width: 48rem) {
+  .border-r-asset-view {
+    border-right: var(--app-panel-borderWidth) solid
+      var(--app-panel-borderColor);
+  }
+  .border-l-asset-view {
+    border-left: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
+  }
+  .border-x-asset-view {
+    @apply border-r-asset-view border-l-asset-view;
+  }
 }
-.border-l-asset-view {
-  border-left: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
-}
+
 .border-b-asset-view {
   border-bottom: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
 }
 .border-t-asset-view {
   border-top: var(--app-panel-borderWidth) solid var(--app-panel-borderColor);
-}
-
-.border-x-asset-view {
-  @apply border-r-asset-view border-l-asset-view;
 }
 </style>

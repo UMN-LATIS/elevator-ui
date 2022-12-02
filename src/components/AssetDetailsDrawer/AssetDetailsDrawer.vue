@@ -4,7 +4,7 @@
       :label="assetTitle"
       :isOpen="isOpen"
       :showToggle="showToggle"
-      class="h-full"
+      class="h-full py-4 md:py-0"
       @toggle="$emit('toggle')"
     >
       <template #header-label>
@@ -15,7 +15,7 @@
           }"
         />
       </template>
-      <WidgetList v-if="assetId" :assetId="assetId" />
+      <WidgetList v-if="assetId" :assetId="assetId" class="py-4 md:py-0" />
       <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />
     </Drawer>
   </div>

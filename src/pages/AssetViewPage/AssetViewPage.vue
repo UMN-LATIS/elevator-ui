@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout v-if="isPageLoaded">
+  <DefaultLayout v-if="isPageLoaded" class="overflow-x-hidden">
     <MetaDataOnlyView
       v-if="isMetaDataOnly"
       :assetId="assetStore.activeAssetId"
