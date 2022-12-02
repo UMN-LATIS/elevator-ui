@@ -1,5 +1,5 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-4">
+  <header class="app-header flex justify-between items-center px-4 py-4 gap-8">
     <div class="flex gap-2 items-center">
       <a
         :href="config.instance.base.url"
@@ -8,6 +8,7 @@
         <AppLogoMark />
       </a>
     </div>
+    <SearchBar class="flex-1 max-w-lg" />
     <div class="flex gap-2 items-center">
       <ThemeSelector
         v-show="config.instance.theming.enabled"
@@ -25,7 +26,8 @@
 import config from "@/config";
 import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
-import AppLogoMark from "../AppLogoMark/AppLogoMark.vue";
+import SearchBar from "@/components/SearchBar/SearchBar.vue";
+import AppLogoMark from "@/components/AppLogoMark/AppLogoMark.vue";
 import AuthDropDown from "./AuthDropDown.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 
