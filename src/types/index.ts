@@ -435,7 +435,7 @@ export interface User {
 }
 
 export interface NavItem {
-  id: number;
+  id: number | string;
   name: string;
   href: string | null;
   isCurrentPage?: boolean;

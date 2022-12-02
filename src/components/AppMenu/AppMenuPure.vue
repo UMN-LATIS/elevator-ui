@@ -35,6 +35,7 @@ import ExpandableNavSection from "./ExpandableNavSection.vue";
 import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 import { ElevatorInstance, NavItem, User } from "@/types";
 import UMNLogo from "@/icons/UMNLogo.vue";
+import AppMenuItem from "./AppMenuItem.vue";
 
 defineProps<{
   instance: ElevatorInstance;

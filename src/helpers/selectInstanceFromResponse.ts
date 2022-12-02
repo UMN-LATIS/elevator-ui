@@ -29,6 +29,6 @@ export function selectInstanceFromResponse(
     logoImg,
     useCentralAuth,
     centralAuthLabel,
-    contact,
+    contact: contact,
   };
 }
