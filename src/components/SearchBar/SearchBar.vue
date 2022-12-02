@@ -31,13 +31,13 @@
             >
               <CircleXIcon />
             </button>
-            <button
+            <!-- <button
               type="button"
               class="text-neutral-400 hover:text-neutral-900"
               @click="isAdvancedSearchModalOpen = true"
             >
               <OptionsIcon />
-            </button>
+            </button> -->
             <KeyboardShortcut> ⌘K </KeyboardShortcut>
           </div>
         </template>
@@ -58,6 +58,7 @@ import { OptionsIcon, SearchIcon, CircleXIcon } from "@/icons";
 import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Modal from "@/components/Modal/Modal.vue";
+import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 
