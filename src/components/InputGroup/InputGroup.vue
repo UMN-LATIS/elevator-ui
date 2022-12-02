@@ -18,11 +18,12 @@
         :id="id"
         :type="type"
         :name="id"
-        class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 bg-transparent-black-100"
+        class="block w-full rounded-md border-none focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 bg-transparent-black-100"
         :class="{
           'pl-10': $slots.prepend,
           'pr-10': $slots.append,
         }"
+        v-bind="$attrs"
       />
       <div
         v-if="$slots.append"

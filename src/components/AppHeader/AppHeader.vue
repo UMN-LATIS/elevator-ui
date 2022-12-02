@@ -1,5 +1,5 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-2">
+  <header class="app-header flex justify-between items-center px-4 py-2 gap-8">
     <div>
       <a
         :href="config.instance.base.url"
@@ -11,6 +11,7 @@
         </h1>
       </a>
     </div>
+    <SearchBar class="flex-1 max-w-lg" />
     <div class="flex gap-2 items-center">
       <ThemeSelector />
       <Button
@@ -23,14 +24,15 @@
   </header>
 </template>
 <script setup lang="ts">
-import { MenuItem, Image } from "@/types";
 import defaultLogoImg from "./defaultLogoImg";
 import defaultPageMenuItems from "./defaultPageMenuItems";
 import Button from "@/components/Button/Button.vue";
-import config from "@/config";
+import SearchBar from "@/components/SearchBar/SearchBar.vue";
+import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import AppMenuButton from "./AppMenuButton.vue";
-import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";
-import ElevatorIcon from "@/icons/ElevatorIcon.vue";
+import config from "@/config";
+import { ElevatorIcon } from "@/icons";
+import { MenuItem, Image } from "@/types";
 
 withDefaults(
   defineProps<{
