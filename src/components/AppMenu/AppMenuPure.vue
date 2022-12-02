@@ -1,5 +1,5 @@
 <template>
-  <nav class="app-menu flex flex-col w-md max-w-full p-8 h-screen relative">
+  <nav class="app-menu flex flex-col w-[90vw] sm:w-md p-8 h-screen relative">
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header class="flex mt-4 py-4">
       <h1 class="text-2xl font-bold">
@@ -14,7 +14,7 @@
     <AppMenuAuthSection
       :instance="instance"
       :currentUser="currentUser"
-      class="py-4"
+      class="py-4 hidden sm:block"
     />
     <footer class="py-4 flex flex-col items-center text-sm">
       <p>
@@ -35,7 +35,6 @@ import ExpandableNavSection from "./ExpandableNavSection.vue";
 import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 import { ElevatorInstance, NavItem, User } from "@/types";
 import UMNLogo from "@/icons/UMNLogo.vue";
-import AppMenuItem from "./AppMenuItem.vue";
 
 defineProps<{
   instance: ElevatorInstance;
