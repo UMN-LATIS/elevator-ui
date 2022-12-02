@@ -48,11 +48,15 @@
 import { watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
-import Popover from "@/components/Popover/Popover.vue";
 import ThemeIcon from "@/icons/ThemeIcon.vue";
 import { useTheme, type ThemeId } from "./useTheme";
 
+const props = defineProps<{
+  defaultTheme: ThemeId;
+}>();
+
 const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
+  defaultTheme: props.defaultTheme,
   themes: [
     { id: "hotdog", name: "Hot Dog" },
     { id: "folwell", name: "Folwell" },

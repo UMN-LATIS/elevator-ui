@@ -5,6 +5,10 @@ export interface AppConfig {
       path: string;
       url: string;
     };
+    theming: {
+      enabled: boolean;
+      defaultTheme: string;
+    };
   };
   arcgis: {
     apiKey: string;

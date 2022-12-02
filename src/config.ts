@@ -8,6 +8,10 @@ const defaultConfig: AppConfig = {
       path: import.meta.env.VITE_BASE_PATH ?? "/",
       url: import.meta.env.VITE_BASE_URL ?? "https://localhost/",
     },
+    theming: {
+      enabled: import.meta.env.VITE_THEME_ENABLED ?? true,
+      defaultTheme: import.meta.env.VITE_THEME_DEFAULT ?? "light",
+    },
   },
   arcgis: {
     apiKey:

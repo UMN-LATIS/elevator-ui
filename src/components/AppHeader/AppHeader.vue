@@ -9,7 +9,10 @@
       </a>
     </div>
     <div class="flex gap-2 items-center">
-      <ThemeSelector />
+      <ThemeSelector
+        v-show="config.instance.theming.enabled"
+        :defaultTheme="config.instance.theming.defaultTheme"
+      />
       <AuthDropDown
         :currentUser="instanceStore.currentUser"
         :instance="instanceStore.instance"
