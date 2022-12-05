@@ -1,8 +1,10 @@
 <template>
-  <nav class="app-menu flex flex-col w-[90vw] sm:w-md p-8 h-screen relative">
+  <nav
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-screen relative"
+  >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header class="flex mt-4 py-4">
-      <h1 class="text-2xl font-bold">
+      <h1 class="md:text-2xl text-lg font-bold">
         {{ instance.name }}
       </h1>
     </header>
@@ -16,7 +18,7 @@
       :currentUser="currentUser"
       class="py-4"
     />
-    <footer class="py-4 flex flex-col items-center text-sm">
+    <footer class="py-4 sm:flex flex-col items-center text-sm hidden">
       <p>
         Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
       </p>
