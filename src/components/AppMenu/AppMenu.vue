@@ -60,6 +60,10 @@ const navItems = computed((): NavItem[] => {
     instance,
     currentUser,
   });
+  const superAdminNavItem = navItemFactory.createSuperAdminMenu({
+    currentUser,
+  });
+
   const editNavItem = navItemFactory.createEditMenu({ currentUser });
   const helpNavItem = navItemFactory.createHelpMenu({ instance });
 

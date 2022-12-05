@@ -43,50 +43,150 @@ export function createAdminMenu({
     return null;
   }
 
+  const adminNavChildren = [
+    {
+      id: "admin.instanceSettings",
+      name: "Instance Settings",
+      href: `${BASE_URL}/instances/edit/${instance.id}`,
+    },
+    {
+      id: "admin.permissions",
+      name: "Instance Permissions",
+      href: `${BASE_URL}/permissions/edit/instance/${instance.id}`,
+    },
+    {
+      id: "admin.pages",
+      name: "Instance Pages",
+      href: `${BASE_URL}/instances/customPages`,
+    },
+    {
+      id: "admin.reports",
+      name: "Reports",
+      href: `${BASE_URL}/reports`,
+    },
+    {
+      id: "admin.templates",
+      name: "Edit Templates",
+      href: `${BASE_URL}/templates`,
+    },
+    {
+      id: "admin.collections",
+      name: "Edit Collections",
+      href: `${BASE_URL}/collectionManager`,
+    },
+    {
+      id: "admin.importFromCSV",
+      name: "Import from CSV",
+      href: `${BASE_URL}/assetManager/importFromCSV`,
+    },
+    {
+      id: "admin.exportToCSV",
+      name: "Export to CSV",
+      href: `${BASE_URL}/assetManager/exportCSV`,
+    },
+  ];
+
+  const superAdminNavChildren = [
+    { id: "divider", name: "---", href: null },
+    {
+      id: "admin.superAdmin",
+      name: "Super Admin 🦸‍♀️",
+      href: `${BASE_URL}/admin`,
+    },
+    {
+      id: "admin.logs",
+      name: "Logs",
+      href: `${BASE_URL}/admin/logs`,
+    },
+  ];
+
   return {
     id: "admin",
     name: "Admin",
     href: null,
     children: [
+      ...adminNavChildren,
+      ...(currentUser.isSuperAdmin ? superAdminNavChildren : []),
+    ],
+  };
+}
+
+/**
+ * creates a top level super admin menu within the app menu
+ */
+export function createSuperAdminMenu({
+  currentUser,
+}: {
+  currentUser: User | null;
+}): NavItem | null {
+  if (!currentUser || !currentUser.isSuperAdmin) {
+    return null;
+  }
+
+  return {
+    id: "superAdmin",
+    name: "Super Admin 🦸‍♀️",
+    href: null,
+    children: [
       {
-        id: "admin.instanceSettings",
-        name: "Instance Settings",
-        href: `${BASE_URL}/instances/edit/${instance.id}`,
+        id: "superAdmin.instances",
+        name: "Manage Instances",
+        href: `${BASE_URL}/instances`,
       },
       {
-        id: "admin.permissions",
-        name: "Instance Permissions",
-        href: `${BASE_URL}/permissions/edit/instance/${instance.id}`,
+        id: "superAdmin.errorLogs",
+        name: "Error Logs",
+        href: `${BASE_URL}/admin/logs`,
       },
       {
-        id: "admin.pages",
-        name: "Instance Pages",
-        href: `${BASE_URL}/instances/customPages`,
+        id: "superAdmin.processingLogs",
+        name: "Processing Logs",
+        href: `${BASE_URL}/admin/processingLogs`,
       },
       {
-        id: "admin.reports",
-        name: "Reports",
-        href: `${BASE_URL}/reports`,
+        id: "superAdmin.jobQueueStatus",
+        name: "Job Queue Status",
+        href: `${BASE_URL}/admin/beanstalk`,
       },
       {
-        id: "admin.templates",
-        name: "Edit Templates",
-        href: `${BASE_URL}/templates`,
+        id: "superAdmin.pendingDeletes",
+        name: "Pending Deletions",
+        href: `${BASE_URL}/admin/showPendingDeletes`,
       },
       {
-        id: "admin.collections",
-        name: "Edit Collections",
-        href: `${BASE_URL}/collectionManager`,
+        id: "superAdmin.updateDateHolds",
+        name: "Run: Update Date Holds ",
+        href: `${BASE_URL}/admin/updateDateHolds`,
       },
       {
-        id: "admin.importFromCSV",
-        name: "Import from CSV",
-        href: `${BASE_URL}/assetManager/importFromCSV`,
+        id: "superAdmin.hiddenAssets",
+        name: "Hidden Assets",
+        href: `${BASE_URL}/admin/hiddenAssets`,
       },
       {
-        id: "admin.exportToCSV",
-        name: "Export to CSV",
-        href: `${BASE_URL}/assetManager/exportCSV`,
+        id: "superAdmin.recentAssets",
+        name: "Recent Assets",
+        href: `${BASE_URL}/admin/recentAssets`,
+      },
+      {
+        id: "superAdmin.deletedAssets",
+        name: "Deleted Assets",
+        href: `${BASE_URL}/admin/deletedAssets`,
+      },
+      {
+        id: "superAdmin.APIKeys",
+        name: "API Keys",
+        href: `${BASE_URL}/admin/apiKeys`,
+      },
+      {
+        id: "superAdmin.users",
+        name: "Users",
+        href: `${BASE_URL}/admin/users`,
+      },
+      {
+        id: "superAdmin.oldAdminPage",
+        name: "Old Admin Page",
+        href: `${BASE_URL}/admin`,
       },
     ],
   };

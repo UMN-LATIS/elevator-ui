@@ -1,5 +1,6 @@
 <template>
   <a
+    v-if="item.href"
     :href="item.href ?? '#'"
     :class="[
       item.isCurrentPage
@@ -10,6 +11,7 @@
   >
     {{ item.name }}
   </a>
+  <hr v-else class="my-2 bg-neutral-500" />
 </template>
 <script setup lang="ts">
 import { NavItem } from "@/types";
