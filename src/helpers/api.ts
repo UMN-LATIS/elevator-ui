@@ -11,6 +11,8 @@ import {
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 
+const BASE_URL = config.instance.base.url;
+
 // caches for api results
 const assets = new Map<string, Asset | null>();
 const templates = new Map<string, Template | null>();
@@ -20,7 +22,7 @@ const fileDownloadResponses = new Map<string, FileDownloadResponse>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
-    `${config.instance.base.url}/asset/viewAsset/${assetId}/true`
+    `${BASE_URL}/asset/viewAsset/${assetId}/true`
   );
 
   return res.data ?? null;
@@ -28,7 +30,7 @@ async function fetchAsset(assetId: string): Promise<Asset | null> {
 
 async function fetchTemplate(templateId: string): Promise<Template | null> {
   const res = await axios.get<Template>(
-    `${config.instance.base.url}/assetManager/getTemplate/${templateId}`
+    `${BASE_URL}/assetManager/getTemplate/${templateId}`
   );
   return res.data ?? null;
 }
@@ -42,7 +44,7 @@ async function fetchMoreLikeThis(
   formdata.append("searchQuery", JSON.stringify({ searchText: assetId }));
 
   const res = await axios.post<SearchResponse>(
-    `${config.instance.base.url}/search/searchResults`,
+    `${BASE_URL}/search/searchResults`,
     formdata
   );
 
@@ -53,7 +55,7 @@ async function fetchMoreLikeThis(
 
 async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
   const res = await axios.get<FileMetaData>(
-    `${config.instance.base.url}/fileManager/getMetadataForObject/${fileId}`
+    `${BASE_URL}/fileManager/getMetadataForObject/${fileId}`
   );
 
   return res.data;
@@ -64,16 +66,14 @@ async function fetchFileDownloadInfo(
   parentObjectId?: string | null
 ) {
   const res = await axios.get<FileDownloadResponse>(
-    `${config.instance.base.url}/asset/getEmbedAsJson/${fileId}/${
-      parentObjectId ?? ""
-    }`
+    `${BASE_URL}/asset/getEmbedAsJson/${fileId}/${parentObjectId ?? ""}`
   );
 
   return res.data;
 }
 
 function fetchInterstitial() {
-  return axios.get(`${config.instance.base.url}/home/interstitial`);
+  return axios.get(`${BASE_URL}/home/interstitial`);
 }
 
 export default {
@@ -153,17 +153,25 @@ export default {
     formdata.append("object", fileObjectId);
     formdata.append("excerptId", excerptId);
 
-    const res = await axios.post(
-      `${config.instance.base.url}/api/v1/lti/ltiPayload`,
-      formdata
-    );
+    const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
 
     return res.data;
   },
   async fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
     const res = await axios.get<ApiInstanceNavResponse>(
-      `${config.instance.base.url}/home/getInstanceNav`
+      `${BASE_URL}/home/getInstanceNav`
     );
+    return res.data;
+  },
+
+  async search(query: string) {
+    const params = new URLSearchParams();
+    params.append("searchText", query);
+    const res = await axios.post<SearchResponse>(
+      `${BASE_URL}/search/searchResults`,
+      params
+    );
+    console.log({ res });
     return res.data;
   },
 };

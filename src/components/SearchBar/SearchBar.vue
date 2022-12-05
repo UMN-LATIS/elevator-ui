@@ -31,13 +31,7 @@
             >
               <CircleXIcon />
             </button>
-            <!-- <button
-              type="button"
-              class="text-neutral-400 hover:text-neutral-900"
-              @click="isAdvancedSearchModalOpen = true"
-            >
-              <OptionsIcon />
-            </button> -->
+
             <KeyboardShortcut> ⌘K </KeyboardShortcut>
           </div>
         </template>
@@ -54,11 +48,13 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { OptionsIcon, SearchIcon, CircleXIcon } from "@/icons";
+import { SearchIcon, CircleXIcon } from "@/icons";
 import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
+import api from "@/helpers/api";
+import config from "@/config";
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 
@@ -84,9 +80,11 @@ function removeFocusOnEscape(event: KeyboardEvent) {
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
 
-function handleSubmit(event: Event) {
+async function handleSubmit(event: Event) {
   event.preventDefault();
-  console.log("submit");
+  const { searchId } = await api.search(searchInput.value);
+  // redirect to search results page
+  window.location.href = `${config.instance.base.url}/search/s/${searchId}`;
 }
 
 function handleInput(event: InputEvent) {
@@ -96,10 +94,6 @@ function handleInput(event: InputEvent) {
 function clearSearch() {
   if (!inputGroup.value) return;
   searchInput.value = "";
-}
-
-function handleOptionsClick() {
-  console.log("options");
 }
 </script>
 <style scoped></style>
