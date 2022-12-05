@@ -14,7 +14,7 @@
     <AppMenuAuthSection
       :instance="instance"
       :currentUser="currentUser"
-      class="py-4 hidden sm:block"
+      class="py-4"
     />
     <footer class="py-4 flex flex-col items-center text-sm">
       <p>

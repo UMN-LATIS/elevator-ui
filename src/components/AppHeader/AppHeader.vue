@@ -12,9 +12,11 @@
     <div class="flex gap-2 items-center">
       <ThemeSelector
         v-show="config.instance.theming.enabled"
+        class="hidden sm:block"
         :defaultTheme="config.instance.theming.defaultTheme"
       />
       <AuthDropDown
+        class="hidden sm:block"
         :currentUser="instanceStore.currentUser"
         :instance="instanceStore.instance"
       />

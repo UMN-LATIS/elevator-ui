@@ -2,7 +2,7 @@
   <div>
     <label
       :for="id"
-      class="block text-sm font-medium text-gray-700"
+      class="block text-sm font-medium text-neutral-700"
       :class="{ 'sr-only': labelHidden }"
     >
       {{ label }}

@@ -8,8 +8,8 @@
         :labelHidden="true"
         placeholder="Search"
         :value="searchInput"
-        @focus="searchInputHasFocus = true"
-        @blur="searchInputHasFocus = false"
+        @focus="handleInputGroupFocus"
+        @blur="handleInputGroupBlur"
         @input="handleInput"
       >
         <template #prepend>
@@ -32,7 +32,7 @@
               <CircleXIcon />
             </button>
 
-            <KeyboardShortcut> ⌘K </KeyboardShortcut>
+            <KeyboardShortcut class="hidden sm:block"> ⌘K </KeyboardShortcut>
           </div>
         </template>
       </InputGroup>
@@ -55,6 +55,11 @@ import Modal from "@/components/Modal/Modal.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import api from "@/helpers/api";
 import config from "@/config";
+
+const emit = defineEmits<{
+  (eventName: "focus", event: Event): void;
+  (eventName: "blur", event: Event): void;
+}>();
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 
@@ -94,6 +99,16 @@ function handleInput(event: InputEvent) {
 function clearSearch() {
   if (!inputGroup.value) return;
   searchInput.value = "";
+}
+
+function handleInputGroupFocus(event) {
+  searchInputHasFocus.value = true;
+  emit("focus", event);
+}
+
+function handleInputGroupBlur(event) {
+  searchInputHasFocus.value = false;
+  emit("blur", event);
 }
 </script>
 <style scoped></style>
