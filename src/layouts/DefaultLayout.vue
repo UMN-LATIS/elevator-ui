@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen flex flex-col">
-    <AppHeader class="fixed top-0 w-full z-20 backdrop-blur-sm md:static" />
+    <AppHeader class="top-0 w-full z-20 backdrop-blur-sm" />
     <div class="flex-1 mt-18 md:mt-0 overflow-auto">
       <slot />
     </div>
