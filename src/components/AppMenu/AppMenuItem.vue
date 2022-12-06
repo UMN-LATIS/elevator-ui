@@ -1,23 +1,28 @@
 <template>
-  <a
-    v-if="item.href"
-    :href="item.href ?? '#'"
+  <Link
+    v-if="href"
+    :href="href"
+    :to="to"
     :class="[
-      item.isCurrentPage
+      isCurrentPage
         ? 'bg-amber-200 text-neutral-900'
         : ' text-neutral-600 hover:bg-blue-100  hover:text-neutral-900',
       'group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline',
     ]"
   >
-    {{ item.name }}
-  </a>
-  <hr v-else class="my-2 bg-neutral-500" />
+    <slot />
+  </Link>
 </template>
 <script setup lang="ts">
-import { NavItem } from "@/types";
+import Link from "@/components/Link/Link.vue";
 
-defineProps<{
-  item: NavItem;
-}>();
+withDefaults(
+  defineProps<{
+    href?: string | null;
+    to?: string;
+    isCurrentPage?: boolean;
+  }>(),
+  { isCurrentPage: false, href: undefined, to: undefined }
+);
 </script>
 <style scoped></style>

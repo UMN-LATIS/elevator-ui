@@ -11,7 +11,7 @@
     <div
       class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto"
     >
-      <ExpandableNavSection :navItems="navItems" />
+      <slot />
     </div>
     <AppMenuAuthSection
       :instance="instance"
@@ -33,14 +33,12 @@
 </template>
 <script setup lang="ts">
 import XButton from "@/components/XButton/XButton.vue";
-import ExpandableNavSection from "./ExpandableNavSection.vue";
 import AppMenuAuthSection from "./AppMenuAuthSection.vue";
-import { ElevatorInstance, NavItem, User } from "@/types";
+import { ElevatorInstance, User } from "@/types";
 import UMNLogo from "@/icons/UMNLogo.vue";
 
 defineProps<{
   instance: ElevatorInstance;
-  navItems: NavItem[];
   currentUser: User | null;
 }>();
 
