@@ -1,7 +1,7 @@
 <template>
   <template v-for="item in pageNavItems" :key="item.id">
     <div v-if="!item.children">
-      <AppMenuItem :href="item.href" :isCurrentPage="item.isCurrentPage">
+      <AppMenuItem :href="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
         {{ item.name }}
       </AppMenuItem>
     </div>
@@ -10,7 +10,7 @@
       <AppMenuItem
         v-for="subItem in item.children"
         :key="subItem.name"
-        :href="subItem.href"
+        :href="subItem.href ?? '#'"
         :isCurrentPage="subItem.isCurrentPage"
       >
         {{ subItem.name }}

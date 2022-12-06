@@ -1,6 +1,5 @@
 <template>
   <Link
-    v-if="href"
     :href="href"
     :to="to"
     :class="[
@@ -18,7 +17,7 @@ import Link from "@/components/Link/Link.vue";
 
 withDefaults(
   defineProps<{
-    href?: string | null;
+    href?: string;
     to?: string;
     isCurrentPage?: boolean;
   }>(),
