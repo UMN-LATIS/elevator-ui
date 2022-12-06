@@ -171,7 +171,14 @@ export default {
       `${BASE_URL}/search/searchResults`,
       params
     );
-    console.log({ res });
+
+    return res.data;
+  },
+
+  async deleteAsset(assetId: string) {
+    const res = await axios.get(
+      `${BASE_URL}/assetManager/deleteAsset/${assetId}`
+    );
     return res.data;
   },
 };
