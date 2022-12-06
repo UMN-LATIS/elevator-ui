@@ -16,7 +16,7 @@
         </DisclosureButton>
         <DisclosurePanel class="space-y-1">
           <template v-for="subItem in item.children" :key="subItem.name">
-            <AppMenuItem :item="subItem" class="ml-8" />
+            <AppMenuItem :item="subItem" class="pl-8" />
           </template>
         </DisclosurePanel>
       </Disclosure>

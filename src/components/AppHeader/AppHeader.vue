@@ -16,7 +16,7 @@
         :defaultTheme="config.instance.theming.defaultTheme"
       />
       <AuthDropDown
-        class="hidden sm:block"
+        class="hidden sm:block mr-2"
         :currentUser="instanceStore.currentUser"
         :instance="instanceStore.instance"
       />

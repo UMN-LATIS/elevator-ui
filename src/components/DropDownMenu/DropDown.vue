@@ -2,12 +2,15 @@
   <Menu as="div" class="relative inline-block text-left">
     <div>
       <MenuButton
-        class="inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+        class="inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 p-2 placeholder:focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
       >
         <slot name="label">
           {{ label }}
         </slot>
-        <ChevronDownIcon class="h-4 w-4 m-1" aria-hidden="true" />
+        <ChevronDownIcon
+          class="hidden xl:block h-4 w-4 m-1"
+          aria-hidden="true"
+        />
       </MenuButton>
     </div>
 
