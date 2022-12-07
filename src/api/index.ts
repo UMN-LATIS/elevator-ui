@@ -7,7 +7,6 @@ import {
   SearchResultsResponse,
   ApiInterstitialResponse,
   ApiInstanceNavResponse,
-  Paginated,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -22,7 +21,7 @@ const fileMetaData = new Map<string, FileMetaData>();
 const fileDownloadResponses = new Map<string, FileDownloadResponse>();
 const paginatedSearchResults = new Map<
   string,
-  Paginated<SearchResultsResponse>
+  Record<number, SearchResultsResponse>
 >();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
@@ -183,14 +182,14 @@ export default {
   async getSearchResultsById(
     searchId: string,
     page = 0
-  ): Promise<SearchResultsResponse[]> {
+  ): Promise<SearchResultsResponse> {
     // check the cache first
     const searchMap = paginatedSearchResults.get(searchId);
     if (searchMap && searchMap[page]) {
       return searchMap[page];
     }
 
-    const res = await axios.get<SearchResultsResponse[]>(
+    const res = await axios.get<SearchResultsResponse>(
       `${BASE_URL}/search/searchResults/${searchId}/${page}/false`
     );
 

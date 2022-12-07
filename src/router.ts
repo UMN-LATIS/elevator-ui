@@ -38,6 +38,11 @@ const router = createRouter({
       }),
     },
     {
+      path: "/search/s/:searchId",
+      component: () => import("@/pages/SearchPage/SearchPage.vue"),
+      props: true,
+    },
+    {
       path: "/:pathMatch(.*)",
       component: () => import("@/pages/NotFoundPage/NotFoundPage.vue"),
       props: (route) => ({
