@@ -4,7 +4,7 @@ import {
   Asset,
   SearchResultMatch,
   Template,
-  SearchResponse,
+  SearchResultsResponse,
   ApiInterstitialResponse,
   ApiInstanceNavResponse,
 } from "@/types";
@@ -43,7 +43,7 @@ async function fetchMoreLikeThis(
   formdata.append("searchRelated", "true");
   formdata.append("searchQuery", JSON.stringify({ searchText: assetId }));
 
-  const res = await axios.post<SearchResponse>(
+  const res = await axios.post<SearchResultsResponse>(
     `${BASE_URL}/search/searchResults`,
     formdata
   );
@@ -164,15 +164,21 @@ export default {
     return res.data;
   },
 
-  async search(query: string) {
+  async search(query: string, page = 0) {
     const params = new URLSearchParams();
     params.append("searchText", query);
-    const res = await axios.post<SearchResponse>(
+    const res = await axios.post<SearchResultsResponse>(
       `${BASE_URL}/search/searchResults`,
       params
     );
 
-    return res.data;
+    const { searchId } = res.data;
+
+    const searchResults = await axios.get<SearchResultsResponse>(
+      `${BASE_URL}/search/searchResults/${searchId}/${page}/false`
+    );
+
+    return searchResults.data;
   },
 
   async deleteAsset(assetId: string) {
