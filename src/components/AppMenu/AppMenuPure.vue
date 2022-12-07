@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-screen relative"
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-full relative"
   >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header class="flex mt-4 py-4">
