@@ -1,6 +1,6 @@
 import { Asset } from "@/types";
 import { defineStore } from "pinia";
-import api from "@/helpers/api";
+import api from "@/api";
 
 export interface AssetStoreState {
   activeAssetId: string | null;

@@ -48,13 +48,13 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { SearchIcon, CircleXIcon } from "@/icons";
 import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
-import api from "@/helpers/api";
-import config from "@/config";
+import api from "@/api";
 
 const emit = defineEmits<{
   (eventName: "focus", event: Event): void;
@@ -85,11 +85,12 @@ function removeFocusOnEscape(event: KeyboardEvent) {
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
 
+const router = useRouter();
 async function handleSubmit(event: Event) {
   event.preventDefault();
-  const results = await api.search(searchInput.value);
+  const searchId = await api.getSearchId(searchInput.value);
 
-  console.log({ results });
+  router.push(`/search/s/${searchId}`);
 
   // redirect to search results page
   // window.location.href = `${config.instance.base.url}/search/s/${searchId}`;

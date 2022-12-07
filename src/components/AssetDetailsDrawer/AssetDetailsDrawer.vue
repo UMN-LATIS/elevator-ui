@@ -28,7 +28,7 @@ import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import DrawerLabel from "../Drawer/DrawerLabel.vue";
-import api from "@/helpers/api";
+import api from "@/api";
 import { SearchResultMatch } from "@/types";
 
 const props = withDefaults(

@@ -21,7 +21,7 @@ import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
 import { SearchResultMatch } from "@/types";
 import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
-import api from "@/helpers/api";
+import api from "@/api";
 
 const props = defineProps<{
   assetId: string | null;

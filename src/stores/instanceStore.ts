@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import api from "@/helpers/api";
+import api from "@/api";
 import { selectCurrentUserFromResponse } from "@/helpers/selectCurrentUserFromResponse";
 import { selectInstanceFromResponse } from "@/helpers/selectInstanceFromResponse";
 import { ref } from "vue";

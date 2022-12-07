@@ -22,7 +22,7 @@ import AppMenuItem from "./AppMenuItem.vue";
 import Divider from "./Divider.vue";
 import config from "@/config";
 import { ElevatorInstance, User } from "@/types";
-import api from "@/helpers/api";
+import api from "@/api";
 
 const BASE_URL = config.instance.base.url;
 

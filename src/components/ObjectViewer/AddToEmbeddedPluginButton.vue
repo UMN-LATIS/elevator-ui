@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch, nextTick } from "vue";
 import Button from "@/components/Button/Button.vue";
-import api from "@/helpers/api";
+import api from "@/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";
 import AddIcon from "@/icons/AddIcon.vue";
