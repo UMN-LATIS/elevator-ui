@@ -12,11 +12,9 @@
 import { RouterLink } from "vue-router";
 
 defineProps<{
-  /**
-   * makes a RouterLink
-   */
   to?: string;
   href?: string;
 }>();
 </script>
+
 <style scoped></style>

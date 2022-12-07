@@ -1,18 +1,12 @@
 <template>
   <div class="h-screen flex flex-col">
-    <AppHeader :logoImg="logoImg" :menuItems="menuItems" class="" />
-    <div class="flex-1">
+    <AppHeader class="top-0 w-full z-20 backdrop-blur-sm" />
+    <div class="flex-1 mt-18 md:mt-0 overflow-auto">
       <slot />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import AppHeader from "@/components/AppHeader/AppHeader.vue";
-import type { Image, MenuItem } from "@/types";
-
-defineProps<{
-  logoImg?: Image;
-  menuItems?: MenuItem[];
-}>();
 </script>
 <style></style>

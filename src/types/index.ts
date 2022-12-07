@@ -1,10 +1,13 @@
 export interface AppConfig {
   instance: {
-    name: string;
     base: {
       origin: string;
       path: string;
       url: string;
+    };
+    theming: {
+      enabled: boolean;
+      defaultTheme: string;
     };
   };
   arcgis: {
@@ -361,18 +364,6 @@ export interface LngLat {
 
 export type BoundingBox = [[number, number], [number, number]];
 
-export interface MenuItem {
-  name: string;
-  to?: string;
-  href?: string;
-}
-
-export type ChildMenuItem = MenuItem | string | null;
-
-export interface MenuItemWithOptionalChildren extends MenuItem {
-  children?: ChildMenuItem[];
-}
-
 export interface Image {
   src: string;
   alt: string;
@@ -386,3 +377,67 @@ export interface ApiInterstitialResponse {
 export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
 
 export type ElevatorCallbackType = "lti" | "JS";
+
+export interface ApiInstanceNavResponse {
+  pages: Page[];
+  userIsloggedIn: boolean;
+  userCanCreateDrawers: boolean;
+  userCanManageAssets: boolean;
+  userId: number | null;
+  userDisplayName: string | null;
+  userIsAdmin: boolean;
+  userIsSuperAdmin: boolean;
+  instanceName: string;
+  instanceId: number;
+  instanceHasLogo: boolean;
+  instanceLogo: number;
+  contact: string;
+  useCentralAuth: boolean;
+  centralAuthLabel: string;
+  collections: AssetCollection[];
+}
+
+export interface InstanceStoreState {
+  fetchStatus: FetchStatus;
+  pages: Page[];
+  currentUser: User | null;
+  instance: ElevatorInstance;
+  collections: AssetCollection[];
+}
+
+export interface ElevatorInstance {
+  id: number | null;
+  name: string | null;
+  logoImg: Image | null; // path to logo if one exists
+  contact: string | null; // email contact
+  useCentralAuth: boolean; // whether or not to use central auth
+  centralAuthLabel: string; // label for central auth
+}
+
+export interface AssetCollection {
+  id: number;
+  title: string;
+}
+
+export interface Page {
+  title: string;
+  id: number;
+  children?: Page[];
+}
+
+export interface User {
+  id: number;
+  displayName: string;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
+  canManageDrawers: boolean;
+  canManageAssets: boolean;
+}
+
+export interface NavItem {
+  id: number | string;
+  name: string;
+  href: string | null;
+  isCurrentPage?: boolean;
+  children?: NavItem[];
+}

@@ -9,7 +9,10 @@
     "build:remotedev": "vite build --mode development --base \"/assets/elevator-ui/dist/\"",
     "preview": "vite preview",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "vue-tsc": "vue-tsc --noEmit --skipLibCheck",
+    "vue-tsc:watch": "vue-tsc --noEmit --skipLibCheck --watch",
+    "lint": "eslint --ext .js,.ts,.vue ."
   },
   "dependencies": {
     "@fontsource/inter": "^4.5.12",

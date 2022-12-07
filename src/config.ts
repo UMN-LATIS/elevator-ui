@@ -3,11 +3,14 @@ import { AppConfig } from "@/types";
 
 const defaultConfig: AppConfig = {
   instance: {
-    name: import.meta.env.VITE_INSTANCE_NAME ?? "Elevator",
     base: {
       origin: import.meta.env.VITE_BASE_ORIGIN ?? "https://localhost",
       path: import.meta.env.VITE_BASE_PATH ?? "/",
       url: import.meta.env.VITE_BASE_URL ?? "https://localhost/",
+    },
+    theming: {
+      enabled: import.meta.env.VITE_THEME_ENABLED ?? true,
+      defaultTheme: import.meta.env.VITE_THEME_DEFAULT ?? "light",
     },
   },
   arcgis: {

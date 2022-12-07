@@ -1,9 +1,9 @@
 <template>
   <div
+    v-if="elevatorPlugin"
     class="object-viewer__button-bar flex justify-end items-center gap-2 p-2"
   >
     <Button
-      v-if="elevatorPlugin"
       class="block text-xs p-2 uppercase font-bold"
       variant="primary"
       @click="handleAddButtonClick"

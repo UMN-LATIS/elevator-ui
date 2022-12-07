@@ -1,21 +1,21 @@
 import { Meta, StoryFn } from "@storybook/vue3";
-import CheckboxWidget from "./CheckboxWidget.vue";
+import CheckBoxWidget from "./CheckBoxWidget.vue";
 import mockAsset from "@/__mocks__/mockAsset";
 import mockTemplate from "@/__mocks__/mockTemplate";
 import { getWidgetPropsByFieldTitle } from "@/helpers/displayUtils";
 
 export default {
   title: "Widgets/CheckBoxWidget",
-  component: CheckboxWidget,
-} as Meta<typeof CheckboxWidget>;
+  component: CheckBoxWidget,
+} as Meta<typeof CheckBoxWidget>;
 
-const Template: StoryFn<typeof CheckboxWidget> = (args) => ({
-  components: { CheckboxWidget },
+const Template: StoryFn<typeof CheckBoxWidget> = (args) => ({
+  components: { CheckBoxWidget },
   setup() {
     return { args };
   },
   template: `
-    <CheckboxWidget v-bind="args" />
+    <CheckBoxWidget v-bind="args" />
   `,
 });
 

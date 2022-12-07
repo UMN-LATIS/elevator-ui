@@ -1,0 +1,27 @@
+<template>
+  <Link
+    :href="href"
+    :to="to"
+    :class="[
+      isCurrentPage
+        ? 'bg-amber-200 text-neutral-900'
+        : ' text-neutral-600 hover:bg-blue-100  hover:text-neutral-900',
+      'group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline',
+    ]"
+  >
+    <slot />
+  </Link>
+</template>
+<script setup lang="ts">
+import Link from "@/components/Link/Link.vue";
+
+withDefaults(
+  defineProps<{
+    href?: string;
+    to?: string;
+    isCurrentPage?: boolean;
+  }>(),
+  { isCurrentPage: false, href: undefined, to: undefined }
+);
+</script>
+<style scoped></style>

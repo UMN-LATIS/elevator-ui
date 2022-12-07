@@ -1,49 +1,39 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-2">
-    <div>
+  <header class="app-header flex justify-between items-center px-4 py-4 gap-8">
+    <div class="flex gap-2 items-center">
       <a
         :href="config.instance.base.url"
-        class="flex items-center gap-4 hover:no-underline"
+        class="app-header__logo-link hover:no-underline"
       >
-        <ElevatorIcon class="h-full app-header__icon" />
-        <h1 class="app-header__wordmark font-bold text-xl">
-          {{ title }}
-        </h1>
+        <AppLogoMark />
       </a>
     </div>
+    <SearchBar class="flex-1 w-full max-w-lg" />
     <div class="flex gap-2 items-center">
-      <ThemeSelector />
-      <Button
-        variant="primary"
-        class="app-header__menu-button rounded-full p-2"
-      >
-        <AppMenuButton />
-      </Button>
+      <ThemeSelector
+        v-show="config.instance.theming.enabled"
+        class="hidden sm:block"
+        :defaultTheme="config.instance.theming.defaultTheme"
+      />
+      <AuthDropDown
+        class="hidden sm:block mr-2"
+        :currentUser="instanceStore.currentUser"
+        :instance="instanceStore.instance"
+      />
+      <AppMenuButton />
     </div>
   </header>
 </template>
 <script setup lang="ts">
-import { MenuItem, Image } from "@/types";
-import defaultLogoImg from "./defaultLogoImg";
-import defaultPageMenuItems from "./defaultPageMenuItems";
-import Button from "@/components/Button/Button.vue";
 import config from "@/config";
-import AppMenuButton from "./AppMenuButton.vue";
-import ThemeSelector from "../ThemeSelector/ThemeSelector.vue";
-import ElevatorIcon from "@/icons/ElevatorIcon.vue";
+import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
+import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
+import SearchBar from "@/components/SearchBar/SearchBar.vue";
+import AppLogoMark from "@/components/AppLogoMark/AppLogoMark.vue";
+import AuthDropDown from "./AuthDropDown.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
-withDefaults(
-  defineProps<{
-    logoImg?: Image;
-    menuItems?: MenuItem[];
-    title?: string;
-  }>(),
-  {
-    logoImg: () => defaultLogoImg,
-    menuItems: () => defaultPageMenuItems,
-    title: () => config.instance.name,
-  }
-);
+const instanceStore = useInstanceStore();
 </script>
 <style scoped lang="postcss">
 .app-header {
@@ -52,6 +42,10 @@ withDefaults(
     var(--app-appHeader-borderBottomColor);
   color: var(--app-appHeader-textColor);
 }
+.app-header__logo-link {
+  color: var(--app-appHeader-textColor);
+}
+
 .app-header__wordmark {
   color: var(--app-appHeader-wordmark-textColor);
 }

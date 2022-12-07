@@ -12,10 +12,10 @@
 </template>
 <script setup lang="ts">
 import Button from "@/components/Button/Button.vue";
-import config from "@/config";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { useTitle } from "@vueuse/core";
+import config from "@/config";
+import { usePageTitle } from "@/helpers/usePageTitle";
 
-useTitle(`404 Not Found | ${config.instance.name}`);
+usePageTitle("Page not found");
 </script>
 <style scoped></style>

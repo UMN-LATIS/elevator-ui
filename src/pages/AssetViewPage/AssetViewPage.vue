@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout v-if="isPageLoaded">
+  <DefaultLayout v-if="isPageLoaded" class="overflow-x-hidden">
     <MetaDataOnlyView
       v-if="isMetaDataOnly"
       :assetId="assetStore.activeAssetId"
@@ -12,7 +12,6 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import config from "@/config";
 import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { useRoute } from "vue-router";
@@ -20,7 +19,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
-import { useTitle } from "@vueuse/core";
+import { usePageTitle } from "@/helpers/usePageTitle";
 import { striptags } from "striptags";
 
 const assetStore = useAssetStore();
@@ -39,7 +38,7 @@ const objectId = computed(
   () => route.hash?.substring(1) || props.objectId || null
 );
 
-const pageTitle = useTitle(`Loading... | ${config.instance.name}`);
+const pageTitle = usePageTitle();
 
 async function onAssetIdChange() {
   // to prevent page format from shifting from MetaDataOnlyPage
@@ -52,16 +51,14 @@ async function onAssetIdChange() {
 
   // if there's no asset we're done
   if (!asset) {
-    pageTitle.value = `Asset not found | ${config.instance.name}`;
+    pageTitle.value = "Asset not found";
     isPageLoaded.value = true;
     return;
   }
 
   // if there's an asset, set the page title
   const assetTitle = getAssetTitle(asset);
-  pageTitle.value = `${striptags(assetTitle)} | ${config.instance.name}`;
-  useTitle(pageTitle);
-
+  pageTitle.value = striptags(assetTitle);
   isPageLoaded.value = true;
 }
 
