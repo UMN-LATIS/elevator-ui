@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full">
     <AppMenuPure
       :instance="instanceStore.instance"
       :currentUser="instanceStore.currentUser"

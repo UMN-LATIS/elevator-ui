@@ -1,9 +1,9 @@
 <template>
   <nav
-    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-screen relative"
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-full relative"
   >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
-    <header class="flex mt-4 py-4">
+    <header class="app-menu__header flex mt-4 py-4">
       <h1 class="md:text-2xl text-lg font-bold">
         {{ instance.name }}
       </h1>
@@ -16,9 +16,11 @@
     <AppMenuAuthSection
       :instance="instance"
       :currentUser="currentUser"
-      class="py-4"
+      class="app-menu__auth-section py-4"
     />
-    <footer class="py-4 sm:flex flex-col items-center text-sm hidden">
+    <footer
+      class="app-menu__footer py-4 sm:flex flex-col items-center text-sm hidden"
+    >
       <p>
         Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
       </p>
@@ -46,4 +48,15 @@ defineEmits<{
   (eventName: "close"): void;
 }>();
 </script>
-<style scoped></style>
+<style scoped>
+@media (max-height: 640px) {
+  .app-menu__auth-section,
+  .app-menu__footer,
+  .app-menu__header {
+    display: none;
+  }
+  .app-menu__items {
+    border: none;
+  }
+}
+</style>
