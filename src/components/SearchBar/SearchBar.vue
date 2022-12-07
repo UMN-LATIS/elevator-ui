@@ -87,9 +87,12 @@ document.addEventListener("keydown", removeFocusOnEscape);
 
 async function handleSubmit(event: Event) {
   event.preventDefault();
-  const { searchId } = await api.search(searchInput.value);
+  const results = await api.search(searchInput.value);
+
+  console.log({ results });
+
   // redirect to search results page
-  window.location.href = `${config.instance.base.url}/search/s/${searchId}`;
+  // window.location.href = `${config.instance.base.url}/search/s/${searchId}`;
 }
 
 function handleInput(event: InputEvent) {
