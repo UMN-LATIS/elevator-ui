@@ -3,7 +3,7 @@
     <AppMenuItem href="http://umn-latis.github.io/elevator/">
       Documentation
     </AppMenuItem>
-    <AppMenuItem v-if="instance.contact" href="instance.contact">
+    <AppMenuItem v-if="instance.contact" :key="instance.contact">
       Contact
     </AppMenuItem>
   </AppMenuGroup>
