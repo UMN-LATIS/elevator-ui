@@ -39,8 +39,8 @@
 <script setup lang="ts">
 import { ElevatorInstance, User } from "@/types";
 import { computed } from "vue";
-import DropDown from "@/components/DropDownMenu/DropDown.vue";
-import DropDownItem from "@/components/DropDownMenu/DropDownItem.vue";
+import DropDown from "@/components/DropDown/DropDown.vue";
+import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import Avatar from "@/components/Avatar/Avatar.vue";
 import config from "@/config";
 import { useBrowserLocation } from "@vueuse/core";
