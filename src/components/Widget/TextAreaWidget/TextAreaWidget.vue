@@ -1,6 +1,6 @@
 <!-- todo: need to add text truncation, maybe with a show more modal -->
 <template>
-  <ul>
+  <ul class="text-area-widget flex flex-col gap-4">
     <li v-for="(content, key) in contents" :key="key">
       <TextAreaItem
         :widget="widget"
