@@ -1,3 +1,4 @@
+import { partition } from "ramda";
 import { Asset, WidgetProps, WidgetContent, Template } from "@/types";
 import config from "@/config";
 
@@ -21,11 +22,30 @@ export const getThumbURL = (fileObjectId: string): string =>
 export const getAssetUrl = (assetId: string): string =>
   `/asset/viewAsset/${assetId}`;
 
+/**
+ * selects widget contents from an asset
+ * sorts so that primary is first
+ */
 export function getWidgetContents<
   T extends WidgetProps,
   U extends WidgetContent
->({ asset, widget }: { asset: Asset; widget: T }) {
-  return asset[widget.fieldTitle] as U[];
+>({ asset, widget }: { asset: Asset; widget: T }): U[] | null {
+  const widgetContents = asset[widget.fieldTitle] as U[] | undefined;
+
+  if (!widgetContents) return null;
+
+  // `partition(testFn, array)` will split a given array into two arrays
+  // based on the test function that's passed in. If testFn is true
+  // for an item, the item will be in the first array, otherwise the second
+  // it's like filter, but the failing items are in a second array
+  // instead of being excluded
+  // see: https://ramdajs.com/docs/#partition
+  const [primaryWidgetContents, nonPrimaryWidgetContents] = partition<U>(
+    (content) => !!content.isPrimary,
+    widgetContents
+  );
+
+  return [...primaryWidgetContents, ...nonPrimaryWidgetContents];
 }
 
 /**
@@ -51,7 +71,7 @@ export function widgetMatchesTitleWidget({
     !!titleWidget &&
     widget.type === "text" &&
     widget.fieldTitle === titleWidget.fieldTitle &&
-    widgetContents.length === 1
+    widgetContents?.length === 1
   );
 }
 
