@@ -18,8 +18,8 @@
 import { watch } from "vue";
 import ThemeIcon from "@/icons/ThemeIcon.vue";
 import { useTheme, type ThemeId } from "./useTheme";
-import DropDown from "../DropDownMenu/DropDown.vue";
-import DropDownItem from "../DropDownMenu/DropDownItem.vue";
+import DropDown from "../DropDown/DropDown.vue";
+import DropDownItem from "../DropDown/DropDownItem.vue";
 
 const props = defineProps<{
   defaultTheme: ThemeId;

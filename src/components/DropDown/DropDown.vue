@@ -7,10 +7,7 @@
         <slot name="label">
           {{ label }}
         </slot>
-        <ChevronDownIcon
-          class="hidden xl:block h-4 w-4 m-1"
-          aria-hidden="true"
-        />
+        <ChevronDownIcon class="xl:block h-4 w-4 m-1" aria-hidden="true" />
       </MenuButton>
     </div>
 
@@ -23,7 +20,11 @@
       leaveToClass="transform opacity-0 scale-95"
     >
       <MenuItems
-        class="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        :class="{
+          'left-0': alignment === 'left',
+          'right-0': alignment === 'right',
+        }"
       >
         <slot name="header" />
         <div class="py-1">
@@ -39,7 +40,13 @@
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 
-defineProps<{
-  label: string;
-}>();
+withDefaults(
+  defineProps<{
+    label: string;
+    alignment?: "left" | "right";
+  }>(),
+  {
+    alignment: "right",
+  }
+);
 </script>
