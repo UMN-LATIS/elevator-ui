@@ -34,12 +34,18 @@ export function getWidgetContents<
 
   if (!widgetContents) return null;
 
-  const [primary, secondary] = partition<U>(
+  // `partition(testFn, array)` will split a given array into two arrays
+  // based on the test function that's passed in. If testFn is true
+  // for an item, the item will be in the first array, otherwise the second
+  // it's like filter, but the failing items are in a second array
+  // instead of being excluded
+  // see: https://ramdajs.com/docs/#partition
+  const [primaryWidgetContents, nonPrimaryWidgetContents] = partition<U>(
     (content) => !!content.isPrimary,
     widgetContents
   );
 
-  return [...primary, ...secondary];
+  return [...primaryWidgetContents, ...nonPrimaryWidgetContents];
 }
 
 /**
