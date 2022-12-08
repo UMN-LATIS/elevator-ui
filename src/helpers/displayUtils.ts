@@ -1,3 +1,4 @@
+import { partition } from "ramda";
 import { Asset, WidgetProps, WidgetContent, Template } from "@/types";
 import config from "@/config";
 
@@ -21,11 +22,24 @@ export const getThumbURL = (fileObjectId: string): string =>
 export const getAssetUrl = (assetId: string): string =>
   `/asset/viewAsset/${assetId}`;
 
+/**
+ * selects widget contents from an asset
+ * sorts so that primary is first
+ */
 export function getWidgetContents<
   T extends WidgetProps,
   U extends WidgetContent
->({ asset, widget }: { asset: Asset; widget: T }) {
-  return asset[widget.fieldTitle] as U[];
+>({ asset, widget }: { asset: Asset; widget: T }): U[] | null {
+  const widgetContents = asset[widget.fieldTitle] as U[] | undefined;
+
+  if (!widgetContents) return null;
+
+  const [primary, secondary] = partition<U>(
+    (content) => !!content.isPrimary,
+    widgetContents
+  );
+
+  return [...primary, ...secondary];
 }
 
 /**
@@ -51,7 +65,7 @@ export function widgetMatchesTitleWidget({
     !!titleWidget &&
     widget.type === "text" &&
     widget.fieldTitle === titleWidget.fieldTitle &&
-    widgetContents.length === 1
+    widgetContents?.length === 1
   );
 }
 
