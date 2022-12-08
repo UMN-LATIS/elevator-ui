@@ -180,7 +180,7 @@ export interface UploadWidgetProps extends WidgetProps {
  * `TextWidgetContents`.
  */
 export interface WidgetContent {
-  isPrimary: boolean;
+  isPrimary?: boolean;
   [key: string]: unknown;
 }
 export interface TextWidgetContent extends WidgetContent {
