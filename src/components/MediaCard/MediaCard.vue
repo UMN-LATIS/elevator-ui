@@ -3,16 +3,16 @@
     class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm"
   >
     <div
-      class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden"
+      class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 border-b-transparent-black-600"
     >
-      <img
+      <LazyLoadImage
         v-if="imgSrc"
         :src="imgSrc"
         :alt="imgAlt || 'Untitled'"
         loading="lazy"
         class="object-cover w-full h-full"
       />
-      <ImageIcon v-else />
+      <DocumentIcon v-else />
     </div>
 
     <div class="flex-1 p-4">
@@ -21,7 +21,8 @@
   </article>
 </template>
 <script setup lang="ts">
-import ImageIcon from "@/icons/ImageIcon.vue";
+import { DocumentIcon } from "@/icons";
+import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 
 defineProps<{
   imgSrc?: string | null;
