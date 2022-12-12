@@ -26,7 +26,7 @@
 import { useIntersectionObserver } from "@vueuse/core";
 import { ref, onMounted } from "vue";
 import ImageIcon from "@/icons/ImageIcon.vue";
-import getScrollParent from "./getScrollParent";
+import getScrollParent from "../../helpers/getScrollParent";
 
 defineProps<{
   src: string;
