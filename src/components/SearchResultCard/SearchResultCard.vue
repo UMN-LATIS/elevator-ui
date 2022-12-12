@@ -1,34 +1,34 @@
 <template>
-  <MediaCard
-    :imgSrc="thumbnailImgSrc"
-    :imgAlt="title"
-    class="search-result-card hover:shadow-lg transition-shadow max-w-sm"
+  <Link
+    :to="getAssetUrl(searchMatch.objectId)"
+    class="relative group hover:no-underline"
   >
-    <div class="relative h-full pb-16">
-      <Link :to="getAssetUrl(searchMatch.objectId)"
-        ><h1 class="search-result-card__title text-xl font-bold">
+    <MediaCard
+      :imgSrc="thumbnailImgSrc"
+      :imgAlt="title"
+      class="search-result-card group-hover:shadow-lg transition-all max-w-sm flex w-full h-full"
+    >
+      <div class="relative h-full pb-16">
+        <h1 class="search-result-card__title text-xl font-bold">
           {{ title }}
         </h1>
-      </Link>
-      <div
-        v-if="props.searchMatch?.entries"
-        class="search-result-card__contents"
-      >
-        <template
-          v-for="(entry, index) in props.searchMatch.entries"
-          :key="index"
+        <div
+          v-if="props.searchMatch?.entries"
+          class="search-result-card__contents"
         >
-          <Tuple :label="entry?.label ?? 'Item'">
-            <span class="text-sm"> {{ entry.entries?.join(", ") }}</span>
-          </Tuple>
-        </template>
+          <template v-for="(entry, index) in detailsToShow" :key="index">
+            <Tuple :label="entry?.label ?? 'Item'">
+              <span class="text-sm"> {{ entry.entries?.join(", ") }}</span>
+            </Tuple>
+          </template>
+        </div>
+        <ArrowButton
+          :to="getAssetUrl(searchMatch.objectId)"
+          class="absolute bottom-0 right-0"
+        />
       </div>
-      <ArrowButton
-        :to="getAssetUrl(searchMatch.objectId)"
-        class="absolute bottom-0 right-0"
-      />
-    </div>
-  </MediaCard>
+    </MediaCard>
+  </Link>
 </template>
 
 <script lang="ts" setup>
@@ -40,9 +40,15 @@ import ArrowButton from "../ArrowButton/ArrowButton.vue";
 import Link from "@/components/Link/Link.vue";
 import Tuple from "../Tuple/Tuple.vue";
 
-const props = defineProps<{
-  searchMatch: SearchResultMatch;
-}>();
+const props = withDefaults(
+  defineProps<{
+    searchMatch: SearchResultMatch;
+    maxNumberOfDetails?: number;
+  }>(),
+  {
+    maxNumberOfDetails: 2,
+  }
+);
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {
@@ -59,6 +65,12 @@ const title = computed(() => {
 const thumbnailImgSrc = computed(() => {
   const { primaryHandlerId } = props.searchMatch;
   return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
+});
+
+const detailsToShow = computed(() => {
+  if (!props.searchMatch.entries) return [];
+
+  return props.searchMatch.entries.slice(0, props.maxNumberOfDetails);
 });
 </script>
 <style scoped>
