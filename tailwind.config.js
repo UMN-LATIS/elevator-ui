@@ -4,6 +4,13 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      gridTemplateColumns: {
+        "auto-xs": "repeat(auto-fit, minmax(8rem, 1fr))",
+        "auto-sm": "repeat(auto-fit, minmax(12rem, 1fr))",
+        "auto-md": "repeat(auto-fit, minmax(16rem, 1fr))",
+        "auto-lg": "repeat(auto-fit, minmax(20rem, 1fr))",
+        "auto-xl": "repeat(auto-fit, minmax(24rem, 1fr))",
+      },
       spacing: {
         xs: "20rem" /* 320px */,
         sm: "24rem" /* 384px */,
