@@ -14,16 +14,29 @@
           <p v-else>No results found.</p>
         </div>
         <div class="grid grid-cols-auto-md gap-4">
-          <SearchResultCard
-            v-for="match in searchStore.matches"
-            :key="match.objectId"
-            :searchMatch="match"
-            :showDetails="false"
-          />
+          <TransitionGroup
+            enterActiveClass="transform ease-out transition"
+            enterFromClass="opacity-0"
+            enterToClass="opacity-100"
+            leaveActiveClass="transition ease-in"
+            leaveFromClass="opacity-100"
+            leaveToClass="opacity-0"
+          >
+            <SearchResultCard
+              v-for="match in searchStore.matches"
+              :key="match.objectId"
+              :searchMatch="match"
+              :showDetails="false"
+            />
+            <!-- skeleton items while loading -->
+            <SkeletonMediaCard
+              v-for="i in 10"
+              v-show="searchStore.status === 'fetching'"
+              :key="i"
+            />
+          </TransitionGroup>
         </div>
-        <div v-if="searchStore.status === 'fetching'">
-          <SpinnerIcon />
-        </div>
+
         <p v-if="searchStore.matches.length > 6" class="my-4">
           Showing <b>{{ searchStore.matches.length }}</b> of
           <b>{{ searchStore.totalResults }}</b> results.
@@ -47,10 +60,10 @@ import { watch, ref, onMounted } from "vue";
 import { useInfiniteScroll } from "@vueuse/core";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
-import { SpinnerIcon } from "@/icons";
 import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import getScrollParent from "@/helpers/getScrollParent";
+import SkeletonMediaCard from "@/components/MediaCard/SkeletonMediaCard.vue";
 
 const props = defineProps<{
   searchId: string;
@@ -77,20 +90,10 @@ onMounted(() => {
     searchResultsContainer.value
   );
 
-  useInfiniteScroll(
-    scrollParentOfSearchResults,
-    async () => {
-      if (!searchStore.hasMoreResults) return;
-      // save the scroll position so we can restore it after loading more
-      const scrollY = scrollParentOfSearchResults.scrollTop;
-      await searchStore.loadMore();
-      // restore the scroll position
-      scrollParentOfSearchResults.scrollTop = scrollY;
-    },
-    {
-      distance: 500,
-    }
-  );
+  useInfiniteScroll(scrollParentOfSearchResults, async () => {
+    if (!searchStore.hasMoreResults) return;
+    await searchStore.loadMore();
+  });
 });
 
 async function handleLoadMoreClick() {
