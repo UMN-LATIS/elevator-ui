@@ -4,11 +4,11 @@ import { ref, computed } from "vue";
 import { FetchStatus, SearchResultMatch } from "@/types";
 
 export const useSearchStore = defineStore("search", () => {
-  const searchId = ref<string | null>(null);
+  const searchId = ref<string | undefined>(undefined);
   const status = ref<FetchStatus>("idle");
   const query = ref("");
   const matches = ref<SearchResultMatch[]>([]);
-  const totalResults = ref(0);
+  const totalResults = ref<number | undefined>(undefined);
   const currentPage = ref(0);
 
   async function search(searchText: string): Promise<string | void> {
@@ -26,7 +26,7 @@ export const useSearchStore = defineStore("search", () => {
   }
 
   const hasMoreResults = computed(() => {
-    return matches.value.length < totalResults.value;
+    return matches.value.length < (totalResults.value ?? 0);
   });
 
   async function loadMore() {
@@ -79,9 +79,9 @@ export const useSearchStore = defineStore("search", () => {
   function reset() {
     query.value = "";
     status.value = "idle";
-    searchId.value = null;
+    searchId.value = undefined;
     matches.value = [];
-    totalResults.value = 0;
+    totalResults.value = undefined;
     currentPage.value = 0;
   }
 

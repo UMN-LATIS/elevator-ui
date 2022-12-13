@@ -6,12 +6,12 @@
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <div>
-        <div class="mb-4">
-          <p v-if="searchStore.matches.length === 0">No results found.</p>
-          <p v-else>
+        <div v-if="searchStore.totalResults !== undefined" class="mb-4">
+          <p v-if="searchStore.totalResults > 0">
             Showing <b>{{ searchStore.matches.length }}</b> of
             <b>{{ searchStore.totalResults }}</b> results.
           </p>
+          <p v-else>No results found.</p>
         </div>
         <div class="grid grid-cols-auto-md gap-4">
           <SearchResultCard
