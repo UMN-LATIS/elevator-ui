@@ -9,7 +9,7 @@
     >
       <template #header-label>
         <DrawerLabel
-          :label="assetTitle"
+          :label="assetTitle || '(No Title)'"
           :class="{
             'text-2xl': isOpen,
           }"
