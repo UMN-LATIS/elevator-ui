@@ -32,7 +32,7 @@
           </dl>
         </div>
         <ArrowButton
-          class="absolute bottom-0 right-0 scale-0 group-hover:scale-100 !transition-all group-hover:opacity-100 opacity-0 !bg-blue-700 !border-blue-700"
+          class="absolute bottom-0 right-0 !transition-all group-hover:opacity-100 opacity-0 !bg-blue-700 !border-blue-700"
         />
       </div>
     </MediaCard>

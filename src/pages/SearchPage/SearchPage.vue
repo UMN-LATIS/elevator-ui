@@ -1,22 +1,29 @@
 <template>
   <DefaultLayout>
-    <div class="search-results-page p-8">
-      <h2 class="text-lg mb-8">
-        Search results for:
-        <span class="font-bold text-2xl">{{ searchText }}</span>
+    <div class="search-results-page p-8 px-4">
+      <h2 class="text-4xl mb-8 font-bold">
+        <q>{{ searchText }}</q>
       </h2>
       <div v-if="loadStatus === 'loading'">
         <SpinnerIcon />
       </div>
       <p v-if="loadStatus === 'error'">Error loading search results.</p>
-      <div v-if="loadStatus === 'loaded'" class="grid grid-cols-auto-md gap-4">
-        <p v-if="matches.length === 0">No results found.</p>
-        <SearchResultCard
-          v-for="match in matches"
-          :key="match.objectId"
-          :searchMatch="match"
-          :showDetails="false"
-        />
+      <div v-if="loadStatus === 'loaded'">
+        <div class="mb-4">
+          <p v-if="matches.length === 0">No results found.</p>
+          <p v-else>
+            Showing <b>{{ matches.length }}</b> of
+            <b>{{ totalResults }}</b> results.
+          </p>
+        </div>
+        <div class="grid grid-cols-auto-md gap-4">
+          <SearchResultCard
+            v-for="match in matches"
+            :key="match.objectId"
+            :searchMatch="match"
+            :showDetails="false"
+          />
+        </div>
       </div>
       <div class="mt-8">
         <Button
@@ -48,6 +55,7 @@ const matches = ref<SearchResultMatch[]>([]);
 const searchText = ref<string>("");
 const page = ref(0);
 const loadStatus = ref<"loading" | "loaded" | "error">("loading");
+const totalResults = ref(0);
 
 watch(
   () => props.searchId,
@@ -56,6 +64,7 @@ watch(
     try {
       const res = await api.getSearchResultsById(props.searchId);
       searchText.value = res.searchEntry.searchText ?? "";
+      totalResults.value = res.totalResults;
       matches.value = res.matches;
       loadStatus.value = "loaded";
     } catch (err) {
