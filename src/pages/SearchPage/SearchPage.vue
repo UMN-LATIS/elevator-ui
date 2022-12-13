@@ -4,11 +4,8 @@
       <h2 class="text-4xl mb-8 font-bold">
         <q>{{ searchStore.query }}</q>
       </h2>
-      <div v-if="searchStore.status === 'fetching'">
-        <SpinnerIcon />
-      </div>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
-      <div v-if="searchStore.status === 'success'">
+      <div>
         <div class="mb-4">
           <p v-if="searchStore.matches.length === 0">No results found.</p>
           <p v-else>
@@ -23,6 +20,9 @@
             :searchMatch="match"
             :showDetails="false"
           />
+        </div>
+        <div v-if="searchStore.status === 'fetching'">
+          <SpinnerIcon />
         </div>
         <p v-if="searchStore.matches.length > 6" class="my-4">
           Showing <b>{{ searchStore.matches.length }}</b> of
@@ -43,8 +43,8 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, ref } from "vue";
-// import { useInfiniteScroll } from "@vueuse/core";
+import { watch, ref, onMounted } from "vue";
+import { useInfiniteScroll } from "@vueuse/core";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
 import { SpinnerIcon } from "@/icons";
@@ -72,25 +72,26 @@ watch(
   }
 );
 
-// onMounted(() => {
-//   const scrollParentOfSearchResults = getScrollParent(
-//     searchResultsContainer.value
-//   );
+onMounted(() => {
+  const scrollParentOfSearchResults = getScrollParent(
+    searchResultsContainer.value
+  );
 
-//   useInfiniteScroll(
-//     scrollParentOfSearchResults,
-//     async () => {
-//       // save the scroll position so we can restore it after loading more
-//       const scrollY = scrollParentOfSearchResults.scrollTop;
-//       await searchStore.loadMore();
-//       // restore the scroll position
-//       scrollParentOfSearchResults.scrollTop = scrollY;
-//     },
-//     {
-//       distance: 10,
-//     }
-//   );
-// });
+  useInfiniteScroll(
+    scrollParentOfSearchResults,
+    async () => {
+      if (!searchStore.hasMoreResults) return;
+      // save the scroll position so we can restore it after loading more
+      const scrollY = scrollParentOfSearchResults.scrollTop;
+      await searchStore.loadMore();
+      // restore the scroll position
+      scrollParentOfSearchResults.scrollTop = scrollY;
+    },
+    {
+      distance: 500,
+    }
+  );
+});
 
 async function handleLoadMoreClick() {
   const scrollParentOfSearchResults = getScrollParent(
