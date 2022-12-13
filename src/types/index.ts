@@ -310,6 +310,13 @@ export interface SearchEntry {
   searchDate?: DateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
+  showHidden?: "0" | "1";
+  fuzzySearch?: "0" | "1";
+  sort?: string;
+  specificSearchField?: string[];
+  specificSearchText?: string[];
+  specificSearchFuzzy?: string[];
+  specificFieldSearch?: unknown[];
 }
 
 export interface SearchResultsResponse {

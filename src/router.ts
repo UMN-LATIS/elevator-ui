@@ -26,10 +26,18 @@ const routesForTesting: RouteRecordRaw[] = [
 
 const router = createRouter({
   history: createWebHistory(config.instance.base.path),
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
   routes: [
     {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
+      name: "asset",
       path: "/asset/viewAsset/:assetId",
       component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),
       props: (route) => ({
@@ -38,15 +46,22 @@ const router = createRouter({
       }),
     },
     {
+      name: "search",
       path: "/search/s/:searchId",
       component: () => import("@/pages/SearchPage/SearchPage.vue"),
       props: true,
     },
     {
+      name: "error",
+      path: "/error/:errorCode",
+      component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
+      props: true,
+    },
+    {
       path: "/:pathMatch(.*)",
-      component: () => import("@/pages/NotFoundPage/NotFoundPage.vue"),
-      props: (route) => ({
-        route,
+      component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
+      props: () => ({
+        errorCode: 404,
       }),
     },
     // only add routes for testing if we're not in production

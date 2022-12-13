@@ -7,7 +7,7 @@
         label="Search"
         :labelHidden="true"
         placeholder="Search"
-        :value="searchInput"
+        :value="searchText"
         @focus="handleInputGroupFocus"
         @blur="handleInputGroupBlur"
         @input="handleInput"
@@ -24,10 +24,10 @@
         <template #append>
           <div class="flex gap-2 items-center">
             <button
-              v-if="searchInput.length"
+              v-if="searchStore.query.length"
               type="button"
               class="text-neutral-400 hover:text-neutral-900"
-              @click="clearSearch"
+              @click="searchText = ''"
             >
               <CircleXIcon />
             </button>
@@ -48,13 +48,13 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import { SearchIcon, CircleXIcon } from "@/icons";
 import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
-import api from "@/api";
+import { useSearchStore } from "@/stores/searchStore";
+import { useRouter } from "vue-router";
 
 const emit = defineEmits<{
   (eventName: "focus", event: Event): void;
@@ -62,10 +62,42 @@ const emit = defineEmits<{
 }>();
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
-
 const searchInputHasFocus = ref(false);
-const searchInput = ref("");
 const isAdvancedSearchModalOpen = ref(false);
+const searchText = ref("");
+const searchStore = useSearchStore();
+const router = useRouter();
+
+function handleInput(event: InputEvent) {
+  searchText.value = (event.target as HTMLInputElement).value;
+}
+
+function handleInputGroupFocus(event) {
+  searchInputHasFocus.value = true;
+  emit("focus", event);
+}
+
+function handleInputGroupBlur(event) {
+  searchInputHasFocus.value = false;
+  emit("blur", event);
+}
+
+async function handleSubmit(event: Event) {
+  event.preventDefault();
+  const searchId = await searchStore.search(searchText.value);
+  if (!searchId) {
+    router.push({
+      name: "error",
+      params: { errorCode: 400 },
+    });
+    return;
+  }
+
+  router.push({
+    name: "search",
+    params: { searchId },
+  });
+}
 
 function focusInputOnCommandK(event: KeyboardEvent) {
   if (!inputGroup.value) return;
@@ -84,35 +116,5 @@ function removeFocusOnEscape(event: KeyboardEvent) {
 
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
-
-const router = useRouter();
-async function handleSubmit(event: Event) {
-  event.preventDefault();
-  const searchId = await api.getSearchId(searchInput.value);
-
-  router.push(`/search/s/${searchId}`);
-
-  // redirect to search results page
-  // window.location.href = `${config.instance.base.url}/search/s/${searchId}`;
-}
-
-function handleInput(event: InputEvent) {
-  searchInput.value = (event.target as HTMLInputElement).value;
-}
-
-function clearSearch() {
-  if (!inputGroup.value) return;
-  searchInput.value = "";
-}
-
-function handleInputGroupFocus(event) {
-  searchInputHasFocus.value = true;
-  emit("focus", event);
-}
-
-function handleInputGroupBlur(event) {
-  searchInputHasFocus.value = false;
-  emit("blur", event);
-}
 </script>
 <style scoped></style>

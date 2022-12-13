@@ -1,36 +1,40 @@
 <template>
   <DefaultLayout>
-    <div class="search-results-page p-8 px-4">
+    <div ref="searchResultsContainer" class="search-results-page p-8 px-4">
       <h2 class="text-4xl mb-8 font-bold">
-        <q>{{ searchText }}</q>
+        <q>{{ searchStore.query }}</q>
       </h2>
-      <div v-if="loadStatus === 'loading'">
+      <div v-if="searchStore.status === 'fetching'">
         <SpinnerIcon />
       </div>
-      <p v-if="loadStatus === 'error'">Error loading search results.</p>
-      <div v-if="loadStatus === 'loaded'">
+      <p v-if="searchStore.status === 'error'">Error loading search results.</p>
+      <div v-if="searchStore.status === 'success'">
         <div class="mb-4">
-          <p v-if="matches.length === 0">No results found.</p>
+          <p v-if="searchStore.matches.length === 0">No results found.</p>
           <p v-else>
-            Showing <b>{{ matches.length }}</b> of
-            <b>{{ totalResults }}</b> results.
+            Showing <b>{{ searchStore.matches.length }}</b> of
+            <b>{{ searchStore.totalResults }}</b> results.
           </p>
         </div>
         <div class="grid grid-cols-auto-md gap-4">
           <SearchResultCard
-            v-for="match in matches"
+            v-for="match in searchStore.matches"
             :key="match.objectId"
             :searchMatch="match"
             :showDetails="false"
           />
         </div>
+        <p v-if="searchStore.matches.length > 6" class="my-4">
+          Showing <b>{{ searchStore.matches.length }}</b> of
+          <b>{{ searchStore.totalResults }}</b> results.
+        </p>
       </div>
-      <div class="mt-8">
+      <div v-if="searchStore.hasMoreResults" class="mt-8">
         <Button
           variant="primary"
           class="btn btn-primary"
-          :disabled="loadStatus === 'loading'"
-          @click="loadMore"
+          :disabled="searchStore.status === 'fetching'"
+          @click="handleLoadMoreClick"
         >
           Load more
         </Button>
@@ -39,50 +43,64 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { watch, ref } from "vue";
+// import { useInfiniteScroll } from "@vueuse/core";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { SearchResultMatch } from "@/types";
-import api from "@/api";
 import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
 import { SpinnerIcon } from "@/icons";
 import Button from "@/components/Button/Button.vue";
+import { useSearchStore } from "@/stores/searchStore";
+import getScrollParent from "@/helpers/getScrollParent";
 
 const props = defineProps<{
   searchId: string;
 }>();
 
-const matches = ref<SearchResultMatch[]>([]);
-const searchText = ref<string>("");
-const page = ref(0);
-const loadStatus = ref<"loading" | "loaded" | "error">("loading");
-const totalResults = ref(0);
+const searchResultsContainer = ref<HTMLElement | null>(null);
+const searchStore = useSearchStore();
 
+// if search with this id is not currently in flight,
+// then kick it off
 watch(
   () => props.searchId,
-  async () => {
-    loadStatus.value = "loading";
-    try {
-      const res = await api.getSearchResultsById(props.searchId);
-      searchText.value = res.searchEntry.searchText ?? "";
-      totalResults.value = res.totalResults;
-      matches.value = res.matches;
-      loadStatus.value = "loaded";
-    } catch (err) {
-      loadStatus.value = "error";
-      console.error(err);
-    }
+  () => {
+    if (searchStore.searchId === props.searchId) return;
+    searchStore.searchById(props.searchId);
   },
-  { immediate: true }
+  {
+    immediate: true,
+  }
 );
 
-async function loadMore() {
-  loadStatus.value = "loading";
-  page.value += 1;
-  const res = await api.getSearchResultsById(props.searchId, page.value);
-  loadStatus.value = "loaded";
+// onMounted(() => {
+//   const scrollParentOfSearchResults = getScrollParent(
+//     searchResultsContainer.value
+//   );
 
-  const moreMatches = res.matches;
-  matches.value = [...matches.value, ...moreMatches];
+//   useInfiniteScroll(
+//     scrollParentOfSearchResults,
+//     async () => {
+//       // save the scroll position so we can restore it after loading more
+//       const scrollY = scrollParentOfSearchResults.scrollTop;
+//       await searchStore.loadMore();
+//       // restore the scroll position
+//       scrollParentOfSearchResults.scrollTop = scrollY;
+//     },
+//     {
+//       distance: 10,
+//     }
+//   );
+// });
+
+async function handleLoadMoreClick() {
+  const scrollParentOfSearchResults = getScrollParent(
+    searchResultsContainer.value
+  );
+  // save the scroll position so we can restore it after loading more
+  const scrollY = scrollParentOfSearchResults.scrollTop;
+  await searchStore.loadMore();
+  // restore the scroll position
+  scrollParentOfSearchResults.scrollTop = scrollY;
 }
 </script>
 <style scoped></style>
