@@ -8,7 +8,7 @@
       :imgAlt="title"
       class="search-result-card transition-all max-w-sm flex w-full h-full group-hover:outline outline-blue-600 group-hover:bg-blue-50 group-hover:text-blue-700 relative"
     >
-      <div class="relative h-full">
+      <div ref="cardContents" class="relative h-full">
         <h1
           class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700"
         >
@@ -16,7 +16,7 @@
         </h1>
         <div
           v-if="props.searchMatch?.entries"
-          class="search-result-card__contents"
+          class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
         >
           <dl class="text-sm group-hover:text-blue-700">
             <div
@@ -42,7 +42,7 @@
 <script lang="ts" setup>
 import { SearchResultMatch } from "@/types";
 import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
@@ -51,6 +51,8 @@ const props = defineProps<{
   searchMatch: SearchResultMatch;
   maxNumberOfDetails?: number;
 }>();
+
+const cardContents = ref<HTMLElement | null>(null);
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {
