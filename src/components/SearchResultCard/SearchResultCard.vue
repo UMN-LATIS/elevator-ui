@@ -1,13 +1,19 @@
 <template>
   <Link
     :to="getAssetUrl(searchMatch.objectId)"
-    class="group hover:no-underline"
+    class="group hover:no-underline relative"
   >
     <MediaCard
       :imgSrc="thumbnailImgSrc"
       :imgAlt="title"
       class="search-result-card transition-all max-w-sm flex w-full h-full group-hover:outline outline-blue-600 group-hover:bg-blue-50 group-hover:text-blue-700 relative"
     >
+      <Chip
+        v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
+        class="absolute top-1 right-1 z-10 bg-transparent-black-900 text-neutral-200 group-hover:border group-hover:border-blue-700 group-hover:bg-blue-100 group-hover:text-blue-700"
+      >
+        {{ searchMatch.fileAssets }} files
+      </Chip>
       <div ref="cardContents" class="relative h-full">
         <h1
           class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700"
@@ -46,10 +52,10 @@ import { computed, ref } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
 import ArrowButton from "../ArrowButton/ArrowButton.vue";
+import Chip from "../Chip/Chip.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
-  maxNumberOfDetails?: number;
 }>();
 
 const cardContents = ref<HTMLElement | null>(null);
