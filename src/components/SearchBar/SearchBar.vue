@@ -64,8 +64,8 @@ const emit = defineEmits<{
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const searchInputHasFocus = ref(false);
 const isAdvancedSearchModalOpen = ref(false);
-const searchText = ref("");
 const searchStore = useSearchStore();
+const searchText = ref(searchStore.query);
 const router = useRouter();
 
 function handleInput(event: InputEvent) {
