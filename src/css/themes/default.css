@@ -13,7 +13,7 @@
   /**
   * App Header
   */
-  --app-appHeader-backgroundColor: transparent;
+  --app-appHeader-backgroundColor: var(--app-backgroundColor);
   --app-wordmark-textColor: var(--app-textColor);
   --app-appHeader-wordmark-textColor: var(--app-textColor);
   --app-appHeader-logo-color: var(--app-textColor);
