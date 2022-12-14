@@ -27,7 +27,7 @@ import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 withDefaults(
   defineProps<{
     src: string;
-    alt: string;
+    alt: string | null;
     href?: string;
     isActive?: boolean;
   }>(),
