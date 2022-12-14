@@ -4,7 +4,7 @@ import {
   Asset,
   SearchResultMatch,
   Template,
-  SearchResponse,
+  SearchResultsResponse,
   ApiInterstitialResponse,
   ApiInstanceNavResponse,
 } from "@/types";
@@ -16,9 +16,13 @@ const BASE_URL = config.instance.base.url;
 // caches for api results
 const assets = new Map<string, Asset | null>();
 const templates = new Map<string, Template | null>();
-const searchMatches = new Map<string, SearchResultMatch[]>();
+const moreLikeThisMatches = new Map<string, SearchResultMatch[]>();
 const fileMetaData = new Map<string, FileMetaData>();
 const fileDownloadResponses = new Map<string, FileDownloadResponse>();
+const paginatedSearchResults = new Map<
+  string,
+  Record<number, SearchResultsResponse>
+>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -43,7 +47,7 @@ async function fetchMoreLikeThis(
   formdata.append("searchRelated", "true");
   formdata.append("searchQuery", JSON.stringify({ searchText: assetId }));
 
-  const res = await axios.post<SearchResponse>(
+  const res = await axios.post<SearchResultsResponse>(
     `${BASE_URL}/search/searchResults`,
     formdata
   );
@@ -102,10 +106,10 @@ export default {
     if (!assetId) return [];
 
     const matches =
-      searchMatches.get(assetId) || (await fetchMoreLikeThis(assetId));
+      moreLikeThisMatches.get(assetId) || (await fetchMoreLikeThis(assetId));
 
     // cache matches
-    searchMatches.set(assetId, matches);
+    moreLikeThisMatches.set(assetId, matches);
     return matches;
   },
 
@@ -164,15 +168,48 @@ export default {
     return res.data;
   },
 
-  async search(query: string) {
+  async getSearchId(query: string): Promise<string> {
     const params = new URLSearchParams();
     params.append("searchText", query);
-    const res = await axios.post<SearchResponse>(
+    const res = await axios.post<SearchResultsResponse>(
       `${BASE_URL}/search/searchResults`,
       params
     );
 
-    return res.data;
+    return res.data.searchId;
+  },
+
+  async getSearchResultsById(
+    searchId: string,
+    page = 0
+  ): Promise<SearchResultsResponse> {
+    // check the cache first
+    const searchMap = paginatedSearchResults.get(searchId);
+    if (searchMap && searchMap[page]) {
+      return searchMap[page];
+    }
+
+    const res = await axios.get<SearchResultsResponse>(
+      `${BASE_URL}/search/searchResults/${searchId}/${page}/false`
+    );
+
+    const searchResults = res.data;
+
+    // cache the results
+    // if the searchId is not in the cache, add it
+    if (!searchMap) {
+      paginatedSearchResults.set(searchId, {
+        [page]: searchResults,
+      });
+      return searchResults;
+    }
+
+    // if the searchId is in the cache, add the page to it
+    paginatedSearchResults.set(searchId, {
+      ...searchMap,
+      [page]: searchResults,
+    });
+    return searchResults;
   },
 
   async deleteAsset(assetId: string) {

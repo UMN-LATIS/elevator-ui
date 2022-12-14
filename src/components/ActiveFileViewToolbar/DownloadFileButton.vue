@@ -27,7 +27,7 @@ import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 import DownloadIcon from "@/icons/DownloadIcon.vue";
-import api from "@/helpers/api";
+import api from "@/api";
 import config from "@/config";
 import Modal from "../Modal/Modal.vue";
 

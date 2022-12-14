@@ -305,13 +305,27 @@ export interface SearchResultMatch {
   primaryHandlerThumbnail2x?: string; //URI
 }
 
-export interface SearchResponse {
+export interface SearchEntry {
+  collection?: number[];
+  searchDate?: DateTime;
+  searchText?: string;
+  matchType?: string; // 'phrase_prefix' ?
+  showHidden?: "0" | "1";
+  fuzzySearch?: "0" | "1";
+  sort?: string;
+  specificSearchField?: string[];
+  specificSearchText?: string[];
+  specificSearchFuzzy?: string[];
+  specificFieldSearch?: unknown[];
+}
+
+export interface SearchResultsResponse {
   totalResults: number;
   matches: SearchResultMatch[];
   searchResults: string[];
   searchId: string;
   success?: boolean;
-  searchEntry: unknown;
+  searchEntry: SearchEntry;
 }
 
 export interface DateTime {

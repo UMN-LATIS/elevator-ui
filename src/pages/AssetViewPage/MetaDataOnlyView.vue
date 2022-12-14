@@ -6,7 +6,7 @@
       <h2
         class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
       >
-        {{ assetTitle }}
+        {{ assetTitle || "(No Title)" }}
       </h2>
 
       <WidgetList v-if="assetId" :assetId="assetId" />
@@ -21,7 +21,7 @@ import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
 import { SearchResultMatch } from "@/types";
 import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
-import api from "@/helpers/api";
+import api from "@/api";
 
 const props = defineProps<{
   assetId: string | null;

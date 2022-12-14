@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout v-if="isPageLoaded" class="overflow-x-hidden">
+  <NoScrollLayout v-if="isPageLoaded" class="overflow-x-hidden">
     <MetaDataOnlyView
       v-if="isMetaDataOnly"
       :assetId="assetStore.activeAssetId"
@@ -9,13 +9,13 @@
       :assetId="assetStore.activeAssetId"
       :objectId="assetStore.activeObjectId"
     />
-  </DefaultLayout>
+  </NoScrollLayout>
 </template>
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { useRoute } from "vue-router";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";

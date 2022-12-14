@@ -73,7 +73,7 @@ import { ref, defineAsyncComponent } from "vue";
 import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
-import api from "@/helpers/api";
+import api from "@/api";
 import { useAssetStore } from "@/stores/assetStore";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { computed } from "vue";

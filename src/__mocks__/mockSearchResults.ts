@@ -1,6 +1,6 @@
-import { SearchResponse } from "@/types";
+import { SearchResultsResponse } from "@/types";
 
-const mockSearch: SearchResponse = {
+const mockSearch: SearchResultsResponse = {
   searchResults: [
     "623dee393392272653676222",
     "62ec091e8927c27c3017ac82",

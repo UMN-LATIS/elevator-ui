@@ -10,7 +10,7 @@
         'opacity-100': isImageLoadComplete,
       }"
       :src="src"
-      :alt="alt"
+      :alt="alt ?? ''"
       v-bind="$attrs"
       @load="isImageLoadComplete = true"
     />
@@ -26,11 +26,11 @@
 import { useIntersectionObserver } from "@vueuse/core";
 import { ref, onMounted } from "vue";
 import ImageIcon from "@/icons/ImageIcon.vue";
-import getScrollParent from "./getScrollParent";
+import getScrollParent from "../../helpers/getScrollParent";
 
 defineProps<{
   src: string;
-  alt: string;
+  alt: string | null;
 }>();
 
 const imgContainer = ref<HTMLDivElement | null>(null);

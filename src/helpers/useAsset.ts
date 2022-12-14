@@ -1,6 +1,6 @@
 import { Asset, Template } from "@/types";
 import { Ref, ref, watch, computed } from "vue";
-import api from "./api";
+import api from "../api";
 import { getAssetTitle } from "./displayUtils";
 
 export function useAsset(assetIdRef: Ref<string | null>) {
