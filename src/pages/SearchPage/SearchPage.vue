@@ -1,6 +1,6 @@
 <template>
   <DefaultLayout>
-    <div ref="searchResultsContainer" class="search-results-page p-8 px-4">
+    <div class="search-results-page p-8 px-4">
       <h2 class="text-4xl mb-8 font-bold">
         <q>{{ searchStore.query }}</q>
       </h2>
@@ -13,7 +13,7 @@
           </p>
           <p v-else>No results found.</p>
         </div>
-        <div class="grid grid-cols-auto-md gap-4">
+        <div ref="searchResultsContainer" class="grid grid-cols-auto-md gap-4">
           <TransitionGroup
             enterActiveClass="transform ease-out transition"
             enterFromClass="opacity-0"
@@ -56,13 +56,12 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, ref, onMounted } from "vue";
-import { useInfiniteScroll } from "@vueuse/core";
+import { watch, ref } from "vue";
+import { useScroll } from "@vueuse/core";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
 import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
-import getScrollParent from "@/helpers/getScrollParent";
 import SkeletonMediaCard from "@/components/MediaCard/SkeletonMediaCard.vue";
 
 const props = defineProps<{
@@ -85,26 +84,33 @@ watch(
   }
 );
 
-onMounted(() => {
-  const scrollParentOfSearchResults = getScrollParent(
-    searchResultsContainer.value
-  );
-
-  useInfiniteScroll(scrollParentOfSearchResults, async () => {
-    if (!searchStore.hasMoreResults) return;
-    await searchStore.loadMore();
-  });
+const { arrivedState } = useScroll(window, {
+  offset: {
+    bottom: 100,
+  },
 });
 
-async function handleLoadMoreClick() {
-  const scrollParentOfSearchResults = getScrollParent(
-    searchResultsContainer.value
-  );
-  // save the scroll position so we can restore it after loading more
-  const scrollY = scrollParentOfSearchResults.scrollTop;
-  await searchStore.loadMore();
-  // restore the scroll position
-  scrollParentOfSearchResults.scrollTop = scrollY;
+// lazy load more results when we get to the bottom of the page
+watch(
+  () => arrivedState.bottom,
+  async () => {
+    // if we're not at the bottom, don't do anything
+    // this handles the case when arrivedState.bottom changes from
+    // true to false
+    if (!arrivedState.bottom) return;
+
+    // if we don't have any more results, or we're already in the process
+    // of fetching more, then don't do anything
+    if (!searchStore.hasMoreResults || searchStore.status === "fetching") {
+      return;
+    }
+
+    searchStore.loadMore();
+  }
+);
+
+function handleLoadMoreClick() {
+  searchStore.loadMore();
 }
 </script>
 <style scoped></style>
