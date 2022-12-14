@@ -47,7 +47,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import { SearchIcon, CircleXIcon } from "@/icons";
 import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
@@ -65,7 +65,7 @@ const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const searchInputHasFocus = ref(false);
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
-const searchText = ref(searchStore.query);
+const searchText = ref("");
 const router = useRouter();
 
 function handleInput(event: InputEvent) {
@@ -85,6 +85,9 @@ function handleInputGroupBlur(event) {
 async function handleSubmit(event: Event) {
   event.preventDefault();
   const searchId = await searchStore.search(searchText.value);
+  nextTick(() => {
+    searchText.value = "";
+  });
   if (!searchId) {
     router.push({
       name: "error",
