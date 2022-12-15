@@ -5,16 +5,34 @@
   <Modal label="File Downloads" :isOpen="isOpen" @close="isOpen = false">
     <div v-if="isDownloadFileInfoReady">
       <span v-if="!downloadFileInfo">No Downloads available</span>
-      <ul v-if="downloadFileInfo">
-        <li v-if="downloadFileInfo.screen?.ready">
+      <ul v-else class="list-disc list-inside">
+        <template
+          v-for="(downloadDetails, filetype) in downloadFileInfo"
+          :key="filetype"
+        >
+          <li v-if="downloadDetails.ready">
+            <a
+              :href="`${config.instance.base.url}/fileManager/getDerivativeById/${assetStore.activeFileObjectId}/${filetype}`"
+            >
+              Download {{ filetype }}
+              <span
+                v-if="
+                  getExtensionFromFilename(downloadDetails.originalFilename) !==
+                  filetype.toLocaleLowerCase()
+                "
+              >
+                ({{
+                  getExtensionFromFilename(downloadDetails.originalFilename)
+                }})
+              </span>
+            </a>
+          </li>
+        </template>
+        <li v-if="isLoggedIn">
           <a
-            :href="`${config.instance.base.url}/fileManager/getDerivativeById/${assetStore.activeFileObjectId}/screen`"
+            :href="`${config.instance.base.url}/fileManager/getOriginal/${assetStore.activeFileObjectId}`"
           >
-            Download Derivative ({{
-              getExtensionFromFilename(
-                downloadFileInfo.screen.originalFilename
-              )
-            }})
+            Download Original
           </a>
         </li>
       </ul>
@@ -30,6 +48,9 @@ import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/api";
 import config from "@/config";
 import Modal from "../Modal/Modal.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
+
+const { isLoggedIn } = useInstanceStore();
 
 const assetStore = useAssetStore();
 const isOpen = ref(false);
