@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { useSessionStorage } from "@vueuse/core";
 import { ElevatorPluginType, ElevatorCallbackType } from "@/types";
 
@@ -7,6 +8,8 @@ export function useElevatorSessionStorage() {
     "elevatorPlugin",
     null
   );
+  const isInEmbedMode = computed(() => !!elevatorPlugin.value);
+
   const elevatorCallbackType = useSessionStorage<ElevatorCallbackType | null>(
     "elevatorCallbackType",
     null
@@ -20,6 +23,7 @@ export function useElevatorSessionStorage() {
 
   return {
     returnUrl,
+    isInEmbedMode,
     elevatorPlugin,
     elevatorCallbackType,
     clear,
