@@ -1,4 +1,5 @@
 import axios from "axios";
+import { omit } from "ramda";
 import config from "@/config";
 import {
   Asset,
@@ -62,7 +63,7 @@ async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
     `${BASE_URL}/fileManager/getMetadataForObject/${fileId}`
   );
 
-  return res.data;
+  return omit(["bulkMetadata"], res.data);
 }
 
 async function fetchFileDownloadInfo(

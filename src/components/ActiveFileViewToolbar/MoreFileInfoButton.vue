@@ -15,7 +15,7 @@
     <div v-if="isFileMetaDataReady">
       <span v-if="!fileMetaData">No meta data found.</span>
 
-      <section v-if="fileMetaData" class="flex flex-col gap-6">
+      <section v-if="fileMetaData?.exif" class="flex flex-col gap-6">
         <Tuple label="File Type">
           {{ fileMetaData.exif.File.FileType }}
         </Tuple>
@@ -47,8 +47,7 @@
             </Map>
           </div>
         </Tuple>
-      </section>
-      <section v-if="fileMetaData?.exif">
+
         <h2 class="text-xl font-bold mt-6 border-t pt-6">EXIF Details</h2>
         <Accordion
           v-for="(exifSectionProps, exifSectionLabel) in fileMetaData.exif"
@@ -64,6 +63,13 @@
             {{ value }}
           </Tuple>
         </Accordion>
+      </section>
+      <section v-else>
+        <div v-for="(value, key) in fileMetaData" :key="key" class="my-6">
+          <Tuple :label="key">
+            {{ value }}
+          </Tuple>
+        </div>
       </section>
     </div>
   </Modal>
