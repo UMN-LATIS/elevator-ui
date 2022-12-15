@@ -171,6 +171,9 @@ export default {
   async getSearchId(query: string): Promise<string> {
     const params = new URLSearchParams();
     params.append("searchText", query);
+
+    // this param gets searchID without all the results
+    params.append("storeOnly", "true");
     const res = await axios.post<SearchResultsResponse>(
       `${BASE_URL}/search/searchResults`,
       params
