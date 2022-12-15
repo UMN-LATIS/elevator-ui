@@ -64,6 +64,13 @@
           </Tuple>
         </Accordion>
       </section>
+      <section v-else>
+        <div v-for="(value, key) in fileMetaData" :key="key" class="my-6">
+          <Tuple :label="key">
+            {{ value }}
+          </Tuple>
+        </div>
+      </section>
     </div>
   </Modal>
 </template>
