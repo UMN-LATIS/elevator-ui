@@ -2,21 +2,29 @@
   <ActiveFileViewButton @click="handleDownloadFileClick">
     <DownloadIcon />
   </ActiveFileViewButton>
-  <Modal label="File Downloads" :isOpen="isOpen" @close="isOpen = false">
+  <Modal
+    label="File Downloads"
+    :isOpen="isOpen"
+    class="max-w-sm"
+    @close="isOpen = false"
+  >
     <div v-if="isDownloadFileInfoReady">
       <span v-if="!downloadFileInfo">No Downloads available</span>
-      <ul v-if="downloadFileInfo">
-        <li v-if="downloadFileInfo.screen?.ready">
+      <ul v-else class="max-w-sm">
+        <template v-for="download in downloadFileInfo" :key="download.filetype">
           <a
-            :href="`${config.instance.base.url}/fileManager/getDerivativeById/${assetStore.activeFileObjectId}/screen`"
+            v-if="download.isReady || download.filetype === 'original'"
+            :href="download.url"
+            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
           >
-            Download Derivative ({{
-              getExtensionFromFilename(
-                downloadFileInfo.screen.originalFilename
-              )
-            }})
+            <li class="flex justify-between">
+              <span class="group-hover:underline">{{ download.filetype }}</span>
+              <Chip class="group-hover:bg-blue-100 group-hover:text-blue-600">
+                {{ download.extension }}
+              </Chip>
+            </li>
           </a>
-        </li>
+        </template>
       </ul>
     </div>
   </Modal>
@@ -25,25 +33,21 @@
 import { ref, computed } from "vue";
 import ActiveFileViewButton from "./ActiveFileViewButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
-import { FileDownloadResponse } from "@/types/FileDownloadTypes";
+import { FileDownloadNormalized } from "@/types";
 import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/api";
-import config from "@/config";
-import Modal from "../Modal/Modal.vue";
+import Modal from "@/components/Modal/Modal.vue";
+import Chip from "@/components/Chip/Chip.vue";
+import { getColorClassesForString } from "@/helpers/getColorClassesForString";
 
 const assetStore = useAssetStore();
 const isOpen = ref(false);
-const downloadFileInfo = ref<FileDownloadResponse | null | undefined>(
+const downloadFileInfo = ref<FileDownloadNormalized[] | null | undefined>(
   undefined
 );
 const isDownloadFileInfoReady = computed(
   () => downloadFileInfo.value !== undefined
 );
-
-const getExtensionFromFilename = (filename) => {
-  const parts = filename.split(".");
-  return parts[parts.length - 1]; // last extension
-};
 
 async function handleDownloadFileClick() {
   isOpen.value = true;

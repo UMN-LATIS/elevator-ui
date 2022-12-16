@@ -1,12 +1,6 @@
-export interface FileDownloadResponse {
-  screen: Screen;
-  thumbnail: Screen;
-  thumbnail2x: Screen;
-  tiny: Screen;
-  tiny2x: Screen;
-}
+export type FileDownloadResponse = Record<string, FileDownloadDetails>;
 
-export interface Screen {
+export interface FileDownloadDetails {
   storageClass: string;
   originalFilename: string;
   path: string;

@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import api from "@/api";
 import { selectCurrentUserFromResponse } from "@/helpers/selectCurrentUserFromResponse";
 import { selectInstanceFromResponse } from "@/helpers/selectInstanceFromResponse";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import {
   FetchStatus,
   Page,
@@ -54,6 +54,8 @@ export const useInstanceStore = defineStore("instance", () => {
     }
   }
 
+  const isLoggedIn = computed(() => !!currentUser.value);
+
   async function init() {
     // don't fetch if we already have data or are fetching
     if (["fetching", "success", "error"].includes(fetchStatus.value)) {
@@ -70,6 +72,7 @@ export const useInstanceStore = defineStore("instance", () => {
     pages,
     instance,
     currentUser,
+    isLoggedIn,
     collections,
     refresh,
   };
