@@ -8,9 +8,11 @@ import {
   SearchResultsResponse,
   ApiInterstitialResponse,
   ApiInstanceNavResponse,
+  FileDownloadNormalized,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
+import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 
 const BASE_URL = config.instance.base.url;
 
@@ -19,7 +21,7 @@ const assets = new Map<string, Asset | null>();
 const templates = new Map<string, Template | null>();
 const moreLikeThisMatches = new Map<string, SearchResultMatch[]>();
 const fileMetaData = new Map<string, FileMetaData>();
-const fileDownloadResponses = new Map<string, FileDownloadResponse>();
+const fileDownloadResponses = new Map<string, FileDownloadNormalized[]>();
 const paginatedSearchResults = new Map<
   string,
   Record<number, SearchResultsResponse>
@@ -69,12 +71,21 @@ async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
 async function fetchFileDownloadInfo(
   fileId: string,
   parentObjectId?: string | null
-) {
+): Promise<FileDownloadNormalized[]> {
   const res = await axios.get<FileDownloadResponse>(
     `${BASE_URL}/asset/getEmbedAsJson/${fileId}/${parentObjectId ?? ""}`
   );
 
-  return res.data;
+  return Object.entries(res.data).map(([filetype, downloadDetails]) => ({
+    filetype,
+    isReady: downloadDetails.ready,
+    url:
+      filetype === "original"
+        ? `${BASE_URL}/fileManager/getOriginal/${fileId}`
+        : `${BASE_URL}/fileManager/getDerivativeById/${fileId}/${filetype}`,
+    originalFilename: downloadDetails.originalFilename,
+    extension: getExtensionFromFilename(downloadDetails.originalFilename),
+  }));
 }
 
 function fetchInterstitial() {
@@ -128,7 +139,7 @@ export default {
   async getFileDownloadInfo(
     fileId: string | null,
     parentObjectId?: string | null
-  ) {
+  ): Promise<FileDownloadNormalized[] | null> {
     if (!fileId) return null;
 
     const key = `${fileId}.${parentObjectId}`;

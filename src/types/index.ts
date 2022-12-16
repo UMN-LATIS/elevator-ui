@@ -455,3 +455,11 @@ export interface NavItem {
   isCurrentPage?: boolean;
   children?: NavItem[];
 }
+
+export interface FileDownloadNormalized {
+  filetype: string;
+  isReady: boolean;
+  url: string;
+  originalFilename: string;
+  extension: string;
+}
