@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
-import { onMounted, ref } from "vue";
+import { ref, watch } from "vue";
 import { ApiStaticPageResponse } from "@/types";
 import api from "@/api";
 
@@ -27,9 +27,13 @@ const props = defineProps<{
 
 const page = ref<ApiStaticPageResponse | null>(null);
 
-onMounted(async () => {
-  page.value = await api.getStaticPage(props.pageId);
-});
+watch(
+  () => props.pageId,
+  async () => {
+    page.value = await api.getStaticPage(props.pageId);
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 .static-page-view__article {

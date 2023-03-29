@@ -1,7 +1,7 @@
 <template>
   <template v-for="item in pageNavItems" :key="item.id">
     <div v-if="!item.children">
-      <AppMenuItem :href="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
+      <AppMenuItem :to="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
         {{ item.name }}
       </AppMenuItem>
     </div>
@@ -10,7 +10,7 @@
       <AppMenuItem
         v-for="subItem in item.children"
         :key="subItem.name"
-        :href="subItem.href ?? '#'"
+        :to="subItem.href ?? '#'"
         :isCurrentPage="subItem.isCurrentPage"
       >
         {{ subItem.name }}
@@ -31,12 +31,8 @@ const props = defineProps<{
 
 const BASE_URL = config.instance.base.url;
 
-function getHrefForPage(page: Page): string {
-  return `${BASE_URL}/page/view/${page.id}`;
-}
-
 function isCurrentPage(page: Page): boolean {
-  return getHrefForPage(page) === window.location.href;
+  return `${BASE_URL}/page/view/${page.id}` === window.location.href;
 }
 
 /**
@@ -47,7 +43,7 @@ function toNavItem(page: Page): NavItem {
     id: page.id,
     name: page.title,
     isCurrentPage: isCurrentPage(page),
-    href: getHrefForPage(page),
+    href: `/page/view/${page.id}`,
   };
 }
 
