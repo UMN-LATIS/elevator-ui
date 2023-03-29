@@ -1,6 +1,6 @@
 <template>
   <DefaultLayout>
-    <div class="static-page-view max-w-full overflow-scroll">
+    <div class="static-page-view max-w-full">
       <article
         v-if="page"
         class="static-page-view__article m-auto sm:max-w-3xl p-4 sm:p-12 rounded shadow sm:px-12 sm:my-8"
