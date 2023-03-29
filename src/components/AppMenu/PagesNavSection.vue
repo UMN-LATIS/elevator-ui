@@ -19,20 +19,22 @@
   </template>
 </template>
 <script setup lang="ts">
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { NavItem, Page } from "@/types";
 import AppMenuGroup from "./AppMenuGroup.vue";
 import AppMenuItem from "./AppMenuItem.vue";
 import config from "@/config";
-import { computed } from "vue";
 
 const props = defineProps<{
   pages: Page[];
 }>();
 
-const BASE_URL = config.instance.base.url;
-
 function isCurrentPage(page: Page): boolean {
-  return `${BASE_URL}/page/view/${page.id}` === window.location.href;
+  return (
+    `${config.instance.base.path}/page/view/${page.id}` ===
+    window.location.pathname
+  );
 }
 
 /**
@@ -67,8 +69,16 @@ function convertPagesToNavItems(pages: Page[]): NavItem[] {
   });
 }
 
-const pageNavItems = computed((): NavItem[] =>
-  convertPagesToNavItems(props.pages)
+// if pages or route change, recompute the nav items
+// so that isCurrentPage is updated
+const pageNavItems = ref<NavItem[]>([]);
+const route = useRoute();
+watch(
+  [() => props.pages, () => route.path],
+  () => {
+    pageNavItems.value = convertPagesToNavItems(props.pages);
+  },
+  { immediate: true }
 );
 </script>
 <style scoped></style>
