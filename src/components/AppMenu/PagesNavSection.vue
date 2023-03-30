@@ -1,7 +1,7 @@
 <template>
   <template v-for="item in pageNavItems" :key="item.id">
     <div v-if="!item.children">
-      <AppMenuItem :href="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
+      <AppMenuItem :to="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
         {{ item.name }}
       </AppMenuItem>
     </div>
@@ -10,7 +10,7 @@
       <AppMenuItem
         v-for="subItem in item.children"
         :key="subItem.name"
-        :href="subItem.href ?? '#'"
+        :to="subItem.href ?? '#'"
         :isCurrentPage="subItem.isCurrentPage"
       >
         {{ subItem.name }}
@@ -19,24 +19,22 @@
   </template>
 </template>
 <script setup lang="ts">
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { NavItem, Page } from "@/types";
 import AppMenuGroup from "./AppMenuGroup.vue";
 import AppMenuItem from "./AppMenuItem.vue";
 import config from "@/config";
-import { computed } from "vue";
 
 const props = defineProps<{
   pages: Page[];
 }>();
 
-const BASE_URL = config.instance.base.url;
-
-function getHrefForPage(page: Page): string {
-  return `${BASE_URL}/page/view/${page.id}`;
-}
-
 function isCurrentPage(page: Page): boolean {
-  return getHrefForPage(page) === window.location.href;
+  return (
+    `${config.instance.base.path}/page/view/${page.id}` ===
+    window.location.pathname
+  );
 }
 
 /**
@@ -47,7 +45,7 @@ function toNavItem(page: Page): NavItem {
     id: page.id,
     name: page.title,
     isCurrentPage: isCurrentPage(page),
-    href: getHrefForPage(page),
+    href: `/page/view/${page.id}`,
   };
 }
 
@@ -71,8 +69,16 @@ function convertPagesToNavItems(pages: Page[]): NavItem[] {
   });
 }
 
-const pageNavItems = computed((): NavItem[] =>
-  convertPagesToNavItems(props.pages)
+// if pages or route change, recompute the nav items
+// so that isCurrentPage is updated
+const pageNavItems = ref<NavItem[]>([]);
+const route = useRoute();
+watch(
+  [() => props.pages, () => route.path],
+  () => {
+    pageNavItems.value = convertPagesToNavItems(props.pages);
+  },
+  { immediate: true }
 );
 </script>
 <style scoped></style>

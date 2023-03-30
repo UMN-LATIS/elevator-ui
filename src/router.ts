@@ -52,6 +52,13 @@ const router = createRouter({
       props: true,
     },
     {
+      name: "StaticContentPage",
+      path: "/page/view/:pageId",
+      component: () =>
+        import("@/pages/StaticContentPage/StaticContentPage.vue"),
+      props: true,
+    },
+    {
       name: "error",
       path: "/error/:errorCode",
       component: () => import("@/pages/ErrorPage/ErrorPage.vue"),

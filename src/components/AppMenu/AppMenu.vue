@@ -32,6 +32,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { watch } from "vue";
+import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useAssetStore } from "@/stores/assetStore";
@@ -43,7 +45,7 @@ import AdminNavSection from "./AdminNavSection.vue";
 import HelpNavSection from "./HelpNavSection.vue";
 import config from "@/config";
 
-defineEmits<{
+const emit = defineEmits<{
   (eventName: "close"): void;
 }>();
 
@@ -53,6 +55,13 @@ const assetStore = useAssetStore();
 
 const { currentUser, instance, pages } = storeToRefs(instanceStore);
 const { activeAssetId } = storeToRefs(assetStore);
+
+// if the route changes, close the menu
+const route = useRoute();
+watch(
+  () => route.path,
+  () => emit("close")
+);
 </script>
 <style scoped>
 .app-menu {

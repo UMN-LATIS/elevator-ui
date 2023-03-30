@@ -8,6 +8,7 @@ import {
   SearchResultsResponse,
   ApiInterstitialResponse,
   ApiInstanceNavResponse,
+  ApiStaticPageResponse,
   FileDownloadNormalized,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -225,6 +226,11 @@ export default {
       [page]: searchResults,
     });
     return searchResults;
+  },
+
+  async getStaticPage(pageId: string): Promise<ApiStaticPageResponse> {
+    const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`);
+    return res.data;
   },
 
   async deleteAsset(assetId: string) {

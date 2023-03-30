@@ -411,6 +411,11 @@ export interface ApiInstanceNavResponse {
   collections: AssetCollection[];
 }
 
+export interface ApiStaticPageResponse {
+  title: string;
+  content: string; // raw HTML
+}
+
 export interface InstanceStoreState {
   fetchStatus: FetchStatus;
   pages: Page[];
