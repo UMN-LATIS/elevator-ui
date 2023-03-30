@@ -10,10 +10,11 @@
 </template>
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { ref, watch } from "vue";
 import { StaticContentPage } from "@/types";
-import api from "@/api";
 import { useInstanceStore } from "@/stores/instanceStore";
+import api from "@/api";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();

@@ -14,6 +14,7 @@
 </template>
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { ref, watch } from "vue";
 import { ApiStaticPageResponse } from "@/types";
 import api from "@/api";
