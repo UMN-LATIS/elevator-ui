@@ -228,7 +228,7 @@ export default {
     return searchResults;
   },
 
-  async getStaticPage(pageId: string): Promise<ApiStaticPageResponse> {
+  async getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
     const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`);
     return res.data;
   },
