@@ -1,6 +1,11 @@
 <template>
   <DefaultLayout>
-    <PageContentPure v-if="page" :page="page" />
+    <article
+      v-if="page"
+      class="static-page-content m-auto sm:max-w-3xl p-4 sm:p-12 rounded shadow sm:px-12 sm:my-8"
+    >
+      <SanitizedHTML :html="page.content" class="prose prose-neutral" />
+    </article>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -9,7 +14,6 @@ import { ref, watch } from "vue";
 import { StaticContentPage } from "@/types";
 import api from "@/api";
 import { useInstanceStore } from "@/stores/instanceStore";
-import PageContentPure from "@/components/PageContentPure/PageContentPure.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
@@ -39,4 +43,9 @@ watch(
   { immediate: true }
 );
 </script>
-<style scoped></style>
+<style scoped>
+.static-page-content {
+  background: var(--app-metaDataOnlyView-contentViewer-backgroundColor);
+  color: var(--app-metaDataOnlyView-contentViewer-textColor);
+}
+</style>
