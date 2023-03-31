@@ -29,6 +29,8 @@ export const useInstanceStore = defineStore("instance", () => {
     contact: null,
     useCentralAuth: false,
     centralAuthLabel: "Central Auth",
+    featuredAssetId: null,
+    featuredAssetText: null,
   });
   const collections = ref<AssetCollection[]>([]);
 
