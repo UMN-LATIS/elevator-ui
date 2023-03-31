@@ -1,20 +1,30 @@
 <template>
   <DefaultLayout>
-    <article
-      v-if="page"
-      class="static-page-content m-auto sm:max-w-3xl p-4 sm:p-12 rounded shadow sm:px-12 sm:my-8"
-    >
-      <SanitizedHTML :html="page.content" class="prose prose-neutral" />
-    </article>
+    <div class="home-page-content grid grid-cols-3">
+      <article v-if="page" class="page-content-block col-span-2">
+        <SanitizedHTML
+          :html="page.content"
+          class="prose prose-neutral mx-auto"
+        />
+      </article>
+      <aside v-if="featuredAssetId" class="featured-asset-block col-span-1">
+        <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
+        <div class="mb-4">
+          <SanitizedHTML :html="featuredAssetText" />
+        </div>
+        <FeaturedAssetCard :assetId="featuredAssetId" />
+      </aside>
+    </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
-import { ref, watch } from "vue";
-import { StaticContentPage } from "@/types";
+import { ref, watch, computed } from "vue";
+import { StaticContentPage, Asset } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
+import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
@@ -23,6 +33,14 @@ const fallbackHomePage: StaticContentPage = {
   title: "No Home Page",
   content: `<p>Update your instance to set a Home Page</p>`,
 };
+
+const featuredAssetId = computed(
+  (): string | null => instanceStore.instance?.featuredAssetId ?? null
+);
+const featuredAssetText = computed(
+  () => instanceStore.instance?.featuredAssetText ?? ""
+);
+const featuredAsset = ref<Asset | null>(null);
 
 // the Home Page is just the first page with a title of "Home Page"
 function findHomePageId() {
@@ -34,19 +52,38 @@ async function fetchHomePage(homePageId: number | undefined) {
   return api.getStaticPage(homePageId);
 }
 
+async function fetchFeaturedAsset(assetId): Promise<Asset | null> {
+  if (!assetId) return null;
+  return api.getAsset(assetId);
+}
+
 watch(
   () => instanceStore.fetchStatus,
   async () => {
     if (instanceStore.fetchStatus !== "success") return;
     const homePageId = findHomePageId();
     page.value = await fetchHomePage(homePageId);
+    featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
   },
   { immediate: true }
 );
 </script>
-<style scoped>
-.static-page-content {
-  background: var(--app-metaDataOnlyView-contentViewer-backgroundColor);
-  color: var(--app-metaDataOnlyView-contentViewer-textColor);
+<style scoped scss>
+.home-page-content {
+  --bg-color: var(--app-appHeader-backgroundColor);
+  --text-color: var(--app-appHeader-textColor);
+  --border-color: var(--app-appHeader-borderBottomColor);
+  --border-width: var(--app-borderWidth);
+}
+
+.featured-asset-block,
+.page-content-block {
+  background: var(--bg-color);
+  color: var(--text-color);
+  padding: 4rem;
+}
+
+.featured-asset-block {
+  border-left: var(--border-width) solid var(--border-color);
 }
 </style>
