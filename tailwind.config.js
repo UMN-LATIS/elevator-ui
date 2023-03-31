@@ -29,6 +29,7 @@ module.exports = {
           "gold-dark": "#ffb71e",
         },
         transparent: {
+          DEFAULT: "transparent",
           black: {
             50: "rgba(0, 0, 0, 0.04)",
             100: "rgba(0, 0, 0, 0.06)",
