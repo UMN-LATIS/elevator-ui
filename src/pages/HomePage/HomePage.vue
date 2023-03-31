@@ -1,13 +1,16 @@
 <template>
   <DefaultLayout>
-    <div class="home-page-content grid grid-cols-3">
-      <article v-if="page" class="page-content-block col-span-2">
+    <div class="home-page-content md:grid grid-cols-3">
+      <article v-if="page" class="page-content-block col-span-2 p-4 lg:p-8">
         <SanitizedHTML
           :html="page.content"
           class="prose prose-neutral mx-auto"
         />
       </article>
-      <aside v-if="featuredAssetId" class="featured-asset-block col-span-1">
+      <aside
+        v-if="featuredAssetId"
+        class="featured-asset-block col-span-1 p-4 lg:p-8"
+      >
         <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
         <div class="mb-4">
           <SanitizedHTML :html="featuredAssetText" />
@@ -87,7 +90,6 @@ watch(
 .page-content-block {
   background: var(--bg-color);
   color: var(--text-color);
-  padding: 4rem;
 }
 
 .featured-asset-block {
