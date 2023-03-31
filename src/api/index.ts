@@ -94,6 +94,15 @@ function fetchInterstitial() {
 }
 
 export default {
+  async getAsset(assetId: string): Promise<Asset | null> {
+    if (!assetId) return null;
+
+    // load asset and cache it in the store
+    const asset = assets.get(assetId) || (await fetchAsset(assetId));
+    assets.set(assetId, asset);
+
+    return asset;
+  },
   async getAssetWithTemplate(
     assetId: string | null
   ): Promise<{ asset: Asset | null; template: Template | null }> {
