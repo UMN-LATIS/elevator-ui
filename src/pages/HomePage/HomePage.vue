@@ -70,9 +70,9 @@ watch(
 </script>
 <style scoped scss>
 .home-page-content {
-  --bg-color: var(--app-appHeader-backgroundColor);
-  --text-color: var(--app-appHeader-textColor);
-  --border-color: var(--app-appHeader-borderBottomColor);
+  --bg-color: var(--app-backgroundColor);
+  --text-color: var(--app-textColor);
+  --border-color: var(--app-borderColor);
   --border-width: var(--app-borderWidth);
 }
 
