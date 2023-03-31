@@ -73,10 +73,18 @@ function convertPagesToNavItems(pages: Page[]): NavItem[] {
 // so that isCurrentPage is updated
 const pageNavItems = ref<NavItem[]>([]);
 const route = useRoute();
+
+// only include pages that have `includeInNav` set to true
+// in the AppMenu.
+function getPagesIncludedInNav(pages) {
+  return pages.filter((page) => page.includeInNav);
+}
+
 watch(
   [() => props.pages, () => route.path],
   () => {
-    pageNavItems.value = convertPagesToNavItems(props.pages);
+    const pagesToShow = getPagesIncludedInNav(props.pages);
+    pageNavItems.value = convertPagesToNavItems(pagesToShow);
   },
   { immediate: true }
 );
