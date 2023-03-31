@@ -1,6 +1,12 @@
 <template>
   <DefaultLayout>
-    <div class="home-page-content md:grid grid-cols-3">
+    <div
+      class="home-page-content md:grid"
+      :class="{
+        'md:grid-cols-2': !featuredAssetId,
+        'md:grid-cols-3': featuredAssetId,
+      }"
+    >
       <article v-if="page" class="page-content-block col-span-2 p-4 lg:p-8">
         <SanitizedHTML
           :html="page.content"
