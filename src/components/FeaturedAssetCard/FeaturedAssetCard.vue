@@ -1,7 +1,7 @@
 <template>
   <Link :to="getAssetUrl(assetId)" class="group hover:no-underline relative">
     <article
-      class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm"
+      class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs"
     >
       <div
         class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 p-4"
@@ -18,7 +18,7 @@
       <div class="flex-1 p-4">
         <div ref="cardContents" class="relative h-full">
           <h1
-            class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700"
+            class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700 text-center"
           >
             <SanitizedHTML :html="title" />
           </h1>
@@ -73,6 +73,13 @@ const imgSrc = computed((): string | null => {
 <style scoped>
 .search-result-card__title {
   color: var(--app-mediaCard-title-textColor);
+}
+
+.media-card {
+  background: var(--app-mediaCard-backgroundColor);
+  color: var(--app-mediaCard-textColor);
+  border: var(--app-mediaCard-borderWidth) solid
+    var(--app-mediaCard-borderColor);
 }
 
 img {

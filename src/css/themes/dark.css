@@ -17,6 +17,7 @@
 
   --app-fontFamily: "Helvetica Neue", sans-serif;
   --app-textColor: var(--darktheme-blue-500);
+  --app-headingColor: var(--darktheme-blue-300);
   --app-backgroundColor: var(--darktheme-blue-700);
   --app-borderColor: var(--darktheme-blue-600);
   --app-borderWidth: 2px;

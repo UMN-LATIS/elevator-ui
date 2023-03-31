@@ -33,17 +33,9 @@ watch(
 );
 </script>
 <style scoped>
-.static-page__container {
-  grid-template-rows: 1fr;
-}
-
 .static-page__content {
   background: var(--app-backgroundColor);
   color: var(--app-textColor);
-}
-
-.prose {
-  max-width: 70ch;
 }
 
 .prose :first-child {

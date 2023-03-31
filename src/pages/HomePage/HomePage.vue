@@ -68,12 +68,19 @@ watch(
   { immediate: true }
 );
 </script>
-<style scoped scss>
+<style scoped>
 .home-page-content {
   --bg-color: var(--app-backgroundColor);
   --text-color: var(--app-textColor);
   --border-color: var(--app-borderColor);
   --border-width: var(--app-borderWidth);
+}
+
+.prose {
+  --tw-prose-headings: var(--app-headingColor);
+  --tw-prose-links: var(--app-link-textColor);
+  max-width: 70ch;
+  color: var(--app-textColor);
 }
 
 .featured-asset-block,
