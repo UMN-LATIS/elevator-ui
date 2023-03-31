@@ -1,15 +1,14 @@
 <template>
   <DefaultLayout>
-    <article
+    <div
       v-if="page"
-      class="static-page-content m-auto sm:max-w-3xl p-4 sm:p-12 rounded shadow sm:px-12 sm:my-8"
+      class="static-page__content prose prose-neutral p-16 mx-auto"
     >
-      <h2 class="text-3xl mb-12 sm:text-5xl font-bold mt-4">
+      <h1 class="text-4xl font-bold">
         {{ page.title || "No Title" }}
-      </h2>
-
-      <SanitizedHTML :html="page.content" class="prose prose-neutral" />
-    </article>
+      </h1>
+      <SanitizedHTML :html="page.content" />
+    </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -34,8 +33,20 @@ watch(
 );
 </script>
 <style scoped>
-.static-page-content {
-  background: var(--app-metaDataOnlyView-contentViewer-backgroundColor);
-  color: var(--app-metaDataOnlyView-contentViewer-textColor);
+.static-page__container {
+  grid-template-rows: 1fr;
+}
+
+.static-page__content {
+  background: var(--app-backgroundColor);
+  color: var(--app-textColor);
+}
+
+.prose {
+  max-width: 70ch;
+}
+
+.prose :first-child {
+  margin-top: 0;
 }
 </style>
