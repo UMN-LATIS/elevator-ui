@@ -4,9 +4,11 @@
   >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header class="app-menu__header flex mt-4 py-4">
-      <h1 class="md:text-2xl text-lg font-bold">
-        {{ instance.name }}
-      </h1>
+      <Link to="/">
+        <h1 class="md:text-2xl text-lg font-bold">
+          {{ instance.name }}
+        </h1>
+      </Link>
     </header>
     <div
       class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto"
@@ -36,6 +38,7 @@
 <script setup lang="ts">
 import XButton from "@/components/XButton/XButton.vue";
 import AppMenuAuthSection from "./AppMenuAuthSection.vue";
+import Link from "@/components/Link/Link.vue";
 import { ElevatorInstance, User } from "@/types";
 import UMNLogo from "@/icons/UMNLogo.vue";
 
@@ -49,12 +52,21 @@ defineEmits<{
 }>();
 </script>
 <style scoped>
+.app-menu {
+  background: var(--app-appMenu-backgroundColor);
+  color: var(--app-appMenu-textColor);
+}
+.app-menu__header a {
+  color: var(--app-headingColor);
+}
+
 @media (max-height: 640px) {
   .app-menu__auth-section,
   .app-menu__footer,
   .app-menu__header {
     display: none;
   }
+
   .app-menu__items {
     border: none;
   }

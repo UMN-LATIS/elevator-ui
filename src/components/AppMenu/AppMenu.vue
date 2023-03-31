@@ -65,7 +65,7 @@ watch(
 </script>
 <style scoped>
 .app-menu {
-  background: var(--app-menu-backgroundColor);
-  color: var(--app-menu-textColor);
+  background: var(--app-appMenu-backgroundColor);
+  color: var(--app-appMenu-textColor);
 }
 </style>

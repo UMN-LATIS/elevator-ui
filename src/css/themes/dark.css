@@ -32,6 +32,15 @@
   --app-appHeader-borderBottomColor: transparent;
 
   /**
+  * App Menu
+  */
+  --app-appMenu-backgroundColor: var(--darktheme-blue-800);
+  --app-appMenu-textColor: var(--darktheme-blue-500);
+  --app-appMenu-headingColor: var(--darktheme-blue-500);
+  --app-appMenu-currentPage-textColor: var(--darktheme-blue-300);
+  --app-appMenu-currentPage-backgroundColor: var(--darktheme-blue-900);
+
+  /**
   * Link
   */
   --app-link-textColor: var(--darktheme-yellow-500);
