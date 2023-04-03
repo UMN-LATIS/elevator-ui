@@ -5,7 +5,10 @@
         <AppLogoMark />
       </Link>
     </div>
-    <SearchBar class="flex-1 w-full max-w-lg" />
+    <SearchBar
+      v-if="currentUser?.canSearchAndBrowse"
+      class="flex-1 w-full max-w-lg"
+    />
     <div class="flex gap-2 items-center">
       <ThemeSelector
         v-show="config.instance.theming.enabled"
@@ -14,7 +17,7 @@
       />
       <AuthDropDown
         class="hidden sm:block mr-2"
-        :currentUser="instanceStore.currentUser"
+        :currentUser="currentUser"
         :instance="instanceStore.instance"
       />
       <AppMenuButton />
@@ -22,6 +25,7 @@
   </header>
 </template>
 <script setup lang="ts">
+import { computed } from "vue";
 import config from "@/config";
 import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
@@ -32,6 +36,8 @@ import AuthDropDown from "./AuthDropDown.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const instanceStore = useInstanceStore();
+
+const currentUser = computed(() => instanceStore.currentUser);
 </script>
 <style scoped lang="postcss">
 .app-header {
