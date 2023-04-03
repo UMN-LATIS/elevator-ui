@@ -12,7 +12,7 @@
         :variant="instance.useCentralAuth ? 'secondary' : 'primary'"
         :href="`${config.instance.base.url}/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
       >
-        {{ instance.useCentralAuth && "Guest" }} Login
+        {{ instance.useCentralAuth ? "Guest" : "" }} Login
       </Button>
     </div>
     <div v-else>
