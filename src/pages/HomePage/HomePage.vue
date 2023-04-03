@@ -1,5 +1,6 @@
 <template>
   <DefaultLayout>
+    <SignInRequiredNotice v-if="isReady && !currentUser?.canSearchAndBrowse" />
     <div
       class="home-page-content md:grid"
       :class="{
@@ -34,9 +35,12 @@ import { StaticContentPage, Asset } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
+import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
+const currentUser = computed(() => instanceStore.currentUser);
+const isReady = computed(() => instanceStore.isReady);
 
 const fallbackHomePage: StaticContentPage = {
   title: "No Home Page",
