@@ -415,7 +415,7 @@ export interface ApiInstanceNavResponse {
 
 export interface StaticContentPage {
   title: string;
-  content: string; // raw HTML
+  content: string | null; // raw HTML
 }
 
 export type ApiStaticPageResponse = StaticContentPage;

@@ -7,7 +7,7 @@
       <h1 class="text-4xl font-bold">
         {{ page.title || "No Title" }}
       </h1>
-      <SanitizedHTML :html="page.content" />
+      <SanitizedHTML :html="page.content ?? ''" />
     </div>
   </DefaultLayout>
 </template>
