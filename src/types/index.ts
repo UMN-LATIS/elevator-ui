@@ -394,13 +394,14 @@ export type ElevatorCallbackType = "lti" | "JS";
 
 export interface ApiInstanceNavResponse {
   pages: Page[];
-  userIsloggedIn: boolean;
-  userCanCreateDrawers: boolean;
-  userCanManageAssets: boolean;
   userId: number | null;
   userDisplayName: string | null;
+  userIsloggedIn: boolean;
   userIsAdmin: boolean;
   userIsSuperAdmin: boolean;
+  userCanManageAssets: boolean;
+  userCanCreateDrawers: boolean;
+  userCanSearchAndBrowse: boolean;
   instanceName: string;
   instanceId: number;
   instanceHasLogo: boolean;
@@ -455,8 +456,9 @@ export interface User {
   displayName: string;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  canManageDrawers: boolean;
   canManageAssets: boolean;
+  canManageDrawers: boolean;
+  canSearchAndBrowse: boolean;
 }
 
 export interface NavItem {
