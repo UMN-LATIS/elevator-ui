@@ -3,9 +3,9 @@
     :is="componentType"
     class="button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group"
     :class="{
-      'button--primary p-4': variant === 'primary',
-      'button--secondary p-4': variant === 'secondary',
-      'button--tertiary': variant === 'tertiary',
+      'button--primary px-4 py-3': variant === 'primary',
+      'button--secondary px-4 py-3': variant === 'secondary',
+      'button--tertiary text-sm uppercase font-medium': variant === 'tertiary',
     }"
     v-bind="$attrs"
     :to="to"
@@ -86,7 +86,6 @@ const componentType = computed(() => {
 }
 
 .button--tertiary {
-  @apply text-sm px-2 uppercase font-medium;
   color: var(--app-button-tertiary-textColor);
   background: var(--app-button-tertiary-backgroundColor);
   border-color: var(--app-button-tertiary-borderColor);
