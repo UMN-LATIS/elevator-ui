@@ -1,16 +1,13 @@
 <template>
   <DefaultLayout>
-    <div class="static-page-view max-w-full">
-      <article
-        v-if="page"
-        class="static-page-view__article m-auto sm:max-w-3xl p-4 sm:p-12 rounded shadow sm:px-12 sm:my-8"
-      >
-        <h2 class="text-3xl mb-12 sm:text-5xl font-bold mt-4">
-          {{ page?.title }}
-        </h2>
-
-        <SanitizedHTML :html="page.content" class="prose prose-neutral" />
-      </article>
+    <div
+      v-if="page"
+      class="static-page__content prose prose-neutral p-4 lg:p-8 mx-auto"
+    >
+      <h1 class="text-4xl font-bold">
+        {{ page.title || "No Title" }}
+      </h1>
+      <SanitizedHTML :html="page.content" />
     </div>
   </DefaultLayout>
 </template>
@@ -22,7 +19,7 @@ import { ApiStaticPageResponse } from "@/types";
 import api from "@/api";
 
 const props = defineProps<{
-  pageId: string;
+  pageId: number;
 }>();
 
 const page = ref<ApiStaticPageResponse | null>(null);
@@ -36,12 +33,12 @@ watch(
 );
 </script>
 <style scoped>
-.static-page-view__article {
-  background: var(--app-metaDataOnlyView-contentViewer-backgroundColor);
-  color: var(--app-metaDataOnlyView-contentViewer-textColor);
+.static-page__content {
+  background: var(--app-backgroundColor);
+  color: var(--app-textColor);
 }
 
-.static-page-view__article h2:after {
-  background: var(--app-metaDataOnlyView-contentViewer-textColor);
+.prose :first-child {
+  margin-top: 0;
 }
 </style>

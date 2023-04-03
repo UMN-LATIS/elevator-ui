@@ -6,6 +6,7 @@
 :root {
   --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif;
   --app-textColor: var(--color-neutral-900);
+  --app-headingColor: var(--color-neutral-900);
   --app-backgroundColor: var(--color-neutral-100);
   --app-borderColor: var(--color-neutral-900);
   --app-borderWidth: 2px;
@@ -18,6 +19,15 @@
   --app-appHeader-wordmark-textColor: var(--app-textColor);
   --app-appHeader-logo-color: var(--app-textColor);
   --app-appHeader-borderBottomColor: var(--app-borderColor);
+
+  /**
+  * App Menu
+  */
+  --app-appMenu-backgroundColor: var(--app-backgroundColor);
+  --app-appMenu-textColor: var(--app-textColor);
+  --app-appMenu-headingColor: var(--app-headingColor);
+  --app-appMenu-currentPage-textColor: var(--color-blue-600);
+  --app-appMenu-currentPage-backgroundColor: var(--color-neutral-200);
 
   /**
   * Link

@@ -11,6 +11,8 @@ export function selectInstanceFromResponse(
     contact,
     useCentralAuth,
     centralAuthLabel,
+    featuredAssetId,
+    featuredAssetText,
   } = apiResponse;
 
   const logoImg = instanceHasLogo
@@ -30,5 +32,7 @@ export function selectInstanceFromResponse(
     useCentralAuth,
     centralAuthLabel,
     contact: contact,
+    featuredAssetId,
+    featuredAssetText,
   };
 }

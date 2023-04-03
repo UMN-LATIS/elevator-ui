@@ -5,6 +5,15 @@ import {
 } from "vue-router";
 import config from "@/config";
 
+function parseIntFromParam(
+  param: string | string[] | undefined
+): number | null {
+  if (typeof param === "string") {
+    return Number.parseInt(param);
+  }
+  return null;
+}
+
 const routesForTesting: RouteRecordRaw[] = [
   {
     path: "/test",
@@ -35,6 +44,11 @@ const router = createRouter({
   },
   routes: [
     {
+      name: "home",
+      path: "/",
+      component: () => import("@/pages/HomePage/HomePage.vue"),
+    },
+    {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
       name: "asset",
@@ -56,7 +70,9 @@ const router = createRouter({
       path: "/page/view/:pageId",
       component: () =>
         import("@/pages/StaticContentPage/StaticContentPage.vue"),
-      props: true,
+      props: (route) => ({
+        pageId: parseIntFromParam(route.params.pageId),
+      }),
     },
     {
       name: "error",

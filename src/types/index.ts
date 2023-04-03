@@ -409,12 +409,16 @@ export interface ApiInstanceNavResponse {
   useCentralAuth: boolean;
   centralAuthLabel: string;
   collections: AssetCollection[];
+  featuredAssetId: string; // featured asset for homepage
+  featuredAssetText: string; // text appearing above the featured asset
 }
 
-export interface ApiStaticPageResponse {
+export interface StaticContentPage {
   title: string;
   content: string; // raw HTML
 }
+
+export type ApiStaticPageResponse = StaticContentPage;
 
 export interface InstanceStoreState {
   fetchStatus: FetchStatus;
@@ -431,6 +435,8 @@ export interface ElevatorInstance {
   contact: string | null; // email contact
   useCentralAuth: boolean; // whether or not to use central auth
   centralAuthLabel: string; // label for central auth
+  featuredAssetId: string | null; // featured asset for homepage
+  featuredAssetText: string | null; // text appearing above the featured asset
 }
 
 export interface AssetCollection {

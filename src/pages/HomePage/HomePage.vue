@@ -1,0 +1,104 @@
+<template>
+  <DefaultLayout>
+    <div
+      class="home-page-content md:grid"
+      :class="{
+        'md:grid-cols-2': !featuredAssetId,
+        'md:grid-cols-3': featuredAssetId,
+      }"
+    >
+      <article v-if="page" class="page-content-block col-span-2 p-4 lg:p-8">
+        <SanitizedHTML
+          :html="page.content"
+          class="prose prose-neutral mx-auto"
+        />
+      </article>
+      <aside
+        v-if="featuredAssetId"
+        class="featured-asset-block col-span-1 p-4 lg:p-8"
+      >
+        <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
+        <div class="mb-4">
+          <SanitizedHTML :html="featuredAssetText" />
+        </div>
+        <FeaturedAssetCard :assetId="featuredAssetId" />
+      </aside>
+    </div>
+  </DefaultLayout>
+</template>
+<script setup lang="ts">
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import { ref, watch, computed } from "vue";
+import { StaticContentPage, Asset } from "@/types";
+import { useInstanceStore } from "@/stores/instanceStore";
+import api from "@/api";
+import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
+
+const page = ref<StaticContentPage | null>(null);
+const instanceStore = useInstanceStore();
+
+const fallbackHomePage: StaticContentPage = {
+  title: "No Home Page",
+  content: `<p>Update your instance to set a Home Page</p>`,
+};
+
+const featuredAssetId = computed(
+  (): string | null => instanceStore.instance?.featuredAssetId ?? null
+);
+const featuredAssetText = computed(
+  () => instanceStore.instance?.featuredAssetText ?? ""
+);
+const featuredAsset = ref<Asset | null>(null);
+
+// the Home Page is just the first page with a title of "Home Page"
+function findHomePageId() {
+  return instanceStore.pages.find((page) => page.title === "Home Page")?.id;
+}
+
+async function fetchHomePage(homePageId: number | undefined) {
+  if (!homePageId) return fallbackHomePage;
+  return api.getStaticPage(homePageId);
+}
+
+async function fetchFeaturedAsset(assetId): Promise<Asset | null> {
+  if (!assetId) return null;
+  return api.getAsset(assetId);
+}
+
+watch(
+  () => instanceStore.fetchStatus,
+  async () => {
+    if (instanceStore.fetchStatus !== "success") return;
+    const homePageId = findHomePageId();
+    page.value = await fetchHomePage(homePageId);
+    featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
+  },
+  { immediate: true }
+);
+</script>
+<style scoped>
+.home-page-content {
+  --bg-color: var(--app-backgroundColor);
+  --text-color: var(--app-textColor);
+  --border-color: var(--app-borderColor);
+  --border-width: var(--app-borderWidth);
+}
+
+.prose {
+  --tw-prose-headings: var(--app-headingColor);
+  --tw-prose-links: var(--app-link-textColor);
+  max-width: 70ch;
+  color: var(--app-textColor);
+}
+
+.featured-asset-block,
+.page-content-block {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.featured-asset-block {
+  border-left: var(--border-width) solid var(--border-color);
+}
+</style>

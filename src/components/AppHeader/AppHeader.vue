@@ -1,12 +1,9 @@
 <template>
   <header class="app-header flex justify-between items-center px-4 py-4 gap-8">
     <div class="flex gap-2 items-center">
-      <a
-        :href="config.instance.base.url"
-        class="app-header__logo-link hover:no-underline"
-      >
+      <Link to="/" class="app-header__logo-link hover:no-underline">
         <AppLogoMark />
-      </a>
+      </Link>
     </div>
     <SearchBar class="flex-1 w-full max-w-lg" />
     <div class="flex gap-2 items-center">
@@ -30,6 +27,7 @@ import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import SearchBar from "@/components/SearchBar/SearchBar.vue";
 import AppLogoMark from "@/components/AppLogoMark/AppLogoMark.vue";
+import Link from "@/components/Link/Link.vue";
 import AuthDropDown from "./AuthDropDown.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 

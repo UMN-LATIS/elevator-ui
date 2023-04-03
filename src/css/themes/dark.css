@@ -17,6 +17,7 @@
 
   --app-fontFamily: "Helvetica Neue", sans-serif;
   --app-textColor: var(--darktheme-blue-500);
+  --app-headingColor: var(--darktheme-blue-300);
   --app-backgroundColor: var(--darktheme-blue-700);
   --app-borderColor: var(--darktheme-blue-600);
   --app-borderWidth: 2px;
@@ -29,6 +30,15 @@
   --app-appHeader-wordmark-textColor: var(--darktheme-blue-400);
   --app-appHeader-logo-color: var(--darktheme-blue-400);
   --app-appHeader-borderBottomColor: transparent;
+
+  /**
+  * App Menu
+  */
+  --app-appMenu-backgroundColor: var(--darktheme-blue-800);
+  --app-appMenu-textColor: var(--darktheme-blue-500);
+  --app-appMenu-headingColor: var(--darktheme-blue-500);
+  --app-appMenu-currentPage-textColor: var(--darktheme-blue-300);
+  --app-appMenu-currentPage-backgroundColor: var(--darktheme-blue-900);
 
   /**
   * Link

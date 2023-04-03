@@ -2,12 +2,10 @@
   <Link
     :href="href"
     :to="to"
-    :class="[
-      isCurrentPage
-        ? 'bg-amber-200 text-neutral-900'
-        : ' text-neutral-600 hover:bg-blue-100  hover:text-neutral-900',
-      'group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline',
-    ]"
+    class="app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline"
+    :class="{
+      'is-current-page': isCurrentPage,
+    }"
   >
     <slot />
   </Link>
@@ -24,4 +22,12 @@ withDefaults(
   { isCurrentPage: false, href: undefined, to: undefined }
 );
 </script>
-<style scoped></style>
+<style scoped>
+.app-menu-item {
+  color: var(--app-appMenu-textColor);
+}
+.app-menu-item.is-current-page {
+  background: var(--app-appMenu-currentPage-backgroundColor);
+  color: var(--app-appMenu-currentPage-textColor);
+}
+</style>
