@@ -1,6 +1,6 @@
 <template>
   <DefaultLayout>
-    <SignInRequiredNotice v-if="!canSearchAndBrowse" />
+    <SignInRequiredNotice v-if="isReady && !canSearchAndBrowse" />
     <div
       class="home-page-content md:grid"
       :class="{
