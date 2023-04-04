@@ -23,4 +23,14 @@ export default defineConfig(({ mode }) => ({
     },
     sourcemap: true,
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://dev.elevator.umn.edu",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        cookieDomainRewrite: "localhost",
+      },
+    },
+  },
 }));
