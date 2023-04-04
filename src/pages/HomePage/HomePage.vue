@@ -9,7 +9,7 @@
     >
       <article v-if="page" class="page-content-block col-span-2 p-4 lg:p-8">
         <SanitizedHTML
-          :html="page.content"
+          :html="page.content ?? ''"
           class="prose prose-neutral mx-auto"
         />
       </article>
