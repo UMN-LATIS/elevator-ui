@@ -1,5 +1,5 @@
 <template>
-  <WarningPanel title="Sign In Required">
+  <Notification type="warning" title="Sign In Required">
     <p>This site requires you to sign in to search or access assets.</p>
 
     <div class="flex gap-2 my-2">
@@ -17,14 +17,14 @@
         {{ instance.centralAuthLabel }} Login
       </Button>
     </div>
-  </WarningPanel>
+  </Notification>
 </template>
 <script setup lang="ts">
 import { useBrowserLocation } from "@vueuse/core";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { computed } from "vue";
 import config from "@/config";
-import WarningPanel from "@/components/WarningPanel/WarningPanel.vue";
+import Notification from "@/components/WarningPanel/WarningPanel.vue";
 import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
