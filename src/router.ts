@@ -60,6 +60,11 @@ const router = createRouter({
       }),
     },
     {
+      name: "listCollections",
+      path: "/search/listCollections",
+      component: () => import("@/pages/CollectionsPage/CollectionsPage.vue"),
+    },
+    {
       name: "search",
       path: "/search/s/:searchId",
       component: () => import("@/pages/SearchPage/SearchPage.vue"),

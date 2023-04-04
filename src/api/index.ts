@@ -17,6 +17,8 @@ import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 
 const BASE_URL = config.instance.base.url;
 
+axios.defaults.withCredentials = true;
+
 // caches for api results
 const assets = new Map<string, Asset | null>();
 const templates = new Map<string, Template | null>();

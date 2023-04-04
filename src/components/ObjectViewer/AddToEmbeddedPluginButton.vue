@@ -8,7 +8,7 @@
       variant="primary"
       @click="handleAddButtonClick"
     >
-      <AddIcon v-if="addingToPluginStatus === 'idle'" />
+      <PlusIcon v-if="addingToPluginStatus === 'idle'" />
       <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
       <CircleCheckIcon v-if="addingToPluginStatus === 'success'" />
       <CircleXIcon v-if="addingToPluginStatus === 'error'" />
@@ -48,7 +48,7 @@ import Button from "@/components/Button/Button.vue";
 import api from "@/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";
-import AddIcon from "@/icons/AddIcon.vue";
+import PlusIcon from "@/icons/PlusIcon.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import CircleXIcon from "@/icons/CircleXIcon.vue";
