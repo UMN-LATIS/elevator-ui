@@ -3,19 +3,19 @@
     <p>This site requires you to sign in to search or access assets.</p>
 
     <div class="flex gap-2 my-2">
-      <WarningPanelButton
+      <Button
         :href="`${config.instance.base.url}/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
-        :isPrimary="!instance.useCentralAuth"
+        variant="tertiary"
       >
         {{ instance.useCentralAuth ? "Guest" : "" }} Login
-      </WarningPanelButton>
-      <WarningPanelButton
+      </Button>
+      <Button
         v-if="instance.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
-        isPrimary
+        variant="tertiary"
       >
         {{ instance.centralAuthLabel }} Login
-      </WarningPanelButton>
+      </Button>
     </div>
   </WarningPanel>
 </template>
@@ -25,7 +25,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { computed } from "vue";
 import config from "@/config";
 import WarningPanel from "@/components/WarningPanel/WarningPanel.vue";
-import WarningPanelButton from "@/components/WarningPanel/WarningPanelButton.vue";
+import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
 const currentUser = computed(() => instanceStore.currentUser);

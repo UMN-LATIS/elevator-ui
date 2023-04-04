@@ -5,7 +5,8 @@
     :class="{
       'button--primary px-4 py-3': variant === 'primary',
       'button--secondary px-4 py-3': variant === 'secondary',
-      'button--tertiary text-sm uppercase font-medium': variant === 'tertiary',
+      'button--tertiary text-xs uppercase font-medium p-2 -ml-2':
+        variant === 'tertiary',
     }"
     v-bind="$attrs"
     :to="to"

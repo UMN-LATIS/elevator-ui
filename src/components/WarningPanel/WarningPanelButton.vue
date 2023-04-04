@@ -1,11 +1,7 @@
 <template>
   <Link
     :href="href"
-    class="uppercase font-medium text-xs border border-yellow-700 p-2 rounded-md inline-flex items-center hover:bg-neutral-900 hover:border-neutral-900 hover:text-neutral-50 hover:no-underline"
-    :class="{
-      ' text-yellow-700 ': !isPrimary,
-      ' bg-yellow-700 text-yellow-50 ': isPrimary,
-    }"
+    class="uppercase font-medium text-xs p-2 -ml-2 rounded-md inline-flex items-center hover:bg-blue-100 hover:no-underline"
   >
     <slot />
   </Link>

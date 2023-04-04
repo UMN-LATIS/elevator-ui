@@ -136,12 +136,12 @@
 
   /* Button Tertiary :hover */
   --app-button-tertiary-hover-borderColor: transparent;
-  --app-button-tertiary-hover-backgroundColor: transparent;
-  --app-button-tertiary-hover-textColor: var(--color-purple-600);
+  --app-button-tertiary-hover-backgroundColor: var(--color-blue-50);
+  --app-button-tertiary-hover-textColor: var(--color-blue-700);
 
   /* Button Tertiary :active */
   --app-button-tertiary-active-borderColor: tranparent;
-  --app-button-tertiary-active-backgroundColor: tranparent;
+  --app-button-tertiary-active-backgroundColor: var(--color-fuchsia-50);
   --app-button-tertiary-active-textColor: var(--color-fuchsia-500);
 
   /* Button Tertiary :disabled */
