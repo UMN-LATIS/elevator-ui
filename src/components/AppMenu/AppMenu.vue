@@ -7,28 +7,26 @@
     >
       <PagesNavSection :pages="pages" />
 
-      <template v-if="currentUser">
-        <AppMenuItem :href="`${BASE_URL}/search/listCollections`">
-          Collections
-        </AppMenuItem>
+      <AppMenuItem :href="`${BASE_URL}/search/listCollections`">
+        Collections
+      </AppMenuItem>
 
-        <AppMenuItem :href="`${BASE_URL}/drawers/listDrawers`">
-          Drawers
-        </AppMenuItem>
+      <AppMenuItem :href="`${BASE_URL}/drawers/listDrawers`">
+        Drawers
+      </AppMenuItem>
 
-        <EditNavSection
-          v-if="activeAssetId && currentUser?.canManageAssets"
-          :currentUser="currentUser"
-          :instance="instance"
-          :assetId="activeAssetId"
-        />
+      <EditNavSection
+        v-if="activeAssetId && currentUser?.canManageAssets"
+        :currentUser="currentUser"
+        :instance="instance"
+        :assetId="activeAssetId"
+      />
 
-        <AdminNavSection
-          v-if="currentUser?.isAdmin"
-          :currentUser="currentUser"
-          :instance="instance"
-        />
-      </template>
+      <AdminNavSection
+        v-if="currentUser?.isAdmin"
+        :currentUser="currentUser"
+        :instance="instance"
+      />
       <HelpNavSection :instance="instance" />
     </AppMenuPure>
   </div>
