@@ -31,6 +31,7 @@ export const useInstanceStore = defineStore("instance", () => {
     centralAuthLabel: "Central Auth",
     featuredAssetId: null,
     featuredAssetText: null,
+    canSearchAndBrowse: false,
   });
   const collections = ref<AssetCollection[]>([]);
 
@@ -78,7 +79,6 @@ export const useInstanceStore = defineStore("instance", () => {
     currentUser,
     isLoggedIn,
     collections,
-
     refresh,
   };
 });

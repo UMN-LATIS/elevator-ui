@@ -1,6 +1,6 @@
 <template>
   <DefaultLayout>
-    <SignInRequiredNotice v-if="isReady && !currentUser?.canSearchAndBrowse" />
+    <SignInRequiredNotice v-if="!canSearchAndBrowse" />
     <div
       class="home-page-content md:grid"
       :class="{
@@ -39,7 +39,9 @@ import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
-const currentUser = computed(() => instanceStore.currentUser);
+const canSearchAndBrowse = computed(
+  () => instanceStore.instance?.canSearchAndBrowse ?? false
+);
 const isReady = computed(() => instanceStore.isReady);
 
 const fallbackHomePage: StaticContentPage = {
