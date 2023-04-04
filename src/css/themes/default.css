@@ -136,12 +136,12 @@
 
   /* Button Tertiary :hover */
   --app-button-tertiary-hover-borderColor: transparent;
-  --app-button-tertiary-hover-backgroundColor: transparent;
-  --app-button-tertiary-hover-textColor: var(--color-purple-600);
+  --app-button-tertiary-hover-backgroundColor: var(--color-blue-50);
+  --app-button-tertiary-hover-textColor: var(--color-blue-700);
 
   /* Button Tertiary :active */
   --app-button-tertiary-active-borderColor: tranparent;
-  --app-button-tertiary-active-backgroundColor: tranparent;
+  --app-button-tertiary-active-backgroundColor: var(--color-fuchsia-50);
   --app-button-tertiary-active-textColor: var(--color-fuchsia-500);
 
   /* Button Tertiary :disabled */
@@ -169,6 +169,20 @@
   --app-modalContents-textColor: var(--color-nuetral-900);
   --app-modalContents-header-backgroundColor: var(--color-neutral-200);
   --app-modalContents-header-textColor: var(--color-neutral-900);
+
+  /** Notification **/
+  --app-notification-borderColor: var(--color-neutral-200);
+  --app-notification-backgroundColor: var(--color-neutral-50);
+  --app-notification-textColor: var(--color-neutral-900);
+  --app-notification-header-textColor: var(--color-neutral-900);
+  --app-notification-icon-info-backgroundColor: var(--color-blue-100);
+  --app-notification-icon-info-textColor: var(--color-blue-900);
+  --app-notification-icon-warning-backgroundColor: var(--color-yellow-100);
+  --app-notification-icon-warning-textColor: var(--color-yellow-500);
+  --app-notification-icon-error-backgroundColor: var(--color-red-100);
+  --app-notification-icon-error-textColor: var(--color-red-600);
+  --app-notification-icon-success-backgroundColor: var(--color-green-100);
+  --app-notification-icon-success-textColor: var(--color-green-600);
 
   /* Thumbnail Image */
   --app-thumbnailImage-borderColor: transparent;

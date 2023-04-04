@@ -31,6 +31,7 @@ export const useInstanceStore = defineStore("instance", () => {
     centralAuthLabel: "Central Auth",
     featuredAssetId: null,
     featuredAssetText: null,
+    canSearchAndBrowse: false,
   });
   const collections = ref<AssetCollection[]>([]);
 
@@ -57,6 +58,7 @@ export const useInstanceStore = defineStore("instance", () => {
   }
 
   const isLoggedIn = computed(() => !!currentUser.value);
+  const isReady = computed(() => fetchStatus.value === "success");
 
   async function init() {
     // don't fetch if we already have data or are fetching
@@ -71,6 +73,7 @@ export const useInstanceStore = defineStore("instance", () => {
 
   return {
     fetchStatus,
+    isReady,
     pages,
     instance,
     currentUser,

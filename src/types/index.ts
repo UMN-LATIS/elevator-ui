@@ -394,13 +394,14 @@ export type ElevatorCallbackType = "lti" | "JS";
 
 export interface ApiInstanceNavResponse {
   pages: Page[];
-  userIsloggedIn: boolean;
-  userCanCreateDrawers: boolean;
-  userCanManageAssets: boolean;
   userId: number | null;
   userDisplayName: string | null;
+  userIsloggedIn: boolean;
   userIsAdmin: boolean;
   userIsSuperAdmin: boolean;
+  userCanManageAssets: boolean;
+  userCanCreateDrawers: boolean;
+  userCanSearchAndBrowse: boolean;
   instanceName: string;
   instanceId: number;
   instanceHasLogo: boolean;
@@ -437,6 +438,7 @@ export interface ElevatorInstance {
   centralAuthLabel: string; // label for central auth
   featuredAssetId: string | null; // featured asset for homepage
   featuredAssetText: string | null; // text appearing above the featured asset
+  canSearchAndBrowse: boolean; // whether or not to show search and browse
 }
 
 export interface AssetCollection {
@@ -455,8 +457,8 @@ export interface User {
   displayName: string;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  canManageDrawers: boolean;
   canManageAssets: boolean;
+  canManageDrawers: boolean;
 }
 
 export interface NavItem {
