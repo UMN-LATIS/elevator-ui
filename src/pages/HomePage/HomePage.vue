@@ -10,18 +10,9 @@
     >
       <article v-if="page" class="page-content-block col-span-2 p-4 lg:p-8">
         <SanitizedHTML
-          v-if="page.content"
-          :html="page.content"
+          :html="page.content ?? ''"
           class="prose prose-neutral mx-auto"
         />
-        <!-- 
-          Show the instance name if there's no page content on the homepage 
-        -->
-        <div v-else>
-          <h1 class="text-4xl mt-8 font-bold">
-            {{ instanceStore.instance?.name ?? "Elevator" }}
-          </h1>
-        </div>
       </article>
       <aside
         v-if="featuredAssetId"
