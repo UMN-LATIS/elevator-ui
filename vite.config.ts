@@ -4,7 +4,7 @@ import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
-  console.log({ env });
+
   return {
     plugins: [vue()],
     // this added so that dynamic components load properly on
