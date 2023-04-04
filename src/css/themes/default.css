@@ -170,6 +170,20 @@
   --app-modalContents-header-backgroundColor: var(--color-neutral-200);
   --app-modalContents-header-textColor: var(--color-neutral-900);
 
+  /** Notification **/
+  --app-notification-borderColor: var(--color-neutral-200);
+  --app-notification-backgroundColor: var(--color-neutral-50);
+  --app-notification-textColor: var(--color-neutral-900);
+  --app-notification-header-textColor: var(--color-neutral-900);
+  --app-notification-icon-info-backgroundColor: var(--color-blue-100);
+  --app-notification-icon-info-textColor: var(--color-blue-900);
+  --app-notification-icon-warning-backgroundColor: var(--color-yellow-100);
+  --app-notification-icon-warning-textColor: var(--color-yellow-500);
+  --app-notification-icon-error-backgroundColor: var(--color-red-100);
+  --app-notification-icon-error-textColor: var(--color-red-600);
+  --app-notification-icon-success-backgroundColor: var(--color-green-100);
+  --app-notification-icon-success-textColor: var(--color-green-600);
+
   /* Thumbnail Image */
   --app-thumbnailImage-borderColor: transparent;
   --app-thumbnailImage-active-ringColor: var(--app-link-textColor);

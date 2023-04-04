@@ -1,5 +1,5 @@
 <template>
-  <Notification type="warning" title="Sign In Required">
+  <Notification type="warning" title="Sign In Required" class="my-4">
     <p>This site requires you to sign in to search or access assets.</p>
 
     <div class="flex gap-2 my-2">
@@ -24,13 +24,11 @@ import { useBrowserLocation } from "@vueuse/core";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { computed } from "vue";
 import config from "@/config";
-import Notification from "@/components/WarningPanel/WarningPanel.vue";
+import Notification from "@/components/Notification/Notification.vue";
 import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
-const currentUser = computed(() => instanceStore.currentUser);
 const instance = computed(() => instanceStore.instance);
-const isReady = computed(() => instanceStore.fetchStatus === "success");
 const browserLocation = useBrowserLocation();
 const encodedCallbackUrl = computed(() => {
   const callbackUrl = browserLocation.value?.href ?? config.instance.base.url;
