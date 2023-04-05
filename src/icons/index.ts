@@ -1,4 +1,3 @@
-export { default as AddIcon } from "./AddIcon.vue";
 export { default as ArrowForwardIcon } from "./ArrowForwardIcon.vue";
 export { default as ChevronDownIcon } from "./ChevronDownIcon.vue";
 export { default as ChevronUpIcon } from "./ChevronUpIcon.vue";
@@ -10,8 +9,10 @@ export { default as DownloadIcon } from "./DownloadIcon.vue";
 export { default as ElevatorIcon } from "./ElevatorIcon.vue";
 export { default as ImageIcon } from "./ImageIcon.vue";
 export { default as InfoIcon } from "./InfoIcon.vue";
+export { default as MinusIcon } from "./MinusIcon.vue";
 export { default as MenuIcon } from "./MenuIcon.vue";
 export { default as OptionsIcon } from "./OptionsIcon.vue";
+export { default as PlusIcon } from "./PlusIcon.vue";
 export { default as SearchIcon } from "./SearchIcon.vue";
 export { default as ShareIcon } from "./ShareIcon.vue";
 export { default as SpinnerIcon } from "./SpinnerIcon.vue";

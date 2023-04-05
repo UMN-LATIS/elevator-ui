@@ -267,11 +267,6 @@ export interface DateResult {
   [key: string]: unknown;
 }
 
-export interface CollectionEntry {
-  id: number;
-  title: string;
-}
-
 export interface TemplateEntry {
   id: number;
   name: string;
@@ -293,7 +288,10 @@ export interface SearchResultMatch {
   locations: LocationObject[];
   objectId: string;
   lastModified: string;
-  collectionHierarchy: CollectionEntry[];
+  collectionHierarchy: Array<{
+    id: number;
+    title: string;
+  }>;
   template: TemplateEntry;
   entries?: SearchResultMatchEntry[];
   fileAssets?: number;
@@ -444,6 +442,8 @@ export interface ElevatorInstance {
 export interface AssetCollection {
   id: number;
   title: string;
+  previewImageId?: string | null;
+  children?: AssetCollection[];
 }
 
 export interface Page {

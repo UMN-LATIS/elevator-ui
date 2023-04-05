@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="imgContainer"
-    class="lazy-load-image relative w-full h-full min-w-[4rem] min-h-[4rem]"
-  >
+  <div ref="imgContainer" class="lazy-load-image relative">
     <img
       v-if="isLoaded"
       class="lazy-load-image__image bg-neutral-100 block transition-opacity opacity-0"

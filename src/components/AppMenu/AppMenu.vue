@@ -7,9 +7,7 @@
     >
       <PagesNavSection :pages="pages" />
 
-      <AppMenuItem :href="`${BASE_URL}/search/listCollections`">
-        Collections
-      </AppMenuItem>
+      <AppMenuItem :to="`/search/listCollections`"> Collections </AppMenuItem>
 
       <AppMenuItem :href="`${BASE_URL}/drawers/listDrawers`">
         Drawers
