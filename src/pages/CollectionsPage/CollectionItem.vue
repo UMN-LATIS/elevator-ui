@@ -41,7 +41,7 @@
 import { computed, ref } from "vue";
 import { getThumbURL } from "@/helpers/displayUtils";
 import { AssetCollection } from "@/types";
-import { ChevronDownIcon, ChevronUpIcon } from "@/icons";
+import { ChevronDownIcon } from "@/icons";
 import Link from "@/components/Link/Link.vue";
 import config from "@/config";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
