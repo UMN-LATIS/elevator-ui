@@ -2,6 +2,13 @@
   <DefaultLayout>
     <div class="search-results-page p-8 px-4">
       <div v-if="searchStore.isBrowsingCollection">
+        <Link
+          :to="`/search/listCollections`"
+          class="flex items-center gap-1 mb-2"
+        >
+          <ArrowForwardIcon class="transform rotate-180 h-4 w-4" /> Back to
+          Collections
+        </Link>
         <h2 class="text-4xl mb-8 font-bold">Browsing {{ collectionName }}</h2>
       </div>
       <h2 v-else class="text-4xl mb-8 font-bold">
@@ -68,6 +75,8 @@ import { useSearchStore } from "@/stores/searchStore";
 import SkeletonMediaCard from "@/components/MediaCard/SkeletonMediaCard.vue";
 import { AssetCollection } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
+import Link from "@/components/Link/Link.vue";
+import { ArrowForwardIcon } from "@/icons";
 
 const props = defineProps<{
   searchId: string;
