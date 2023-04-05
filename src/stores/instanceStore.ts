@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import api from "@/api";
 import { selectCurrentUserFromResponse } from "@/helpers/selectCurrentUserFromResponse";
 import { selectInstanceFromResponse } from "@/helpers/selectInstanceFromResponse";
+import { toCollectionDict } from "@/helpers/flattenCollections";
 import { ref, computed } from "vue";
 import {
   FetchStatus,
@@ -34,6 +35,7 @@ export const useInstanceStore = defineStore("instance", () => {
     canSearchAndBrowse: false,
   });
   const collections = ref<AssetCollection[]>([]);
+  const collectionsDict = computed(() => toCollectionDict(collections.value));
 
   /**
    * get a fresh copy of the instance data from the api
@@ -79,8 +81,9 @@ export const useInstanceStore = defineStore("instance", () => {
     currentUser,
     isLoggedIn,
     collections,
+    collectionsDict,
     getCollectionById: (id: number): AssetCollection | null => {
-      return collections.value.find((c) => c.id === id) ?? null;
+      return collectionsDict.value[id] || null;
     },
     refresh,
   };
