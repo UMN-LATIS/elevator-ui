@@ -1,9 +1,9 @@
 <template>
-  <div class="collection-item p-4 rounded-xl border">
+  <div class="collection-item p-2 rounded border">
     <div class="flex items-center gap-1">
       <button
         v-if="collection.children"
-        class="p-2 rounded-full inline-flex items-center justify-center"
+        class="p-2 -ml-2 rounded-full inline-flex items-center justify-center"
         @click="showMore = !showMore"
       >
         <ChevronDownIcon
