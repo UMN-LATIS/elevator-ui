@@ -15,7 +15,7 @@
       </button>
       <Link
         class="flex gap-2 flex-1 items-center"
-        :href="`${BASE_URL}/collections/browseCollection/${collection.id}`"
+        :to="`/collections/browseCollection/${collection.id}`"
       >
         <LazyLoadImage
           v-if="imgSrc"
