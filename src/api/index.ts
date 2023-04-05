@@ -206,6 +206,21 @@ export default {
     return res.data.searchId;
   },
 
+  async getSearchIdForCollection(collectionId) {
+    const params = new URLSearchParams();
+    params.append("searchText", "");
+    params.append("collectionId", String(collectionId));
+
+    // this param gets searchID without all the results
+    params.append("storeOnly", "true");
+    const res = await axios.post<SearchResultsResponse>(
+      `${BASE_URL}/search/searchResults`,
+      params
+    );
+
+    return res.data.searchId;
+  },
+
   async getSearchResultsById(
     searchId: string,
     page = 0
