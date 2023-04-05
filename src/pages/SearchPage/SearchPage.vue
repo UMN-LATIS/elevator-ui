@@ -1,7 +1,10 @@
 <template>
   <DefaultLayout>
     <div class="search-results-page p-8 px-4">
-      <h2 class="text-4xl mb-8 font-bold">
+      <div v-if="searchStore.isBrowsingCollection">
+        <h2 class="text-4xl mb-8 font-bold">Browsing {{ collectionName }}</h2>
+      </div>
+      <h2 v-else class="text-4xl mb-8 font-bold">
         <q>{{ searchStore.query }}</q>
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
@@ -56,13 +59,15 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { watch, ref, computed } from "vue";
 import { useScroll } from "@vueuse/core";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
 import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import SkeletonMediaCard from "@/components/MediaCard/SkeletonMediaCard.vue";
+import { AssetCollection } from "@/types";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
   searchId: string;
@@ -112,5 +117,24 @@ watch(
 function handleLoadMoreClick() {
   searchStore.loadMore();
 }
+
+const instanceStore = useInstanceStore();
+
+const collections = computed((): AssetCollection[] | null => {
+  if (!searchStore.isBrowsingCollection) return null;
+
+  const collectionIdsAsStrings = searchStore.searchEntry?.collection ?? [];
+  const collectionIds = collectionIdsAsStrings.map((id) => parseInt(id, 10));
+
+  // map each collection id to the actual collection object
+  return collectionIds
+    .map((id: number) => instanceStore.getCollectionById(id))
+    .filter((collection) => collection !== null) as AssetCollection[];
+});
+
+const collectionName = computed(() => {
+  if (!collections.value) return "No Collection";
+  return collections.value[0]?.title;
+});
 </script>
 <style scoped></style>

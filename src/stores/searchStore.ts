@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import api from "@/api";
 import { ref, computed } from "vue";
-import { FetchStatus, SearchResultMatch } from "@/types";
+import { FetchStatus, SearchResultMatch, SearchEntry } from "@/types";
 
 export const useSearchStore = defineStore("search", () => {
   const searchId = ref<string | undefined>(undefined);
@@ -10,6 +10,7 @@ export const useSearchStore = defineStore("search", () => {
   const matches = ref<SearchResultMatch[]>([]);
   const totalResults = ref<number | undefined>(undefined);
   const currentPage = ref(0);
+  const searchEntry = ref<SearchEntry | null>(null);
 
   async function search(searchText: string): Promise<string | void> {
     reset();
@@ -50,6 +51,7 @@ export const useSearchStore = defineStore("search", () => {
         currentPage.value
       );
       matches.value.push(...res.matches);
+      searchEntry.value = res.searchEntry;
       status.value = "success";
     } catch (error) {
       status.value = "error";
@@ -67,6 +69,7 @@ export const useSearchStore = defineStore("search", () => {
     try {
       const res = await api.getSearchResultsById(id);
       query.value = res.searchEntry.searchText ?? "";
+      searchEntry.value = res.searchEntry;
       totalResults.value = res.totalResults;
       matches.value = res.matches;
       status.value = "success";
@@ -94,6 +97,17 @@ export const useSearchStore = defineStore("search", () => {
     query: computed(() => query.value),
     totalResults: computed(() => totalResults.value),
     currentPage: computed(() => currentPage.value),
+    searchEntry: computed(() => searchEntry.value),
+    isBrowsingCollection: computed(() => {
+      const numberofCollections = searchEntry.value?.collection?.length ?? 0;
+      const hasEmptySearchQuery = query.value === "";
+      return hasEmptySearchQuery && numberofCollections > 0;
+    }),
+    collectionIds: computed((): number[] | null => {
+      if (!searchEntry.value?.collection) return null;
+      // convert to numbers, as the api returns strings
+      return searchEntry.value.collection.map(Number.parseInt);
+    }),
     hasMoreResults,
     search,
     searchById,

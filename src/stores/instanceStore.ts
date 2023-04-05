@@ -79,6 +79,9 @@ export const useInstanceStore = defineStore("instance", () => {
     currentUser,
     isLoggedIn,
     collections,
+    getCollectionById: (id: number): AssetCollection | null => {
+      return collections.value.find((c) => c.id === id) ?? null;
+    },
     refresh,
   };
 });

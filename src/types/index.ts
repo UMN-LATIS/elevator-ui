@@ -304,7 +304,7 @@ export interface SearchResultMatch {
 }
 
 export interface SearchEntry {
-  collection?: number[];
+  collection?: string[]; // collection ids as strings
   searchDate?: DateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
