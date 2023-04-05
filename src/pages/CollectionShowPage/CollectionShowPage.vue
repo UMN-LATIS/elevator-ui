@@ -50,7 +50,7 @@ onBeforeMount(() => {
 });
 
 watch(
-  () => props.collectionId,
+  [() => props.collectionId, instanceStore.isReady],
   async () => {
     collection.value = instanceStore.getCollectionById(props.collectionId);
     searchId.value = await api.getSearchIdForCollection(props.collectionId);
