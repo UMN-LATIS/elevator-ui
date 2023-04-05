@@ -56,7 +56,7 @@ import { FetchStatus, SearchResultMatch } from "@/types";
 import { useScroll } from "@vueuse/core";
 
 const props = defineProps<{
-  totalResults: number | undefined;
+  totalResults?: number;
   matches: SearchResultMatch[];
   status: FetchStatus;
 }>();
