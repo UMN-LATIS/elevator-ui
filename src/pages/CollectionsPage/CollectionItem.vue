@@ -1,5 +1,5 @@
 <template>
-  <div class="collection-item p-2 rounded border">
+  <div class="collection-item p-4 rounded border">
     <div class="flex items-center gap-1">
       <button
         v-if="collection.children"
