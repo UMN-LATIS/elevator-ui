@@ -45,7 +45,7 @@ const numRows = computed(() => {
 .grid {
   display: grid;
   grid-template-columns: repeat(v-bind("numCols"), 1fr);
-  grid-template-rows: repeat(v-bind("numRows"), 1fr);
+  grid-template-rows: repeat(v-bind("numRows"), auto);
   grid-auto-flow: column;
   gap: 0.5rem;
 }
