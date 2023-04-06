@@ -62,7 +62,18 @@ const router = createRouter({
     {
       name: "listCollections",
       path: "/search/listCollections",
-      component: () => import("@/pages/CollectionsPage/CollectionsPage.vue"),
+      alias: "/collections",
+      component: () =>
+        import("@/pages/AllCollectionsPage/AllCollectionsPage.vue"),
+    },
+    {
+      path: "/collections/browseCollection/:collectionId",
+      alias: "/collections/:collectionId",
+      component: () =>
+        import("@/pages/BrowseCollectionPage/BrowseCollectionPage.vue"),
+      props: (route) => ({
+        collectionId: parseIntFromParam(route.params.collectionId),
+      }),
     },
     {
       name: "search",

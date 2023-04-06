@@ -10,19 +10,17 @@ import {
   User,
   AssetCollection,
 } from "@/types";
+import {
+  toCollectionIndex,
+  normalizeAssetCollections,
+} from "@/helpers/collectionHelpers";
 
-/**
- * This is the main store for the application.
- */
-
-// we use a pinia "setup" store style
-// so that we can automatically initialize the store
-// with data from the api
-export const useInstanceStore = defineStore("instance", () => {
-  const fetchStatus = ref<FetchStatus>("idle");
-  const currentUser = ref<User | null>(null);
-  const pages = ref<Page[]>([]);
-  const instance = ref<ElevatorInstance>({
+const createState = () => ({
+  fetchStatus: ref<FetchStatus>("idle"),
+  currentUser: ref<User | null>(null),
+  pages: ref<Page[]>([]),
+  collections: ref<AssetCollection[]>([]),
+  instance: ref<ElevatorInstance>({
     id: null,
     name: "Elevator",
     logoImg: null,
@@ -32,53 +30,73 @@ export const useInstanceStore = defineStore("instance", () => {
     featuredAssetId: null,
     featuredAssetText: null,
     canSearchAndBrowse: false,
-  });
-  const collections = ref<AssetCollection[]>([]);
+  }),
+});
 
-  /**
-   * get a fresh copy of the instance data from the api
-   */
-  async function refresh() {
-    if (fetchStatus.value === "fetching") return;
+const getters = (state: ReturnType<typeof createState>) => ({
+  isLoggedIn: computed(() => !!state.currentUser.value),
+  isReady: computed(() => state.fetchStatus.value === "success"),
+  collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
+  async getCollectionById(
+    id: number
+  ): Promise<Required<AssetCollection> | null> {
+    const index = getters(state).collectionIndex.value;
+    const collection = index[id];
+    if (!collection) return null;
 
-    fetchStatus.value = "fetching";
+    // include the collection description
+    try {
+      const description = await api.getCollectionDescription(id);
+      return {
+        ...collection,
+        description,
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
+});
+
+const actions = (state: ReturnType<typeof createState>) => ({
+  async refresh() {
+    if (state.fetchStatus.value === "fetching") return;
+    state.fetchStatus.value = "fetching";
 
     try {
       const apiResponse = await api.fetchInstanceNav();
 
-      currentUser.value = selectCurrentUserFromResponse(apiResponse);
-      pages.value = apiResponse.pages;
-      instance.value = selectInstanceFromResponse(apiResponse);
-      collections.value = apiResponse.collections;
-      fetchStatus.value = "success";
+      state.currentUser.value = selectCurrentUserFromResponse(apiResponse);
+      state.pages.value = apiResponse.pages;
+      state.instance.value = selectInstanceFromResponse(apiResponse);
+      state.collections.value = normalizeAssetCollections(
+        apiResponse.collections
+      );
+
+      state.fetchStatus.value = "success";
     } catch (error) {
       console.error(error);
-      fetchStatus.value = "error";
+      state.fetchStatus.value = "error";
     }
-  }
-
-  const isLoggedIn = computed(() => !!currentUser.value);
-  const isReady = computed(() => fetchStatus.value === "success");
-
-  async function init() {
-    // don't fetch if we already have data or are fetching
-    if (["fetching", "success", "error"].includes(fetchStatus.value)) {
+  },
+  async init() {
+    if (["fetching", "success", "error"].includes(state.fetchStatus.value)) {
       return;
     }
-    refresh();
-  }
+    actions(state).refresh();
+  },
+});
 
-  // initialize store when created
-  init();
+export const useInstanceStore = defineStore("instance", () => {
+  const state = createState();
+  const storeGetters = getters(state);
+  const storeActions = actions(state);
+
+  storeActions.init();
 
   return {
-    fetchStatus,
-    isReady,
-    pages,
-    instance,
-    currentUser,
-    isLoggedIn,
-    collections,
-    refresh,
+    ...state,
+    ...storeGetters,
+    ...storeActions,
   };
 });

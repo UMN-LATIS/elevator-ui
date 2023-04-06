@@ -29,6 +29,8 @@ const paginatedSearchResults = new Map<
   string,
   Record<number, SearchResultsResponse>
 >();
+const collectionDescriptions = new Map<number, string | null>();
+const collectionSearchIds = new Map<number, string | null>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -63,6 +65,17 @@ async function fetchMoreLikeThis(
   return res.data.matches.filter((match) => match.objectId !== assetId);
 }
 
+async function fetchCollectionDescription(
+  collectionId: number
+): Promise<string | null> {
+  const res = await axios.get<{
+    collectionDescription: string;
+    collectionTitle: string;
+  }>(`${BASE_URL}/collections/collectionHeader/${collectionId}/true`);
+
+  return res.data.collectionDescription ?? null;
+}
+
 async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
   const res = await axios.get<FileMetaData>(
     `${BASE_URL}/fileManager/getMetadataForObject/${fileId}`
@@ -95,6 +108,23 @@ function fetchInterstitial() {
   return axios.get(`${BASE_URL}/home/interstitial`);
 }
 
+async function fetchSearchIdForCollection(
+  collectionId: number
+): Promise<string> {
+  const params = new URLSearchParams();
+  params.append("searchText", "");
+  params.append("collectionId", String(collectionId));
+
+  // this param gets searchID without all the results
+  params.append("storeOnly", "true");
+  const res = await axios.post<SearchResultsResponse>(
+    `${BASE_URL}/search/searchResults`,
+    params
+  );
+
+  return res.data.searchId;
+}
+
 export default {
   async getAsset(assetId: string): Promise<Asset | null> {
     if (!assetId) return null;
@@ -125,6 +155,14 @@ export default {
     templates.set(templateId, template);
 
     return { asset, template };
+  },
+  async getCollectionDescription(id: number): Promise<string | null> {
+    const description =
+      collectionDescriptions.get(id) || (await fetchCollectionDescription(id));
+
+    collectionDescriptions.set(id, description);
+
+    return description;
   },
   async getMoreLikeThis(assetId: string | null): Promise<SearchResultMatch[]> {
     if (!assetId) return [];
@@ -204,6 +242,19 @@ export default {
     );
 
     return res.data.searchId;
+  },
+
+  async getSearchIdForCollection(collectionId: number): Promise<string> {
+    // check the cache first before making the request
+    const searchId =
+      collectionSearchIds.get(collectionId) ||
+      (await fetchSearchIdForCollection(collectionId));
+
+    // update cache
+    collectionSearchIds.set(collectionId, searchId);
+
+    // return the searchId
+    return searchId;
   },
 
   async getSearchResultsById(

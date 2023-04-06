@@ -73,3 +73,19 @@ a:hover {
     background: var(--app-scrollbar-thumb-hover-backgroundColor, #555);
   }
 }
+
+.prose {
+  --tw-prose-headings: var(--app-headingColor);
+  --tw-prose-links: var(--app-link-textColor);
+  max-width: 70ch;
+  color: var(--app-textColor);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--app-headingColor);
+}

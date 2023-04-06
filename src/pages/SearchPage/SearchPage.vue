@@ -1,74 +1,34 @@
 <template>
   <DefaultLayout>
-    <div class="search-results-page p-8 px-4">
-      <h2 class="text-4xl mb-8 font-bold">
+    <div v-if="searchStore.isReady" class="search-results-page px-4">
+      <BrowseCollectionHeader
+        v-if="browsingCollectionId"
+        :collectionId="browsingCollectionId"
+      />
+      <h2 v-if="searchStore.query" class="text-4xl my-8 font-bold">
         <q>{{ searchStore.query }}</q>
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
-      <div>
-        <div v-if="searchStore.totalResults !== undefined" class="mb-4">
-          <p v-if="searchStore.totalResults > 0">
-            Showing <b>{{ searchStore.matches.length }}</b> of
-            <b>{{ searchStore.totalResults }}</b> results.
-          </p>
-          <p v-else>No results found.</p>
-        </div>
-        <div ref="searchResultsContainer" class="grid grid-cols-auto-md gap-4">
-          <TransitionGroup
-            enterActiveClass="transform ease-out transition"
-            enterFromClass="opacity-0"
-            enterToClass="opacity-100"
-            leaveActiveClass="transition ease-in"
-            leaveFromClass="opacity-100"
-            leaveToClass="opacity-0"
-          >
-            <SearchResultCard
-              v-for="match in searchStore.matches"
-              :key="match.objectId"
-              :searchMatch="match"
-              :showDetails="false"
-            />
-            <!-- skeleton items while loading -->
-            <SkeletonMediaCard
-              v-for="i in 10"
-              v-show="searchStore.status === 'fetching'"
-              :key="i"
-            />
-          </TransitionGroup>
-        </div>
-
-        <p v-if="searchStore.matches.length > 6" class="my-4">
-          Showing <b>{{ searchStore.matches.length }}</b> of
-          <b>{{ searchStore.totalResults }}</b> results.
-        </p>
-      </div>
-      <div v-if="searchStore.hasMoreResults" class="mt-8">
-        <Button
-          variant="primary"
-          class="btn btn-primary"
-          :disabled="searchStore.status === 'fetching'"
-          @click="handleLoadMoreClick"
-        >
-          Load more
-        </Button>
-      </div>
+      <SearchResultsGrid
+        :totalResults="searchStore.totalResults"
+        :matches="searchStore.matches"
+        :status="searchStore.status"
+        @loadMore="() => searchStore.loadMore()"
+      />
     </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, ref } from "vue";
-import { useScroll } from "@vueuse/core";
+import { watch, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
-import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
-import SkeletonMediaCard from "@/components/MediaCard/SkeletonMediaCard.vue";
+import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
+import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 
 const props = defineProps<{
   searchId: string;
 }>();
 
-const searchResultsContainer = ref<HTMLElement | null>(null);
 const searchStore = useSearchStore();
 
 // if search with this id is not currently in flight,
@@ -79,38 +39,14 @@ watch(
     if (searchStore.searchId === props.searchId) return;
     searchStore.searchById(props.searchId);
   },
-  {
-    immediate: true,
-  }
+  { immediate: true }
 );
 
-const { arrivedState } = useScroll(window, {
-  offset: {
-    bottom: 100,
-  },
+const browsingCollectionId = computed((): number | null => {
+  const isBrowsing =
+    searchStore.query === "" && searchStore.collectionIds?.length === 1;
+  if (!isBrowsing) return null;
+  return searchStore.collectionIds[0];
 });
-
-// lazy load more results when we get to the bottom of the page
-watch(
-  () => arrivedState.bottom,
-  async () => {
-    // if we're not at the bottom, don't do anything
-    // this handles the case when arrivedState.bottom changes from
-    // true to false
-    if (!arrivedState.bottom) return;
-
-    // if we don't have any more results, or we're already in the process
-    // of fetching more, then don't do anything
-    if (!searchStore.hasMoreResults || searchStore.status === "fetching") {
-      return;
-    }
-
-    searchStore.loadMore();
-  }
-);
-
-function handleLoadMoreClick() {
-  searchStore.loadMore();
-}
 </script>
 <style scoped></style>

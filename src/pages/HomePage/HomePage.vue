@@ -91,13 +91,6 @@ watch(
   --border-width: var(--app-borderWidth);
 }
 
-.prose {
-  --tw-prose-headings: var(--app-headingColor);
-  --tw-prose-links: var(--app-link-textColor);
-  max-width: 70ch;
-  color: var(--app-textColor);
-}
-
 .featured-asset-block,
 .page-content-block {
   background: var(--bg-color);

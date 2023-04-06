@@ -2,7 +2,7 @@
   <div class="collection-item p-4 rounded border">
     <div class="flex items-center gap-1">
       <button
-        v-if="collection.children"
+        v-if="collection.children && collection.children.length > 0"
         class="p-2 -ml-2 rounded-full inline-flex items-center justify-center"
         @click="showMore = !showMore"
       >
@@ -15,7 +15,7 @@
       </button>
       <Link
         class="flex gap-2 flex-1 items-center"
-        :href="`${BASE_URL}/collections/browseCollection/${collection.id}`"
+        :to="`/collections/browseCollection/${collection.id}`"
       >
         <LazyLoadImage
           v-if="imgSrc"
@@ -43,14 +43,12 @@ import { getThumbURL } from "@/helpers/displayUtils";
 import { AssetCollection } from "@/types";
 import { ChevronDownIcon } from "@/icons";
 import Link from "@/components/Link/Link.vue";
-import config from "@/config";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
 
 const props = defineProps<{
   collection: AssetCollection;
 }>();
 
-const BASE_URL = config.instance.base.url;
 const imgSrc = computed((): string | null => {
   const imgId = props.collection.previewImageId;
   return imgId ? getThumbURL(imgId) : null;
@@ -60,8 +58,8 @@ const showMore = ref(false);
 </script>
 <style scoped>
 .collection-item {
-  /* border: var(--app-accordion-outer-borderWidth) solid
-    var(--app-accordion-outer-borderColor); */
+  border: var(--app-accordion-outer-borderWidth) solid
+    var(--app-accordion-outer-borderColor);
   background: var(--app-accordion-header-backgroundColor);
   color: var(--app-accordion-header-textColor);
 }
