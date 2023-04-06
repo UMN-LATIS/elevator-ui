@@ -37,16 +37,34 @@ const getters = (state: ReturnType<typeof createState>) => ({
   isLoggedIn: computed(() => !!state.currentUser.value),
   isReady: computed(() => state.fetchStatus.value === "success"),
   collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
-  getCollectionById: (id: number) => {
+  /**
+   * gets the collection AND it's given description
+   */
+  async getCollectionById(
+    id: number
+  ): Promise<Required<AssetCollection> | null> {
     // since we're using a getter within another getter, we access that
     // through the `getters` function
     const index = getters(state).collectionIndex.value;
-    return index[id];
+    const collection = index[id];
+    if (!collection) return null;
+
+    // include the collection description
+    try {
+      const description = await api.getCollectionDescription(id);
+      return {
+        ...collection,
+        description,
+      };
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   },
 });
 
-const actions = (state: ReturnType<typeof createState>) => {
-  const refresh = async () => {
+const actions = (state: ReturnType<typeof createState>) => ({
+  async refresh() {
     if (state.fetchStatus.value === "fetching") return;
     state.fetchStatus.value = "fetching";
 
@@ -65,17 +83,14 @@ const actions = (state: ReturnType<typeof createState>) => {
       console.error(error);
       state.fetchStatus.value = "error";
     }
-  };
-
-  const init = async () => {
+  },
+  async init() {
     if (["fetching", "success", "error"].includes(state.fetchStatus.value)) {
       return;
     }
-    refresh();
-  };
-
-  return { refresh, init };
-};
+    actions(state).refresh();
+  },
+});
 
 export const useInstanceStore = defineStore("instance", () => {
   const state = createState();

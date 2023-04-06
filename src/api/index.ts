@@ -29,6 +29,7 @@ const paginatedSearchResults = new Map<
   string,
   Record<number, SearchResultsResponse>
 >();
+const collectionDescriptions = new Map<number, string | null>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -61,6 +62,17 @@ async function fetchMoreLikeThis(
   // response may return asset within the search, so filter it out
   // if it does so that "more"
   return res.data.matches.filter((match) => match.objectId !== assetId);
+}
+
+async function fetchCollectionDescription(
+  collectionId: number
+): Promise<string | null> {
+  const res = await axios.get<{
+    collectionDescription: string;
+    collectionTitle: string;
+  }>(`${BASE_URL}/collections/collectionHeader/${collectionId}/true`);
+
+  return res.data.collectionDescription ?? null;
 }
 
 async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
@@ -125,6 +137,14 @@ export default {
     templates.set(templateId, template);
 
     return { asset, template };
+  },
+  async getCollectionDescription(id: number): Promise<string | null> {
+    const description =
+      collectionDescriptions.get(id) || (await fetchCollectionDescription(id));
+
+    collectionDescriptions.set(id, description);
+
+    return description;
   },
   async getMoreLikeThis(assetId: string | null): Promise<SearchResultMatch[]> {
     if (!assetId) return [];
