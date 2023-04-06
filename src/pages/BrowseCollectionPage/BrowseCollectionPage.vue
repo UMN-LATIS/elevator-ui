@@ -1,17 +1,19 @@
 <template>
   <DefaultLayout>
-    <div class="search-results-page p-8 px-4">
-      <div>
-        <Link
-          :to="`/search/listCollections`"
-          class="flex items-center gap-1 mb-2"
-        >
+    <div class="browse-collection-page px-4">
+      <div class="pb-8 my-8">
+        <Link :to="`/search/listCollections`" class="flex items-center gap-1">
           <ArrowForwardIcon class="transform rotate-180 h-4 w-4" /> Back to
           Collections
         </Link>
-        <h2 class="text-4xl mb-8 font-bold">
-          Browsing {{ collection?.title }}
+        <h2 class="text-4xl font-bold mt-4">
+          Browsing {{ collection?.title ?? "..." }}
         </h2>
+        <SanitizedHTML
+          v-if="collection?.description"
+          :html="collection.description"
+          class="prose max-w-screen-lg mt-2"
+        />
       </div>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <SearchResultsGrid
@@ -33,6 +35,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import Link from "@/components/Link/Link.vue";
 import { ArrowForwardIcon } from "@/icons";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
+import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 
 const props = defineProps<{
   collectionId: number;
@@ -49,12 +52,23 @@ onBeforeMount(() => {
   searchStore.reset();
 });
 
+async function updateCollection(id: number) {
+  collection.value = await instanceStore.getCollectionById(id);
+}
+async function updateSearchResults(id: number) {
+  searchId.value = await api.getSearchIdForCollection(id);
+  searchStore.searchById(searchId.value);
+}
+
 watch(
   [() => props.collectionId, () => instanceStore.isReady],
-  async () => {
-    collection.value = instanceStore.getCollectionById(props.collectionId);
-    searchId.value = await api.getSearchIdForCollection(props.collectionId);
-    searchStore.searchById(searchId.value);
+  () => {
+    if (!instanceStore.isReady) return;
+
+    Promise.all([
+      updateCollection(props.collectionId),
+      updateSearchResults(props.collectionId),
+    ]);
   },
   { immediate: true }
 );
