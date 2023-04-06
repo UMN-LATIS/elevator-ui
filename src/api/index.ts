@@ -30,6 +30,7 @@ const paginatedSearchResults = new Map<
   Record<number, SearchResultsResponse>
 >();
 const collectionDescriptions = new Map<number, string | null>();
+const collectionSearchIds = new Map<number, string | null>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -105,6 +106,23 @@ async function fetchFileDownloadInfo(
 
 function fetchInterstitial() {
   return axios.get(`${BASE_URL}/home/interstitial`);
+}
+
+async function fetchSearchIdForCollection(
+  collectionId: number
+): Promise<string> {
+  const params = new URLSearchParams();
+  params.append("searchText", "");
+  params.append("collectionId", String(collectionId));
+
+  // this param gets searchID without all the results
+  params.append("storeOnly", "true");
+  const res = await axios.post<SearchResultsResponse>(
+    `${BASE_URL}/search/searchResults`,
+    params
+  );
+
+  return res.data.searchId;
 }
 
 export default {
@@ -226,19 +244,17 @@ export default {
     return res.data.searchId;
   },
 
-  async getSearchIdForCollection(collectionId) {
-    const params = new URLSearchParams();
-    params.append("searchText", "");
-    params.append("collectionId", String(collectionId));
+  async getSearchIdForCollection(collectionId: number): Promise<string> {
+    // check the cache first before making the request
+    const searchId =
+      collectionSearchIds.get(collectionId) ||
+      (await fetchSearchIdForCollection(collectionId));
 
-    // this param gets searchID without all the results
-    params.append("storeOnly", "true");
-    const res = await axios.post<SearchResultsResponse>(
-      `${BASE_URL}/search/searchResults`,
-      params
-    );
+    // update cache
+    collectionSearchIds.set(collectionId, searchId);
 
-    return res.data.searchId;
+    // return the searchId
+    return searchId;
   },
 
   async getSearchResultsById(
