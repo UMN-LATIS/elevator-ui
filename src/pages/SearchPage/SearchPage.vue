@@ -1,7 +1,11 @@
 <template>
   <DefaultLayout>
-    <div class="search-results-page p-8 px-4">
-      <h2 class="text-4xl mb-8 font-bold">
+    <div v-if="searchStore.isReady" class="search-results-page px-4">
+      <BrowseCollectionHeader
+        v-if="browsingCollectionId"
+        :collectionId="browsingCollectionId"
+      />
+      <h2 v-if="searchStore.query" class="text-4xl my-8 font-bold">
         <q>{{ searchStore.query }}</q>
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
@@ -15,10 +19,11 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch } from "vue";
+import { watch, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
+import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 
 const props = defineProps<{
   searchId: string;
@@ -36,5 +41,12 @@ watch(
   },
   { immediate: true }
 );
+
+const browsingCollectionId = computed((): number | null => {
+  const isBrowsing =
+    searchStore.query === "" && searchStore.collectionIds?.length === 1;
+  if (!isBrowsing) return null;
+  return searchStore.collectionIds[0];
+});
 </script>
 <style scoped></style>

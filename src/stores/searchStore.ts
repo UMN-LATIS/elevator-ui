@@ -11,6 +11,7 @@ export const useSearchStore = defineStore("search", () => {
   const totalResults = ref<number | undefined>(undefined);
   const currentPage = ref(0);
   const searchEntry = ref<SearchEntry | null>(null);
+  const isReady = computed(() => status.value === "success");
 
   async function search(searchText: string): Promise<string | void> {
     reset();
@@ -98,11 +99,6 @@ export const useSearchStore = defineStore("search", () => {
     totalResults: computed(() => totalResults.value),
     currentPage: computed(() => currentPage.value),
     searchEntry: computed(() => searchEntry.value),
-    isBrowsingCollection: computed(() => {
-      const numberofCollections = searchEntry.value?.collection?.length ?? 0;
-      const hasEmptySearchQuery = query.value === "";
-      return hasEmptySearchQuery && numberofCollections > 0;
-    }),
     collectionIds: computed((): number[] | null => {
       if (!searchEntry.value?.collection) return null;
       // convert to numbers, as the api returns strings
@@ -113,5 +109,6 @@ export const useSearchStore = defineStore("search", () => {
     searchById,
     loadMore,
     reset,
+    isReady,
   };
 });
