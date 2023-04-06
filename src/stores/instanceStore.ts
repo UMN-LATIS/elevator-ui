@@ -37,14 +37,9 @@ const getters = (state: ReturnType<typeof createState>) => ({
   isLoggedIn: computed(() => !!state.currentUser.value),
   isReady: computed(() => state.fetchStatus.value === "success"),
   collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
-  /**
-   * gets the collection AND it's given description
-   */
   async getCollectionById(
     id: number
   ): Promise<Required<AssetCollection> | null> {
-    // since we're using a getter within another getter, we access that
-    // through the `getters` function
     const index = getters(state).collectionIndex.value;
     const collection = index[id];
     if (!collection) return null;
