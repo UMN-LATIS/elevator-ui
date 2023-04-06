@@ -407,7 +407,7 @@ export interface ApiInstanceNavResponse {
   contact: string;
   useCentralAuth: boolean;
   centralAuthLabel: string;
-  collections: AssetCollection[];
+  collections: RawAssetCollection[];
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
 }
@@ -439,11 +439,20 @@ export interface ElevatorInstance {
   canSearchAndBrowse: boolean; // whether or not to show search and browse
 }
 
-export interface AssetCollection {
+export interface RawAssetCollection {
   id: number;
   title: string;
   previewImageId?: string | null;
-  children?: AssetCollection[];
+  children?: RawAssetCollection[];
+}
+
+export interface AssetCollection {
+  id: number;
+  title: string;
+  description?: string | null;
+  previewImageId: string | null;
+  children: AssetCollection[] | null;
+  parentId: number | null;
 }
 
 export interface Page {
