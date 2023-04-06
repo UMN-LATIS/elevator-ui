@@ -2,7 +2,7 @@
   <div class="collection-item p-4 rounded border">
     <div class="flex items-center gap-1">
       <button
-        v-if="collection.children"
+        v-if="collection.children && collection.children.length > 0"
         class="p-2 -ml-2 rounded-full inline-flex items-center justify-center"
         @click="showMore = !showMore"
       >
