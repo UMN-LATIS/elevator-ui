@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="currentAssetIndex"
+    v-if="currentAssetIndex !== null"
     class="flex justify-between py-2 px-4 items-center gap-4"
   >
     <Button
