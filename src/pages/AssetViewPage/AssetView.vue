@@ -1,72 +1,83 @@
 <template>
-  <div class="asset-view h-full relative">
-    <ObjectViewer
-      class="asset-view__object-viewer h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
-      :class="{
-        'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-l-asset-view':
-          isAssetDetailsOpen && isObjectDetailsOpen, // both open
-        'md:top-0 md:bottom-16 md:left-sm md:right-0 border-l-asset-view':
-          isAssetDetailsOpen && !isObjectDetailsOpen, // just asset details
+  <div class="asset-view relative flex flex-col border h-full">
+    <div class="flex justify-between py-1 border">
+      <Button>Previous</Button>
+      <Button>Next</Button>
+    </div>
+    <div class="relative border flex-1">
+      <ObjectViewer
+        class="asset-view__object-viewer h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
+        :class="{
+          'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-l-asset-view':
+            isAssetDetailsOpen && isObjectDetailsOpen, // both open
+          'md:top-0 md:bottom-16 md:left-sm md:right-0 border-l-asset-view':
+            isAssetDetailsOpen && !isObjectDetailsOpen, // just asset details
 
-        'md:top-0 md:bottom-16 md:left-0 md:right-sm border-r-asset-view':
-          !isAssetDetailsOpen && isObjectDetailsOpen, // just object details
-        'md:top-0 md:bottom-16 md:left-0 md:right-0':
-          !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
-      }"
-      :fileHandlerId="assetStore.activeFileObjectId"
-    />
-    <AssetDetailsDrawer
-      class="asset-view__asset-panel md:absolute"
-      :class="{
-        'asset-view__asset-panel--open': isAssetDetailsOpen,
-        'md:bottom-0 md:left-0 md:top-0 md:w-sm': isAssetDetailsOpen, // both open + asset details open
-        'md:bottom-0 md:left-0 md:h-16 md:right-sm border-r-asset-view':
-          !isAssetDetailsOpen && isObjectDetailsOpen, // just obj panel
-        'md:bottom-0 md:left-0 md:h-16 md:w-1/2':
-          !isAssetDetailsOpen && !isObjectDetailsOpen, //neither open
-      }"
-      :showToggle="permitDrawerToggle"
-      :assetId="assetStore.activeAssetId"
-      :isOpen="permitDrawerToggle ? isAssetDetailsOpen : true"
-      @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
-    />
-    <ObjectDetailsDrawer
-      class="asset-view__details-panel md:absolute"
-      :class="{
-        'asset-view__details-panel--open': isObjectDetailsOpen,
-        'border-l-asset-view': !isObjectDetailsOpen,
-        'md:bottom-0 md:right-0 md:h-16 md:left-sm':
-          !isObjectDetailsOpen && isAssetDetailsOpen, // just asset open
-        'md:bottom-0 md:right-0 md:h-1/2 md:left-sm border-l-asset-view':
-          isObjectDetailsOpen && isAssetDetailsOpen, // both panels open
-        'md:bottom-0 md:right-0 md:top-0 md:w-sm':
-          isObjectDetailsOpen && !isAssetDetailsOpen, // just object open
-        'md:bottom-0 md:right-0 md:h-16 md:w-1/2':
-          !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
-      }"
-      :showToggle="permitDrawerToggle"
-      :objectId="assetStore.activeObjectId"
-      :isOpen="permitDrawerToggle ? isObjectDetailsOpen : true"
-      @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
-    />
+          'md:top-0 md:bottom-16 md:left-0 md:right-sm border-r-asset-view':
+            !isAssetDetailsOpen && isObjectDetailsOpen, // just object details
+          'md:top-0 md:bottom-16 md:left-0 md:right-0':
+            !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
+        }"
+        :fileHandlerId="assetStore.activeFileObjectId"
+      />
+      <AssetDetailsDrawer
+        class="asset-view__asset-panel md:absolute"
+        :class="{
+          'asset-view__asset-panel--open': isAssetDetailsOpen,
+          'md:bottom-0 md:left-0 md:top-0 md:w-sm': isAssetDetailsOpen, // both open + asset details open
+          'md:bottom-0 md:left-0 md:h-16 md:right-sm border-r-asset-view':
+            !isAssetDetailsOpen && isObjectDetailsOpen, // just obj panel
+          'md:bottom-0 md:left-0 md:h-16 md:w-1/2':
+            !isAssetDetailsOpen && !isObjectDetailsOpen, //neither open
+        }"
+        :showToggle="permitDrawerToggle"
+        :assetId="assetStore.activeAssetId"
+        :isOpen="permitDrawerToggle ? isAssetDetailsOpen : true"
+        @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
+      />
+      <ObjectDetailsDrawer
+        class="asset-view__details-panel md:absolute"
+        :class="{
+          'asset-view__details-panel--open': isObjectDetailsOpen,
+          'border-l-asset-view': !isObjectDetailsOpen,
+          'md:bottom-0 md:right-0 md:h-16 md:left-sm':
+            !isObjectDetailsOpen && isAssetDetailsOpen, // just asset open
+          'md:bottom-0 md:right-0 md:h-1/2 md:left-sm border-l-asset-view':
+            isObjectDetailsOpen && isAssetDetailsOpen, // both panels open
+          'md:bottom-0 md:right-0 md:top-0 md:w-sm':
+            isObjectDetailsOpen && !isAssetDetailsOpen, // just object open
+          'md:bottom-0 md:right-0 md:h-16 md:w-1/2':
+            !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
+        }"
+        :showToggle="permitDrawerToggle"
+        :objectId="assetStore.activeObjectId"
+        :isOpen="permitDrawerToggle ? isObjectDetailsOpen : true"
+        @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
+      />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
+import { useSearchStore } from "@/stores/searchStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
 import { useMediaQuery } from "@vueuse/core";
+import Button from "@/components/Button/Button.vue";
 
 defineProps<{
   assetId: string | null;
   objectId?: string | null;
+  previousAssetId?: string | null;
+  nextAssetId?: string | null;
 }>();
 
 const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
+const searchStore = useSearchStore();
 
 const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
 </script>
