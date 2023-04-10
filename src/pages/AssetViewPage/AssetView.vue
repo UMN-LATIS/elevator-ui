@@ -1,6 +1,6 @@
 <template>
   <div class="asset-view relative flex flex-col border h-full">
-    <div class="flex justify-between py-1 border">
+    <div v-if="searchStore.searchId" class="flex justify-between py-1 border">
       <Button>Previous</Button>
       <Button>Next</Button>
     </div>
