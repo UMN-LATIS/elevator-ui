@@ -13,12 +13,19 @@ export const useSearchStore = defineStore("search", () => {
   const searchEntry = ref<SearchEntry | null>(null);
   const isReady = computed(() => status.value === "success");
 
-  async function search(searchText: string): Promise<string | void> {
-    reset();
-    query.value = searchText;
+  async function search(): Promise<string | void> {
+    // clear old search results
     status.value = "fetching";
+    searchId.value = undefined;
+    matches.value = [];
+    totalResults.value = undefined;
+    currentPage.value = 0;
+    searchEntry.value = null;
     try {
+      // first get the id of the search for this query
       searchId.value = await api.getSearchId(query.value);
+
+      // then use the id to get the actual results
       searchById(searchId.value);
       return searchId.value;
     } catch (error) {
@@ -69,7 +76,7 @@ export const useSearchStore = defineStore("search", () => {
 
     try {
       const res = await api.getSearchResultsById(id);
-      query.value = res.searchEntry.searchText ?? "";
+
       searchEntry.value = res.searchEntry;
       totalResults.value = res.totalResults;
       matches.value = res.matches;
@@ -80,22 +87,13 @@ export const useSearchStore = defineStore("search", () => {
     }
   }
 
-  function reset() {
-    query.value = "";
-    status.value = "idle";
-    searchId.value = undefined;
-    matches.value = [];
-    totalResults.value = undefined;
-    currentPage.value = 0;
-  }
-
   return {
     // expose refs as computed values to make readonly
     // readonly() was causing type issues for some reason
+    query,
     matches: computed(() => matches.value),
     status: computed(() => status.value),
     searchId: computed(() => searchId.value),
-    query: computed(() => query.value),
     totalResults: computed(() => totalResults.value),
     currentPage: computed(() => currentPage.value),
     searchEntry: computed(() => searchEntry.value),
@@ -108,7 +106,6 @@ export const useSearchStore = defineStore("search", () => {
     search,
     searchById,
     loadMore,
-    reset,
     isReady,
   };
 });
