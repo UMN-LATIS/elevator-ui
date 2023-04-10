@@ -8,7 +8,6 @@
         v-if="previousAssetId"
         variant="tertiary"
         :to="getAssetUrl(previousAssetId)"
-        class="!ml-0"
       >
         <ChevronLeftIcon class="h-3 w-3" />
         Prev
