@@ -11,6 +11,12 @@
       >
         <q>{{ searchStore.searchEntry.searchText }}</q>
       </h2>
+      <h2
+        v-if="!browsingCollectionId && !searchStore.searchEntry?.searchText"
+        class="text-4xl my-8 font-bold"
+      >
+        All Assets
+      </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <SearchResultsGrid
         :totalResults="searchStore.totalResults"
