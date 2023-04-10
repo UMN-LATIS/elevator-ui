@@ -7,7 +7,7 @@
         label="Search"
         :labelHidden="true"
         placeholder="Search"
-        :value="searchText"
+        :value="searchStore.query"
         @focus="handleInputGroupFocus"
         @blur="handleInputGroupBlur"
         @input="handleInput"
@@ -27,7 +27,7 @@
               v-if="searchStore.query.length"
               type="button"
               class="text-neutral-400 hover:text-neutral-900"
-              @click="searchText = ''"
+              @click="handleClearSearchInput"
             >
               <CircleXIcon />
             </button>
@@ -47,7 +47,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
+import { ref } from "vue";
 import { SearchIcon, CircleXIcon } from "@/icons";
 import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
@@ -65,11 +65,10 @@ const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const searchInputHasFocus = ref(false);
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
-const searchText = ref("");
 const router = useRouter();
 
 function handleInput(event: InputEvent) {
-  searchText.value = (event.target as HTMLInputElement).value;
+  searchStore.query = (event.target as HTMLInputElement).value;
 }
 
 function handleInputGroupFocus(event) {
@@ -84,10 +83,7 @@ function handleInputGroupBlur(event) {
 
 async function handleSubmit(event: Event) {
   event.preventDefault();
-  const searchId = await searchStore.search(searchText.value);
-  nextTick(() => {
-    searchText.value = "";
-  });
+  const searchId = await searchStore.search();
   if (!searchId) {
     router.push({
       name: "error",
@@ -115,6 +111,10 @@ function removeFocusOnEscape(event: KeyboardEvent) {
   if (event.key === "Escape") {
     inputGroup.value.$el.querySelector("input")?.blur();
   }
+}
+
+function handleClearSearchInput() {
+  searchStore.query = "";
 }
 
 document.addEventListener("keydown", focusInputOnCommandK);
