@@ -53,21 +53,11 @@ const currentAssetIndex = computed((): number | null => {
 const LOAD_MORE_THRESHOLD = 5;
 
 function shouldLoadMoreResults() {
-  // if there is no current asset index, we're done
-  if (currentAssetIndex.value === null) return false;
-
-  // if we're not within LOAD_MORE_THRESHOLD of the end of the searchStore.matches array, we're done
-  if (
-    searchStore.matches.length - currentAssetIndex.value >
-    LOAD_MORE_THRESHOLD
-  )
-    return false;
-
-  // if there's no more results to load, we're done
-  if (!searchStore.hasMoreResults) return false;
-
-  // otherwise, we should load more results
-  return true;
+  return (
+    currentAssetIndex.value !== null &&
+    searchStore.hasMoreResults &&
+    searchStore.matches.length - currentAssetIndex.value <= LOAD_MORE_THRESHOLD
+  );
 }
 
 watch([() => searchStore.matches, currentAssetIndex], () => {
@@ -86,16 +76,15 @@ const previousAssetId = computed(() => {
 
 const nextAssetId = computed(() => {
   const currentIndex = currentAssetIndex.value;
-  if (currentIndex === null || currentIndex + 1 >= searchStore.matches.length) {
+  if (
+    currentIndex === null || // no asset is active
+    currentIndex + 1 >= searchStore.matches.length || // end of results
+    searchStore.status == "fetching" // still loading more results
+  ) {
     return null;
   }
 
-  // if we're loading more, return null for now
-  // this will be recomputed once the
-  // searchStore.matches array is updated
-  if (searchStore.status == "fetching") return null;
-
-  return searchStore.matches[currentIndex + 1].objectId;
+  return searchStore.matches[currentIndex + 1]?.objectId ?? null;
 });
 </script>
 <style scoped></style>
