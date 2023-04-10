@@ -1,7 +1,7 @@
 <template>
   <component
     :is="componentType"
-    class="button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group"
+    class="button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group cursor-pointer"
     :class="{
       'button--primary px-4 py-3': variant === 'primary',
       'button--secondary px-4 py-3': variant === 'secondary',
