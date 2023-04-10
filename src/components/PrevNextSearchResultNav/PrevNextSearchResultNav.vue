@@ -1,32 +1,36 @@
 <template>
-  <div
+  <nav
     v-if="currentAssetIndex !== null"
-    class="flex justify-between py-2 px-4 items-center gap-4"
+    class="justify-between py-2 px-4 items-center gap-4 grid grid-cols-3"
   >
-    <Button
-      v-if="previousAssetId"
-      variant="tertiary"
-      :to="getAssetUrl(previousAssetId)"
-      class="!ml-0"
-    >
-      <ChevronLeftIcon class="h-3 w-3" />
-      Prev
-    </Button>
+    <div class="flex justify-start">
+      <Button
+        v-if="previousAssetId"
+        variant="tertiary"
+        :to="getAssetUrl(previousAssetId)"
+        class="!ml-0"
+      >
+        <ChevronLeftIcon class="h-3 w-3" />
+        Prev
+      </Button>
+    </div>
 
-    <div class="text-xs text-gray-500 leading-none p-2">
+    <div class="flex justify-center text-xs text-gray-500 leading-none p-2">
       {{ currentAssetIndex + 1 }} of {{ searchStore.totalResults }}
     </div>
 
-    <Button
-      v-if="nextAssetId"
-      variant="tertiary"
-      :to="getAssetUrl(nextAssetId)"
-      class="!ml-0"
-    >
-      Next
-      <ChevronRightIcon class="h-3 w-3" />
-    </Button>
-  </div>
+    <div class="flex justify-end">
+      <Button
+        v-if="nextAssetId"
+        variant="tertiary"
+        :to="getAssetUrl(nextAssetId)"
+        class="!ml-0"
+      >
+        Next
+        <ChevronRightIcon class="h-3 w-3" />
+      </Button>
+    </div>
+  </nav>
 </template>
 <script setup lang="ts">
 import { computed, watch } from "vue";
@@ -74,17 +78,25 @@ watch([() => searchStore.matches, currentAssetIndex], () => {
 });
 
 const previousAssetId = computed(() => {
-  if (currentAssetIndex.value === null) return null;
-  if (currentAssetIndex.value <= 0) return null;
-  return searchStore.matches[currentAssetIndex.value - 1].objectId;
+  const currentIndex = currentAssetIndex.value;
+  if (currentIndex === null || currentIndex <= 0) {
+    return null;
+  }
+  return searchStore.matches[currentIndex - 1].objectId;
 });
 
 const nextAssetId = computed(() => {
-  if (currentAssetIndex.value === null) return null;
-  if (currentAssetIndex.value >= searchStore.matches.length - 1) return null;
+  const currentIndex = currentAssetIndex.value;
+  if (currentIndex === null || currentIndex + 1 >= searchStore.matches.length) {
+    return null;
+  }
+
+  // if we're loading more, return null for now
+  // this will be recomputed once the
+  // searchStore.matches array is updated
   if (searchStore.status == "fetching") return null;
 
-  return searchStore.matches[currentAssetIndex.value + 1].objectId;
+  return searchStore.matches[currentIndex + 1].objectId;
 });
 </script>
 <style scoped></style>
