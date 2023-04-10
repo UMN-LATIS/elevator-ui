@@ -1,9 +1,5 @@
 <template>
   <div class="asset-view relative flex flex-col border h-full">
-    <div v-if="searchStore.searchId" class="flex justify-between py-1 border">
-      <Button>Previous</Button>
-      <Button>Next</Button>
-    </div>
     <div class="relative border flex-1">
       <ObjectViewer
         class="asset-view__object-viewer h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
@@ -65,7 +61,7 @@ import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
 import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
 import { useMediaQuery } from "@vueuse/core";
-import Button from "@/components/Button/Button.vue";
+import PrevNextSearchResultBar from "../../components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
 
 defineProps<{
   assetId: string | null;
