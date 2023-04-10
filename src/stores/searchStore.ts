@@ -21,7 +21,7 @@ const getters = (state: ReturnType<typeof createState>) => ({
   collectionIds: computed((): number[] | null => {
     if (!state.searchEntry.value?.collection) return null;
     // convert to numbers, as the api returns strings
-    return state.searchEntry.value.collection.map(Number.parseInt);
+    return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
   }),
   matches: computed(() => state.matches.value),
   status: computed(() => state.status.value),
