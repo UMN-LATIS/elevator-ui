@@ -15,7 +15,12 @@
     </div>
 
     <div class="flex justify-center text-xs text-gray-500 leading-none p-2">
-      {{ currentAssetIndex + 1 }} of {{ searchStore.totalResults }}
+      <Button
+        :to="`/search/s/${searchStore.searchId}#object-${assetStore.activeAssetId}`"
+        variant="tertiary"
+      >
+        {{ currentAssetIndex + 1 }} of {{ searchStore.totalResults }}
+      </Button>
     </div>
 
     <div class="flex justify-end">
