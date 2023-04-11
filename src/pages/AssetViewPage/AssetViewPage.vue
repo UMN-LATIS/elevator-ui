@@ -1,14 +1,16 @@
 <template>
-  <NoScrollLayout v-if="isPageLoaded" class="overflow-x-hidden">
-    <MetaDataOnlyView
-      v-if="isMetaDataOnly"
-      :assetId="assetStore.activeAssetId"
-    />
-    <AssetView
-      v-else
-      :assetId="assetStore.activeAssetId"
-      :objectId="assetStore.activeObjectId"
-    />
+  <NoScrollLayout class="overflow-x-hidden">
+    <template v-if="isPageLoaded">
+      <MetaDataOnlyView
+        v-if="isMetaDataOnly"
+        :assetId="assetStore.activeAssetId"
+      />
+      <AssetView
+        v-else
+        :assetId="assetStore.activeAssetId"
+        :objectId="assetStore.activeObjectId"
+      />
+    </template>
   </NoScrollLayout>
 </template>
 <script setup lang="ts">

@@ -1,6 +1,6 @@
 <template>
   <DefaultLayout>
-    <div v-if="searchStore.isReady" class="search-results-page px-4">
+    <div class="search-results-page px-4">
       <BrowseCollectionHeader
         v-if="browsingCollectionId"
         :collectionId="browsingCollectionId"
