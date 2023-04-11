@@ -38,9 +38,19 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
-    } else {
-      return { top: 0 };
     }
+
+    // scroll to anchor if it exists on the page
+    if (to.hash && document.querySelector(to.hash)) {
+      return {
+        el: to.hash,
+        behavior: "smooth",
+        top: 100, // offset to account for app header
+      };
+    }
+
+    // otherwise scroll to top
+    return { top: 0 };
   },
   routes: [
     {
