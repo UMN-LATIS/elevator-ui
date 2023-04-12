@@ -88,7 +88,8 @@ const router = createRouter({
     {
       name: "search",
       path: "/search/s/:searchId",
-      component: () => import("@/pages/SearchPage/SearchPage.vue"),
+      component: () =>
+        import("@/pages/SearchResultsPage/SearchResultsPage.vue"),
       props: true,
     },
     {
