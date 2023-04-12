@@ -27,10 +27,7 @@ const props = defineProps<{
 
 const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
   defaultTheme: props.defaultTheme,
-  themes: [
-    { id: "hotdog", name: "Hot Dog" },
-    { id: "folwell", name: "Folwell" },
-  ],
+  themes: [{ id: "folwell", name: "Folwell" }],
 });
 
 function isCurrentTheme(themeId: ThemeId) {
