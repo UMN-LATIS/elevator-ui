@@ -5,21 +5,16 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, onMounted, onUnmounted, defineProps } from "vue";
+import { inject, onMounted, onUnmounted } from "vue";
+import { TabsInjectionKey } from "@/constants/constants";
+import type { TabsContext } from "@/types";
 
-interface Tab {
+const props = defineProps<{
   id: string;
   label: string;
-}
+}>();
 
-const props = defineProps<Tab>();
-
-const tabsContext = inject<{
-  addTab: (tab: Tab) => void;
-  removeTab: (tab: Tab) => void;
-  setActiveTab: (id: string) => void;
-  isActiveTab: (id: string) => boolean;
-}>("tabsContext");
+const tabsContext = inject<TabsContext>(TabsInjectionKey);
 
 onMounted(() => {
   if (!tabsContext) {

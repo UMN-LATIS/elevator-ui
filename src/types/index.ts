@@ -486,3 +486,15 @@ export interface FileDownloadNormalized {
   originalFilename: string;
   extension: string;
 }
+
+export interface Tab {
+  id: string;
+  label: string;
+}
+
+export interface TabsContext {
+  addTab: (tab: Tab) => void;
+  removeTab: (tab: Tab) => void;
+  setActiveTab: (id: string) => void;
+  isActiveTab: (id: string) => boolean;
+}

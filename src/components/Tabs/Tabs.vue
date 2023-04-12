@@ -19,11 +19,8 @@
 
 <script lang="ts" setup>
 import { ref, provide } from "vue";
-
-interface Tab {
-  id: string;
-  label: string;
-}
+import { TabsInjectionKey } from "@/constants/constants";
+import type { Tab, TabsContext } from "@/types";
 
 const tabs = ref<Tab[]>([]);
 const activeTabIndex = ref(0);
@@ -54,7 +51,7 @@ const isActiveTab = (tabId: string) => {
   return index === activeTabIndex.value;
 };
 
-provide("tabsContext", {
+provide<TabsContext>(TabsInjectionKey, {
   addTab,
   removeTab,
   setActiveTab,
