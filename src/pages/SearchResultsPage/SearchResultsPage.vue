@@ -19,7 +19,7 @@
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <Tabs
-        labelsClass="sticky top-[5rem] z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200"
+        labelsClass="sticky top-[4.75rem] z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200"
       >
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
@@ -36,18 +36,6 @@
             :status="searchStore.status"
             @loadMore="() => searchStore.loadMore()"
           />
-        </Tab>
-        <Tab id="map" label="Map">
-          <p>Map view coming soon.</p>
-          <SearchResultsGrid
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="timeline" label="Timeline">
-          <p>Timeline view coming soon.</p>
         </Tab>
       </Tabs>
     </div>
