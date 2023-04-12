@@ -30,8 +30,7 @@
           />
         </Tab>
         <Tab id="list" label="List">
-          <p>List view coming soon.</p>
-          <SearchResultsGrid
+          <SearchResultsList
             :totalResults="searchStore.totalResults"
             :matches="searchStore.matches"
             :status="searchStore.status"
@@ -62,6 +61,7 @@ import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
+import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 
 const props = defineProps<{
   searchId: string;

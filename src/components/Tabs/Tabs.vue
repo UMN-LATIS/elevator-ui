@@ -15,7 +15,7 @@
         {{ tab.label }}
       </button>
     </div>
-    <div class="p-4">
+    <div class="py-4">
       <slot></slot>
     </div>
   </div>
