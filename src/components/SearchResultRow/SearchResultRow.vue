@@ -1,9 +1,11 @@
 <template>
   <Link
     :to="getAssetUrl(searchMatch.objectId)"
-    class="group hover:no-underline relative"
+    class="group hover:no-underline relative text-inherit group"
   >
-    <div class="search-result-row flex bg-white p-4 gap-4">
+    <div
+      class="search-result-row flex bg-white p-4 gap-4 group-hover:bg-blue-50 transition-all rounded-md border-2 border-transparent hover:border-blue-700"
+    >
       <LazyLoadImage
         v-if="imgSrc"
         :src="imgSrc"
@@ -12,7 +14,11 @@
       />
       <div v-else class="h-16 w-16" />
       <div class="flex-1">
-        <h1 class="font-bold text-lg leading-tight mb-2">{{ title }}</h1>
+        <h1
+          class="font-bold text-lg leading-tight mb-2 group-hover:text-blue-700"
+        >
+          {{ title }}
+        </h1>
 
         <dl
           v-if="props.searchMatch?.entries"
@@ -21,9 +27,9 @@
           <div
             v-for="(entry, index) in props.searchMatch.entries"
             :key="index"
-            class="inline-flex items-baseline gap-x-2 flex-wrap"
+            class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400 group-hover:text-blue-700"
           >
-            <dt class="text-xs text-neutral-400 uppercase">
+            <dt class="text-xs uppercase">
               {{ entry?.label || "Item" }}
             </dt>
             <dd class="text-sm">
@@ -32,6 +38,9 @@
           </div>
         </dl>
       </div>
+      <ArrowButton
+        class="self-center opacity-0 group-hover:opacity-100 !bg-blue-700 !border-blue-700 transition-all"
+      />
     </div>
   </Link>
 </template>
@@ -42,6 +51,7 @@ import { computed } from "vue";
 import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 import Link from "../Link/Link.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
+import ArrowButton from "../ArrowButton/ArrowButton.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;

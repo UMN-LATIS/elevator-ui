@@ -6,7 +6,7 @@
       </p>
       <p v-else>No results found.</p>
     </div>
-    <div class="flex flex-col">
+    <div class="flex flex-col gap-1">
       <TransitionGroup
         enterActiveClass="transform ease-out transition"
         enterFromClass="opacity-0"
@@ -20,7 +20,6 @@
           :key="match.objectId"
           :searchMatch="match"
           :showDetails="false"
-          class="border-b"
         />
       </TransitionGroup>
     </div>
