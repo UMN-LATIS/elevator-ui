@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="tabs flex">
+    <div class="tabs flex border-neutral-200 border-b" :class="labelsClass">
       <button
         v-for="(tab, index) in tabs"
         :key="tab.id"
         class="tab-button px-4 py-2 border-b-2"
         :class="{
-          'border-neutral-200 text-neutral-400': index !== activeTabIndex,
+          'border-transparent text-neutral-400': index !== activeTabIndex,
           'tab-button--is-active border-neutral-900 text-neutral-900':
             index === activeTabIndex,
         }"
@@ -25,6 +25,10 @@
 import { ref, provide } from "vue";
 import { TabsInjectionKey } from "@/constants/constants";
 import type { Tab, TabsContext } from "@/types";
+
+defineProps<{
+  labelsClass?: string;
+}>();
 
 const tabs = ref<Tab[]>([]);
 const activeTabIndex = ref(0);

@@ -18,7 +18,9 @@
         All Assets
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
-      <Tabs>
+      <Tabs
+        labelsClass="sticky top-[4.9rem] z-20 search-results-page__tabs -mx-4 px-4"
+      >
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
             :totalResults="searchStore.totalResults"
@@ -29,9 +31,21 @@
         </Tab>
         <Tab id="list" label="List">
           <p>List view coming soon.</p>
+          <SearchResultsGrid
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
         </Tab>
         <Tab id="map" label="Map">
           <p>Map view coming soon.</p>
+          <SearchResultsGrid
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
         </Tab>
         <Tab id="timeline" label="Timeline">
           <p>Timeline view coming soon.</p>
@@ -74,3 +88,8 @@ const browsingCollectionId = computed((): number | null => {
 });
 </script>
 <style scoped></style>
+<style>
+.search-results-page__tabs {
+  background: var(--app-backgroundColor);
+}
+</style>
