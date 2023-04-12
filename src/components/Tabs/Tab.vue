@@ -1,5 +1,5 @@
 <template>
-  <div v-if="tabsContext" v-show="tabsContext.isActiveTab(id)">
+  <div v-if="tabsContext?.isActiveTab(id)">
     <slot></slot>
   </div>
 </template>

@@ -1,17 +1,21 @@
 <template>
   <div>
-    <div class="tabs">
+    <div class="tabs flex">
       <button
         v-for="(tab, index) in tabs"
         :key="tab.id"
-        class="tab-button"
-        :class="{ 'tab-button--is-active': index === activeTabIndex }"
+        class="tab-button px-4 py-2 border-b-2"
+        :class="{
+          'border-neutral-200 text-neutral-400': index !== activeTabIndex,
+          'tab-button--is-active border-neutral-900 text-neutral-900':
+            index === activeTabIndex,
+        }"
         @click="setActiveTab(tab.id)"
       >
         {{ tab.label }}
       </button>
     </div>
-    <div class="tab-content">
+    <div class="p-4">
       <slot></slot>
     </div>
   </div>
@@ -59,16 +63,4 @@ provide<TabsContext>(TabsInjectionKey, {
 });
 </script>
 
-<style scoped>
-.tabs {
-  display: flex;
-}
-
-.tab-button {
-  cursor: pointer;
-}
-
-.tab-button--is-active {
-  font-weight: bold;
-}
-</style>
+<style scoped></style>
