@@ -18,12 +18,25 @@
         All Assets
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
-      <SearchResultsGrid
-        :totalResults="searchStore.totalResults"
-        :matches="searchStore.matches"
-        :status="searchStore.status"
-        @loadMore="() => searchStore.loadMore()"
-      />
+      <Tabs>
+        <Tab id="grid" label="Grid">
+          <SearchResultsGrid
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
+        <Tab id="list" label="List">
+          <p>List view coming soon.</p>
+        </Tab>
+        <Tab id="map" label="Map">
+          <p>Map view coming soon.</p>
+        </Tab>
+        <Tab id="timeline" label="Timeline">
+          <p>Timeline view coming soon.</p>
+        </Tab>
+      </Tabs>
     </div>
   </DefaultLayout>
 </template>
@@ -33,6 +46,8 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
+import Tab from "@/components/Tabs/Tab.vue";
+import Tabs from "@/components/Tabs/Tabs.vue";
 
 const props = defineProps<{
   searchId: string;
