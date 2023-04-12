@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div class="tabs flex border-neutral-200 border-b" :class="labelsClass">
+    <div class="tabs flex" :class="labelsClass">
       <button
         v-for="(tab, index) in tabs"
         :key="tab.id"
-        class="tab-button px-4 py-2 border-b-2"
+        class="tab-button px-4 py-1 text-sm border-b-2"
         :class="{
           'border-transparent text-neutral-400': index !== activeTabIndex,
-          'tab-button--is-active border-neutral-900 text-neutral-900':
+          'tab-button--is-active border-neutral-900 text-neutral-900 font-bold':
             index === activeTabIndex,
         }"
         @click="setActiveTab(tab.id)"

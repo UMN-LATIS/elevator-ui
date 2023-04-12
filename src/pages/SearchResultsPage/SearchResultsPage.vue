@@ -1,6 +1,6 @@
 <template>
-  <DefaultLayout>
-    <div class="search-results-page px-4">
+  <DefaultLayout class="search-results-page">
+    <div class="px-4">
       <BrowseCollectionHeader
         v-if="browsingCollectionId"
         :collectionId="browsingCollectionId"
@@ -19,7 +19,7 @@
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <Tabs
-        labelsClass="sticky top-[4.9rem] z-20 search-results-page__tabs -mx-4 px-4"
+        labelsClass="sticky top-[5rem] z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200"
       >
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
@@ -91,5 +91,10 @@ const browsingCollectionId = computed((): number | null => {
 <style>
 .search-results-page__tabs {
   background: var(--app-backgroundColor);
+}
+
+.search-results-page .app-header {
+  z-index: 30; /* keep app header dropdowns above tabs */
+  border-bottom-color: transparent;
 }
 </style>

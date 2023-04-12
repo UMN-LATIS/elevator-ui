@@ -1,6 +1,6 @@
 <template>
   <div id="top" class="min-h-screen pt-18">
-    <AppHeader class="top-0 w-full z-20 sticky left-0" />
+    <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
     <slot />
     <Transition name="fade">
       <a
