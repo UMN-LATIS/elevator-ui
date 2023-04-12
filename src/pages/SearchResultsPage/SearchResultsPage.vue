@@ -19,7 +19,7 @@
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <Tabs
-        labelsClass="sticky top-[4.75rem] z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200"
+        labelsClass="sticky top-[4rem] z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
       >
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
@@ -83,6 +83,6 @@ const browsingCollectionId = computed((): number | null => {
 
 .search-results-page .app-header {
   z-index: 30; /* keep app header dropdowns above tabs */
-  border-bottom-color: transparent;
+  border-bottom-color: transparent !important;
 }
 </style>
