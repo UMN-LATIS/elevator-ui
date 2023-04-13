@@ -90,7 +90,11 @@ const router = createRouter({
       path: "/search/s/:searchId",
       component: () =>
         import("@/pages/SearchResultsPage/SearchResultsPage.vue"),
-      props: true,
+      props: (route) => ({
+        searchId: route.params.searchId,
+        objectId: route.query.objectId ?? null,
+        resultsView: route.query.resultsView ?? null,
+      }),
     },
     {
       name: "StaticContentPage",
