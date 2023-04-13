@@ -59,7 +59,6 @@ import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import { nextTick } from "process";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -88,7 +87,8 @@ watch(
 
 const browsingCollectionId = computed((): number | null => {
   const isBrowsing =
-    searchStore.query === "" && searchStore.collectionIds?.length === 1;
+    searchStore.searchEntry?.searchText === "" &&
+    searchStore.collectionIds?.length === 1;
   if (!isBrowsing) return null;
   return searchStore.collectionIds[0];
 });
