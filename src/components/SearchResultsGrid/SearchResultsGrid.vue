@@ -18,6 +18,7 @@
       >
         <SearchResultCard
           v-for="match in matches"
+          :id="`object-${match.objectId}`"
           :key="match.objectId"
           :searchMatch="match"
           :showDetails="false"
