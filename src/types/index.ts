@@ -1,3 +1,5 @@
+import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+
 export interface AppConfig {
   instance: {
     base: {
@@ -497,4 +499,8 @@ export interface TabsContext {
   removeTab: (tab: Tab) => void;
   setActiveTab: (id: string) => void;
   isActiveTab: (id: string) => boolean;
+  initialTabId?: string;
 }
+
+// must be a member of the SEARCH_RESULTS_VIEWS array
+export type SearchResultsView = typeof SEARCH_RESULTS_VIEWS[number];
