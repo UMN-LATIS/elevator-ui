@@ -20,6 +20,8 @@
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
       <Tabs
         labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+        :activeTabId="searchStore.resultsView"
+        @tabChange="handleTabChange"
       >
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
@@ -42,7 +44,8 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed } from "vue";
+import { watch, computed, ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
@@ -50,10 +53,21 @@ import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
+import type { SearchResultsView, Tab as TabType } from "@/types";
+import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+import { nextTick } from "process";
 
-const props = defineProps<{
-  searchId: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    searchId: string;
+    objectId: string | null;
+    resultsView?: SearchResultsView;
+  }>(),
+  {
+    objectId: null,
+    resultsView: undefined,
+  }
+);
 
 const searchStore = useSearchStore();
 
@@ -74,6 +88,48 @@ const browsingCollectionId = computed((): number | null => {
   if (!isBrowsing) return null;
   return searchStore.collectionIds[0];
 });
+
+type SearchViewTab = TabType & { id: SearchResultsView };
+
+const isSearchViewTab = (tab: TabType): tab is SearchViewTab => {
+  return SEARCH_RESULTS_VIEWS.includes(tab.id as SearchResultsView);
+};
+
+const route = useRoute();
+const router = useRouter();
+function handleTabChange(tab: TabType) {
+  if (!isSearchViewTab(tab)) throw new Error(`Invalid tab id: ${tab.id}`);
+
+  searchStore.setResultsView(tab.id);
+
+  // update the url query param to match state
+  router.replace({
+    query: {
+      ...route.query,
+      resultsView: tab.id,
+    },
+  });
+}
+
+onMounted(() => searchStore.setResultsView(props.resultsView || "grid"));
+
+// scroll to objectId if it's in the search results
+watch(
+  () => props.objectId,
+  (objectId) => {
+    if (!objectId) return;
+    nextTick(() => {
+      const el = document.getElementById(`object-${objectId}`);
+      console.log("scrolling to", el);
+      if (!el) return;
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  },
+  { immediate: true }
+);
 </script>
 <style scoped></style>
 <style>
