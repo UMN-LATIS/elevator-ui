@@ -134,8 +134,8 @@ watch(
     if (!objectId) return;
     nextTick(() => {
       const el = document.getElementById(`object-${objectId}`);
-      console.log("scrolling to", el);
       if (!el) return;
+
       el.scrollIntoView({
         behavior: "smooth",
         block: "center",
