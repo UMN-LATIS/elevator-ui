@@ -1,6 +1,6 @@
 <template>
-  <DefaultLayout>
-    <div class="search-results-page px-4">
+  <DefaultLayout class="search-results-page">
+    <div class="px-4">
       <BrowseCollectionHeader
         v-if="browsingCollectionId"
         :collectionId="browsingCollectionId"
@@ -18,12 +18,26 @@
         All Assets
       </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
-      <SearchResultsGrid
-        :totalResults="searchStore.totalResults"
-        :matches="searchStore.matches"
-        :status="searchStore.status"
-        @loadMore="() => searchStore.loadMore()"
-      />
+      <Tabs
+        labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+      >
+        <Tab id="grid" label="Grid">
+          <SearchResultsGrid
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
+        <Tab id="list" label="List">
+          <SearchResultsList
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
+      </Tabs>
     </div>
   </DefaultLayout>
 </template>
@@ -33,6 +47,9 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
+import Tab from "@/components/Tabs/Tab.vue";
+import Tabs from "@/components/Tabs/Tabs.vue";
+import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 
 const props = defineProps<{
   searchId: string;
@@ -59,3 +76,13 @@ const browsingCollectionId = computed((): number | null => {
 });
 </script>
 <style scoped></style>
+<style>
+.search-results-page__tabs {
+  background: var(--app-backgroundColor);
+}
+
+.search-results-page .app-header {
+  z-index: 30; /* keep app header dropdowns above tabs */
+  border-bottom-color: transparent !important;
+}
+</style>

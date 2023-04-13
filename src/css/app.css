@@ -89,3 +89,13 @@ h5,
 h6 {
   color: var(--app-headingColor);
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}

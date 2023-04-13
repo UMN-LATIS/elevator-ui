@@ -16,23 +16,15 @@ export interface UseThemeOptions {
 export const useTheme = (opts: UseThemeOptions = {}) => {
   const availableThemes = ref([
     {
-      id: "auto",
-      name: "Auto",
-    },
-    {
       id: "light",
-      name: "Light",
-    },
-    {
-      id: "dark",
-      name: "Dark",
+      name: "Default",
     },
     ...(opts.themes ?? []),
   ]);
 
   const activeThemeId = useStorage<ThemeId>(
     "theme",
-    opts.defaultTheme || "auto"
+    opts.defaultTheme || "light"
   );
 
   function isValidThemeId(id: ThemeId) {

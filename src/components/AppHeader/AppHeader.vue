@@ -1,5 +1,5 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-4 gap-8">
+  <header class="app-header flex justify-between items-center px-4 py-2 gap-8">
     <div class="flex gap-2 items-center">
       <Link to="/" class="app-header__logo-link hover:no-underline">
         <AppLogoMark />
