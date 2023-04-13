@@ -1,23 +1,26 @@
 <template>
   <DefaultLayout class="search-results-page">
     <div class="px-4">
-      <BrowseCollectionHeader
-        v-if="browsingCollectionId"
-        :collectionId="browsingCollectionId"
-      />
-      <h2
-        v-if="searchStore.searchEntry?.searchText"
-        class="text-4xl my-8 font-bold"
-      >
-        <q>{{ searchStore.searchEntry.searchText }}</q>
-      </h2>
-      <h2
-        v-if="!browsingCollectionId && !searchStore.searchEntry?.searchText"
-        class="text-4xl my-8 font-bold"
-      >
-        All Assets
-      </h2>
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
+
+      <template v-if="searchStore.status === 'success'">
+        <BrowseCollectionHeader
+          v-if="browsingCollectionId"
+          :collectionId="browsingCollectionId"
+        />
+        <h2
+          v-if="searchStore.searchEntry?.searchText"
+          class="text-4xl my-8 font-bold"
+        >
+          <q>{{ searchStore.searchEntry.searchText }}</q>
+        </h2>
+        <h2
+          v-if="!browsingCollectionId && !searchStore.searchEntry?.searchText"
+          class="text-4xl my-8 font-bold"
+        >
+          All Assets
+        </h2>
+      </template>
       <Tabs
         labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="searchStore.resultsView"
@@ -56,6 +59,7 @@ import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import { nextTick } from "process";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
 const props = withDefaults(
   defineProps<{
