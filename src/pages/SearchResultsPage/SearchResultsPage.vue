@@ -44,7 +44,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed, ref, onMounted } from "vue";
+import { watch, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
@@ -111,7 +111,21 @@ function handleTabChange(tab: TabType) {
   });
 }
 
-onMounted(() => searchStore.setResultsView(props.resultsView || "grid"));
+onMounted(() => {
+  const initialTabId = props.resultsView || searchStore.resultsView || "grid";
+  // if the query param is set, use it to set the state
+  // otherwise we'll fall back to the current resultsView
+  // or failing that, the default "grid" view
+  searchStore.setResultsView(initialTabId);
+
+  // update the url query param to match state
+  router.replace({
+    query: {
+      ...route.query,
+      resultsView: initialTabId,
+    },
+  });
+});
 
 // scroll to objectId if it's in the search results
 watch(
