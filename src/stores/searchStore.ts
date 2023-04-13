@@ -11,6 +11,7 @@ const createState = () => ({
   totalResults: ref<number | undefined>(undefined),
   currentPage: ref(0),
   searchEntry: ref<SearchEntry | null>(null),
+  resultsView: ref<"grid" | "list">("grid"),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
