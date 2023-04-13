@@ -17,12 +17,12 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, type RouteLocationRaw } from "vue-router";
 
 const props = withDefaults(
   defineProps<{
     href?: string;
-    to?: string;
+    to?: RouteLocationRaw;
     variant?: "primary" | "secondary" | "tertiary";
   }>(),
   {
