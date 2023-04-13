@@ -31,6 +31,7 @@ const paginatedSearchResults = new Map<
 >();
 const collectionDescriptions = new Map<number, string | null>();
 const collectionSearchIds = new Map<number, string | null>();
+const staticPages = new Map<number, ApiStaticPageResponse | null>();
 
 async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
@@ -123,6 +124,11 @@ async function fetchSearchIdForCollection(
   );
 
   return res.data.searchId;
+}
+
+async function fetchStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
+  const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`);
+  return res.data;
 }
 
 export default {
@@ -291,8 +297,13 @@ export default {
   },
 
   async getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
-    const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`);
-    return res.data;
+    // check the cache first
+    const page = staticPages.get(pageId) || (await fetchStaticPage(pageId));
+
+    // cache the page
+    staticPages.set(pageId, page);
+
+    return page;
   },
 
   async deleteAsset(assetId: string) {
