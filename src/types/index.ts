@@ -255,6 +255,19 @@ export interface DateComponent {
   numeric: bigint;
 }
 
+export interface DateAssetObject {
+  start: {
+    text: string;
+    numeric: string;
+  };
+  end?: {
+    text: string;
+    numeric: string;
+  };
+  label?: string;
+  isPrimary?: boolean;
+}
+
 export interface DateResult {
   start?: DateComponent;
   end?: DateComponent;
@@ -266,7 +279,7 @@ export interface DateResult {
   isPrimary?: boolean;
   searchData?: string;
   fileDescription?: string;
-  dateAsset?: object[];
+  dateAsset: DateAssetObject[];
   [key: string]: unknown;
 }
 
