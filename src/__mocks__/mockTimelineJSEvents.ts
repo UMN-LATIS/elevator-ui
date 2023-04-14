@@ -1,445 +1,407 @@
 import type { TimelineJSSlide } from "../types/TimelineJSTypes";
 
+// obama speeches
 export const mockTimelineJSEvents: TimelineJSSlide[] = [
   {
     start_date: {
-      display_date: "1930",
-      year: 2016,
-      month: 5,
-      day: 2,
+      display_date: "12/01/2009",
+      year: 2009,
+      month: 12,
+      day: 3,
     },
     text: {
       headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e3f6ba98a86c02c6eed2">Under The Roofs of Paris / Sous les Toits de Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1957",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de77ba98a81f0ec6f21e">Monpti / Love from Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>German</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1948",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730acbfba98a86d02c6eecd">Paris 1900</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t\t\t<li>English</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1930",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de29ba98a81f0ec6f002">Under The Roofs of Paris / Sous les Toits de Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1930",
-      year: 2016,
-      month: 6,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee44fba98a87472f3d760">Under The Roofs of Paris / Sous les Toits de Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-  },
-  {
-    start_date: {
-      display_date: "1930",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730acbfba98a86d02c6eed2">Under The Roofs of Paris / Sous les Toits de Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1948",
-      year: 2016,
-      month: 6,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee42bba98a87472f3d4db">Paris 1900</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0750">Afghanistan War Speech (updated 2)</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Location:</strong><ul>\n\t\t\t\n\t\t\t\t<li>Washington, dc</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>12/01/2009</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
     },
     media: {
       thumbnail:
-        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/c954b8a7b58a89ab844ee575-thumbnail2x",
-      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/c954b8a7b58a89ab844ee575-thumbnail2x",
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4854b8c2428a89ab8280bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4854b8c2428a89ab8280bb85-thumbnail2x",
     },
   },
   {
     start_date: {
-      display_date: "2005",
-      year: 2016,
+      display_date: "08/05/2014",
+      year: 2014,
+      month: 8,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0740">Africa Leaders Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>08/05/2014</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4754b8c2428a89ab8c70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4754b8c2428a89ab8c70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "2022:12:14 21:43:35",
+      year: 2022,
+      month: 12,
+      day: 4,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/639bb9fb63b07a753a4806d2">An original for James</a>',
+      text: "\n\n",
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/1d6084a357a70b364f9bb936-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/1d6084a357a70b364f9bb936-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "06/17/2013",
+      year: 2013,
       month: 6,
       day: 2,
     },
     text: {
       headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee4b7ba98a87472f3de9b">Arlit, Deuxime Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0739">Belfast, Ireland Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>06/17/2013</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/d654b8c2428a89abf970bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/d654b8c2428a89abf970bb85-thumbnail2x",
     },
   },
   {
     start_date: {
-      display_date: "",
-      year: 2016,
-      month: 6,
-      day: 2,
+      display_date: "03/26/2014",
+      year: 2014,
+      month: 3,
+      day: 4,
     },
     text: {
       headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee469ba98a87472f3d92a">Monuments de Paris, Les</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0734">Belgium Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>03/26/2014</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/8654b8c2428a89ab0870bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/8654b8c2428a89ab0870bb85-thumbnail2x",
     },
   },
   {
     start_date: {
-      display_date: "1999",
-      year: 1999,
-      month: 5,
+      display_date: "07/27/2008",
+      year: 2008,
+      month: 7,
       day: 1,
     },
     text: {
       headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e484ba98a86c02c6f52f">Notre Dame de Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "2003",
-      year: 2016,
-      month: 6,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee491ba98a87472f3dbff">Cesaria Evora - Live in Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>Portuguese</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-  },
-  {
-    start_date: {
-      display_date: "1957",
-      year: 2016,
-      month: 6,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee431ba98a87472f3d54d">Monpti / Love from Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>German</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-  },
-  {
-    start_date: {
-      display_date: "1957",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e42fba98a86c02c6f0ee">Monpti / Love from Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>German</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1948",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e3f6ba98a86c02c6eecd">Paris 1900</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1948",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de29ba98a81f0ec6effd">Paris 1900</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "2006",
-      year: 2016,
-      month: 6,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee4b5ba98a87472f3de77">Paris, Je T\'aime</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+        '<a href="/defaultinstance/asset/viewAsset/58bb077aba98a87e062c075d">Berlin Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>07/27/2008</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
     },
     media: {
       thumbnail:
-        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4094b8a7b58a89abce5ee575-thumbnail2x",
-      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4094b8a7b58a89abce5ee575-thumbnail2x",
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/1954b8c2428a89ab6780bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/1954b8c2428a89ab6780bb85-thumbnail2x",
     },
   },
   {
     start_date: {
-      display_date: "1999",
-      year: 1999,
+      display_date: "06/04/2009",
+      year: 2009,
+      month: 6,
+      day: 5,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0753">Cairo Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>06/04/2009</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/7854b8c2428a89aba380bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/7854b8c2428a89aba380bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "02/10/2007",
+      year: 2007,
+      month: 2,
+      day: 7,
+    },
+    end_date: {
+      display_date: "04/10/2007",
+      year: 2007,
+      month: 4,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb077bba98a87e062c0769">Candidate Announce Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Location:</strong><ul>\n\t\t\t\n\t\t\t\t<li>1600 Pennsylvania ave, Washington, dc</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>02/10/2007 - 04/10/2007</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/d954b8c2428a89abdb80bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/d954b8c2428a89abdb80bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "05/20/2008",
+      year: 2008,
       month: 5,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c074f">Change Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>05/20/2008</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/3854b8c2428a89ab3280bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/3854b8c2428a89ab3280bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "06/26/2015",
+      year: 2015,
+      month: 6,
+      day: 6,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb077aba98a87e062c0754">Charleston Eulogy Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>06/26/2015</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/8854b8c2428a89ab1480bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/8854b8c2428a89ab1480bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "04/10/2014",
+      year: 2014,
+      month: 4,
+      day: 5,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0742">Civil Rights Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Location:</strong><ul>\n\t\t\t\n\t\t\t\t<li>Washington dc</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>04/10/2014</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/6754b8c2428a89ab6d70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/6754b8c2428a89ab6d70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "06/25/2013",
+      year: 2013,
+      month: 6,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb077bba98a87e062c076a">Climate/Energy Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Location:</strong><ul>\n\t\t\t\n\t\t\t\t<li>1143 st clair, 55105</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>06/25/2013</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/e954b8c2428a89ab3c80bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/e954b8c2428a89ab3c80bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "09/09/2009",
+      year: 2009,
+      month: 9,
+      day: 4,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c073a">Congress Health Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>09/09/2009</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/e654b8c2428a89ab5a70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/e654b8c2428a89ab5a70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "02/24/2009",
+      year: 2009,
+      month: 2,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0744">Congress Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>02/24/2009</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/8754b8c2428a89ab1e70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/8754b8c2428a89ab1e70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "05/23/2013",
+      year: 2013,
+      month: 5,
+      day: 5,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb077aba98a87e062c075e">Counterterrorism Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>05/23/2013</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/2954b8c2428a89abb780bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/2954b8c2428a89abb780bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "06/03/2008",
+      year: 2008,
+      month: 6,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0741">Democratic Nominee Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>06/03/2008</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/5754b8c2428a89abfc70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/5754b8c2428a89abfc70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "07/27/2004",
+      year: 2004,
+      month: 7,
+      day: 3,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb077aba98a87e062c075b">Democrats DNC Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>07/27/2004</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/f854b8c2428a89aba680bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/f854b8c2428a89aba680bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "08/28/2008",
+      year: 2008,
+      month: 8,
+      day: 5,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0743">Democrats DNC Speech 2008</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>08/28/2008</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/7754b8c2428a89abbd70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/7754b8c2428a89abbd70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "09/06/2012",
+      year: 2012,
+      month: 9,
+      day: 5,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c073c">DNC 2012 Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>09/06/2012</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/0754b8c2428a89ab0b70bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/0754b8c2428a89ab0b70bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "05/28/2008",
+      year: 2008,
+      month: 5,
+      day: 4,
+    },
+    text: {
+      headline:
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0751">Education Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>05/28/2008</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+    },
+    media: {
+      thumbnail:
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/5854b8c2428a89abe280bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/5854b8c2428a89abe280bb85-thumbnail2x",
+    },
+  },
+  {
+    start_date: {
+      display_date: "06/15/2008",
+      year: 2008,
+      month: 6,
       day: 1,
     },
     text: {
       headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e4ccba98a86c02c6f820">Notre Dame de Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "2006",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e3f5ba98a86c02c6eebb">Paris, Je T\'aime</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+        '<a href="/defaultinstance/asset/viewAsset/58bb0779ba98a87e062c0736">Father\'s Day Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Location:</strong><ul>\n\t\t\t\n\t\t\t\t<li>georgetown</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>06/15/2008</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
     },
     media: {
       thumbnail:
-        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/eeb4b8a65a8a89abb44e0375-thumbnail2x",
-      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/eeb4b8a65a8a89abb44e0375-thumbnail2x",
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/a654b8c2428a89abd870bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/a654b8c2428a89abd870bb85-thumbnail2x",
     },
   },
   {
     start_date: {
-      display_date: "1986",
-      year: 1986,
-      month: 5,
-      day: 6,
+      display_date: "04/13/2011",
+      year: 2011,
+      month: 4,
+      day: 4,
     },
     text: {
       headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de28ba98a81f0ec6eff2">Ernst Junger in Paris, A Diary of Occupation 1941-1944</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "2006",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de28ba98a81f0ec6efec">Paris, Je T\'aime</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
+        '<a href="/defaultinstance/asset/viewAsset/58bb077aba98a87e062c075f">Fiscal Speech</a>',
+      text: '\n\n<div class="previewEntry"> <strong>Date:</strong><ul>\n\t\t\t\n\t\t\t\t<li>04/13/2011</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
     },
     media: {
       thumbnail:
-        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/c494b8a3798a89abeaed0375-thumbnail2x",
-      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/c494b8a3798a89abeaed0375-thumbnail2x",
-    },
-  },
-  {
-    start_date: {
-      display_date: "2006",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730acbbba98a86d02c6eebb">Paris, Je T\'aime</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail:
-        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4d64b8b5178a89ab53fc0375-thumbnail2x",
-      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/4d64b8b5178a89ab53fc0375-thumbnail2x",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1986",
-      year: 1986,
-      month: 6,
-      day: 6,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/575ee48dba98a87472f3dbb2">Ernst Junger in Paris, A Diary of Occupation 1941-1944</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-  },
-  {
-    start_date: {
-      display_date: "2003",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e497ba98a86c02c6f602">Cesaria Evora - Live in Paris</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>Portuguese</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1986",
-      year: 1986,
-      month: 5,
-      day: 6,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730acbcba98a86d02c6eec2">Ernst Junger in Paris, A Diary of Occupation 1941-1944</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t\t\t<li>English</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "1986",
-      year: 1986,
-      month: 5,
-      day: 6,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de28ba98a81f0ec6eff3">Ernst Junger in Paris, A Diary of Occupation 1941-1944</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-    },
-  },
-  {
-    start_date: {
-      display_date: "2006",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730de28ba98a81f0ec6efeb">Paris, Je T\'aime</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>PAL</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail:
-        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/b494b8a3798a89abeaed0375-thumbnail2x",
-      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/b494b8a3798a89abeaed0375-thumbnail2x",
-    },
-  },
-  {
-    start_date: {
-      display_date: "",
-      year: 2016,
-      month: 5,
-      day: 2,
-    },
-    text: {
-      headline:
-        '<a href="/defaultinstance/asset/viewAsset/5730e3f9ba98a86c02c6eefc">Monuments de Paris, Les</a>',
-      text: '\n\n<div class="previewEntry"> <strong>System:</strong><ul>\n\t\t\t\n\t\t\t\t<li>NTSC</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n<div class="previewEntry"> <strong>Language Program:</strong><ul>\n\t\t\t\n\t\t\t\t<li>French</li>\n\t\t\t\n\t\t</ul>\n</div>\n\n',
-    },
-    media: {
-      thumbnail: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
-      url: "http://elevator.knowfear.net/assets/icons/512px/_blank.png",
+        "//elevatorbetabucket.s3.amazonaws.com/thumbnail/3954b8c2428a89ab2880bb85-thumbnail2x",
+      url: "//elevatorbetabucket.s3.amazonaws.com/thumbnail/3954b8c2428a89ab2880bb85-thumbnail2x",
     },
   },
 ];
