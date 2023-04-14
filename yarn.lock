@@ -2716,11 +2716,6 @@
   resolved "https://registry.npmjs.org/@types/tapable/-/tapable-1.0.8.tgz"
   integrity sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==
 
-"@types/timelinejs3@^3.4.3":
-  version "3.4.3"
-  resolved "https://registry.npmjs.org/@types/timelinejs3/-/timelinejs3-3.4.3.tgz"
-  integrity sha512-WH/Dx/8lwRSY6e1UFl1Xt/vvAhjPe9A0wMb2DEfY/72/BM/gWmOzN7q+GQz8Aenz9XszSpTlbVvKyHUlI1bHiQ==
-
 "@types/uglify-js@*":
   version "3.17.0"
   resolved "https://registry.npmjs.org/@types/uglify-js/-/uglify-js-3.17.0.tgz"

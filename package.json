@@ -58,7 +58,6 @@
     "@types/geojson": "^7946.0.10",
     "@types/ramda": "^0.28.20",
     "@types/react": "^18.0.21",
-    "@types/timelinejs3": "^3.4.3",
     "@typescript-eslint/eslint-plugin": "^5.38.1",
     "@typescript-eslint/parser": "^5.38.1",
     "@vitejs/plugin-vue": "^3.1.0",
