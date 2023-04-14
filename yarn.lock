@@ -1418,6 +1418,14 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@knight-lab/timelinejs@^3.9.2":
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/@knight-lab/timelinejs/-/timelinejs-3.9.2.tgz#f4400f141d5a36ff0bf087994479b94aadd969f0"
+  integrity sha512-E3Sl20yrILaMYtAjKrTeb+4yC8BkfbfNPw8JKsF9i/rJ9dgJ+Akj5YI8sMrbxrMqJcT+gpBJv3lmuIypDqqugg==
+  dependencies:
+    dompurify "^2.2.7"
+    wicg-inert "^3.1.2"
+
 "@mapbox/geojson-rewind@^0.5.2":
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/@mapbox/geojson-rewind/-/geojson-rewind-0.5.2.tgz#591a5d71a9cd1da1a0bf3420b3bea31b0fc7946a"
@@ -2710,6 +2718,11 @@
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/@types/tapable/-/tapable-1.0.8.tgz#b94a4391c85666c7b73299fd3ad79d4faa435310"
   integrity sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==
+
+"@types/timelinejs3@^3.4.3":
+  version "3.4.3"
+  resolved "https://registry.yarnpkg.com/@types/timelinejs3/-/timelinejs3-3.4.3.tgz#615ad6e4e9da2f76034d8be27b56ec3d32c188fb"
+  integrity sha512-WH/Dx/8lwRSY6e1UFl1Xt/vvAhjPe9A0wMb2DEfY/72/BM/gWmOzN7q+GQz8Aenz9XszSpTlbVvKyHUlI1bHiQ==
 
 "@types/uglify-js@*":
   version "3.17.0"
@@ -5166,6 +5179,11 @@ domhandler@^4.0.0, domhandler@^4.2.0, domhandler@^4.3.1:
   integrity sha512-GrwoxYN+uWlzO8uhUXRl0P+kHE4GtVPfYzVLcUxPL7KNdHKj66vvlhiweIHqYYXWlw+T8iLMp42Lm67ghw4WMQ==
   dependencies:
     domelementtype "^2.2.0"
+
+dompurify@^2.2.7:
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-2.4.5.tgz#0e89a27601f0bad978f9a924e7a05d5d2cccdd87"
+  integrity sha512-jggCCd+8Iqp4Tsz0nIvpcb22InKEBrGz5dw3EQJMs8HPJDsKbFIO3STYtAvCfDx26Muevn1MHVI0XxjgFfmiSA==
 
 dompurify@^3.0.1:
   version "3.0.1"
@@ -11585,6 +11603,11 @@ which@^2.0.1:
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   dependencies:
     isexe "^2.0.0"
+
+wicg-inert@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/wicg-inert/-/wicg-inert-3.1.2.tgz#df10cf756b773a96fce107c3ddcd43be5d1e3944"
+  integrity sha512-Ba9tGNYxXwaqKEi9sJJvPMKuo063umUPsHN0JJsjrs2j8KDSzkWLMZGZ+MH1Jf1Fq4OWZ5HsESJID6nRza2ang==
 
 wide-align@^1.1.2:
   version "1.1.5"
