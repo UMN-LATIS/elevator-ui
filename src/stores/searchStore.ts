@@ -1,7 +1,13 @@
 import { defineStore } from "pinia";
 import api from "@/api";
 import { ref, computed } from "vue";
-import { FetchStatus, SearchResultMatch, SearchEntry } from "@/types";
+
+import {
+  FetchStatus,
+  SearchResultMatch,
+  SearchEntry,
+  SearchResultsView,
+} from "@/types";
 
 const createState = () => ({
   searchId: ref<string | undefined>(undefined),
@@ -11,6 +17,7 @@ const createState = () => ({
   totalResults: ref<number | undefined>(undefined),
   currentPage: ref(0),
   searchEntry: ref<SearchEntry | null>(null),
+  resultsView: ref<SearchResultsView>("grid"),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
@@ -98,6 +105,9 @@ const actions = (state: ReturnType<typeof createState>) => ({
       console.error(error);
       state.status.value = "error";
     }
+  },
+  setResultsView(view: SearchResultsView) {
+    state.resultsView.value = view;
   },
 });
 

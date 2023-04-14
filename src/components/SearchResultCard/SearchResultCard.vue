@@ -4,7 +4,6 @@
     class="group hover:no-underline relative"
   >
     <MediaCard
-      :id="`object-${searchMatch.objectId}`"
       :imgSrc="thumbnailImgSrc"
       :imgAlt="title"
       class="search-result-card transition-all max-w-sm flex w-full h-full group-hover:outline outline-blue-600 group-hover:bg-blue-50 group-hover:text-blue-700 relative"

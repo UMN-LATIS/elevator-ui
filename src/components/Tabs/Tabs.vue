@@ -2,13 +2,13 @@
   <div>
     <div class="tabs flex" :class="labelsClass">
       <button
-        v-for="(tab, index) in tabs"
+        v-for="tab in tabs"
         :key="tab.id"
         class="tab-button px-4 py-2 text-sm border-b-2"
         :class="{
-          'border-transparent text-neutral-400': index !== activeTabIndex,
+          'border-transparent text-neutral-400': tab.id !== activeTabId,
           'tab-button--is-active border-neutral-900 text-neutral-900 font-bold':
-            index === activeTabIndex,
+            tab.id === activeTabId,
         }"
         @click="setActiveTab(tab.id)"
       >
@@ -26,12 +26,16 @@ import { ref, provide } from "vue";
 import { TabsInjectionKey } from "@/constants/constants";
 import type { Tab, TabsContext } from "@/types";
 
-defineProps<{
+const props = defineProps<{
   labelsClass?: string;
+  activeTabId: string;
+}>();
+
+const emit = defineEmits<{
+  (event: "tabChange", tab: Tab): void;
 }>();
 
 const tabs = ref<Tab[]>([]);
-const activeTabIndex = ref(0);
 
 const addTab = (tab: Tab) => {
   tabs.value.push(tab);
@@ -40,23 +44,19 @@ const addTab = (tab: Tab) => {
 const removeTab = (tab: Tab) => {
   const index = tabs.value.findIndex((t) => t.id === tab.id);
   if (index === -1) return;
-  if (index === activeTabIndex.value) {
-    activeTabIndex.value = 0;
-  }
-
   tabs.value.splice(index, 1);
 };
 
 const setActiveTab = (tabId: string) => {
-  const index = tabs.value.findIndex((t) => t.id === tabId);
-  if (index === -1) return;
-  activeTabIndex.value = index;
+  const newActiveTab = tabs.value.find((t) => t.id === tabId);
+  if (!newActiveTab) {
+    throw new Error(`Tab with id ${tabId} not found`);
+  }
+  emit("tabChange", newActiveTab);
 };
 
 const isActiveTab = (tabId: string) => {
-  const index = tabs.value.findIndex((t) => t.id === tabId);
-  if (index === -1) return false;
-  return index === activeTabIndex.value;
+  return tabId === props.activeTabId;
 };
 
 provide<TabsContext>(TabsInjectionKey, {

@@ -9,10 +9,10 @@
   </component>
 </template>
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { type RouteLocationRaw, RouterLink } from "vue-router";
 
 defineProps<{
-  to?: string;
+  to?: RouteLocationRaw;
   href?: string;
 }>();
 </script>

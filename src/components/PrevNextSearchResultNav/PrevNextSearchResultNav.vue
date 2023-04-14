@@ -16,7 +16,14 @@
 
     <div class="flex justify-center text-xs text-gray-500 leading-none p-2">
       <Button
-        :to="`/search/s/${searchStore.searchId}#object-${assetStore.activeAssetId}`"
+        :to="{
+          name: 'search',
+          params: { searchId: searchStore.searchId },
+          query: {
+            objectId: assetStore.activeAssetId,
+            resultsView: searchStore.resultsView,
+          },
+        }"
         variant="tertiary"
       >
         {{ currentAssetIndex + 1 }} of {{ searchStore.totalResults }}
