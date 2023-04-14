@@ -1,4 +1,5 @@
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+export * from "./TimelineJSTypes";
 
 export interface AppConfig {
   instance: {
