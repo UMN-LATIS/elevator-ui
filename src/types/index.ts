@@ -290,7 +290,7 @@ export interface SearchResultMatch {
   dates: DateResult[];
   locations: LocationObject[];
   objectId: string;
-  lastModified: string;
+  lastModified?: string;
   collectionHierarchy: Array<{
     id: number;
     title: string;
@@ -298,12 +298,15 @@ export interface SearchResultMatch {
   template: TemplateEntry;
   entries?: SearchResultMatchEntry[];
   fileAssets?: number;
-  primaryHandlerId?: string; // hash
+  primaryHandlerId?: string | null; // hash
   primaryHandlerType?: string;
   primaryHandlerTiny?: string; // URI
   primaryHandlerTiny2x?: string; // URI
   primaryHandlerThumbnail?: string; //URI
   primaryHandlerThumbnail2x?: string; //URI
+  base_url?: string; // '/defaultinstance/'
+  isChild?: boolean;
+  hasChildren?: boolean;
 }
 
 export interface SearchEntry {
