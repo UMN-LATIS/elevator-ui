@@ -42,6 +42,9 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+        <Tab id="timeline" label="Timeline">
+          <p>Timeline view</p>
+        </Tab>
       </Tabs>
     </div>
   </DefaultLayout>
