@@ -1,12 +1,5 @@
 <template>
   <div class="search-results-timeline">
-    <div v-if="totalResults !== undefined" class="mb-4">
-      <p v-if="totalResults > 0" class="text-sm text-neutral-500">
-        <b>{{ totalResults }}</b> results found
-      </p>
-      <p v-else>No results found.</p>
-    </div>
-    <h1>Timeline View</h1>
     <div id="timeline-embed"></div>
   </div>
 </template>
@@ -44,6 +37,6 @@ onMounted(() => {
 <style scoped>
 #timeline-embed {
   width: 100%;
-  height: 600px;
+  height: 75vh;
 }
 </style>
