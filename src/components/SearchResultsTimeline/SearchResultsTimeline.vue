@@ -11,6 +11,8 @@ import { Timeline } from "@knight-lab/timelinejs";
 import "@knight-lab/timelinejs/dist/css/timeline.css";
 import { onMounted } from "vue";
 
+import { mockTimelineJSEvents } from "@/__mocks__/mockTimelineJSEvents";
+
 defineProps<{
   totalResults?: number;
   matches: SearchResultMatch[];
@@ -26,7 +28,9 @@ const timeline = ref<Timeline | null>(null);
 onMounted(() => {
   timeline.value = new Timeline(
     "timeline-embed",
-    "https://docs.google.com/spreadsheets/d/1cWqQBZCkX9GpzFtxCWHoqFXCHg-ylTVUWlnrdYMzKUI/pubhtml",
+    {
+      events: mockTimelineJSEvents,
+    },
     {
       timenav_position: "bottom",
       timenav_height_percentage: 50,
