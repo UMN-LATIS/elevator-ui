@@ -50,7 +50,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed, onMounted } from "vue";
+import { watch, computed, onMounted, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
@@ -61,7 +61,6 @@ import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
-import { nextTick } from "process";
 
 const props = withDefaults(
   defineProps<{
