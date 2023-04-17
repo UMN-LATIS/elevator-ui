@@ -4,16 +4,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { FetchStatus, SearchResultMatch } from "@/types";
 import { Timeline } from "@knight-lab/timelinejs";
 
 import "@knight-lab/timelinejs/dist/css/timeline.css";
-import { onMounted } from "vue";
+import {
+  convertMatchesToTimelineJSSlides,
+  toTimelineJSSlide,
+} from "@/helpers/timelineHelpers";
 
-import { mockTimelineJSEvents } from "@/__mocks__/mockTimelineJSEvents";
-
-defineProps<{
+const props = defineProps<{
   totalResults?: number;
   matches: SearchResultMatch[];
   status: FetchStatus;
@@ -25,18 +26,24 @@ defineEmits<{
 
 const timeline = ref<Timeline | null>(null);
 
-onMounted(() => {
-  timeline.value = new Timeline(
-    "timeline-embed",
-    {
-      events: mockTimelineJSEvents,
-    },
-    {
-      timenav_position: "bottom",
-      timenav_height_percentage: 50,
-    }
-  );
-});
+watch(
+  () => props.matches,
+  () => {
+    if (props.matches.length === 0 || props.status !== "success") return;
+    const slides = convertMatchesToTimelineJSSlides(props.matches);
+    timeline.value = new Timeline(
+      "timeline-embed",
+      {
+        events: slides,
+      },
+      {
+        timenav_position: "bottom",
+        timenav_height_percentage: 50,
+      }
+    );
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 #timeline-embed {
