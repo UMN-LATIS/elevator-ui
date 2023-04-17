@@ -10,7 +10,13 @@ export type DateObject = {
 // converts a UTC date to a DateObject
 export function toDateObject(utcDate: Date): DateObject {
   return {
-    display_date: utcDate.toLocaleDateString("en-US", { timeZone: "UTC" }),
+    // 05/31/2025
+    display_date: utcDate.toLocaleDateString("en-US", {
+      timeZone: "UTC",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
     year: utcDate.getUTCFullYear(),
     month: utcDate.getUTCMonth() + 1, // Months are zero-based, so we need to add 1
     day: utcDate.getUTCDate(),
@@ -37,7 +43,11 @@ export function convertTimestampToDateObject(
   return toDateObject(date);
 }
 
-export function toTimelineJSSlide(match: SearchResultMatch): TimelineJSSlide {
+export function toTimelineJSSlide(
+  match: SearchResultMatch
+): TimelineJSSlide | null {
+  if (!match.dates?.length) return null;
+
   const dateAsset = match.dates[0].dateAsset[0];
 
   const start_date = convertTimestampToDateObject(dateAsset.start.numeric);
@@ -62,11 +72,20 @@ export function toTimelineJSSlide(match: SearchResultMatch): TimelineJSSlide {
 
   return {
     start_date,
-    end_date,
+    // only include end_date if it's defined
+    ...(end_date && { end_date }),
     text: {
       headline,
       text,
     },
     media,
   };
+}
+
+export function convertMatchesToTimelineJSSlides(
+  matches: SearchResultMatch[]
+): TimelineJSSlide[] {
+  return matches
+    .map(toTimelineJSSlide)
+    .filter((slide) => slide !== null) as TimelineJSSlide[];
 }
