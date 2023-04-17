@@ -44,10 +44,8 @@
         </Tab>
         <Tab id="timeline" label="Timeline">
           <SearchResultsTimeline
-            :totalResults="searchStore.totalResults"
+            v-if="searchStore.matches.length > 0"
             :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
       </Tabs>
