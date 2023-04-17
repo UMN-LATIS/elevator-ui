@@ -1,4 +1,8 @@
-import type { SearchResultMatch, TimelineJSSlide } from "@/types";
+import type {
+  SearchResultMatch,
+  TimelineJSSlide,
+  SearchResultMatchEntry,
+} from "@/types";
 
 export type DateObject = {
   display_date?: string;
@@ -43,6 +47,17 @@ export function convertTimestampToDateObject(
   return toDateObject(date);
 }
 
+export function renderMatchEntries(entries: SearchResultMatchEntry[]): string {
+  const EntryItem = (entryItem: string) => `<li>${entryItem}</li>`;
+
+  const EntryList = (entry: SearchResultMatchEntry) =>
+    `<div class="previewEntry"><strong>${entry.label}:</strong><ul>${
+      entry.entries?.map(EntryItem).join("") ?? ""
+    }</ul></div>`;
+
+  return entries.map(EntryList).join("");
+}
+
 export function toTimelineJSSlide(
   match: SearchResultMatch
 ): TimelineJSSlide | null {
@@ -57,11 +72,7 @@ export function toTimelineJSSlide(
 
   const headline = `<a href="/defaultinstance/asset/viewAsset/${match.objectId}">${match.title}</a>`;
 
-  const dateEntries = match.entries?.flatMap((entry) => entry.entries) ?? [];
-
-  const text = `<div class="previewEntry"><strong>Date:</strong><ul>${dateEntries
-    .map((entry) => `<li>${entry}</li>`)
-    .join("")}</ul></div>`;
+  const text = match.entries ? renderMatchEntries(match.entries) : "";
 
   const media = match.primaryHandlerThumbnail2x
     ? {
