@@ -1,5 +1,21 @@
 <template>
   <div class="search-results-timeline">
+    <div class="flex gap-2 my-4 items-baseline justify-end">
+      <p v-if="status === 'success' && matches.length > 0" class="text-xs">
+        {{ matches.length }} of {{ totalResults }} results
+      </p>
+      <Button
+        v-if="
+          status === 'success' &&
+          matches.length > 0 &&
+          matches.length < totalResults
+        "
+        variant="tertiary"
+        @click="$emit('loadMore')"
+      >
+        Load More
+      </Button>
+    </div>
     <div id="timeline-embed"></div>
   </div>
 </template>
@@ -7,12 +23,15 @@
 import { onMounted } from "vue";
 import { SearchResultMatch } from "@/types";
 import { Timeline } from "@knight-lab/timelinejs";
+import Button from "../Button/Button.vue";
 
 import "@knight-lab/timelinejs/dist/css/timeline.css";
 import { convertMatchesToTimelineJSSlides } from "@/helpers/timelineHelpers";
 
 const props = defineProps<{
+  totalResults: number;
   matches: SearchResultMatch[];
+  status: string;
 }>();
 
 defineEmits<{
