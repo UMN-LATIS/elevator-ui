@@ -258,14 +258,15 @@ export interface DateComponent {
 export interface DateAssetObject {
   start: {
     text: string;
-    numeric: string;
+    numeric: string | number;
   };
   end?: {
     text: string;
-    numeric: string;
+    numeric: string | number;
   };
-  label?: string;
+  label?: string | null;
   isPrimary?: boolean;
+  [key: string]: unknown;
 }
 
 export interface DateResult {
