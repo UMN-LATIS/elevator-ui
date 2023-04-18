@@ -73,8 +73,8 @@
   --app-accordion-header-textColor: var(--app-textColor);
   --app-accordion-body-backgroundColor: var(--white);
   --app-accordion-body-textColor: var(--app-textColor);
-  --app-accordion-outer-borderWidth: 0;
-  --app-accordion-outer-borderColor: var(--color-neutral-500);
+  --app-accordion-outer-borderWidth: 1px;
+  --app-accordion-outer-borderColor: var(--color-neutral-200);
   --app-accordion-inner-borderWidth: 1px;
   --app-accordion-inner-borderColor: transparent;
 
