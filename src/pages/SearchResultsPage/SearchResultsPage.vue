@@ -42,23 +42,32 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+        <Tab id="timeline" label="Timeline">
+          <SearchResultsTimeline
+            v-if="searchStore.totalResults && searchStore.status === 'success'"
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
       </Tabs>
     </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed, onMounted } from "vue";
+import { watch, computed, onMounted, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
-import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
+import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
+import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
-import { nextTick } from "process";
 
 const props = withDefaults(
   defineProps<{

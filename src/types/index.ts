@@ -1,4 +1,5 @@
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+export * from "./TimelineJSTypes";
 
 export interface AppConfig {
   instance: {
@@ -254,6 +255,20 @@ export interface DateComponent {
   numeric: bigint;
 }
 
+export interface DateAssetObject {
+  start: {
+    text: string;
+    numeric: string | number;
+  };
+  end?: {
+    text: string;
+    numeric: string | number;
+  };
+  label?: string | null;
+  isPrimary?: boolean;
+  [key: string]: unknown;
+}
+
 export interface DateResult {
   start?: DateComponent;
   end?: DateComponent;
@@ -265,7 +280,7 @@ export interface DateResult {
   isPrimary?: boolean;
   searchData?: string;
   fileDescription?: string;
-  dateAsset?: object[];
+  dateAsset: DateAssetObject[];
   [key: string]: unknown;
 }
 
@@ -289,7 +304,7 @@ export interface SearchResultMatch {
   dates: DateResult[];
   locations: LocationObject[];
   objectId: string;
-  lastModified: string;
+  lastModified?: string;
   collectionHierarchy: Array<{
     id: number;
     title: string;
@@ -297,12 +312,15 @@ export interface SearchResultMatch {
   template: TemplateEntry;
   entries?: SearchResultMatchEntry[];
   fileAssets?: number;
-  primaryHandlerId?: string; // hash
+  primaryHandlerId?: string | null; // hash
   primaryHandlerType?: string;
   primaryHandlerTiny?: string; // URI
   primaryHandlerTiny2x?: string; // URI
   primaryHandlerThumbnail?: string; //URI
   primaryHandlerThumbnail2x?: string; //URI
+  base_url?: string; // '/defaultinstance/'
+  isChild?: boolean;
+  hasChildren?: boolean;
 }
 
 export interface SearchEntry {
