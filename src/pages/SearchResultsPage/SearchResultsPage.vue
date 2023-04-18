@@ -3,7 +3,7 @@
     <div class="px-4">
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
 
-      <template v-if="searchStore.status === 'success'">
+      <template v-else>
         <BrowseCollectionHeader
           v-if="browsingCollectionId"
           :collectionId="browsingCollectionId"
@@ -14,18 +14,19 @@
         >
           <q>{{ searchStore.searchEntry.searchText }}</q>
         </h2>
-        <h2
-          v-if="!browsingCollectionId && !searchStore.searchEntry?.searchText"
-          class="text-4xl my-8 font-bold"
-        >
-          All Assets
-        </h2>
       </template>
       <Tabs
         labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="searchStore.resultsView"
         @tabChange="handleTabChange"
       >
+        <ResultsCount
+          :showingCount="searchStore.matches.length"
+          :total="searchStore.totalResults ?? 0"
+          :status="searchStore.status"
+          class="mb-2"
+          @loadMore="() => searchStore.loadMore()"
+        />
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
             :totalResults="searchStore.totalResults"
@@ -51,6 +52,17 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+        <ResultsCount
+          v-if="
+            searchStore.resultsView !== 'timeline' &&
+            (searchStore.totalResults ?? 0) > 6
+          "
+          :showingCount="searchStore.matches.length"
+          :total="searchStore.totalResults ?? 0"
+          :status="searchStore.status"
+          class="mt-4"
+          @loadMore="() => searchStore.loadMore()"
+        />
       </Tabs>
     </div>
   </DefaultLayout>
@@ -68,6 +80,7 @@ import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 
 const props = withDefaults(
   defineProps<{

@@ -1,11 +1,5 @@
 <template>
   <div>
-    <div v-if="totalResults !== undefined" class="mb-4">
-      <p v-if="totalResults > 0" class="text-sm text-neutral-500">
-        <b>{{ totalResults }}</b> results found
-      </p>
-      <p v-else>No results found.</p>
-    </div>
     <div class="flex flex-col gap-1">
       <TransitionGroup
         enterActiveClass="transform ease-out transition"
@@ -24,10 +18,6 @@
         />
       </TransitionGroup>
     </div>
-
-    <p v-if="matches.length > 6" class="my-4">
-      Showing <b>{{ matches.length }}</b> of <b>{{ totalResults }}</b> results.
-    </p>
   </div>
 
   <div v-if="hasMoreResults" class="mt-8">
@@ -47,6 +37,7 @@ import { computed, watch } from "vue";
 import { FetchStatus, SearchResultMatch } from "@/types";
 import { useScroll } from "@vueuse/core";
 import SearchResultRow from "../SearchResultRow/SearchResultRow.vue";
+import ResultsCount from "../ResultsCount/ResultsCount.vue";
 
 const props = defineProps<{
   totalResults?: number;
