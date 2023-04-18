@@ -5,16 +5,16 @@
         <b>{{ showingCount }}</b> of <b>{{ total }}</b> results
       </p>
       <Button
-        v-if="showingCount < total && status !== 'fetching'"
+        v-if="showingCount < total"
         variant="tertiary"
         @click="$emit('loadMore')"
       >
         Load More
+        <SpinnerIcon
+          v-show="status === 'fetching'"
+          class="w-3 h-3 text-blue-600 ml-1"
+        />
       </Button>
-      <SpinnerIcon
-        v-if="status === 'fetching'"
-        class="w-3 h-3 text-neutral-500"
-      />
     </div>
     <p
       v-if="status !== 'fetching' && total === 0"
