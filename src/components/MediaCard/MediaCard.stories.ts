@@ -11,7 +11,7 @@ const Template: StoryFn<typeof MediaCard> = (args) => ({
     return { args };
   },
   template: `
-    <MediaCard v-bind="args">
+    <MediaCard v-bind="args" class="max-w-md">
       <h1 class="text-lg font-bold">So cute!</h1>
       Lorem ipsum dolor sit amet netus sollicitudin porttitor condimentum integer. Pharetra leo luctus curabitur nisl id auctor habitasse mauris tristique auctor.
     </MediaCard>
