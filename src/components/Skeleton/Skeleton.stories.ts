@@ -17,4 +17,15 @@ const Template: StoryFn<typeof Skeleton> = (args) => ({
 });
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  width: "10rem",
+  height: "2rem",
+  variant: "rect",
+};
+
+export const Circle = Template.bind({});
+Circle.args = {
+  variant: "circle",
+  width: "3rem",
+  height: "3rem",
+};

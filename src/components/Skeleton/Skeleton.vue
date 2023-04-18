@@ -1,19 +1,31 @@
 <template>
-  <div class="rounded-md max-w-sm w-full py-4">
-    <div class="animate-pulse flex space-x-4">
-      <div class="flex-1 space-y-6 py-1">
-        <div class="h-4 bg-neutral-300 rounded w-1/2"></div>
-        <div class="h-2 bg-neutral-300 rounded"></div>
-        <div class="space-y-3">
-          <div class="grid grid-cols-3 gap-4">
-            <div class="h-2 bg-neutral-300 rounded col-span-2"></div>
-            <div class="h-2 bg-neutral-300 rounded col-span-1"></div>
-          </div>
-          <div class="h-2 bg-neutral-50 rounded"></div>
-        </div>
-      </div>
-    </div>
+  <div
+    :class="`skeleton skeleton--${variant} rounded-md max-w-lg animate-pulse bg-neutral-200 flex items-center justify-center`"
+  >
+    <slot />
   </div>
 </template>
-<script setup lang="ts"></script>
-<style scoped></style>
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    variant?: "rect" | "circle";
+    width?: string;
+    height?: string;
+  }>(),
+  {
+    variant: "rect",
+    width: "100%",
+    height: "1rem",
+  }
+);
+</script>
+<style scoped>
+.skeleton {
+  width: v-bind(width);
+  height: v-bind(height);
+}
+
+.skeleton--circle {
+  border-radius: 50%;
+}
+</style>
