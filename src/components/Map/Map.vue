@@ -25,12 +25,13 @@ import { ref, watch, provide, type Ref, onMounted } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
-import type { LngLat } from "@/types";
+import type { LngLat, BoundingBox } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import { withMapControls } from "./withMapControls";
 
 const props = defineProps<{
-  center: LngLat | null;
+  center: LngLat;
+  bounds: BoundingBox;
   zoom: number;
   apiKey: string;
   esriSourceUrl?: string;
@@ -77,6 +78,12 @@ function updateStyle() {
 }
 
 watch(activeMapStyleKey, updateStyle);
+
+// watch map bounds changes
+watch([() => props.bounds, mapRef], () => {
+  if (!mapRef.value || !props.bounds) return;
+  mapRef.value.fitBounds(props.bounds, { padding: 64 });
+});
 
 onMounted(() => {
   if (!mapContainerRef.value) {

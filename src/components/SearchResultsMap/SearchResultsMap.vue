@@ -4,7 +4,8 @@
       :zoom="10"
       mapStyle="streets"
       :apiKey="config.arcgis.apiKey"
-      :center="{ lng: 0, lat: 0 }"
+      :bounds="boundingBox"
+      :center="center"
       class=""
     >
       <MapMarker
@@ -50,14 +51,18 @@ import Map from "@/components/Map/Map.vue";
 import MapMarker from "@/components/MapMarker/MapMarker.vue";
 import MapPopup from "@/components/MapPopup/MapPopup.vue";
 import {
+  BoundingBox,
   FetchStatus,
   SearchResultMatch,
   SearchResultMatchEntry,
+  LngLat,
 } from "@/types";
 import { convertSearchResultToLngLats } from "@/helpers/mapResultsHelpers";
 import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
 import config from "@/config";
 import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
+import getBoundingBox from "@/components/Map/getBoundingBox";
+import { getCenterOfBoundingBox } from "../Map/getCenterOfBoundingBox";
 
 const props = defineProps<{
   totalResults?: number;
@@ -75,13 +80,20 @@ interface SearchResultMapMarker {
   lng: number;
 }
 
+function getMatchTitle(match: SearchResultMatch): string {
+  if (typeof match.title === "string") return match.title;
+  if (Array.isArray(match.title) && match.title.length > 0)
+    return match.title[0];
+  return "(No Title)";
+}
+
 const markers = computed((): SearchResultMapMarker[] => {
   return props.matches.reduce((acc, match) => {
     if (!match.primaryHandlerId) return acc;
 
     const assetUrl = getAssetUrl(match.primaryHandlerId);
     const imgSrc = getThumbURL(match.primaryHandlerId);
-    const title = match?.title?.[0] ?? "(No Title)";
+    const title = getMatchTitle(match);
     const lngLats = convertSearchResultToLngLats(match);
 
     const markersForThisMatch = lngLats.map((lngLat) => ({
@@ -95,6 +107,18 @@ const markers = computed((): SearchResultMapMarker[] => {
 
     return acc.concat(markersForThisMatch);
   }, [] as SearchResultMapMarker[]);
+});
+
+const boundingBox = computed((): BoundingBox => {
+  const lnglats = markers.value.map((marker) => ({
+    lng: marker.lng,
+    lat: marker.lat,
+  }));
+  return getBoundingBox(lnglats);
+});
+
+const center = computed((): LngLat => {
+  return getCenterOfBoundingBox(boundingBox.value);
 });
 
 const emits = defineEmits<{
