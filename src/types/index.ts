@@ -205,11 +205,22 @@ export interface DateWidgetContent extends WidgetContent {
   range?: boolean;
 }
 
-export type Coordinates = [number, number];
+export type Coordinates = [
+  number, //lng
+  number //lat
+];
+
+export interface LocationEntry {
+  loc: {
+    type: string;
+    coordinates: Coordinates;
+  };
+  [key: string]: unknown;
+}
 
 export interface LocationObject {
   label?: string;
-  entries?: unknown[];
+  entries?: LocationEntry[];
   type?: string;
   coordinates?: Coordinates;
 }
