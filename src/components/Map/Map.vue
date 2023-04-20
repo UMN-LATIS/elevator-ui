@@ -10,7 +10,7 @@
             key === activeMapStyleKey,
           'text-neutral-500': key !== activeMapStyleKey,
         }"
-        @click="handleStyleButtonClick(key)"
+        @click="activeMapStyleKey = key"
       >
         {{ style.label }}
       </button>
@@ -46,20 +46,20 @@ const mapContainerRef = ref<HTMLDivElement | null>(null);
 const mapRef = ref<MapLibreMap | null>(null);
 
 const mapStyles = {
-  satellite: {
-    label: "Satellite",
-    name: "ArcGIS:Imagery",
-    type: "style",
-  },
   streets: {
     label: "Street",
     name: "ArcGIS:Navigation",
     type: "style",
   },
+  satellite: {
+    label: "Satellite",
+    name: "ArcGIS:Imagery",
+    type: "style",
+  },
 };
 
 type MapStyle = keyof typeof mapStyles;
-const activeMapStyleKey = ref<MapStyle>("satellite");
+const activeMapStyleKey = ref<MapStyle>("streets");
 
 const toArcGISUrl = (styleKey: string) => {
   const baseUrl = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles`;
@@ -67,23 +67,18 @@ const toArcGISUrl = (styleKey: string) => {
   return url || `${baseUrl}/${name}?type=${type}&token=${props.apiKey}`;
 };
 
-const handleStyleButtonClick = (newStyleKey: MapStyle) => {
-  activeMapStyleKey.value = newStyleKey;
-};
-
-// watch style changes
 function updateStyle() {
   if (!mapRef.value) return;
   mapRef.value.setStyle(toArcGISUrl(activeMapStyleKey.value));
 }
 
-watch(activeMapStyleKey, updateStyle);
-
-// watch map bounds changes
-watch([() => props.bounds, mapRef], () => {
+function updateBounds() {
   if (!mapRef.value || !props.bounds) return;
   mapRef.value.fitBounds(props.bounds, { padding: 64 });
-});
+}
+
+watch(activeMapStyleKey, updateStyle);
+watch([() => props.bounds, mapRef], updateBounds);
 
 onMounted(() => {
   if (!mapContainerRef.value) {
