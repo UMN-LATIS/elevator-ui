@@ -4,23 +4,24 @@
   </div>
 </template>
 <script setup lang="ts">
-import { watch, ref, unref } from "vue";
-import { Marker } from "maplibre-gl";
+import { watch, ref, unref, type Ref } from "vue";
+import { Marker, Popup } from "maplibre-gl";
 import { inject, provide } from "vue";
 import { MapInjectionKey, MarkerInjectionKey } from "@/constants/mapConstants";
-import { LngLat } from "@/types";
+import { LngLat, MarkerContext } from "@/types";
 
-interface Props {
-  lng: number;
-  lat: number;
-  color?: string;
-  draggable?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  color: "#f43f5e",
-  draggable: false,
-});
+const props = withDefaults(
+  defineProps<{
+    lng: number;
+    lat: number;
+    color?: string;
+    draggable?: boolean;
+  }>(),
+  {
+    color: "#f43f5e",
+    draggable: false,
+  }
+);
 
 interface Emits {
   (eventName: "drag", coords: LngLat);
@@ -29,6 +30,7 @@ const emit = defineEmits<Emits>();
 
 const mapRef = inject(MapInjectionKey);
 const marker = ref<Marker | null>(null);
+const popup = ref<Popup | null>(null);
 
 watch(
   [mapRef, () => props],
@@ -45,6 +47,8 @@ watch(
     const oldMarker = unref(marker);
     if (oldMarker) oldMarker.remove();
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     marker.value = new Marker({
       color: props.color,
       draggable: props.draggable,
@@ -63,8 +67,25 @@ watch(
   { immediate: true }
 );
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-provide(MarkerInjectionKey, marker);
-// @ts-check
+function addPopup(popupContainerRef: Ref<HTMLElement | null>) {
+  if (!popupContainerRef.value) {
+    throw new Error("Popup container ref is null");
+  }
+
+  const popup = new Popup().setDOMContent(popupContainerRef.value);
+
+  // watch the marker ref, and add the popup to it
+  const stopWatching = watch(marker, (markerInstance) => {
+    if (!markerInstance) return;
+    markerInstance.setPopup(popup);
+    // if we're successful, stop watching
+    stopWatching();
+  });
+
+  return () => popup.remove();
+}
+
+provide<MarkerContext>(MarkerInjectionKey, {
+  addPopup,
+});
 </script>

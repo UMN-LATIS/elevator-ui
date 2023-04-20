@@ -1,22 +1,21 @@
 <template>
-  <div ref="popupRef" class="map-popup">
+  <div ref="popupContainerRef" class="map-popup">
     <slot></slot>
   </div>
 </template>
 <script setup lang="ts">
-import { inject, watch, ref } from "vue";
-import { Popup } from "maplibre-gl";
+import { inject, ref, onMounted, onUnmounted } from "vue";
+import { MarkerContext } from "@/types";
 import { MarkerInjectionKey } from "@/constants/mapConstants";
 
-const markerRef = inject(MarkerInjectionKey);
-const popupRef = ref(null);
+const popupContainerRef = ref<HTMLElement | null>(null);
+const markerContext = inject<MarkerContext>(MarkerInjectionKey);
 
-// use ref to get the content of the slot
-// and then put it in the popup using setDOMContent
-watch([markerRef, popupRef], () => {
-  if (!markerRef || !markerRef.value || !popupRef.value) return;
-  const popup = new Popup().setDOMContent(popupRef.value);
-  markerRef.value.setPopup(popup);
+onMounted(() => {
+  if (!markerContext) return;
+  const removePopup = markerContext.addPopup(popupContainerRef);
+
+  onUnmounted(removePopup);
 });
 </script>
 
