@@ -44,6 +44,7 @@ const emit = defineEmits<{
 
 const mapContainerRef = ref<HTMLDivElement | null>(null);
 const mapRef = ref<MapLibreMap | null>(null);
+const markers = reactive(new Map<string, GeoJSON.Feature>());
 
 const mapStyles = {
   streets: {
@@ -58,19 +59,17 @@ const mapStyles = {
   },
 };
 
-type MapStyle = keyof typeof mapStyles;
-const activeMapStyleKey = ref<MapStyle>("streets");
+const activeMapStyleKey = ref<keyof typeof mapStyles>("streets");
 
-const toArcGISUrl = (styleKey: string) => {
+const getArcGISUrl = (styleKey: string) => {
   const baseUrl = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles`;
   const { name, type, url } = mapStyles[styleKey];
   return url || `${baseUrl}/${name}?type=${type}&token=${props.apiKey}`;
-  // return `https://api.maptiler.com/maps/streets/style.json?key=1M8BgI0mCyD6buZKYID1`;
 };
 
 function updateStyle() {
   if (!mapRef.value) throw new Error("Cannot update style: no map");
-  mapRef.value.setStyle(toArcGISUrl(activeMapStyleKey.value));
+  mapRef.value.setStyle(getArcGISUrl(activeMapStyleKey.value));
 }
 
 function updateBounds() {
@@ -82,8 +81,45 @@ function updateBounds() {
   mapRef.value.fitBounds(props.bounds, { padding: 64 });
 }
 
+function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
+  // Create a new GeoJSON feature
+  const newFeature: GeoJSON.Feature = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [lng, lat],
+    },
+    properties: {
+      ...properties,
+      id,
+    },
+  };
+
+  markers.set(id, newFeature);
+  renderMarkers();
+
+  return newFeature;
+}
+
+function removeMarker(markerId: string) {
+  markers.delete(markerId);
+  renderMarkers();
+}
+
+function renderMarkers() {
+  const map = mapRef.value;
+  if (!map) return;
+
+  const source = map.getSource("markers") as GeoJSONSource;
+  source?.setData({
+    type: "FeatureCollection",
+    features: Array.from(markers.values()),
+  });
+}
+
 watch(activeMapStyleKey, updateStyle);
 watch([() => props.bounds, mapRef], updateBounds);
+watch([mapRef, markers], renderMarkers);
 
 onMounted(() => {
   if (!mapContainerRef.value) {
@@ -97,7 +133,7 @@ onMounted(() => {
     new MapLibreMap({
       container: mapContainerRef.value,
       center: props.center ? [props.center.lng, props.center.lat] : [0, 0],
-      style: toArcGISUrl(activeMapStyleKey.value),
+      style: getArcGISUrl(activeMapStyleKey.value),
       zoom: props.zoom,
     })
   );
@@ -120,7 +156,10 @@ onMounted(() => {
     // Add a new GeoJSON source with clustering enabled
     mapRef.value.addSource("markers", {
       type: "geojson",
-      data: convertMarkersToGeoJson(),
+      data: {
+        type: "FeatureCollection",
+        features: Array.from(markers.values()),
+      },
       cluster: true,
       clusterMaxZoom: 14,
       clusterRadius: 50,
@@ -137,27 +176,14 @@ onMounted(() => {
           "step",
           ["get", "point_count"],
           "#51bbd6",
-          100,
+          10,
           "#f1f075",
-          750,
+          100,
           "#f28cb1",
         ],
         "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
       },
     });
-
-    // Add a layer for the cluster labels
-    // mapRef.value.addLayer({
-    //   id: "cluster-count",
-    //   type: "symbol",
-    //   source: "markers",
-    //   filter: ["has", "point_count"],
-    //   layout: {
-    //     "text-field": "{point_count}",
-    //     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-    //     "text-size": 12,
-    //   },
-    // });
 
     mapRef.value.addLayer({
       id: "cluster-count",
@@ -169,7 +195,7 @@ onMounted(() => {
         "text-offset": [0, 0.1], // move the label vertically downwards slightly to improve centering
       },
       paint: {
-        "text-color": "white",
+        "text-color": "black",
       },
     });
 
@@ -199,85 +225,6 @@ onUnmounted(() => {
   mapRef.value.remove();
   mapRef.value = null;
 });
-
-const markers = reactive(new Map<string, GeoJSON.Feature>());
-
-// Replace the convertMarkersToGeoJson function with this one
-function convertMarkersToGeoJson(): GeoJSON.FeatureCollection {
-  return {
-    type: "FeatureCollection",
-    features: Array.from(markers.values()),
-  };
-}
-
-function createOrUpdateMarker({
-  id,
-  lng,
-  lat,
-  ...markerOptions
-}: AddMarkerArgs) {
-  // Create a new GeoJSON feature
-  const newFeature: GeoJSON.Feature = {
-    type: "Feature",
-    geometry: {
-      type: "Point",
-      coordinates: [lng, lat],
-    },
-    properties: {
-      ...markerOptions,
-      id,
-    },
-  };
-
-  // Remove the old feature from the source data
-  const source = mapRef.value?.getSource("markers") as GeoJSONSource;
-  if (source && markers.has(id)) {
-    const currentData = source._data as GeoJSON.FeatureCollection;
-    const newData = {
-      type: "FeatureCollection",
-      features: currentData.features.filter(
-        (feature) => feature.properties?.id !== id
-      ),
-    } as GeoJSON.FeatureCollection;
-    source.setData(newData);
-  }
-
-  // Add it to the markers map
-  markers.set(id, newFeature);
-
-  // Render the updated markers
-  renderMarkers();
-
-  return newFeature;
-}
-
-function removeMarker(markerId: string) {
-  const source = mapRef.value?.getSource("markers") as GeoJSONSource;
-  if (source && markers.has(markerId)) {
-    const currentData = source._data as GeoJSON.FeatureCollection;
-    const newData = {
-      type: "FeatureCollection",
-      features: currentData.features.filter(
-        (feature) => feature.properties?.id !== markerId
-      ),
-    } as GeoJSON.FeatureCollection;
-    source.setData(newData);
-  }
-
-  markers.delete(markerId);
-}
-
-function renderMarkers() {
-  const map = mapRef.value;
-  if (!map) return;
-
-  const markersGeoJson = convertMarkersToGeoJson();
-  const source = map.getSource("markers") as GeoJSONSource;
-  console.log("rendering markers", markersGeoJson);
-  source?.setData(markersGeoJson);
-}
-
-watch([mapRef, markers], renderMarkers);
 
 provide<MapContext>(MapInjectionKey, {
   createOrUpdateMarker,

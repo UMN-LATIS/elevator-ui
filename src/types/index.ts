@@ -540,10 +540,11 @@ export interface MarkerContext {
   removePopup: () => void;
 }
 
-export interface AddMarkerArgs extends MarkerOptions {
+export interface AddMarkerArgs {
   id: string;
   lng: number;
   lat: number;
+  [key: string]: unknown; // other properties
 }
 
 export interface MapContext {
