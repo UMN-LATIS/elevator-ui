@@ -33,13 +33,19 @@
         :lat="marker.lat"
       >
         <MapPopup>
-          <LazyLoadImage
-            v-if="marker.imgSrc"
-            :src="marker.imgSrc"
-            :alt="marker.title"
-            class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden border"
-          />
-          <h1 class="my-2">{{ marker.title }}</h1>
+          <Link :to="marker.assetUrl">
+            <LazyLoadImage
+              v-if="marker.imgSrc"
+              :src="marker.imgSrc"
+              :alt="marker.title"
+              class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden border"
+            />
+          </Link>
+          <h1 class="my-2">
+            <Link :to="marker.assetUrl">
+              {{ marker.title }}
+            </Link>
+          </h1>
 
           <dl
             v-if="marker.entries"
@@ -83,11 +89,16 @@ import getBoundingBox from "@/components/Map/getBoundingBox";
 import { getCenterOfBoundingBox } from "../Map/getCenterOfBoundingBox";
 import Button from "@/components/Button/Button.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
+import Link from "@/components/Link/Link.vue";
 
 const props = defineProps<{
   totalResults?: number;
   matches: SearchResultMatch[];
   status: FetchStatus;
+}>();
+
+defineEmits<{
+  (event: "loadMore");
 }>();
 
 interface SearchResultMapMarker {
@@ -111,7 +122,7 @@ const markers = computed((): SearchResultMapMarker[] => {
   return props.matches.reduce((acc, match) => {
     if (!match.primaryHandlerId) return acc;
 
-    const assetUrl = getAssetUrl(match.primaryHandlerId);
+    const assetUrl = getAssetUrl(match.objectId);
     const imgSrc = getThumbURL(match.primaryHandlerId);
     const title = getMatchTitle(match);
     const lngLats = convertSearchResultToLngLats(match);
@@ -140,9 +151,5 @@ const boundingBox = computed((): BoundingBox => {
 const center = computed((): LngLat => {
   return getCenterOfBoundingBox(boundingBox.value);
 });
-
-const emits = defineEmits<{
-  (event: "loadMore");
-}>();
 </script>
 <style scoped></style>
