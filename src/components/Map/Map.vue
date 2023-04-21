@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, provide, type Ref, onMounted, onUnmounted } from "vue";
+import { ref, watch, provide, onMounted, onUnmounted, reactive } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Map as MapLibreMap, MapMouseEvent, Marker } from "maplibre-gl";
+import { Map as MapLibreMap, MapMouseEvent, GeoJSONSource } from "maplibre-gl";
 import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import { withMapControls } from "./withMapControls";
@@ -65,6 +65,7 @@ const toArcGISUrl = (styleKey: string) => {
   const baseUrl = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles`;
   const { name, type, url } = mapStyles[styleKey];
   return url || `${baseUrl}/${name}?type=${type}&token=${props.apiKey}`;
+  // return `https://api.maptiler.com/maps/streets/style.json?key=1M8BgI0mCyD6buZKYID1`;
 };
 
 function updateStyle() {
@@ -89,7 +90,10 @@ onMounted(() => {
     throw Error("Cannot create Map: container not defined:");
   }
 
-  const map = withMapControls(
+  // added to avoid ts warning about deep nesting
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  mapRef.value = withMapControls(
     new MapLibreMap({
       container: mapContainerRef.value,
       center: props.center ? [props.center.lng, props.center.lat] : [0, 0],
@@ -97,11 +101,6 @@ onMounted(() => {
       zoom: props.zoom,
     })
   );
-
-  // added to avoid ts warning about deep nesting
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapRef.value = map as unknown as MapLibreMap;
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {
@@ -117,6 +116,76 @@ onMounted(() => {
       throw new Error("cannot emit load event: no map");
     }
     emit("load", mapRef.value as unknown as MapLibreMap);
+
+    // Add a new GeoJSON source with clustering enabled
+    mapRef.value.addSource("markers", {
+      type: "geojson",
+      data: convertMarkersToGeoJson(),
+      cluster: true,
+      clusterMaxZoom: 14,
+      clusterRadius: 50,
+    });
+
+    // Add a layer for clustered points
+    mapRef.value.addLayer({
+      id: "clusters",
+      type: "circle",
+      source: "markers",
+      filter: ["has", "point_count"],
+      paint: {
+        "circle-color": [
+          "step",
+          ["get", "point_count"],
+          "#51bbd6",
+          100,
+          "#f1f075",
+          750,
+          "#f28cb1",
+        ],
+        "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+      },
+    });
+
+    // Add a layer for the cluster labels
+    // mapRef.value.addLayer({
+    //   id: "cluster-count",
+    //   type: "symbol",
+    //   source: "markers",
+    //   filter: ["has", "point_count"],
+    //   layout: {
+    //     "text-field": "{point_count}",
+    //     "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+    //     "text-size": 12,
+    //   },
+    // });
+
+    mapRef.value.addLayer({
+      id: "cluster-count",
+      type: "symbol",
+      source: "markers",
+      layout: {
+        "text-font": ["Arial Bold"],
+        "text-field": ["get", "point_count"],
+        "text-offset": [0, 0.1], // move the label vertically downwards slightly to improve centering
+      },
+      paint: {
+        "text-color": "white",
+      },
+    });
+
+    // Add a layer for individual points
+    mapRef.value.addLayer({
+      id: "unclustered-point",
+      type: "circle",
+      source: "markers",
+      filter: ["!", ["has", "point_count"]],
+      paint: {
+        "circle-color": "#f43f5e",
+        "circle-radius": 10,
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#fff",
+      },
+    });
   });
 
   useResizeObserver(mapContainerRef, () => {
@@ -131,56 +200,84 @@ onUnmounted(() => {
   mapRef.value = null;
 });
 
-const markers = new Map<string, Marker>();
+const markers = reactive(new Map<string, GeoJSON.Feature>());
+
+// Replace the convertMarkersToGeoJson function with this one
+function convertMarkersToGeoJson(): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: Array.from(markers.values()),
+  };
+}
+
 function createOrUpdateMarker({
   id,
   lng,
   lat,
   ...markerOptions
 }: AddMarkerArgs) {
-  // remove old marker if it exists
-  const oldMarker = markers.get(id);
-  if (oldMarker) {
-    oldMarker.remove();
-    markers.delete(id);
+  // Create a new GeoJSON feature
+  const newFeature: GeoJSON.Feature = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [lng, lat],
+    },
+    properties: {
+      ...markerOptions,
+      id,
+    },
+  };
+
+  // Remove the old feature from the source data
+  const source = mapRef.value?.getSource("markers") as GeoJSONSource;
+  if (source && markers.has(id)) {
+    const currentData = source._data as GeoJSON.FeatureCollection;
+    const newData = {
+      type: "FeatureCollection",
+      features: currentData.features.filter(
+        (feature) => feature.properties?.id !== id
+      ),
+    } as GeoJSON.FeatureCollection;
+    source.setData(newData);
   }
 
-  // create a new marker and add to the map
-  const marker = new Marker(markerOptions).setLngLat([lng, lat]);
+  // Add it to the markers map
+  markers.set(id, newFeature);
 
-  // and also the markers Map (data structure)
-  markers.set(id, marker);
+  // Render the updated markers
+  renderMarkers();
 
-  // add to the map if it exists
-  const map = mapRef.value;
-  if (map) {
-    // some ugly type casting to avoid error about infinite recursion
-    marker.addTo(map as unknown as MapLibreMap);
-  }
-
-  return marker;
+  return newFeature;
 }
 
-function initMarkers() {
+function removeMarker(markerId: string) {
+  const source = mapRef.value?.getSource("markers") as GeoJSONSource;
+  if (source && markers.has(markerId)) {
+    const currentData = source._data as GeoJSON.FeatureCollection;
+    const newData = {
+      type: "FeatureCollection",
+      features: currentData.features.filter(
+        (feature) => feature.properties?.id !== markerId
+      ),
+    } as GeoJSON.FeatureCollection;
+    source.setData(newData);
+  }
+
+  markers.delete(markerId);
+}
+
+function renderMarkers() {
   const map = mapRef.value;
   if (!map) return;
 
-  console.log("init markers", markers);
-  markers.forEach((marker) => {
-    // some ugly type casting to avoid error about infinite recursion
-    marker.addTo(map as unknown as MapLibreMap);
-  });
+  const markersGeoJson = convertMarkersToGeoJson();
+  const source = map.getSource("markers") as GeoJSONSource;
+  console.log("rendering markers", markersGeoJson);
+  source?.setData(markersGeoJson);
 }
 
-watch(mapRef, initMarkers);
-
-function removeMarker(markerId: string) {
-  const marker = markers.get(markerId);
-  if (!marker) return;
-
-  marker.remove();
-  markers.delete(markerId);
-}
+watch([mapRef, markers], renderMarkers);
 
 provide<MapContext>(MapInjectionKey, {
   createOrUpdateMarker,

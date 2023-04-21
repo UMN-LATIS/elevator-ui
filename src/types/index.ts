@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import type { Marker, MarkerOptions, Popup } from "maplibre-gl";
+import type { MarkerOptions, Popup } from "maplibre-gl";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 export * from "./TimelineJSTypes";
 
@@ -547,6 +547,6 @@ export interface AddMarkerArgs extends MarkerOptions {
 }
 
 export interface MapContext {
-  createOrUpdateMarker: (args: AddMarkerArgs) => Marker;
+  createOrUpdateMarker: (args: AddMarkerArgs) => GeoJSON.Feature;
   removeMarker: (markerId: string) => void;
 }
