@@ -227,11 +227,11 @@ onMounted(() => {
             "circle-color": [
               "step",
               ["get", "point_count"],
-              "#51bbd6",
+              "#D54FE1",
               10,
-              "#f1f075",
-              100,
-              "#f28cb1",
+              "#754FE1",
+              50,
+              "#2C4DF6",
             ],
             "circle-radius": [
               "step",
@@ -258,7 +258,7 @@ onMounted(() => {
             "text-offset": [0, 0.1], // move the label vertically downwards slightly to improve centering
           },
           paint: {
-            "text-color": "black",
+            "text-color": "white",
           },
         });
       }
@@ -271,8 +271,8 @@ onMounted(() => {
           source: "markers",
           filter: ["!", ["has", "point_count"]],
           paint: {
-            "circle-color": "#f43f5e",
-            "circle-radius": 10,
+            "circle-color": "#F54D94",
+            "circle-radius": 6,
             "circle-stroke-width": 1,
             "circle-stroke-color": "#fff",
           },
