@@ -1,12 +1,29 @@
 <template>
   <div class="search-results-map">
+    <div
+      v-if="!markers.length"
+      class="flex flex-col items-center justify-center py-16 gap-4"
+    >
+      <h2 class="text-2xl font-medium">No Locations</h2>
+
+      <p>
+        Sorry, the loaded results don't have locations, so we can't make a map.
+      </p>
+      <Button
+        v-if="matches.length < (totalResults ?? Infinity)"
+        @click="$emit('loadMore')"
+      >
+        Load More
+        <SpinnerIcon v-if="status === 'fetching'" class="w-4 h-4 ml-2" />
+      </Button>
+    </div>
     <Map
+      v-if="markers.length > 0"
       :zoom="10"
       mapStyle="streets"
       :apiKey="config.arcgis.apiKey"
       :bounds="boundingBox"
       :center="center"
-      class=""
     >
       <MapMarker
         v-for="marker in markers"
@@ -64,6 +81,8 @@ import config from "@/config";
 import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 import getBoundingBox from "@/components/Map/getBoundingBox";
 import { getCenterOfBoundingBox } from "../Map/getCenterOfBoundingBox";
+import Button from "@/components/Button/Button.vue";
+import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 
 const props = defineProps<{
   totalResults?: number;
