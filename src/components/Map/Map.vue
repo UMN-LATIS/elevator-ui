@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, provide, type Ref, onMounted } from "vue";
+import { ref, watch, provide, type Ref, onMounted, onUnmounted } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
-import type { LngLat, BoundingBox } from "@/types";
+import { Map as MapLibreMap, MapMouseEvent, Marker } from "maplibre-gl";
+import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import { withMapControls } from "./withMapControls";
 
@@ -68,12 +68,16 @@ const toArcGISUrl = (styleKey: string) => {
 };
 
 function updateStyle() {
-  if (!mapRef.value) return;
+  if (!mapRef.value) throw new Error("Cannot update style: no map");
   mapRef.value.setStyle(toArcGISUrl(activeMapStyleKey.value));
 }
 
 function updateBounds() {
-  if (!mapRef.value || !props.bounds) return;
+  if (!props.bounds) return;
+  if (!mapRef.value) {
+    throw new Error("Cannot update bounds: no map");
+  }
+
   mapRef.value.fitBounds(props.bounds, { padding: 64 });
 }
 
@@ -85,9 +89,7 @@ onMounted(() => {
     throw Error("Cannot create Map: container not defined:");
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  mapRef.value = withMapControls(
+  const map = withMapControls(
     new MapLibreMap({
       container: mapContainerRef.value,
       center: props.center ? [props.center.lng, props.center.lat] : [0, 0],
@@ -95,23 +97,26 @@ onMounted(() => {
       zoom: props.zoom,
     })
   );
-  //@ts-check
+
+  // added to avoid ts warning about deep nesting
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  mapRef.value = map as unknown as MapLibreMap;
 
   // add click handler
   mapRef.value.on("click", (event: MapMouseEvent) => {
     if (!mapRef.value) {
-      // this shouldn't happen
       throw new Error("there was a click but no map");
     }
 
-    emit("click", event, mapRef.value as MapLibreMap);
+    emit("click", event, mapRef.value as unknown as MapLibreMap);
   });
 
   mapRef.value.on("load", () => {
     if (!mapRef.value) {
-      throw new Error("cannot emit load event: no mapRef");
+      throw new Error("cannot emit load event: no map");
     }
-    emit("load", mapRef.value as MapLibreMap);
+    emit("load", mapRef.value as unknown as MapLibreMap);
   });
 
   useResizeObserver(mapContainerRef, () => {
@@ -120,12 +125,67 @@ onMounted(() => {
   });
 });
 
-// ignore because of error about type instantiation being excessively deep
-// and possibly infinite
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-provide(MapInjectionKey, mapRef as Ref<MapLibreMap | null>);
-// @ts-check
+onUnmounted(() => {
+  if (!mapRef.value) return;
+  mapRef.value.remove();
+  mapRef.value = null;
+});
+
+const markers = new Map<string, Marker>();
+function createOrUpdateMarker({
+  id,
+  lng,
+  lat,
+  ...markerOptions
+}: AddMarkerArgs) {
+  // remove old marker if it exists
+  const oldMarker = markers.get(id);
+  if (oldMarker) {
+    oldMarker.remove();
+    markers.delete(id);
+  }
+
+  // create a new marker and add to the map
+  const marker = new Marker(markerOptions).setLngLat([lng, lat]);
+
+  // and also the markers Map (data structure)
+  markers.set(id, marker);
+
+  // add to the map if it exists
+  const map = mapRef.value;
+  if (map) {
+    // some ugly type casting to avoid error about infinite recursion
+    marker.addTo(map as unknown as MapLibreMap);
+  }
+
+  return marker;
+}
+
+function initMarkers() {
+  const map = mapRef.value;
+  if (!map) return;
+
+  console.log("init markers", markers);
+  markers.forEach((marker) => {
+    // some ugly type casting to avoid error about infinite recursion
+    marker.addTo(map as unknown as MapLibreMap);
+  });
+}
+
+watch(mapRef, initMarkers);
+
+function removeMarker(markerId: string) {
+  const marker = markers.get(markerId);
+  if (!marker) return;
+
+  marker.remove();
+  markers.delete(markerId);
+}
+
+provide<MapContext>(MapInjectionKey, {
+  createOrUpdateMarker,
+  removeMarker,
+});
 </script>
 
 <style scoped>

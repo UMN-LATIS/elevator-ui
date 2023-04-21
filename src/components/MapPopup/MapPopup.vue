@@ -12,10 +12,17 @@ const popupContainerRef = ref<HTMLElement | null>(null);
 const markerContext = inject<MarkerContext>(MarkerInjectionKey);
 
 onMounted(() => {
-  if (!markerContext) return;
-  const removePopup = markerContext.addPopup(popupContainerRef);
+  if (!markerContext) {
+    throw new Error("Cannot add popup. Marker context is null");
+  }
+  markerContext.createPopup(popupContainerRef);
+});
 
-  onUnmounted(removePopup);
+onUnmounted(() => {
+  if (!markerContext) {
+    throw new Error("Cannot remove popup. Marker context is null");
+  }
+  markerContext.removePopup();
 });
 </script>
 

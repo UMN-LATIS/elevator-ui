@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import type { Marker, Popup } from "maplibre-gl";
+import type { Marker, MarkerOptions, Popup } from "maplibre-gl";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 export * from "./TimelineJSTypes";
 
@@ -535,8 +535,18 @@ export interface TabsContext {
 
 // must be a member of the SEARCH_RESULTS_VIEWS array
 export type SearchResultsView = typeof SEARCH_RESULTS_VIEWS[number];
-
-type RemovePopupHandler = () => void;
 export interface MarkerContext {
-  addPopup: (containerRef: Ref<HTMLElement | null>) => RemovePopupHandler;
+  createPopup: (containerRef: Ref<HTMLElement | null>) => Popup;
+  removePopup: () => void;
+}
+
+export interface AddMarkerArgs extends MarkerOptions {
+  id: string;
+  lng: number;
+  lat: number;
+}
+
+export interface MapContext {
+  createOrUpdateMarker: (args: AddMarkerArgs) => Marker;
+  removeMarker: (markerId: string) => void;
 }

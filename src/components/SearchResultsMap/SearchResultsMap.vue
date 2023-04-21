@@ -10,6 +10,7 @@
     >
       <MapMarker
         v-for="marker in markers"
+        :id="marker.id"
         :key="marker.id"
         :lng="marker.lng"
         :lat="marker.lat"

@@ -3,10 +3,11 @@
 // see: https://github.com/maplibre/maplibre-gl-js/issues/977
 
 import { InjectionKey, type Ref } from "vue";
-import { Map as MapLibreMap, Marker } from "maplibre-gl";
+import { Map as MapLibreMap } from "maplibre-gl";
+import { MarkerContext } from "@/types";
 
 export const MapInjectionKey: InjectionKey<Ref<MapLibreMap | null>> =
   Symbol("MapLibreGLMap");
 
-export const MarkerInjectionKey: InjectionKey<Ref<Marker | null>> =
+export const MarkerInjectionKey: InjectionKey<MarkerContext> =
   Symbol("MapLibreGLMarker");
