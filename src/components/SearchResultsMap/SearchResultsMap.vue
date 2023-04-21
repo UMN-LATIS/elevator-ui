@@ -20,13 +20,13 @@
             v-if="marker.imgSrc"
             :src="marker.imgSrc"
             :alt="marker.title"
-            class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden"
+            class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden border"
           />
-          <h1>{{ marker.title }}</h1>
+          <h1 class="my-2">{{ marker.title }}</h1>
 
           <dl
             v-if="marker.entries"
-            class="inline-flex items-baseline gap-x-4 sm:gap-y-2 flex-wrap m-0"
+            class="inline-flex items-baseline flex-wrap m-0"
           >
             <div
               v-for="(entry, index) in marker.entries"
