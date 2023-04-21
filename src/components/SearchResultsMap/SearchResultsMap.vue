@@ -71,10 +71,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
-import Map from "@/components/Map/Map.vue";
-import MapMarker from "@/components/MapMarker/MapMarker.vue";
-import MapPopup from "@/components/MapPopup/MapPopup.vue";
+import { computed, defineAsyncComponent } from "vue";
 import {
   BoundingBox,
   FetchStatus,
@@ -91,6 +88,14 @@ import { getCenterOfBoundingBox } from "../Map/getCenterOfBoundingBox";
 import Button from "@/components/Button/Button.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import Link from "@/components/Link/Link.vue";
+
+const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
+const MapMarker = defineAsyncComponent(
+  () => import("@/components/MapMarker/MapMarker.vue")
+);
+const MapPopup = defineAsyncComponent(
+  () => import("@/components/MapPopup/MapPopup.vue")
+);
 
 const props = defineProps<{
   totalResults?: number;
