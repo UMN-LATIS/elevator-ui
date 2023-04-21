@@ -4,7 +4,7 @@
       <button
         v-for="(style, key) in mapStyles"
         :key="key"
-        class="text-sm p-1"
+        class="text-sm"
         :class="{
           'font-bold': key === activeMapStyleKey,
           'text-neutral-400': key !== activeMapStyleKey,
@@ -57,14 +57,20 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 
-const props = defineProps<{
-  center: LngLat;
-  bounds: BoundingBox;
-  zoom: number;
-  apiKey: string;
-  esriSourceUrl?: string;
-  labelsClass?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    center: LngLat;
+    bounds: BoundingBox;
+    zoom: number;
+    apiKey: string;
+    labelsClass?: string;
+    mapStyle?: keyof typeof mapStyles;
+  }>(),
+  {
+    mapStyle: "light",
+    labelsClass: "",
+  }
+);
 
 const emit = defineEmits<{
   (eventName: "click", mapMouseEvent: MapMouseEvent, mapboxMap: MapLibreMap);
@@ -78,16 +84,6 @@ const isLoaded = ref(false);
 
 // see: https://developers.arcgis.com/documentation/mapping-apis-and-services/maps/services/basemap-layer-service/#default-styles
 const mapStyles = {
-  streets: {
-    label: "Street",
-    name: "ArcGIS:Navigation",
-    type: "style",
-  },
-  satellite: {
-    label: "Satellite",
-    name: "ArcGIS:Imagery",
-    type: "style",
-  },
   light: {
     label: "Light",
     name: "ArcGIS:LightGray",
@@ -98,9 +94,19 @@ const mapStyles = {
     name: "ArcGIS:DarkGray",
     type: "style",
   },
+  satellite: {
+    label: "Satellite",
+    name: "ArcGIS:Imagery",
+    type: "style",
+  },
+  streets: {
+    label: "Street",
+    name: "ArcGIS:Navigation",
+    type: "style",
+  },
 };
 
-const activeMapStyleKey = ref<keyof typeof mapStyles>("streets");
+const activeMapStyleKey = ref<keyof typeof mapStyles>(props.mapStyle);
 
 // map source and layer ids as constants (to help catch typos)
 const MARKERS_SOURCE_ID = "markers";
