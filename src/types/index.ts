@@ -536,7 +536,7 @@ export interface TabsContext {
 // must be a member of the SEARCH_RESULTS_VIEWS array
 export type SearchResultsView = typeof SEARCH_RESULTS_VIEWS[number];
 export interface MarkerContext {
-  createPopup: (containerRef: Ref<HTMLElement | null>) => Popup;
+  createPopup: (containerRef: Ref<HTMLElement | null>) => void;
   removePopup: () => void;
 }
 
@@ -550,4 +550,8 @@ export interface AddMarkerArgs {
 export interface MapContext {
   createOrUpdateMarker: (args: AddMarkerArgs) => GeoJSON.Feature;
   removeMarker: (markerId: string) => void;
+  setMarkerPopupContainer: (
+    markerId: string,
+    popupContainerRef: Ref<HTMLElement | null>
+  ) => void;
 }

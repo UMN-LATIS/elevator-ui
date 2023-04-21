@@ -21,11 +21,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, provide, onMounted, onUnmounted, reactive } from "vue";
+import {
+  ref,
+  watch,
+  provide,
+  onMounted,
+  onUnmounted,
+  reactive,
+  type Ref,
+} from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   Map as MapLibreMap,
+  Popup,
   MapMouseEvent,
   GeoJSONSource,
   FullscreenControl,
@@ -118,6 +127,14 @@ function removeMarker(markerId: string) {
   renderMarkers();
 }
 
+const markerPopupContainerRefs = new Map<string, Ref<HTMLElement | null>>();
+function setMarkerPopupContainer(
+  markerId: string,
+  popupContainerRef: Ref<HTMLElement | null>
+) {
+  markerPopupContainerRefs.set(markerId, popupContainerRef);
+}
+
 function renderMarkers() {
   const map = mapRef.value;
   if (!map) return;
@@ -165,7 +182,7 @@ onMounted(() => {
 
       emit("click", event, mapRef.value as unknown as MapLibreMap);
     })
-    .on("click", "clusters", function (e) {
+    .on("click", CLUSTER_LAYER_ID, function (e) {
       // when a cluster is clicked, zoom in to it
       // to show the markers inside
       if (!mapRef.value) {
@@ -191,6 +208,56 @@ onMounted(() => {
           zoom,
         });
       });
+    })
+    .on("click", UNCLUSTERED_LAYER_ID, function (e: MapMouseEvent) {
+      if (!mapRef.value) {
+        throw new Error(
+          "there was a click on the map, but no map. How is that even possible?"
+        );
+      }
+
+      // eslint-disable-next-line
+      // @ts-ignore - deep nested type conplaints
+      const map = mapRef.value as MapLibreMap;
+
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [UNCLUSTERED_LAYER_ID],
+      }) as GeoJSON.Feature<GeoJSON.Point>[];
+      const point = features[0];
+
+      const coordinates = point.geometry.coordinates.slice();
+
+      // Ensure that if the map is zoomed out such that
+      // multiple copies of the feature are visible, the
+      // popup appears over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      const markerId = point.properties?.id as string;
+      const popupContainer = markerPopupContainerRefs.get(markerId)?.value;
+
+      if (!popupContainer) {
+        console.error(`no popup container for marker ${markerId}`);
+        return;
+      }
+
+      new Popup()
+        .setLngLat(coordinates as [number, number])
+        .setDOMContent(popupContainer)
+        .addTo(map);
+    })
+    .on("mouseenter", CLUSTER_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "pointer";
+    })
+    .on("mouseleave", CLUSTER_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "";
+    })
+    .on("mouseenter", UNCLUSTERED_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "pointer";
+    })
+    .on("mouseleave", UNCLUSTERED_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "";
     })
     .on("styledata", () => {
       // add the source and layers for the markers and clusters
@@ -308,6 +375,7 @@ onUnmounted(() => {
 provide<MapContext>(MapInjectionKey, {
   createOrUpdateMarker,
   removeMarker,
+  setMarkerPopupContainer,
 });
 </script>
 
