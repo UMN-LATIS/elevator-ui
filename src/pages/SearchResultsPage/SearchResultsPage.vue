@@ -61,6 +61,7 @@
         </Tab>
         <Tab id="map" label="Map">
           <SearchResultsMap
+            v-if="searchStore.isReady"
             :totalResults="searchStore.totalResults"
             :matches="searchStore.matches"
             :status="searchStore.status"
