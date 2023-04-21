@@ -200,6 +200,7 @@ onMounted(() => {
     center: props.center ? [props.center.lng, props.center.lat] : [0, 0],
     style: getArcGISUrl(activeMapStyleKey.value),
     zoom: props.zoom,
+    bounds: props.bounds,
   })
     .addControl(
       new FullscreenControl({
