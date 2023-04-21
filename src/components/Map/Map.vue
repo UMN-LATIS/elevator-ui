@@ -67,6 +67,12 @@ const mapStyles = {
 
 const activeMapStyleKey = ref<keyof typeof mapStyles>("streets");
 
+// map source and layer ids as constants (to help catch typos)
+const MARKERS_SOURCE_ID = "markers";
+const UNCLUSTERED_LAYER_ID = "unclustered-points";
+const CLUSTER_LAYER_ID = "clusters";
+const CLUSTER_COUNT_LAYER_ID = "cluster-count";
+
 const getArcGISUrl = (styleKey: string) => {
   const baseUrl = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles`;
   const { name, type, url } = mapStyles[styleKey];
@@ -159,6 +165,33 @@ onMounted(() => {
 
       emit("click", event, mapRef.value as unknown as MapLibreMap);
     })
+    .on("click", "clusters", function (e) {
+      // when a cluster is clicked, zoom in to it
+      // to show the markers inside
+      if (!mapRef.value) {
+        throw new Error(
+          "there was a click on the map, but no map. How is that even possible?"
+        );
+      }
+      const map = mapRef.value;
+
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [CLUSTER_LAYER_ID],
+      }) as GeoJSON.Feature<GeoJSON.Point>[];
+
+      const clusterId = features[0].properties?.cluster_id;
+      const source = map.getSource(MARKERS_SOURCE_ID) as GeoJSONSource;
+      source?.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err || zoom === null) return;
+
+        const center = features[0].geometry?.coordinates as [number, number];
+
+        map.easeTo({
+          center,
+          zoom,
+        });
+      });
+    })
     .on("styledata", () => {
       // add the source and layers for the markers and clusters
       // do this here instead of in the `load` event because the style
@@ -168,12 +201,6 @@ onMounted(() => {
       }
 
       const map = mapRef.value;
-
-      // ids as constants to help catch typos
-      const MARKERS_SOURCE_ID = "markers";
-      const UNCLUSTERED_LAYER_ID = "unclustered-points";
-      const CLUSTER_LAYER_ID = "clusters";
-      const CLUSTER_COUNT_LAYER_ID = "cluster-count";
 
       // Add a new GeoJSON source with clustering enabled
       if (!map.getSource(MARKERS_SOURCE_ID)) {
