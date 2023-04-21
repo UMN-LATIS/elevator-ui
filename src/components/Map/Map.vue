@@ -1,6 +1,6 @@
 <template>
   <div class="maplibre-map">
-    <div class="flex gap-4 justify-end items-center">
+    <div class="flex gap-4 sm:justify-end items-center" :class="labelsClass">
       <button
         v-for="(style, key) in mapStyles"
         :key="key"
@@ -63,6 +63,7 @@ const props = defineProps<{
   zoom: number;
   apiKey: string;
   esriSourceUrl?: string;
+  labelsClass?: string;
 }>();
 
 const emit = defineEmits<{
@@ -75,6 +76,7 @@ const mapRef = ref<MapLibreMap | null>(null);
 const markers = reactive(new Map<string, GeoJSON.Feature>());
 const isLoaded = ref(false);
 
+// see: https://developers.arcgis.com/documentation/mapping-apis-and-services/maps/services/basemap-layer-service/#default-styles
 const mapStyles = {
   streets: {
     label: "Street",
@@ -84,6 +86,16 @@ const mapStyles = {
   satellite: {
     label: "Satellite",
     name: "ArcGIS:Imagery",
+    type: "style",
+  },
+  light: {
+    label: "Light",
+    name: "ArcGIS:LightGray",
+    type: "style",
+  },
+  dark: {
+    label: "Dark",
+    name: "ArcGIS:DarkGray",
     type: "style",
   },
 };
