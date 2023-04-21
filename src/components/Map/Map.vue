@@ -167,6 +167,14 @@ function setMarkerPopupContainer(
   markerPopupContainerRefs.set(markerId, popupContainerRef);
 }
 
+function removeMarkerPopup(markerId: string) {
+  const popupContainerRef = markerPopupContainerRefs.get(markerId);
+  if (popupContainerRef?.value) {
+    popupContainerRef.value.innerHTML = "";
+  }
+  markerPopupContainerRefs.delete(markerId);
+}
+
 function renderMarkers() {
   const map = mapRef.value;
   if (!map) return;
@@ -407,6 +415,7 @@ provide<MapContext>(MapInjectionKey, {
   createOrUpdateMarker,
   removeMarker,
   setMarkerPopupContainer,
+  removeMarkerPopup,
 });
 </script>
 

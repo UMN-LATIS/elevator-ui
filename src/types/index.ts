@@ -554,4 +554,5 @@ export interface MapContext {
     markerId: string,
     popupContainerRef: Ref<HTMLElement | null>
   ) => void;
+  removeMarkerPopup: (markerId: string) => void;
 }

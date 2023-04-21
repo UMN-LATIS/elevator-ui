@@ -52,7 +52,13 @@ function createPopup(popupContainerRef: Ref<HTMLElement | null>) {
 }
 
 function removePopup() {
-  // TODO: implement
+  if (!mapContext) {
+    throw new Error(
+      `Cannot remove popup for marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
+    );
+  }
+
+  mapContext.removeMarkerPopup(props.id);
 }
 
 provide<MarkerContext>(MarkerInjectionKey, {
