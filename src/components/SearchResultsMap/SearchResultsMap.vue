@@ -20,11 +20,11 @@
     <Map
       v-if="markers.length > 0"
       :zoom="10"
-      mapStyle="streets"
+      mapStyle="light"
       :apiKey="config.arcgis.apiKey"
       :bounds="boundingBox"
       :center="center"
-      class="-sm:mt-8"
+      class="sm:-mt-8"
     >
       <MapMarker
         v-for="marker in markers"
