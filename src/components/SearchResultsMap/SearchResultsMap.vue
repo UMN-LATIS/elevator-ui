@@ -24,6 +24,7 @@
       :apiKey="config.arcgis.apiKey"
       :bounds="boundingBox"
       :center="center"
+      class="-mt-9"
     >
       <MapMarker
         v-for="marker in markers"
