@@ -16,7 +16,19 @@
       </button>
     </div>
     <div ref="mapContainerRef" class="map-container" />
-    <slot />
+    <div class="hidden">
+      <!--
+        hide any components (like popups) within the <Map>
+        component to keep them from rendering on the page.
+
+        For example, if a <MapMarker> has a <Popup> child,
+        the <Popup> will be rendered here if it's not opened.
+        which will cause it to appear on the page.
+
+        `hidden` class will prevent this from happening.
+      -->
+      <slot />
+    </div>
   </div>
 </template>
 
