@@ -162,79 +162,104 @@ onMounted(() => {
 
       emit("click", event, mapRef.value as unknown as MapLibreMap);
     })
+    .on("styledata", () => {
+      // add the source and layers for the markers and clusters
+      // do this here instead of in the `load` event because the style
+      // may change after the map is loaded
+      if (!mapRef.value) {
+        throw new Error("cannot emit styledata event: no map");
+      }
+
+      const map = mapRef.value;
+
+      // ids as constants to help catch typos
+      const MARKERS_SOURCE_ID = "markers";
+      const UNCLUSTERED_LAYER_ID = "unclustered-points";
+      const CLUSTER_LAYER_ID = "clusters";
+      const CLUSTER_COUNT_LAYER_ID = "cluster-count";
+
+      // Add a new GeoJSON source with clustering enabled
+      if (!map.getSource(MARKERS_SOURCE_ID)) {
+        map.addSource(MARKERS_SOURCE_ID, {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: Array.from(markers.values()),
+          },
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50,
+        });
+      }
+
+      // Add a layer for clustered points
+      if (!map.getLayer(CLUSTER_LAYER_ID)) {
+        map.addLayer({
+          id: CLUSTER_LAYER_ID,
+          type: "circle",
+          source: MARKERS_SOURCE_ID,
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              "#51bbd6",
+              10,
+              "#f1f075",
+              100,
+              "#f28cb1",
+            ],
+            "circle-radius": [
+              "step",
+              ["get", "point_count"],
+              20,
+              100,
+              30,
+              750,
+              40,
+            ],
+          },
+        });
+      }
+
+      // add layer for cluster count text
+      if (!map.getLayer(CLUSTER_COUNT_LAYER_ID)) {
+        map.addLayer({
+          id: CLUSTER_COUNT_LAYER_ID,
+          type: "symbol",
+          source: MARKERS_SOURCE_ID,
+          layout: {
+            "text-font": ["Arial Bold"],
+            "text-field": ["get", "point_count"],
+            "text-offset": [0, 0.1], // move the label vertically downwards slightly to improve centering
+          },
+          paint: {
+            "text-color": "black",
+          },
+        });
+      }
+
+      // Add a layer for individual points
+      if (!map.getLayer(UNCLUSTERED_LAYER_ID)) {
+        map.addLayer({
+          id: UNCLUSTERED_LAYER_ID,
+          type: "circle",
+          source: "markers",
+          filter: ["!", ["has", "point_count"]],
+          paint: {
+            "circle-color": "#f43f5e",
+            "circle-radius": 10,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#fff",
+          },
+        });
+      }
+    })
     .on("load", () => {
       if (!mapRef.value) {
         throw new Error("cannot emit load event: no map");
       }
       emit("load", mapRef.value as unknown as MapLibreMap);
-
-      // Add a new GeoJSON source with clustering enabled
-      mapRef.value.addSource("markers", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: Array.from(markers.values()),
-        },
-        cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 50,
-      });
-
-      // Add a layer for clustered points
-      mapRef.value.addLayer({
-        id: "clusters",
-        type: "circle",
-        source: "markers",
-        filter: ["has", "point_count"],
-        paint: {
-          "circle-color": [
-            "step",
-            ["get", "point_count"],
-            "#51bbd6",
-            10,
-            "#f1f075",
-            100,
-            "#f28cb1",
-          ],
-          "circle-radius": [
-            "step",
-            ["get", "point_count"],
-            20,
-            100,
-            30,
-            750,
-            40,
-          ],
-        },
-      });
-
-      mapRef.value.addLayer({
-        id: "cluster-count",
-        type: "symbol",
-        source: "markers",
-        layout: {
-          "text-font": ["Arial Bold"],
-          "text-field": ["get", "point_count"],
-          "text-offset": [0, 0.1], // move the label vertically downwards slightly to improve centering
-        },
-        paint: {
-          "text-color": "black",
-        },
-      });
-
-      // Add a layer for individual points
-      mapRef.value.addLayer({
-        id: "unclustered-point",
-        type: "circle",
-        source: "markers",
-        filter: ["!", ["has", "point_count"]],
-        paint: {
-          "circle-color": "#f43f5e",
-          "circle-radius": 10,
-          "circle-stroke-width": 1,
-          "circle-stroke-color": "#fff",
-        },
-      });
     });
 
   // added to avoid ts warning about deep nesting
