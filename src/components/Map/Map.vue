@@ -1,14 +1,13 @@
 <template>
   <div class="maplibre-map">
-    <div class="flex gap-4 justify-end items-center my-2">
+    <div class="flex gap-4 justify-end items-center">
       <button
         v-for="(style, key) in mapStyles"
         :key="key"
-        class="text-sm uppercase"
+        class="text-sm p-1"
         :class="{
-          'font-bold border-b-2 border-b-neutral-900':
-            key === activeMapStyleKey,
-          'text-neutral-500': key !== activeMapStyleKey,
+          'font-bold': key === activeMapStyleKey,
+          'text-neutral-400': key !== activeMapStyleKey,
         }"
         @click="activeMapStyleKey = key"
       >
@@ -16,6 +15,7 @@
       </button>
     </div>
     <div ref="mapContainerRef" class="map-container" />
+    <Skeleton v-if="!isLoaded" class="w-full h-[75vh]" />
     <div class="hidden">
       <!--
         hide any components (like popups) within the <Map>
@@ -55,6 +55,7 @@ import {
 } from "maplibre-gl";
 import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
+import Skeleton from "../Skeleton/Skeleton.vue";
 
 const props = defineProps<{
   center: LngLat;
@@ -72,6 +73,7 @@ const emit = defineEmits<{
 const mapContainerRef = ref<HTMLDivElement | null>(null);
 const mapRef = ref<MapLibreMap | null>(null);
 const markers = reactive(new Map<string, GeoJSON.Feature>());
+const isLoaded = ref(false);
 
 const mapStyles = {
   streets: {
@@ -364,6 +366,7 @@ onMounted(() => {
       if (!mapRef.value) {
         throw new Error("cannot emit load event: no map");
       }
+      isLoaded.value = true;
       emit("load", mapRef.value as unknown as MapLibreMap);
     });
 
@@ -396,7 +399,7 @@ provide<MapContext>(MapInjectionKey, {
 .map-container {
   width: 100%;
   height: 100%;
-  min-height: 50vh;
+  min-height: 75vh;
   background: #ddd;
 }
 </style>
