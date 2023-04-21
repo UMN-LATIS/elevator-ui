@@ -242,6 +242,8 @@ onMounted(() => {
               750,
               40,
             ],
+            "circle-stroke-width": 2,
+            "circle-stroke-color": "#fff",
           },
         });
       }
