@@ -265,7 +265,8 @@ export default {
 
   async getSearchResultsById(
     searchId: string,
-    page = 0
+    page = 0,
+    loadAll = false
   ): Promise<SearchResultsResponse> {
     // check the cache first
     const searchMap = paginatedSearchResults.get(searchId);
@@ -274,7 +275,7 @@ export default {
     }
 
     const res = await axios.get<SearchResultsResponse>(
-      `${BASE_URL}/search/searchResults/${searchId}/${page}/false`
+      `${BASE_URL}/search/searchResults/${searchId}/${page}/${loadAll}`
     );
 
     const searchResults = res.data;
