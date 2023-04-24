@@ -25,8 +25,15 @@
           :total="searchStore.totalResults ?? 0"
           :status="searchStore.status"
           class="mb-2"
-          @loadMore="() => searchStore.loadMore()"
-        />
+          @loadMore="() => searchStore.loadMore({ loadAll: true })"
+        >
+          <template #loadMoreButtonLabel>
+            {{
+              // if we have 1000+ results, then we can't load all at once
+              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
+            }}
+          </template>
+        </ResultsCount>
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
             :totalResults="searchStore.totalResults"

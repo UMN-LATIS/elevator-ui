@@ -9,7 +9,7 @@
         variant="tertiary"
         @click="$emit('loadMore')"
       >
-        Load More
+        <slot name="loadMoreButtonLabel">Load More</slot>
         <SpinnerIcon
           v-show="status === 'fetching'"
           class="w-3 h-3 text-blue-600 ml-1"

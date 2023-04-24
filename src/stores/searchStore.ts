@@ -59,7 +59,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.status.value = "error";
     }
   },
-  async loadMore() {
+  async loadMore({ loadAll } = { loadAll: false }) {
     if (!state.searchId.value) {
       throw new Error(
         "No search id found. Did you forget to call search() or searchById() first?"
@@ -77,7 +77,8 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.currentPage.value = prevPage + 1;
       const res = await api.getSearchResultsById(
         state.searchId.value,
-        state.currentPage.value
+        state.currentPage.value,
+        loadAll
       );
       state.matches.value.push(...res.matches);
       state.searchEntry.value = res.searchEntry;
