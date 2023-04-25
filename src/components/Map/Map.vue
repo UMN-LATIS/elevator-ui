@@ -56,6 +56,7 @@ import {
 import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
+import { Point } from "geojson";
 
 const props = withDefaults(
   defineProps<{
@@ -134,9 +135,44 @@ function updateBounds() {
   mapRef.value.fitBounds(props.bounds, { padding: 64 });
 }
 
+function getOtherMarkersWithSameCoords({
+  id,
+  lng,
+  lat,
+}: {
+  id: string;
+  lng: number;
+  lat: number;
+}) {
+  const allMarkers = Array.from(markers.values()) as GeoJSON.Feature<Point>[];
+
+  // Since coords can be slightly different
+  // yet still overlap on the map, we check
+  // check that the difference between this coord
+  // and a given marker is below a certain threshold
+  // to determine if they are in the "same" spot.
+  return allMarkers.filter((marker) => {
+    if (marker.properties?.id === id) return false;
+
+    const lngDiff = Math.abs(marker.geometry.coordinates[0] - lng);
+    const latDiff = Math.abs(marker.geometry.coordinates[1] - lat);
+
+    return lngDiff < 0.0001 && latDiff < 0.0001;
+  });
+}
+
 function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
-  // Create a new GeoJSON feature
-  const newFeature: GeoJSON.Feature = {
+  const otherMarkersWithSameCoords = getOtherMarkersWithSameCoords({
+    id,
+    lng,
+    lat,
+  });
+
+  // add an offset if there are other coords in the same spot
+  const offset = otherMarkersWithSameCoords.length ? [0.0001, 0] : [0, 0];
+
+  // Create a new GeoJSON feature for this point
+  const newFeature: GeoJSON.Feature<Point> & { properties } = {
     type: "Feature",
     geometry: {
       type: "Point",
@@ -145,6 +181,7 @@ function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
     properties: {
       ...properties,
       id,
+      offset,
     },
   };
 
@@ -175,6 +212,28 @@ function removeMarkerPopup(markerId: string) {
   markerPopupContainerRefs.delete(markerId);
 }
 
+function getFeaturesWithOffset(markersMap: Map<string, GeoJSON.Feature>) {
+  const features = Array.from(markersMap.values()) as GeoJSON.Feature<Point>[];
+
+  // add an offset to the coordinates of the marker if needed
+  // this is to avoid markers with the same coordinates to overlap
+  const featuresWithOffset = features.map((feature) => {
+    if (!feature.properties?.offset) throw new Error("No offset");
+    return {
+      ...feature,
+      geometry: {
+        ...feature.geometry,
+        coordinates: [
+          feature.geometry.coordinates[0] + feature.properties.offset[0],
+          feature.geometry.coordinates[1] + feature.properties.offset[1],
+        ],
+      },
+    };
+  });
+
+  return featuresWithOffset;
+}
+
 function renderMarkers() {
   const map = mapRef.value;
   if (!map) return;
@@ -182,7 +241,7 @@ function renderMarkers() {
   const source = map.getSource("markers") as GeoJSONSource;
   source?.setData({
     type: "FeatureCollection",
-    features: Array.from(markers.values()),
+    features: getFeaturesWithOffset(markers),
   });
 }
 
@@ -316,7 +375,7 @@ onMounted(() => {
           type: "geojson",
           data: {
             type: "FeatureCollection",
-            features: Array.from(markers.values()),
+            features: getFeaturesWithOffset(markers),
           },
           cluster: true,
           clusterMaxZoom: 14,
