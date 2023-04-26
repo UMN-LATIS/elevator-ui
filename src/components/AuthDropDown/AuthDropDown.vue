@@ -1,5 +1,5 @@
 <template>
-  <DropDown :label="menuLabel">
+  <DropDown :label="menuLabel" :showChevron="false">
     <template #label>
       <Avatar v-if="currentUser" :name="currentUser.displayName" />
       <span v-else>Login</span>

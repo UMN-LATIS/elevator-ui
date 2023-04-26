@@ -1,5 +1,5 @@
 <template>
-  <DropDown label="Select Theme">
+  <DropDown label="Select Theme" :showChevron="false">
     <template #label>
       <ThemeIcon />
     </template>
