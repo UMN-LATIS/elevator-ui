@@ -4,67 +4,65 @@
   </div>
 </template>
 <script setup lang="ts">
-import { watch, ref, unref } from "vue";
-import { Marker } from "maplibre-gl";
+import { type Ref, onMounted, onUnmounted } from "vue";
 import { inject, provide } from "vue";
 import { MapInjectionKey, MarkerInjectionKey } from "@/constants/mapConstants";
-import { LngLat } from "@/types";
+import { MapContext, MarkerContext } from "@/types";
 
-interface Props {
+const props = defineProps<{
+  id: string;
   lng: number;
   lat: number;
-  color?: string;
-  draggable?: boolean;
-}
+}>();
 
-const props = withDefaults(defineProps<Props>(), {
-  color: "#f43f5e",
-  draggable: false,
+const mapContext = inject<MapContext>(MapInjectionKey);
+
+onMounted(() => {
+  if (!mapContext) {
+    throw new Error(
+      `Cannot add marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
+    );
+  }
+
+  mapContext.createOrUpdateMarker({
+    id: props.id,
+    lng: props.lng,
+    lat: props.lat,
+  });
 });
 
-interface Emits {
-  (eventName: "drag", coords: LngLat);
+onUnmounted(() => {
+  if (!mapContext) {
+    throw new Error(
+      `Cannot remove marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
+    );
+  }
+
+  mapContext.removeMarker(props.id);
+});
+
+function createPopup(popupContainerRef: Ref<HTMLElement | null>) {
+  if (!mapContext) {
+    throw new Error(
+      `Cannot create popup for marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
+    );
+  }
+
+  mapContext.setMarkerPopupContainer(props.id, popupContainerRef);
 }
-const emit = defineEmits<Emits>();
 
-const mapRef = inject(MapInjectionKey);
-const marker = ref<Marker | null>(null);
+function removePopup() {
+  if (!mapContext) {
+    throw new Error(
+      `Cannot remove popup for marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
+    );
+  }
 
-watch(
-  [mapRef, () => props],
-  () => {
-    const map = unref(mapRef);
+  mapContext.removeMarkerPopup(props.id);
+}
 
-    // if no map yet, nothing to do
-    if (!map) {
-      console.log("Cannot add marker yet. No map.");
-      return;
-    }
-
-    // remove old marker if it exists
-    const oldMarker = unref(marker);
-    if (oldMarker) oldMarker.remove();
-
-    marker.value = new Marker({
-      color: props.color,
-      draggable: props.draggable,
-    })
-      .setLngLat([props.lng, props.lat])
-      .addTo(map)
-      .on("dragend", () => {
-        const lngLat = marker.value?.getLngLat();
-        if (!lngLat) return;
-        emit("drag", {
-          lng: lngLat.lng,
-          lat: lngLat.lat,
-        });
-      });
-  },
-  { immediate: true }
-);
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-provide(MarkerInjectionKey, marker);
-// @ts-check
+provide<MarkerContext>(MarkerInjectionKey, {
+  createPopup,
+  removePopup,
+});
 </script>

@@ -59,17 +59,33 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+        <Tab id="map" label="Map">
+          <SearchResultsMap
+            v-if="searchStore.isReady"
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
         <ResultsCount
           v-if="
-            searchStore.resultsView !== 'timeline' &&
+            ['grid', 'list'].includes(searchStore.resultsView) &&
             (searchStore.totalResults ?? 0) > 6
           "
           :showingCount="searchStore.matches.length"
           :total="searchStore.totalResults ?? 0"
           :status="searchStore.status"
           class="mt-4"
-          @loadMore="() => searchStore.loadMore()"
-        />
+          @loadMore="() => searchStore.loadMore({ loadAll: true })"
+        >
+          <template #loadMoreButtonLabel>
+            {{
+              // if we have 1000+ results, then we can't load all at once
+              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
+            }}
+          </template>
+        </ResultsCount>
       </Tabs>
     </div>
   </DefaultLayout>
@@ -85,6 +101,7 @@ import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
+import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";

@@ -8,4 +8,11 @@ export const UMN_LNGLAT: LngLat = {
 
 export const TabsInjectionKey = Symbol("Tabs") as InjectionKey<string>;
 
-export const SEARCH_RESULTS_VIEWS = ["grid", "list", "timeline"] as const;
+// this is a constant so that we can use it in SearchResultsPage
+// and the searchStore
+export const SEARCH_RESULTS_VIEWS = [
+  "grid",
+  "list",
+  "timeline",
+  "map",
+] as const;

@@ -1,3 +1,5 @@
+import type { Ref } from "vue";
+import type { MarkerOptions, Popup } from "maplibre-gl";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 export * from "./TimelineJSTypes";
 
@@ -205,11 +207,22 @@ export interface DateWidgetContent extends WidgetContent {
   range?: boolean;
 }
 
-export type Coordinates = [number, number];
+export type Coordinates = [
+  number, //lng
+  number //lat
+];
+
+export interface LocationEntry {
+  loc: {
+    type: string;
+    coordinates: Coordinates;
+  };
+  [key: string]: unknown;
+}
 
 export interface LocationObject {
   label?: string;
-  entries?: unknown[];
+  entries?: LocationEntry[];
   type?: string;
   coordinates?: Coordinates;
 }
@@ -522,3 +535,24 @@ export interface TabsContext {
 
 // must be a member of the SEARCH_RESULTS_VIEWS array
 export type SearchResultsView = typeof SEARCH_RESULTS_VIEWS[number];
+export interface MarkerContext {
+  createPopup: (containerRef: Ref<HTMLElement | null>) => void;
+  removePopup: () => void;
+}
+
+export interface AddMarkerArgs {
+  id: string;
+  lng: number;
+  lat: number;
+  [key: string]: unknown; // other properties
+}
+
+export interface MapContext {
+  createOrUpdateMarker: (args: AddMarkerArgs) => GeoJSON.Feature;
+  removeMarker: (markerId: string) => void;
+  setMarkerPopupContainer: (
+    markerId: string,
+    popupContainerRef: Ref<HTMLElement | null>
+  ) => void;
+  removeMarkerPopup: (markerId: string) => void;
+}
