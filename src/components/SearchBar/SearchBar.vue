@@ -14,9 +14,9 @@
       >
         <template #prepend>
           <SearchIcon
-            class="h-5 w-5 text-neutral-400"
+            class="h-5 w-5 text-transparent-black-500"
             :class="{
-              'text-neutral-600': searchInputHasFocus,
+              'text-transparent-black-800': searchInputHasFocus,
             }"
             aria-hidden="true"
           />
@@ -26,13 +26,17 @@
             <button
               v-if="searchStore.query.length"
               type="button"
-              class="text-neutral-400 hover:text-neutral-900"
+              class="text-transparent-black-500 hover:text-neutral-900"
               @click="handleClearSearchInput"
             >
-              <CircleXIcon />
+              <CircleXIcon class="" />
             </button>
 
-            <KeyboardShortcut class="hidden sm:block"> ⌘K </KeyboardShortcut>
+            <KeyboardShortcut
+              class="hidden sm:block text-transparent-black-500 border-transparent-black-500"
+            >
+              ⌘K
+            </KeyboardShortcut>
           </div>
         </template>
       </InputGroup>
