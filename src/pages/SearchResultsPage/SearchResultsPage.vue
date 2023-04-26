@@ -68,6 +68,15 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+        <Tab id="gallery" label="Gallery">
+          <SearchResultsGallery
+            v-if="searchStore.isReady"
+            :totalResults="searchStore.totalResults"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
         <ResultsCount
           v-if="
             ['grid', 'list'].includes(searchStore.resultsView) &&
@@ -102,9 +111,10 @@ import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
+import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
+import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
-import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 
 const props = withDefaults(
   defineProps<{
