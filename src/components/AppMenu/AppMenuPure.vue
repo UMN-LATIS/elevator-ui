@@ -1,10 +1,10 @@
 <template>
   <nav
-    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 sm:pb-4 p-4 h-full relative"
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:px-8 sm:py-4 p-4 h-full relative"
   >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header
-      class="app-menu__header flex mt-4 py-4 justify-between items-center"
+      class="app-menu__header flex mt-4 pt-6 pb-2 justify-between items-center"
     >
       <Link to="/">
         <h1 class="md:text-xl text-lg font-bold">
