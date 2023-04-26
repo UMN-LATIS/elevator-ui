@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
-import { useRoute } from "vue-router";
+import { useRoute, onBeforeRouteLeave } from "vue-router";
 import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
@@ -70,6 +70,12 @@ watch([() => props.assetId, () => route.params?.assetId], onAssetIdChange, {
 
 watch([() => props.objectId, () => route.hash], async () => {
   await assetStore.setActiveObject(objectId.value);
+});
+
+onBeforeRouteLeave(() => {
+  // clear the active asset so that the next page (e.g. Home Page)
+  // doesn't show editing controls for this asset
+  assetStore.setActiveAsset(null);
 });
 </script>
 <style scoped></style>

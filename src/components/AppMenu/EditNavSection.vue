@@ -3,14 +3,16 @@
     <AppMenuItem :href="`${BASE_URL}/assetManager/addAssetModal`">
       Add Asset
     </AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
-      Edit Asset
-    </AppMenuItem>
-    <AppMenuItem @click="handleDeleteAssetClick"> Delete Asset </AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/assetManager/restoreAsset/${assetId}`">
-      Restore Asset
-    </AppMenuItem>
-    <Divider />
+    <template v-if="assetId">
+      <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
+        Edit Asset
+      </AppMenuItem>
+      <AppMenuItem @click="handleDeleteAssetClick"> Delete Asset </AppMenuItem>
+      <AppMenuItem :href="`${BASE_URL}/assetManager/restoreAsset/${assetId}`">
+        Restore Asset
+      </AppMenuItem>
+      <Divider />
+    </template>
     <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
       All My Assets
     </AppMenuItem>
@@ -29,10 +31,14 @@ const BASE_URL = config.instance.base.url;
 const props = defineProps<{
   currentUser: User;
   instance: ElevatorInstance;
-  assetId: string;
+  assetId: string | null;
 }>();
 
 async function handleDeleteAssetClick() {
+  if (!props.assetId) {
+    throw new Error(`assetId is null. Cannot delete asset.`);
+  }
+
   if (
     !confirm("Are you sure you want to delete this asset and all derivatives")
   ) {
