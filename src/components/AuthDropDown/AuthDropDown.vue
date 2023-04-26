@@ -1,10 +1,16 @@
 <template>
-  <DropDown :label="menuLabel">
+  <DropDown :label="menuLabel" :showChevron="false">
     <template #label>
       <Avatar v-if="currentUser" :name="currentUser.displayName" />
       <span v-else>Login</span>
     </template>
     <template v-if="currentUser">
+      <div
+        class="p-4 border-b border-neutral-300 text-xs flex items-center gap-1"
+      >
+        <span class="text-neutral-400"> Signed in as </span>
+        <b class="font-normal">{{ currentUser.displayName }}</b>
+      </div>
       <DropDownItem
         v-if="currentUser.id"
         :href="`${config.instance.base.url}/permissions/editUser/${currentUser.id}`"

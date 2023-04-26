@@ -1,28 +1,29 @@
 <template>
   <nav
-    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-full relative"
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:px-8 sm:py-4 p-4 h-full relative"
   >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
-    <header class="app-menu__header flex mt-4 py-4">
+    <header
+      class="app-menu__header flex mt-4 pt-6 pb-2 justify-between items-center"
+    >
       <Link to="/">
-        <h1 class="md:text-2xl text-lg font-bold">
+        <h1 class="md:text-xl text-lg font-bold">
           {{ instance.name }}
         </h1>
       </Link>
+      <div class="flex items-center">
+        <ThemeSelector
+          v-show="config.instance.theming.enabled"
+          :defaultTheme="config.instance.theming.defaultTheme"
+        />
+      </div>
     </header>
     <div
       class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto"
     >
       <slot />
     </div>
-    <AppMenuAuthSection
-      :instance="instance"
-      :currentUser="currentUser"
-      class="app-menu__auth-section py-4"
-    />
-    <footer
-      class="app-menu__footer py-4 sm:flex flex-col items-center text-sm hidden"
-    >
+    <footer class="app-menu__footer pt-4 flex flex-col items-center text-sm">
       <p>
         Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
       </p>
@@ -37,10 +38,13 @@
 </template>
 <script setup lang="ts">
 import XButton from "@/components/XButton/XButton.vue";
-import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 import Link from "@/components/Link/Link.vue";
 import { ElevatorInstance, User } from "@/types";
 import UMNLogo from "@/icons/UMNLogo.vue";
+import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
+import config from "@/config";
+import AuthDropDown from "@/components/AuthDropDown/AuthDropDown.vue";
+import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 
 defineProps<{
   instance: ElevatorInstance;

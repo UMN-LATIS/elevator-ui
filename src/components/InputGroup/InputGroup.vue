@@ -19,7 +19,7 @@
         :type="type"
         :name="id"
         :value="value"
-        class="block w-full rounded-md border-none focus:ring-indigo-500 focus:ring-offset-2 focus:ring-2 sm:text-sm py-2 bg-transparent-black-100"
+        class="block w-full rounded-md border-none focus:ring-indigo-500 focus:ring-offset-2 focus:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400"
         :class="{
           'pl-10': $slots.prepend,
           'pr-10': $slots.append,

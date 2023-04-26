@@ -10,13 +10,7 @@
       class="flex-1 w-full max-w-lg"
     />
     <div class="flex gap-2 items-center">
-      <ThemeSelector
-        v-show="config.instance.theming.enabled"
-        class="hidden sm:block"
-        :defaultTheme="config.instance.theming.defaultTheme"
-      />
       <AuthDropDown
-        class="hidden sm:block mr-2"
         :currentUser="currentUser"
         :instance="instanceStore.instance"
       />
@@ -26,13 +20,11 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import config from "@/config";
 import AppMenuButton from "@/components/AppMenuButton/AppMenuButton.vue";
-import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import SearchBar from "@/components/SearchBar/SearchBar.vue";
 import AppLogoMark from "@/components/AppLogoMark/AppLogoMark.vue";
 import Link from "@/components/Link/Link.vue";
-import AuthDropDown from "./AuthDropDown.vue";
+import AuthDropDown from "@/components/AuthDropDown/AuthDropDown.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const instanceStore = useInstanceStore();

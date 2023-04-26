@@ -7,7 +7,11 @@
         <slot name="label">
           {{ label }}
         </slot>
-        <ChevronDownIcon class="xl:block h-4 w-4 m-1" aria-hidden="true" />
+        <ChevronDownIcon
+          v-if="showChevron"
+          class="xl:block h-4 w-4 m-1"
+          aria-hidden="true"
+        />
       </MenuButton>
     </div>
 
@@ -44,9 +48,11 @@ withDefaults(
   defineProps<{
     label: string;
     alignment?: "left" | "right";
+    showChevron?: boolean;
   }>(),
   {
     alignment: "right",
+    showChevron: true,
   }
 );
 </script>
