@@ -14,7 +14,7 @@
       </AppMenuItem>
 
       <EditNavSection
-        v-if="activeAssetId && currentUser?.canManageAssets"
+        v-if="currentUser?.canManageAssets"
         :currentUser="currentUser"
         :instance="instance"
         :assetId="activeAssetId"
