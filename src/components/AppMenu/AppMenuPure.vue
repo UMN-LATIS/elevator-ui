@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 p-4 h-full relative"
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:p-8 sm:pb-4 p-4 h-full relative"
   >
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header
@@ -16,7 +16,6 @@
           v-show="config.instance.theming.enabled"
           :defaultTheme="config.instance.theming.defaultTheme"
         />
-        <AuthDropDown :currentUser="currentUser" :instance="instance" />
       </div>
     </header>
     <div
@@ -24,7 +23,7 @@
     >
       <slot />
     </div>
-    <footer class="app-menu__footer py-4 flex flex-col items-center text-sm">
+    <footer class="app-menu__footer pt-4 flex flex-col items-center text-sm">
       <p>
         Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
       </p>
@@ -45,6 +44,7 @@ import UMNLogo from "@/icons/UMNLogo.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import config from "@/config";
 import AuthDropDown from "@/components/AuthDropDown/AuthDropDown.vue";
+import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 
 defineProps<{
   instance: ElevatorInstance;
