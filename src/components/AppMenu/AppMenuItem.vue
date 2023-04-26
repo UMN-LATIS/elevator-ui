@@ -2,7 +2,7 @@
   <Link
     :href="href"
     :to="to"
-    class="app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline"
+    class="app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:bg-blue-100 hover:text-neutral-900"
     :class="{
       'is-current-page': isCurrentPage,
     }"
