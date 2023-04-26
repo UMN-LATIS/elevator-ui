@@ -70,15 +70,22 @@
         </Tab>
         <ResultsCount
           v-if="
-            searchStore.resultsView !== 'timeline' &&
+            ['grid', 'list'].includes(searchStore.resultsView) &&
             (searchStore.totalResults ?? 0) > 6
           "
           :showingCount="searchStore.matches.length"
           :total="searchStore.totalResults ?? 0"
           :status="searchStore.status"
           class="mt-4"
-          @loadMore="() => searchStore.loadMore()"
-        />
+          @loadMore="() => searchStore.loadMore({ loadAll: true })"
+        >
+          <template #loadMoreButtonLabel>
+            {{
+              // if we have 1000+ results, then we can't load all at once
+              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
+            }}
+          </template>
+        </ResultsCount>
       </Tabs>
     </div>
   </DefaultLayout>

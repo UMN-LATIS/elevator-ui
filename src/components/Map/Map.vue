@@ -1,6 +1,9 @@
 <template>
   <div class="maplibre-map">
-    <div class="flex gap-4 sm:justify-end items-center" :class="labelsClass">
+    <div
+      class="flex gap-4 sm:justify-end items-center mb-4"
+      :class="labelsClass"
+    >
       <button
         v-for="(style, key) in mapStyles"
         :key="key"
