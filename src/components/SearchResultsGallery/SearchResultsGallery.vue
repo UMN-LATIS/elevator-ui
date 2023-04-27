@@ -1,6 +1,6 @@
 ty
 <template>
-  <div class="search-results-gallery">
+  <div class="search-results-gallery mb-8">
     <h1>Gallery</h1>
 
     <!-- Main Swiper -> pass thumbs swiper instance -->
@@ -31,7 +31,7 @@ ty
     <!-- Thumbs Swiper -> store swiper instance -->
     <!-- It is also required to set watchSlidesProgress prop -->
     <swiper
-      class="thumbs-swiper"
+      class="thumbs-swiper w-full"
       :modules="[Thumbs]"
       :watchSlidesProgress="true"
       :slidesPerView="10"
