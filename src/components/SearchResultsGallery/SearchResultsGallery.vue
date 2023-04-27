@@ -6,11 +6,16 @@ ty
         <ChevronLeftIcon />
         Previous
       </Button>
-      <h2>
-        <Link :to="getAssetUrl(activeSlide.objectId)">
-          {{ activeSlide.title }}
-        </Link>
-      </h2>
+      <div class="flex flex-col items-center justify-center">
+        <span class="text-xs">
+          {{ activeSlideIndex + 1 }} / {{ slides.length }}
+        </span>
+        <h2>
+          <Link :to="getAssetUrl(activeSlide.objectId)">
+            {{ activeSlide.title }}
+          </Link>
+        </h2>
+      </div>
 
       <Button variant="tertiary" @click="mainSwiper.slideNext()">
         Next
