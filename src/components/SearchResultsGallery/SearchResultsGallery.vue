@@ -1,8 +1,6 @@
 ty
 <template>
   <div class="search-results-gallery mb-8">
-    <h1>Gallery</h1>
-
     <!-- Main Swiper -> pass thumbs swiper instance -->
     <Swiper
       class="main-swiper"
@@ -15,22 +13,33 @@ ty
       @swiper="onSwiper"
       @slideChange="onSlideChange"
     >
-      <SwiperSlide v-for="(slide, i) in slides" :key="i">
-        <div class="flex items-center justify-center w-full">
-          <LazyLoadImage
-            v-if="slide.thumb.src"
-            :src="slide.thumb.src"
-            :alt="slide.thumb.alt"
-            class="swiper-lazy"
+      <SwiperSlide
+        v-for="(slide, i) in slides"
+        :key="i"
+        v-slot="{ isActive, isPrev, isNext }"
+      >
+        <div class="w-full h-full border">
+          <h2 class="my-4">
+            <Link :to="getAssetUrl(slide.objectId)">{{ slide.title }}</Link>
+          </h2>
+          <ObjectViewer
+            v-if="slide.primaryHandlerId && (isActive || isPrev || isNext)"
+            class="border w-full h-full"
+            :fileHandlerId="slide.primaryHandlerId"
           />
-          <DocumentIcon v-else />
+          <div
+            v-else
+            class="w-full h-full flex items-center justify-center -mt-12"
+          >
+            <DocumentIcon />
+          </div>
         </div>
       </SwiperSlide>
     </Swiper>
 
     <!-- Thumbs Swiper -> store swiper instance -->
     <!-- It is also required to set watchSlidesProgress prop -->
-    <swiper
+    <Swiper
       class="thumbs-swiper w-full"
       :modules="[Thumbs]"
       :watchSlidesProgress="true"
@@ -51,7 +60,7 @@ ty
           <DocumentIcon v-else />
         </div>
       </SwiperSlide>
-    </swiper>
+    </Swiper>
   </div>
 </template>
 <script setup lang="ts">
@@ -60,13 +69,15 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import { Navigation, Scrollbar, A11y, Thumbs } from "swiper";
 import { SearchResultMatch } from "@/types";
 import DocumentIcon from "@/icons/DocumentIcon.vue";
-import { getThumbURL } from "@/helpers/displayUtils";
+import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
 import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "swiper/css/thumbs";
+import ObjectViewer from "../ObjectViewer/ObjectViewer.vue";
+import Link from "../Link/Link.vue";
 
 const props = defineProps<{
   totalResults: number;
@@ -83,6 +94,8 @@ const thumbsSwiper = ref(null);
 
 interface Slide {
   title: string;
+  objectId: string;
+  primaryHandlerId: string | null;
   thumb: {
     src: string | null;
     alt: string;
@@ -91,6 +104,8 @@ interface Slide {
 const slides = computed((): Slide[] =>
   props.matches.map(
     (match): Slide => ({
+      objectId: match.objectId,
+      primaryHandlerId: match.primaryHandlerId ?? null,
       title: selectTitleFromMatch(match),
       thumb: {
         src: selectThumbSrc(match),
