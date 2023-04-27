@@ -10,7 +10,6 @@ ty
       :slidesPerView="1"
       :spaceBetween="50"
       navigation
-      :pagination="{ clickable: true }"
       :scrollbar="{ draggable: true }"
       :thumbs="{ swiper: thumbsSwiper }"
       @swiper="onSwiper"
@@ -22,7 +21,7 @@ ty
             v-if="slide.thumb.src"
             :src="slide.thumb.src"
             :alt="slide.thumb.alt"
-            class="swiper-lazy h-full"
+            class="swiper-lazy"
           />
           <DocumentIcon v-else />
         </div>
@@ -32,8 +31,9 @@ ty
     <!-- Thumbs Swiper -> store swiper instance -->
     <!-- It is also required to set watchSlidesProgress prop -->
     <swiper
+      class="thumbs-swiper"
       :modules="[Thumbs]"
-      watchSlidesProgress
+      :watchSlidesProgress="true"
       :slidesPerView="10"
       :spaceBetween="4"
       @swiper="setThumbsSwiper"
@@ -57,16 +57,16 @@ ty
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
-import { Navigation, Pagination, Scrollbar, A11y, Thumbs } from "swiper";
+import { Navigation, Scrollbar, A11y, Thumbs } from "swiper";
 import { SearchResultMatch } from "@/types";
 import DocumentIcon from "@/icons/DocumentIcon.vue";
+import { getThumbURL } from "@/helpers/displayUtils";
+import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-import { getThumbURL } from "@/helpers/displayUtils";
-import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
+import "swiper/css/thumbs";
 
 const props = defineProps<{
   totalResults: number;
@@ -78,7 +78,7 @@ defineEmits<{
   (event: "loadMore");
 }>();
 
-const modules = [Navigation, Pagination, Scrollbar, A11y, Thumbs];
+const modules = [Navigation, Scrollbar, A11y, Thumbs];
 const thumbsSwiper = ref(null);
 
 interface Slide {
@@ -124,7 +124,7 @@ const onSlideChange = () => {
   console.log("slide change");
 };
 </script>
-<style>
+<style scoped>
 .main-swiper {
   width: 100%;
   height: 50vh;
@@ -140,6 +140,17 @@ const onSlideChange = () => {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.thumbs-swiper .swiper-slide {
+  width: 25%;
+  height: 100%;
+  opacity: 0.25;
+}
+
+.thumbs-swiper .swiper-slide-thumb-active {
+  opacity: 1;
+  border: 2px solid #0d6efd;
 }
 
 .swiper-slide img {
