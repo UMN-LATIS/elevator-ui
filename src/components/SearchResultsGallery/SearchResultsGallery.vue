@@ -1,16 +1,30 @@
 ty
 <template>
   <div class="search-results-gallery mb-8">
-    <!-- Main Swiper -> pass thumbs swiper instance -->
+    <div v-if="mainSwiper" class="flex items-center justify-between mb-1">
+      <Button variant="tertiary" @click="mainSwiper.slidePrev()">
+        <ChevronLeftIcon />
+        Previous
+      </Button>
+      <h2>
+        <Link :to="getAssetUrl(activeSlide.objectId)">
+          {{ activeSlide.title }}
+        </Link>
+      </h2>
+
+      <Button variant="tertiary" @click="mainSwiper.slideNext()">
+        Next
+        <ChevronRightIcon />
+      </Button>
+    </div>
     <Swiper
       class="main-swiper"
       :modules="modules"
       :slidesPerView="1"
       :spaceBetween="50"
-      navigation
       :scrollbar="{ draggable: true }"
       :thumbs="{ swiper: thumbsSwiper }"
-      @swiper="onSwiper"
+      @swiper="setMainSwiper"
       @slideChange="onSlideChange"
     >
       <SwiperSlide
@@ -19,9 +33,6 @@ ty
         v-slot="{ isActive, isPrev, isNext }"
       >
         <div class="w-full h-full border">
-          <h2 class="my-4">
-            <Link :to="getAssetUrl(slide.objectId)">{{ slide.title }}</Link>
-          </h2>
           <ObjectViewer
             v-if="slide.primaryHandlerId && (isActive || isPrev || isNext)"
             class="border w-full h-full"
@@ -70,7 +81,8 @@ import { Navigation, Scrollbar, A11y, Thumbs } from "swiper";
 import { SearchResultMatch } from "@/types";
 import DocumentIcon from "@/icons/DocumentIcon.vue";
 import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
-import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
+import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
+import Button from "@/components/Button/Button.vue";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -78,6 +90,7 @@ import "swiper/css/scrollbar";
 import "swiper/css/thumbs";
 import ObjectViewer from "../ObjectViewer/ObjectViewer.vue";
 import Link from "../Link/Link.vue";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/icons";
 
 const props = defineProps<{
   totalResults: number;
@@ -91,6 +104,7 @@ defineEmits<{
 
 const modules = [Navigation, Scrollbar, A11y, Thumbs];
 const thumbsSwiper = ref(null);
+const mainSwiper = ref<typeof Swiper | null>(null);
 
 interface Slide {
   title: string;
@@ -114,6 +128,12 @@ const slides = computed((): Slide[] =>
     })
   )
 );
+
+const activeSlide = computed((): Slide => {
+  const activeIndex = mainSwiper.value?.activeIndex ?? 0;
+  return slides.value[activeIndex];
+});
+
 const selectTitleFromMatch = (match: SearchResultMatch) => {
   const noTitleText = "No Title";
   if (Array.isArray(match.title)) {
@@ -128,15 +148,14 @@ const selectThumbSrc = (match: SearchResultMatch) => {
 };
 
 const setThumbsSwiper = (swiper) => {
-  console.log(swiper);
   thumbsSwiper.value = swiper;
 };
 
-const onSwiper = (swiper) => {
-  console.log(swiper);
+const setMainSwiper = (swiper) => {
+  mainSwiper.value = swiper;
 };
-const onSlideChange = () => {
-  console.log("slide change");
+const onSlideChange = (args) => {
+  console.log("slide change", { args });
 };
 </script>
 <style scoped>
