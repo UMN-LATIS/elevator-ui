@@ -30,7 +30,7 @@ ty
       :scrollbar="{ draggable: true }"
       :thumbs="{ swiper: thumbsSwiper }"
       @swiper="setMainSwiper"
-      @slideChange="onSlideChange"
+      @slideChange="onMainSlideChange"
     >
       <SwiperSlide
         v-for="(slide, i) in slides"
@@ -111,6 +111,9 @@ const modules = [Navigation, Scrollbar, A11y, Thumbs];
 const thumbsSwiper = ref(null);
 const mainSwiper = ref<typeof Swiper | null>(null);
 
+// this is taked from the main swiper on updated on slide change
+const activeSlideIndex = ref(0);
+
 interface Slide {
   title: string;
   objectId: string;
@@ -135,8 +138,7 @@ const slides = computed((): Slide[] =>
 );
 
 const activeSlide = computed((): Slide => {
-  const activeIndex = mainSwiper.value?.activeIndex ?? 0;
-  return slides.value[activeIndex];
+  return slides.value[activeSlideIndex.value];
 });
 
 const selectTitleFromMatch = (match: SearchResultMatch) => {
@@ -159,11 +161,11 @@ const setThumbsSwiper = (swiper) => {
 const setMainSwiper = (swiper) => {
   mainSwiper.value = swiper;
 };
-const onSlideChange = (args) => {
-  console.log("slide change", { args });
+const onMainSlideChange = (args) => {
+  activeSlideIndex.value = args.activeIndex;
 };
 </script>
-<style scoped>
+<style>
 .main-swiper {
   width: 100%;
   height: 50vh;
