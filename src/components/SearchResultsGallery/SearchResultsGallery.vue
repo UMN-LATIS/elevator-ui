@@ -60,6 +60,7 @@ ty
       :modules="[Thumbs]"
       :watchSlidesProgress="true"
       :slidesPerView="10"
+      :centeredSlides="true"
       :spaceBetween="4"
       @swiper="setThumbsSwiper"
     >
@@ -82,6 +83,7 @@ ty
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
+import { type Swiper as SwiperType } from "swiper";
 import { Navigation, Scrollbar, A11y, Thumbs } from "swiper";
 import { SearchResultMatch } from "@/types";
 import DocumentIcon from "@/icons/DocumentIcon.vue";
@@ -108,8 +110,8 @@ defineEmits<{
 }>();
 
 const modules = [Navigation, Scrollbar, A11y, Thumbs];
-const thumbsSwiper = ref(null);
-const mainSwiper = ref<typeof Swiper | null>(null);
+const thumbsSwiper = ref<SwiperType | null>(null);
+const mainSwiper = ref<SwiperType | null>(null);
 
 // this is taked from the main swiper on updated on slide change
 const activeSlideIndex = ref(0);
@@ -154,7 +156,7 @@ const selectThumbSrc = (match: SearchResultMatch) => {
   return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
 };
 
-const setThumbsSwiper = (swiper) => {
+const setThumbsSwiper = (swiper: SwiperType) => {
   thumbsSwiper.value = swiper;
 };
 
@@ -163,6 +165,9 @@ const setMainSwiper = (swiper) => {
 };
 const onMainSlideChange = (args) => {
   activeSlideIndex.value = args.activeIndex;
+  // center the active slide in the thumbs swiper
+  if (!thumbsSwiper.value) return;
+  thumbsSwiper.value.slideTo(args.activeIndex);
 };
 </script>
 <style>
@@ -189,7 +194,7 @@ const onMainSlideChange = (args) => {
   opacity: 0.25;
 }
 
-.thumbs-swiper .swiper-slide-thumb-active {
+.thumbs-swiper .swiper-slide-active {
   opacity: 1;
   border: 2px solid #0d6efd;
 }

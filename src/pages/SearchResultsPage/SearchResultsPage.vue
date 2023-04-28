@@ -71,7 +71,7 @@
         <Tab id="gallery" label="Gallery">
           <SearchResultsGallery
             v-if="searchStore.isReady"
-            :totalResults="searchStore.totalResults"
+            :totalResults="searchStore.totalResults ?? Infinity"
             :matches="searchStore.matches"
             :status="searchStore.status"
             @loadMore="() => searchStore.loadMore()"
