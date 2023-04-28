@@ -1,4 +1,3 @@
-ty
 <template>
   <div class="search-results-gallery mb-8">
     <div v-if="mainSwiper" class="flex items-center justify-between mb-1">
@@ -11,7 +10,10 @@ ty
           {{ activeSlideIndex + 1 }} / {{ slides.length }}
         </span>
         <h2>
-          <Link :to="getAssetUrl(activeSlide.objectId)">
+          <Link
+            v-if="activeSlide.objectId"
+            :to="getAssetUrl(activeSlide.objectId)"
+          >
             {{ activeSlide.title }}
           </Link>
         </h2>
@@ -71,7 +73,7 @@ ty
           <LazyLoadImage
             v-if="slide.thumb.src"
             :src="slide.thumb.src"
-            :alt="slide.thumb.alt"
+            :alt="slide.thumb.alt ?? 'Loading...'"
             class="swiper-lazy object-cover w-full h-full"
           />
           <DocumentIcon v-else />
@@ -81,23 +83,23 @@ ty
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { type Swiper as SwiperType } from "swiper";
 import { Navigation, Scrollbar, A11y, Thumbs } from "swiper";
 import { SearchResultMatch } from "@/types";
 import DocumentIcon from "@/icons/DocumentIcon.vue";
-import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
+import { getAssetUrl } from "@/helpers/displayUtils";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
 import Button from "@/components/Button/Button.vue";
-
+import ObjectViewer from "../ObjectViewer/ObjectViewer.vue";
+import Link from "../Link/Link.vue";
+import { ChevronLeftIcon, ChevronRightIcon } from "@/icons";
+import { useSlidesForMatches, type Slide } from "./useSlidesForMatches";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "swiper/css/thumbs";
-import ObjectViewer from "../ObjectViewer/ObjectViewer.vue";
-import Link from "../Link/Link.vue";
-import { ChevronLeftIcon, ChevronRightIcon } from "@/icons";
 
 const props = defineProps<{
   totalResults: number;
@@ -116,45 +118,11 @@ const mainSwiper = ref<SwiperType | null>(null);
 // this is taked from the main swiper on updated on slide change
 const activeSlideIndex = ref(0);
 
-interface Slide {
-  title: string;
-  objectId: string;
-  primaryHandlerId: string | null;
-  thumb: {
-    src: string | null;
-    alt: string;
-  };
-}
-const slides = computed((): Slide[] =>
-  props.matches.map(
-    (match): Slide => ({
-      objectId: match.objectId,
-      primaryHandlerId: match.primaryHandlerId ?? null,
-      title: selectTitleFromMatch(match),
-      thumb: {
-        src: selectThumbSrc(match),
-        alt: selectTitleFromMatch(match),
-      },
-    })
-  )
-);
+let slides = useSlidesForMatches(props.matches);
 
 const activeSlide = computed((): Slide => {
-  return slides.value[activeSlideIndex.value];
+  return slides[activeSlideIndex.value];
 });
-
-const selectTitleFromMatch = (match: SearchResultMatch) => {
-  const noTitleText = "No Title";
-  if (Array.isArray(match.title)) {
-    return match.title?.[0] ?? noTitleText;
-  }
-  return match.title ?? noTitleText;
-};
-
-const selectThumbSrc = (match: SearchResultMatch) => {
-  const { primaryHandlerId } = match;
-  return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
-};
 
 const setThumbsSwiper = (swiper: SwiperType) => {
   thumbsSwiper.value = swiper;
@@ -169,6 +137,13 @@ const onMainSlideChange = (args) => {
   if (!thumbsSwiper.value) return;
   thumbsSwiper.value.slideTo(args.activeIndex);
 };
+
+watch(
+  () => props.matches,
+  () => {
+    slides = useSlidesForMatches(props.matches);
+  }
+);
 </script>
 <style>
 .main-swiper {

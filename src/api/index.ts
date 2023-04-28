@@ -10,6 +10,7 @@ import {
   ApiInstanceNavResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
+  RelatedAssetCacheItemWithId,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -131,7 +132,7 @@ async function fetchStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   return res.data;
 }
 
-export default {
+const api = {
   async getAsset(assetId: string): Promise<Asset | null> {
     if (!assetId) return null;
 
@@ -140,6 +141,31 @@ export default {
     assets.set(assetId, asset);
 
     return asset;
+  },
+
+  /**
+   * gets any related objects for a given asset
+   * for example, an asset may have several images associated with
+   * it. This would return those related images.
+   */
+  async getAssetChildren(
+    assetId: string
+  ): Promise<RelatedAssetCacheItemWithId[]> {
+    const asset = await api.getAsset(assetId);
+
+    if (!asset || !asset.relatedAssetCache) {
+      return [];
+    }
+
+    return Object.entries(asset.relatedAssetCache).reduce(
+      (acc, [id, maybeRelatedAsset]) => {
+        if (!maybeRelatedAsset) {
+          return acc;
+        }
+        return [...acc, { ...maybeRelatedAsset, id }];
+      },
+      [] as RelatedAssetCacheItemWithId[]
+    );
   },
   async getAssetWithTemplate(
     assetId: string | null
@@ -314,3 +340,5 @@ export default {
     return res.data;
   },
 };
+
+export default api;
