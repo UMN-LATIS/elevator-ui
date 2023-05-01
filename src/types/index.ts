@@ -371,6 +371,16 @@ export interface RelatedAssetCacheItem {
   relatedAssetTitle: string[];
 }
 
+export interface ChildOrRelatedAsset {
+  id: string;
+  title: string;
+  objectId?: string;
+  thumb: {
+    src: string;
+    alt: string;
+  };
+}
+
 export interface RelatedAssetCacheItemWithId extends RelatedAssetCacheItem {
   id: string;
 }
