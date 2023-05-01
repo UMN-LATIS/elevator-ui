@@ -31,6 +31,10 @@ const routesForTesting: RouteRecordRaw[] = [
       objectId: route.hash?.substring(1),
     }),
   },
+  {
+    path: "/test/slides",
+    component: () => import("@/pages/TestPages/SlidesTestPage.vue"),
+  },
 ];
 
 const router = createRouter({
