@@ -66,6 +66,8 @@
       :scrollbar="{ draggable: true, dragSize: 32 }"
       :spaceBetween="4"
       @swiper="setThumbsSwiper"
+      @touchEnd="onThumbSlideChange"
+      @scrollbarDragEnd="onThumbSlideChange"
     >
       <SwiperSlide v-for="(slide, i) in slides" :key="slide.id">
         <div
@@ -151,11 +153,17 @@ const setThumbsSwiper = (swiper: SwiperType) => {
 const setMainSwiper = (swiper) => {
   mainSwiper.value = swiper;
 };
-const onMainSlideChange = (args) => {
-  activeSlideIndex.value = args.activeIndex;
+
+const onMainSlideChange = (mainSwiper: SwiperType) => {
+  activeSlideIndex.value = mainSwiper.activeIndex;
   // center the active slide in the thumbs swiper
   if (!thumbsSwiper.value) return;
-  thumbsSwiper.value.slideTo(args.activeIndex);
+  thumbsSwiper.value.slideTo(mainSwiper.activeIndex);
+};
+
+const onThumbSlideChange = (thumbsSwiper: SwiperType) => {
+  activeSlideIndex.value = thumbsSwiper.activeIndex;
+  mainSwiper.value?.slideTo(thumbsSwiper.activeIndex);
 };
 
 watch(
