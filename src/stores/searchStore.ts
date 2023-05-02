@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import api from "@/api";
-import { ref, computed } from "vue";
+import { ref, computed, type Ref } from "vue";
 
 import {
   FetchStatus,
@@ -9,7 +9,20 @@ import {
   SearchResultsView,
 } from "@/types";
 
-const createState = () => ({
+export interface SearchStoreState {
+  searchId: Ref<string | undefined>;
+  status: Ref<FetchStatus>;
+  query: Ref<string>;
+  matches: Ref<SearchResultMatch[]>;
+  totalResults: Ref<number | undefined>;
+  currentPage: Ref<number>;
+  searchEntry: Ref<SearchEntry | null>;
+  resultsView: Ref<SearchResultsView>;
+  beforeNewSearchHandlers: (() => void)[];
+  afterNewSearchHandlers: ((state: SearchStoreState) => void)[];
+}
+
+const createState = (): SearchStoreState => ({
   searchId: ref<string | undefined>(undefined),
   status: ref<FetchStatus>("idle"),
   query: ref(""),
@@ -18,9 +31,11 @@ const createState = () => ({
   currentPage: ref(0),
   searchEntry: ref<SearchEntry | null>(null),
   resultsView: ref<SearchResultsView>("grid"),
+  beforeNewSearchHandlers: [] as (() => void)[],
+  afterNewSearchHandlers: [] as ((state: SearchStoreState) => void)[],
 });
 
-const getters = (state: ReturnType<typeof createState>) => ({
+const getters = (state: SearchStoreState) => ({
   isReady: computed(() => state.status.value === "success"),
   hasMoreResults: computed(() => {
     return state.matches.value.length < (state.totalResults.value ?? 0);
@@ -32,8 +47,11 @@ const getters = (state: ReturnType<typeof createState>) => ({
   }),
 });
 
-const actions = (state: ReturnType<typeof createState>) => ({
-  async search(): Promise<string | void> {
+const actions = (state: SearchStoreState) => ({
+  async search(searchId?: string): Promise<string | void> {
+    // call all registered before handlers
+    state.beforeNewSearchHandlers.forEach((fn) => fn());
+
     // clear old search results
     state.status.value = "fetching";
     state.searchId.value = undefined;
@@ -41,23 +59,61 @@ const actions = (state: ReturnType<typeof createState>) => ({
     state.totalResults.value = undefined;
     state.currentPage.value = 0;
     state.searchEntry.value = null;
+
     try {
       // first get the id of the search for this query
-      state.searchId.value = await api.getSearchId(state.query.value);
+      // if it's passed, use that
+      state.searchId.value = searchId
+        ? searchId
+        : await api.getSearchId(state.query.value).catch((err) => {
+            throw new Error(
+              `Cannot getSearchId for query: ${state.query}: ${err}`
+            );
+          });
 
-      // then use the id to get the actual results
-      actions(state).searchById(state.searchId.value);
-      return state.searchId.value;
+      // async (don't await) get search results and update store
+      // so that we can return the search id so they can redirect
+      // if needed
+      api
+        .getSearchResultsById(state.searchId.value)
+        .then((res) => {
+          state.searchEntry.value = res.searchEntry;
+          state.totalResults.value = res.totalResults;
+          state.matches.value = res.matches;
+          state.status.value = "success";
+
+          // call all registered after handlers
+          state.afterNewSearchHandlers.forEach((fn) => fn(state));
+        })
+        .catch((err) => {
+          throw new Error(
+            `Cannot getSearchResultsById for search id: ${state.searchId}: ${err}`
+          );
+        });
     } catch (error) {
       console.error(error);
       state.status.value = "error";
+
+      // call all registered after handlers even if error
+      state.afterNewSearchHandlers.forEach((fn) => fn(state));
     }
+
+    return state.searchId.value;
   },
+
+  // register a callback to be called when a new search is started
+  onBeforeNewSearch(fn: () => void) {
+    state.beforeNewSearchHandlers.push(fn);
+  },
+
+  // register a callback to be called when a new search is completed
+  onAfterNewSearch(fn: (state: SearchStoreState) => void) {
+    state.afterNewSearchHandlers.push(fn);
+  },
+
   async loadMore({ loadAll } = { loadAll: false }) {
     if (!state.searchId.value) {
-      throw new Error(
-        "No search id found. Did you forget to call search() or searchById() first?"
-      );
+      throw new Error("No search id found. Cannot load more.");
     }
 
     if (!getters(state).hasMoreResults.value) {
@@ -82,23 +138,6 @@ const actions = (state: ReturnType<typeof createState>) => ({
       // rollback page if error
       state.currentPage.value = prevPage;
       console.error(error);
-    }
-  },
-  async searchById(id: string) {
-    state.currentPage.value = 0;
-    state.searchId.value = id;
-    state.status.value = "fetching";
-
-    try {
-      const res = await api.getSearchResultsById(id);
-
-      state.searchEntry.value = res.searchEntry;
-      state.totalResults.value = res.totalResults;
-      state.matches.value = res.matches;
-      state.status.value = "success";
-    } catch (error) {
-      console.error(error);
-      state.status.value = "error";
     }
   },
   setResultsView(view: SearchResultsView) {
