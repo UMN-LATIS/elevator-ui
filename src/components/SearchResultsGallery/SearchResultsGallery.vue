@@ -35,8 +35,8 @@
       @slideChange="onMainSlideChange"
     >
       <SwiperSlide
-        v-for="(slide, i) in slides"
-        :key="i"
+        v-for="slide in slides"
+        :key="slide.id"
         v-slot="{ isActive, isPrev, isNext }"
       >
         <div class="w-full h-full border">
@@ -66,10 +66,15 @@
       :spaceBetween="4"
       @swiper="setThumbsSwiper"
     >
-      <SwiperSlide v-for="(slide, i) in slides" :key="i">
+      <SwiperSlide v-for="(slide, i) in slides" :key="slide.id">
         <div
-          class="border border-neutral-400 aspect-video flex items-center justify-center w-full"
+          class="border border-neutral-400 aspect-video flex items-center justify-center w-full relative"
         >
+          <div
+            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-transparent-white-800 text-neutral-900"
+          >
+            {{ i + 1 }}
+          </div>
           <LazyLoadImage
             v-if="slide.thumb.src"
             :src="slide.thumb.src"
