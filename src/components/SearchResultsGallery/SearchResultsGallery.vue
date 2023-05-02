@@ -129,7 +129,7 @@ const props = defineProps<{
   status: string;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (event: "loadMore");
 }>();
 
@@ -166,6 +166,19 @@ watch(
     slides = useSlidesForMatches(props.matches);
   }
 );
+
+watch(activeSlideIndex, () => {
+  console.log("activeSlideIndex", activeSlideIndex.value);
+  if (!mainSwiper.value) return;
+
+  const hasMoreResults = props.matches.length < props.totalResults;
+  const closeToEnd = activeSlideIndex.value >= slides.length - 10;
+
+  if (hasMoreResults && closeToEnd) {
+    console.log("emitting loadMore");
+    emit("loadMore");
+  }
+});
 </script>
 <style>
 .main-swiper {
