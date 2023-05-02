@@ -122,6 +122,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/scrollbar";
 import "swiper/css/thumbs";
+import { difference } from "ramda";
 
 const props = defineProps<{
   totalResults: number;
@@ -136,12 +137,9 @@ const emit = defineEmits<{
 const modules = [Navigation, Scrollbar, A11y, Thumbs];
 const thumbsSwiper = ref<SwiperType | null>(null);
 const mainSwiper = ref<SwiperType | null>(null);
-
-// this is taked from the main swiper on updated on slide change
-const activeSlideIndex = ref(0);
-
 const { slides, createSlidesForMatch } = useSlidesForMatches([]);
 
+const activeSlideIndex = ref(0);
 const activeSlide = computed((): Slide => {
   return slides[activeSlideIndex.value];
 });
@@ -161,10 +159,15 @@ const onMainSlideChange = (args) => {
 };
 
 watch(
-  () => props.matches,
+  // we do this spread biznez so that oldMatches and newMatches are not the
+  // same reference. ...props.matches makes a shallow copy of the contents,
+  // while the oldMatches is a reference to the previous value of props.matches
+  () => [...(props.matches ?? [])],
   (newMatches, oldMatches) => {
+    console.log("watch matches", { newMatches, oldMatches });
     if (!newMatches) return;
-    newMatches.forEach(createSlidesForMatch);
+    const matchesDiff = difference(newMatches, oldMatches ?? []);
+    matchesDiff.forEach(createSlidesForMatch);
   },
   { deep: true, immediate: true }
 );
