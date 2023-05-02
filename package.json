@@ -24,6 +24,7 @@
     "@knight-lab/timelinejs": "^3.9.2",
     "@mdx-js/react": "^2.1.3",
     "@storybook/client-api": "^6.5.12",
+    "@vueuse/components": "^10.1.2",
     "@vueuse/core": "^9.3.0",
     "autolink-js": "^1.0.2",
     "axios": "^0.27.2",
