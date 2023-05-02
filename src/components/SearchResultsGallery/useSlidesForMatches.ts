@@ -178,9 +178,13 @@ async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
   ];
 }
 
-export function useSlidesForMatches(matches: SearchResultMatch[]): Slide[] {
+export function useSlidesForMatches(matches: SearchResultMatch[]): {
+  slides: Slide[];
+  createSlidesForMatch: (match: SearchResultMatch) => void;
+} {
   const slides = reactive<Array<Slide>>([]);
-  matches.forEach((match) => {
+
+  function createSlidesForMatch(match: SearchResultMatch) {
     const slide = matchToSlide(match);
 
     // add the parent slide to the slides array
@@ -202,8 +206,11 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): Slide[] {
         slides[indexOfPlaceholder] = childSlide;
       });
     });
+  }
+
+  matches.forEach((match) => {
+    createSlidesForMatch(match);
   });
 
-  // returns data in slide format for each search result
-  return slides;
+  return { slides, createSlidesForMatch };
 }

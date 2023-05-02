@@ -30,12 +30,6 @@ const getters = (state: ReturnType<typeof createState>) => ({
     // convert to numbers, as the api returns strings
     return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
   }),
-  matches: computed(() => state.matches.value),
-  status: computed(() => state.status.value),
-  searchId: computed(() => state.searchId.value),
-  totalResults: computed(() => state.totalResults.value),
-  currentPage: computed(() => state.currentPage.value),
-  searchEntry: computed(() => state.searchEntry.value),
 });
 
 const actions = (state: ReturnType<typeof createState>) => ({

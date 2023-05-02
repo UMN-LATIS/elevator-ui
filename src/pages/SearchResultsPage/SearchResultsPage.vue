@@ -70,7 +70,6 @@
         </Tab>
         <Tab id="gallery" label="Gallery">
           <SearchResultsGallery
-            v-if="searchStore.isReady"
             :totalResults="searchStore.totalResults ?? Infinity"
             :matches="searchStore.matches"
             :status="searchStore.status"

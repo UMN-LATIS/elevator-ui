@@ -125,7 +125,7 @@ import "swiper/css/thumbs";
 
 const props = defineProps<{
   totalResults: number;
-  matches: SearchResultMatch[];
+  matches: SearchResultMatch[] | null;
   status: string;
 }>();
 
@@ -140,7 +140,7 @@ const mainSwiper = ref<SwiperType | null>(null);
 // this is taked from the main swiper on updated on slide change
 const activeSlideIndex = ref(0);
 
-let slides = useSlidesForMatches(props.matches);
+const { slides, createSlidesForMatch } = useSlidesForMatches([]);
 
 const activeSlide = computed((): Slide => {
   return slides[activeSlideIndex.value];
@@ -162,20 +162,23 @@ const onMainSlideChange = (args) => {
 
 watch(
   () => props.matches,
-  () => {
-    slides = useSlidesForMatches(props.matches);
-  }
+  (newMatches, oldMatches) => {
+    if (!newMatches) return;
+    newMatches.forEach(createSlidesForMatch);
+  },
+  { deep: true, immediate: true }
 );
 
 watch(activeSlideIndex, () => {
-  console.log("activeSlideIndex", activeSlideIndex.value);
-  if (!mainSwiper.value) return;
+  if (!props.matches) return;
 
+  if (props.status === "fetching") return;
+
+  // if there are more results to load, emit a load more event
   const hasMoreResults = props.matches.length < props.totalResults;
   const closeToEnd = activeSlideIndex.value >= slides.length - 10;
 
   if (hasMoreResults && closeToEnd) {
-    console.log("emitting loadMore");
     emit("loadMore");
   }
 });
