@@ -2,7 +2,6 @@ import { SearchResultMatch, RelatedAssetCacheItemWithId, Asset } from "@/types";
 import { reactive } from "vue";
 import { getThumbURL, getAssetTitle } from "@/helpers/displayUtils";
 import api from "@/api";
-import { selectValuesOfPropFromObj } from "@/helpers/selectValuesOfPropFromObj";
 
 export interface Slide {
   id: string;
@@ -20,8 +19,6 @@ export interface Slide {
   parentTitle?: string;
   totalChildren?: number;
 }
-
-const slides = reactive<Array<Slide>>([]);
 
 const selectTitleFromMatch = (match: SearchResultMatch) => {
   const noTitleText = "No Title";
@@ -182,6 +179,7 @@ async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
 }
 
 export function useSlidesForMatches(matches: SearchResultMatch[]): Slide[] {
+  const slides = reactive<Array<Slide>>([]);
   matches.forEach((match) => {
     const slide = matchToSlide(match);
 
@@ -196,7 +194,6 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): Slide[] {
     // now, we queue up a featch for child slide data
     // which we'll use to replace the placeholder slides
     fetchChildSlides(match.objectId).then((childSlides) => {
-      console.log({ childSlides });
       childSlides.forEach((childSlide, index) => {
         const { id: placeholderSlideId } = placeholdersForChildren[index];
         const indexOfPlaceholder = slides.findIndex(
