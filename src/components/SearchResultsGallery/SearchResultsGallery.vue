@@ -54,6 +54,7 @@
         :slidesPerView="1"
         :spaceBetween="50"
         :thumbs="{ swiper: thumbsSwiper }"
+        :keyboard="{ enabled: true, onlyInViewport: false }"
         @swiper="setMainSwiper"
         @slideChange="onMainSlideChange"
       >
@@ -162,7 +163,7 @@
 import { ref, computed, watch } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { type Swiper as SwiperType } from "swiper";
-import { Navigation, Scrollbar, A11y, Thumbs } from "swiper";
+import { Navigation, Scrollbar, A11y, Thumbs, Keyboard } from "swiper";
 import { SearchResultMatch } from "@/types";
 import DocumentIcon from "@/icons/DocumentIcon.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
@@ -194,7 +195,7 @@ const emit = defineEmits<{
   (event: "loadMore");
 }>();
 
-const modules = [Navigation, Scrollbar, A11y, Thumbs];
+const modules = [Navigation, Scrollbar, A11y, Thumbs, Keyboard];
 const thumbsSwiper = ref<SwiperType | null>(null);
 const mainSwiper = ref<SwiperType | null>(null);
 const { slides, createSlidesForMatch } = useSlidesForMatches([]);
