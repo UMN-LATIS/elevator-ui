@@ -2,13 +2,10 @@
   <div class="search-results-gallery mb-8">
     <div v-if="mainSwiper" class="flex items-center justify-between mb-1">
       <Button variant="tertiary" @click="mainSwiper.slidePrev()">
-        <ChevronLeftIcon />
+        <ChevronLeftIcon class="w-5" />
         Previous
       </Button>
-      <div class="flex flex-col items-center justify-center">
-        <span class="text-xs">
-          {{ activeSlideIndex + 1 }} / {{ slides.length }}
-        </span>
+      <div class="flex flex-col items-center justify-center flex-1">
         <h2>
           <Link
             v-if="activeSlide.objectId"
@@ -19,7 +16,11 @@
         </h2>
       </div>
 
-      <Button variant="tertiary" @click="mainSwiper.slideNext()">
+      <Button
+        variant="tertiary"
+        class="!m-0 !-mr-2"
+        @click="mainSwiper.slideNext()"
+      >
         Next
         <ChevronRightIcon />
       </Button>
@@ -29,7 +30,6 @@
       :modules="modules"
       :slidesPerView="1"
       :spaceBetween="50"
-      :scrollbar="{ draggable: true }"
       :thumbs="{ swiper: thumbsSwiper }"
       @swiper="setMainSwiper"
       @slideChange="onMainSlideChange"
@@ -59,10 +59,11 @@
     <!-- It is also required to set watchSlidesProgress prop -->
     <Swiper
       class="thumbs-swiper w-full"
-      :modules="[Thumbs]"
+      :modules="[Thumbs, Scrollbar]"
       :watchSlidesProgress="true"
       :slidesPerView="10"
       :centeredSlides="true"
+      :scrollbar="{ draggable: true, dragSize: 32 }"
       :spaceBetween="4"
       @swiper="setThumbsSwiper"
     >
@@ -71,6 +72,7 @@
           class="border border-neutral-400 aspect-video flex items-center justify-center w-full relative"
         >
           <div
+            v-if="i !== activeSlideIndex"
             class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-transparent-white-800 text-neutral-900"
           >
             {{ i + 1 }}
@@ -85,6 +87,21 @@
         </div>
       </SwiperSlide>
     </Swiper>
+
+    <div v-if="mainSwiper" class="flex items-center justify-center mb-1">
+      <Button variant="tertiary" class="!m-0" @click="mainSwiper.slidePrev()">
+        <ChevronLeftIcon />
+      </Button>
+      <div
+        class="flex flex-col items-center justify-center text-xs text-center px-4 py-2"
+      >
+        {{ activeSlideIndex + 1 }} / {{ slides.length }}
+      </div>
+
+      <Button variant="tertiary" class="!m-0" @click="mainSwiper.slideNext()">
+        <ChevronRightIcon />
+      </Button>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -153,7 +170,7 @@ watch(
 <style>
 .main-swiper {
   width: 100%;
-  height: 50vh;
+  height: 66vh;
 }
 
 .swiper-slide {
@@ -166,6 +183,13 @@ watch(
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.thumbs-swiper {
+  --swiper-scrollbar-size: 0.5rem;
+  --swiper-scrollbar-bottom: -0rem;
+  --swiper-scrollbar-bg-color: rgba(0, 0, 0, 0.1);
+  --swiper-scrollbar-drag-bg-color: rgba(0, 0, 0, 0.5);
 }
 
 .thumbs-swiper .swiper-slide {
