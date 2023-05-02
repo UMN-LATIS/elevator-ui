@@ -50,7 +50,8 @@ function createPlaceholderSlidesForChildren(match: SearchResultMatch): Slide[] {
 
   if (!fileAssets) return placeholders;
 
-  for (let i = 0; i < fileAssets; i++) {
+  const childFileCount = fileAssets - 1; // subtract 1 for the primary file
+  for (let i = 0; i < childFileCount; i++) {
     const placeholder: Slide = {
       id: `${objectId}-placeholder-${i}`,
       objectId: undefined,
@@ -65,7 +66,7 @@ function createPlaceholderSlidesForChildren(match: SearchResultMatch): Slide[] {
       parentObjectId: objectId,
       parentTitle: selectTitleFromMatch(match),
       childIndex: i,
-      totalChildren: fileAssets,
+      totalChildren: childFileCount,
     };
     placeholders.push(placeholder);
   }
@@ -141,15 +142,12 @@ function selectFileObjectsWithinAsset(asset: Asset): ChildFileObject[] {
 }
 
 function selectRelatedAssets(asset: Asset): RelatedAssetCacheItemWithId[] {
-  const relatedAssetWithId: RelatedAssetCacheItemWithId[] = [];
-
-  if (!asset.relatedAssets) return relatedAssetWithId;
-
-  for (const [id, relatedAsset] of Object.entries(asset.relatedAssets)) {
-    relatedAssetWithId.push({ ...relatedAsset, id });
-  }
-
-  return relatedAssetWithId;
+  return Object.entries(asset?.relatedAssets ?? {}).map(
+    ([id, relatedAsset]) => ({
+      ...relatedAsset,
+      id,
+    })
+  );
 }
 
 async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
@@ -160,7 +158,7 @@ async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
   }
 
   const filesWithinAsset = selectFileObjectsWithinAsset(asset);
-  const relatedAssets = selectRelatedAssets(asset);
+  const relatedAssetsWithId = selectRelatedAssets(asset);
 
   const childFilesWithParentInfo = filesWithinAsset
     // filter out the primary file -- only children allows
@@ -174,7 +172,7 @@ async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
 
   return [
     ...childFilesWithParentInfo.map(convertFileToSlide),
-    ...relatedAssets.map(convertRelatedAssetToSlide),
+    ...relatedAssetsWithId.map(convertRelatedAssetToSlide),
   ];
 }
 
@@ -200,6 +198,12 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
     fetchChildSlides(match.objectId).then((childSlides) => {
       placeholdersForChildren.forEach((placeholder, index) => {
         const childSlide = childSlides[index];
+        if (!childSlide) {
+          throw new Error(
+            "Child slide not found, cannot replace placeholder. There may be a mismatch between the number of placeholders and the number of child slides."
+          );
+        }
+
         const indexOfPlaceholder = slides.findIndex(
           (slide) => slide.id === placeholder.id
         );
