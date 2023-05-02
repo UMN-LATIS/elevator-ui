@@ -169,7 +169,7 @@ watch(
     const matchesDiff = difference(newMatches, oldMatches ?? []);
     matchesDiff.forEach(createSlidesForMatch);
   },
-  { deep: true, immediate: true }
+  { immediate: true }
 );
 
 watch(activeSlideIndex, () => {
