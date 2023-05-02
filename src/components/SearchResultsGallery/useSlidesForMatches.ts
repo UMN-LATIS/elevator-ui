@@ -50,7 +50,7 @@ function createPlaceholderSlidesForChildren(match: SearchResultMatch): Slide[] {
 
   if (!fileAssets) return placeholders;
 
-  for (let i = 1; i < fileAssets; i++) {
+  for (let i = 0; i < fileAssets; i++) {
     const placeholder: Slide = {
       id: `${objectId}-placeholder-${i}`,
       objectId: undefined,
@@ -194,12 +194,11 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): Slide[] {
     // now, we queue up a featch for child slide data
     // which we'll use to replace the placeholder slides
     fetchChildSlides(match.objectId).then((childSlides) => {
-      childSlides.forEach((childSlide, index) => {
-        const { id: placeholderSlideId } = placeholdersForChildren[index];
+      placeholdersForChildren.forEach((placeholder, index) => {
+        const childSlide = childSlides[index];
         const indexOfPlaceholder = slides.findIndex(
-          (slide) => slide.id === placeholderSlideId
+          (slide) => slide.id === placeholder.id
         );
-        console.log("index of placeholder", indexOfPlaceholder);
         slides[indexOfPlaceholder] = childSlide;
       });
     });
