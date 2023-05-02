@@ -164,7 +164,6 @@ watch(
   // while the oldMatches is a reference to the previous value of props.matches
   () => [...(props.matches ?? [])],
   (newMatches, oldMatches) => {
-    console.log("watch matches", { newMatches, oldMatches });
     if (!newMatches) return;
     const matchesDiff = difference(newMatches, oldMatches ?? []);
     matchesDiff.forEach(createSlidesForMatch);
