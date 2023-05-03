@@ -40,7 +40,7 @@ import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
 const canSearchAndBrowse = computed(
-  () => instanceStore.instance?.canSearchAndBrowse ?? false
+  () => instanceStore.instance?.userCanSearchAndBrowse ?? false
 );
 const isReady = computed(() => instanceStore.isReady);
 

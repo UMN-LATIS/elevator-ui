@@ -483,7 +483,9 @@ export interface ElevatorInstance {
   centralAuthLabel: string; // label for central auth
   featuredAssetId: string | null; // featured asset for homepage
   featuredAssetText: string | null; // text appearing above the featured asset
-  canSearchAndBrowse: boolean; // whether or not to show search and browse
+  // whether or not to show search and browse
+  // may be true even if user is not logged in
+  userCanSearchAndBrowse: boolean;
 }
 
 export interface RawAssetCollection {
@@ -515,7 +517,6 @@ export interface User {
   isSuperAdmin: boolean;
   canManageAssets: boolean;
   canManageDrawers: boolean;
-  canSearchAndBrowse: boolean;
 }
 
 export interface NavItem {

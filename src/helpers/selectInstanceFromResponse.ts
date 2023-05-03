@@ -35,6 +35,6 @@ export function selectInstanceFromResponse(
     contact: contact,
     featuredAssetId,
     featuredAssetText,
-    canSearchAndBrowse: userCanSearchAndBrowse,
+    userCanSearchAndBrowse,
   };
 }

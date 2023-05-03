@@ -6,7 +6,7 @@
       </Link>
     </div>
     <SearchBar
-      v-if="currentUser?.canSearchAndBrowse"
+      v-if="instanceStore.instance.userCanSearchAndBrowse"
       class="flex-1 w-full max-w-lg"
     />
     <div class="flex gap-2 items-center">
