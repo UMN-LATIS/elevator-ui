@@ -38,7 +38,7 @@
           </dl>
         </div>
         <div
-          class="absolute right-2 bottom-2 bg-transparent-black-100 w-10 h-10 inline-flex justify-center items-center rounded-full group-hover:!bg-blue-700 group-hover:!text-white"
+          class="absolute w-10 h-10 bottom-0 right-0 inline-flex justify-center items-center rounded-full group-hover:!bg-blue-700 group-hover:!text-white"
         >
           <ArrowForwardIcon />
           <span class="sr-only">View Asset</span>
