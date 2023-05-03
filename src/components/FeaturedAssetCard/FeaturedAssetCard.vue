@@ -1,7 +1,7 @@
 <template>
   <Link :to="getAssetUrl(assetId)" class="group hover:no-underline relative">
     <article
-      class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs"
+      class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-blue-700"
     >
       <div
         class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 p-4"
@@ -15,17 +15,13 @@
         />
         <DocumentIcon v-else />
       </div>
-      <div class="flex-1 p-4">
-        <div ref="cardContents" class="relative h-full">
-          <h1
-            class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700 text-center"
-          >
-            <SanitizedHTML :html="title" />
-          </h1>
-          <ArrowButton
-            class="absolute bottom-0 right-0 !transition-all group-hover:opacity-100 opacity-0 !bg-blue-700 !border-blue-700"
-          />
-        </div>
+      <div class="flex-1 p-4 flex justify-between items-center">
+        <h1
+          class="search-result-card__title font-bold leading-tight group-hover:text-blue-700 text-center"
+        >
+          <SanitizedHTML :html="title" />
+        </h1>
+        <ArrowForwardIcon class="group-hover:text-blue-700" />
       </div>
     </article>
   </Link>
@@ -40,10 +36,9 @@ import {
 } from "@/helpers/displayUtils";
 import { computed, ref, watch } from "vue";
 import Link from "@/components/Link/Link.vue";
-import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
-import { DocumentIcon } from "@/icons";
+import { DocumentIcon, ArrowForwardIcon } from "@/icons";
 import api from "@/api";
 
 const props = defineProps<{

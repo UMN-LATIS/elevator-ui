@@ -53,7 +53,6 @@ import { computed } from "vue";
 import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 import Link from "../Link/Link.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
-import ArrowButton from "../ArrowButton/ArrowButton.vue";
 import { ArrowForwardIcon } from "@/icons";
 
 const props = defineProps<{
