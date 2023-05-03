@@ -9,7 +9,7 @@
 
       <AppMenuItem :to="`/search/listCollections`"> Collections </AppMenuItem>
 
-      <AppMenuItem :href="`${BASE_URL}/drawers/listDrawers`">
+      <AppMenuItem v-if="currentUser" :href="`${BASE_URL}/drawers/listDrawers`">
         Drawers
       </AppMenuItem>
 
