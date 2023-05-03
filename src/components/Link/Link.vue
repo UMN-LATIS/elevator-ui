@@ -1,20 +1,20 @@
 <template>
-  <component
-    :is="to ? RouterLink : 'a'"
-    :to="to"
-    :href="href"
-    class="cursor-pointer"
-  >
-    <slot />
-  </component>
+  <RouterLink v-if="to" :to="to"><slot /></RouterLink>
+  <a v-else :href="href"><slot /></a>
 </template>
 <script setup lang="ts">
 import { type RouteLocationRaw, RouterLink } from "vue-router";
 
-defineProps<{
-  to?: RouteLocationRaw;
-  href?: string;
-}>();
+withDefaults(
+  defineProps<{
+    to?: RouteLocationRaw;
+    href?: string;
+  }>(),
+  {
+    to: undefined,
+    href: "#",
+  }
+);
 </script>
 
 <style scoped></style>
