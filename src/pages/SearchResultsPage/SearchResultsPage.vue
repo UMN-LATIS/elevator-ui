@@ -3,19 +3,19 @@
     <div class="px-4">
       <p v-if="searchStore.status === 'error'">Error loading search results.</p>
 
-      <template v-else>
-        <BrowseCollectionHeader
-          v-if="browsingCollectionId"
-          :collectionId="browsingCollectionId"
-        />
-        <h2
-          v-if="searchStore.searchEntry?.searchText"
-          class="text-4xl my-8 font-bold"
-        >
-          <q>{{ searchStore.searchEntry.searchText }}</q>
-        </h2>
-      </template>
+      <BrowseCollectionHeader
+        v-if="browsingCollectionId"
+        :collectionId="browsingCollectionId"
+      />
+      <h2
+        v-else-if="searchStore.searchEntry?.searchText"
+        class="text-4xl my-8 font-bold"
+      >
+        <q>{{ searchStore.searchEntry.searchText }}</q>
+      </h2>
+
       <Tabs
+        v-if="isNewSearchReadyForDisplay"
         labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="searchStore.resultsView"
         @tabChange="handleTabChange"
@@ -68,6 +68,14 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+        <Tab id="gallery" label="Gallery">
+          <SearchResultsGallery
+            :totalResults="searchStore.totalResults ?? Infinity"
+            :matches="searchStore.matches"
+            :status="searchStore.status"
+            @loadMore="() => searchStore.loadMore()"
+          />
+        </Tab>
         <ResultsCount
           v-if="
             ['grid', 'list'].includes(searchStore.resultsView) &&
@@ -91,7 +99,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed, onMounted, nextTick } from "vue";
+import { watch, computed, onMounted, nextTick, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
@@ -102,9 +110,10 @@ import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
+import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
+import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
-import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -120,13 +129,27 @@ const props = withDefaults(
 
 const searchStore = useSearchStore();
 
+// will be true once a new search with a new searchId has been loaded for the
+// first time this is used to get tabs to remount with new search results
+// preventing old results from displaying.
+const isNewSearchReadyForDisplay = ref(false);
+searchStore.onBeforeNewSearch(() => {
+  isNewSearchReadyForDisplay.value = false;
+});
+searchStore.onAfterNewSearch(() => {
+  isNewSearchReadyForDisplay.value = true;
+});
+
 // if search with this id is not currently in flight,
 // then kick it off
 watch(
   () => props.searchId,
   () => {
-    if (searchStore.searchId === props.searchId) return;
-    searchStore.searchById(props.searchId);
+    if (searchStore.searchId === props.searchId) {
+      isNewSearchReadyForDisplay.value = true;
+      return;
+    }
+    searchStore.search(props.searchId);
   },
   { immediate: true }
 );

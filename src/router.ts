@@ -109,7 +109,9 @@ const router = createRouter({
       name: "error",
       path: "/error/:errorCode",
       component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
-      props: true,
+      props: (route) => ({
+        errorCode: parseIntFromParam(route.params.errorCode),
+      }),
     },
     {
       path: "/:pathMatch(.*)",

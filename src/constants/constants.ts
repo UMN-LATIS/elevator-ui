@@ -15,4 +15,5 @@ export const SEARCH_RESULTS_VIEWS = [
   "list",
   "timeline",
   "map",
+  "gallery",
 ] as const;

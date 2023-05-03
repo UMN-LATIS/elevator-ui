@@ -131,7 +131,7 @@ async function fetchStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   return res.data;
 }
 
-export default {
+const api = {
   async getAsset(assetId: string): Promise<Asset | null> {
     if (!assetId) return null;
 
@@ -141,6 +141,7 @@ export default {
 
     return asset;
   },
+
   async getAssetWithTemplate(
     assetId: string | null
   ): Promise<{ asset: Asset | null; template: Template | null }> {
@@ -314,3 +315,5 @@ export default {
     return res.data;
   },
 };
+
+export default api;

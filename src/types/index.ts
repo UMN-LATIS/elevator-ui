@@ -371,7 +371,21 @@ export interface RelatedAssetCacheItem {
   relatedAssetTitle: string[];
 }
 
-type RelatedAssetCache = Record<
+export interface ChildOrRelatedAsset {
+  id: string;
+  title: string;
+  objectId?: string;
+  thumb: {
+    src: string;
+    alt: string;
+  };
+}
+
+export interface RelatedAssetCacheItemWithId extends RelatedAssetCacheItem {
+  id: string;
+}
+
+export type RelatedAssetCache = Record<
   string,
   RelatedAssetCacheItem | null | undefined
 >;

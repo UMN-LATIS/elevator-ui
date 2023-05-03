@@ -9,6 +9,8 @@ export { default as CircleXIcon } from "./CircleXIcon.vue";
 export { default as DocumentIcon } from "./DocumentIcon.vue";
 export { default as DownloadIcon } from "./DownloadIcon.vue";
 export { default as ElevatorIcon } from "./ElevatorIcon.vue";
+export { default as ExitFullscreenIcon } from "./ExitFullscreenIcon.vue";
+export { default as FullscreenIcon } from "./FullscreenIcon.vue";
 export { default as ImageIcon } from "./ImageIcon.vue";
 export { default as InfoIcon } from "./InfoIcon.vue";
 export { default as MinusIcon } from "./MinusIcon.vue";
