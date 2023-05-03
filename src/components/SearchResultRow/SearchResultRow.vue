@@ -4,7 +4,7 @@
     class="group hover:no-underline relative text-inherit group focus:outline-blue-700 focus:outline-offset-2 focus-within:outline-solid"
   >
     <div
-      class="search-result-row flex bg-white p-2 sm:p-4 gap-4 group-hover:bg-blue-50 transition-all rounded-md border-2 border-transparent hover:border-blue-700 group-focus:bg-blue-50 group-focus:border-blue-700"
+      class="search-result-row flex bg-white p-2 sm:p-4 gap-4 group-hover:bg-blue-50 transition-all rounded-md border-2 border-transparent hover:border-blue-700 group-focus:bg-blue-50 group-focus:border-blue-700 items-center"
     >
       <LazyLoadImage
         v-if="imgSrc"
@@ -39,9 +39,11 @@
         </dl>
       </div>
       <div
-        class="not-sr-only hidden sm:inline-flex opacity-0 group-hover:opacity-100 group-focus:opacity-100 self-center rounded-full w-10 h-10 bg-blue-700 items-center justify-center"
+        class="not-sr-only hidden sm:inline-flex self-center rounded-full w-10 h-10 items-center justify-center group-hover:bg-blue-700 transition-all"
       >
-        <ArrowForwardIcon class="text-blue-50" />
+        <ArrowForwardIcon
+          class="text-neutral-900 group-hover:text-white transition-all"
+        />
       </div>
     </div>
   </Link>
