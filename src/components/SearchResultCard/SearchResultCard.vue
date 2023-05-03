@@ -37,9 +37,12 @@
             </div>
           </dl>
         </div>
-        <ArrowButton
-          class="absolute bottom-0 right-0 !transition-all group-hover:opacity-100 opacity-0 !bg-blue-700 !border-blue-700"
-        />
+        <div
+          class="absolute right-2 bottom-2 bg-transparent-black-100 w-10 h-10 inline-flex justify-center items-center rounded-full group-hover:!bg-blue-700 group-hover:!text-white"
+        >
+          <ArrowForwardIcon />
+          <span class="sr-only">View Asset</span>
+        </div>
       </div>
     </MediaCard>
   </Link>
@@ -51,8 +54,8 @@ import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
 import { computed, ref } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
-import ArrowButton from "../ArrowButton/ArrowButton.vue";
 import Chip from "../Chip/Chip.vue";
+import { ArrowForwardIcon } from "@/icons";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
