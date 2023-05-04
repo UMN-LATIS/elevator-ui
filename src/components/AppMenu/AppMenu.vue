@@ -7,7 +7,12 @@
     >
       <PagesNavSection :pages="pages" />
 
-      <AppMenuItem :to="`/search/listCollections`"> Collections </AppMenuItem>
+      <AppMenuItem
+        v-if="currentUser || instanceStore.collections.length"
+        :to="`/search/listCollections`"
+      >
+        Collections
+      </AppMenuItem>
 
       <AppMenuItem v-if="currentUser" :href="`${BASE_URL}/drawers/listDrawers`">
         Drawers
