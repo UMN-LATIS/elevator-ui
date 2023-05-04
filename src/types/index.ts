@@ -1,5 +1,4 @@
 import type { Ref } from "vue";
-import type { MarkerOptions, Popup } from "maplibre-gl";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 export * from "./TimelineJSTypes";
 
@@ -350,6 +349,11 @@ export interface SearchEntry {
   specificFieldSearch?: unknown[];
 }
 
+export type SearchSortOptions = Record<
+  string, // param to pass to searchQuery
+  string // label to display
+>;
+
 export interface SearchResultsResponse {
   totalResults: number;
   matches: SearchResultMatch[];
@@ -357,6 +361,7 @@ export interface SearchResultsResponse {
   searchId: string;
   success?: boolean;
   searchEntry: SearchEntry;
+  sortableWidgets: SearchSortOptions;
 }
 
 export interface DateTime {

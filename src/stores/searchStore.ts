@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import api from "@/api";
 import { ref, computed, type Ref } from "vue";
-
 import {
   FetchStatus,
   SearchResultMatch,
   SearchEntry,
   SearchResultsView,
+  SearchSortOptions,
 } from "@/types";
 
 export interface SearchStoreState {
@@ -18,21 +18,25 @@ export interface SearchStoreState {
   currentPage: Ref<number>;
   searchEntry: Ref<SearchEntry | null>;
   resultsView: Ref<SearchResultsView>;
+  sortOptions: Ref<SearchSortOptions | null>;
+  selectedSortOption: Ref<keyof SearchSortOptions | null>;
   beforeNewSearchHandlers: (() => void)[];
   afterNewSearchHandlers: ((state: SearchStoreState) => void)[];
 }
 
 const createState = (): SearchStoreState => ({
-  searchId: ref<string | undefined>(undefined),
-  status: ref<FetchStatus>("idle"),
+  searchId: ref(undefined),
+  status: ref("idle"),
   query: ref(""),
-  matches: ref<SearchResultMatch[]>([]),
-  totalResults: ref<number | undefined>(undefined),
+  matches: ref([]),
+  totalResults: ref(undefined),
   currentPage: ref(0),
-  searchEntry: ref<SearchEntry | null>(null),
-  resultsView: ref<SearchResultsView>("grid"),
-  beforeNewSearchHandlers: [] as (() => void)[],
-  afterNewSearchHandlers: [] as ((state: SearchStoreState) => void)[],
+  searchEntry: ref(null),
+  resultsView: ref("grid"),
+  sortOptions: ref(null),
+  selectedSortOption: ref(null),
+  beforeNewSearchHandlers: [],
+  afterNewSearchHandlers: [],
 });
 
 const getters = (state: SearchStoreState) => ({
@@ -48,6 +52,11 @@ const getters = (state: SearchStoreState) => ({
 });
 
 const actions = (state: SearchStoreState) => ({
+  setSortOption(option: keyof SearchSortOptions | null) {
+    console.log("setSortOption", option);
+    // todo
+  },
+
   async search(searchId?: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
@@ -59,6 +68,8 @@ const actions = (state: SearchStoreState) => ({
     state.totalResults.value = undefined;
     state.currentPage.value = 0;
     state.searchEntry.value = null;
+    state.sortOptions.value = null;
+    state.selectedSortOption.value = null;
 
     try {
       // first get the id of the search for this query
@@ -81,6 +92,8 @@ const actions = (state: SearchStoreState) => ({
           state.totalResults.value = res.totalResults;
           state.matches.value = res.matches;
           state.status.value = "success";
+          state.sortOptions.value = res.sortableWidgets;
+          state.selectedSortOption.value = res.searchEntry?.sort ?? null;
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters

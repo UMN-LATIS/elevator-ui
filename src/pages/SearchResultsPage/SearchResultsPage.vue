@@ -20,20 +20,30 @@
         :activeTabId="searchStore.resultsView"
         @tabChange="handleTabChange"
       >
-        <ResultsCount
-          :showingCount="searchStore.matches.length"
-          :total="searchStore.totalResults ?? 0"
-          :status="searchStore.status"
-          class="mb-2"
-          @loadMore="() => searchStore.loadMore({ loadAll: true })"
-        >
-          <template #loadMoreButtonLabel>
-            {{
-              // if we have 1000+ results, then we can't load all at once
-              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
-            }}
-          </template>
-        </ResultsCount>
+        <div class="flex justify-between mb-4 items-baseline">
+          <ResultsCount
+            :showingCount="searchStore.matches.length"
+            :total="searchStore.totalResults ?? 0"
+            :status="searchStore.status"
+            class="mb-2"
+            @loadMore="() => searchStore.loadMore({ loadAll: true })"
+          >
+            <template #loadMoreButtonLabel>
+              {{
+                // if we have 1000+ results, then we can't load all at once
+                (searchStore.totalResults ?? 0) <= 1000
+                  ? "Load All"
+                  : "Load More"
+              }}
+            </template>
+          </ResultsCount>
+          <SearchResultsSortSelect
+            v-if="['grid', 'list'].includes(searchStore.resultsView)"
+            :sortOptions="searchStore.sortOptions"
+            :selectedSortOption="searchStore.selectedSortOption"
+            @sortOptionChange="searchStore.setSortOption"
+          />
+        </div>
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
             :totalResults="searchStore.totalResults"
@@ -114,6 +124,7 @@ import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResult
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import type { SearchResultsView, Tab as TabType } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 
 const props = withDefaults(
   defineProps<{
