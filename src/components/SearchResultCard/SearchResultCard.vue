@@ -50,7 +50,7 @@
 
 <script lang="ts" setup>
 import { SearchResultMatch } from "@/types";
-import { getAssetUrl, getThumbURL } from "@/helpers/displayUtils";
+import { getAssetUrl, getThumbURL, stripTags } from "@/helpers/displayUtils";
 import { computed, ref } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
@@ -65,11 +65,11 @@ const cardContents = ref<HTMLElement | null>(null);
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {
-    return props.searchMatch.title.join(",");
+    return props.searchMatch.title.map((str) => stripTags(str)).join(",");
   }
 
   if (props.searchMatch.title && props.searchMatch.title.length > 0) {
-    return props.searchMatch.title;
+    return stripTags(props.searchMatch.title);
   }
 
   return "(no title)";
