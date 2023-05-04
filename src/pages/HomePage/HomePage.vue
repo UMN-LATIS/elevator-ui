@@ -2,6 +2,7 @@
   <DefaultLayout>
     <SignInRequiredNotice v-if="isReady && !canSearchAndBrowse" />
     <div
+      v-if="isReady && canSearchAndBrowse"
       class="home-page-content md:grid"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
@@ -76,6 +77,10 @@ watch(
   () => instanceStore.fetchStatus,
   async () => {
     if (instanceStore.fetchStatus !== "success") return;
+
+    // if the can't search and browse, we're done
+    if (!canSearchAndBrowse.value) return;
+
     const homePageId = findHomePageId();
     page.value = await fetchHomePage(homePageId);
     featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
