@@ -77,6 +77,10 @@ watch(
   () => instanceStore.fetchStatus,
   async () => {
     if (instanceStore.fetchStatus !== "success") return;
+
+    // if the can't search and browse, we're done
+    if (!canSearchAndBrowse.value) return;
+
     const homePageId = findHomePageId();
     page.value = await fetchHomePage(homePageId);
     featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
