@@ -19,7 +19,7 @@ export interface SearchStoreState {
   searchEntry: Ref<SearchEntry | null>;
   resultsView: Ref<SearchResultsView>;
   sortOptions: Ref<SearchSortOptions | null>;
-  selectedSortOption: Ref<keyof SearchSortOptions | null>;
+  sort: Ref<keyof SearchSortOptions | null>;
   beforeNewSearchHandlers: (() => void)[];
   afterNewSearchHandlers: ((state: SearchStoreState) => void)[];
 }
@@ -34,7 +34,7 @@ const createState = (): SearchStoreState => ({
   searchEntry: ref(null),
   resultsView: ref("grid"),
   sortOptions: ref(null),
-  selectedSortOption: ref(null),
+  sort: ref(null),
   beforeNewSearchHandlers: [],
   afterNewSearchHandlers: [],
 });
@@ -52,9 +52,11 @@ const getters = (state: SearchStoreState) => ({
 });
 
 const actions = (state: SearchStoreState) => ({
-  setSortOption(option: keyof SearchSortOptions | null) {
-    console.log("setSortOption", option);
-    // todo
+  async setSortOption(option: keyof SearchSortOptions) {
+    state.sort.value = option;
+
+    // refresh search results
+    return this.search();
   },
 
   async search(searchId?: string): Promise<string | void> {
@@ -69,18 +71,21 @@ const actions = (state: SearchStoreState) => ({
     state.currentPage.value = 0;
     state.searchEntry.value = null;
     state.sortOptions.value = null;
-    state.selectedSortOption.value = null;
 
     try {
       // first get the id of the search for this query
       // if it's passed, use that
       state.searchId.value = searchId
         ? searchId
-        : await api.getSearchId(state.query.value).catch((err) => {
-            throw new Error(
-              `Cannot getSearchId for query: ${state.query}: ${err}`
-            );
-          });
+        : await api
+            .getSearchId(state.query.value, {
+              sort: state.sort.value ? state.sort.value : undefined,
+            })
+            .catch((err) => {
+              throw new Error(
+                `Cannot getSearchId for query: ${state.query}: ${err}`
+              );
+            });
 
       // async (don't await) get search results and update store
       // so that we can return the search id so they can redirect
@@ -88,12 +93,12 @@ const actions = (state: SearchStoreState) => ({
       api
         .getSearchResultsById(state.searchId.value)
         .then((res) => {
+          console.log({ state, res });
           state.searchEntry.value = res.searchEntry;
           state.totalResults.value = res.totalResults;
           state.matches.value = res.matches;
           state.status.value = "success";
           state.sortOptions.value = res.sortableWidgets;
-          state.selectedSortOption.value = res.searchEntry?.sort ?? null;
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters

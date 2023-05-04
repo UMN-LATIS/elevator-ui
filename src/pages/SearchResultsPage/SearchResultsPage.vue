@@ -40,8 +40,8 @@
           <SearchResultsSortSelect
             v-if="['grid', 'list'].includes(searchStore.resultsView)"
             :sortOptions="searchStore.sortOptions"
-            :selectedSortOption="searchStore.selectedSortOption"
-            @sortOptionChange="searchStore.setSortOption"
+            :selectedSortOption="searchStore.sort"
+            @sortOptionChange="handleSortOptionChange"
           />
         </div>
         <Tab id="grid" label="Grid">
@@ -122,7 +122,11 @@ import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResu
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
-import type { SearchResultsView, Tab as TabType } from "@/types";
+import type {
+  SearchResultsView,
+  SearchSortOptions,
+  Tab as TabType,
+} from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 
@@ -191,6 +195,21 @@ function handleTabChange(tab: TabType) {
     query: {
       ...route.query,
       resultsView: tab.id,
+    },
+  });
+}
+
+async function handleSortOptionChange(sortOption: keyof SearchSortOptions) {
+  await searchStore.setSortOption(sortOption);
+
+  router.push({
+    name: "search",
+    params: {
+      searchId: searchStore.searchId,
+    },
+    query: {
+      ...route.query,
+      sort: sortOption, // TODO: handle query param
     },
   });
 }

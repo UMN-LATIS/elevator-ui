@@ -237,12 +237,20 @@ const api = {
     return res.data;
   },
 
-  async getSearchId(query: string): Promise<string> {
+  async getSearchId(
+    query: string,
+    opts: { sort?: string } = {}
+  ): Promise<string> {
     const params = new URLSearchParams();
     params.append("searchText", query);
 
     // this param gets searchID without all the results
     params.append("storeOnly", "true");
+
+    if (opts.sort) {
+      params.append("sort", opts.sort);
+    }
+
     const res = await axios.post<SearchResultsResponse>(
       `${BASE_URL}/search/searchResults`,
       params
