@@ -2,6 +2,7 @@
   <DefaultLayout>
     <SignInRequiredNotice v-if="isReady && !canSearchAndBrowse" />
     <div
+      v-if="isReady && canSearchAndBrowse"
       class="home-page-content md:grid"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
