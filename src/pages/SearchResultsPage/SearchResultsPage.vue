@@ -100,7 +100,7 @@
 </template>
 <script setup lang="ts">
 import { watch, computed, onMounted, nextTick, ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
@@ -185,7 +185,9 @@ function handleTabChange(tab: TabType) {
 }
 
 onMounted(() => {
+  // set the initial tab based on the query param
   const initialTabId = props.resultsView || searchStore.resultsView || "grid";
+
   // if the query param is set, use it to set the state
   // otherwise we'll fall back to the current resultsView
   // or failing that, the default "grid" view
@@ -217,6 +219,11 @@ watch(
   },
   { immediate: true }
 );
+
+// clear the search query when leaving this page
+onBeforeRouteLeave(() => {
+  searchStore.query = "";
+});
 </script>
 <style scoped></style>
 <style>
