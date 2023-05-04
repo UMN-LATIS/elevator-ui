@@ -82,6 +82,13 @@ const actions = (state: SearchStoreState) => ({
           state.matches.value = res.matches;
           state.status.value = "success";
 
+          // set query to the search text if it's not already set
+          // to something. This handles the case when a user enters
+          // the search results page with a search id in the url, but
+          // nothing yet in the search input box
+          state.query.value =
+            state.query.value || res.searchEntry?.searchText || "";
+
           // call all registered after handlers
           state.afterNewSearchHandlers.forEach((fn) => fn(state));
         })
