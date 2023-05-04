@@ -116,6 +116,11 @@ export function getAssetTitle(asset: Asset): string {
   return asset?.title?.[0] ?? "(No Title)";
 }
 
+export function stripTags(html: string): string {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent || "";
+}
+
 export function toClickToSearchUrl(
   linkText: string,
   widgetProps: WidgetProps
@@ -126,7 +131,7 @@ export function toClickToSearchUrl(
     return (
       config.instance.base.url +
       "/search/querySearch/" +
-      encodeURIComponent(cleanedLinkText)
+      stripTags(cleanedLinkText)
     );
   }
 
