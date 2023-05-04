@@ -29,7 +29,7 @@ const createState = () => ({
     centralAuthLabel: "Central Auth",
     featuredAssetId: null,
     featuredAssetText: null,
-    canSearchAndBrowse: false,
+    userCanSearchAndBrowse: false,
   }),
 });
 
