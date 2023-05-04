@@ -5,31 +5,36 @@
       :currentUser="instanceStore.currentUser"
       @close="$emit('close')"
     >
-      <PagesNavSection :pages="pages" />
+      <template v-if="instanceStore.instance.userCanSearchAndBrowse">
+        <PagesNavSection :pages="pages" />
 
-      <AppMenuItem
-        v-if="currentUser || instanceStore.collections.length"
-        :to="`/search/listCollections`"
-      >
-        Collections
-      </AppMenuItem>
+        <AppMenuItem
+          v-if="currentUser || instanceStore.collections.length"
+          :to="`/search/listCollections`"
+        >
+          Collections
+        </AppMenuItem>
 
-      <AppMenuItem v-if="currentUser" :href="`${BASE_URL}/drawers/listDrawers`">
-        Drawers
-      </AppMenuItem>
+        <AppMenuItem
+          v-if="currentUser"
+          :href="`${BASE_URL}/drawers/listDrawers`"
+        >
+          Drawers
+        </AppMenuItem>
 
-      <EditNavSection
-        v-if="currentUser?.canManageAssets"
-        :currentUser="currentUser"
-        :instance="instance"
-        :assetId="activeAssetId"
-      />
+        <EditNavSection
+          v-if="currentUser?.canManageAssets"
+          :currentUser="currentUser"
+          :instance="instance"
+          :assetId="activeAssetId"
+        />
 
-      <AdminNavSection
-        v-if="currentUser?.isAdmin"
-        :currentUser="currentUser"
-        :instance="instance"
-      />
+        <AdminNavSection
+          v-if="currentUser?.isAdmin"
+          :currentUser="currentUser"
+          :instance="instance"
+        />
+      </template>
       <HelpNavSection :instance="instance" />
     </AppMenuPure>
   </div>
