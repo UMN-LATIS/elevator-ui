@@ -1,6 +1,5 @@
 import type { Ref } from "vue";
-import type { MarkerOptions, Popup } from "maplibre-gl";
-import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
 export * from "./TimelineJSTypes";
 
 export interface AppConfig {
@@ -350,10 +349,16 @@ export interface SearchEntry {
   specificFieldSearch?: unknown[];
 }
 
-export type SearchSortOptions = Record<
-  string, // param to pass to searchQuery
-  string // label to display
->;
+export interface SearchSortOptions {
+  // well defined sort options for all searches
+  [SORT_KEYS.BEST_MATCH]: "Best Match";
+  [SORT_KEYS.TITLE]: "Default Title";
+  [SORT_KEYS.LAST_MODIFIED_DESC]: "Modified Date (newest to oldest)";
+  [SORT_KEYS.LAST_MODIFIED_ASC]: "Modified Date (oldest to newest)";
+
+  // sort options for specific searches
+  [key: string]: string;
+}
 
 export interface SearchResultsResponse {
   totalResults: number;

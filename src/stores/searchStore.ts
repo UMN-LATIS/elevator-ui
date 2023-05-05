@@ -8,6 +8,7 @@ import {
   SearchResultsView,
   SearchSortOptions,
 } from "@/types";
+import { SORT_KEYS } from "@/constants/constants";
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -18,11 +19,18 @@ export interface SearchStoreState {
   currentPage: Ref<number>;
   searchEntry: Ref<SearchEntry | null>;
   resultsView: Ref<SearchResultsView>;
-  sortOptions: Ref<SearchSortOptions | null>;
-  sort: Ref<keyof SearchSortOptions | null>;
+  sortOptions: Ref<SearchSortOptions>;
+  sort: Ref<keyof SearchSortOptions>;
   beforeNewSearchHandlers: (() => void)[];
   afterNewSearchHandlers: ((state: SearchStoreState) => void)[];
 }
+
+const defaultSortOptions: SearchSortOptions = {
+  [SORT_KEYS.BEST_MATCH]: "Best Match",
+  [SORT_KEYS.TITLE]: "Default Title",
+  [SORT_KEYS.LAST_MODIFIED_ASC]: "Modified Date (oldest to newest)",
+  [SORT_KEYS.LAST_MODIFIED_DESC]: "Modified Date (newest to oldest)",
+};
 
 const createState = (): SearchStoreState => ({
   searchId: ref(undefined),
@@ -33,8 +41,8 @@ const createState = (): SearchStoreState => ({
   currentPage: ref(0),
   searchEntry: ref(null),
   resultsView: ref("grid"),
-  sortOptions: ref(null),
-  sort: ref(null),
+  sortOptions: ref(defaultSortOptions),
+  sort: ref(SORT_KEYS.BEST_MATCH),
   beforeNewSearchHandlers: [],
   afterNewSearchHandlers: [],
 });

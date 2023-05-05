@@ -10,6 +10,7 @@ import {
   ApiInstanceNavResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
+  SearchSortOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -239,7 +240,7 @@ const api = {
 
   async getSearchId(
     query: string,
-    opts: { sort?: string } = {}
+    opts: { sort?: keyof SearchSortOptions } = {}
   ): Promise<string> {
     const params = new URLSearchParams();
     const searchQuery = {
