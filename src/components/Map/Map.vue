@@ -263,6 +263,7 @@ onMounted(() => {
     style: getArcGISUrl(activeMapStyleKey.value),
     zoom: props.zoom,
     bounds: props.bounds,
+    maxZoom: 20,
   })
     .addControl(
       new FullscreenControl({
