@@ -240,7 +240,7 @@ const api = {
 
   async getSearchId(
     query: string,
-    opts: { sort?: keyof SearchSortOptions; collections?: number[] } = {}
+    opts: { sort?: keyof SearchSortOptions; collections?: number[] | null } = {}
   ): Promise<string> {
     const params = new URLSearchParams();
     const searchQuery: {

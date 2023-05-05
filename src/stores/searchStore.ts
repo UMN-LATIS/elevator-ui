@@ -105,7 +105,9 @@ const actions = (state: SearchStoreState) => ({
         : await api
             .getSearchId(state.query.value, {
               sort: state.sort.value ? state.sort.value : undefined,
-              collections: collectionIds ?? undefined,
+              collections: getters(state).isBrowsingCollection
+                ? collectionIds
+                : undefined,
             })
             .catch((err) => {
               state.status.value = "error";

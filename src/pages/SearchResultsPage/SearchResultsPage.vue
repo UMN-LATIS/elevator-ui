@@ -7,9 +7,10 @@
           v-if="searchStore.browsingCollectionId"
           :collectionId="searchStore.browsingCollectionId"
         />
-        <h2 v-else class="text-4xl my-8 font-bold">
-          <q>{{ searchStore.searchEntry?.searchText ?? searchStore.query }}</q>
+        <h2 v-else-if="nonBrowsingPageTitle" class="text-4xl my-8 font-bold">
+          <q>{{ nonBrowsingPageTitle }}</q>
         </h2>
+        <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
 
         <Tabs
           labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
@@ -110,6 +111,7 @@ import type {
 import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 import SearchErrorNotification from "./SearchErrorNotification.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -124,6 +126,11 @@ const props = withDefaults(
 );
 
 const searchStore = useSearchStore();
+const route = useRoute();
+const router = useRouter();
+const nonBrowsingPageTitle = computed(() => {
+  return searchStore.searchEntry?.searchText ?? searchStore.query;
+});
 
 // will be true once a new search with a new searchId has been loaded for the
 // first time this is used to get tabs to remount with new search results
@@ -156,8 +163,6 @@ const isSearchViewTab = (tab: TabType): tab is SearchViewTab => {
   return SEARCH_RESULTS_VIEWS.includes(tab.id as SearchResultsView);
 };
 
-const route = useRoute();
-const router = useRouter();
 function handleTabChange(tab: TabType) {
   if (!isSearchViewTab(tab)) throw new Error(`Invalid tab id: ${tab.id}`);
 
