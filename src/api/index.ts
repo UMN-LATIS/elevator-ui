@@ -10,6 +10,7 @@ import {
   ApiInstanceNavResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
+  SearchSortOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -237,9 +238,26 @@ const api = {
     return res.data;
   },
 
-  async getSearchId(query: string): Promise<string> {
+  async getSearchId(
+    query: string,
+    opts: { sort?: keyof SearchSortOptions; collections?: number[] | null } = {}
+  ): Promise<string> {
     const params = new URLSearchParams();
-    params.append("searchText", query);
+    const searchQuery: {
+      searchText: string;
+      sort?: keyof SearchSortOptions;
+      collection?: string[];
+    } = { searchText: query };
+
+    if (opts.sort) {
+      searchQuery.sort = opts.sort;
+    }
+
+    if (opts.collections) {
+      searchQuery.collection = opts.collections.map(String);
+    }
+
+    params.append("searchQuery", JSON.stringify(searchQuery));
 
     // this param gets searchID without all the results
     params.append("storeOnly", "true");

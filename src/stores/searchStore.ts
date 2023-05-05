@@ -1,13 +1,14 @@
 import { defineStore } from "pinia";
 import api from "@/api";
 import { ref, computed, type Ref } from "vue";
-
 import {
   FetchStatus,
   SearchResultMatch,
   SearchEntry,
   SearchResultsView,
+  SearchSortOptions,
 } from "@/types";
+import { SORT_KEYS } from "@/constants/constants";
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -18,21 +19,32 @@ export interface SearchStoreState {
   currentPage: Ref<number>;
   searchEntry: Ref<SearchEntry | null>;
   resultsView: Ref<SearchResultsView>;
+  sortOptions: Ref<SearchSortOptions>;
+  sort: Ref<keyof SearchSortOptions>;
   beforeNewSearchHandlers: (() => void)[];
   afterNewSearchHandlers: ((state: SearchStoreState) => void)[];
 }
 
+const defaultSortOptions: SearchSortOptions = {
+  [SORT_KEYS.BEST_MATCH]: "Best Match",
+  [SORT_KEYS.TITLE]: "Default Title",
+  [SORT_KEYS.LAST_MODIFIED_ASC]: "Modified Date (oldest to newest)",
+  [SORT_KEYS.LAST_MODIFIED_DESC]: "Modified Date (newest to oldest)",
+};
+
 const createState = (): SearchStoreState => ({
-  searchId: ref<string | undefined>(undefined),
-  status: ref<FetchStatus>("idle"),
+  searchId: ref(undefined),
+  status: ref("idle"),
   query: ref(""),
-  matches: ref<SearchResultMatch[]>([]),
-  totalResults: ref<number | undefined>(undefined),
+  matches: ref([]),
+  totalResults: ref(undefined),
   currentPage: ref(0),
-  searchEntry: ref<SearchEntry | null>(null),
-  resultsView: ref<SearchResultsView>("grid"),
-  beforeNewSearchHandlers: [] as (() => void)[],
-  afterNewSearchHandlers: [] as ((state: SearchStoreState) => void)[],
+  searchEntry: ref(null),
+  resultsView: ref("grid"),
+  sortOptions: ref(defaultSortOptions),
+  sort: ref(SORT_KEYS.BEST_MATCH),
+  beforeNewSearchHandlers: [],
+  afterNewSearchHandlers: [],
 });
 
 const getters = (state: SearchStoreState) => ({
@@ -45,12 +57,37 @@ const getters = (state: SearchStoreState) => ({
     // convert to numbers, as the api returns strings
     return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
   }),
+  isBrowsingCollection: computed((): boolean => {
+    const collectionIds = getters(state).collectionIds.value;
+    if (!collectionIds) return false;
+
+    return (
+      state.searchEntry.value?.searchText === "" && collectionIds.length === 1
+    );
+  }),
+  browsingCollectionId: computed((): number | null => {
+    const collectionIds = getters(state).collectionIds.value;
+    const isBrowsingCollection = getters(state).isBrowsingCollection.value;
+
+    if (!isBrowsingCollection || !collectionIds) return null;
+    return collectionIds[0];
+  }),
 });
 
 const actions = (state: SearchStoreState) => ({
+  async setSortOption(option: keyof SearchSortOptions) {
+    state.sort.value = option;
+
+    // refresh search results
+    return this.search();
+  },
+
   async search(searchId?: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
+
+    // if we're searching a collection, make sure we have the collection id before clearing the searchEntry
+    const collectionIds = getters(state).collectionIds.value;
 
     // clear old search results
     state.status.value = "fetching";
@@ -65,11 +102,19 @@ const actions = (state: SearchStoreState) => ({
       // if it's passed, use that
       state.searchId.value = searchId
         ? searchId
-        : await api.getSearchId(state.query.value).catch((err) => {
-            throw new Error(
-              `Cannot getSearchId for query: ${state.query}: ${err}`
-            );
-          });
+        : await api
+            .getSearchId(state.query.value, {
+              sort: state.sort.value ? state.sort.value : undefined,
+              collections: getters(state).isBrowsingCollection
+                ? collectionIds
+                : undefined,
+            })
+            .catch((err) => {
+              state.status.value = "error";
+              throw new Error(
+                `Cannot getSearchId for query: ${state.query}: ${err}`
+              );
+            });
 
       // async (don't await) get search results and update store
       // so that we can return the search id so they can redirect
@@ -81,6 +126,7 @@ const actions = (state: SearchStoreState) => ({
           state.totalResults.value = res.totalResults;
           state.matches.value = res.matches;
           state.status.value = "success";
+          state.sortOptions.value = res.sortableWidgets;
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters
@@ -93,6 +139,7 @@ const actions = (state: SearchStoreState) => ({
           state.afterNewSearchHandlers.forEach((fn) => fn(state));
         })
         .catch((err) => {
+          state.status.value = "error";
           throw new Error(
             `Cannot getSearchResultsById for search id: ${state.searchId}: ${err}`
           );

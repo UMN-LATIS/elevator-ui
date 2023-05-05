@@ -6,7 +6,7 @@
     <MediaCard
       :imgSrc="thumbnailImgSrc"
       :imgAlt="title"
-      class="search-result-card transition-all max-w-sm flex w-full h-full group-hover:outline outline-blue-600 group-hover:bg-blue-50 group-hover:text-blue-700 relative"
+      class="search-result-card transition-all flex w-full h-full group-hover:outline outline-blue-600 group-hover:bg-blue-50 group-hover:text-blue-700 relative"
     >
       <Chip
         v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"

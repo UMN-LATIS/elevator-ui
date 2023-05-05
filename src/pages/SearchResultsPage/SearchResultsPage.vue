@@ -1,100 +1,91 @@
 <template>
   <DefaultLayout class="search-results-page">
     <div class="px-4">
-      <p v-if="searchStore.status === 'error'">Error loading search results.</p>
+      <SearchErrorNotification v-if="searchStore.status === 'error'" />
+      <template v-else>
+        <BrowseCollectionHeader
+          v-if="searchStore.browsingCollectionId"
+          :collectionId="searchStore.browsingCollectionId"
+        />
+        <h2 v-else-if="nonBrowsingPageTitle" class="text-4xl my-8 font-bold">
+          <q>{{ nonBrowsingPageTitle }}</q>
+        </h2>
+        <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
 
-      <BrowseCollectionHeader
-        v-if="browsingCollectionId"
-        :collectionId="browsingCollectionId"
-      />
-      <h2
-        v-else-if="searchStore.searchEntry?.searchText"
-        class="text-4xl my-8 font-bold"
-      >
-        <q>{{ searchStore.searchEntry.searchText }}</q>
-      </h2>
+        <Tabs
+          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+          :activeTabId="searchStore.resultsView"
+          @tabChange="handleTabChange"
+        >
+          <div
+            class="sm:flex justify-between items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
+          >
+            <ResultsCount class="mb-2 sm:mb-0" />
+            <SearchResultsSortSelect
+              v-if="!['map', 'timline'].includes(searchStore.resultsView)"
+              :sortOptions="searchStore.sortOptions"
+              :selectedSortOption="searchStore.sort"
+              :searchQuery="
+                searchStore.searchEntry?.searchText ?? searchStore.query
+              "
+              @sortOptionChange="handleSortOptionChange"
+            />
+          </div>
+          <Tab id="grid" label="Grid">
+            <SearchResultsGrid
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="list" label="List">
+            <SearchResultsList
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="timeline" label="Timeline">
+            <SearchResultsTimeline
+              v-if="
+                searchStore.totalResults && searchStore.status === 'success'
+              "
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="map" label="Map">
+            <SearchResultsMap
+              v-if="searchStore.isReady"
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="gallery" label="Gallery">
+            <SearchResultsGallery
+              v-if="isNewSearchReadyForDisplay"
+              :totalResults="searchStore.totalResults ?? Infinity"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
 
-      <Tabs
-        v-if="isNewSearchReadyForDisplay"
-        labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
-        :activeTabId="searchStore.resultsView"
-        @tabChange="handleTabChange"
-      >
-        <ResultsCount
-          :showingCount="searchStore.matches.length"
-          :total="searchStore.totalResults ?? 0"
-          :status="searchStore.status"
-          class="mb-2"
-          @loadMore="() => searchStore.loadMore({ loadAll: true })"
-        >
-          <template #loadMoreButtonLabel>
-            {{
-              // if we have 1000+ results, then we can't load all at once
-              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
-            }}
-          </template>
-        </ResultsCount>
-        <Tab id="grid" label="Grid">
-          <SearchResultsGrid
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
+          <ResultsCount
+            v-if="
+              ['grid', 'list'].includes(searchStore.resultsView) &&
+              (searchStore.totalResults ?? 0) > 6
+            "
+            class="mt-4"
           />
-        </Tab>
-        <Tab id="list" label="List">
-          <SearchResultsList
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="timeline" label="Timeline">
-          <SearchResultsTimeline
-            v-if="searchStore.totalResults && searchStore.status === 'success'"
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="map" label="Map">
-          <SearchResultsMap
-            v-if="searchStore.isReady"
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="gallery" label="Gallery">
-          <SearchResultsGallery
-            :totalResults="searchStore.totalResults ?? Infinity"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <ResultsCount
-          v-if="
-            ['grid', 'list'].includes(searchStore.resultsView) &&
-            (searchStore.totalResults ?? 0) > 6
-          "
-          :showingCount="searchStore.matches.length"
-          :total="searchStore.totalResults ?? 0"
-          :status="searchStore.status"
-          class="mt-4"
-          @loadMore="() => searchStore.loadMore({ loadAll: true })"
-        >
-          <template #loadMoreButtonLabel>
-            {{
-              // if we have 1000+ results, then we can't load all at once
-              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
-            }}
-          </template>
-        </ResultsCount>
-      </Tabs>
+        </Tabs>
+      </template>
     </div>
   </DefaultLayout>
 </template>
@@ -112,8 +103,15 @@ import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResu
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
-import type { SearchResultsView, Tab as TabType } from "@/types";
-import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
+import type {
+  SearchResultsView,
+  SearchSortOptions,
+  Tab as TabType,
+} from "@/types";
+import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
+import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
+import SearchErrorNotification from "./SearchErrorNotification.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -128,6 +126,11 @@ const props = withDefaults(
 );
 
 const searchStore = useSearchStore();
+const route = useRoute();
+const router = useRouter();
+const nonBrowsingPageTitle = computed(() => {
+  return searchStore.searchEntry?.searchText ?? searchStore.query;
+});
 
 // will be true once a new search with a new searchId has been loaded for the
 // first time this is used to get tabs to remount with new search results
@@ -154,22 +157,12 @@ watch(
   { immediate: true }
 );
 
-const browsingCollectionId = computed((): number | null => {
-  const isBrowsing =
-    searchStore.searchEntry?.searchText === "" &&
-    searchStore.collectionIds?.length === 1;
-  if (!isBrowsing) return null;
-  return searchStore.collectionIds[0];
-});
-
 type SearchViewTab = TabType & { id: SearchResultsView };
 
 const isSearchViewTab = (tab: TabType): tab is SearchViewTab => {
   return SEARCH_RESULTS_VIEWS.includes(tab.id as SearchResultsView);
 };
 
-const route = useRoute();
-const router = useRouter();
 function handleTabChange(tab: TabType) {
   if (!isSearchViewTab(tab)) throw new Error(`Invalid tab id: ${tab.id}`);
 
@@ -184,9 +177,47 @@ function handleTabChange(tab: TabType) {
   });
 }
 
+async function handleSortOptionChange(sortOption: keyof SearchSortOptions) {
+  await searchStore.setSortOption(sortOption);
+
+  router.push({
+    name: "search",
+    params: {
+      searchId: searchStore.searchId,
+    },
+    query: {
+      ...route.query,
+      sort: sortOption,
+    },
+  });
+}
+
+function getInitialSortOption(searchQuery: string): keyof SearchSortOptions {
+  const sortOption = route.query.sort as keyof SearchSortOptions;
+
+  // if the query is blank and the sort option is best match
+  // then we should default to sorting by title, since best match
+  // doesn't make sense for a blank query
+  if (
+    searchQuery === "" &&
+    (!sortOption || sortOption === SORT_KEYS.BEST_MATCH)
+  ) {
+    return SORT_KEYS.TITLE;
+  }
+
+  // otherwise return the sort option from the query param
+  // or default to best match
+  return sortOption || SORT_KEYS.BEST_MATCH;
+}
+
 onMounted(() => {
   // set the initial tab based on the query param
   const initialTabId = props.resultsView || searchStore.resultsView || "grid";
+
+  // set initial sort option based on query param
+  searchStore.sort = getInitialSortOption(
+    searchStore.searchEntry?.searchText ?? searchStore.query
+  );
 
   // if the query param is set, use it to set the state
   // otherwise we'll fall back to the current resultsView

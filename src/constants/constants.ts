@@ -17,3 +17,10 @@ export const SEARCH_RESULTS_VIEWS = [
   "map",
   "gallery",
 ] as const;
+
+export const SORT_KEYS = {
+  BEST_MATCH: 0,
+  TITLE: "title.raw",
+  LAST_MODIFIED_DESC: "lastModified.desc",
+  LAST_MODIFIED_ASC: "lastModified.asc",
+} as const;
