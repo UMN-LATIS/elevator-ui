@@ -34,7 +34,9 @@
               </template>
             </ResultsCount>
             <SearchResultsSortSelect
-              v-if="['grid', 'list'].includes(searchStore.resultsView)"
+              v-if="
+                ['grid', 'list', 'gallery'].includes(searchStore.resultsView)
+              "
               :sortOptions="searchStore.sortOptions"
               :selectedSortOption="searchStore.sort"
               @sortOptionChange="handleSortOptionChange"
