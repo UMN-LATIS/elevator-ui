@@ -242,7 +242,12 @@ const api = {
     opts: { sort?: string } = {}
   ): Promise<string> {
     const params = new URLSearchParams();
-    params.append("searchText", query);
+    const searchQuery = {
+      searchText: query,
+      sort: opts.sort,
+    };
+
+    params.append("searchQuery", JSON.stringify(searchQuery));
 
     // this param gets searchID without all the results
     params.append("storeOnly", "true");
