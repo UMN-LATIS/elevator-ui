@@ -1,27 +1,99 @@
 <template>
   <DefaultLayout class="search-results-page">
     <div class="px-4">
-      <p v-if="searchStore.status === 'error'">Error loading search results.</p>
+      <SearchErrorNotification v-if="searchStore.status === 'error'" />
+      <template v-else>
+        <BrowseCollectionHeader
+          v-if="browsingCollectionId"
+          :collectionId="browsingCollectionId"
+        />
+        <h2 v-else class="text-4xl my-8 font-bold">
+          <q>{{ searchStore.searchEntry?.searchText ?? searchStore.query }}</q>
+        </h2>
 
-      <BrowseCollectionHeader
-        v-if="browsingCollectionId"
-        :collectionId="browsingCollectionId"
-      />
-      <h2 v-else class="text-4xl my-8 font-bold">
-        <q>{{ searchStore.searchEntry?.searchText ?? searchStore.query }}</q>
-      </h2>
+        <Tabs
+          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+          :activeTabId="searchStore.resultsView"
+          @tabChange="handleTabChange"
+        >
+          <div class="flex justify-between mb-4 items-baseline">
+            <ResultsCount
+              :showingCount="searchStore.matches.length"
+              :total="searchStore.totalResults ?? 0"
+              :status="searchStore.status"
+              class="mb-2"
+              @loadMore="() => searchStore.loadMore({ loadAll: true })"
+            >
+              <template #loadMoreButtonLabel>
+                {{
+                  // if we have 1000+ results, then we can't load all at once
+                  (searchStore.totalResults ?? 0) <= 1000
+                    ? "Load All"
+                    : "Load More"
+                }}
+              </template>
+            </ResultsCount>
+            <SearchResultsSortSelect
+              v-if="['grid', 'list'].includes(searchStore.resultsView)"
+              :sortOptions="searchStore.sortOptions"
+              :selectedSortOption="searchStore.sort"
+              @sortOptionChange="handleSortOptionChange"
+            />
+          </div>
+          <Tab id="grid" label="Grid">
+            <SearchResultsGrid
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="list" label="List">
+            <SearchResultsList
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="timeline" label="Timeline">
+            <SearchResultsTimeline
+              v-if="
+                searchStore.totalResults && searchStore.status === 'success'
+              "
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="map" label="Map">
+            <SearchResultsMap
+              v-if="searchStore.isReady"
+              :totalResults="searchStore.totalResults"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
+          <Tab id="gallery" label="Gallery">
+            <SearchResultsGallery
+              :totalResults="searchStore.totalResults ?? Infinity"
+              :matches="searchStore.matches"
+              :status="searchStore.status"
+              @loadMore="() => searchStore.loadMore()"
+            />
+          </Tab>
 
-      <Tabs
-        labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
-        :activeTabId="searchStore.resultsView"
-        @tabChange="handleTabChange"
-      >
-        <div class="flex justify-between mb-4 items-baseline">
           <ResultsCount
+            v-if="
+              ['grid', 'list'].includes(searchStore.resultsView) &&
+              (searchStore.totalResults ?? 0) > 6
+            "
             :showingCount="searchStore.matches.length"
             :total="searchStore.totalResults ?? 0"
             :status="searchStore.status"
-            class="mb-2"
+            class="mt-4"
             @loadMore="() => searchStore.loadMore({ loadAll: true })"
           >
             <template #loadMoreButtonLabel>
@@ -33,75 +105,8 @@
               }}
             </template>
           </ResultsCount>
-          <SearchResultsSortSelect
-            v-if="['grid', 'list'].includes(searchStore.resultsView)"
-            :sortOptions="searchStore.sortOptions"
-            :selectedSortOption="searchStore.sort"
-            @sortOptionChange="handleSortOptionChange"
-          />
-        </div>
-        <Tab id="grid" label="Grid">
-          <SearchResultsGrid
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="list" label="List">
-          <SearchResultsList
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="timeline" label="Timeline">
-          <SearchResultsTimeline
-            v-if="searchStore.totalResults && searchStore.status === 'success'"
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="map" label="Map">
-          <SearchResultsMap
-            v-if="searchStore.isReady"
-            :totalResults="searchStore.totalResults"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-        <Tab id="gallery" label="Gallery">
-          <SearchResultsGallery
-            :totalResults="searchStore.totalResults ?? Infinity"
-            :matches="searchStore.matches"
-            :status="searchStore.status"
-            @loadMore="() => searchStore.loadMore()"
-          />
-        </Tab>
-
-        <ResultsCount
-          v-if="
-            ['grid', 'list'].includes(searchStore.resultsView) &&
-            (searchStore.totalResults ?? 0) > 6
-          "
-          :showingCount="searchStore.matches.length"
-          :total="searchStore.totalResults ?? 0"
-          :status="searchStore.status"
-          class="mt-4"
-          @loadMore="() => searchStore.loadMore({ loadAll: true })"
-        >
-          <template #loadMoreButtonLabel>
-            {{
-              // if we have 1000+ results, then we can't load all at once
-              (searchStore.totalResults ?? 0) <= 1000 ? "Load All" : "Load More"
-            }}
-          </template>
-        </ResultsCount>
-      </Tabs>
+        </Tabs>
+      </template>
     </div>
   </DefaultLayout>
 </template>
@@ -126,7 +131,7 @@ import type {
 } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import SearchErrorNotification from "./SearchErrorNotification.vue";
 
 const props = withDefaults(
   defineProps<{

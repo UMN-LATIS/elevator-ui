@@ -81,6 +81,7 @@ const actions = (state: SearchStoreState) => ({
               sort: state.sort.value ? state.sort.value : undefined,
             })
             .catch((err) => {
+              state.status.value = "error";
               throw new Error(
                 `Cannot getSearchId for query: ${state.query}: ${err}`
               );
@@ -92,7 +93,6 @@ const actions = (state: SearchStoreState) => ({
       api
         .getSearchResultsById(state.searchId.value)
         .then((res) => {
-          console.log({ state, res });
           state.searchEntry.value = res.searchEntry;
           state.totalResults.value = res.totalResults;
           state.matches.value = res.matches;
@@ -110,6 +110,7 @@ const actions = (state: SearchStoreState) => ({
           state.afterNewSearchHandlers.forEach((fn) => fn(state));
         })
         .catch((err) => {
+          state.status.value = "error";
           throw new Error(
             `Cannot getSearchResultsById for search id: ${state.searchId}: ${err}`
           );
