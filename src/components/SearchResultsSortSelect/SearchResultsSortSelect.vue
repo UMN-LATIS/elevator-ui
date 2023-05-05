@@ -5,13 +5,14 @@
       id="sort"
       name="sort"
       class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
-      :value="selectedSortOption ?? '0'"
+      :value="selectedSortOption"
       @change="handleOptionChange"
     >
       <option
         v-for="(sortOptionLabel, sortOptionKey) in sortOptions"
         :key="sortOptionKey"
         :value="sortOptionKey"
+        :disabled="sortOptionKey == SORT_KEYS.BEST_MATCH && !searchQuery"
       >
         {{ sortOptionLabel }}
       </option>
@@ -19,11 +20,13 @@
   </div>
 </template>
 <script setup lang="ts">
+import { SORT_KEYS } from "@/constants/constants";
 import { SearchSortOptions } from "@/types";
 
 defineProps<{
-  sortOptions: SearchSortOptions | null;
-  selectedSortOption: keyof SearchSortOptions | null;
+  sortOptions: SearchSortOptions;
+  selectedSortOption: keyof SearchSortOptions;
+  searchQuery: string;
 }>();
 
 const emit = defineEmits<{
