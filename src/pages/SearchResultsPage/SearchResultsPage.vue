@@ -8,10 +8,7 @@
         :collectionId="browsingCollectionId"
       />
       <h2 v-else class="text-4xl my-8 font-bold">
-        <q v-if="searchStore.searchEntry?.searchText">{{
-          searchStore.searchEntry.searchText
-        }}</q>
-        <Skeleton v-else class="!h-10 !w-1/2" />
+        <q>{{ searchStore.searchEntry?.searchText ?? searchStore.query }}</q>
       </h2>
 
       <Tabs
