@@ -113,7 +113,8 @@ export function getWidgetsForDisplay({
 }
 
 export function getAssetTitle(asset: Asset): string {
-  return asset?.title?.[0] ?? "(No Title)";
+  const title = asset?.title?.[0] ?? "(No Title)";
+  return stripTags(title);
 }
 
 export function stripTags(html: string): string {
