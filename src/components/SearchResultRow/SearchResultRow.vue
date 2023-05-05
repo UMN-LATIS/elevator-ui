@@ -50,7 +50,7 @@
 </template>
 <script setup lang="ts">
 import { SearchResultMatch } from "@/types";
-import { getThumbURL } from "@/helpers/displayUtils";
+import { getThumbURL, stripTags } from "@/helpers/displayUtils";
 import { computed } from "vue";
 import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
 import Link from "../Link/Link.vue";
@@ -63,11 +63,11 @@ const props = defineProps<{
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {
-    return props.searchMatch.title.join(",");
+    return props.searchMatch.title.map(stripTags).join(",");
   }
 
   if (props.searchMatch.title && props.searchMatch.title.length > 0) {
-    return props.searchMatch.title;
+    return stripTags(props.searchMatch.title);
   }
 
   return "(no title)";
