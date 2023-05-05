@@ -16,7 +16,7 @@
           :activeTabId="searchStore.resultsView"
           @tabChange="handleTabChange"
         >
-          <div class="flex justify-between mb-4 items-baseline">
+          <div class="md:flex justify-between mb-4 items-baseline">
             <ResultsCount
               :showingCount="searchStore.matches.length"
               :total="searchStore.totalResults ?? 0"
