@@ -1,4 +1,5 @@
 import type { Ref } from "vue";
+import type { MarkerOptions, Popup } from "maplibre-gl";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 export * from "./TimelineJSTypes";
 

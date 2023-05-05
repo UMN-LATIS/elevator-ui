@@ -17,9 +17,9 @@
           @tabChange="handleTabChange"
         >
           <div
-            class="md:flex justify-between items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
+            class="sm:flex justify-between items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
           >
-            <ResultsCount />
+            <ResultsCount class="mb-2 sm:mb-0" />
             <SearchResultsSortSelect
               v-if="!['map', 'timline'].includes(searchStore.resultsView)"
               :sortOptions="searchStore.sortOptions"
@@ -187,7 +187,7 @@ async function handleSortOptionChange(sortOption: keyof SearchSortOptions) {
     },
     query: {
       ...route.query,
-      sort: sortOption, // TODO: handle query param
+      sort: sortOption,
     },
   });
 }

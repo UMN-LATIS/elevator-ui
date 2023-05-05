@@ -251,11 +251,6 @@ const api = {
 
     // this param gets searchID without all the results
     params.append("storeOnly", "true");
-
-    if (opts.sort) {
-      params.append("sort", opts.sort);
-    }
-
     const res = await axios.post<SearchResultsResponse>(
       `${BASE_URL}/search/searchResults`,
       params
