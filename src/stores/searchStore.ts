@@ -70,7 +70,6 @@ const actions = (state: SearchStoreState) => ({
     state.totalResults.value = undefined;
     state.currentPage.value = 0;
     state.searchEntry.value = null;
-    state.sortOptions.value = null;
 
     try {
       // first get the id of the search for this query

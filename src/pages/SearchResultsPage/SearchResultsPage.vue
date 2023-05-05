@@ -7,15 +7,14 @@
         v-if="browsingCollectionId"
         :collectionId="browsingCollectionId"
       />
-      <h2
-        v-else-if="searchStore.searchEntry?.searchText"
-        class="text-4xl my-8 font-bold"
-      >
-        <q>{{ searchStore.searchEntry.searchText }}</q>
+      <h2 v-else class="text-4xl my-8 font-bold">
+        <q v-if="searchStore.searchEntry?.searchText">{{
+          searchStore.searchEntry.searchText
+        }}</q>
+        <Skeleton v-else class="!h-10 !w-1/2" />
       </h2>
 
       <Tabs
-        v-if="isNewSearchReadyForDisplay"
         labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="searchStore.resultsView"
         @tabChange="handleTabChange"
@@ -86,6 +85,7 @@
             @loadMore="() => searchStore.loadMore()"
           />
         </Tab>
+
         <ResultsCount
           v-if="
             ['grid', 'list'].includes(searchStore.resultsView) &&
@@ -129,6 +129,7 @@ import type {
 } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
 const props = withDefaults(
   defineProps<{
