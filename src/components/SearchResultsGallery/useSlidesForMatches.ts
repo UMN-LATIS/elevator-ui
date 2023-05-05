@@ -197,16 +197,27 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
     // which we'll use to replace the placeholder slides
     fetchChildSlides(match.objectId).then((childSlides) => {
       placeholdersForChildren.forEach((placeholder, index) => {
+        const indexOfPlaceholder = slides.findIndex(
+          (slide) => slide.id === placeholder.id
+        );
         const childSlide = childSlides[index];
         if (!childSlide) {
+          console.error(
+            "Child slide not found. Something's off with this match:",
+            {
+              match,
+              childSlides,
+              placeholdersForChildren,
+              index,
+              placeholder,
+              indexOfPlaceholder,
+              childSlide,
+            }
+          );
           throw new Error(
             "Child slide not found, cannot replace placeholder. There may be a mismatch between the number of placeholders and the number of child slides."
           );
         }
-
-        const indexOfPlaceholder = slides.findIndex(
-          (slide) => slide.id === placeholder.id
-        );
         slides[indexOfPlaceholder] = childSlide;
       });
     });

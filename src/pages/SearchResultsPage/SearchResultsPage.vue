@@ -16,27 +16,12 @@
           :activeTabId="searchStore.resultsView"
           @tabChange="handleTabChange"
         >
-          <div class="md:flex justify-between mb-4 items-baseline">
-            <ResultsCount
-              :showingCount="searchStore.matches.length"
-              :total="searchStore.totalResults ?? 0"
-              :status="searchStore.status"
-              class="mb-2"
-              @loadMore="() => searchStore.loadMore({ loadAll: true })"
-            >
-              <template #loadMoreButtonLabel>
-                {{
-                  // if we have 1000+ results, then we can't load all at once
-                  (searchStore.totalResults ?? 0) <= 1000
-                    ? "Load All"
-                    : "Load More"
-                }}
-              </template>
-            </ResultsCount>
+          <div
+            class="md:flex justify-between items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
+          >
+            <ResultsCount />
             <SearchResultsSortSelect
-              v-if="
-                ['grid', 'list', 'gallery'].includes(searchStore.resultsView)
-              "
+              v-if="!['map', 'timline'].includes(searchStore.resultsView)"
               :sortOptions="searchStore.sortOptions"
               :selectedSortOption="searchStore.sort"
               @sortOptionChange="handleSortOptionChange"
@@ -80,6 +65,7 @@
           </Tab>
           <Tab id="gallery" label="Gallery">
             <SearchResultsGallery
+              v-if="isNewSearchReadyForDisplay"
               :totalResults="searchStore.totalResults ?? Infinity"
               :matches="searchStore.matches"
               :status="searchStore.status"
@@ -92,21 +78,8 @@
               ['grid', 'list'].includes(searchStore.resultsView) &&
               (searchStore.totalResults ?? 0) > 6
             "
-            :showingCount="searchStore.matches.length"
-            :total="searchStore.totalResults ?? 0"
-            :status="searchStore.status"
             class="mt-4"
-            @loadMore="() => searchStore.loadMore({ loadAll: true })"
-          >
-            <template #loadMoreButtonLabel>
-              {{
-                // if we have 1000+ results, then we can't load all at once
-                (searchStore.totalResults ?? 0) <= 1000
-                  ? "Load All"
-                  : "Load More"
-              }}
-            </template>
-          </ResultsCount>
+          />
         </Tabs>
       </template>
     </div>
