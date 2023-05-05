@@ -196,6 +196,9 @@ onMounted(() => {
   // set the initial tab based on the query param
   const initialTabId = props.resultsView || searchStore.resultsView || "grid";
 
+  // set initial sort option based on query param
+  searchStore.sort = route.query.sort as keyof SearchSortOptions;
+
   // if the query param is set, use it to set the state
   // otherwise we'll fall back to the current resultsView
   // or failing that, the default "grid" view
