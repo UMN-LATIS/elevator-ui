@@ -57,6 +57,21 @@ const getters = (state: SearchStoreState) => ({
     // convert to numbers, as the api returns strings
     return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
   }),
+  isBrowsingCollection: computed((): boolean => {
+    const collectionIds = getters(state).collectionIds.value;
+    if (!collectionIds) return false;
+
+    return (
+      state.searchEntry.value?.searchText === "" && collectionIds.length === 1
+    );
+  }),
+  browsingCollectionId: computed((): number | null => {
+    const collectionIds = getters(state).collectionIds.value;
+    const isBrowsingCollection = getters(state).isBrowsingCollection.value;
+
+    if (!isBrowsingCollection || !collectionIds) return null;
+    return collectionIds[0];
+  }),
 });
 
 const actions = (state: SearchStoreState) => ({
@@ -70,6 +85,9 @@ const actions = (state: SearchStoreState) => ({
   async search(searchId?: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
+
+    // if we're searching a collection, make sure we have the collection id before clearing the searchEntry
+    const collectionIds = getters(state).collectionIds.value;
 
     // clear old search results
     state.status.value = "fetching";
@@ -87,6 +105,7 @@ const actions = (state: SearchStoreState) => ({
         : await api
             .getSearchId(state.query.value, {
               sort: state.sort.value ? state.sort.value : undefined,
+              collections: collectionIds ?? undefined,
             })
             .catch((err) => {
               state.status.value = "error";

@@ -4,8 +4,8 @@
       <SearchErrorNotification v-if="searchStore.status === 'error'" />
       <template v-else>
         <BrowseCollectionHeader
-          v-if="browsingCollectionId"
-          :collectionId="browsingCollectionId"
+          v-if="searchStore.browsingCollectionId"
+          :collectionId="searchStore.browsingCollectionId"
         />
         <h2 v-else class="text-4xl my-8 font-bold">
           <q>{{ searchStore.searchEntry?.searchText ?? searchStore.query }}</q>
@@ -149,14 +149,6 @@ watch(
   },
   { immediate: true }
 );
-
-const browsingCollectionId = computed((): number | null => {
-  const isBrowsing =
-    searchStore.searchEntry?.searchText === "" &&
-    searchStore.collectionIds?.length === 1;
-  if (!isBrowsing) return null;
-  return searchStore.collectionIds[0];
-});
 
 type SearchViewTab = TabType & { id: SearchResultsView };
 

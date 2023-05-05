@@ -240,13 +240,22 @@ const api = {
 
   async getSearchId(
     query: string,
-    opts: { sort?: keyof SearchSortOptions } = {}
+    opts: { sort?: keyof SearchSortOptions; collections?: number[] } = {}
   ): Promise<string> {
     const params = new URLSearchParams();
-    const searchQuery = {
-      searchText: query,
-      sort: opts.sort,
-    };
+    const searchQuery: {
+      searchText: string;
+      sort?: keyof SearchSortOptions;
+      collection?: string[];
+    } = { searchText: query };
+
+    if (opts.sort) {
+      searchQuery.sort = opts.sort;
+    }
+
+    if (opts.collections) {
+      searchQuery.collection = opts.collections.map(String);
+    }
 
     params.append("searchQuery", JSON.stringify(searchQuery));
 
