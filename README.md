@@ -90,8 +90,4 @@ In production, there's no need to configure a `.env` file. The UI will get the c
 
 ## Contact
 
-Email: elevator@umn.edu
-
-```
-
-```
+Email: <elevator@umn.edu>
