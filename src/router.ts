@@ -74,6 +74,14 @@ const router = createRouter({
       }),
     },
     {
+      name: "localLogin",
+      path: "/loginManager/localLogin",
+      component: () => import("@/pages/LocalLoginPage/LocalLoginPage.vue"),
+      props: (route) => ({
+        redirect: route.query.redirect ?? null,
+      }),
+    },
+    {
       name: "StaticContentPage",
       path: "/page/view/:pageId",
       component: () =>

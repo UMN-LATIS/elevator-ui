@@ -35,7 +35,7 @@
         {{ instance.centralAuthLabel }} Login
       </DropDownItem>
       <DropDownItem
-        :href="`${config.instance.base.url}/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
+        :to="`/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
       >
         {{ instance.useCentralAuth ? "Guest" : "" }} Login
       </DropDownItem>
