@@ -341,13 +341,14 @@ const api = {
     username: string;
     password: string;
   }): Promise<LocalLoginResponse> {
+    const formdata = new FormData();
+    formdata.append("username", username);
+    formdata.append("password", password);
+
     try {
       const res = await axios.post<LocalLoginResponse>(
         `${BASE_URL}/loginManager/localLogin`,
-        {
-          username,
-          password,
-        }
+        formdata
       );
 
       return res.data;
