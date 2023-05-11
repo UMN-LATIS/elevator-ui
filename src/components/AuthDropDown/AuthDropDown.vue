@@ -34,9 +34,7 @@
       >
         {{ instance.centralAuthLabel }} Login
       </DropDownItem>
-      <DropDownItem
-        :to="`/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
-      >
+      <DropDownItem :to="`/loginManager/localLogin/?redirect=${route.path}`">
         {{ instance.useCentralAuth ? "Guest" : "" }} Login
       </DropDownItem>
     </template>
@@ -50,11 +48,14 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import Avatar from "@/components/Avatar/Avatar.vue";
 import config from "@/config";
 import { useBrowserLocation } from "@vueuse/core";
+import { useRoute } from "vue-router";
 
 const props = defineProps<{
   currentUser: User | null;
   instance: ElevatorInstance;
 }>();
+
+const route = useRoute();
 
 const browserLocation = useBrowserLocation();
 const encodedCallbackUrl = computed(() => {
