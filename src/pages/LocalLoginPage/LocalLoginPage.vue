@@ -1,99 +1,111 @@
 <template>
   <DefaultLayout>
-    <section
-      class="max-w-md border border-neutral-900 rounded-lg mx-auto my-12 p-8"
-      :class="{
-        'has-form-error': shakeForm,
-      }"
-    >
-      <header
-        class="font-bold text-center mb-8 pb-4 border-b border-neutral-900"
+    <div class="px-4">
+      <section
+        class="max-w-md border border-neutral-900 rounded-lg mx-auto my-12 p-8"
+        :class="{
+          'has-form-error': shakeForm,
+        }"
       >
-        <h2 class="text-2xl capitalize">Login</h2>
-      </header>
-      <form @submit.prevent="login">
-        <p
-          v-if="errors.form"
-          class="text-red-500 text-sm italic mb-6 capitalize bg-red-50 p-2 rounded-md border border-red-200 text-center"
+        <header
+          class="font-bold text-center mb-8 pb-4 border-b border-neutral-900"
         >
-          {{ errors.form }}
-        </p>
-        <div class="flex flex-col gap-6 mb-12">
-          <div>
-            <InputGroup
-              id="username"
-              :value="username"
-              label="Username"
-              :inputClass="{ '!border-red-500 !bg-red-50': !!errors.username }"
-              type="string"
-              aria-required="true"
-              @input="username = ($event.target as HTMLInputElement).value"
-            />
-            <p v-if="errors.username" class="text-red-500 text-sm italic mt-2">
-              {{ errors.username }}
-            </p>
-          </div>
-          <div>
-            <InputGroup
-              id="password"
-              label="Password"
-              :value="password"
-              :inputClass="{ '!border-red-500 !bg-red-50': !!errors.password }"
-              :type="showPassword ? 'text' : 'password'"
-              aria-required="true"
-              @input="password = ($event.target as HTMLInputElement).value"
-            >
-              <template #append>
-                <button class="border-none" type="button">
-                  <EyeOffIcon
-                    v-if="!showPassword"
-                    @click="showPassword = true"
-                  />
-                  <EyeIcon v-else @click="showPassword = false" />
-                </button>
-              </template>
-            </InputGroup>
-            <p v-if="errors.password" class="text-red-600 text-sm italic mt-2">
-              {{ errors.password }}
-            </p>
-          </div>
-        </div>
-
-        <Button
-          variant="primary"
-          type="submit"
-          class="w-full"
-          :class="{
-            'cursor-not-allowed opacity-50 !border-neutral-300':
-              !username || !password,
-          }"
-          :disabled="!username || !password"
-        >
-          Login
-          <SpinnerIcon v-if="isLoggingIn" class="animate-spin ml-2 h-4 w-4" />
-        </Button>
-        <div
-          v-if="
-            instanceStore.instance.useCentralAuth &&
-            instanceStore.instance.centralAuthLabel
-          "
-          class="text-center mt-4 text-sm"
-        >
-          <a
-            :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
+          <h2 class="text-2xl capitalize">Login</h2>
+        </header>
+        <form @submit.prevent="login">
+          <p
+            v-if="errors.form"
+            class="text-red-500 text-sm italic mb-6 capitalize bg-red-50 p-2 rounded-md border border-red-200 text-center"
           >
-            Sign In with {{ instanceStore.instance.centralAuthLabel }} Login
-          </a>
-        </div>
-      </form>
-    </section>
+            {{ errors.form }}
+          </p>
+          <div class="flex flex-col gap-6 mb-12">
+            <div>
+              <InputGroup
+                id="username"
+                :value="username"
+                label="Username"
+                :inputClass="{
+                  '!border-red-500 !bg-red-50': !!errors.username,
+                }"
+                type="string"
+                aria-required="true"
+                @input="username = ($event.target as HTMLInputElement).value"
+              />
+              <p
+                v-if="errors.username"
+                class="text-red-500 text-sm italic mt-2"
+              >
+                {{ errors.username }}
+              </p>
+            </div>
+            <div>
+              <InputGroup
+                id="password"
+                label="Password"
+                :value="password"
+                :inputClass="{
+                  '!border-red-500 !bg-red-50': !!errors.password,
+                }"
+                :type="showPassword ? 'text' : 'password'"
+                aria-required="true"
+                @input="password = ($event.target as HTMLInputElement).value"
+              >
+                <template #append>
+                  <button class="border-none" type="button">
+                    <EyeOffIcon
+                      v-if="!showPassword"
+                      @click="showPassword = true"
+                    />
+                    <EyeIcon v-else @click="showPassword = false" />
+                  </button>
+                </template>
+              </InputGroup>
+              <p
+                v-if="errors.password"
+                class="text-red-600 text-sm italic mt-2"
+              >
+                {{ errors.password }}
+              </p>
+            </div>
+          </div>
+
+          <Button
+            variant="primary"
+            type="submit"
+            class="w-full"
+            :class="{
+              'cursor-not-allowed opacity-50 !border-neutral-300':
+                !username || !password,
+            }"
+            :disabled="!username || !password"
+          >
+            Login
+            <SpinnerIcon v-if="isLoggingIn" class="animate-spin ml-2 h-4 w-4" />
+          </Button>
+          <div
+            v-if="
+              instanceStore.instance.useCentralAuth &&
+              instanceStore.instance.centralAuthLabel
+            "
+            class="text-center mt-4 text-sm"
+          >
+            <a
+              :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
+            >
+              Sign In with {{ instanceStore.instance.centralAuthLabel }} Login
+            </a>
+          </div>
+        </form>
+      </section>
+    </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import Button from "@/components/Button/Button.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useRouter } from "vue-router";
 import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/icons";
@@ -105,7 +117,7 @@ const props = withDefaults(
     redirectURL?: string;
   }>(),
   {
-    redirectURL: config.instance.base.url,
+    redirectURL: "/",
   }
 );
 
@@ -122,8 +134,6 @@ const errors = reactive<{
   password: "",
   form: "",
 });
-
-// track login attempts for shake animation
 const shakeForm = ref(false);
 
 const instanceStore = useInstanceStore();
@@ -173,6 +183,13 @@ const login = async () => {
 const encodedCallbackUrl = computed(() =>
   encodeURIComponent(props.redirectURL)
 );
+
+onMounted(() => {
+  // if user is logged in, redirect
+  if (instanceStore.isLoggedIn) {
+    router.push(props.redirectURL);
+  }
+});
 </script>
 <style scoped>
 .has-form-error {
