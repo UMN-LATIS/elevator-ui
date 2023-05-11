@@ -347,7 +347,7 @@ const api = {
 
     try {
       const res = await axios.post<LocalLoginResponse>(
-        `${BASE_URL}/loginManager/localLogin`,
+        `${BASE_URL}/loginManager/localLoginAsync`,
         formdata
       );
 
