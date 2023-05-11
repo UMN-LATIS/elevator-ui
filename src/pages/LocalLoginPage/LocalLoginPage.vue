@@ -46,7 +46,14 @@
           </div>
         </div>
 
-        <Button variant="primary" type="submit" class="w-full"> Login </Button>
+        <Button
+          variant="primary"
+          type="submit"
+          class="w-full"
+          :disabled="!username || !password"
+        >
+          Login
+        </Button>
         <div
           v-if="
             instanceStore.instance.useCentralAuth &&
