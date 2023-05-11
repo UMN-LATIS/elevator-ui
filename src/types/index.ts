@@ -582,3 +582,8 @@ export interface MapContext {
   ) => void;
   removeMarkerPopup: (markerId: string) => void;
 }
+
+export interface LocalLoginResponse {
+  status: "success" | "error";
+  message: string;
+}
