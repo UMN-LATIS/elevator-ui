@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
 import {
@@ -11,6 +11,7 @@ import {
   ApiStaticPageResponse,
   FileDownloadNormalized,
   SearchSortOptions,
+  LocalLoginResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -331,6 +332,38 @@ const api = {
       `${BASE_URL}/assetManager/deleteAsset/${assetId}`
     );
     return res.data;
+  },
+
+  async loginAsGuest({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }): Promise<LocalLoginResponse> {
+    const formdata = new FormData();
+    formdata.append("username", username);
+    formdata.append("password", password);
+
+    try {
+      const res = await axios.post<LocalLoginResponse>(
+        `${BASE_URL}/loginManager/localLoginAsync`,
+        formdata
+      );
+
+      return res.data;
+    } catch (e: unknown) {
+      if (!(e instanceof AxiosError)) {
+        throw e;
+      }
+
+      if (e.response?.status === 401) {
+        return e.response.data;
+      }
+
+      console.error(e.response?.data);
+      throw e;
+    }
   },
 };
 

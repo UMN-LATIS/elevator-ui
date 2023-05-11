@@ -10,6 +10,8 @@ export { default as DocumentIcon } from "./DocumentIcon.vue";
 export { default as DownloadIcon } from "./DownloadIcon.vue";
 export { default as ElevatorIcon } from "./ElevatorIcon.vue";
 export { default as ExitFullscreenIcon } from "./ExitFullscreenIcon.vue";
+export { default as EyeIcon } from "./EyeIcon.vue";
+export { default as EyeOffIcon } from "./EyeOffIcon.vue";
 export { default as FullscreenIcon } from "./FullscreenIcon.vue";
 export { default as ImageIcon } from "./ImageIcon.vue";
 export { default as InfoIcon } from "./InfoIcon.vue";

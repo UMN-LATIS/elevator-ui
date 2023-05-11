@@ -2,7 +2,7 @@
   <div>
     <label
       :for="id"
-      class="block text-sm font-medium text-neutral-700"
+      class="block text-xs font-medium text-neutral-700 uppercase"
       :class="{ 'sr-only': labelHidden }"
     >
       {{ label }}
@@ -19,10 +19,11 @@
         :type="type"
         :name="id"
         :value="value"
-        class="block w-full rounded-md border-none focus:ring-indigo-500 focus:ring-offset-2 focus:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400"
+        class="block w-full rounded-md border border-transparent focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4"
         :class="{
           'pl-10': $slots.prepend,
           'pr-10': $slots.append,
+          ...inputClass,
         }"
         v-bind="$attrs"
         @focus="$emit('focus', $event)"
@@ -39,6 +40,8 @@
   </div>
 </template>
 <script setup lang="ts">
+type CSSClassObject = Partial<Record<string, boolean>>;
+
 withDefaults(
   defineProps<{
     id: string;
@@ -46,10 +49,12 @@ withDefaults(
     labelHidden?: boolean;
     value: string;
     type?: string;
+    inputClass?: CSSClassObject;
   }>(),
   {
     labelHidden: false,
     type: "text",
+    inputClass: () => ({}),
   }
 );
 
