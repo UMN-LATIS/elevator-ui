@@ -340,7 +340,6 @@ const api = {
   }: {
     username: string;
     password: string;
-    redirectURL: string;
   }): Promise<LocalLoginResponse> {
     try {
       const res = await axios.post<LocalLoginResponse>(
@@ -362,7 +361,6 @@ const api = {
       }
 
       console.error(e.response?.data);
-
       throw e;
     }
   },
