@@ -1,5 +1,8 @@
 <template>
   <NoScrollLayout class="overflow-x-hidden">
+    <template #secondaryAppHeader>
+      <PrevNextSearchResultNav />
+    </template>
     <template v-if="isPageLoaded">
       <MetaDataOnlyView
         v-if="isMetaDataOnly"
@@ -22,6 +25,7 @@ import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { usePageTitle } from "@/helpers/usePageTitle";
+import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
 import { striptags } from "striptags";
 
 const assetStore = useAssetStore();
