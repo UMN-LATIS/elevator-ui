@@ -1,6 +1,6 @@
 <template>
-  <header class="app-header px-4 py-2 flex flex-col gap-2">
-    <div class="flex justify-between items-center gap-8">
+  <header class="app-header flex flex-col gap-2">
+    <div class="flex justify-between items-center gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
         <Link to="/" class="app-header__logo-link hover:no-underline">
           <AppLogoMark />
@@ -18,7 +18,9 @@
         <AppMenuButton />
       </div>
     </div>
-    <slot />
+    <div class="app-header__secondary-nav">
+      <slot />
+    </div>
   </header>
 </template>
 <script setup lang="ts">
@@ -68,5 +70,9 @@ const currentUser = computed(() => instanceStore.currentUser);
     color: var(--app-appHeader-menuButton-active-textColor);
     border-color: var(--app-appHeader-menuButton-active-borderColor);
   }
+}
+
+.app-header__secondary-nav {
+  background: var(--app-appHeader-secondaryNav-backgroundColor);
 }
 </style>

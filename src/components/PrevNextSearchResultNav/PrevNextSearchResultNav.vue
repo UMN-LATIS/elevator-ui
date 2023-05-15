@@ -1,7 +1,7 @@
 <template>
   <nav
     v-if="currentAssetIndex !== null"
-    class="justify-between items-center gap-4 grid grid-cols-3"
+    class="justify-between items-center gap-4 grid grid-cols-3 px-4 py-1"
   >
     <div class="flex justify-start">
       <Button

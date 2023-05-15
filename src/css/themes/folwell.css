@@ -28,6 +28,7 @@
   * App Header
   */
   --app-appHeader-backgroundColor: var(--gold-light);
+  --app-appHeader-secondaryNav-backgroundColor: var(--white);
   --app-appHeader-textColor: var(--black);
   --app-appHeader-wordmark-textColor: var(--black);
   --app-appHeader-logo-color: var(--maroon);
