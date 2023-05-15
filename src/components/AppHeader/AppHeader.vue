@@ -1,21 +1,24 @@
 <template>
-  <header class="app-header flex justify-between items-center px-4 py-2 gap-8">
-    <div class="flex gap-2 items-center">
-      <Link to="/" class="app-header__logo-link hover:no-underline">
-        <AppLogoMark />
-      </Link>
-    </div>
-    <SearchBar
-      v-if="instanceStore.instance.userCanSearchAndBrowse"
-      class="flex-1 w-full max-w-lg"
-    />
-    <div class="flex gap-2 items-center">
-      <AuthDropDown
-        :currentUser="currentUser"
-        :instance="instanceStore.instance"
+  <header class="app-header px-4 py-2 flex flex-col gap-2">
+    <div class="flex justify-between items-center gap-8">
+      <div class="flex gap-2 items-center">
+        <Link to="/" class="app-header__logo-link hover:no-underline">
+          <AppLogoMark />
+        </Link>
+      </div>
+      <SearchBar
+        v-if="instanceStore.instance.userCanSearchAndBrowse"
+        class="flex-1 w-full max-w-lg"
       />
-      <AppMenuButton />
+      <div class="flex gap-2 items-center">
+        <AuthDropDown
+          :currentUser="currentUser"
+          :instance="instanceStore.instance"
+        />
+        <AppMenuButton />
+      </div>
     </div>
+    <slot />
   </header>
 </template>
 <script setup lang="ts">
