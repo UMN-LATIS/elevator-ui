@@ -4,7 +4,7 @@
 
     <div class="flex gap-2 my-2">
       <Button
-        :href="`${config.instance.base.url}/loginManager/localLogin/?redirect=${encodedCallbackUrl}`"
+        :to="`/loginManager/localLogin/?redirect=${$route.path}`"
         variant="tertiary"
       >
         {{ instance.useCentralAuth ? "Guest" : "" }} Login
