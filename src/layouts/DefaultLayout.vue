@@ -1,5 +1,5 @@
 <template>
-  <div id="top" class="min-h-screen pt-18">
+  <div id="top" class="min-h-screen pt-18 flex flex-col">
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
     <slot />
     <Transition name="fade">

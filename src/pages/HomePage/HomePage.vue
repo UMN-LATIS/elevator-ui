@@ -3,7 +3,7 @@
     <SignInRequiredNotice v-if="isReady && !canSearchAndBrowse" />
     <div
       v-if="isReady && canSearchAndBrowse"
-      class="home-page-content md:grid"
+      class="home-page-content flex-1 md:grid"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
         'md:grid-cols-3': featuredAssetId,
