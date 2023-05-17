@@ -8,19 +8,11 @@
         :labelHidden="true"
         placeholder="Search"
         :value="searchStore.query"
+        inputClass="!rounded-full !border !border-neutral-300"
         @focus="handleInputGroupFocus"
         @blur="handleInputGroupBlur"
         @input="handleInput"
       >
-        <template #prepend>
-          <SearchIcon
-            class="h-5 w-5 text-transparent-black-500"
-            :class="{
-              'text-transparent-black-800': searchInputHasFocus,
-            }"
-            aria-hidden="true"
-          />
-        </template>
         <template #append>
           <div class="flex gap-2 items-center">
             <button
@@ -33,10 +25,17 @@
             </button>
 
             <KeyboardShortcut
-              class="hidden sm:block text-transparent-black-500 border-transparent-black-500"
+              class="hidden sm:block text-transparent-black-400 border-transparent-black-400"
             >
               ⌘K
             </KeyboardShortcut>
+
+            <button
+              class="inline-flex items-center justify-center w-8 h-8 bg-neutral-900 rounded-full text-neutral-200"
+            >
+              <span class="sr-only">Search</span>
+              <SearchIcon class="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
         </template>
       </InputGroup>

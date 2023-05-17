@@ -2,12 +2,12 @@
   <div>
     <label
       :for="id"
-      class="block text-xs font-medium text-neutral-700 uppercase"
+      class="block text-xs font-medium text-neutral-700 uppercase mb-1"
       :class="{ 'sr-only': labelHidden }"
     >
       {{ label }}
     </label>
-    <div class="relative mt-1 rounded-md shadow-sm">
+    <div class="relative rounded-md shadow-sm">
       <div
         v-if="$slots.prepend"
         class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
@@ -20,11 +20,13 @@
         :name="id"
         :value="value"
         class="block w-full rounded-md border border-transparent focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4"
-        :class="{
-          'pl-10': $slots.prepend,
-          'pr-10': $slots.append,
-          ...inputClass,
-        }"
+        :class="[
+          {
+            'pl-10': $slots.prepend,
+            'pr-10': $slots.append,
+          },
+          inputClass,
+        ]"
         v-bind="$attrs"
         @focus="$emit('focus', $event)"
         @blur="$emit('blur', $event)"
@@ -32,7 +34,7 @@
       />
       <div
         v-if="$slots.append"
-        class="absolute inset-y-0 right-0 flex items-center pr-3"
+        class="absolute inset-y-0 right-0 flex items-center pr-1"
       >
         <slot name="append" />
       </div>
@@ -40,7 +42,7 @@
   </div>
 </template>
 <script setup lang="ts">
-type CSSClassObject = Partial<Record<string, boolean>>;
+type CSSClass = Partial<Record<string, boolean>> | string | string[];
 
 withDefaults(
   defineProps<{
@@ -49,7 +51,7 @@ withDefaults(
     labelHidden?: boolean;
     value: string;
     type?: string;
-    inputClass?: CSSClassObject;
+    inputClass?: CSSClass;
   }>(),
   {
     labelHidden: false,
