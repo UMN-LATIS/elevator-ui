@@ -1,14 +1,14 @@
 <template>
   <header class="app-header flex flex-col gap-2">
-    <div class="flex justify-between items-center gap-8 px-4 py-2">
+    <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
-        <Link to="/" class="app-header__logo-link hover:no-underline">
+        <Link to="/" class="app-header__logo-link hover:no-underline mr-4">
           <AppLogoMark />
         </Link>
       </div>
       <SearchBar
         v-if="instanceStore.instance.userCanSearchAndBrowse"
-        class="flex-1 w-full max-w-lg"
+        class="flex-1 w-full max-w-2xl"
       />
       <div class="flex gap-2 items-center">
         <AuthDropDown

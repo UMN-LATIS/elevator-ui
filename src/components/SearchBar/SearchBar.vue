@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="relative">
     <form class="search-bar" @submit="handleSubmit">
       <InputGroup
         id="search"
@@ -14,7 +14,7 @@
         @input="handleInput"
       >
         <template #append>
-          <div class="flex gap-2 items-center">
+          <div class="flex gap-1 items-center">
             <button
               v-if="searchStore.query.length"
               type="button"
@@ -24,7 +24,18 @@
               <CircleXIcon class="" />
             </button>
             <button
-              class="inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
+              type="button"
+              class="w-8 h-8 inline-flex items-center justify-center rounded-full"
+              :class="{
+                'bg-neutral-900 text-white': isAdvancedSearchModalOpen,
+              }"
+              @click="isAdvancedSearchModalOpen = !isAdvancedSearchModalOpen"
+            >
+              <span class="sr-only">Advanced Search</span>
+              <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              class="hidden md:inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
               type="submit"
             >
               <SearchIcon class="h-4 w-4" aria-hidden="true" />
@@ -34,24 +45,40 @@
         </template>
       </InputGroup>
     </form>
-    <Modal
-      label="Advanced Search"
-      :isOpen="isAdvancedSearchModalOpen"
-      @close="isAdvancedSearchModalOpen = false"
+    <div
+      v-if="!isMobileScreen"
+      class="absolute top-full right-0 left-0"
+      :class="{
+        'block pt-2 px-4': isAdvancedSearchModalOpen,
+        hidden: !isAdvancedSearchModalOpen,
+      }"
     >
-      <AdvancedSearchForm />
-    </Modal>
+      <AdvancedSearchForm
+        :isOpen="isAdvancedSearchModalOpen"
+        class="w-full"
+        @close="isAdvancedSearchModalOpen = false"
+      />
+    </div>
+    <Teleport v-if="isMobileScreen" to="body">
+      <div class="fixed inset-0 bg-neutral-900 bg-opacity-50 z-30">
+        <AdvancedSearchForm
+          :isOpen="isAdvancedSearchModalOpen"
+          class="absolute bottom-0 h-[90vh]"
+          @close="isAdvancedSearchModalOpen = false"
+        />
+      </div>
+    </Teleport>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
 import { SearchIcon, CircleXIcon } from "@/icons";
-import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import Modal from "@/components/Modal/Modal.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
+import { VerticalDotsIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter } from "vue-router";
+import { useMediaQuery } from "@vueuse/core";
 
 const emit = defineEmits<{
   (eventName: "focus", event: Event): void;
@@ -63,6 +90,8 @@ const searchInputHasFocus = ref(false);
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
 const router = useRouter();
+
+const isMobileScreen = useMediaQuery("(max-width: 640px)");
 
 function handleInput(event: InputEvent) {
   searchStore.query = (event.target as HTMLInputElement).value;
