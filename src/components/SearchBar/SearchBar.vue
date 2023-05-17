@@ -8,7 +8,7 @@
         :labelHidden="true"
         placeholder="Search"
         :value="searchStore.query"
-        inputClass="!rounded-full !border !border-neutral-300"
+        inputClass="!rounded-full"
         @focus="handleInputGroupFocus"
         @blur="handleInputGroupBlur"
         @input="handleInput"
@@ -23,18 +23,12 @@
             >
               <CircleXIcon class="" />
             </button>
-
-            <KeyboardShortcut
-              class="hidden sm:block text-transparent-black-400 border-transparent-black-400"
-            >
-              ⌘K
-            </KeyboardShortcut>
-
             <button
-              class="inline-flex items-center justify-center w-8 h-8 bg-neutral-900 rounded-full text-neutral-200"
+              class="inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
+              type="submit"
             >
-              <span class="sr-only">Search</span>
               <SearchIcon class="h-4 w-4" aria-hidden="true" />
+              <span class="sr-only">Search</span>
             </button>
           </div>
         </template>
