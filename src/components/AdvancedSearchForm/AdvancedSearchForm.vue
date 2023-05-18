@@ -19,7 +19,19 @@
         :labelHidden="true"
         placeholder="Search"
         inputClass="!rounded-full"
-      />
+        @input="searchStore.query = ($event.target as HTMLInputElement).value"
+      >
+        <template #append>
+          <button
+            v-if="searchStore.query.length"
+            type="button"
+            class="text-transparent-black-500 hover:text-neutral-900 mr-2"
+            @click="searchStore.query = ''"
+          >
+            <CircleXIcon class="" />
+          </button>
+        </template>
+      </InputGroup>
 
       <section>
         <h2 class="font-bold my-4">Collections</h2>
@@ -66,12 +78,11 @@
 </template>
 <script setup lang="ts">
 import { reactive, computed } from "vue";
-import XButton from "@/components/XButton/XButton.vue";
 import Button from "@/components/Button/Button.vue";
-import DropDown from "../DropDown/DropDown.vue";
-import DropDownItem from "../DropDown/DropDownItem.vue";
+import DropDown from "@/components/DropDown/DropDown.vue";
+import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
-import { XIcon } from "@/icons";
+import { XIcon, CircleXIcon } from "@/icons";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { useSearchStore } from "@/stores/searchStore";
 
