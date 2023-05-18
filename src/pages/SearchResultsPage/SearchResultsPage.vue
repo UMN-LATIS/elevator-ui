@@ -7,8 +7,9 @@
           v-if="searchStore.browsingCollectionId"
           :collectionId="searchStore.browsingCollectionId"
         />
-        <h2 v-else-if="nonBrowsingPageTitle" class="text-4xl my-8 font-bold">
-          <q>{{ nonBrowsingPageTitle }}</q>
+        <h2 v-else-if="searchStore.isReady" class="text-4xl my-8 font-bold">
+          <q v-if="nonBrowsingPageTitle">{{ nonBrowsingPageTitle }}</q>
+          <span v-else>Search Results</span>
         </h2>
         <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
 
