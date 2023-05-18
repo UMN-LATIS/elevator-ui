@@ -31,7 +31,7 @@
           label="Add Collection"
           class="border border-neutral-900 rounded-md"
           alignment="left"
-          labelClass="text-sm"
+          labelClass="text-sm py-2"
         >
           <div class="max-h-[25vh] overflow-y-auto">
             <DropDownItem

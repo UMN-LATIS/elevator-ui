@@ -45,25 +45,20 @@
         </template>
       </InputGroup>
     </form>
-    <div
-      v-if="!isMobileScreen"
-      class="absolute top-full right-0 left-0"
-      :class="{
-        'block pt-2 px-4': isAdvancedSearchModalOpen,
-        hidden: !isAdvancedSearchModalOpen,
-      }"
-    >
-      <AdvancedSearchForm
-        :isOpen="isAdvancedSearchModalOpen"
-        class="w-full"
-        @close="isAdvancedSearchModalOpen = false"
-      />
-    </div>
-    <Teleport v-if="isMobileScreen" to="body">
-      <div class="fixed inset-0 bg-neutral-900 bg-opacity-50 z-30">
+    <Teleport to="body" :disabled="!isMobileScreen">
+      <div
+        :class="{
+          hidden: !isAdvancedSearchModalOpen,
+          'absolute top-full right-0 left-0 block pt-2 px-4':
+            !isMobileScreen && isAdvancedSearchModalOpen,
+        }"
+      >
         <AdvancedSearchForm
           :isOpen="isAdvancedSearchModalOpen"
-          class="absolute bottom-0 h-[90vh]"
+          class="w-full"
+          :class="{
+            '!fixed inset-0 z-20': isMobileScreen,
+          }"
           @close="isAdvancedSearchModalOpen = false"
         />
       </div>
