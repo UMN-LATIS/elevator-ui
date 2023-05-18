@@ -1,15 +1,26 @@
 <template>
   <div
     :class="{ hidden: !isOpen, block: isOpen }"
-    class="bg-white rounded-lg shadow-md w-full relative"
+    class="bg-white rounded-2xl shadow-md w-full relative"
   >
-    <XButton class="absolute top-4 right-4" @click="$emit('close')" />
     <div class="p-4">
-      <h1
-        class="uppercase font-bold text-xs text-neutral-900 my-2 border-b pb-4"
-      >
-        Advanced Search
-      </h1>
+      <header class="flex gap-2 items-center justify-between mb-2">
+        <h1 class="uppercase font-bold text-xs text-neutral-900">
+          Advanced Search
+        </h1>
+        <XIcon @click="$emit('close')" />
+      </header>
+
+      <InputGroup
+        id="search"
+        ref="inputGroup"
+        :value="searchStore.query"
+        label="Search"
+        :labelHidden="true"
+        placeholder="Search"
+        inputClass="!rounded-full"
+      />
+
       <section>
         <h2 class="font-bold my-4">Collections</h2>
 
@@ -61,6 +72,8 @@ import DropDown from "../DropDown/DropDown.vue";
 import DropDownItem from "../DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { XIcon } from "@/icons";
+import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import { useSearchStore } from "@/stores/searchStore";
 
 defineProps<{
   isOpen: boolean;
@@ -71,7 +84,7 @@ defineEmits<{
 }>();
 
 const instanceStore = useInstanceStore();
-
+const searchStore = useSearchStore();
 const selectedCollectionIds = reactive<number[]>([]);
 
 const selectedCollections = computed(() => {

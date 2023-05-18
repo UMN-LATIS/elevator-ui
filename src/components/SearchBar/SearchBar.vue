@@ -47,17 +47,17 @@
     </form>
     <Teleport to="body" :disabled="!isMobileScreen">
       <div
+        class="fixed inset-0 bg-transparent-black-700 z-30 p-4"
         :class="{
           hidden: !isAdvancedSearchModalOpen,
-          'absolute top-full right-0 left-0 block pt-2 px-4':
-            !isMobileScreen && isAdvancedSearchModalOpen,
         }"
       >
         <AdvancedSearchForm
           :isOpen="isAdvancedSearchModalOpen"
-          class="w-full"
+          class="w-full max-w-3xl m-auto"
           :class="{
-            '!fixed inset-0 z-20': isMobileScreen,
+            '!absolute bottom-0 left-1/2 -translate-x-1/2 !rounded-bl-none !rounded-br-none':
+              isMobileScreen,
           }"
           @close="isAdvancedSearchModalOpen = false"
         />
