@@ -13,9 +13,17 @@
       <section>
         <h2 class="font-bold my-4">Collections</h2>
 
-        <ul v-if="selectedCollections.length">
-          <li v-for="collection in selectedCollections" :key="collection.id">
+        <ul v-if="selectedCollections.length" class="flex flex-wrap gap-2 my-4">
+          <li
+            v-for="collection in selectedCollections"
+            :key="collection.id"
+            class="text-xs bg-neutral-100 py-1 px-2 rounded-md border border-neutral-200 inline-flex items-center"
+          >
             {{ collection.title }}
+
+            <button class="ml-2" @click="handleRemoveCollection(collection.id)">
+              <XIcon class="h-3 w-3" />
+            </button>
           </li>
         </ul>
 
@@ -23,6 +31,7 @@
           label="Add Collection"
           class="border border-neutral-900 rounded-md"
           alignment="left"
+          labelClass="text-sm"
         >
           <div class="max-h-[25vh] overflow-y-auto">
             <DropDownItem
@@ -51,6 +60,7 @@ import Button from "@/components/Button/Button.vue";
 import DropDown from "../DropDown/DropDown.vue";
 import DropDownItem from "../DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { XIcon } from "@/icons";
 
 defineProps<{
   isOpen: boolean;
@@ -65,9 +75,9 @@ const instanceStore = useInstanceStore();
 const selectedCollectionIds = reactive<number[]>([]);
 
 const selectedCollections = computed(() => {
-  return instanceStore.collections.filter((collection) =>
-    selectedCollectionIds.includes(collection.id)
-  );
+  return instanceStore.collections
+    .filter((collection) => selectedCollectionIds.includes(collection.id))
+    .sort((a, b) => a.title.localeCompare(b.title));
 });
 
 const unselectedCollections = computed(() => {
@@ -78,6 +88,11 @@ const unselectedCollections = computed(() => {
 
 function handleAddCollection(collectionId: number) {
   selectedCollectionIds.push(collectionId);
+}
+
+function handleRemoveCollection(collectionId: number) {
+  const index = selectedCollectionIds.indexOf(collectionId);
+  selectedCollectionIds.splice(index, 1);
 }
 </script>
 <style scoped></style>

@@ -3,6 +3,7 @@
     <div>
       <MenuButton
         class="inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 p-2 placeholder:focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+        :class="labelClass"
       >
         <slot name="label">
           {{ label }}
@@ -49,10 +50,12 @@ withDefaults(
     label: string;
     alignment?: "left" | "right";
     showChevron?: boolean;
+    labelClass?: string | string[] | Record<string, boolean>;
   }>(),
   {
     alignment: "right",
     showChevron: true,
+    labelClass: "",
   }
 );
 </script>
