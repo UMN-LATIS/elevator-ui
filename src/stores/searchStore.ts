@@ -117,6 +117,10 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.collectionIds = [];
   },
 
+  clearAllFilters() {
+    this.clearCollectionIdFilters();
+  },
+
   async search(searchId?: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());

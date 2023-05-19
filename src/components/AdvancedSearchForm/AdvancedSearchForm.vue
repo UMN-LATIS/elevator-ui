@@ -1,9 +1,10 @@
 <template>
   <div
+    ref="advancedSearchForm"
     :class="{ hidden: !isOpen, block: isOpen }"
     class="bg-white rounded-2xl shadow-md w-full relative"
   >
-    <div ref="advancedSearchForm" class="p-4">
+    <div class="p-4">
       <header class="flex gap-2 items-center justify-between mb-6">
         <h1 class="sr-only">Advanced Search</h1>
         <InputGroup
@@ -97,8 +98,13 @@
     <div
       class="flex bg-transparent-black-100 px-4 py-2 justify-end items-center gap-4"
     >
-      <Button variant="tertiary">Reset All</Button>
-      <Button variant="primary">Search</Button>
+      <Button
+        variant="tertiary"
+        type="button"
+        @click="searchStore.clearAllFilters"
+        >Reset All</Button
+      >
+      <Button variant="primary" type="submit">Search</Button>
     </div>
   </div>
 </template>
@@ -111,7 +117,6 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { XIcon, CircleXIcon } from "@/icons";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { useSearchStore } from "@/stores/searchStore";
-import Chip from "../Chip/Chip.vue";
 import { pluralize } from "@/helpers/pluralize";
 import { onClickOutside } from "@vueuse/core";
 
