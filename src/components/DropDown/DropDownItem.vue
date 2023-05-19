@@ -2,9 +2,9 @@
   <MenuItem v-slot="{ active }" class="dropdown-item">
     <component
       :is="$attrs.disabled ? 'span' : Link"
-      class="block px-4 py-2 text-sm"
+      class="block px-4 py-2 text-sm !no-underline"
       :class="{
-        'bg-gray-100 text-gray-900': active,
+        'bg-blue-50 !text-blue-900': active,
         'text-gray-700': !active,
         'font-bold border-l-2 border-neutral-900 bg-transparent-black-100':
           current,

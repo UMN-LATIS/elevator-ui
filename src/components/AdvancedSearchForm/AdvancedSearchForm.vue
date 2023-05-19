@@ -4,39 +4,57 @@
     class="bg-white rounded-2xl shadow-md w-full relative"
   >
     <div class="p-4">
-      <header class="flex gap-2 items-center justify-between mb-2">
-        <h1 class="uppercase font-bold text-xs text-neutral-900">
-          Advanced Search
-        </h1>
+      <header class="flex gap-2 items-center justify-between mb-6">
+        <h1 class="sr-only">Advanced Search</h1>
+        <InputGroup
+          id="search"
+          ref="inputGroup"
+          :value="searchStore.query"
+          label="Search"
+          :labelHidden="true"
+          placeholder="Search"
+          class="flex-1"
+          inputClass="!rounded-full"
+          @input="searchStore.query = ($event.target as HTMLInputElement).value"
+        >
+          <template #append>
+            <button
+              v-if="searchStore.query.length"
+              type="button"
+              class="text-transparent-black-500 hover:text-neutral-900 mr-2"
+              @click="searchStore.query = ''"
+            >
+              <CircleXIcon class="" />
+            </button>
+          </template>
+        </InputGroup>
         <XIcon @click="$emit('close')" />
       </header>
 
-      <InputGroup
-        id="search"
-        ref="inputGroup"
-        :value="searchStore.query"
-        label="Search"
-        :labelHidden="true"
-        placeholder="Search"
-        inputClass="!rounded-full"
-        @input="searchStore.query = ($event.target as HTMLInputElement).value"
+      <h2
+        class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200 mb-4"
       >
-        <template #append>
-          <button
-            v-if="searchStore.query.length"
-            type="button"
-            class="text-transparent-black-500 hover:text-neutral-900 mr-2"
-            @click="searchStore.query = ''"
-          >
-            <CircleXIcon class="" />
-          </button>
-        </template>
-      </InputGroup>
+        Filter By
+      </h2>
 
       <section>
-        <h2 class="font-bold my-4">Collections</h2>
-
-        <ul v-if="selectedCollections.length" class="flex flex-wrap gap-2 my-4">
+        <header class="flex items-baseline gap-2 mb-2">
+          <h3 class="font-bold">Collections</h3>
+          <Chip
+            v-if="selectedCollections.length"
+            class="!bg-neutral-900 !text-neutral-100"
+          >
+            {{ selectedCollections.length }}
+          </Chip>
+          <Button
+            v-if="selectedCollections.length"
+            variant="tertiary"
+            @click="searchStore.clearCollectionIdFilters()"
+          >
+            clear
+          </Button>
+        </header>
+        <ul class="inline-flex flex-wrap gap-1">
           <li
             v-for="collection in selectedCollections"
             :key="collection.id"
@@ -51,24 +69,26 @@
               <XIcon class="h-3 w-3" />
             </button>
           </li>
-        </ul>
-
-        <DropDown
-          label="Add Collection"
-          class="border border-neutral-900 rounded-md"
-          alignment="left"
-          labelClass="text-sm py-2"
-        >
-          <div class="max-h-[25vh] overflow-y-auto">
-            <DropDownItem
-              v-for="collection in unselectedCollections"
-              :key="collection.id"
-              @click="searchStore.addCollectionIdFilter(collection.id)"
+          <li v-if="unselectedCollections.length">
+            <DropDown
+              v-if="unselectedCollections.length"
+              label="Add Collection"
+              class="inline-flex border border-neutral-900 rounded-md text-xs"
+              alignment="left"
+              labelClass="text-xs py-0"
             >
-              {{ collection.title }}
-            </DropDownItem>
-          </div>
-        </DropDown>
+              <div class="max-h-[25vh] overflow-y-auto">
+                <DropDownItem
+                  v-for="collection in unselectedCollections"
+                  :key="collection.id"
+                  @click="searchStore.addCollectionIdFilter(collection.id)"
+                >
+                  {{ collection.title }}
+                </DropDownItem>
+              </div>
+            </DropDown>
+          </li>
+        </ul>
       </section>
     </div>
     <div
@@ -88,6 +108,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { XIcon, CircleXIcon } from "@/icons";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { useSearchStore } from "@/stores/searchStore";
+import Chip from "../Chip/Chip.vue";
 
 defineProps<{
   isOpen: boolean;

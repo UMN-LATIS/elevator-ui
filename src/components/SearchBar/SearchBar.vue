@@ -47,7 +47,7 @@
     </form>
     <Teleport to="body" :disabled="!isMobileScreen">
       <div
-        class="fixed inset-0 bg-transparent-black-700 z-30 p-4"
+        class="fixed inset-0 bg-transparent-black-700 z-30 px-4 py-2"
         :class="{
           hidden: !isAdvancedSearchModalOpen,
         }"

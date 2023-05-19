@@ -104,6 +104,10 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.collectionIds.splice(index, 1);
   },
 
+  clearCollectionIdFilters() {
+    state.filterBy.collectionIds = [];
+  },
+
   async search(searchId?: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
