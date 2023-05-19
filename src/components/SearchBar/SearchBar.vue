@@ -6,26 +6,19 @@
       />
     </form>
 
-    <!-- only teleport if mobile, otherwise leave as-is in the DOM -->
-    <Teleport to="body" :disabled="!isMobileScreen">
-      <div
-        class="fixed inset-0 bg-transparent-black-700 z-30 px-4 py-2"
-        :class="{
-          hidden: !isAdvancedSearchModalOpen,
-        }"
-      >
-        <AdvancedSearchForm
-          :isOpen="isAdvancedSearchModalOpen"
-          class="w-full max-w-3xl m-auto"
-          :class="{
-            '!absolute bottom-0 left-1/2 -translate-x-1/2 !rounded-bl-none !rounded-br-none':
-              isMobileScreen,
-          }"
-          @submit="handleSubmit"
-          @close="isAdvancedSearchModalOpen = false"
-        />
-      </div>
-    </Teleport>
+    <div
+      class="fixed inset-0 bg-transparent-black-700 z-30 px-4 py-2"
+      :class="{
+        hidden: !isAdvancedSearchModalOpen,
+      }"
+    >
+      <AdvancedSearchForm
+        :isOpen="isAdvancedSearchModalOpen"
+        class="w-full max-w-3xl m-auto"
+        @submit="handleSubmit"
+        @close="isAdvancedSearchModalOpen = false"
+      />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -34,15 +27,12 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter } from "vue-router";
-import { useMediaQuery } from "@vueuse/core";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
 const router = useRouter();
-
-const isMobileScreen = useMediaQuery("(max-width: 640px)");
 
 async function handleSubmit() {
   // close advanced search modal if open
