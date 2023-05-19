@@ -43,7 +43,12 @@
           class="hidden md:inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
           type="submit"
         >
-          <SearchIcon class="h-4 w-4" aria-hidden="true" />
+          <SearchIcon
+            v-if="searchStore.isReady"
+            class="h-4 w-4"
+            aria-hidden="true"
+          />
+          <SpinnerIcon v-else class="h-4 w-4" aria-hidden="true" />
           <span class="sr-only">Search</span>
         </button>
       </div>
@@ -52,7 +57,7 @@
 </template>
 <script setup lang="ts">
 import { onUnmounted, onMounted, ref } from "vue";
-import { SearchIcon, CircleXIcon } from "@/icons";
+import { SearchIcon, CircleXIcon, SpinnerIcon } from "@/icons";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { VerticalDotsIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
