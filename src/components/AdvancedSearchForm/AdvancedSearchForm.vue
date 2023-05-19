@@ -79,7 +79,7 @@
               label="Add Collection"
               class="inline-flex border border-neutral-900 rounded-md text-xs"
               alignment="left"
-              labelClass="text-xs py-0"
+              labelClass="text-xs py-0 !pr-0"
             >
               <div class="max-h-[25vh] overflow-y-auto">
                 <DropDownItem
