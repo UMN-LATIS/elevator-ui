@@ -1,45 +1,14 @@
 <template>
-  <div
+  <form
     ref="advancedSearchForm"
     :class="{ hidden: !isOpen, block: isOpen }"
     class="bg-white rounded-2xl shadow-md w-full relative"
+    @submit.prevent="$emit('submit')"
   >
     <div class="p-4">
-      <header class="flex gap-2 items-center justify-between mb-6">
-        <h1 class="sr-only">Advanced Search</h1>
-        <InputGroup
-          id="search"
-          ref="inputGroup"
-          :value="searchStore.query"
-          label="Search"
-          :labelHidden="true"
-          placeholder="Search"
-          class="flex-1"
-          inputClass="!rounded-full"
-          @input="searchStore.query = ($event.target as HTMLInputElement).value"
-        >
-          <template #append>
-            <button
-              v-if="searchStore.query.length"
-              type="button"
-              class="text-transparent-black-500 hover:text-neutral-900 mr-2"
-              @click="searchStore.query = ''"
-            >
-              <CircleXIcon class="" />
-            </button>
-            <button
-              v-if="searchStore.hasFiltersApplied"
-              type="button"
-              class="inline-flex items-center justify-center rounded-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
-              @click="$emit('close')"
-            >
-              {{ searchStore.filteredByCount }}
-              {{ pluralize(searchStore.filteredByCount, "filter") }}
-            </button>
-          </template>
-        </InputGroup>
-        <XIcon @click="$emit('close')" />
-      </header>
+      <h1 class="sr-only">Advanced Search</h1>
+
+      <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
 
       <h2
         class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200 mb-4"
@@ -107,13 +76,11 @@
         variant="tertiary"
         type="button"
         @click="searchStore.clearAllFilters"
-        >Reset All</Button
+        >Clear All</Button
       >
-      <Button variant="primary" type="button" @click="$emit('submit')"
-        >Search</Button
-      >
+      <Button variant="primary" type="submit"> Search </Button>
     </div>
-  </div>
+  </form>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
@@ -121,11 +88,10 @@ import Button from "@/components/Button/Button.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
-import { XIcon, CircleXIcon } from "@/icons";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import { XIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
-import { pluralize } from "@/helpers/pluralize";
 import { onClickOutside } from "@vueuse/core";
+import SearchTextInputGroup from "../SearchBar/SearchTextInputGroup.vue";
 
 defineProps<{
   isOpen: boolean;
