@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import api from "@/api";
-import { ref, computed, type Ref } from "vue";
+import { ref, reactive, computed, type Ref } from "vue";
 import {
   FetchStatus,
   SearchResultMatch,
@@ -14,6 +14,9 @@ export interface SearchStoreState {
   searchId: Ref<string | undefined>;
   status: Ref<FetchStatus>;
   query: Ref<string>;
+  filterBy: {
+    collectionIds: number[];
+  };
   matches: Ref<SearchResultMatch[]>;
   totalResults: Ref<number | undefined>;
   currentPage: Ref<number>;
@@ -36,6 +39,9 @@ const createState = (): SearchStoreState => ({
   searchId: ref(undefined),
   status: ref("idle"),
   query: ref(""),
+  filterBy: reactive({
+    collectionIds: [],
+  }),
   matches: ref([]),
   totalResults: ref(undefined),
   currentPage: ref(0),
@@ -80,6 +86,22 @@ const actions = (state: SearchStoreState) => ({
 
     // refresh search results
     return this.search();
+  },
+
+  addCollectionIdFilter(collectionId: number) {
+    state.filterBy.collectionIds.push(collectionId);
+  },
+
+  removeCollectionIdFilter(collectionId: number) {
+    const index = state.filterBy.collectionIds.indexOf(collectionId);
+
+    if (index < 0) {
+      throw new Error(
+        `Cannot remove collection id ${collectionId} from searchStore. ID is not in filterBy.collectionIds`
+      );
+    }
+
+    state.filterBy.collectionIds.splice(index, 1);
   },
 
   async search(searchId?: string): Promise<string | void> {

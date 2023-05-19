@@ -44,7 +44,10 @@
           >
             {{ collection.title }}
 
-            <button class="ml-2" @click="handleRemoveCollection(collection.id)">
+            <button
+              class="ml-2"
+              @click="searchStore.removeCollectionIdFilter(collection.id)"
+            >
               <XIcon class="h-3 w-3" />
             </button>
           </li>
@@ -60,7 +63,7 @@
             <DropDownItem
               v-for="collection in unselectedCollections"
               :key="collection.id"
-              @click="handleAddCollection(collection.id)"
+              @click="searchStore.addCollectionIdFilter(collection.id)"
             >
               {{ collection.title }}
             </DropDownItem>
@@ -77,7 +80,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { reactive, computed } from "vue";
+import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
@@ -96,27 +99,19 @@ defineEmits<{
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
-const selectedCollectionIds = reactive<number[]>([]);
 
 const selectedCollections = computed(() => {
   return instanceStore.collections
-    .filter((collection) => selectedCollectionIds.includes(collection.id))
+    .filter((collection) =>
+      searchStore.filterBy.collectionIds.includes(collection.id)
+    )
     .sort((a, b) => a.title.localeCompare(b.title));
 });
 
 const unselectedCollections = computed(() => {
   return instanceStore.collections.filter(
-    (collection) => !selectedCollectionIds.includes(collection.id)
+    (collection) => !searchStore.filterBy.collectionIds.includes(collection.id)
   );
 });
-
-function handleAddCollection(collectionId: number) {
-  selectedCollectionIds.push(collectionId);
-}
-
-function handleRemoveCollection(collectionId: number) {
-  const index = selectedCollectionIds.indexOf(collectionId);
-  selectedCollectionIds.splice(index, 1);
-}
 </script>
 <style scoped></style>
