@@ -55,13 +55,9 @@ const createState = (): SearchStoreState => ({
 
 const getters = (state: SearchStoreState) => ({
   isReady: computed(() => state.status.value === "success"),
+
   hasMoreResults: computed(() => {
     return state.matches.value.length < (state.totalResults.value ?? 0);
-  }),
-  collectionIds: computed((): number[] | null => {
-    if (!state.searchEntry.value?.collection) return null;
-    // convert to numbers, as the api returns strings
-    return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
   }),
 
   filteredByCount: computed((): number => {
@@ -73,15 +69,13 @@ const getters = (state: SearchStoreState) => ({
   }),
 
   isBrowsingCollection: computed((): boolean => {
-    const collectionIds = getters(state).collectionIds.value;
-    if (!collectionIds) return false;
-
     return (
-      state.searchEntry.value?.searchText === "" && collectionIds.length === 1
+      state.searchEntry.value?.searchText === "" &&
+      state.filterBy.collectionIds.length === 1
     );
   }),
   browsingCollectionId: computed((): number | null => {
-    const collectionIds = getters(state).collectionIds.value;
+    const collectionIds = state.filterBy.collectionIds;
     const isBrowsingCollection = getters(state).isBrowsingCollection.value;
 
     if (!isBrowsingCollection || !collectionIds) return null;
@@ -125,9 +119,6 @@ const actions = (state: SearchStoreState) => ({
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
 
-    // if we're searching a collection, make sure we have the collection id before clearing the searchEntry
-    const collectionIds = getters(state).collectionIds.value;
-
     // clear old search results
     state.status.value = "fetching";
     state.searchId.value = undefined;
@@ -144,8 +135,8 @@ const actions = (state: SearchStoreState) => ({
         : await api
             .getSearchId(state.query.value, {
               sort: state.sort.value ? state.sort.value : undefined,
-              collections: getters(state).isBrowsingCollection
-                ? collectionIds
+              collections: state.filterBy.collectionIds.length
+                ? state.filterBy.collectionIds
                 : undefined,
             })
             .catch((err) => {
@@ -166,6 +157,12 @@ const actions = (state: SearchStoreState) => ({
           state.matches.value = res.matches;
           state.status.value = "success";
           state.sortOptions.value = res.sortableWidgets;
+
+          // set the collections list to the collections in the search entry
+          state.filterBy.collectionIds =
+            res.searchEntry.collection?.map((idStr) =>
+              Number.parseInt(idStr)
+            ) ?? [];
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters

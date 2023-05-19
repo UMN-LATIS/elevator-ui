@@ -47,8 +47,8 @@
         Filter By
       </h2>
 
-      <section>
-        <header class="flex items-baseline gap-2 mb-2">
+      <section class="my-4">
+        <header class="flex items-baseline gap-2">
           <h3 class="font-bold">Collections</h3>
           <Button
             v-if="selectedCollections.length"
@@ -58,6 +58,11 @@
             clear
           </Button>
         </header>
+        <p class="text-neutral-400 text-xs italic mb-4">
+          Choose which collections to search. If none are chosen, all will be
+          searched.
+        </p>
+
         <ul class="inline-flex flex-wrap gap-1">
           <li
             v-for="collection in selectedCollections"
@@ -104,7 +109,9 @@
         @click="searchStore.clearAllFilters"
         >Reset All</Button
       >
-      <Button variant="primary" type="submit">Search</Button>
+      <Button variant="primary" type="button" @click="$emit('submit')"
+        >Search</Button
+      >
     </div>
   </div>
 </template>
@@ -126,6 +133,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (eventName: "close"): void;
+  (eventName: "submit"): void;
 }>();
 
 const instanceStore = useInstanceStore();

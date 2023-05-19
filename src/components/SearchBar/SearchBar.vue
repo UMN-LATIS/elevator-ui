@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <form class="search-bar" @submit="handleSubmit">
+    <form class="search-bar" @submit.prevent="handleSubmit">
       <InputGroup
         id="search"
         ref="inputGroup"
@@ -69,6 +69,7 @@
             '!absolute bottom-0 left-1/2 -translate-x-1/2 !rounded-bl-none !rounded-br-none':
               isMobileScreen,
           }"
+          @submit="handleSubmit"
           @close="isAdvancedSearchModalOpen = false"
         />
       </div>
@@ -113,8 +114,10 @@ function handleInputGroupBlur(event) {
   emit("blur", event);
 }
 
-async function handleSubmit(event: Event) {
-  event.preventDefault();
+async function handleSubmit() {
+  // close advanced search modal if open
+  isAdvancedSearchModalOpen.value = false;
+
   const searchId = await searchStore.search();
   if (!searchId) {
     router.push({
