@@ -30,15 +30,24 @@
           <span class="sr-only">Advanced Search</span>
           <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
         </button>
-        <button
-          v-if="searchStore.hasFiltersApplied"
-          type="button"
-          class="inline-flex items-center justify-center rounded-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
-          @click="$emit('moreOptionClick')"
-        >
-          {{ searchStore.filteredByCount }}
-          {{ pluralize(searchStore.filteredByCount, "filter") }}
-        </button>
+        <div v-if="searchStore.hasFiltersApplied" class="inline-flex">
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-l-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2 border-r border-neutral-600"
+            @click="$emit('moreOptionClick')"
+          >
+            {{ searchStore.filteredByCount }}
+            {{ pluralize(searchStore.filteredByCount, "filter") }}
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-r-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
+            @click="searchStore.clearAllFilters()"
+          >
+            <span class="sr-only">Clear All Filters</span>
+            <XIcon class="h-3 w-3" aria-hidden="true" />
+          </button>
+        </div>
         <button
           class="hidden md:inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
           type="submit"
@@ -62,6 +71,7 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { VerticalDotsIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import { pluralize } from "@/helpers/pluralize";
+import XIcon from "@/icons/XIcon.vue";
 
 defineEmits<{
   (eventName: "moreOptionClick"): void;
