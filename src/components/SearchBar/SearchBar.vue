@@ -24,6 +24,7 @@
               <CircleXIcon class="" />
             </button>
             <button
+              v-if="!searchStore.hasFiltersApplied"
               type="button"
               class="w-8 h-8 inline-flex items-center justify-center rounded-full"
               :class="{

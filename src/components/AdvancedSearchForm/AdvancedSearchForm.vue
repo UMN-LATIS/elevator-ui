@@ -49,12 +49,6 @@
       <section>
         <header class="flex items-baseline gap-2 mb-2">
           <h3 class="font-bold">Collections</h3>
-          <Chip
-            v-if="selectedCollections.length"
-            class="!bg-neutral-900 !text-neutral-100"
-          >
-            {{ selectedCollections.length }}
-          </Chip>
           <Button
             v-if="selectedCollections.length"
             variant="tertiary"
