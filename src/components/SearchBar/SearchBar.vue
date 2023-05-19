@@ -35,6 +35,15 @@
               <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
             </button>
             <button
+              v-if="searchStore.hasFiltersApplied"
+              type="button"
+              class="inline-flex items-center justify-center rounded-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
+              @click="isAdvancedSearchModalOpen = !isAdvancedSearchModalOpen"
+            >
+              {{ searchStore.filteredByCount }}
+              {{ pluralize(searchStore.filteredByCount, "filter") }}
+            </button>
+            <button
               class="hidden md:inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
               type="submit"
             >
@@ -74,6 +83,7 @@ import { VerticalDotsIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter } from "vue-router";
 import { useMediaQuery } from "@vueuse/core";
+import { pluralize } from "@/helpers/pluralize";
 
 const emit = defineEmits<{
   (eventName: "focus", event: Event): void;

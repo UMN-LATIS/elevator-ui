@@ -3,7 +3,7 @@
     :class="{ hidden: !isOpen, block: isOpen }"
     class="bg-white rounded-2xl shadow-md w-full relative"
   >
-    <div class="p-4">
+    <div ref="advancedSearchForm" class="p-4">
       <header class="flex gap-2 items-center justify-between mb-6">
         <h1 class="sr-only">Advanced Search</h1>
         <InputGroup
@@ -25,6 +25,15 @@
               @click="searchStore.query = ''"
             >
               <CircleXIcon class="" />
+            </button>
+            <button
+              v-if="searchStore.hasFiltersApplied"
+              type="button"
+              class="inline-flex items-center justify-center rounded-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
+              @click="$emit('close')"
+            >
+              {{ searchStore.filteredByCount }}
+              {{ pluralize(searchStore.filteredByCount, "filter") }}
             </button>
           </template>
         </InputGroup>
@@ -100,7 +109,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import Button from "@/components/Button/Button.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
@@ -109,17 +118,20 @@ import { XIcon, CircleXIcon } from "@/icons";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import Chip from "../Chip/Chip.vue";
+import { pluralize } from "@/helpers/pluralize";
+import { onClickOutside } from "@vueuse/core";
 
 defineProps<{
   isOpen: boolean;
 }>();
 
-defineEmits<{
-  (eventName: "close", event: Event): void;
+const emit = defineEmits<{
+  (eventName: "close"): void;
 }>();
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
+const advancedSearchForm = ref<HTMLDivElement | null>(null);
 
 const selectedCollections = computed(() => {
   return instanceStore.collections
@@ -133,6 +145,24 @@ const unselectedCollections = computed(() => {
   return instanceStore.collections.filter(
     (collection) => !searchStore.filterBy.collectionIds.includes(collection.id)
   );
+});
+
+onClickOutside(advancedSearchForm, () => {
+  emit("close");
+});
+
+function handleEscapeKey(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    emit("close");
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("keydown", handleEscapeKey);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleEscapeKey);
 });
 </script>
 <style scoped></style>

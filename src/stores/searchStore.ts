@@ -63,6 +63,15 @@ const getters = (state: SearchStoreState) => ({
     // convert to numbers, as the api returns strings
     return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
   }),
+
+  filteredByCount: computed((): number => {
+    return state.filterBy.collectionIds.length;
+  }),
+
+  hasFiltersApplied: computed((): boolean => {
+    return getters(state).filteredByCount.value > 0;
+  }),
+
   isBrowsingCollection: computed((): boolean => {
     const collectionIds = getters(state).collectionIds.value;
     if (!collectionIds) return false;
