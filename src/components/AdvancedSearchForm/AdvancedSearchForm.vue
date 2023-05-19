@@ -92,6 +92,7 @@ import { XIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import { onClickOutside } from "@vueuse/core";
 import SearchTextInputGroup from "../SearchBar/SearchTextInputGroup.vue";
+import type { AssetCollection } from "@/types";
 
 defineProps<{
   isOpen: boolean;
@@ -106,8 +107,27 @@ const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 const advancedSearchForm = ref<HTMLDivElement | null>(null);
 
+function flattenCollections(collections: AssetCollection[]): AssetCollection[] {
+  return [
+    ...collections,
+    ...collections.flatMap((collection) => {
+      const children = collection.children ?? [];
+      // prepend the parent title to the child title
+      const childrenWithParentTitle = children.map((child) => ({
+        ...child,
+        title: `${collection.title} | ${child.title}`,
+      }));
+      return flattenCollections(childrenWithParentTitle);
+    }),
+  ];
+}
+
+const flatCollections = computed(() => {
+  return flattenCollections(instanceStore.collections);
+});
+
 const selectedCollections = computed(() => {
-  return instanceStore.collections
+  return flatCollections.value
     .filter((collection) =>
       searchStore.filterBy.collectionIds.includes(collection.id)
     )
@@ -115,9 +135,12 @@ const selectedCollections = computed(() => {
 });
 
 const unselectedCollections = computed(() => {
-  return instanceStore.collections.filter(
-    (collection) => !searchStore.filterBy.collectionIds.includes(collection.id)
-  );
+  return flatCollections.value
+    .filter(
+      (collection) =>
+        !searchStore.filterBy.collectionIds.includes(collection.id)
+    )
+    .sort((a, b) => a.title.localeCompare(b.title));
 });
 
 onClickOutside(advancedSearchForm, () => {
