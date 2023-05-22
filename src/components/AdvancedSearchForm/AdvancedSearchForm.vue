@@ -1,7 +1,7 @@
 <template>
   <form
     ref="advancedSearchForm"
-    class="bg-white rounded-3xl shadow-md w-full"
+    class="bg-white rounded-3xl shadow-md"
     @submit.prevent="$emit('submit')"
   >
     <div class="p-2">

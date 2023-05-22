@@ -9,7 +9,7 @@
       <AdvancedSearchForm
         v-if="isAdvancedSearchModalOpen"
         :isOpen="isAdvancedSearchModalOpen"
-        class="absolute !-top-2 !-right-2 m-auto advanced-search-form z-40"
+        class="fixed top-1 right-1 left-1 m-auto z-40 sm:absolute sm:!-top-2 sm:!-right-2 sm:!-left-2 advanced-search-form"
         @submit="handleSubmit"
         @close="isAdvancedSearchModalOpen = false"
       />
@@ -76,7 +76,9 @@ document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
 </script>
 <style scoped>
-.advanced-search-form {
-  width: calc(100% + 1rem);
+@media (min-width: 640px) {
+  .advanced-search-form {
+    width: calc(100% + 1rem);
+  }
 }
 </style>
