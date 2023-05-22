@@ -2,24 +2,25 @@
   <form
     ref="advancedSearchForm"
     :class="{ hidden: !isOpen, block: isOpen }"
-    class="bg-white rounded-2xl shadow-md w-full relative"
+    class="bg-white rounded-3xl shadow-md w-full"
     @submit.prevent="$emit('submit')"
   >
-    <div class="p-4">
+    <div class="p-2">
       <h1 class="sr-only">Advanced Search</h1>
 
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
+      <div class="px-2">
+        <h2
+          class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200 mb-4"
+        >
+          Filter By
+        </h2>
 
-      <h2
-        class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200 mb-4"
-      >
-        Filter By
-      </h2>
-
-      <FilterByCollectionsSection />
+        <FilterByCollectionsSection />
+      </div>
     </div>
     <div
-      class="flex bg-transparent-black-100 px-4 py-2 justify-end items-center gap-4"
+      class="flex bg-transparent-black-100 p-2 justify-end items-center gap-4"
     >
       <Button
         variant="tertiary"
@@ -27,7 +28,9 @@
         @click="searchStore.clearAllFilters"
         >Clear All</Button
       >
-      <Button variant="primary" type="submit"> Search </Button>
+      <Button variant="primary" type="submit" class="!rounded-full">
+        Search
+      </Button>
     </div>
   </form>
 </template>

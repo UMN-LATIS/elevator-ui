@@ -5,20 +5,18 @@
         @moreOptionClick="isAdvancedSearchModalOpen = true"
       />
     </form>
-
+    <AdvancedSearchForm
+      :isOpen="isAdvancedSearchModalOpen"
+      class="absolute !-top-2 !-right-2 m-auto advanced-search-form z-40"
+      @submit="handleSubmit"
+      @close="isAdvancedSearchModalOpen = false"
+    />
     <div
       class="fixed inset-0 bg-transparent-black-700 z-30 px-4 py-2"
       :class="{
         hidden: !isAdvancedSearchModalOpen,
       }"
-    >
-      <AdvancedSearchForm
-        :isOpen="isAdvancedSearchModalOpen"
-        class="w-full max-w-3xl m-auto"
-        @submit="handleSubmit"
-        @close="isAdvancedSearchModalOpen = false"
-      />
-    </div>
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -71,4 +69,8 @@ function removeFocusOnEscape(event: KeyboardEvent) {
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
 </script>
-<style scoped></style>
+<style scoped>
+.advanced-search-form {
+  width: calc(100% + 1rem);
+}
+</style>
