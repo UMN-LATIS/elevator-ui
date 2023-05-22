@@ -236,6 +236,7 @@ const api = {
     const res = await axios.get<ApiInstanceNavResponse>(
       `${BASE_URL}/home/getInstanceNav`
     );
+
     return res.data;
   },
 

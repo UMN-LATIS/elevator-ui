@@ -35,9 +35,12 @@
         <DropDown
           v-if="unselectedCollections.length"
           label="Add Collection"
-          class="inline-flex border border-neutral-900 rounded-md text-xs"
+          class="inline-flex border border-neutral-900 rounded-md"
           alignment="left"
-          labelClass="text-xs py-0 !pr-0"
+          :labelClass="{
+            'text-xs py-0 !pr-0': !!selectedCollections.length,
+            'p-2 !pr-0': !selectedCollections.length,
+          }"
         >
           <div class="max-h-[50vh] overflow-y-auto">
             <DropDownItem

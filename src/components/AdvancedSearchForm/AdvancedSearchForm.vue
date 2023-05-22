@@ -16,6 +16,7 @@
         </h2>
 
         <FilterByCollectionsSection />
+        <FilterByFieldsSection />
       </div>
     </div>
     <div
@@ -40,6 +41,7 @@ import { useSearchStore } from "@/stores/searchStore";
 import { onClickOutside } from "@vueuse/core";
 import SearchTextInputGroup from "../SearchBar/SearchTextInputGroup.vue";
 import FilterByCollectionsSection from "./FilterByCollectionsSection.vue";
+import FilterByFieldsSection from "./FilterByFieldsSection.vue";
 
 const emit = defineEmits<{
   (eventName: "close"): void;

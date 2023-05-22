@@ -448,6 +448,16 @@ export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
 
 export type ElevatorCallbackType = "lti" | "JS";
 
+export interface RawSortableField {
+  label: string;
+  template: number;
+  type: WidgetType;
+}
+
+export interface SearchableField extends RawSortableField {
+  id: string;
+}
+
 export interface ApiInstanceNavResponse {
   pages: Page[];
   userId: number | null;
@@ -466,6 +476,7 @@ export interface ApiInstanceNavResponse {
   useCentralAuth: boolean;
   centralAuthLabel: string;
   collections: RawAssetCollection[];
+  sortableFields: Record<string, RawSortableField>;
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
 }
@@ -483,6 +494,7 @@ export interface InstanceStoreState {
   currentUser: User | null;
   instance: ElevatorInstance;
   collections: AssetCollection[];
+  searchableFields: SearchableField[];
 }
 
 export interface ElevatorInstance {

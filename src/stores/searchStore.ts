@@ -24,6 +24,7 @@ export interface SearchStoreState {
   // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
+    fieldIds: number[];
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -53,6 +54,7 @@ const createState = (): SearchStoreState => ({
   query: ref(""),
   filterBy: reactive({
     collectionIds: [],
+    fieldIds: [],
   }),
   matches: ref([]),
   totalResults: ref(undefined),
