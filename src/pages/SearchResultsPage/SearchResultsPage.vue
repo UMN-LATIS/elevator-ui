@@ -255,6 +255,7 @@ watch(
 // clear the search query when leaving this page
 onBeforeRouteLeave(() => {
   searchStore.query = "";
+  searchStore.clearAllFilters();
 });
 </script>
 <style scoped></style>
