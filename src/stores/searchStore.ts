@@ -13,13 +13,25 @@ import { SORT_KEYS } from "@/constants/constants";
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
   status: Ref<FetchStatus>;
+
+  // query is the current state of the search text input
+  // use searchEntry.searchText to get the search text
+  // submitted in the previous search
   query: Ref<string>;
+
+  // filterBy is the current state of the filters
+  // use searchEntry.collection to get the list of
+  // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
   };
+
   matches: Ref<SearchResultMatch[]>;
   totalResults: Ref<number | undefined>;
   currentPage: Ref<number>;
+
+  // use searchEntry when we need to determine the state
+  // of the search we're currently viewing.
   searchEntry: Ref<SearchEntry | null>;
   resultsView: Ref<SearchResultsView>;
   sortOptions: Ref<SearchSortOptions>;
@@ -68,18 +80,25 @@ const getters = (state: SearchStoreState) => ({
     return getters(state).filteredByCount.value > 0;
   }),
 
+  /**
+   * if the current search results are for a single collection
+   * with no search text, then we are browsing that collection
+   */
   isBrowsingCollection: computed((): boolean => {
     return (
       state.searchEntry.value?.searchText === "" &&
-      state.filterBy.collectionIds.length === 1
+      state.searchEntry.value?.collection?.length === 1
     );
   }),
   browsingCollectionId: computed((): number | null => {
-    const collectionIds = state.filterBy.collectionIds;
-    const isBrowsingCollection = getters(state).isBrowsingCollection.value;
+    if (!getters(state).isBrowsingCollection.value) {
+      return null;
+    }
 
-    if (!isBrowsingCollection || !collectionIds) return null;
-    return collectionIds[0];
+    const firstCollectionId: string | undefined =
+      state.searchEntry.value?.collection?.[0];
+
+    return firstCollectionId ? Number.parseInt(firstCollectionId) : null;
   }),
 });
 
