@@ -42,7 +42,7 @@
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-r-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
-            @click="searchStore.clearAllFilters()"
+            @click="handleClearAllFiltersClick"
           >
             <span class="sr-only">Clear All Filters</span>
             <XIcon class="h-3 w-3" aria-hidden="true" />
@@ -73,8 +73,9 @@ import { useSearchStore } from "@/stores/searchStore";
 import { pluralize } from "@/helpers/pluralize";
 import XIcon from "@/icons/XIcon.vue";
 
-defineEmits<{
+const emit = defineEmits<{
   (eventName: "moreOptionClick"): void;
+  (eventName: "clearAllFilters"): void;
 }>();
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
@@ -94,6 +95,11 @@ function removeFocusOnEscape(event: KeyboardEvent) {
   if (event.key === "Escape") {
     inputGroup.value.$el.querySelector("input")?.blur();
   }
+}
+
+function handleClearAllFiltersClick() {
+  searchStore.clearAllFilters();
+  emit("clearAllFilters");
 }
 
 onMounted(() => {

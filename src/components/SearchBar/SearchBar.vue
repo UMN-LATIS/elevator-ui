@@ -1,8 +1,17 @@
 <template>
   <div class="relative">
     <form class="search-bar" @submit.prevent="handleSubmit">
+      <!-- main search bar -->
       <SearchTextInputGroup
         @moreOptionClick="isAdvancedSearchModalOpen = true"
+        @clearAllFilters="
+          () => {
+            // resubmit the form if the user clicks clears all filters
+            // and the advanced search modal is not open
+            if (isAdvancedSearchModalOpen) return;
+            handleSubmit();
+          }
+        "
       />
     </form>
     <TransitionFade>
