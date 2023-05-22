@@ -1,7 +1,6 @@
 <template>
   <form
     ref="advancedSearchForm"
-    :class="{ hidden: !isOpen, block: isOpen }"
     class="bg-white rounded-3xl shadow-md w-full"
     @submit.prevent="$emit('submit')"
   >
@@ -41,10 +40,6 @@ import { useSearchStore } from "@/stores/searchStore";
 import { onClickOutside } from "@vueuse/core";
 import SearchTextInputGroup from "../SearchBar/SearchTextInputGroup.vue";
 import FilterByCollectionsSection from "./FilterByCollectionsSection.vue";
-
-defineProps<{
-  isOpen: boolean;
-}>();
 
 const emit = defineEmits<{
   (eventName: "close"): void;

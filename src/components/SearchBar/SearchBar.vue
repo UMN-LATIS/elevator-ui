@@ -5,18 +5,23 @@
         @moreOptionClick="isAdvancedSearchModalOpen = true"
       />
     </form>
-    <AdvancedSearchForm
-      :isOpen="isAdvancedSearchModalOpen"
-      class="absolute !-top-2 !-right-2 m-auto advanced-search-form z-40"
-      @submit="handleSubmit"
-      @close="isAdvancedSearchModalOpen = false"
-    />
-    <div
-      class="fixed inset-0 bg-transparent-black-700 z-30 px-4 py-2"
-      :class="{
-        hidden: !isAdvancedSearchModalOpen,
-      }"
-    />
+    <TransitionFade>
+      <AdvancedSearchForm
+        v-if="isAdvancedSearchModalOpen"
+        :isOpen="isAdvancedSearchModalOpen"
+        class="absolute !-top-2 !-right-2 m-auto advanced-search-form z-40"
+        @submit="handleSubmit"
+        @close="isAdvancedSearchModalOpen = false"
+      />
+    </TransitionFade>
+
+    <!-- overlay -->
+    <TransitionFade>
+      <div
+        v-if="isAdvancedSearchModalOpen"
+        class="fixed inset-0 bg-transparent-black-700 z-30"
+      />
+    </TransitionFade>
   </div>
 </template>
 <script setup lang="ts">
@@ -26,6 +31,7 @@ import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchFo
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter } from "vue-router";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
+import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const isAdvancedSearchModalOpen = ref(false);
