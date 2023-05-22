@@ -16,7 +16,7 @@
       below.
     </p>
 
-    <ul class="inline-flex flex-wrap gap-1">
+    <ul class="inline-flex flex-wrap gap-2">
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
