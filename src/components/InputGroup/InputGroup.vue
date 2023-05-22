@@ -7,7 +7,7 @@
     >
       {{ label }}
     </label>
-    <div class="relative rounded-md shadow-sm">
+    <div class="relative rounded-md">
       <div
         v-if="$slots.prepend"
         class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
