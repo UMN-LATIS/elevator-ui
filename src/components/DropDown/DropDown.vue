@@ -25,7 +25,7 @@
       leaveToClass="transform opacity-0 scale-95"
     >
       <MenuItems
-        class="absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute z-10 mt-1 w-56 origin-top-right top-full divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
         :class="{
           'left-0': alignment === 'left',
           'right-0': alignment === 'right',

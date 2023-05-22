@@ -38,7 +38,7 @@
           alignment="left"
           labelClass="text-xs py-0 !pr-0"
         >
-          <div class="max-h-[25vh] overflow-y-auto">
+          <div class="max-h-[50vh] overflow-y-auto">
             <DropDownItem
               v-for="collection in unselectedCollections"
               :key="collection.id"
