@@ -10,9 +10,10 @@
         clear
       </Button>
     </header>
-    <p class="text-neutral-400 text-xs italic mb-4">
-      Choose which collections to search. If none are chosen, all will be
-      searched.
+
+    <p class="text-neutral-400 text-xs mb-2 italic">
+      To limit your search to specific collections, choose "Add Collection"
+      below.
     </p>
 
     <ul class="inline-flex flex-wrap gap-1">
