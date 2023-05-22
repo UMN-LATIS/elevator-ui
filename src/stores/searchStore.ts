@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import api from "@/api";
-import { ref, computed, type Ref } from "vue";
+import { ref, reactive, computed, type Ref } from "vue";
 import {
   FetchStatus,
   SearchResultMatch,
@@ -13,10 +13,25 @@ import { SORT_KEYS } from "@/constants/constants";
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
   status: Ref<FetchStatus>;
+
+  // query is the current state of the search text input
+  // use searchEntry.searchText to get the search text
+  // submitted in the previous search
   query: Ref<string>;
+
+  // filterBy is the current state of the filters
+  // use searchEntry.collection to get the list of
+  // collections that were used in the previous search
+  filterBy: {
+    collectionIds: number[];
+  };
+
   matches: Ref<SearchResultMatch[]>;
   totalResults: Ref<number | undefined>;
   currentPage: Ref<number>;
+
+  // use searchEntry when we need to determine the state
+  // of the search we're currently viewing.
   searchEntry: Ref<SearchEntry | null>;
   resultsView: Ref<SearchResultsView>;
   sortOptions: Ref<SearchSortOptions>;
@@ -36,6 +51,9 @@ const createState = (): SearchStoreState => ({
   searchId: ref(undefined),
   status: ref("idle"),
   query: ref(""),
+  filterBy: reactive({
+    collectionIds: [],
+  }),
   matches: ref([]),
   totalResults: ref(undefined),
   currentPage: ref(0),
@@ -49,28 +67,38 @@ const createState = (): SearchStoreState => ({
 
 const getters = (state: SearchStoreState) => ({
   isReady: computed(() => state.status.value === "success"),
+
   hasMoreResults: computed(() => {
     return state.matches.value.length < (state.totalResults.value ?? 0);
   }),
-  collectionIds: computed((): number[] | null => {
-    if (!state.searchEntry.value?.collection) return null;
-    // convert to numbers, as the api returns strings
-    return state.searchEntry.value.collection.map((id) => Number.parseInt(id));
-  }),
-  isBrowsingCollection: computed((): boolean => {
-    const collectionIds = getters(state).collectionIds.value;
-    if (!collectionIds) return false;
 
+  filteredByCount: computed((): number => {
+    return state.filterBy.collectionIds.length;
+  }),
+
+  hasFiltersApplied: computed((): boolean => {
+    return getters(state).filteredByCount.value > 0;
+  }),
+
+  /**
+   * if the current search results are for a single collection
+   * with no search text, then we are browsing that collection
+   */
+  isBrowsingCollection: computed((): boolean => {
     return (
-      state.searchEntry.value?.searchText === "" && collectionIds.length === 1
+      state.searchEntry.value?.searchText === "" &&
+      state.searchEntry.value?.collection?.length === 1
     );
   }),
   browsingCollectionId: computed((): number | null => {
-    const collectionIds = getters(state).collectionIds.value;
-    const isBrowsingCollection = getters(state).isBrowsingCollection.value;
+    if (!getters(state).isBrowsingCollection.value) {
+      return null;
+    }
 
-    if (!isBrowsingCollection || !collectionIds) return null;
-    return collectionIds[0];
+    const firstCollectionId: string | undefined =
+      state.searchEntry.value?.collection?.[0];
+
+    return firstCollectionId ? Number.parseInt(firstCollectionId) : null;
   }),
 });
 
@@ -82,12 +110,33 @@ const actions = (state: SearchStoreState) => ({
     return this.search();
   },
 
+  addCollectionIdFilter(collectionId: number) {
+    state.filterBy.collectionIds.push(collectionId);
+  },
+
+  removeCollectionIdFilter(collectionId: number) {
+    const index = state.filterBy.collectionIds.indexOf(collectionId);
+
+    if (index < 0) {
+      throw new Error(
+        `Cannot remove collection id ${collectionId} from searchStore. ID is not in filterBy.collectionIds`
+      );
+    }
+
+    state.filterBy.collectionIds.splice(index, 1);
+  },
+
+  clearCollectionIdFilters() {
+    state.filterBy.collectionIds = [];
+  },
+
+  clearAllFilters() {
+    this.clearCollectionIdFilters();
+  },
+
   async search(searchId?: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
-
-    // if we're searching a collection, make sure we have the collection id before clearing the searchEntry
-    const collectionIds = getters(state).collectionIds.value;
 
     // clear old search results
     state.status.value = "fetching";
@@ -105,8 +154,8 @@ const actions = (state: SearchStoreState) => ({
         : await api
             .getSearchId(state.query.value, {
               sort: state.sort.value ? state.sort.value : undefined,
-              collections: getters(state).isBrowsingCollection
-                ? collectionIds
+              collections: state.filterBy.collectionIds.length
+                ? state.filterBy.collectionIds
                 : undefined,
             })
             .catch((err) => {
@@ -127,6 +176,12 @@ const actions = (state: SearchStoreState) => ({
           state.matches.value = res.matches;
           state.status.value = "success";
           state.sortOptions.value = res.sortableWidgets;
+
+          // set the collections list to the collections in the search entry
+          state.filterBy.collectionIds =
+            res.searchEntry.collection?.map((idStr) =>
+              Number.parseInt(idStr)
+            ) ?? [];
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters

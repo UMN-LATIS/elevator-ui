@@ -102,7 +102,7 @@ const componentType = computed(() => {
     border-color: var(--app-button-tertiary-active-borderColor);
   }
   &:disabled {
-    text-decoration: line-through;
+    cursor: not-allowed;
     color: var(--app-button-tertiary-disabled-textColor);
     background: var(--app-button-tertiary-disabled-backgroundColor);
     border-color: var(--app-button-tertiary-disabled-borderColor);

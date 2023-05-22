@@ -1,92 +1,56 @@
 <template>
-  <div>
-    <form class="search-bar" @submit="handleSubmit">
-      <InputGroup
-        id="search"
-        ref="inputGroup"
-        label="Search"
-        :labelHidden="true"
-        placeholder="Search"
-        :value="searchStore.query"
-        @focus="handleInputGroupFocus"
-        @blur="handleInputGroupBlur"
-        @input="handleInput"
-      >
-        <template #prepend>
-          <SearchIcon
-            class="h-5 w-5 text-transparent-black-500"
-            :class="{
-              'text-transparent-black-800': searchInputHasFocus,
-            }"
-            aria-hidden="true"
-          />
-        </template>
-        <template #append>
-          <div class="flex gap-2 items-center">
-            <button
-              v-if="searchStore.query.length"
-              type="button"
-              class="text-transparent-black-500 hover:text-neutral-900"
-              @click="handleClearSearchInput"
-            >
-              <CircleXIcon class="" />
-            </button>
-
-            <KeyboardShortcut
-              class="hidden sm:block text-transparent-black-500 border-transparent-black-500"
-            >
-              ⌘K
-            </KeyboardShortcut>
-          </div>
-        </template>
-      </InputGroup>
+  <div class="relative">
+    <form class="search-bar" @submit.prevent="handleSubmit">
+      <!-- main search bar -->
+      <SearchTextInputGroup
+        @moreOptionClick="isAdvancedSearchModalOpen = true"
+        @clearAllFilters="
+          () => {
+            // resubmit the form if the user clicks clears all filters
+            // and the advanced search modal is not open
+            if (isAdvancedSearchModalOpen) return;
+            handleSubmit();
+          }
+        "
+      />
     </form>
-    <Modal
-      label="Advanced Search"
-      :isOpen="isAdvancedSearchModalOpen"
-      @close="isAdvancedSearchModalOpen = false"
-    >
-      <AdvancedSearchForm />
-    </Modal>
+    <TransitionFade>
+      <AdvancedSearchForm
+        v-if="isAdvancedSearchModalOpen"
+        :isOpen="isAdvancedSearchModalOpen"
+        class="fixed top-1 right-1 left-1 m-auto z-40 sm:absolute sm:!-top-2 sm:!-right-2 sm:!-left-2 advanced-search-form"
+        @submit="handleSubmit"
+        @close="isAdvancedSearchModalOpen = false"
+      />
+    </TransitionFade>
+
+    <!-- overlay -->
+    <TransitionFade>
+      <div
+        v-if="isAdvancedSearchModalOpen"
+        class="fixed inset-0 bg-transparent-black-700 z-30"
+      />
+    </TransitionFade>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { SearchIcon, CircleXIcon } from "@/icons";
-import KeyboardShortcut from "@/components/KeyboardShortcut/KeyboardShortcut.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import Modal from "@/components/Modal/Modal.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter } from "vue-router";
-
-const emit = defineEmits<{
-  (eventName: "focus", event: Event): void;
-  (eventName: "blur", event: Event): void;
-}>();
+import SearchTextInputGroup from "./SearchTextInputGroup.vue";
+import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
-const searchInputHasFocus = ref(false);
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
 const router = useRouter();
 
-function handleInput(event: InputEvent) {
-  searchStore.query = (event.target as HTMLInputElement).value;
-}
+async function handleSubmit() {
+  // close advanced search modal if open
+  isAdvancedSearchModalOpen.value = false;
 
-function handleInputGroupFocus(event) {
-  searchInputHasFocus.value = true;
-  emit("focus", event);
-}
-
-function handleInputGroupBlur(event) {
-  searchInputHasFocus.value = false;
-  emit("blur", event);
-}
-
-async function handleSubmit(event: Event) {
-  event.preventDefault();
   const searchId = await searchStore.search();
   if (!searchId) {
     router.push({
@@ -117,11 +81,13 @@ function removeFocusOnEscape(event: KeyboardEvent) {
   }
 }
 
-function handleClearSearchInput() {
-  searchStore.query = "";
-}
-
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
 </script>
-<style scoped></style>
+<style scoped>
+@media (min-width: 640px) {
+  .advanced-search-form {
+    width: calc(100% + 1rem);
+  }
+}
+</style>

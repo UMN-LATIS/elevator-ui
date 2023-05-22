@@ -1,3 +1,4 @@
+import { omit } from "ramda";
 import { AssetCollection, RawAssetCollection } from "@/types";
 
 export function toNormalAssetCollection(
@@ -37,4 +38,30 @@ export function toCollectionIndex(collections: AssetCollection[] | null): {
     }),
     {}
   );
+}
+
+/**
+ * list of collections with titles that include their parent titles
+ */
+export function flattenCollections(
+  collections: AssetCollection[]
+): Omit<AssetCollection, "children">[] {
+  const collectionsWithoutChildren = collections.map((collection) =>
+    omit(["children"], collection)
+  );
+
+  return [
+    ...collectionsWithoutChildren,
+    ...collections.flatMap((collection) => {
+      const children = collection.children ?? [];
+
+      // for each child, prepend the parent title to the child title
+      const childrenWithParentTitle = children.map((child) => ({
+        ...child,
+        title: `${collection.title} › ${child.title}`,
+      }));
+
+      return flattenCollections(childrenWithParentTitle);
+    }),
+  ];
 }

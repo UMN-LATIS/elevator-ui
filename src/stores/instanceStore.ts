@@ -13,6 +13,7 @@ import {
 import {
   toCollectionIndex,
   normalizeAssetCollections,
+  flattenCollections,
 } from "@/helpers/collectionHelpers";
 
 const createState = () => ({
@@ -37,6 +38,10 @@ const getters = (state: ReturnType<typeof createState>) => ({
   isLoggedIn: computed(() => !!state.currentUser.value),
   isReady: computed(() => state.fetchStatus.value === "success"),
   collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
+
+  // list of collections with titles that include their parent titles
+  flatCollections: computed(() => flattenCollections(state.collections.value)),
+
   async getCollectionById(
     id: number
   ): Promise<Required<AssetCollection> | null> {

@@ -44,23 +44,24 @@ onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
 </script>
 <style scoped lang="postcss">
 .app-menu-button {
-  color: var(--app-button-primary-textColor);
-  background: var(--app-button-primary-backgroundColor);
-  border-color: var(--app-button-primary-borderColor);
+  transition: all 0.1s;
+  color: var(--app-appMenuButton-textColor);
+  background: var(--app-appMenuButton-backgroundColor);
+  border-color: var(--app-appMenuButton-borderColor);
   &:hover {
-    color: var(--app-button-primary-hover-textColor);
-    background: var(--app-button-primary-hover-backgroundColor);
-    border-color: var(--app-button-primary-hover-borderColor);
+    color: var(--app-appMenuButton-hover-textColor);
+    background: var(--app-appMenuButton-hover-backgroundColor);
+    border-color: var(--app-appMenuButton-hover-borderColor);
   }
   &:active {
-    color: var(--app-button-primary-active-textColor);
-    background: var(--app-button-primary-active-backgroundColor);
-    border-color: var(--app-button-primary-active-borderColor);
+    color: var(--app-appMenuButton-active-textColor);
+    background: var(--app-appMenuButton-active-backgroundColor);
+    border-color: var(--app-appMenuButton-active-borderColor);
   }
   &:disabled {
-    color: var(--app-button-primary-disabled-textColor);
-    background: var(--app-button-primary-disabled-backgroundColor);
-    border-color: var(--app-button-primary-disabled-borderColor);
+    color: var(--app-appMenuButton-disabled-textColor);
+    background: var(--app-appMenuButton-disabled-backgroundColor);
+    border-color: var(--app-appMenuButton-disabled-borderColor);
   }
 }
 </style>

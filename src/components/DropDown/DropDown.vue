@@ -3,6 +3,7 @@
     <div>
       <MenuButton
         class="inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 p-2 placeholder:focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+        :class="labelClass"
       >
         <slot name="label">
           {{ label }}
@@ -24,7 +25,7 @@
       leaveToClass="transform opacity-0 scale-95"
     >
       <MenuItems
-        class="absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute z-10 mt-1 w-64 origin-top-right top-full divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
         :class="{
           'left-0': alignment === 'left',
           'right-0': alignment === 'right',
@@ -49,10 +50,12 @@ withDefaults(
     label: string;
     alignment?: "left" | "right";
     showChevron?: boolean;
+    labelClass?: string | string[] | Record<string, boolean>;
   }>(),
   {
     alignment: "right",
     showChevron: true,
+    labelClass: "",
   }
 );
 </script>
