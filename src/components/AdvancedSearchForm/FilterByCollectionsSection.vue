@@ -43,9 +43,11 @@
             <DropDownItem
               v-for="collection in unselectedCollections"
               :key="collection.id"
+              class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+              :title="prefixWithHyphens(collection.title)"
               @click="searchStore.addCollectionIdFilter(collection.id)"
             >
-              {{ collection.title }}
+              {{ prefixWithHyphens(collection.title) }}
             </DropDownItem>
           </div>
         </DropDown>
@@ -81,5 +83,16 @@ const unselectedCollections = computed(() => {
     )
     .sort((a, b) => a.title.localeCompare(b.title));
 });
+
+function prefixWithHyphens(input: string): string {
+  const parts = input.split(" › ");
+
+  if (parts.length === 1) return input;
+
+  const hyphenPrefix = "-".repeat(parts.length - 1);
+  const lastPart = parts[parts.length - 1];
+
+  return `${hyphenPrefix} ${lastPart}`;
+}
 </script>
 <style scoped></style>
