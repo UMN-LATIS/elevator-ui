@@ -458,6 +458,12 @@ export interface SearchableField extends RawSortableField {
   id: string;
 }
 
+export interface SearchableFieldFilter extends SearchableField {
+  value: string;
+  isFuzzy: boolean;
+  options?: []; // if type is select
+}
+
 export interface ApiInstanceNavResponse {
   pages: Page[];
   userId: number | null;

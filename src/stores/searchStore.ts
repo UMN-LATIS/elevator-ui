@@ -7,9 +7,9 @@ import {
   SearchEntry,
   SearchResultsView,
   SearchSortOptions,
+  SearchableFieldFilter,
 } from "@/types";
 import { SORT_KEYS } from "@/constants/constants";
-
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
   status: Ref<FetchStatus>;
@@ -24,7 +24,8 @@ export interface SearchStoreState {
   // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
-    fieldIds: number[];
+    searchableFields: SearchableFieldFilter[];
+    searchableFieldsOperator: "AND" | "OR";
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -54,7 +55,8 @@ const createState = (): SearchStoreState => ({
   query: ref(""),
   filterBy: reactive({
     collectionIds: [],
-    fieldIds: [],
+    searchableFields: [],
+    searchableFieldsOperator: "OR",
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -130,6 +132,28 @@ const actions = (state: SearchStoreState) => ({
 
   clearCollectionIdFilters() {
     state.filterBy.collectionIds = [];
+  },
+
+  addSearchableFieldFilter(newFilter: SearchableFieldFilter) {
+    state.filterBy.searchableFields.push(newFilter);
+  },
+
+  removeSearchableFieldIdFilter(fieldId: string) {
+    const index = state.filterBy.searchableFields.findIndex((filter) => {
+      return filter.id === fieldId;
+    });
+
+    if (index < 0) {
+      throw new Error(
+        `Cannot remove searchable field id ${fieldId} from searchStore. ID is not in filterBy.searchableFieldIds`
+      );
+    }
+
+    state.filterBy.searchableFields.splice(index, 1);
+  },
+
+  clearSearchableFieldIdFilters() {
+    state.filterBy.searchableFields = [];
   },
 
   clearAllFilters() {

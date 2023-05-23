@@ -5,6 +5,10 @@
       <!-- <Button variant="tertiary"> clear </Button> -->
     </header>
 
+    <div>
+      {{ searchStore.filterBy.searchableFields }}
+    </div>
+
     <DropDown
       v-if="instanceStore.searchableFields.length"
       label="Add Field"
@@ -16,19 +20,18 @@
         <DropDownItem
           v-for="field in instanceStore.searchableFields"
           :key="field.id"
+          @click="
+            searchStore.addSearchableFieldFilter({
+              ...field,
+              value: '',
+              isFuzzy: false,
+            })
+          "
         >
           {{ field.label }}
         </DropDownItem>
       </div>
     </DropDown>
-
-    <div>
-      <ul>
-        <li v-for="field in instanceStore.searchableFields" :key="field.id">
-          {{ field }}
-        </li>
-      </ul>
-    </div>
   </section>
 </template>
 <script setup lang="ts">
