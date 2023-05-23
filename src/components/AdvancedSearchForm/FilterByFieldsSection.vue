@@ -1,12 +1,57 @@
 <template>
   <section class="my-4">
-    <header class="flex items-baseline gap-2">
+    <header class="flex items-baseline gap-2 mb-2">
       <h3 class="font-bold">Fields</h3>
-      <!-- <Button variant="tertiary"> clear </Button> -->
+      <Button
+        v-if="searchStore.filterBy.searchableFieldsMap.size"
+        variant="tertiary"
+        @click="searchStore.clearSearchableFieldsFilters"
+      >
+        clear
+      </Button>
     </header>
 
-    <div>
-      {{ searchStore.filterBy.searchableFields }}
+    <div
+      v-for="[filterId, filter] in searchStore.filterBy.searchableFieldsMap"
+      :key="filterId"
+      class="w-full flex items-center gap-2 py-2"
+    >
+      <select
+        class="rounded-md"
+        :value="searchStore.getSearchableFieldFilter(filterId)?.fieldId"
+        @change="
+          searchStore.updateSearchableFieldFilterWithNewFilterId(
+            filterId,
+            ($event.target as HTMLSelectElement).value
+          )
+        "
+      >
+        <option
+          v-for="field in instanceStore.searchableFields"
+          :key="field.id"
+          :value="field.id"
+        >
+          {{ field.label }}
+        </option>
+      </select>
+
+      <InputGroup
+        :id="filterId"
+        class="flex-1"
+        :label="filter.label"
+        :value="filter.value"
+        :labelHidden="true"
+        @input="
+          searchStore.updateSearchableFieldFilterValue(
+            filterId,
+            ($event.target as HTMLInputElement).value
+          )
+        "
+      />
+
+      <button @click="searchStore.removeSearchableFieldIdFilter(filterId)">
+        <CircleXIcon class="w-4 h-4" />
+      </button>
     </div>
 
     <DropDown
@@ -20,13 +65,7 @@
         <DropDownItem
           v-for="field in instanceStore.searchableFields"
           :key="field.id"
-          @click="
-            searchStore.addSearchableFieldFilter({
-              ...field,
-              value: '',
-              isFuzzy: false,
-            })
-          "
+          @click="searchStore.addSearchableFieldFilter(field.id)"
         >
           {{ field.label }}
         </DropDownItem>
@@ -35,13 +74,13 @@
   </section>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
-import { XIcon } from "@/icons";
+import { CircleXIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import InputGroup from "../InputGroup/InputGroup.vue";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();

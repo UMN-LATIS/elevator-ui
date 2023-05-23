@@ -10,6 +10,7 @@ import {
   SearchableFieldFilter,
 } from "@/types";
 import { SORT_KEYS } from "@/constants/constants";
+import { useInstanceStore } from "./instanceStore";
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
   status: Ref<FetchStatus>;
@@ -24,7 +25,7 @@ export interface SearchStoreState {
   // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
-    searchableFields: SearchableFieldFilter[];
+    searchableFieldsMap: Map<string, SearchableFieldFilter>;
     searchableFieldsOperator: "AND" | "OR";
   };
 
@@ -55,7 +56,7 @@ const createState = (): SearchStoreState => ({
   query: ref(""),
   filterBy: reactive({
     collectionIds: [],
-    searchableFields: [],
+    searchableFieldsMap: new Map<string, SearchableFieldFilter>(),
     searchableFieldsOperator: "OR",
   }),
   matches: ref([]),
@@ -134,26 +135,90 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.collectionIds = [];
   },
 
-  addSearchableFieldFilter(newFilter: SearchableFieldFilter) {
-    state.filterBy.searchableFields.push(newFilter);
+  getSearchableFieldFilter(filterId: string): SearchableFieldFilter | null {
+    return state.filterBy.searchableFieldsMap.get(filterId) ?? null;
   },
 
-  removeSearchableFieldIdFilter(fieldId: string) {
-    const index = state.filterBy.searchableFields.findIndex((filter) => {
-      return filter.id === fieldId;
-    });
+  addSearchableFieldFilter(fieldId: string) {
+    const instanceStore = useInstanceStore();
 
-    if (index < 0) {
+    const field = instanceStore.getSearchableFieldById(fieldId);
+
+    if (!field) {
       throw new Error(
-        `Cannot remove searchable field id ${fieldId} from searchStore. ID is not in filterBy.searchableFieldIds`
+        `cannot create a new field filter for field with id ${fieldId}. No such field exists.`
       );
     }
 
-    state.filterBy.searchableFields.splice(index, 1);
+    const newFilter: SearchableFieldFilter = {
+      ...field,
+      id: crypto.randomUUID(),
+      fieldId: field.id,
+      value: "",
+      isFuzzy: false,
+    };
+
+    state.filterBy.searchableFieldsMap.set(newFilter.id, newFilter);
   },
 
-  clearSearchableFieldIdFilters() {
-    state.filterBy.searchableFields = [];
+  removeSearchableFieldIdFilter(filterId: string) {
+    state.filterBy.searchableFieldsMap.delete(filterId);
+  },
+
+  updateSearchableFieldFilterValue(filterId: string, newValue: string) {
+    const filter = state.filterBy.searchableFieldsMap.get(filterId);
+    if (!filter) {
+      throw new Error(
+        `Cannot update value of searchable field filter ${filterId}: no such filter found`
+      );
+    }
+
+    filter.value = newValue;
+  },
+
+  clearSearchableFieldsFilters() {
+    state.filterBy.searchableFieldsMap.clear();
+  },
+
+  updateSearchableFieldFilterWithNewFilterId(
+    filterId: string,
+    fieldId: string
+  ) {
+    // the filterId is the id of current filter we're
+    // updating. Remember that we can have more than
+    // one filter for a given field id (e.g. `title`).
+
+    const instanceStore = useInstanceStore();
+
+    const currentFilter = state.filterBy.searchableFieldsMap.get(filterId);
+
+    if (!currentFilter) {
+      throw new Error(
+        `Cannot update searchable field filter. No filter exists with id: ${filterId}`
+      );
+    }
+
+    // if the fieldId matches what's set in the current
+    // filter, we're done
+    if (currentFilter.fieldId === fieldId) {
+      return;
+    }
+
+    // get the field information from the instance store
+    const field = instanceStore.getSearchableFieldById(fieldId);
+
+    if (!field) {
+      throw new Error(
+        `Cannot update searchable field filter. No field is found with id ${fieldId}.`
+      );
+    }
+
+    const updatedFilter = {
+      ...currentFilter,
+      fieldId: field.id,
+    };
+
+    state.filterBy.searchableFieldsMap.set(filterId, updatedFilter);
   },
 
   clearAllFilters() {
