@@ -27,7 +27,7 @@
         "
       >
         <option
-          v-for="field in instanceStore.searchableFields"
+          v-for="field in supportedSearchableFields"
           :key="field.id"
           :value="field.id"
         >
@@ -55,7 +55,7 @@
     </div>
 
     <DropDown
-      v-if="instanceStore.searchableFields.length"
+      v-if="supportedSearchableFields.length"
       label="Add Field"
       class="inline-flex border border-neutral-900 rounded-md"
       alignment="left"
@@ -63,7 +63,7 @@
     >
       <div class="max-h-[50vh] overflow-y-auto">
         <DropDownItem
-          v-for="field in instanceStore.searchableFields"
+          v-for="field in supportedSearchableFields"
           :key="field.id"
           @click="searchStore.addSearchableFieldFilter(field.id)"
         >
@@ -74,6 +74,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { CircleXIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
@@ -84,5 +85,12 @@ import InputGroup from "../InputGroup/InputGroup.vue";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
+
+const supportedTypes = ["text"];
+const supportedSearchableFields = computed(() => {
+  return instanceStore.searchableFields.filter((field) =>
+    supportedTypes.includes(field.type)
+  );
+});
 </script>
 <style scoped></style>
