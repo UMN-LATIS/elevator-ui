@@ -10,8 +10,8 @@ import {
   ApiInstanceNavResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
-  SearchSortOptions,
   LocalLoginResponse,
+  SearchRequestOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -242,21 +242,25 @@ const api = {
 
   async getSearchId(
     query: string,
-    opts: { sort?: keyof SearchSortOptions; collections?: number[] | null } = {}
+    opts: Omit<SearchRequestOptions, "searchText"> = {}
   ): Promise<string> {
     const params = new URLSearchParams();
-    const searchQuery: {
-      searchText: string;
-      sort?: keyof SearchSortOptions;
-      collection?: string[];
-    } = { searchText: query };
+    const searchQuery: SearchRequestOptions = { searchText: query };
 
     if (opts.sort) {
       searchQuery.sort = opts.sort;
     }
 
-    if (opts.collections) {
-      searchQuery.collection = opts.collections.map(String);
+    if (opts.collection) {
+      searchQuery.collection = opts.collection.map(String);
+    }
+
+    if (opts.specificFieldSearch) {
+      searchQuery.specificFieldSearch = opts.specificFieldSearch;
+
+      // default to OR combine operator
+      searchQuery.combineSpecificSearches =
+        opts.combineSpecificSearches ?? "OR";
     }
 
     params.append("searchQuery", JSON.stringify(searchQuery));

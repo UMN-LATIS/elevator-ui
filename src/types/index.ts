@@ -343,10 +343,7 @@ export interface SearchEntry {
   showHidden?: "0" | "1";
   fuzzySearch?: "0" | "1";
   sort?: string;
-  specificSearchField?: string[];
-  specificSearchText?: string[];
-  specificSearchFuzzy?: string[];
-  specificFieldSearch?: unknown[];
+  specificFieldSearch?: SpecificFieldSearchItem[];
 }
 
 export interface SearchSortOptions {
@@ -358,6 +355,28 @@ export interface SearchSortOptions {
 
   // sort options for specific searches
   [key: string]: string;
+}
+
+export interface SpecificFieldSearchItem {
+  field: string;
+  text: string;
+  fuzzy: boolean;
+}
+
+export interface SearchRequestOptions {
+  searchText?: string;
+  sort?: keyof SearchSortOptions;
+  collection?: string[] | number[] | null;
+  specificFieldSearch?: SpecificFieldSearchItem[];
+  combineSpecificSearches?: "OR" | "AND";
+  fileTypesSearch?: string;
+  distance?: string;
+  latitude?: string;
+  longitude?: string;
+  startDateText?: string;
+  startDate?: string;
+  endDateText?: string;
+  endDate?: string;
 }
 
 export interface SearchResultsResponse {

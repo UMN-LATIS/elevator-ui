@@ -8,6 +8,8 @@ import {
   SearchResultsView,
   SearchSortOptions,
   SearchableFieldFilter,
+  SearchRequestOptions,
+  SpecificFieldSearchItem,
 } from "@/types";
 import { SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
@@ -78,11 +80,37 @@ const getters = (state: SearchStoreState) => ({
   }),
 
   filteredByCount: computed((): number => {
-    return state.filterBy.collectionIds.length;
+    return (
+      state.filterBy.collectionIds.length +
+      state.filterBy.searchableFieldsMap.size
+    );
   }),
 
   hasFiltersApplied: computed((): boolean => {
     return getters(state).filteredByCount.value > 0;
+  }),
+
+  searchRequestOptions: computed((): SearchRequestOptions => {
+    const searchableFieldsArray = Array.from(
+      state.filterBy.searchableFieldsMap.values()
+    );
+
+    // convert to SpecificFieldSearch shape
+    const specificFieldSearch: SpecificFieldSearchItem[] =
+      searchableFieldsArray.map((filter) => ({
+        field: filter.fieldId,
+        text: filter.value,
+        fuzzy: false,
+      }));
+
+    return {
+      sort: state.sort.value,
+      collection: state.filterBy.collectionIds.length
+        ? state.filterBy.collectionIds
+        : undefined,
+      combineSpecificSearches: "OR",
+      specificFieldSearch,
+    };
   }),
 
   /**
@@ -139,7 +167,10 @@ const actions = (state: SearchStoreState) => ({
     return state.filterBy.searchableFieldsMap.get(filterId) ?? null;
   },
 
-  addSearchableFieldFilter(fieldId: string) {
+  addSearchableFieldFilter(
+    fieldId: string,
+    initialProps?: Partial<SearchableFieldFilter>
+  ) {
     const instanceStore = useInstanceStore();
 
     const field = instanceStore.getSearchableFieldById(fieldId);
@@ -151,12 +182,13 @@ const actions = (state: SearchStoreState) => ({
     }
 
     const newFilter: SearchableFieldFilter = {
-      id: crypto.randomUUID(),
       fieldId: field.id,
       type: field.type,
       label: field.label,
       value: "",
       isFuzzy: false,
+      ...initialProps,
+      id: crypto.randomUUID(),
     };
 
     state.filterBy.searchableFieldsMap.set(newFilter.id, newFilter);
@@ -243,15 +275,12 @@ const actions = (state: SearchStoreState) => ({
     try {
       // first get the id of the search for this query
       // if it's passed, use that
+      const searchRequestOptions = getters(state).searchRequestOptions.value;
+
       state.searchId.value = searchId
         ? searchId
         : await api
-            .getSearchId(state.query.value, {
-              sort: state.sort.value ? state.sort.value : undefined,
-              collections: state.filterBy.collectionIds.length
-                ? state.filterBy.collectionIds
-                : undefined,
-            })
+            .getSearchId(state.query.value, searchRequestOptions)
             .catch((err) => {
               state.status.value = "error";
               throw new Error(
@@ -276,6 +305,18 @@ const actions = (state: SearchStoreState) => ({
             res.searchEntry.collection?.map((idStr) =>
               Number.parseInt(idStr)
             ) ?? [];
+
+          // Update searchableFields with response
+          if (res.searchEntry.specificFieldSearch) {
+            state.filterBy.searchableFieldsMap.clear();
+
+            res.searchEntry.specificFieldSearch?.forEach((searchField) => {
+              actions(state).addSearchableFieldFilter(searchField.field, {
+                value: searchField.text,
+                isFuzzy: searchField.fuzzy,
+              });
+            });
+          }
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters
