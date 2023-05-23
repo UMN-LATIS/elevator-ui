@@ -14,10 +14,10 @@
     <div
       v-for="[filterId, filter] in searchStore.filterBy.searchableFieldsMap"
       :key="filterId"
-      class="w-full flex items-center gap-2 py-2"
+      class="w-full flex items-center gap-2 my-2"
     >
       <select
-        class="rounded-md"
+        class="rounded-md w-1/4"
         :value="searchStore.getSearchableFieldFilter(filterId)?.fieldId"
         @change="
           searchStore.updateSearchableFieldFilterWithNewFilterId(
@@ -57,9 +57,9 @@
     <DropDown
       v-if="supportedSearchableFields.length"
       label="Add Field"
-      class="inline-flex border border-neutral-900 rounded-md"
+      class="flex border border-neutral-900 rounded-md w-1/4"
       alignment="left"
-      labelClass="p-2 !pr-0"
+      labelClass="justify-between pl-3"
     >
       <div class="max-h-[50vh] overflow-y-auto">
         <DropDownItem
@@ -67,7 +67,7 @@
           :key="field.id"
           @click="searchStore.addSearchableFieldFilter(field.id)"
         >
-          {{ field.label }}
+          <span class="flex-1">{{ field.label }}</span>
         </DropDownItem>
       </div>
     </DropDown>
@@ -93,4 +93,13 @@ const supportedSearchableFields = computed(() => {
   );
 });
 </script>
-<style scoped></style>
+<style scoped>
+select {
+  background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23111' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+  border-color: #111;
+}
+</style>

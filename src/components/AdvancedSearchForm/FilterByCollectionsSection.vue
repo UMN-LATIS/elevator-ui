@@ -16,7 +16,7 @@
       below.
     </p>
 
-    <ul class="inline-flex flex-wrap gap-2">
+    <ul class="flex flex-wrap gap-2">
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
@@ -31,16 +31,13 @@
           <XIcon class="h-3 w-3" />
         </button>
       </li>
-      <li v-if="unselectedCollections.length">
+      <li v-if="unselectedCollections.length" class="w-full">
         <DropDown
           v-if="unselectedCollections.length"
           label="Add Collection"
-          class="inline-flex border border-neutral-900 rounded-md"
+          class="border border-neutral-900 rounded-md flex w-1/4"
+          labelClass="justify-between pl-3"
           alignment="left"
-          :labelClass="{
-            'text-xs py-0 !pr-0': !!selectedCollections.length,
-            'p-2 !pr-0': !selectedCollections.length,
-          }"
         >
           <div class="max-h-[50vh] overflow-y-auto">
             <DropDownItem
