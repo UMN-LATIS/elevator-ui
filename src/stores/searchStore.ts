@@ -151,9 +151,10 @@ const actions = (state: SearchStoreState) => ({
     }
 
     const newFilter: SearchableFieldFilter = {
-      ...field,
       id: crypto.randomUUID(),
       fieldId: field.id,
+      type: field.type,
+      label: field.label,
       value: "",
       isFuzzy: false,
     };
@@ -216,6 +217,8 @@ const actions = (state: SearchStoreState) => ({
     const updatedFilter = {
       ...currentFilter,
       fieldId: field.id,
+      label: field.label,
+      type: field.type,
     };
 
     state.filterBy.searchableFieldsMap.set(filterId, updatedFilter);
