@@ -271,6 +271,17 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.searchableFieldsOperator = operator as "AND" | "OR";
   },
 
+  updateSearchableFieldFilterIsFuzzy(filterId: string, isFuzzy: boolean) {
+    const filter = state.filterBy.searchableFieldsMap.get(filterId);
+    if (!filter) {
+      throw new Error(
+        `Cannot update isFuzzy of searchable field filter ${filterId}: no such filter found`
+      );
+    }
+
+    filter.isFuzzy = isFuzzy;
+  },
+
   clearAllFilters() {
     this.clearCollectionIdFilters();
     this.clearSearchableFieldsFilters();
