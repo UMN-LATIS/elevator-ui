@@ -22,10 +22,25 @@ a:hover {
 }
 
 @layer utilities {
+  .text-orient-sideways {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .text-orient-upright {
+    writing-mode: vertical-lr;
+    text-orientation: upright;
+  }
+
   /* text will write vertically from bottom to top */
-  .sideways {
+  .text-orient-sideways-reverse {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
+  }
+
+  .text-orient-normal {
+    writing-mode: initial;
+    text-orientation: initial;
   }
 
   .line-clamp-3 {
@@ -100,24 +115,28 @@ h6 {
   opacity: 0;
 }
 
-
 /*
 * source: https://css-tricks.com/snippets/css/shake-css-keyframe-animation/
 */
 @keyframes shake {
-  10%, 90% {
+  10%,
+  90% {
     transform: translate3d(-1px, 0, 0);
   }
 
-  20%, 80% {
+  20%,
+  80% {
     transform: translate3d(2px, 0, 0);
   }
 
-  30%, 50%, 70% {
+  30%,
+  50%,
+  70% {
     transform: translate3d(-4px, 0, 0);
   }
 
-  40%, 60% {
+  40%,
+  60% {
     transform: translate3d(4px, 0, 0);
   }
 }

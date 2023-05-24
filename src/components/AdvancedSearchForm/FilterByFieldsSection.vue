@@ -40,7 +40,7 @@
           {{ index >= 1 ? searchStore.filterBy.searchableFieldsOperator : "" }}
         </Button>
         <select
-          class="rounded-md w-1/3"
+          class="rounded-md w-1/4 text-sm"
           :value="searchStore.getSearchableFieldFilter(filterId)?.fieldId"
           @change="
             searchStore.updateSearchableFieldFilterWithNewFilterId(
@@ -60,8 +60,8 @@
 
         <InputGroup
           :id="filterId"
-          class="flex-1"
-          inputClass="!bg-white !border !border-neutral-900"
+          class="flex-1 text-sm"
+          inputClass="!bg-white !border !border-neutral-200"
           :label="filter.label"
           :value="filter.value"
           :labelHidden="true"
@@ -74,8 +74,29 @@
           "
         />
 
+        <label
+          class="text-xs font-bold uppercase text-center cursor-pointer leading-none text-orient-sideways sm:text-orient-normal"
+          :class="{
+            'text-blue-600': filter.isFuzzy,
+            'text-neutral-300': !filter.isFuzzy,
+          }"
+        >
+          <input
+            class="sr-only"
+            type="checkbox"
+            :checked="filter.isFuzzy"
+            @change="
+              searchStore.updateSearchableFieldFilterIsFuzzy(
+                filterId,
+                ($event.target as HTMLInputElement).checked
+              )
+            "
+          />
+          Fuzzy
+        </label>
+
         <button @click="searchStore.removeSearchableFieldIdFilter(filterId)">
-          <CircleXIcon class="w-4 h-4" />
+          <CircleXIcon class="w-5 h-5" />
         </button>
       </div>
     </div>
@@ -84,9 +105,9 @@
       <DropDown
         v-if="supportedSearchableFields.length"
         label="Add Field"
-        class="border border-neutral-900 rounded-md w-1/4"
+        class="border border-neutral-900 rounded-md"
         alignment="left"
-        labelClass="justify-between pl-3"
+        labelClass="justify-between pl-3 whitespace-nowrap"
       >
         <div class="max-h-[50vh] overflow-y-auto">
           <DropDownItem
@@ -132,6 +153,6 @@ select {
   background-repeat: no-repeat;
   background-size: 1rem;
   padding-right: 2.5rem;
-  border-color: #111;
+  border-color: #e5e5e5;
 }
 </style>
