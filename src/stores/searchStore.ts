@@ -100,7 +100,7 @@ const getters = (state: SearchStoreState) => ({
       searchableFieldsArray.map((filter) => ({
         field: filter.fieldId,
         text: filter.value,
-        fuzzy: false,
+        fuzzy: filter.isFuzzy,
       }));
 
     return {
@@ -303,12 +303,13 @@ const actions = (state: SearchStoreState) => ({
     try {
       // first get the id of the search for this query
       // if it's passed, use that
-      const searchRequestOptions = getters(state).searchRequestOptions.value;
-
       state.searchId.value = searchId
         ? searchId
         : await api
-            .getSearchId(state.query.value, searchRequestOptions)
+            .getSearchId(
+              state.query.value,
+              getters(state).searchRequestOptions.value
+            )
             .catch((err) => {
               state.status.value = "error";
               throw new Error(
