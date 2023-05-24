@@ -16,43 +16,44 @@
       below.
     </p>
 
-    <ul class="flex flex-wrap gap-2">
+    <ul
+      v-if="selectedCollections.length"
+      class="flex flex-wrap gap-2 bg-transparent-black-50 p-4 mb-4 rounded-md"
+    >
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
-        class="text-xs bg-neutral-100 py-1 px-2 rounded-md border border-neutral-200 inline-flex items-center"
+        class="text-xs bg-white rounded-md border border-neutral-800 inline-flex items-center text-neutral-900 px-2 py-1"
       >
         {{ collection.title }}
 
         <button
-          class="ml-2"
+          class="ml-2 h-full flex items-center justify-center"
           @click="searchStore.removeCollectionIdFilter(collection.id)"
         >
           <XIcon class="h-3 w-3" />
         </button>
       </li>
-      <li v-if="unselectedCollections.length" class="w-full">
-        <DropDown
-          v-if="unselectedCollections.length"
-          label="Add Collection"
-          class="border border-neutral-900 rounded-md flex w-1/4"
-          labelClass="justify-between pl-3"
-          alignment="left"
-        >
-          <div class="max-h-[50vh] overflow-y-auto">
-            <DropDownItem
-              v-for="collection in unselectedCollections"
-              :key="collection.id"
-              class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
-              :title="prefixWithHyphens(collection.title)"
-              @click="searchStore.addCollectionIdFilter(collection.id)"
-            >
-              {{ prefixWithHyphens(collection.title) }}
-            </DropDownItem>
-          </div>
-        </DropDown>
-      </li>
     </ul>
+    <DropDown
+      v-if="unselectedCollections.length"
+      label="Add Collection"
+      class="border border-neutral-900 rounded-md"
+      labelClass="justify-between pl-3"
+      alignment="left"
+    >
+      <div class="max-h-[50vh] overflow-y-auto">
+        <DropDownItem
+          v-for="collection in unselectedCollections"
+          :key="collection.id"
+          class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+          :title="prefixWithHyphens(collection.title)"
+          @click="searchStore.addCollectionIdFilter(collection.id)"
+        >
+          {{ prefixWithHyphens(collection.title) }}
+        </DropDownItem>
+      </div>
+    </DropDown>
   </section>
 </template>
 <script setup lang="ts">
