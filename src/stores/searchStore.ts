@@ -7,9 +7,12 @@ import {
   SearchEntry,
   SearchResultsView,
   SearchSortOptions,
+  SearchableFieldFilter,
+  SearchRequestOptions,
+  SpecificFieldSearchItem,
 } from "@/types";
 import { SORT_KEYS } from "@/constants/constants";
-
+import { useInstanceStore } from "./instanceStore";
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
   status: Ref<FetchStatus>;
@@ -24,6 +27,8 @@ export interface SearchStoreState {
   // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
+    searchableFieldsMap: Map<string, SearchableFieldFilter>;
+    searchableFieldsOperator: "AND" | "OR";
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -53,6 +58,8 @@ const createState = (): SearchStoreState => ({
   query: ref(""),
   filterBy: reactive({
     collectionIds: [],
+    searchableFieldsMap: new Map<string, SearchableFieldFilter>(),
+    searchableFieldsOperator: "OR",
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -73,11 +80,37 @@ const getters = (state: SearchStoreState) => ({
   }),
 
   filteredByCount: computed((): number => {
-    return state.filterBy.collectionIds.length;
+    return (
+      state.filterBy.collectionIds.length +
+      state.filterBy.searchableFieldsMap.size
+    );
   }),
 
   hasFiltersApplied: computed((): boolean => {
     return getters(state).filteredByCount.value > 0;
+  }),
+
+  searchRequestOptions: computed((): SearchRequestOptions => {
+    const searchableFieldsArray = Array.from(
+      state.filterBy.searchableFieldsMap.values()
+    );
+
+    // convert to SpecificFieldSearch shape
+    const specificFieldSearch: SpecificFieldSearchItem[] =
+      searchableFieldsArray.map((filter) => ({
+        field: filter.fieldId,
+        text: filter.value,
+        fuzzy: false,
+      }));
+
+    return {
+      sort: state.sort.value,
+      collection: state.filterBy.collectionIds.length
+        ? state.filterBy.collectionIds
+        : undefined,
+      combineSpecificSearches: state.filterBy.searchableFieldsOperator,
+      specificFieldSearch,
+    };
   }),
 
   /**
@@ -87,7 +120,9 @@ const getters = (state: SearchStoreState) => ({
   isBrowsingCollection: computed((): boolean => {
     return (
       state.searchEntry.value?.searchText === "" &&
-      state.searchEntry.value?.collection?.length === 1
+      state.searchEntry.value?.collection?.length === 1 &&
+      // if we're filtering by specific fields, we're not browsing
+      (state.searchEntry.value?.specificFieldSearch ?? []).length === 0
     );
   }),
   browsingCollectionId: computed((): number | null => {
@@ -130,8 +165,116 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.collectionIds = [];
   },
 
+  getSearchableFieldFilter(filterId: string): SearchableFieldFilter | null {
+    return state.filterBy.searchableFieldsMap.get(filterId) ?? null;
+  },
+
+  addSearchableFieldFilter(
+    fieldId: string,
+    initialProps?: Partial<SearchableFieldFilter>
+  ) {
+    const instanceStore = useInstanceStore();
+
+    const field = instanceStore.getSearchableFieldById(fieldId);
+
+    if (!field) {
+      throw new Error(
+        `cannot create a new field filter for field with id ${fieldId}. No such field exists.`
+      );
+    }
+
+    const newFilter: SearchableFieldFilter = {
+      fieldId: field.id,
+      type: field.type,
+      label: field.label,
+      value: "",
+      isFuzzy: false,
+      ...initialProps,
+      id: crypto.randomUUID(),
+    };
+
+    state.filterBy.searchableFieldsMap.set(newFilter.id, newFilter);
+  },
+
+  removeSearchableFieldIdFilter(filterId: string) {
+    state.filterBy.searchableFieldsMap.delete(filterId);
+  },
+
+  updateSearchableFieldFilterValue(filterId: string, newValue: string) {
+    const filter = state.filterBy.searchableFieldsMap.get(filterId);
+    if (!filter) {
+      throw new Error(
+        `Cannot update value of searchable field filter ${filterId}: no such filter found`
+      );
+    }
+
+    filter.value = newValue;
+  },
+
+  clearSearchableFieldsFilters() {
+    state.filterBy.searchableFieldsMap.clear();
+  },
+
+  updateSearchableFieldFilterWithNewFilterId(
+    filterId: string,
+    fieldId: string
+  ) {
+    // the filterId is the id of current filter we're
+    // updating. Remember that we can have more than
+    // one filter for a given field id (e.g. `title`).
+
+    const instanceStore = useInstanceStore();
+
+    const currentFilter = state.filterBy.searchableFieldsMap.get(filterId);
+
+    if (!currentFilter) {
+      throw new Error(
+        `Cannot update searchable field filter. No filter exists with id: ${filterId}`
+      );
+    }
+
+    // if the fieldId matches what's set in the current
+    // filter, we're done
+    if (currentFilter.fieldId === fieldId) {
+      return;
+    }
+
+    // get the field information from the instance store
+    const field = instanceStore.getSearchableFieldById(fieldId);
+
+    if (!field) {
+      throw new Error(
+        `Cannot update searchable field filter. No field is found with id ${fieldId}.`
+      );
+    }
+
+    const updatedFilter = {
+      ...currentFilter,
+      fieldId: field.id,
+      label: field.label,
+      type: field.type,
+    };
+
+    state.filterBy.searchableFieldsMap.set(filterId, updatedFilter);
+  },
+
+  updateSearchableFieldsOperator(operator: string) {
+    const allowedOperators = ["AND", "OR"];
+    if (!allowedOperators.includes(operator)) {
+      throw new Error(
+        `Cannot update searchable fields operator. ${operator} is not in ${allowedOperators.join(
+          ", "
+        )}`
+      );
+    }
+
+    state.filterBy.searchableFieldsOperator = operator as "AND" | "OR";
+  },
+
   clearAllFilters() {
     this.clearCollectionIdFilters();
+    this.clearSearchableFieldsFilters();
+    state.filterBy.searchableFieldsOperator = "OR";
   },
 
   async search(searchId?: string): Promise<string | void> {
@@ -149,15 +292,12 @@ const actions = (state: SearchStoreState) => ({
     try {
       // first get the id of the search for this query
       // if it's passed, use that
+      const searchRequestOptions = getters(state).searchRequestOptions.value;
+
       state.searchId.value = searchId
         ? searchId
         : await api
-            .getSearchId(state.query.value, {
-              sort: state.sort.value ? state.sort.value : undefined,
-              collections: state.filterBy.collectionIds.length
-                ? state.filterBy.collectionIds
-                : undefined,
-            })
+            .getSearchId(state.query.value, searchRequestOptions)
             .catch((err) => {
               state.status.value = "error";
               throw new Error(
@@ -182,6 +322,18 @@ const actions = (state: SearchStoreState) => ({
             res.searchEntry.collection?.map((idStr) =>
               Number.parseInt(idStr)
             ) ?? [];
+
+          // Update searchableFields with response
+          if (res.searchEntry.specificFieldSearch) {
+            state.filterBy.searchableFieldsMap.clear();
+
+            res.searchEntry.specificFieldSearch?.forEach((searchField) => {
+              actions(state).addSearchableFieldFilter(searchField.field, {
+                value: searchField.text,
+                isFuzzy: searchField.fuzzy,
+              });
+            });
+          }
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters

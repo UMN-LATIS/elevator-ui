@@ -343,10 +343,7 @@ export interface SearchEntry {
   showHidden?: "0" | "1";
   fuzzySearch?: "0" | "1";
   sort?: string;
-  specificSearchField?: string[];
-  specificSearchText?: string[];
-  specificSearchFuzzy?: string[];
-  specificFieldSearch?: unknown[];
+  specificFieldSearch?: SpecificFieldSearchItem[];
 }
 
 export interface SearchSortOptions {
@@ -358,6 +355,28 @@ export interface SearchSortOptions {
 
   // sort options for specific searches
   [key: string]: string;
+}
+
+export interface SpecificFieldSearchItem {
+  field: string;
+  text: string;
+  fuzzy: boolean;
+}
+
+export interface SearchRequestOptions {
+  searchText?: string;
+  sort?: keyof SearchSortOptions;
+  collection?: string[] | number[] | null;
+  specificFieldSearch?: SpecificFieldSearchItem[];
+  combineSpecificSearches?: "OR" | "AND";
+  fileTypesSearch?: string;
+  distance?: string;
+  latitude?: string;
+  longitude?: string;
+  startDateText?: string;
+  startDate?: string;
+  endDateText?: string;
+  endDate?: string;
 }
 
 export interface SearchResultsResponse {
@@ -448,6 +467,25 @@ export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
 
 export type ElevatorCallbackType = "lti" | "JS";
 
+export interface RawSortableField {
+  label: string;
+  template: number;
+  type: WidgetType;
+}
+
+export interface SearchableField extends RawSortableField {
+  id: string;
+}
+
+export interface SearchableFieldFilter {
+  id: string; // filter uuid not field id
+  fieldId: string;
+  type: WidgetType;
+  label: string;
+  value: string;
+  isFuzzy: boolean;
+}
+
 export interface ApiInstanceNavResponse {
   pages: Page[];
   userId: number | null;
@@ -466,6 +504,7 @@ export interface ApiInstanceNavResponse {
   useCentralAuth: boolean;
   centralAuthLabel: string;
   collections: RawAssetCollection[];
+  sortableFields: Record<string, RawSortableField>;
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
 }
@@ -483,6 +522,7 @@ export interface InstanceStoreState {
   currentUser: User | null;
   instance: ElevatorInstance;
   collections: AssetCollection[];
+  searchableFields: SearchableField[];
 }
 
 export interface ElevatorInstance {

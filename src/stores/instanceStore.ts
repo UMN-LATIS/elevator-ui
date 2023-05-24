@@ -9,6 +9,7 @@ import {
   ElevatorInstance,
   User,
   AssetCollection,
+  SearchableField,
 } from "@/types";
 import {
   toCollectionIndex,
@@ -21,6 +22,7 @@ const createState = () => ({
   currentUser: ref<User | null>(null),
   pages: ref<Page[]>([]),
   collections: ref<AssetCollection[]>([]),
+  searchableFields: ref<SearchableField[]>([]),
   instance: ref<ElevatorInstance>({
     id: null,
     name: "Elevator",
@@ -61,6 +63,10 @@ const getters = (state: ReturnType<typeof createState>) => ({
       return null;
     }
   },
+
+  getSearchableFieldById(fieldId: string) {
+    return state.searchableFields.value.find((f) => f.id === fieldId) ?? null;
+  },
 });
 
 const actions = (state: ReturnType<typeof createState>) => ({
@@ -77,6 +83,14 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.collections.value = normalizeAssetCollections(
         apiResponse.collections
       );
+
+      // add id to searchable field object from api response
+      state.searchableFields.value = Object.entries(
+        apiResponse.sortableFields
+      ).map(([fieldId, field]) => ({
+        ...field,
+        id: fieldId,
+      }));
 
       state.fetchStatus.value = "success";
     } catch (error) {
