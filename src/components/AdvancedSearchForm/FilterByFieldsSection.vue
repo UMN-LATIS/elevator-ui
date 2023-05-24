@@ -40,7 +40,7 @@
           {{ index >= 1 ? searchStore.filterBy.searchableFieldsOperator : "" }}
         </Button>
         <select
-          class="rounded-md w-1/4"
+          class="rounded-md w-1/3"
           :value="searchStore.getSearchableFieldFilter(filterId)?.fieldId"
           @change="
             searchStore.updateSearchableFieldFilterWithNewFilterId(
@@ -65,6 +65,7 @@
           :label="filter.label"
           :value="filter.value"
           :labelHidden="true"
+          :placeholder="`Type your ${filter.label.toLowerCase()}...`"
           @input="
             searchStore.updateSearchableFieldFilterValue(
               filterId,

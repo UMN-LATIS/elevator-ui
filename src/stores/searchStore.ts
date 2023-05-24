@@ -108,7 +108,7 @@ const getters = (state: SearchStoreState) => ({
       collection: state.filterBy.collectionIds.length
         ? state.filterBy.collectionIds
         : undefined,
-      combineSpecificSearches: "OR",
+      combineSpecificSearches: state.filterBy.searchableFieldsOperator,
       specificFieldSearch,
     };
   }),
