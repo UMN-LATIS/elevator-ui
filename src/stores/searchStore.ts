@@ -256,8 +256,23 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.searchableFieldsMap.set(filterId, updatedFilter);
   },
 
+  updateSearchableFieldsOperator(operator: string) {
+    const allowedOperators = ["AND", "OR"];
+    if (!allowedOperators.includes(operator)) {
+      throw new Error(
+        `Cannot update searchable fields operator. ${operator} is not in ${allowedOperators.join(
+          ", "
+        )}`
+      );
+    }
+
+    state.filterBy.searchableFieldsOperator = operator as "AND" | "OR";
+  },
+
   clearAllFilters() {
     this.clearCollectionIdFilters();
+    this.clearSearchableFieldsFilters();
+    state.filterBy.searchableFieldsOperator = "OR";
   },
 
   async search(searchId?: string): Promise<string | void> {
