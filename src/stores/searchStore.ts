@@ -120,7 +120,9 @@ const getters = (state: SearchStoreState) => ({
   isBrowsingCollection: computed((): boolean => {
     return (
       state.searchEntry.value?.searchText === "" &&
-      state.searchEntry.value?.collection?.length === 1
+      state.searchEntry.value?.collection?.length === 1 &&
+      // if we're filtering by specific fields, we're not browsing
+      (state.searchEntry.value?.specificFieldSearch ?? []).length === 0
     );
   }),
   browsingCollectionId: computed((): number | null => {
