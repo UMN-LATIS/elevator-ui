@@ -10,7 +10,9 @@ const defaultConfig: AppConfig = {
     },
     theming: {
       // list of themes
-      availableThemes: import.meta.env.VITE_THEMES_AVAILABLE ?? ["light"],
+      availableThemes: import.meta.env.VITE_AVAILABLE_THEMES.split(",") ?? [
+        "light",
+      ],
       enabled: import.meta.env.VITE_THEME_ENABLED ?? true,
       defaultTheme: import.meta.env.VITE_THEME_DEFAULT ?? "light",
     },
