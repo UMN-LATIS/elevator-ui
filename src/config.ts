@@ -1,4 +1,4 @@
-import { mergeDeepRight } from "ramda";
+import { mergeDeepWith, concat, uniq } from "ramda";
 import { AppConfig } from "@/types";
 
 const defaultConfig: AppConfig = {
@@ -9,6 +9,8 @@ const defaultConfig: AppConfig = {
       url: import.meta.env.VITE_BASE_URL ?? "https://localhost/",
     },
     theming: {
+      // list of themes
+      availableThemes: import.meta.env.VITE_THEMES_AVAILABLE ?? ["light"],
       enabled: import.meta.env.VITE_THEME_ENABLED ?? true,
       defaultTheme: import.meta.env.VITE_THEME_DEFAULT ?? "light",
     },
@@ -26,9 +28,20 @@ const defaultConfig: AppConfig = {
   },
 };
 
-const config: AppConfig = mergeDeepRight(
+// to handle merging the theme arrays in window.Elevator.config with the
+// we need to use a custom merge function that will concat the arrays and
+// dedupe them.
+
+const mergedConfig: AppConfig = mergeDeepWith(
+  // concat any arrays within the config (e.g. availableThemes)
+  concat,
   defaultConfig,
   window?.Elevator?.config ?? {}
 );
 
-export default config;
+// dedupe the availableThemes array
+mergedConfig.instance.theming.availableThemes = uniq(
+  mergedConfig.instance.theming.availableThemes
+);
+
+export default mergedConfig;

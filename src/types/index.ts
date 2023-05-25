@@ -1,5 +1,6 @@
 import type { Ref } from "vue";
 import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
+import { Theme } from "@/components/ThemeSelector/useTheme";
 export * from "./TimelineJSTypes";
 
 export interface AppConfig {
@@ -10,6 +11,7 @@ export interface AppConfig {
       url: string;
     };
     theming: {
+      availableThemes: Theme[];
       enabled: boolean;
       defaultTheme: string;
     };

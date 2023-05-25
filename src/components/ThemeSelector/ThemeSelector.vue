@@ -5,11 +5,11 @@
     </template>
     <DropDownItem
       v-for="theme in availableThemes"
-      :key="theme.id"
-      :current="isCurrentTheme(theme.id)"
-      @click="setTheme(theme.id)"
+      :key="theme"
+      :current="activeThemeId === theme"
+      @click="activeThemeId = theme"
     >
-      {{ theme.name }}
+      {{ capitalize(theme) }}
     </DropDownItem>
   </DropDown>
 </template>
@@ -17,25 +17,22 @@
 <script setup lang="ts">
 import { watch } from "vue";
 import ThemeIcon from "@/icons/ThemeIcon.vue";
-import { useTheme, type ThemeId } from "./useTheme";
+import { useTheme, type Theme } from "./useTheme";
 import DropDown from "../DropDown/DropDown.vue";
 import DropDownItem from "../DropDown/DropDownItem.vue";
+import config from "@/config";
 
 const props = defineProps<{
-  defaultTheme: ThemeId;
+  defaultTheme: Theme;
 }>();
 
 const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
   defaultTheme: props.defaultTheme,
-  themes: [{ id: "folwell", name: "Folwell" }],
+  themes: config.instance.theming.availableThemes,
 });
 
-function isCurrentTheme(themeId: ThemeId) {
-  return themeId === activeThemeId.value;
-}
-
-function setTheme(themeId: ThemeId) {
-  activeThemeId.value = themeId;
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // load theme css dynamically

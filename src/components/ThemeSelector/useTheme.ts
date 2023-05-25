@@ -1,50 +1,44 @@
-import { watch, ref, computed } from "vue";
+import { watch, computed } from "vue";
 import { useStorage, usePreferredDark } from "@vueuse/core";
+import config from "@/config";
 
-export type ThemeId = "light" | "dark" | "auto" | string;
-
-export interface Theme {
-  id: ThemeId;
-  name: string;
-}
+export type Theme = "light" | "dark" | "auto" | string;
 
 export interface UseThemeOptions {
   themes?: Theme[];
-  defaultTheme?: ThemeId;
+  defaultTheme?: Theme;
 }
 
 export const useTheme = (opts: UseThemeOptions = {}) => {
-  const availableThemes = ref([
-    {
-      id: "light",
-      name: "Default",
-    },
-    ...(opts.themes ?? []),
-  ]);
+  const availableThemes = config.instance.theming.availableThemes;
 
-  const activeThemeId = useStorage<ThemeId>(
+  const activeThemeId = useStorage<Theme>(
     "theme",
     opts.defaultTheme || "light"
   );
 
-  function isValidThemeId(id: ThemeId) {
-    return availableThemes.value.some((theme) => theme.id === id);
-  }
-
+  // if the active theme is "auto", it will be based on the prefersDark value
   const prefersDark = usePreferredDark();
 
-  // the theme that will be applied
-  // if the active theme is "auto", it will be based on the prefersDark value
   const effectiveThemeId = computed(() => {
-    if (activeThemeId.value == "auto") {
-      return prefersDark.value ? "dark" : "light";
+    if (activeThemeId.value !== "auto") {
+      return activeThemeId.value;
     }
-    return activeThemeId.value;
+
+    // if the active theme is "auto" but there are no other themes available,
+    if (
+      !availableThemes.includes("light") ||
+      !availableThemes.includes("dark")
+    ) {
+      return activeThemeId.value;
+    }
+
+    return prefersDark.value ? "dark" : "light";
   });
 
   function onChange() {
     const themeId = activeThemeId.value;
-    if (!isValidThemeId(themeId)) {
+    if (!availableThemes.includes(themeId)) {
       throw new Error(`Invalid theme id: ${themeId}`);
     }
 
