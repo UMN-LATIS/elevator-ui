@@ -31,7 +31,8 @@ const {
   defaultTheme,
   enabled: themingEnabled,
 } = config.instance.theming;
-const activeTheme = useStorage("theme", defaultTheme);
+const { url: baseUrl } = config.instance.base;
+const activeTheme = useStorage(`theme-${baseUrl}`, defaultTheme);
 
 watch(
   activeTheme,
