@@ -1,13 +1,17 @@
 <template>
-  <DropDown label="Select Theme" :showChevron="false">
+  <DropDown
+    v-show="themingEnabled && availableThemes.length > 1"
+    label="Select Theme"
+    :showChevron="false"
+  >
     <template #label>
       <ThemeIcon />
     </template>
     <DropDownItem
       v-for="theme in availableThemes"
       :key="theme"
-      :current="activeThemeId === theme"
-      @click="activeThemeId = theme"
+      :current="activeTheme === theme"
+      @click="activeTheme = theme"
     >
       {{ capitalize(theme) }}
     </DropDownItem>
@@ -15,38 +19,46 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
 import ThemeIcon from "@/icons/ThemeIcon.vue";
-import { useTheme, type Theme } from "./useTheme";
 import DropDown from "../DropDown/DropDown.vue";
 import DropDownItem from "../DropDown/DropDownItem.vue";
+import { watch } from "vue";
+import { useStorage } from "@vueuse/core";
 import config from "@/config";
 
-const props = defineProps<{
-  defaultTheme: Theme;
-}>();
+const {
+  availableThemes,
+  defaultTheme,
+  enabled: themingEnabled,
+} = config.instance.theming;
+const activeTheme = useStorage("theme", defaultTheme);
 
-const { activeThemeId, availableThemes, effectiveThemeId } = useTheme({
-  defaultTheme: props.defaultTheme,
-  themes: config.instance.theming.availableThemes,
-});
+watch(
+  activeTheme,
+  async () => {
+    // if available theme is set to a theme that isn't available, set it to the default theme
+    if (!availableThemes.includes(activeTheme.value)) {
+      activeTheme.value = defaultTheme;
+    }
+
+    // set theme on the body
+    document.documentElement.setAttribute("data-theme", activeTheme.value);
+
+    // if the theme is light, we're done
+    if (activeTheme.value === "light") return;
+
+    // otherwise load the theme css
+    import(`../../css/themes/${activeTheme.value}.css`).catch((err) => {
+      console.error(
+        `Failed to load theme css for ${activeTheme.value}. falling back to light theme.`,
+        err
+      );
+    });
+  },
+  { immediate: true }
+);
 
 function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
-// load theme css dynamically
-watch(
-  activeThemeId,
-  async () => {
-    // light is the default, so we don't need to load any css
-    if (activeThemeId.value === "light") return;
-
-    // dyanmically load the css file
-    // we do this because we might need to also load fonts
-    // in the theme css
-    import(`../../css/themes/${effectiveThemeId.value}.css`);
-  },
-  { immediate: true }
-);
 </script>

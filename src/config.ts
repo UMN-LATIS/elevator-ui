@@ -10,11 +10,12 @@ const defaultConfig: AppConfig = {
     },
     theming: {
       // list of themes
-      availableThemes: import.meta.env.VITE_AVAILABLE_THEMES.split(",") ?? [
+      availableThemes: import.meta.env.VITE_THEMING_THEMES.split(",") ?? [
         "light",
       ],
-      enabled: import.meta.env.VITE_THEME_ENABLED ?? true,
-      defaultTheme: import.meta.env.VITE_THEME_DEFAULT ?? "light",
+      enabled:
+        import.meta.env.VITE_THEMING_ENABLED.toLowerCase() === "true" ?? true,
+      defaultTheme: import.meta.env.VITE_THEMING_DEFAULT ?? "light",
     },
   },
   arcgis: {
