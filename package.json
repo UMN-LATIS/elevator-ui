@@ -16,10 +16,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@fontsource/inter": "^4.5.15",
-    "@fontsource/material-icons": "^4.5.4",
-    "@fontsource/open-sans": "^4.5.14",
-    "@fontsource/work-sans": "^4.5.14",
+    "@fontsource/inter": "^5.0.1",
+    "@fontsource/material-icons": "^5.0.1",
+    "@fontsource/open-sans": "^5.0.1",
+    "@fontsource/work-sans": "^5.0.1",
     "@headlessui/vue": "^1.7.13",
     "@knight-lab/timelinejs": "^3.9.2",
     "@mdx-js/react": "^2.3.0",
