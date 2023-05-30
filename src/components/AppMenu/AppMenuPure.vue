@@ -12,10 +12,7 @@
         </h1>
       </Link>
       <div class="flex items-center">
-        <ThemeSelector
-          v-show="config.instance.theming.enabled"
-          :defaultTheme="config.instance.theming.defaultTheme"
-        />
+        <ThemeSelector />
       </div>
     </header>
     <div
@@ -43,8 +40,6 @@ import { ElevatorInstance, User } from "@/types";
 import UMNLogo from "@/icons/UMNLogo.vue";
 import ThemeSelector from "@/components/ThemeSelector/ThemeSelector.vue";
 import config from "@/config";
-import AuthDropDown from "@/components/AuthDropDown/AuthDropDown.vue";
-import AppMenuAuthSection from "./AppMenuAuthSection.vue";
 
 defineProps<{
   instance: ElevatorInstance;

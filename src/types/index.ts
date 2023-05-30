@@ -10,6 +10,7 @@ export interface AppConfig {
       url: string;
     };
     theming: {
+      availableThemes: string[];
       enabled: boolean;
       defaultTheme: string;
     };
