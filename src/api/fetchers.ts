@@ -3,7 +3,7 @@
  * any caching should happen in API getters.
  */
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
 import {
@@ -14,6 +14,8 @@ import {
   ApiStaticPageResponse,
   FileDownloadNormalized,
   ApiInstanceNavResponse,
+  SearchRequestOptions,
+  LocalLoginResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -131,4 +133,107 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
   );
 
   return res.data;
-},
+}
+
+export async function postLtiPayload({
+  fileObjectId,
+  excerptId,
+}: {
+  fileObjectId: string;
+  returnUrl: string;
+  excerptId: string;
+}) {
+  const formdata = new FormData();
+  formdata.append("object", fileObjectId);
+  formdata.append("excerptId", excerptId);
+
+  const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
+
+  return res.data;
+}
+
+export async function fetchSearchId(
+  query: string,
+  opts: Omit<SearchRequestOptions, "searchText"> = {}
+): Promise<string> {
+  const params = new URLSearchParams();
+  const searchQuery: SearchRequestOptions = { searchText: query };
+
+  if (opts.sort) {
+    searchQuery.sort = opts.sort;
+  }
+
+  if (opts.collection) {
+    searchQuery.collection = opts.collection.map(String);
+  }
+
+  if (opts.specificFieldSearch) {
+    searchQuery.specificFieldSearch = opts.specificFieldSearch;
+
+    // default to OR combine operator
+    searchQuery.combineSpecificSearches = opts.combineSpecificSearches ?? "OR";
+  }
+
+  params.append("searchQuery", JSON.stringify(searchQuery));
+
+  // this param gets searchID without all the results
+  params.append("storeOnly", "true");
+  const res = await axios.post<SearchResultsResponse>(
+    `${BASE_URL}/search/searchResults`,
+    params
+  );
+
+  return res.data.searchId;
+}
+
+export async function fetchSearchResultsById(
+  searchId: string,
+  page: number,
+  loadAll: boolean
+) {
+  const res = await axios.get<SearchResultsResponse>(
+    `${BASE_URL}/search/searchResults/${searchId}/${page}/${loadAll}`
+  );
+
+  const searchResults = res.data;
+  return searchResults;
+}
+
+export async function deleteAsset(assetId: string) {
+  const res = await axios.get(
+    `${BASE_URL}/assetManager/deleteAsset/${assetId}`
+  );
+  return res.data;
+}
+
+export async function loginAsGuest({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}): Promise<LocalLoginResponse> {
+  const formdata = new FormData();
+  formdata.append("username", username);
+  formdata.append("password", password);
+
+  try {
+    const res = await axios.post<LocalLoginResponse>(
+      `${BASE_URL}/loginManager/localLoginAsync`,
+      formdata
+    );
+
+    return res.data;
+  } catch (e: unknown) {
+    if (!(e instanceof AxiosError)) {
+      throw e;
+    }
+
+    if (e.response?.status === 401) {
+      return e.response.data;
+    }
+
+    console.error(e.response?.data);
+    throw e;
+  }
+}

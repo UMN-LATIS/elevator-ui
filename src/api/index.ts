@@ -1,5 +1,3 @@
-import axios, { AxiosError } from "axios";
-import config from "@/config";
 import {
   Asset,
   SearchResultMatch,
@@ -8,15 +6,9 @@ import {
   ApiInterstitialResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
-  LocalLoginResponse,
-  SearchRequestOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
-
-const BASE_URL = config.instance.base.url;
-
-axios.defaults.withCredentials = true;
 
 // caches for api results
 const assets = new Map<string, Asset | null>();
@@ -122,57 +114,6 @@ async function getEmbedPluginInterstitial(): Promise<ApiInterstitialResponse> {
   return res.data;
 }
 
-async function postLtiPayload({
-  fileObjectId,
-  excerptId,
-}: {
-  fileObjectId: string;
-  returnUrl: string;
-  excerptId: string;
-}) {
-  const formdata = new FormData();
-  formdata.append("object", fileObjectId);
-  formdata.append("excerptId", excerptId);
-
-  const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
-
-  return res.data;
-}
-
-async function getSearchId(
-  query: string,
-  opts: Omit<SearchRequestOptions, "searchText"> = {}
-): Promise<string> {
-  const params = new URLSearchParams();
-  const searchQuery: SearchRequestOptions = { searchText: query };
-
-  if (opts.sort) {
-    searchQuery.sort = opts.sort;
-  }
-
-  if (opts.collection) {
-    searchQuery.collection = opts.collection.map(String);
-  }
-
-  if (opts.specificFieldSearch) {
-    searchQuery.specificFieldSearch = opts.specificFieldSearch;
-
-    // default to OR combine operator
-    searchQuery.combineSpecificSearches = opts.combineSpecificSearches ?? "OR";
-  }
-
-  params.append("searchQuery", JSON.stringify(searchQuery));
-
-  // this param gets searchID without all the results
-  params.append("storeOnly", "true");
-  const res = await axios.post<SearchResultsResponse>(
-    `${BASE_URL}/search/searchResults`,
-    params
-  );
-
-  return res.data.searchId;
-}
-
 async function getSearchIdForCollection(collectionId: number): Promise<string> {
   // check the cache first before making the request
   const searchId =
@@ -197,24 +138,15 @@ async function getSearchResultsById(
     return searchMap[page];
   }
 
-  const res = await axios.get<SearchResultsResponse>(
-    `${BASE_URL}/search/searchResults/${searchId}/${page}/${loadAll}`
+  const searchResults = await fetchers.fetchSearchResultsById(
+    searchId,
+    page,
+    loadAll
   );
 
-  const searchResults = res.data;
-
   // cache the results
-  // if the searchId is not in the cache, add it
-  if (!searchMap) {
-    paginatedSearchResults.set(searchId, {
-      [page]: searchResults,
-    });
-    return searchResults;
-  }
-
-  // if the searchId is in the cache, add the page to it
   paginatedSearchResults.set(searchId, {
-    ...searchMap,
+    ...(searchMap || {}), // add to existing cache if it exists
     [page]: searchResults,
   });
   return searchResults;
@@ -231,45 +163,6 @@ async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   return page;
 }
 
-async function deleteAsset(assetId: string) {
-  const res = await axios.get(
-    `${BASE_URL}/assetManager/deleteAsset/${assetId}`
-  );
-  return res.data;
-}
-
-async function loginAsGuest({
-  username,
-  password,
-}: {
-  username: string;
-  password: string;
-}): Promise<LocalLoginResponse> {
-  const formdata = new FormData();
-  formdata.append("username", username);
-  formdata.append("password", password);
-
-  try {
-    const res = await axios.post<LocalLoginResponse>(
-      `${BASE_URL}/loginManager/localLoginAsync`,
-      formdata
-    );
-
-    return res.data;
-  } catch (e: unknown) {
-    if (!(e instanceof AxiosError)) {
-      throw e;
-    }
-
-    if (e.response?.status === 401) {
-      return e.response.data;
-    }
-
-    console.error(e.response?.data);
-    throw e;
-  }
-}
-
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -278,14 +171,14 @@ const api = {
   getFileMetaData,
   getFileDownloadInfo,
   getEmbedPluginInterstitial,
-  postLtiPayload,
+  postLtiPayload: fetchers.postLtiPayload,
   fetchInstanceNav: fetchers.fetchInstanceNav,
-  getSearchId,
+  getSearchId: fetchers.fetchSearchId,
   getSearchIdForCollection,
   getSearchResultsById,
   getStaticPage,
-  deleteAsset,
-  loginAsGuest,
+  deleteAsset: fetchers.deleteAsset,
+  loginAsGuest: fetchers.loginAsGuest,
 };
 
 export default api;
