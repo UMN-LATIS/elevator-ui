@@ -19,8 +19,8 @@ onMounted(async () => {
 
   if (!props.filter.options) {
     console.log("fetch options");
-    options.value = ["option 1", "option 2", "option 3"];
-    // options.value = await api.getSelectFilterOptions(filter.id);
+    options.value = await api.getSearchableSelectFieldOptions(props.filter);
+    console.log(options.value);
   }
 });
 </script>

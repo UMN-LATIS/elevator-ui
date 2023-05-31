@@ -485,6 +485,7 @@ export interface SearchableFieldFilter {
   label: string;
   value: string;
   isFuzzy: boolean;
+  templateId: number;
 }
 
 export interface SearchableSelectFieldFilter extends SearchableFieldFilter {
@@ -632,4 +633,14 @@ export interface MapContext {
 export interface LocalLoginResponse {
   status: "success" | "error";
   message: string;
+}
+
+export interface ApiGetFieldInfoResponse {
+  type: WidgetType;
+  values?: unknown;
+}
+
+export interface ApiGetSelectFieldInfoResponse extends ApiGetFieldInfoResponse {
+  type: "select";
+  values?: string[]; // options for select
 }

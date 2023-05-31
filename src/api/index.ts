@@ -6,6 +6,10 @@ import {
   ApiInterstitialResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
+  SearchableFieldFilter,
+  ApiGetFieldInfoResponse,
+  ApiGetSelectFieldInfoResponse,
+  SearchableSelectFieldFilter,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -23,6 +27,7 @@ const paginatedSearchResults = new Map<
 const collectionDescriptions = new Map<number, string | null>();
 const collectionSearchIds = new Map<number, string | null>();
 const staticPages = new Map<number, ApiStaticPageResponse | null>();
+const searchableFieldDetails = new Map<string, ApiGetFieldInfoResponse>();
 
 async function getAsset(assetId: string): Promise<Asset | null> {
   if (!assetId) return null;
@@ -163,6 +168,36 @@ async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   return page;
 }
 
+async function getSearchableSelectFieldOptions(
+  filter: SearchableSelectFieldFilter
+): Promise<string[]> {
+  if (filter.type !== "select") {
+    throw new Error(`Invalid filter type: ${filter.type}. Must be "select"`);
+  }
+
+  const fieldKey = `${filter.fieldId}-${filter.templateId}`;
+
+  // return cached data if it exists
+  if (searchableFieldDetails.has(fieldKey)) {
+    const cachedResponse = searchableFieldDetails.get(
+      fieldKey
+    ) as ApiGetSelectFieldInfoResponse;
+    return cachedResponse.values ?? [];
+  }
+
+  // otherwise get the data
+  const data =
+    await fetchers.fetchSearchableFieldInfo<ApiGetSelectFieldInfoResponse>(
+      filter
+    );
+
+  // cache the response
+  searchableFieldDetails.set(fieldKey, data);
+
+  // and return the values
+  return data.values ?? [];
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -179,6 +214,7 @@ const api = {
   getStaticPage,
   deleteAsset: fetchers.deleteAsset,
   loginAsGuest: fetchers.loginAsGuest,
+  getSearchableSelectFieldOptions,
 };
 
 export default api;

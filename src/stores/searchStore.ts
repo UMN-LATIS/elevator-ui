@@ -187,6 +187,7 @@ const actions = (state: SearchStoreState) => ({
       fieldId: field.id,
       type: field.type,
       label: field.label,
+      templateId: field.template,
       value: "",
       isFuzzy: false,
       ...initialProps,

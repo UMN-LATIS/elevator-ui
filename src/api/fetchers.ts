@@ -6,7 +6,7 @@
 import axios, { AxiosError } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
-import {
+import type {
   Asset,
   SearchResultMatch,
   Template,
@@ -16,6 +16,8 @@ import {
   ApiInstanceNavResponse,
   SearchRequestOptions,
   LocalLoginResponse,
+  SearchableFieldFilter,
+  ApiGetFieldInfoResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -236,4 +238,16 @@ export async function loginAsGuest({
     console.error(e.response?.data);
     throw e;
   }
+}
+
+export async function fetchSearchableFieldInfo<T = ApiGetFieldInfoResponse>(
+  filter: SearchableFieldFilter
+) {
+  const formdata = new FormData();
+  formdata.append("fieldTitle", filter.fieldId);
+  formdata.append("template", String(filter.templateId));
+
+  const res = await axios.post<T>(`${BASE_URL}/search/getFieldInfo`, formdata);
+
+  return res.data;
 }
