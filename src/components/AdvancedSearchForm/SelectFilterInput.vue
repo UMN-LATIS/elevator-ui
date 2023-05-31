@@ -1,5 +1,5 @@
 <template>
-  <select>
+  <select :value="selectedOption" @change="handleSelectChange">
     <option v-for="opt in options" :key="opt">{{ opt }}</option>
   </select>
 </template>
@@ -10,18 +10,29 @@ import { onMounted, ref } from "vue";
 
 const props = defineProps<{
   filter: SearchableSelectFieldFilter;
+  selectedOption?: string;
+}>();
+
+const emit = defineEmits<{
+  (eventName: "change", value: string);
 }>();
 
 const options = ref(props.filter.options || []);
 
 onMounted(async () => {
-  console.log(props.filter);
-
   if (!props.filter.options) {
-    console.log("fetch options");
     options.value = await api.getSearchableSelectFieldOptions(props.filter);
-    console.log(options.value);
+  }
+
+  // if there's no selected option, select the first one
+  if (!props.selectedOption && options.value.length) {
+    emit("change", options.value[0]);
   }
 });
+
+function handleSelectChange(event: Event) {
+  const target = event.target as HTMLSelectElement;
+  emit("change", target.value);
+}
 </script>
 <style scoped></style>

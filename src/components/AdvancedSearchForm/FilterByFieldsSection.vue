@@ -61,7 +61,12 @@
         <SelectFilterInput
           v-if="filter.type === 'select'"
           :filter="(filter as SearchableSelectFieldFilter)"
+          :value="filter.value"
           class="flex-1"
+          @change="
+            (value) =>
+              searchStore.updateSearchableFieldFilterValue(filterId, value)
+          "
         />
 
         <InputGroup
