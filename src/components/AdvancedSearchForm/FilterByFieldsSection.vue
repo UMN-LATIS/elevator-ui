@@ -113,9 +113,13 @@
           <DropDownItem
             v-for="field in supportedSearchableFields"
             :key="field.id"
+            class="flex items-center justify-between cursor-pointer"
             @click="searchStore.addSearchableFieldFilter(field.id)"
           >
             <span class="flex-1">{{ field.label }}</span>
+            <span class="text-xs text-neutral-300 capitalize">{{
+              field.type
+            }}</span>
           </DropDownItem>
         </div>
       </DropDown>
@@ -135,7 +139,7 @@ import InputGroup from "../InputGroup/InputGroup.vue";
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 
-const supportedTypes = ["text"];
+const supportedTypes = ["text", "select"];
 const supportedSearchableFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
     supportedTypes.includes(field.type)
