@@ -1,5 +1,4 @@
 import axios, { AxiosError } from "axios";
-import { omit } from "ramda";
 import config from "@/config";
 import {
   Asset,
@@ -7,15 +6,13 @@ import {
   Template,
   SearchResultsResponse,
   ApiInterstitialResponse,
-  ApiInstanceNavResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
   LocalLoginResponse,
   SearchRequestOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
-import { FileDownloadResponse } from "@/types/FileDownloadTypes";
-import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
+import * as fetchers from "@/api/fetchers";
 
 const BASE_URL = config.instance.base.url;
 
@@ -35,88 +32,136 @@ const collectionDescriptions = new Map<number, string | null>();
 const collectionSearchIds = new Map<number, string | null>();
 const staticPages = new Map<number, ApiStaticPageResponse | null>();
 
-async function fetchAsset(assetId: string): Promise<Asset | null> {
-  const res = await axios.get<Asset>(
-    `${BASE_URL}/asset/viewAsset/${assetId}/true`
-  );
+async function getAsset(assetId: string): Promise<Asset | null> {
+  if (!assetId) return null;
 
-  return res.data ?? null;
+  // load asset and cache it in the store
+  const asset = assets.get(assetId) || (await fetchers.fetchAsset(assetId));
+  assets.set(assetId, asset);
+
+  return asset;
 }
 
-async function fetchTemplate(templateId: string): Promise<Template | null> {
-  const res = await axios.get<Template>(
-    `${BASE_URL}/assetManager/getTemplate/${templateId}`
-  );
-  return res.data ?? null;
+async function getAssetWithTemplate(
+  assetId: string | null
+): Promise<{ asset: Asset | null; template: Template | null }> {
+  if (!assetId) {
+    return { asset: null, template: null };
+  }
+
+  // load asset and cache it in the store
+  const asset = assets.get(assetId) || (await fetchers.fetchAsset(assetId));
+  assets.set(assetId, asset);
+
+  if (!asset) return { asset: null, template: null };
+
+  // load template and cache it in the store
+  const templateId = String(asset.templateId);
+  const template =
+    templates.get(templateId) || (await fetchers.fetchTemplate(templateId));
+  templates.set(templateId, template);
+
+  return { asset, template };
 }
 
-async function fetchMoreLikeThis(
-  assetId: string
+async function getCollectionDescription(id: number): Promise<string | null> {
+  const description =
+    collectionDescriptions.get(id) ||
+    (await fetchers.fetchCollectionDescription(id));
+
+  collectionDescriptions.set(id, description);
+
+  return description;
+}
+
+async function getMoreLikeThis(
+  assetId: string | null
 ): Promise<SearchResultMatch[]> {
-  const formdata = new FormData();
-  formdata.append("suppressRecent", "true");
-  formdata.append("searchRelated", "true");
-  formdata.append("searchQuery", JSON.stringify({ searchText: assetId }));
+  if (!assetId) return [];
 
-  const res = await axios.post<SearchResultsResponse>(
-    `${BASE_URL}/search/searchResults`,
-    formdata
-  );
+  const matches =
+    moreLikeThisMatches.get(assetId) ||
+    (await fetchers.fetchMoreLikeThis(assetId));
 
-  // response may return asset within the search, so filter it out
-  // if it does so that "more"
-  return res.data.matches.filter((match) => match.objectId !== assetId);
+  // cache matches
+  moreLikeThisMatches.set(assetId, matches);
+  return matches;
 }
 
-async function fetchCollectionDescription(
-  collectionId: number
-): Promise<string | null> {
-  const res = await axios.get<{
-    collectionDescription: string;
-    collectionTitle: string;
-  }>(`${BASE_URL}/collections/collectionHeader/${collectionId}/true`);
+async function getFileMetaData(
+  fileId: string | null
+): Promise<FileMetaData | null> {
+  if (!fileId) return null;
 
-  return res.data.collectionDescription ?? null;
+  const metadata =
+    fileMetaData.get(fileId) || (await fetchers.fetchFileMetaData(fileId));
+
+  // cache metadata
+  fileMetaData.set(fileId, metadata);
+  return metadata;
 }
 
-async function fetchFileMetaData(fileId: string): Promise<FileMetaData> {
-  const res = await axios.get<FileMetaData>(
-    `${BASE_URL}/fileManager/getMetadataForObject/${fileId}`
-  );
-
-  return omit(["bulkMetadata"], res.data);
-}
-
-async function fetchFileDownloadInfo(
-  fileId: string,
+async function getFileDownloadInfo(
+  fileId: string | null,
   parentObjectId?: string | null
-): Promise<FileDownloadNormalized[]> {
-  const res = await axios.get<FileDownloadResponse>(
-    `${BASE_URL}/asset/getEmbedAsJson/${fileId}/${parentObjectId ?? ""}`
-  );
+): Promise<FileDownloadNormalized[] | null> {
+  if (!fileId) return null;
 
-  return Object.entries(res.data).map(([filetype, downloadDetails]) => ({
-    filetype,
-    isReady: downloadDetails.ready,
-    url:
-      filetype === "original"
-        ? `${BASE_URL}/fileManager/getOriginal/${fileId}`
-        : `${BASE_URL}/fileManager/getDerivativeById/${fileId}/${filetype}`,
-    originalFilename: downloadDetails.originalFilename,
-    extension: getExtensionFromFilename(downloadDetails.originalFilename),
-  }));
+  const key = `${fileId}.${parentObjectId}`;
+  const fileDownloadInfo =
+    fileDownloadResponses.get(key) ||
+    (await fetchers.fetchFileDownloadInfo(fileId, parentObjectId));
+
+  fileDownloadResponses.set(key, fileDownloadInfo);
+
+  return fileDownloadInfo;
 }
 
-function fetchInterstitial() {
-  return axios.get(`${BASE_URL}/home/interstitial`);
+async function getEmbedPluginInterstitial(): Promise<ApiInterstitialResponse> {
+  const res = await fetchers.fetchInterstitial();
+  return res.data;
 }
 
-async function fetchSearchIdForCollection(
-  collectionId: number
+async function postLtiPayload({
+  fileObjectId,
+  excerptId,
+}: {
+  fileObjectId: string;
+  returnUrl: string;
+  excerptId: string;
+}) {
+  const formdata = new FormData();
+  formdata.append("object", fileObjectId);
+  formdata.append("excerptId", excerptId);
+
+  const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
+
+  return res.data;
+}
+
+async function getSearchId(
+  query: string,
+  opts: Omit<SearchRequestOptions, "searchText"> = {}
 ): Promise<string> {
   const params = new URLSearchParams();
-  params.append("searchText", "");
-  params.append("collectionId", String(collectionId));
+  const searchQuery: SearchRequestOptions = { searchText: query };
+
+  if (opts.sort) {
+    searchQuery.sort = opts.sort;
+  }
+
+  if (opts.collection) {
+    searchQuery.collection = opts.collection.map(String);
+  }
+
+  if (opts.specificFieldSearch) {
+    searchQuery.specificFieldSearch = opts.specificFieldSearch;
+
+    // default to OR combine operator
+    searchQuery.combineSpecificSearches = opts.combineSpecificSearches ?? "OR";
+  }
+
+  params.append("searchQuery", JSON.stringify(searchQuery));
 
   // this param gets searchID without all the results
   params.append("storeOnly", "true");
@@ -128,248 +173,119 @@ async function fetchSearchIdForCollection(
   return res.data.searchId;
 }
 
-async function fetchStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
-  const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`);
-  return res.data;
+async function getSearchIdForCollection(collectionId: number): Promise<string> {
+  // check the cache first before making the request
+  const searchId =
+    collectionSearchIds.get(collectionId) ||
+    (await fetchers.fetchSearchIdForCollection(collectionId));
+
+  // update cache
+  collectionSearchIds.set(collectionId, searchId);
+
+  // return the searchId
+  return searchId;
 }
 
-const api = {
-  async getAsset(assetId: string): Promise<Asset | null> {
-    if (!assetId) return null;
+async function getSearchResultsById(
+  searchId: string,
+  page = 0,
+  loadAll = false
+): Promise<SearchResultsResponse> {
+  // check the cache first
+  const searchMap = paginatedSearchResults.get(searchId);
+  if (searchMap && searchMap[page]) {
+    return searchMap[page];
+  }
 
-    // load asset and cache it in the store
-    const asset = assets.get(assetId) || (await fetchAsset(assetId));
-    assets.set(assetId, asset);
+  const res = await axios.get<SearchResultsResponse>(
+    `${BASE_URL}/search/searchResults/${searchId}/${page}/${loadAll}`
+  );
 
-    return asset;
-  },
+  const searchResults = res.data;
 
-  async getAssetWithTemplate(
-    assetId: string | null
-  ): Promise<{ asset: Asset | null; template: Template | null }> {
-    if (!assetId) {
-      return { asset: null, template: null };
-    }
-
-    // load asset and cache it in the store
-    const asset = assets.get(assetId) || (await fetchAsset(assetId));
-    assets.set(assetId, asset);
-
-    if (!asset) return { asset: null, template: null };
-
-    // load template and cache it in the store
-    const templateId = String(asset.templateId);
-    const template =
-      templates.get(templateId) || (await fetchTemplate(templateId));
-    templates.set(templateId, template);
-
-    return { asset, template };
-  },
-  async getCollectionDescription(id: number): Promise<string | null> {
-    const description =
-      collectionDescriptions.get(id) || (await fetchCollectionDescription(id));
-
-    collectionDescriptions.set(id, description);
-
-    return description;
-  },
-  async getMoreLikeThis(assetId: string | null): Promise<SearchResultMatch[]> {
-    if (!assetId) return [];
-
-    const matches =
-      moreLikeThisMatches.get(assetId) || (await fetchMoreLikeThis(assetId));
-
-    // cache matches
-    moreLikeThisMatches.set(assetId, matches);
-    return matches;
-  },
-
-  async getFileMetaData(fileId: string | null): Promise<FileMetaData | null> {
-    if (!fileId) return null;
-
-    const metadata =
-      fileMetaData.get(fileId) || (await fetchFileMetaData(fileId));
-
-    // cache metadata
-    fileMetaData.set(fileId, metadata);
-    return metadata;
-  },
-
-  async getFileDownloadInfo(
-    fileId: string | null,
-    parentObjectId?: string | null
-  ): Promise<FileDownloadNormalized[] | null> {
-    if (!fileId) return null;
-
-    const key = `${fileId}.${parentObjectId}`;
-    const fileDownloadInfo =
-      fileDownloadResponses.get(key) ||
-      (await fetchFileDownloadInfo(fileId, parentObjectId));
-
-    fileDownloadResponses.set(key, fileDownloadInfo);
-
-    return fileDownloadInfo;
-  },
-
-  async getEmbedPluginInterstitial(): Promise<ApiInterstitialResponse> {
-    const res = await fetchInterstitial();
-    return res.data;
-  },
-
-  async postLtiPayload({
-    fileObjectId,
-    excerptId,
-  }: {
-    fileObjectId: string;
-    returnUrl: string;
-    excerptId: string;
-  }) {
-    const formdata = new FormData();
-    formdata.append("object", fileObjectId);
-    formdata.append("excerptId", excerptId);
-
-    const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
-
-    return res.data;
-  },
-  async fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
-    const res = await axios.get<ApiInstanceNavResponse>(
-      `${BASE_URL}/home/getInstanceNav`
-    );
-
-    return res.data;
-  },
-
-  async getSearchId(
-    query: string,
-    opts: Omit<SearchRequestOptions, "searchText"> = {}
-  ): Promise<string> {
-    const params = new URLSearchParams();
-    const searchQuery: SearchRequestOptions = { searchText: query };
-
-    if (opts.sort) {
-      searchQuery.sort = opts.sort;
-    }
-
-    if (opts.collection) {
-      searchQuery.collection = opts.collection.map(String);
-    }
-
-    if (opts.specificFieldSearch) {
-      searchQuery.specificFieldSearch = opts.specificFieldSearch;
-
-      // default to OR combine operator
-      searchQuery.combineSpecificSearches =
-        opts.combineSpecificSearches ?? "OR";
-    }
-
-    params.append("searchQuery", JSON.stringify(searchQuery));
-
-    // this param gets searchID without all the results
-    params.append("storeOnly", "true");
-    const res = await axios.post<SearchResultsResponse>(
-      `${BASE_URL}/search/searchResults`,
-      params
-    );
-
-    return res.data.searchId;
-  },
-
-  async getSearchIdForCollection(collectionId: number): Promise<string> {
-    // check the cache first before making the request
-    const searchId =
-      collectionSearchIds.get(collectionId) ||
-      (await fetchSearchIdForCollection(collectionId));
-
-    // update cache
-    collectionSearchIds.set(collectionId, searchId);
-
-    // return the searchId
-    return searchId;
-  },
-
-  async getSearchResultsById(
-    searchId: string,
-    page = 0,
-    loadAll = false
-  ): Promise<SearchResultsResponse> {
-    // check the cache first
-    const searchMap = paginatedSearchResults.get(searchId);
-    if (searchMap && searchMap[page]) {
-      return searchMap[page];
-    }
-
-    const res = await axios.get<SearchResultsResponse>(
-      `${BASE_URL}/search/searchResults/${searchId}/${page}/${loadAll}`
-    );
-
-    const searchResults = res.data;
-
-    // cache the results
-    // if the searchId is not in the cache, add it
-    if (!searchMap) {
-      paginatedSearchResults.set(searchId, {
-        [page]: searchResults,
-      });
-      return searchResults;
-    }
-
-    // if the searchId is in the cache, add the page to it
+  // cache the results
+  // if the searchId is not in the cache, add it
+  if (!searchMap) {
     paginatedSearchResults.set(searchId, {
-      ...searchMap,
       [page]: searchResults,
     });
     return searchResults;
-  },
+  }
 
-  async getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
-    // check the cache first
-    const page = staticPages.get(pageId) || (await fetchStaticPage(pageId));
+  // if the searchId is in the cache, add the page to it
+  paginatedSearchResults.set(searchId, {
+    ...searchMap,
+    [page]: searchResults,
+  });
+  return searchResults;
+}
 
-    // cache the page
-    staticPages.set(pageId, page);
+async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
+  // check the cache first
+  const page =
+    staticPages.get(pageId) || (await fetchers.fetchStaticPage(pageId));
 
-    return page;
-  },
+  // cache the page
+  staticPages.set(pageId, page);
 
-  async deleteAsset(assetId: string) {
-    const res = await axios.get(
-      `${BASE_URL}/assetManager/deleteAsset/${assetId}`
+  return page;
+}
+
+async function deleteAsset(assetId: string) {
+  const res = await axios.get(
+    `${BASE_URL}/assetManager/deleteAsset/${assetId}`
+  );
+  return res.data;
+}
+
+async function loginAsGuest({
+  username,
+  password,
+}: {
+  username: string;
+  password: string;
+}): Promise<LocalLoginResponse> {
+  const formdata = new FormData();
+  formdata.append("username", username);
+  formdata.append("password", password);
+
+  try {
+    const res = await axios.post<LocalLoginResponse>(
+      `${BASE_URL}/loginManager/localLoginAsync`,
+      formdata
     );
+
     return res.data;
-  },
-
-  async loginAsGuest({
-    username,
-    password,
-  }: {
-    username: string;
-    password: string;
-  }): Promise<LocalLoginResponse> {
-    const formdata = new FormData();
-    formdata.append("username", username);
-    formdata.append("password", password);
-
-    try {
-      const res = await axios.post<LocalLoginResponse>(
-        `${BASE_URL}/loginManager/localLoginAsync`,
-        formdata
-      );
-
-      return res.data;
-    } catch (e: unknown) {
-      if (!(e instanceof AxiosError)) {
-        throw e;
-      }
-
-      if (e.response?.status === 401) {
-        return e.response.data;
-      }
-
-      console.error(e.response?.data);
+  } catch (e: unknown) {
+    if (!(e instanceof AxiosError)) {
       throw e;
     }
-  },
+
+    if (e.response?.status === 401) {
+      return e.response.data;
+    }
+
+    console.error(e.response?.data);
+    throw e;
+  }
+}
+
+const api = {
+  getAsset,
+  getAssetWithTemplate,
+  getCollectionDescription,
+  getMoreLikeThis,
+  getFileMetaData,
+  getFileDownloadInfo,
+  getEmbedPluginInterstitial,
+  postLtiPayload,
+  fetchInstanceNav: fetchers.fetchInstanceNav,
+  getSearchId,
+  getSearchIdForCollection,
+  getSearchResultsById,
+  getStaticPage,
+  deleteAsset,
+  loginAsGuest,
 };
 
 export default api;
