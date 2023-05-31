@@ -58,7 +58,14 @@
           </option>
         </select>
 
+        <SelectFilterInput
+          v-if="filter.type === 'select'"
+          :filter="(filter as SearchableSelectFieldFilter)"
+          class="flex-1"
+        />
+
         <InputGroup
+          v-else
           :id="filterId"
           class="flex-1 text-sm"
           inputClass="!bg-white !border !border-neutral-200"
@@ -135,6 +142,8 @@ import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import InputGroup from "../InputGroup/InputGroup.vue";
+import SelectFilterInput from "./SelectFilterInput.vue";
+import type { SearchableSelectFieldFilter } from "@/types";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();

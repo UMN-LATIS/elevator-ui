@@ -487,6 +487,11 @@ export interface SearchableFieldFilter {
   isFuzzy: boolean;
 }
 
+export interface SearchableSelectFieldFilter extends SearchableFieldFilter {
+  type: "select";
+  options?: string[];
+}
+
 export interface ApiInstanceNavResponse {
   pages: Page[];
   userId: number | null;
