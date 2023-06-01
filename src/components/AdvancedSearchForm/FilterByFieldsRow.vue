@@ -125,11 +125,14 @@ function handleFilterValueChange(event: Event) {
 }
 
 function handleIsFuzzyChange(event: Event) {
-  console.log("handleIsFuzzyChange");
+  searchStore.updateSearchableFieldFilterIsFuzzy(
+    props.filter.id,
+    (event.target as HTMLInputElement).checked
+  );
 }
 
-function handleRemoveFilter(event: Event) {
-  console.log("handleRemoveFilter");
+function handleRemoveFilter() {
+  searchStore.removeSearchableFieldFilter(props.filter.id);
 }
 </script>
 <style scoped>
