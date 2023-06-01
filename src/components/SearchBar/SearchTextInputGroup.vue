@@ -45,7 +45,7 @@
             @click="handleClearAllFiltersClick"
           >
             <span class="sr-only">Clear All Filters</span>
-            <XIcon class="h-3 w-3" aria-hidden="true" />
+            <XIcon class="!h-3 !w-3" aria-hidden="true" />
           </button>
         </div>
         <button
