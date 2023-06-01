@@ -62,19 +62,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { CircleXIcon } from "@/icons";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
-import type {
-  SearchableFieldFilter,
-  SearchableSelectFieldFilter,
-  SearchableField,
-} from "@/types";
-import { watch } from "fs";
+import type { SearchableFieldFilter, SearchableField } from "@/types";
 
 const props = defineProps<{
   filter: SearchableFieldFilter;
