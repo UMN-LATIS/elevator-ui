@@ -18,6 +18,8 @@ import type {
   LocalLoginResponse,
   SearchableFieldFilter,
   ApiGetFieldInfoResponse,
+  SearchableSelectField,
+  SearchableField,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -241,11 +243,11 @@ export async function loginAsGuest({
 }
 
 export async function fetchSearchableFieldInfo<T = ApiGetFieldInfoResponse>(
-  filter: SearchableFieldFilter
+  field: SearchableField
 ) {
   const formdata = new FormData();
-  formdata.append("fieldTitle", filter.fieldId);
-  formdata.append("template", String(filter.templateId));
+  formdata.append("fieldTitle", field.id);
+  formdata.append("template", String(field.template));
 
   const res = await axios.post<T>(`${BASE_URL}/search/getFieldInfo`, formdata);
 

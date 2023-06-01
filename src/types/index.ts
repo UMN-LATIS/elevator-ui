@@ -478,19 +478,15 @@ export interface SearchableField extends RawSortableField {
   id: string;
 }
 
+export interface SearchableSelectField extends SearchableField {
+  type: "select";
+}
+
 export interface SearchableFieldFilter {
   id: string; // filter uuid not field id
   fieldId: string;
-  type: WidgetType;
-  label: string;
   value: string;
   isFuzzy: boolean;
-  templateId: number;
-}
-
-export interface SearchableSelectFieldFilter extends SearchableFieldFilter {
-  type: "select";
-  options?: string[];
 }
 
 export interface ApiInstanceNavResponse {

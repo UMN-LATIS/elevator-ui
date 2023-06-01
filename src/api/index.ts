@@ -6,10 +6,11 @@ import {
   ApiInterstitialResponse,
   ApiStaticPageResponse,
   FileDownloadNormalized,
-  SearchableFieldFilter,
   ApiGetFieldInfoResponse,
   ApiGetSelectFieldInfoResponse,
+  SearchableSelectField,
   SearchableSelectFieldFilter,
+  SearchableField,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -168,14 +169,10 @@ async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   return page;
 }
 
-async function getSearchableSelectFieldOptions(
-  filter: SearchableSelectFieldFilter
+async function getSearchableFieldValues(
+  field: SearchableField
 ): Promise<string[]> {
-  if (filter.type !== "select") {
-    throw new Error(`Invalid filter type: ${filter.type}. Must be "select"`);
-  }
-
-  const fieldKey = `${filter.fieldId}-${filter.templateId}`;
+  const fieldKey = `${field.id}-${field.template}`;
 
   // return cached data if it exists
   if (searchableFieldDetails.has(fieldKey)) {
@@ -188,7 +185,7 @@ async function getSearchableSelectFieldOptions(
   // otherwise get the data
   const data =
     await fetchers.fetchSearchableFieldInfo<ApiGetSelectFieldInfoResponse>(
-      filter
+      field
     );
 
   // cache the response
@@ -214,7 +211,7 @@ const api = {
   getStaticPage,
   deleteAsset: fetchers.deleteAsset,
   loginAsGuest: fetchers.loginAsGuest,
-  getSearchableSelectFieldOptions,
+  getSearchableFieldValues,
 };
 
 export default api;
