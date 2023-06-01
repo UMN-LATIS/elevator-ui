@@ -12,6 +12,7 @@ import { useInstanceStore } from "./stores/instanceStore";
 const instanceStore = useInstanceStore();
 
 onMounted(() => {
+  console.log('app mounted');
   instanceStore.init();
 })
 </script>

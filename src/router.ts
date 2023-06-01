@@ -1,5 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
 import config from "@/config";
+import HomePage from "@/pages/HomePage/HomePage.vue";
+import AssetViewPage from "@/pages/AssetViewPage/AssetViewPage.vue";
+import AllCollectionsPage from "@/pages/AllCollectionsPage/AllCollectionsPage.vue";
+import BrowseCollectionPage from "./pages/BrowseCollectionPage/BrowseCollectionPage.vue";
+import SearchResultsPage from "./pages/SearchResultsPage/SearchResultsPage.vue";
+import LocalLoginPage from "./pages/LocalLoginPage/LocalLoginPage.vue";
+import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
+import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -33,14 +41,16 @@ const router = createRouter({
     {
       name: "home",
       path: "/",
-      component: () => import("@/pages/HomePage/HomePage.vue"),
+      component: HomePage,
+      // component: () => import("@/pages/HomePage/HomePage.vue"),
     },
     {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
       name: "asset",
       path: "/asset/viewAsset/:assetId",
-      component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),
+      component: AssetViewPage,
+      // component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),
       props: (route) => ({
         assetId: route.params.assetId,
         objectId: route.hash?.substring(1),
@@ -50,14 +60,16 @@ const router = createRouter({
       name: "listCollections",
       path: "/search/listCollections",
       alias: "/collections",
-      component: () =>
-        import("@/pages/AllCollectionsPage/AllCollectionsPage.vue"),
+      component: AllCollectionsPage,
+      // component: () =>
+      // import("@/pages/AllCollectionsPage/AllCollectionsPage.vue"),
     },
     {
       path: "/collections/browseCollection/:collectionId",
       alias: "/collections/:collectionId",
-      component: () =>
-        import("@/pages/BrowseCollectionPage/BrowseCollectionPage.vue"),
+      component: BrowseCollectionPage,
+      // component: () =>
+      // import("@/pages/BrowseCollectionPage/BrowseCollectionPage.vue"),
       props: (route) => ({
         collectionId: parseIntFromParam(route.params.collectionId),
       }),
@@ -65,8 +77,9 @@ const router = createRouter({
     {
       name: "search",
       path: "/search/s/:searchId",
-      component: () =>
-        import("@/pages/SearchResultsPage/SearchResultsPage.vue"),
+      component: SearchResultsPage,
+      // component: () =>
+      // import("@/pages/SearchResultsPage/SearchResultsPage.vue"),
       props: (route) => ({
         searchId: route.params.searchId,
         objectId: route.query.objectId ?? null,
@@ -76,7 +89,8 @@ const router = createRouter({
     {
       name: "localLogin",
       path: "/loginManager/localLogin",
-      component: () => import("@/pages/LocalLoginPage/LocalLoginPage.vue"),
+      component: LocalLoginPage,
+      // component: () => import("@/pages/LocalLoginPage/LocalLoginPage.vue"),
       props: (route) => ({
         redirectURL: route.query.redirect ?? null,
       }),
@@ -84,8 +98,9 @@ const router = createRouter({
     {
       name: "StaticContentPage",
       path: "/page/view/:pageId",
-      component: () =>
-        import("@/pages/StaticContentPage/StaticContentPage.vue"),
+      component: StaticContentPage,
+      // component: () =>
+      // import("@/pages/StaticContentPage/StaticContentPage.vue"),
       props: (route) => ({
         pageId: parseIntFromParam(route.params.pageId),
       }),
@@ -93,14 +108,16 @@ const router = createRouter({
     {
       name: "error",
       path: "/error/:errorCode",
-      component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
+      component: ErrorPage,
+      // component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
       props: (route) => ({
         errorCode: parseIntFromParam(route.params.errorCode),
       }),
     },
     {
       path: "/:pathMatch(.*)",
-      component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
+      component: ErrorPage,
+      // component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
       props: () => ({
         errorCode: 404,
       }),
