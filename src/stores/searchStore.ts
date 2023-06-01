@@ -53,8 +53,6 @@ const defaultSortOptions: SearchSortOptions = {
   [SORT_KEYS.LAST_MODIFIED_DESC]: "Modified Date (newest to oldest)",
 };
 
-const instanceStore = useInstanceStore();
-
 const createState = (): SearchStoreState => ({
   searchId: ref(undefined),
   status: ref("idle"),
@@ -200,6 +198,7 @@ const actions = (state: SearchStoreState) => ({
     fieldId: string,
     initialProps?: Partial<SearchableFieldFilter>
   ) {
+    const instanceStore = useInstanceStore();
     const field = instanceStore.getSearchableField(fieldId);
 
     if (!field) {
