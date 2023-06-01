@@ -1,6 +1,5 @@
 <template>
-  <select :value="props.filter.value" @change="handleSelectChange">
-    <option disabled value="">Choose an option</option>
+  <select :value="selectedOption" @change="handleSelectChange">
     <option v-for="opt in options" :key="opt" :value="opt">{{ opt }}</option>
   </select>
 </template>
@@ -15,6 +14,9 @@ const props = defineProps<{
   filter: SearchableFieldFilter;
 }>();
 
+// adding a ref for selected value so that we can reactively
+// change the selected option once the options list loads
+const selectedOption = ref<string>(props.filter.value);
 const options = ref<string[]>([props.filter.value]);
 const searchStore = useSearchStore();
 const instanceStore = useInstanceStore();
@@ -44,11 +46,18 @@ watch(
     }
 
     // for other cases, update the options list
-    const optionsFromResponse = await api.getSearchableFieldValues(field.value);
+    options.value = await api.getSearchableFieldValues(field.value);
 
-    // remove any empty strings returned from the API
-    // (I'm not sure why the API returns empty strings as choices, but it does)
-    options.value = optionsFromResponse.filter((opt) => opt !== "");
+    // if the new value is not in the options list, set it to the first option
+    if (!options.value.includes(props.filter.value)) {
+      searchStore.updateSearchableFieldFilterValue(
+        props.filter.id,
+        options.value[0]
+      );
+
+      // also update the selected option
+      selectedOption.value = options.value[0];
+    }
   },
   { immediate: true }
 );
