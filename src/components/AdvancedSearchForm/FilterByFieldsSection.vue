@@ -18,10 +18,16 @@
       class="p-2 bg-transparent-black-50 rounded-md mb-4"
     >
       <FilterByFieldsRow
-        v-for="filter in searchStore.filterBy.searchableFieldsMap.values()"
+        v-for="(
+          filter, index
+        ) in searchStore.filterBy.searchableFieldsMap.values()"
         :key="filter.id"
         class="mb-2"
+        :class="{
+          'pl-6': index === 0 && fieldFilterCount > 1,
+        }"
         :filter="filter"
+        :hideOperator="index === 0"
       />
     </div>
 

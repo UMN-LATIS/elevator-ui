@@ -1,7 +1,8 @@
 <template>
   <div class="flex items-center gap-2">
     <Button
-      class="text-xs w-[1.5rem] ml-0"
+      v-if="!hideOperator"
+      class="text-xs w-6 ml-0"
       variant="tertiary"
       type="button"
       @click="handleSearchOperatorClick"
@@ -73,6 +74,7 @@ import type { SearchableFieldFilter, SearchableField } from "@/types";
 
 const props = defineProps<{
   filter: SearchableFieldFilter;
+  hideOperator?: boolean;
 }>();
 
 const instanceStore = useInstanceStore();
