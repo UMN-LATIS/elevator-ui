@@ -14,20 +14,14 @@
     </div>
 
     <div
-      v-if="fieldFilterCount"
-      class="p-2 bg-transparent-black-50 rounded-md mb-4"
+      v-if="searchStore.fieldFilters.length"
+      class="p-2 bg-transparent-black-50 rounded-md mb-4 flex flex-col gap-2"
     >
       <FilterByFieldsRow
-        v-for="(
-          filter, index
-        ) in searchStore.filterBy.searchableFieldsMap.values()"
+        v-for="(filter, index) in searchStore.fieldFilters"
         :key="filter.id"
-        class="mb-2"
-        :class="{
-          'pl-6': index === 0 && fieldFilterCount > 1,
-        }"
         :filter="filter"
-        :hideOperator="index === 0"
+        :rowIndex="index"
       />
     </div>
 
@@ -74,8 +68,4 @@ const supportedSearchableFields = computed(() => {
     supportedTypes.includes(field.type)
   );
 });
-
-const fieldFilterCount = computed(
-  () => searchStore.filterBy.searchableFieldsMap.size
-);
 </script>

@@ -114,6 +114,10 @@ const getters = (state: SearchStoreState) => ({
     };
   }),
 
+  fieldFilters: computed((): SearchableFieldFilter[] => {
+    return Array.from(state.filterBy.searchableFieldsMap.values());
+  }),
+
   /**
    * if the current search results are for a single collection
    * with no search text, then we are browsing that collection

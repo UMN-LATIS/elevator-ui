@@ -1,8 +1,11 @@
 <template>
   <div class="flex items-center gap-2">
     <Button
-      v-if="!hideOperator"
-      class="text-xs w-6 ml-0"
+      class="text-xs w-6 !ml-0"
+      :class="{
+        invisible: rowIndex === 0,
+        hidden: searchStore.fieldFilters.length === 1,
+      }"
       variant="tertiary"
       type="button"
       @click="handleSearchOperatorClick"
@@ -74,7 +77,7 @@ import type { SearchableFieldFilter, SearchableField } from "@/types";
 
 const props = defineProps<{
   filter: SearchableFieldFilter;
-  hideOperator?: boolean;
+  rowIndex: number;
 }>();
 
 const instanceStore = useInstanceStore();
