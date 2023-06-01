@@ -109,6 +109,14 @@ function handleSearchOperatorClick() {
 function handleFieldChange(event: Event) {
   const newFieldId = (event.target as HTMLSelectElement).value;
   searchStore.updateFilterFieldId(props.filter.id, newFieldId);
+
+  // if the new field is a text field, we're done
+  if (instanceStore.getSearchableField(newFieldId)?.type === "text") {
+    return;
+  }
+
+  // otherwise reset the value
+  searchStore.updateSearchableFieldFilterValue(props.filter.id, "");
 }
 
 function handleFilterValueChange(event: Event) {
