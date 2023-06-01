@@ -15,6 +15,18 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    // config options
+    css: {
+      preprocessorOptions: {
+        less: {
+          // this is needed for timelineJS
+          // without it vite will have problems resolving the icon
+          // urls in the less files
+          // see: https://github.com/vitejs/vite/issues/11382
+          rewriteUrls: "all",
+        },
+      },
+    },
     build: {
       rollupOptions: {
         // https://rollupjs.org/guide/en/#big-list-of-options
