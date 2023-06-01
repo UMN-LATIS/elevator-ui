@@ -112,11 +112,21 @@ function handleSearchOperatorClick() {
 }
 
 function handleFieldChange(event: Event) {
+  const oldFieldId = props.filter.fieldId;
   const newFieldId = (event.target as HTMLSelectElement).value;
+
+  // if the new field is the same as the current field, we're done
+  if (newFieldId === oldFieldId) {
+    return;
+  }
   searchStore.updateFilterFieldId(props.filter.id, newFieldId);
 
-  // if the new field is a text field, we're done
-  if (instanceStore.getSearchableField(newFieldId)?.type === "text") {
+  // now we might need to reset the value of the filter
+  const oldField = instanceStore.getSearchableField(oldFieldId);
+  const newField = instanceStore.getSearchableField(newFieldId);
+
+  // if both the old and the new fields are text, leave the value in place
+  if (oldField?.type === "text" && newField?.type === "text") {
     return;
   }
 
