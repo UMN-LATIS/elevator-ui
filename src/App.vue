@@ -2,6 +2,7 @@
   <router-view v-if="instanceStore.isReady" />
 </template>
 <script setup lang="ts">
+import { onMounted } from "vue";
 import { useInstanceStore } from "./stores/instanceStore";
 
 // load instance store before mounting app
@@ -9,5 +10,9 @@ import { useInstanceStore } from "./stores/instanceStore";
 // tries to add search field filters before the instance store
 // has returned specifics about the available search fields
 const instanceStore = useInstanceStore();
+
+onMounted(() => {
+  instanceStore.init();
+})
 </script>
 <style scoped></style>
