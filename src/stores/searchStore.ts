@@ -200,8 +200,6 @@ const actions = (state: SearchStoreState) => ({
     fieldId: string,
     initialProps?: Partial<SearchableFieldFilter>
   ) {
-    await instanceStore.init();
-
     const field = instanceStore.getSearchableField(fieldId);
 
     if (!field) {
