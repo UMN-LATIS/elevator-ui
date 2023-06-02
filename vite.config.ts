@@ -28,13 +28,9 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      manifest: true,
       rollupOptions: {
-        // https://rollupjs.org/guide/en/#big-list-of-options
-        output: {
-          assetFileNames: "assets/[name].[ext]",
-          entryFileNames: "assets/[name].js",
-          chunkFileNames: "assets/[name].js",
-        },
+        input: "/src/main.ts",
       },
       sourcemap: true,
     },
