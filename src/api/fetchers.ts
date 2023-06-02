@@ -174,8 +174,8 @@ export async function fetchSearchId(
   if (opts.specificFieldSearch) {
     searchQuery.specificFieldSearch = opts.specificFieldSearch;
 
-    // default to OR combine operator
-    searchQuery.combineSpecificSearches = opts.combineSpecificSearches ?? "OR";
+    // default to AND combine operator
+    searchQuery.combineSpecificSearches = opts.combineSpecificSearches ?? "AND";
   }
 
   params.append("searchQuery", JSON.stringify(searchQuery));

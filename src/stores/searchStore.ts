@@ -302,7 +302,7 @@ const actions = (state: SearchStoreState) => ({
   clearAllFilters() {
     this.clearCollectionIdFilters();
     this.clearSearchableFieldsFilters();
-    state.filterBy.searchableFieldsOperator = "OR";
+    state.filterBy.searchableFieldsOperator = "AND";
   },
 
   async search(searchId?: string): Promise<string | void> {
