@@ -478,11 +478,13 @@ export interface SearchableField extends RawSortableField {
   id: string;
 }
 
+export interface SearchableSelectField extends SearchableField {
+  type: "select";
+}
+
 export interface SearchableFieldFilter {
   id: string; // filter uuid not field id
   fieldId: string;
-  type: WidgetType;
-  label: string;
   value: string;
   isFuzzy: boolean;
 }
@@ -627,4 +629,14 @@ export interface MapContext {
 export interface LocalLoginResponse {
   status: "success" | "error";
   message: string;
+}
+
+export interface ApiGetFieldInfoResponse {
+  type: WidgetType;
+  values?: unknown;
+}
+
+export interface ApiGetSelectFieldInfoResponse extends ApiGetFieldInfoResponse {
+  type: "select";
+  values?: string[]; // options for select
 }

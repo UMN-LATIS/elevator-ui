@@ -64,7 +64,7 @@ const getters = (state: ReturnType<typeof createState>) => ({
     }
   },
 
-  getSearchableFieldById(fieldId: string) {
+  getSearchableField(fieldId: string) {
     return state.searchableFields.value.find((f) => f.id === fieldId) ?? null;
   },
 });
@@ -98,11 +98,12 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.fetchStatus.value = "error";
     }
   },
+
   async init() {
     if (["fetching", "success", "error"].includes(state.fetchStatus.value)) {
       return;
     }
-    actions(state).refresh();
+    return actions(state).refresh();
   },
 });
 
@@ -110,8 +111,6 @@ export const useInstanceStore = defineStore("instance", () => {
   const state = createState();
   const storeGetters = getters(state);
   const storeActions = actions(state);
-
-  storeActions.init();
 
   return {
     ...state,

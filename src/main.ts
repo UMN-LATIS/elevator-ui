@@ -14,4 +14,4 @@ import "./css/app.css";
 const app = createApp(App);
 const pinia = createPinia();
 
-app.use(pinia).use(router).mount("#app");
+app.use(router).use(pinia).mount("#app");

@@ -38,7 +38,7 @@ const componentType = computed(() => {
   return "button";
 });
 </script>
-<style lang="postcss">
+<style lang="postcss" scoped>
 .button {
   border-width: var(--app-button-borderWidth);
   border-style: solid;
