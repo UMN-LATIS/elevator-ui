@@ -60,7 +60,7 @@ const createState = (): SearchStoreState => ({
   filterBy: reactive({
     collectionIds: [],
     searchableFieldsMap: new Map<string, SearchableFieldFilter>(),
-    searchableFieldsOperator: "OR",
+    searchableFieldsOperator: "AND",
   }),
   matches: ref([]),
   totalResults: ref(undefined),
