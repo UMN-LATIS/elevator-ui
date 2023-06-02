@@ -46,7 +46,7 @@
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
-  .c-skipnav {
+  .skipnav {
     transition: none;
   }
 }
