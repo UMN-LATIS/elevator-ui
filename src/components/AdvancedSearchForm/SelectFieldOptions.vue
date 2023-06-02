@@ -1,6 +1,12 @@
 <template>
-  <select :value="selectedOption" @change="handleSelectChange">
-    <option v-for="opt in options" :key="opt" :value="opt">{{ opt }}</option>
+  <select
+    :value="selectedOption"
+    class="rounded-md"
+    @change="handleSelectChange"
+  >
+    <option v-for="opt in options" :key="opt" :value="opt">
+      {{ opt === "" ? "-" : opt }}
+    </option>
   </select>
 </template>
 <script setup lang="ts">
