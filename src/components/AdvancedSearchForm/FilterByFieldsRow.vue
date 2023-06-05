@@ -47,7 +47,7 @@
     <CheckboxFieldOptions
       v-if="currentField.type === 'checkbox'"
       class="flex-1 text-sm"
-      :filter="filter"
+      :filter="(filter as SearchableCheckboxFieldFilter)"
     />
 
     <label
@@ -80,7 +80,11 @@ import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
 import CheckboxFieldOptions from "./CheckboxFieldOptions.vue";
-import type { SearchableFieldFilter, SearchableField } from "@/types";
+import type {
+  SearchableFieldFilter,
+  SearchableField,
+  SearchableCheckboxFieldFilter,
+} from "@/types";
 
 const props = defineProps<{
   filter: SearchableFieldFilter;

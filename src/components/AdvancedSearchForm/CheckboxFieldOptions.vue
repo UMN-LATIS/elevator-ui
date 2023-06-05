@@ -10,20 +10,23 @@
 </template>
 <script setup lang="ts">
 import api from "@/api";
-import { SearchableCheckboxField, SearchableFieldFilter } from "@/types";
+import {
+  SearchableCheckboxField,
+  SearchableCheckboxFieldFilter,
+} from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
-  filter: SearchableFieldFilter;
+  filter: SearchableCheckboxFieldFilter;
 }>();
 
 // adding a ref for selected value so that we can reactively
 // change the selected option once the options list loads
-const selectedOption = ref<string>(props.filter.value);
-const trueLabel = ref("");
-const falseLabel = ref("");
+const selectedOption = ref(props.filter.value);
+const trueLabel = ref("Checked");
+const falseLabel = ref("Unchecked");
 const searchStore = useSearchStore();
 const instanceStore = useInstanceStore();
 
@@ -53,14 +56,13 @@ watch(
     trueLabel.value = labels.boolean_true;
     falseLabel.value = labels.boolean_false;
 
-    // set the default value to true
+    // if the filter has a value, update the selected option
+    // or set the default to true
+    selectedOption.value = props.filter.value ?? "boolean_true";
     searchStore.updateSearchableFieldFilterValue(
       props.filter.id,
-      "boolean_true"
+      selectedOption.value
     );
-
-    // also update the selected option
-    selectedOption.value = "boolean_true";
   },
   { immediate: true }
 );

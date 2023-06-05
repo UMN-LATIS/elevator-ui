@@ -493,6 +493,10 @@ export interface SearchableFieldFilter {
   isFuzzy: boolean;
 }
 
+export interface SearchableCheckboxFieldFilter extends SearchableFieldFilter {
+  value: "boolean_true" | "boolean_false";
+}
+
 export interface ApiInstanceNavResponse {
   pages: Page[];
   userId: number | null;

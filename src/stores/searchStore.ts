@@ -219,6 +219,10 @@ const actions = (state: SearchStoreState) => ({
       ...initialProps,
     };
 
+    if (field.type === "checkbox") {
+      newFilter.value = "boolean_true";
+    }
+
     state.filterBy.searchableFieldsMap.set(newFilter.id, newFilter);
   },
 
