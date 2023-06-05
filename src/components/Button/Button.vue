@@ -53,7 +53,6 @@ const componentType = computed(() => {
 .button {
   border-width: var(--app-button-borderWidth);
   border-style: solid;
-  font-weight: var(--app-button-fontWeight);
 }
 .button--primary {
   color: var(--app-button-primary-textColor);

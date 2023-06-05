@@ -4,6 +4,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useInstanceStore } from "./stores/instanceStore";
+import { useTheming } from "./helpers/useTheming";
 
 // load instance store before mounting app
 // this prevents a race conditiion where the search store
@@ -12,8 +13,9 @@ import { useInstanceStore } from "./stores/instanceStore";
 const instanceStore = useInstanceStore();
 
 onMounted(() => {
-  console.log('app mounted');
+  console.log("app mounted");
   instanceStore.init();
-})
+  useTheming();
+});
 </script>
 <style scoped></style>

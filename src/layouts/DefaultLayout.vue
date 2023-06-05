@@ -3,7 +3,7 @@
     <SkipNavLink href="#main" />
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
 
-    <main id="main" class="flex-1" tabindex="-1">
+    <main id="main" class="flex-1 flex flex-col" tabindex="-1">
       <slot />
     </main>
     <Transition name="fade">

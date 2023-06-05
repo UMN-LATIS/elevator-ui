@@ -26,27 +26,22 @@
     </div>
 
     <div class="flex justify-between items-baseline">
-      <DropDown
+      <AdvSearchDropDown
         v-if="supportedSearchableFields.length"
         label="Add Field"
-        class="border border-neutral-900 rounded-md"
-        alignment="left"
-        labelClass="justify-between pl-3 whitespace-nowrap"
       >
-        <div class="max-h-[50vh] overflow-y-auto">
-          <DropDownItem
-            v-for="field in supportedSearchableFields"
-            :key="field.id"
-            class="flex items-center justify-between cursor-pointer"
-            @click="searchStore.addSearchableFieldFilter(field.id)"
-          >
-            <span class="flex-1">{{ field.label }}</span>
-            <span class="text-xs text-neutral-300 capitalize">{{
-              field.type
-            }}</span>
-          </DropDownItem>
-        </div>
-      </DropDown>
+        <AdvSearchDropDownItem
+          v-for="field in supportedSearchableFields"
+          :key="field.id"
+          class="flex items-center justify-between cursor-pointer"
+          @click="searchStore.addSearchableFieldFilter(field.id)"
+        >
+          <span class="flex-1">{{ field.label }}</span>
+          <span class="text-xs text-neutral-300 capitalize">{{
+            field.type
+          }}</span>
+        </AdvSearchDropDownItem>
+      </AdvSearchDropDown>
     </div>
   </section>
 </template>
@@ -54,8 +49,8 @@
 import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
-import DropDown from "@/components/DropDown/DropDown.vue";
-import DropDownItem from "@/components/DropDown/DropDownItem.vue";
+import AdvSearchDropDown from "./AdvSearchDropDown.vue";
+import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import FilterByFieldsRow from "./FilterByFieldsRow.vue";
 
