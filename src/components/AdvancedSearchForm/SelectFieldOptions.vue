@@ -11,7 +11,7 @@
 </template>
 <script setup lang="ts">
 import api from "@/api";
-import type { SearchableFieldFilter } from "@/types";
+import { SearchableFieldFilter, SearchableSelectField } from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useInstanceStore } from "@/stores/instanceStore";
@@ -28,7 +28,9 @@ const searchStore = useSearchStore();
 const instanceStore = useInstanceStore();
 
 const field = computed(() => {
-  return instanceStore.getSearchableField(props.filter.fieldId);
+  return instanceStore.getSearchableField<SearchableSelectField>(
+    props.filter.fieldId
+  );
 });
 
 function handleSelectChange(event: Event) {

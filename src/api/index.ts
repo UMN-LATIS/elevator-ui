@@ -8,7 +8,10 @@ import {
   FileDownloadNormalized,
   ApiGetFieldInfoResponse,
   ApiGetSelectFieldInfoResponse,
+  ApiGetCheckboxFieldInfoResponse,
   SearchableField,
+  SearchableSelectField,
+  SearchableCheckboxField,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -189,13 +192,31 @@ async function getSearchableFieldInfo<T extends ApiGetFieldInfoResponse>(
 }
 
 async function getSearchableSelectFieldValues(
-  field: SearchableField & { type: "select" }
+  field: SearchableSelectField
 ): Promise<string[]> {
   const data = await getSearchableFieldInfo<ApiGetSelectFieldInfoResponse>(
     field
   );
 
   return data?.values ?? [];
+}
+
+async function getSearchableCheckboxFieldValues(
+  field: SearchableCheckboxField
+): Promise<{
+  boolean_true: string;
+  boolean_false: string;
+}> {
+  const data = await getSearchableFieldInfo<ApiGetCheckboxFieldInfoResponse>(
+    field
+  );
+
+  return (
+    data?.values ?? {
+      boolean_true: "checked",
+      boolean_false: "unchecked",
+    }
+  );
 }
 
 const api = {
