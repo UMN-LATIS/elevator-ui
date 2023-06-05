@@ -35,35 +35,31 @@
         </button>
       </li>
     </ul>
-    <DropDown
+
+    <AdvSearchDropDown
       v-if="unselectedCollections.length"
       label="Add Collection"
-      class="border border-neutral-900 rounded-md"
-      labelClass="justify-between pl-3"
-      alignment="left"
     >
-      <div class="max-h-[50vh] overflow-y-auto">
-        <DropDownItem
-          v-for="collection in unselectedCollections"
-          :key="collection.id"
-          class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
-          :title="prefixWithHyphens(collection.title)"
-          @click="searchStore.addCollectionIdFilter(collection.id)"
-        >
-          {{ prefixWithHyphens(collection.title) }}
-        </DropDownItem>
-      </div>
-    </DropDown>
+      <AdvSearchDropDownItem
+        v-for="collection in unselectedCollections"
+        :key="collection.id"
+        class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+        :title="prefixWithHyphens(collection.title)"
+        @click="searchStore.addCollectionIdFilter(collection.id)"
+      >
+        {{ prefixWithHyphens(collection.title) }}
+      </AdvSearchDropDownItem>
+    </AdvSearchDropDown>
   </section>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
-import DropDown from "@/components/DropDown/DropDown.vue";
-import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { XIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
+import AdvSearchDropDown from "./AdvSearchDropDown.vue";
+import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();

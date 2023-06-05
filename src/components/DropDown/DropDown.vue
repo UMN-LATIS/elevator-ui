@@ -9,7 +9,7 @@
       </slot>
       <ChevronDownIcon
         v-if="showChevron"
-        class="xl:block h-4 w-4 m-1"
+        :class="['xl:block m-1', chevronClass]"
         aria-hidden="true"
       />
     </MenuButton>
@@ -49,6 +49,7 @@ withDefaults(
     alignment?: "left" | "right";
     showChevron?: boolean;
     labelClass?: string | string[] | Record<string, boolean>;
+    chevronClass?: string | string[] | Record<string, boolean>;
   }>(),
   {
     alignment: "right",
