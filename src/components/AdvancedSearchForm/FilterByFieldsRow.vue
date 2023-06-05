@@ -105,12 +105,9 @@ const currentField = computed((): SearchableField => {
   return field;
 });
 
-const supportedTypes = ["text", "select"];
 const supportedSearchableFields = computed(() => {
-  return instanceStore.searchableFields.filter(
-    (field) =>
-      // supportedTypes.includes(field.type)
-      !!field
+  return instanceStore.searchableFields.filter((field) =>
+    searchStore.supportedSearchableFieldTypes.includes(field.type)
   );
 });
 
