@@ -31,7 +31,7 @@
           class="ml-2 h-full flex items-center justify-center"
           @click="searchStore.removeCollectionIdFilter(collection.id)"
         >
-          <XIcon class="h-3 w-3" />
+          <XIcon class="!h-3 !w-3" />
         </button>
       </li>
     </ul>
