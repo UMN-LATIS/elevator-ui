@@ -9,15 +9,15 @@
         variant === 'tertiary',
     }"
     v-bind="$attrs"
-    :to="to"
-    :href="href"
+    :to="componentType === RouterLink ? to : undefined"
+    :href="resolvedHref"
   >
     <slot />
   </component>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { RouterLink, type RouteLocationRaw } from "vue-router";
+import { RouterLink, type RouteLocationRaw, useRouter } from "vue-router";
 
 const props = withDefaults(
   defineProps<{
@@ -31,6 +31,17 @@ const props = withDefaults(
     to: undefined,
   }
 );
+
+const router = useRouter();
+const resolvedHref = computed(() => {
+  if (props.href) {
+    return props.href;
+  } else if (props.to && componentType.value === RouterLink) {
+    // If `to` is an object, resolve it to a string URL
+    return router.resolve(props.to).href;
+  }
+  return undefined;
+});
 
 const componentType = computed(() => {
   if (props.href) return "a";
