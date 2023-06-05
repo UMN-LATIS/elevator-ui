@@ -8,8 +8,6 @@ import {
   FileDownloadNormalized,
   ApiGetFieldInfoResponse,
   ApiGetSelectFieldInfoResponse,
-  SearchableSelectField,
-  SearchableSelectFieldFilter,
   SearchableField,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -169,30 +167,35 @@ async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   return page;
 }
 
-async function getSearchableFieldValues(
+async function getSearchableFieldInfo<T extends ApiGetFieldInfoResponse>(
   field: SearchableField
-): Promise<string[]> {
+): Promise<T | null> {
   const fieldKey = `${field.id}-${field.template}`;
 
   // return cached data if it exists
   if (searchableFieldDetails.has(fieldKey)) {
-    const cachedResponse = searchableFieldDetails.get(
-      fieldKey
-    ) as ApiGetSelectFieldInfoResponse;
-    return cachedResponse.values ?? [];
+    const cachedResponse = searchableFieldDetails.get(fieldKey) as T;
+    return cachedResponse ?? null;
   }
 
   // otherwise get the data
-  const data =
-    await fetchers.fetchSearchableFieldInfo<ApiGetSelectFieldInfoResponse>(
-      field
-    );
+  const data = await fetchers.fetchSearchableFieldInfo<T>(field);
 
   // cache the response
   searchableFieldDetails.set(fieldKey, data);
 
   // and return the values
-  return data.values ?? [];
+  return data;
+}
+
+async function getSearchableSelectFieldValues(
+  field: SearchableField & { type: "select" }
+): Promise<string[]> {
+  const data = await getSearchableFieldInfo<ApiGetSelectFieldInfoResponse>(
+    field
+  );
+
+  return data?.values ?? [];
 }
 
 const api = {
@@ -211,7 +214,7 @@ const api = {
   getStaticPage,
   deleteAsset: fetchers.deleteAsset,
   loginAsGuest: fetchers.loginAsGuest,
-  getSearchableFieldValues,
+  getSearchableSelectFieldValues,
 };
 
 export default api;

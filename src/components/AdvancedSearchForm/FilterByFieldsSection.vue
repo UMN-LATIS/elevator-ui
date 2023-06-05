@@ -59,8 +59,10 @@ const searchStore = useSearchStore();
 
 const supportedTypes = ["text", "select"];
 const supportedSearchableFields = computed(() => {
-  return instanceStore.searchableFields.filter((field) =>
-    supportedTypes.includes(field.type)
+  return instanceStore.searchableFields.filter(
+    (field) =>
+      // supportedTypes.includes(field.type)
+      !!field
   );
 });
 </script>
