@@ -64,7 +64,9 @@ const getters = (state: ReturnType<typeof createState>) => ({
     }
   },
 
-  getSearchableField<T>(fieldId: string): T | null {
+  getSearchableField<T extends SearchableField = SearchableField>(
+    fieldId: string
+  ): T | null {
     return (
       (state.searchableFields.value.find((f) => f.id === fieldId) as T) ?? null
     );

@@ -44,11 +44,11 @@
       :filter="filter"
     />
 
-    <!-- <CheckboxFieldOptions
+    <CheckboxFieldOptions
       v-if="currentField.type === 'checkbox'"
       class="flex-1 text-sm"
       :filter="filter"
-    /> -->
+    />
 
     <label
       class="text-xs font-bold uppercase text-center cursor-pointer leading-none text-orient-sideways sm:text-orient-normal"

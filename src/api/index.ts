@@ -236,6 +236,7 @@ const api = {
   deleteAsset: fetchers.deleteAsset,
   loginAsGuest: fetchers.loginAsGuest,
   getSearchableSelectFieldValues,
+  getSearchableCheckboxFieldValues,
 };
 
 export default api;
