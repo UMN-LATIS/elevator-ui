@@ -27,7 +27,7 @@
     </select>
 
     <InputGroup
-      v-if="['text', 'date'].includes(currentField.type)"
+      v-if="['text', 'date', 'text area'].includes(currentField.type)"
       :id="filter.id"
       class="flex-1 text-sm"
       inputClass="!bg-white !border !border-neutral-200"

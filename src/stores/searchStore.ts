@@ -148,6 +148,7 @@ const getters = (state: SearchStoreState) => ({
     "checkbox",
     "date",
     "tag list",
+    "text area",
   ]),
 });
 
