@@ -3,6 +3,7 @@
     <CascadeSelect
       v-if="optionTree"
       :options="optionTree"
+      :initialSelectedValues="props.filter.value.split(',')"
       class="!gap-1"
       labelClass="sr-only"
       selectClass="text-sm border-neutral-200"

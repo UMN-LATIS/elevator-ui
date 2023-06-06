@@ -40,6 +40,11 @@ const props = defineProps<{
   options: CascaderSelectOptions;
   selectClass?: Record<string, boolean> | string[] | string;
   labelClass?: Record<string, boolean> | string[] | string;
+  initialSelectedValues?: string[];
+}>();
+
+const emit = defineEmits<{
+  (eventName: "change", selectedValues: string[]): void;
 }>();
 
 interface SelectedSegment {
@@ -49,12 +54,29 @@ interface SelectedSegment {
 }
 
 const listOfSelected = reactive<SelectedSegment[]>([
-  {
-    label: getFirstKey(props.options),
-    options: getFirstOptions(props.options),
-    value: "",
-  },
+  ...createInitialListOfSelected(),
 ]);
+
+function createInitialListOfSelected(): SelectedSegment[] {
+  if (!props.initialSelectedValues?.length) {
+    return [
+      {
+        label: getFirstKey(props.options),
+        options: getFirstOptions(props.options),
+        value: "",
+      },
+    ];
+  }
+
+  const selected: SelectedSegment[] = [];
+  props.initialSelectedValues.forEach((value) => {
+    const nextSelected = createNextSelectedSegment(selected, value);
+    if (nextSelected) {
+      selected.push(nextSelected);
+    }
+  });
+  return selected;
+}
 
 function getFirstKey(options: CascaderSelectOptions): string {
   return Object.keys(options)[0];
@@ -76,6 +98,52 @@ function getFirstOptions(options: CascaderSelectOptions): string[] {
   return Object.keys(values);
 }
 
+function createNextSelectedSegment(
+  currentSegments: SelectedSegment[],
+  initialValue = "",
+  cascadeSelectOptions = props.options
+): SelectedSegment | null {
+  // otherwise, we need to add a new segment to the list
+  // get the current path by joining the labels and values
+  const currentPath: string[] = [];
+  currentSegments.forEach((segment) => {
+    currentPath.push(segment.label);
+    currentPath.push(segment.value);
+  });
+
+  // the `path` function below takes an array of keys
+  // and returns the value at that path in the object:
+  // path(['a', 'b'], { a: { b: 2 } }); //=> 2
+  const nextSegmentOptions = path<CascaderSelectOptions>(
+    currentPath,
+    cascadeSelectOptions
+  );
+
+  // if we couldn't find another segment at that path
+  // we're at the end of the road, so we're done
+  if (!nextSegmentOptions) {
+    return null;
+  }
+
+  // otherwise add the next segment to the list of selected
+  const options = getFirstOptions(nextSegmentOptions);
+
+  // check that initial value is within the options
+  if (initialValue !== "" && !options.includes(initialValue)) {
+    throw new Error(
+      `Cannot create next selected: initial value ${initialValue} is not in the options ${options}`
+    );
+  }
+
+  const nextSegment: SelectedSegment = {
+    label: getFirstKey(nextSegmentOptions),
+    options: getFirstOptions(nextSegmentOptions),
+    value: initialValue,
+  };
+
+  return nextSegment;
+}
+
 function handleSelectChange(segmentLevel: number, value: string): void {
   // update the value of the current segment
   listOfSelected[segmentLevel].value = value;
@@ -88,36 +156,27 @@ function handleSelectChange(segmentLevel: number, value: string): void {
     return;
   }
 
-  // otherwise, we need to add a new segment to the list
-  // get the current path by joining the labels and values
-  const currentPath: string[] = [];
-  listOfSelected.forEach((segment) => {
-    currentPath.push(segment.label);
-    currentPath.push(segment.value);
-  });
+  // otherwise add the next segment to the list of selected
+  const nextSegment = createNextSelectedSegment(listOfSelected, "");
 
-  // the `path` function below takes an array of keys
-  // and returns the value at that path in the object:
-  // path(['a', 'b'], { a: { b: 2 } }); //=> 2
-  const nextSegmentOptions = path<CascaderSelectOptions>(
-    currentPath,
-    props.options
-  );
-
-  // if we couldn't find another segment at that path
-  // we're at the end of the road, so we're done
-  if (!nextSegmentOptions) {
+  // if no next segment, then we're at the end of the road
+  // let the parent know that the selected values have changed
+  // and we're done
+  if (!nextSegment) {
+    emit(
+      "change",
+      listOfSelected.map((segment) => segment.value)
+    );
     return;
   }
 
   // otherwise add the next segment to the list of selected
-  const nextSegment: SelectedSegment = {
-    label: getFirstKey(nextSegmentOptions),
-    options: getFirstOptions(nextSegmentOptions),
-    value: "",
-  };
-
   listOfSelected.push(nextSegment);
+
+  emit(
+    "change",
+    listOfSelected.map((segment) => segment.value)
+  );
 }
 </script>
 <style scoped></style>
