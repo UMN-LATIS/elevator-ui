@@ -474,29 +474,6 @@ export interface RawSortableField {
   type: WidgetType;
 }
 
-export interface SearchableField extends RawSortableField {
-  id: string;
-}
-
-export interface SearchableSelectField extends SearchableField {
-  type: "select";
-}
-
-export interface SearchableCheckboxField extends SearchableField {
-  type: "checkbox";
-}
-
-export interface SearchableFieldFilter {
-  id: string; // filter uuid not field id
-  fieldId: string;
-  value: string;
-  isFuzzy: boolean;
-}
-
-export interface SearchableCheckboxFieldFilter extends SearchableFieldFilter {
-  value: "boolean_true" | "boolean_false";
-}
-
 export interface ApiInstanceNavResponse {
   pages: Page[];
   userId: number | null;
@@ -656,4 +633,41 @@ export interface ApiGetCheckboxFieldInfoResponse
     boolean_true: string; // label for true
     boolean_false: string; // label for false
   };
+}
+
+export interface TreeNode {
+  [key: string]: TreeNode | string[];
+}
+
+export interface ApiGetMultiSelectFieldInfoResponse
+  extends ApiGetFieldInfoResponse {
+  type: "multiselect";
+  rawContent: TreeNode; // recursive tree of options
+}
+
+export interface SearchableField extends RawSortableField {
+  id: string;
+}
+
+export interface SearchableSelectField extends SearchableField {
+  type: "select";
+}
+
+export interface SearchableCheckboxField extends SearchableField {
+  type: "checkbox";
+}
+
+export interface SearchableMultiSelectField extends SearchableField {
+  type: "multiselect";
+}
+
+export interface SearchableFieldFilter {
+  id: string; // filter uuid not field id
+  fieldId: string;
+  value: string;
+  isFuzzy: boolean;
+}
+
+export interface SearchableCheckboxFieldFilter extends SearchableFieldFilter {
+  value: "boolean_true" | "boolean_false";
 }

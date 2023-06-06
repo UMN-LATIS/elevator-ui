@@ -5,11 +5,13 @@
       :key="segmentLevel"
       class="flex flex-col gap-1"
     >
-      <label class="uppercase text-xs font-medium tracking-wider">
+      <label
+        :class="['uppercase text-xs font-medium tracking-wider', labelClass]"
+      >
         {{ selected.label }}
       </label>
       <select
-        class="rounded-md"
+        :class="['rounded-md', selectClass]"
         :value="selected.value"
         @change="
           handleSelectChange(
@@ -36,6 +38,8 @@ interface CascaderSelectOptions {
 
 const props = defineProps<{
   options: CascaderSelectOptions;
+  selectClass?: Record<string, boolean> | string[] | string;
+  labelClass?: Record<string, boolean> | string[] | string;
 }>();
 
 interface SelectedSegment {

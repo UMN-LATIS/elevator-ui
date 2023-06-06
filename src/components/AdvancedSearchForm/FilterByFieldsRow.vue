@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-2">
+  <div class="flex items-baseline gap-2">
     <Button
       class="text-xs w-6 !ml-0"
       :class="{
@@ -50,6 +50,12 @@
       :filter="(filter as SearchableCheckboxFieldFilter)"
     />
 
+    <MultiSelectFieldOptions
+      v-if="currentField.type === 'multiselect'"
+      class="flex-1 text-sm"
+      :filter="filter"
+    />
+
     <label
       class="text-xs font-bold uppercase text-center cursor-pointer leading-none text-orient-sideways sm:text-orient-normal"
       :class="{
@@ -66,7 +72,11 @@
       Fuzzy
     </label>
 
-    <button type="button" @click="handleRemoveFilter">
+    <button
+      type="button"
+      class="self-start p-2 mt-[0.1rem]"
+      @click="handleRemoveFilter"
+    >
       <CircleXIcon class="w-5 h-5" />
     </button>
   </div>
@@ -80,6 +90,7 @@ import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
 import CheckboxFieldOptions from "./CheckboxFieldOptions.vue";
+import MultiSelectFieldOptions from "./MultiselectFieldOptions.vue";
 import type {
   SearchableFieldFilter,
   SearchableField,
