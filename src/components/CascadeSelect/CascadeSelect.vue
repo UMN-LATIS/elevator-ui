@@ -1,8 +1,8 @@
 <template>
   <div class="">
-    <label>
+    <label v-for="(selected, index) in listOfSelected" :key="index">
       {{ getLabel(options) }}
-      <select v-model="selected">
+      <select v-model="listOfSelected[index]">
         <option value="" disabled>Select a {{ getLabel(options) }}</option>
         <option v-for="opt in getOpts(options)" :key="opt" :value="opt">
           {{ opt }}
@@ -10,12 +10,17 @@
       </select>
     </label>
     <div>
-      <code>{{ options }}</code>
+      <p>
+        <code>options: {{ options }}</code>
+      </p>
+      <p>
+        <code>listOfSelected: {{ listOfSelected }}</code>
+      </p>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { reactive } from "vue";
 
 interface CascaderSelectOptions {
   [label: string]: string[] | CascaderSelectOptions;
@@ -25,7 +30,7 @@ defineProps<{
   options: CascaderSelectOptions;
 }>();
 
-const selected = ref("");
+const listOfSelected = reactive<string[]>([""]);
 
 const getLabel = (options: CascaderSelectOptions): string => {
   return Object.keys(options)[0];
