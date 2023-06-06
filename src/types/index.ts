@@ -345,6 +345,7 @@ export interface SearchEntry {
   fuzzySearch?: "0" | "1";
   sort?: string;
   specificFieldSearch?: SpecificFieldSearchItem[];
+  combineSpecificSearches: "OR" | "AND";
 }
 
 export interface SearchSortOptions {
