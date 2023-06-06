@@ -32,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import { path } from "ramda";
-import { reactive, computed } from "vue";
+import { reactive, watch } from "vue";
 
 interface CascaderSelectOptions {
   [label: string]: string[] | CascaderSelectOptions;
@@ -178,5 +178,17 @@ function handleSelectChange(segmentLevel: number, value: string): void {
     listOfSelected.map((segment) => segment.value)
   );
 }
+
+watch(
+  () => props.options,
+  () => {
+    // reset the list of selected options
+    listOfSelected.splice(
+      0,
+      listOfSelected.length,
+      ...createInitialListOfSelected()
+    );
+  }
+);
 </script>
 <style scoped></style>
