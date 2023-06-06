@@ -27,7 +27,7 @@
     </select>
 
     <InputGroup
-      v-if="currentField.type === 'text'"
+      v-if="['text', 'date', 'text area'].includes(currentField.type)"
       :id="filter.id"
       class="flex-1 text-sm"
       inputClass="!bg-white !border !border-neutral-200"
@@ -39,7 +39,7 @@
     />
 
     <SelectFieldOptions
-      v-if="currentField.type === 'select'"
+      v-if="['select', 'tag list'].includes(currentField.type)"
       class="flex-1 text-sm"
       :filter="filter"
     />
