@@ -20,9 +20,11 @@
           )
         "
       >
-        <option value="" disabled>Select a {{ selected.label }}</option>
+        <option v-if="!selected.options.includes('')" value="" disabled>
+          Select a {{ selected.label }}
+        </option>
         <option v-for="opt in selected.options" :key="opt" :value="opt">
-          {{ opt }}
+          {{ opt === "" ? "-" : opt }}
         </option>
       </select>
     </div>
