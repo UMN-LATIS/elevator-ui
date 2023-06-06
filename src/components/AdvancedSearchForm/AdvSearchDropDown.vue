@@ -6,7 +6,7 @@
     chevronClass="!w-4 !h-4"
     alignment="left"
   >
-    <div class="max-h-[50vh] overflow-y-auto">
+    <div class="max-h-[20vh] overflow-y-auto">
       <slot />
     </div>
   </DropDown>
