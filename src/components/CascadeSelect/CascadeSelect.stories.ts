@@ -50,7 +50,5 @@ const options = {
 
 export const Default = Template.bind({});
 Default.args = {
-  options: {
-    city: ["mankato", "minneapolis"],
-  },
+  options,
 };
