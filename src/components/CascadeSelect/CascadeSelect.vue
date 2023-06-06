@@ -105,7 +105,6 @@ function createNextSelectedSegment(
   initialValue = "",
   cascadeSelectOptions = props.options
 ): SelectedSegment | null {
-  // otherwise, we need to add a new segment to the list
   // get the current path by joining the labels and values
   const currentPath: string[] = [];
   currentSegments.forEach((segment) => {
@@ -115,35 +114,34 @@ function createNextSelectedSegment(
 
   // the `path` function below takes an array of keys
   // and returns the value at that path in the object:
-  // path(['a', 'b'], { a: { b: 2 } }); //=> 2
+  // path(['a', 'b'], { a: { b: 2 } })  =>  2
   const nextSegmentOptions = path<CascaderSelectOptions>(
     currentPath,
     cascadeSelectOptions
   );
 
-  // if we couldn't find another segment at that path
+  // if we couldn't find the next segment options then
   // we're at the end of the road, so we're done
   if (!nextSegmentOptions) {
     return null;
   }
 
-  // otherwise add the next segment to the list of selected
+  const label = getFirstKey(nextSegmentOptions);
   const options = getFirstOptions(nextSegmentOptions);
 
-  // check that initial value is within the options
+  // check if the initial value is in the options
+  // if not, log it, but continue
   if (initialValue !== "" && !options.includes(initialValue)) {
-    throw new Error(
+    console.error(
       `Cannot create next selected: initial value ${initialValue} is not in the options ${options}`
     );
   }
 
-  const nextSegment: SelectedSegment = {
-    label: getFirstKey(nextSegmentOptions),
-    options: getFirstOptions(nextSegmentOptions),
+  return {
+    label,
+    options,
     value: initialValue,
   };
-
-  return nextSegment;
 }
 
 function handleSelectChange(segmentLevel: number, value: string): void {
