@@ -90,7 +90,7 @@ import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
 import CheckboxFieldOptions from "./CheckboxFieldOptions.vue";
-import MultiSelectFieldOptions from "./MultiselectFieldOptions.vue";
+import MultiSelectFieldOptions from "./MultiSelectFieldOptions.vue";
 import type {
   SearchableFieldFilter,
   SearchableField,
