@@ -39,7 +39,7 @@
     />
 
     <SelectFieldOptions
-      v-if="currentField.type === 'select'"
+      v-if="['select', 'tag list'].includes(currentField.type)"
       class="flex-1 text-sm"
       :filter="filter"
     />
