@@ -23,7 +23,7 @@
         <option v-if="!selected.options.includes('')" value="" disabled>
           Select a {{ selected.label }}
         </option>
-        <option v-for="opt in selected.options" :key="opt" :value="opt">
+        <option v-for="opt in selected.options.sort()" :key="opt" :value="opt">
           {{ opt === "" ? "-" : opt }}
         </option>
       </select>
