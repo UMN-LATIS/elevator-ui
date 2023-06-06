@@ -9,9 +9,12 @@ import {
   ApiGetFieldInfoResponse,
   ApiGetSelectFieldInfoResponse,
   ApiGetCheckboxFieldInfoResponse,
+  ApiGetMultiSelectFieldInfoResponse,
   SearchableField,
   SearchableSelectField,
   SearchableCheckboxField,
+  SearchableMultiSelectField,
+  TreeNode,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -219,6 +222,16 @@ async function getSearchableCheckboxFieldValues(
   );
 }
 
+async function getSearchableMultiSelectFieldValues(
+  field: SearchableMultiSelectField
+): Promise<TreeNode> {
+  const data = await getSearchableFieldInfo<ApiGetMultiSelectFieldInfoResponse>(
+    field
+  );
+
+  return data?.rawContent ?? {};
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -237,6 +250,7 @@ const api = {
   loginAsGuest: fetchers.loginAsGuest,
   getSearchableSelectFieldValues,
   getSearchableCheckboxFieldValues,
+  getSearchableMultiSelectFieldValues,
 };
 
 export default api;
