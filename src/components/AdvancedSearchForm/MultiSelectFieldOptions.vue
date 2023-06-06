@@ -3,9 +3,10 @@
     <CascadeSelect
       v-if="optionTree"
       :options="optionTree"
-      class="gap-0"
+      class="!gap-1"
       labelClass="sr-only"
       selectClass="text-sm border-neutral-200"
+      @change="handleCascadeSelectChange"
     />
   </div>
 </template>
@@ -36,6 +37,13 @@ const field = computed(() => {
 
 const optionTree = ref<TreeNode | null>(null);
 
+function handleCascadeSelectChange(selectedValues: string[]) {
+  searchStore.updateSearchableFieldFilterValue(
+    props.filter.id,
+    selectedValues.join(",")
+  );
+}
+
 watch(
   [field],
   async () => {
@@ -50,8 +58,6 @@ watch(
     optionTree.value = await api.getSearchableMultiSelectFieldValues(
       field.value
     );
-
-    console.log(optionTree.value);
   },
   { immediate: true }
 );
