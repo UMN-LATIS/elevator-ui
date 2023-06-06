@@ -44,6 +44,12 @@
       :filter="filter"
     />
 
+    <CheckboxFieldOptions
+      v-if="currentField.type === 'checkbox'"
+      class="flex-1 text-sm"
+      :filter="(filter as SearchableCheckboxFieldFilter)"
+    />
+
     <label
       class="text-xs font-bold uppercase text-center cursor-pointer leading-none text-orient-sideways sm:text-orient-normal"
       :class="{
@@ -73,7 +79,12 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
-import type { SearchableFieldFilter, SearchableField } from "@/types";
+import CheckboxFieldOptions from "./CheckboxFieldOptions.vue";
+import type {
+  SearchableFieldFilter,
+  SearchableField,
+  SearchableCheckboxFieldFilter,
+} from "@/types";
 
 const props = defineProps<{
   filter: SearchableFieldFilter;
@@ -94,10 +105,9 @@ const currentField = computed((): SearchableField => {
   return field;
 });
 
-const supportedTypes = ["text", "select"];
 const supportedSearchableFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
-    supportedTypes.includes(field.type)
+    searchStore.supportedSearchableFieldTypes.includes(field.type)
   );
 });
 

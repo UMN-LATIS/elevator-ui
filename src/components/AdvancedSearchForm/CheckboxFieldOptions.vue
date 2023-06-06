@@ -4,31 +4,34 @@
     class="rounded-md"
     @change="handleSelectChange"
   >
-    <option v-for="opt in options" :key="opt" :value="opt">
-      {{ opt === "" ? "-" : opt }}
-    </option>
+    <option value="boolean_true">{{ trueLabel }}</option>
+    <option value="boolean_false">{{ falseLabel }}</option>
   </select>
 </template>
 <script setup lang="ts">
 import api from "@/api";
-import { SearchableFieldFilter, SearchableSelectField } from "@/types";
+import {
+  SearchableCheckboxField,
+  SearchableCheckboxFieldFilter,
+} from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
-  filter: SearchableFieldFilter;
+  filter: SearchableCheckboxFieldFilter;
 }>();
 
 // adding a ref for selected value so that we can reactively
 // change the selected option once the options list loads
-const selectedOption = ref<string>(props.filter.value);
-const options = ref<string[]>([props.filter.value]);
+const selectedOption = ref(props.filter.value);
+const trueLabel = ref("Checked");
+const falseLabel = ref("Unchecked");
 const searchStore = useSearchStore();
 const instanceStore = useInstanceStore();
 
 const field = computed(() => {
-  return instanceStore.getSearchableField<SearchableSelectField>(
+  return instanceStore.getSearchableField<SearchableCheckboxField>(
     props.filter.fieldId
   );
 });
@@ -48,19 +51,18 @@ watch(
       );
     }
 
-    // for other cases, update the options list
-    options.value = await api.getSearchableSelectFieldValues(field.value);
+    // update the options list
+    const labels = await api.getSearchableCheckboxFieldValues(field.value);
+    trueLabel.value = labels.boolean_true;
+    falseLabel.value = labels.boolean_false;
 
-    // if the new value is not in the options list, set it to the first option
-    if (!options.value.includes(props.filter.value)) {
-      searchStore.updateSearchableFieldFilterValue(
-        props.filter.id,
-        options.value[0]
-      );
-
-      // also update the selected option
-      selectedOption.value = options.value[0];
-    }
+    // if the filter has a value, update the selected option
+    // or set the default to true
+    selectedOption.value = props.filter.value ?? "boolean_true";
+    searchStore.updateSearchableFieldFilterValue(
+      props.filter.id,
+      selectedOption.value
+    );
   },
   { immediate: true }
 );

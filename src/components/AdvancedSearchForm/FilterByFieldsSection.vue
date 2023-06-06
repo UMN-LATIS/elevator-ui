@@ -57,10 +57,9 @@ import FilterByFieldsRow from "./FilterByFieldsRow.vue";
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 
-const supportedTypes = ["text", "select"];
 const supportedSearchableFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
-    supportedTypes.includes(field.type)
+    searchStore.supportedSearchableFieldTypes.includes(field.type)
   );
 });
 </script>

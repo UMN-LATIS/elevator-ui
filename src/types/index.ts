@@ -482,11 +482,19 @@ export interface SearchableSelectField extends SearchableField {
   type: "select";
 }
 
+export interface SearchableCheckboxField extends SearchableField {
+  type: "checkbox";
+}
+
 export interface SearchableFieldFilter {
   id: string; // filter uuid not field id
   fieldId: string;
   value: string;
   isFuzzy: boolean;
+}
+
+export interface SearchableCheckboxFieldFilter extends SearchableFieldFilter {
+  value: "boolean_true" | "boolean_false";
 }
 
 export interface ApiInstanceNavResponse {
@@ -603,7 +611,7 @@ export interface TabsContext {
 }
 
 // must be a member of the SEARCH_RESULTS_VIEWS array
-export type SearchResultsView = typeof SEARCH_RESULTS_VIEWS[number];
+export type SearchResultsView = (typeof SEARCH_RESULTS_VIEWS)[number];
 export interface MarkerContext {
   createPopup: (containerRef: Ref<HTMLElement | null>) => void;
   removePopup: () => void;
@@ -638,5 +646,14 @@ export interface ApiGetFieldInfoResponse {
 
 export interface ApiGetSelectFieldInfoResponse extends ApiGetFieldInfoResponse {
   type: "select";
-  values?: string[]; // options for select
+  values: string[]; // options for select
+}
+
+export interface ApiGetCheckboxFieldInfoResponse
+  extends ApiGetFieldInfoResponse {
+  type: "checkbox";
+  values: {
+    boolean_true: string; // label for true
+    boolean_false: string; // label for false
+  };
 }

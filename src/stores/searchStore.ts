@@ -10,6 +10,7 @@ import {
   SearchableFieldFilter,
   SearchRequestOptions,
   SpecificFieldSearchItem,
+  WidgetType,
 } from "@/types";
 import { SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
@@ -140,6 +141,12 @@ const getters = (state: SearchStoreState) => ({
 
     return firstCollectionId ? Number.parseInt(firstCollectionId) : null;
   }),
+
+  supportedSearchableFieldTypes: computed((): WidgetType[] => [
+    "text",
+    "select",
+    "checkbox",
+  ]),
 });
 
 const actions = (state: SearchStoreState) => ({
@@ -218,6 +225,10 @@ const actions = (state: SearchStoreState) => ({
       id: crypto.randomUUID(),
       ...initialProps,
     };
+
+    if (field.type === "checkbox") {
+      newFilter.value = "boolean_true";
+    }
 
     state.filterBy.searchableFieldsMap.set(newFilter.id, newFilter);
   },
