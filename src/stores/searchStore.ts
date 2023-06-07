@@ -149,6 +149,7 @@ const getters = (state: SearchStoreState) => ({
     "date",
     "tag list",
     "text area",
+    "multiselect",
   ]),
 });
 
@@ -359,6 +360,10 @@ const actions = (state: SearchStoreState) => ({
           state.matches.value = res.matches;
           state.status.value = "success";
           state.sortOptions.value = res.sortableWidgets;
+
+          // update the boolean operator
+          state.filterBy.searchableFieldsOperator =
+            res.searchEntry.combineSpecificSearches;
 
           // set the collections list to the collections in the search entry
           state.filterBy.collectionIds =
