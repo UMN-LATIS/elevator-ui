@@ -31,6 +31,10 @@ export interface SearchStoreState {
     collectionIds: number[];
     searchableFieldsMap: Map<string, SearchableFieldFilter>;
     searchableFieldsOperator: "AND" | "OR";
+    dateRange: null | {
+      startDate: string | null;
+      endDate: string | null;
+    };
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -62,6 +66,7 @@ const createState = (): SearchStoreState => ({
     collectionIds: [],
     searchableFieldsMap: new Map<string, SearchableFieldFilter>(),
     searchableFieldsOperator: "AND",
+    dateRange: null,
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -81,10 +86,22 @@ const getters = (state: SearchStoreState) => ({
     return state.matches.value.length < (state.totalResults.value ?? 0);
   }),
 
+  hasDateRangeFilter: computed(() => {
+    return state.filterBy.dateRange !== null;
+  }),
+
   filteredByCount: computed((): number => {
     return (
       state.filterBy.collectionIds.length +
-      state.filterBy.searchableFieldsMap.size
+      state.filterBy.searchableFieldsMap.size +
+      (getters(state).hasDateRangeFilter.value ? 1 : 0)
+    );
+  }),
+
+  hasFieldFiltersApplied: computed((): boolean => {
+    return (
+      state.filterBy.searchableFieldsMap.size > 0 ||
+      getters(state).hasDateRangeFilter.value
     );
   }),
 
@@ -181,6 +198,13 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.collectionIds = [];
   },
 
+  addDateRangeFilter() {
+    state.filterBy.dateRange = {
+      startDate: null,
+      endDate: null,
+    };
+  },
+
   getSearchableFieldFilter(filterId: string): SearchableFieldFilter | null {
     return state.filterBy.searchableFieldsMap.get(filterId) ?? null;
   },
@@ -254,6 +278,8 @@ const actions = (state: SearchStoreState) => ({
 
   clearSearchableFieldsFilters() {
     state.filterBy.searchableFieldsMap.clear();
+    state.filterBy.searchableFieldsOperator = "AND";
+    state.filterBy.dateRange = null;
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {

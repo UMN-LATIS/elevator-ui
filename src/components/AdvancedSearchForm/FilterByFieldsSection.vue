@@ -4,7 +4,7 @@
       <header class="flex items-baseline gap-2 mb-2">
         <h3 class="font-bold">Fields</h3>
         <Button
-          v-if="searchStore.filterBy.searchableFieldsMap.size"
+          v-if="searchStore.hasFieldFiltersApplied"
           variant="tertiary"
           @click="searchStore.clearSearchableFieldsFilters"
         >
@@ -14,7 +14,7 @@
     </div>
 
     <div
-      v-if="searchStore.fieldFilters.length"
+      v-if="searchStore.hasFieldFiltersApplied"
       class="p-2 bg-transparent-black-50 rounded-md mb-4 flex flex-col gap-2"
     >
       <FilterByFieldsRow
@@ -23,6 +23,7 @@
         :filter="filter"
         :rowIndex="index"
       />
+      <div v-if="searchStore.hasDateRangeFilter">Date Range Row</div>
     </div>
 
     <div class="flex justify-between items-baseline">
@@ -44,6 +45,8 @@
           <div>
             <AdvSearchDropDownItem
               class="flex items-center justify-between cursor-pointer"
+              :disabled="searchStore.hasDateRangeFilter"
+              @click="searchStore.addDateRangeFilter()"
             >
               <span class="flex-1">Date</span>
               <span class="text-xs text-neutral-300 capitalize">

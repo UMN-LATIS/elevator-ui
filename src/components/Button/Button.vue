@@ -11,6 +11,7 @@
     v-bind="$attrs"
     :to="componentType === RouterLink ? to : undefined"
     :href="resolvedHref"
+    :type="componentType === 'button' ? type : undefined"
   >
     <slot />
   </component>
@@ -24,11 +25,13 @@ const props = withDefaults(
     href?: string;
     to?: RouteLocationRaw;
     variant?: "primary" | "secondary" | "tertiary";
+    type?: "button" | "submit" | "reset";
   }>(),
   {
     variant: "secondary",
     href: undefined,
     to: undefined,
+    type: "button",
   }
 );
 
