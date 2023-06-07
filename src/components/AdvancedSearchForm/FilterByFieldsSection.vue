@@ -30,17 +30,36 @@
         v-if="supportedSearchableFields.length"
         label="Add Field"
       >
-        <AdvSearchDropDownItem
-          v-for="field in supportedSearchableFields"
-          :key="field.id"
-          class="flex items-center justify-between cursor-pointer"
-          @click="searchStore.addSearchableFieldFilter(field.id)"
-        >
-          <span class="flex-1">{{ field.label }}</span>
-          <span class="text-xs text-neutral-300 capitalize">{{
-            field.type
-          }}</span>
-        </AdvSearchDropDownItem>
+        <div class="divide-y divide-neutral-200">
+          <div>
+            <AdvSearchDropDownItem
+              v-for="field in supportedSearchableFields"
+              :key="field.id"
+              class="flex items-center justify-between cursor-pointer"
+              @click="searchStore.addSearchableFieldFilter(field.id)"
+            >
+              <span class="flex-1">{{ field.label }}</span>
+            </AdvSearchDropDownItem>
+          </div>
+          <div>
+            <AdvSearchDropDownItem
+              class="flex items-center justify-between cursor-pointer"
+            >
+              <span class="flex-1">Date</span>
+              <span class="text-xs text-neutral-300 capitalize">
+                All Dates
+              </span>
+            </AdvSearchDropDownItem>
+            <AdvSearchDropDownItem
+              class="flex items-center justify-between cursor-pointer"
+            >
+              <span class="flex-1">Location</span>
+              <span class="text-xs text-neutral-300 capitalize">
+                All Locations
+              </span>
+            </AdvSearchDropDownItem>
+          </div>
+        </div>
       </AdvSearchDropDown>
     </div>
   </section>
