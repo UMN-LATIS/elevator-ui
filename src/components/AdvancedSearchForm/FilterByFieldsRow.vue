@@ -43,19 +43,19 @@
 
       <SelectFieldOptions
         v-if="['select', 'tag list'].includes(currentField.type)"
-        class="flex-1 text-sm"
+        class="w-full text-sm"
         :filter="filter"
       />
 
       <CheckboxFieldOptions
         v-if="currentField.type === 'checkbox'"
-        class="flex-1 text-sm"
+        class="w-full text-sm"
         :filter="(filter as SearchableCheckboxFieldFilter)"
       />
 
       <MultiSelectFieldOptions
         v-if="currentField.type === 'multiselect'"
-        class="flex-1 text-sm"
+        class="w-full text-sm"
         :filter="filter"
       />
     </div>

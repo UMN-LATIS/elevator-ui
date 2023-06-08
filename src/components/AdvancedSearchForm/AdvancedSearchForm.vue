@@ -14,7 +14,7 @@
         >
           Filter By
         </h2>
-        <div class="max-h-[60vh] overflow-y-auto">
+        <div class="max-h-[60vh] overflow-y-auto px-2">
           <FilterByCollectionsSection />
           <FilterByFieldsSection />
         </div>
