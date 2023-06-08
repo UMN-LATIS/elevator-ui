@@ -4,7 +4,7 @@
     class="bg-white rounded-3xl shadow-md"
     @submit.prevent="$emit('submit')"
   >
-    <div class="p-2 max-h-[90vh] overflow-y-auto">
+    <div class="p-2">
       <h1 class="sr-only">Advanced Search</h1>
 
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
@@ -14,9 +14,10 @@
         >
           Filter By
         </h2>
-
-        <FilterByCollectionsSection />
-        <FilterByFieldsSection />
+        <div class="max-h-[60vh] overflow-y-auto">
+          <FilterByCollectionsSection />
+          <FilterByFieldsSection />
+        </div>
       </div>
     </div>
     <div
