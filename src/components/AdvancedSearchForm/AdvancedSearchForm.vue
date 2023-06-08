@@ -4,7 +4,7 @@
     class="bg-white rounded-3xl shadow-md"
     @submit.prevent="$emit('submit')"
   >
-    <div class="p-2">
+    <div class="p-2 max-h-[90vh] overflow-y-auto">
       <h1 class="sr-only">Advanced Search</h1>
 
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
