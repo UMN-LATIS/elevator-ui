@@ -1,20 +1,22 @@
 <template>
-  <div class="flex items-baseline gap-2 group">
+  <div
+    class="filter-row"
+    :class="{
+      'filter-row--is-only-row': searchStore.totalFieldFilterCount === 1,
+      'filter-row--is-first-row': rowIndex === 0,
+    }"
+  >
     <Button
-      class="text-xs w-6 !ml-0"
-      :class="{
-        invisible: rowIndex === 0,
-        hidden: searchStore.totalFieldFilterCount === 1,
-      }"
+      class="text-xs filter-row__operator"
       variant="tertiary"
       type="button"
       @click="handleSearchOperatorClick"
     >
       {{ searchOperator }}
     </Button>
-    <p class="text-sm w-1/4">Date Range</p>
+    <p class="filter-row__name text-sm p-2">Any Date</p>
 
-    <div class="flex-1 grid grid-cols-2 gap-2">
+    <div class="filter-row__value flex flex-col sm:flex-row gap-1">
       <InputGroup
         v-if="searchStore.filterBy.globalDateRange"
         id="filter-by-date-range-start-date"
@@ -38,11 +40,11 @@
     </div>
 
     <button
+      class="filter-row__remove py-2 self-start w-full flex items-center justify-center"
       type="button"
-      class="self-start p-2 mt-[0.1rem]"
       @click="handleRemoveFilter"
     >
-      <CircleXIcon class="w-5 h-5" />
+      <CircleXIcon class="!w-5 !h-5" />
     </button>
   </div>
 </template>
@@ -74,12 +76,49 @@ function handleRemoveFilter() {
 }
 </script>
 <style scoped>
-select {
-  background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23111' %3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
-  background-position: right 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 1rem;
-  padding-right: 2.5rem;
-  border-color: #e5e5e5;
+.filter-row {
+  display: grid;
+  grid-template-areas: "operator name value is-fuzzy remove";
+  grid-template-columns: 2rem 1fr 2fr 3rem 2rem;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+@media (max-width: 30rem) {
+  .filter-row {
+    grid-template-areas:
+      "operator name is-fuzzy remove"
+      ". value . .";
+    grid-template-columns: 2rem 1fr 3rem 2rem;
+  }
+}
+
+.filter-row--is-only-row {
+  grid-template-areas: "name value is-fuzzy remove";
+  grid-template-columns: 1fr 2fr 3rem 2rem;
+}
+
+.filter-row--is-first-row .filter-row__operator {
+  display: none;
+}
+
+.filter-row__operator {
+  grid-area: operator;
+}
+.filter-row__name {
+  grid-area: name;
+}
+
+.filter-row__value {
+  grid-area: value;
+}
+
+.filter-row__is-fuzzy {
+  grid-area: is-fuzzy;
+}
+
+.filter-row__remove {
+  grid-area: remove;
+  justify-self: end;
 }
 </style>

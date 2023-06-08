@@ -1,7 +1,7 @@
 <template>
   <select
     :value="selectedOption"
-    class="rounded-md"
+    class="rounded-md w-full"
     @change="handleSelectChange"
   >
     <option v-for="opt in options" :key="opt" :value="opt">

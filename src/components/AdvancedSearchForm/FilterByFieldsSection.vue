@@ -15,7 +15,7 @@
 
     <div
       v-if="searchStore.hasFieldFiltersApplied"
-      class="p-2 bg-transparent-black-50 rounded-md mb-4 flex flex-col gap-2"
+      class="p-4 bg-transparent-black-50 rounded-md flex flex-col gap-4 sm:gap-2 my-4"
     >
       <div v-for="(filter, index) in sortedFilterRows" :key="filter.id">
         <FilterByGlobalDateRow
@@ -48,18 +48,12 @@
               :disabled="searchStore.hasDateRangeFilter"
               @click="searchStore.addDateRangeFilter()"
             >
-              <span class="flex-1">Date</span>
-              <span class="text-xs text-neutral-300 capitalize">
-                All Dates
-              </span>
+              <span class="flex-1">Any Date</span>
             </AdvSearchDropDownItem>
             <AdvSearchDropDownItem
               class="flex items-center justify-between cursor-pointer"
             >
-              <span class="flex-1">Location</span>
-              <span class="text-xs text-neutral-300 capitalize">
-                All Locations
-              </span>
+              <span class="flex-1">Any Location</span>
             </AdvSearchDropDownItem>
           </div>
         </div>

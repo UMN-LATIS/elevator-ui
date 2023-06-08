@@ -1,11 +1,13 @@
 <template>
-  <div class="flex items-baseline gap-2">
+  <div
+    class="filter-row"
+    :class="{
+      'filter-row--is-only-row': searchStore.totalFieldFilterCount === 1,
+      'filter-row--is-first-row': rowIndex === 0,
+    }"
+  >
     <Button
-      class="text-xs w-6 !ml-0"
-      :class="{
-        invisible: rowIndex === 0,
-        hidden: searchStore.totalFieldFilterCount === 1,
-      }"
+      class="text-xs filter-row__operator"
       variant="tertiary"
       type="button"
       @click="handleSearchOperatorClick"
@@ -13,7 +15,7 @@
       {{ searchOperator }}
     </Button>
     <select
-      class="rounded-md w-1/4 text-sm"
+      class="rounded-md text-sm filter-row__name w-full"
       :value="currentField.id"
       @change="handleFieldChange"
     >
@@ -26,38 +28,40 @@
       </option>
     </select>
 
-    <InputGroup
-      v-if="['text', 'date', 'text area'].includes(currentField.type)"
-      :id="filter.id"
-      class="flex-1 text-sm"
-      inputClass="!bg-white !border !border-neutral-200"
-      :label="currentField.label"
-      :modelValue="filter.value"
-      :labelHidden="true"
-      :placeholder="`Type your ${currentField.label.toLowerCase()}...`"
-      @update:modelValue="handleFilterValueChange"
-    />
+    <div class="filter-row__value">
+      <InputGroup
+        v-if="['text', 'date', 'text area'].includes(currentField.type)"
+        :id="filter.id"
+        class="text-sm"
+        inputClass="!bg-white !border !border-neutral-200"
+        :label="currentField.label"
+        :modelValue="filter.value"
+        :labelHidden="true"
+        :placeholder="`Type your ${currentField.label.toLowerCase()}...`"
+        @update:modelValue="handleFilterValueChange"
+      />
 
-    <SelectFieldOptions
-      v-if="['select', 'tag list'].includes(currentField.type)"
-      class="flex-1 text-sm"
-      :filter="filter"
-    />
+      <SelectFieldOptions
+        v-if="['select', 'tag list'].includes(currentField.type)"
+        class="flex-1 text-sm"
+        :filter="filter"
+      />
 
-    <CheckboxFieldOptions
-      v-if="currentField.type === 'checkbox'"
-      class="flex-1 text-sm"
-      :filter="(filter as SearchableCheckboxFieldFilter)"
-    />
+      <CheckboxFieldOptions
+        v-if="currentField.type === 'checkbox'"
+        class="flex-1 text-sm"
+        :filter="(filter as SearchableCheckboxFieldFilter)"
+      />
 
-    <MultiSelectFieldOptions
-      v-if="currentField.type === 'multiselect'"
-      class="flex-1 text-sm"
-      :filter="filter"
-    />
+      <MultiSelectFieldOptions
+        v-if="currentField.type === 'multiselect'"
+        class="flex-1 text-sm"
+        :filter="filter"
+      />
+    </div>
 
     <label
-      class="text-xs font-bold uppercase text-center cursor-pointer leading-none"
+      class="text-xs font-bold uppercase text-center cursor-pointer leading-none filter-row__is-fuzzy block"
       :class="{
         'text-blue-600': filter.isFuzzy,
         'text-neutral-300': !filter.isFuzzy,
@@ -69,15 +73,12 @@
         :checked="filter.isFuzzy"
         @change="handleIsFuzzyChange"
       />
-      <span class="md:hidden">FZY</span>
-      <span class="hidden md:inline-block" aria-label="Fuzzy Search"
-        >Fuzzy</span
-      >
+      <span aria-label="Fuzzy Search">Fuzzy</span>
     </label>
 
     <button
       type="button"
-      class="self-start p-2 mt-[0.1rem]"
+      class="filter-row__remove py-2 self-start w-full flex items-center justify-center mt-[0.125rem]"
       @click="handleRemoveFilter"
     >
       <CircleXIcon class="w-5 h-5" />
@@ -181,5 +182,51 @@ select {
   background-size: 1rem;
   padding-right: 2.5rem;
   border-color: #e5e5e5;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-areas: "operator name value is-fuzzy remove";
+  grid-template-columns: 2rem 1fr 2fr 3rem 2rem;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+@media (max-width: 30rem) {
+  .filter-row {
+    grid-template-areas:
+      "operator name is-fuzzy remove"
+      ". value . .";
+    grid-template-columns: 2rem 1fr 3rem 2rem;
+  }
+}
+
+.filter-row--is-only-row {
+  grid-template-areas: "name value is-fuzzy remove";
+  grid-template-columns: 1fr 2fr 3rem 3rem;
+}
+
+.filter-row--is-first-row .filter-row__operator {
+  display: none;
+}
+
+.filter-row__operator {
+  grid-area: operator;
+}
+.filter-row__name {
+  grid-area: name;
+}
+
+.filter-row__value {
+  grid-area: value;
+}
+
+.filter-row__is-fuzzy {
+  grid-area: is-fuzzy;
+}
+
+.filter-row__remove {
+  grid-area: remove;
+  justify-self: end;
 }
 </style>
