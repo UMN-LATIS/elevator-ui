@@ -670,6 +670,8 @@ export interface SearchableSpecificFieldFilter {
   createdAt: string;
 }
 
+export type GlobalSearchableFieldFilter = SearchableSpecificFieldFilter;
+
 export interface SearchableCheckboxFieldFilter
   extends SearchableSpecificFieldFilter {
   value: "boolean_true" | "boolean_false";

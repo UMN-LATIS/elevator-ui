@@ -12,7 +12,7 @@ import {
   SpecificFieldSearchItem,
   WidgetType,
 } from "@/types";
-import { SORT_KEYS } from "@/constants/constants";
+import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
 
 export interface SearchStoreState {
@@ -31,9 +31,15 @@ export interface SearchStoreState {
     collectionIds: number[];
     specificFieldsMap: Map<string, SearchableSpecificFieldFilter>;
     searchableFieldsOperator: "AND" | "OR";
-    dateRange: null | {
+    globalDateRange: null | {
       startDate: string;
       endDate: string;
+      createdAt: string;
+    };
+    globalLocation: null | {
+      lng: number;
+      lat: number;
+      createdAt: string;
     };
   };
 
@@ -66,7 +72,8 @@ const createState = (): SearchStoreState => ({
     collectionIds: [],
     specificFieldsMap: new Map<string, SearchableSpecificFieldFilter>(),
     searchableFieldsOperator: "AND",
-    dateRange: null,
+    globalDateRange: null,
+    globalLocation: null,
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -87,22 +94,80 @@ const getters = (state: SearchStoreState) => ({
   }),
 
   hasDateRangeFilter: computed(() => {
-    return state.filterBy.dateRange !== null;
+    return state.filterBy.globalDateRange !== null;
   }),
 
   filteredByCount: computed((): number => {
     return (
       state.filterBy.collectionIds.length +
       state.filterBy.specificFieldsMap.size +
-      (getters(state).hasDateRangeFilter.value ? 1 : 0)
+      (state.filterBy.globalDateRange ? 1 : 0) +
+      (state.filterBy.globalLocation ? 1 : 0)
+    );
+  }),
+
+  // this is the number of specific fields that are being used
+  specificFieldFilterCount: computed((): number => {
+    return state.filterBy.specificFieldsMap.size;
+  }),
+
+  // this is the number of global fields that are being used
+  globalFieldFilterCount: computed((): number => {
+    return (
+      (state.filterBy.globalDateRange ? 1 : 0) +
+      (state.filterBy.globalLocation ? 1 : 0)
+    );
+  }),
+
+  totalFieldFilterCount: computed((): number => {
+    return (
+      getters(state).specificFieldFilterCount.value +
+      getters(state).globalFieldFilterCount.value
     );
   }),
 
   hasFieldFiltersApplied: computed((): boolean => {
     return (
       state.filterBy.specificFieldsMap.size > 0 ||
-      getters(state).hasDateRangeFilter.value
+      state.filterBy.globalDateRange !== null ||
+      state.filterBy.globalLocation !== null
     );
+  }),
+
+  globalDateRangeAsFilter: computed(
+    (): SearchableSpecificFieldFilter | null => {
+      if (!state.filterBy.globalDateRange) {
+        return null;
+      }
+
+      return {
+        id: GLOBAL_FIELD_IDS.DATE_RANGE,
+        fieldId: GLOBAL_FIELD_IDS.DATE_RANGE,
+        value: JSON.stringify([
+          state.filterBy.globalDateRange?.startDate ?? null,
+          state.filterBy.globalDateRange?.endDate ?? null,
+        ]),
+        isFuzzy: false,
+        createdAt: state.filterBy.globalDateRange.createdAt,
+      };
+    }
+  ),
+
+  globalLocationAsFilter: computed((): SearchableSpecificFieldFilter | null => {
+    if (!state.filterBy.globalLocation) {
+      return null;
+    }
+
+    return {
+      id: GLOBAL_FIELD_IDS.LOCATION,
+      fieldId: GLOBAL_FIELD_IDS.LOCATION,
+      value: JSON.stringify({
+        lng: state.filterBy.globalLocation.lng,
+        lat: state.filterBy.globalLocation.lat,
+      }),
+      isFuzzy: false,
+      createdAt: state.filterBy.globalLocation.createdAt,
+    };
   }),
 
   hasFiltersApplied: computed((): boolean => {
@@ -199,9 +264,10 @@ const actions = (state: SearchStoreState) => ({
   },
 
   addDateRangeFilter() {
-    state.filterBy.dateRange = {
+    state.filterBy.globalDateRange = {
       startDate: "",
       endDate: "",
+      createdAt: new Date().toISOString(),
     };
   },
 
@@ -282,7 +348,7 @@ const actions = (state: SearchStoreState) => ({
   clearSearchableFieldsFilters() {
     state.filterBy.specificFieldsMap.clear();
     state.filterBy.searchableFieldsOperator = "AND";
-    state.filterBy.dateRange = null;
+    state.filterBy.globalDateRange = null;
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {

@@ -4,7 +4,7 @@
       class="text-xs w-6 !ml-0"
       :class="{
         invisible: rowIndex === 0,
-        hidden: searchStore.specificFieldFilters.length === 1,
+        hidden: searchStore.totalFieldFilterCount === 1,
       }"
       variant="tertiary"
       type="button"

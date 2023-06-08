@@ -2,6 +2,10 @@
   <div class="flex items-baseline gap-2 group">
     <Button
       class="text-xs w-6 !ml-0"
+      :class="{
+        invisible: rowIndex === 0,
+        hidden: searchStore.totalFieldFilterCount === 1,
+      }"
       variant="tertiary"
       type="button"
       @click="handleSearchOperatorClick"
@@ -10,11 +14,11 @@
     </Button>
     <p class="text-sm w-1/4">Date Range</p>
 
-    <div class="flex-1 flex flex-col md:flex-row gap-2">
+    <div class="flex-1 grid grid-cols-2 gap-2">
       <InputGroup
-        v-if="searchStore.filterBy.dateRange"
+        v-if="searchStore.filterBy.globalDateRange"
         id="filter-by-date-range-start-date"
-        v-model="searchStore.filterBy.dateRange.startDate"
+        v-model="searchStore.filterBy.globalDateRange.startDate"
         class="text-sm"
         inputClass="!bg-white !border !border-neutral-200"
         label="Start Date"
@@ -22,9 +26,9 @@
         placeholder="Start Date"
       />
       <InputGroup
-        v-if="searchStore.filterBy.dateRange"
+        v-if="searchStore.filterBy.globalDateRange"
         id="filter-by-date-range-end-date"
-        v-model="searchStore.filterBy.dateRange.endDate"
+        v-model="searchStore.filterBy.globalDateRange.endDate"
         class="text-sm"
         inputClass="!bg-white !border !border-neutral-200"
         label="End Date"
@@ -49,6 +53,10 @@ import Button from "@/components/Button/Button.vue";
 import { CircleXIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
+
+defineProps<{
+  rowIndex: number;
+}>();
 
 const searchStore = useSearchStore();
 

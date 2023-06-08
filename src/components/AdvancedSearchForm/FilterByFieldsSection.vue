@@ -17,13 +17,13 @@
       v-if="searchStore.hasFieldFiltersApplied"
       class="p-2 bg-transparent-black-50 rounded-md mb-4 flex flex-col gap-2"
     >
-      <FilterByFieldsRow
-        v-for="(filter, index) in searchStore.specificFieldFilters"
-        :key="filter.id"
-        :filter="filter"
-        :rowIndex="index"
-      />
-      <FilterByGlobalDateRow v-if="searchStore.hasDateRangeFilter" />
+      <div v-for="(filter, index) in sortedFilterRows" :key="filter.id">
+        <FilterByGlobalDateRow
+          v-if="filter.fieldId === GLOBAL_FIELD_IDS.DATE_RANGE"
+          :rowIndex="index"
+        />
+        <FilterByFieldsRow v-else :filter="filter" :rowIndex="index" />
+      </div>
     </div>
 
     <div class="flex justify-between items-baseline">
@@ -76,6 +76,8 @@ import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import FilterByFieldsRow from "./FilterByFieldsRow.vue";
 import FilterByGlobalDateRow from "./FilterByGlobalDateRow.vue";
+import type { SearchableSpecificFieldFilter } from "@/types";
+import { GLOBAL_FIELD_IDS } from "@/constants/constants";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
@@ -84,5 +86,25 @@ const supportedSearchableFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
     searchStore.supportedSpecificFieldTypes.includes(field.type)
   );
+});
+
+const activeGlobalFilters = computed((): SearchableSpecificFieldFilter[] => {
+  const { globalDateRangeAsFilter, globalLocationAsFilter } = searchStore;
+
+  // if either filter is null, remove them from our list
+  return [globalDateRangeAsFilter, globalLocationAsFilter].filter(
+    (filter): filter is SearchableSpecificFieldFilter => Boolean(filter)
+  );
+});
+
+const sortedFilterRows = computed((): SearchableSpecificFieldFilter[] => {
+  return [
+    ...searchStore.specificFieldFilters,
+    ...activeGlobalFilters.value,
+  ].sort((a, b) => {
+    if (a.createdAt > b.createdAt) return 1;
+    if (a.createdAt < b.createdAt) return -1;
+    return 0;
+  });
 });
 </script>

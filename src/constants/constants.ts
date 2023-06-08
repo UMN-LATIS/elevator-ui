@@ -24,3 +24,11 @@ export const SORT_KEYS = {
   LAST_MODIFIED_DESC: "lastModified.desc",
   LAST_MODIFIED_ASC: "lastModified.asc",
 } as const;
+
+// these are ids for searchable fields that don't actually exist
+// in the api, but we want to treat them like they do for the sake
+// of the UI
+export const GLOBAL_FIELD_IDS = {
+  DATE_RANGE: "GLOBAL_DATE_RANGE",
+  LOCATION: "GLOBAL_LOCATION",
+} as const;
