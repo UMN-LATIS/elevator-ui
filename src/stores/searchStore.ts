@@ -271,6 +271,10 @@ const actions = (state: SearchStoreState) => ({
     };
   },
 
+  removeDateRangeFilter() {
+    state.filterBy.globalDateRange = null;
+  },
+
   getSearchableFieldFilter(
     filterId: string
   ): SearchableSpecificFieldFilter | null {

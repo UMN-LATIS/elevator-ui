@@ -34,7 +34,6 @@
         label="End Date"
         :labelHidden="true"
         :placeholder="`End Date`"
-        @input="handleFilterValueChange"
       />
     </div>
 
@@ -70,13 +69,8 @@ function handleSearchOperatorClick() {
   searchStore.updateSearchableFieldsOperator(newOperator);
 }
 
-function handleFilterValueChange(event: Event) {
-  console.log("filter value changed");
-}
-
 function handleRemoveFilter() {
-  // searchStore.removeSearchableFieldFilter(props.filter.id);
-  console.log("remove filter");
+  searchStore.removeDateRangeFilter();
 }
 </script>
 <style scoped>
