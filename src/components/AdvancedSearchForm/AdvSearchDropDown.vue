@@ -6,9 +6,7 @@
     chevronClass="!w-4 !h-4"
     alignment="left"
   >
-    <div class="max-h-[20vh] overflow-y-auto">
-      <slot />
-    </div>
+    <slot />
   </DropDown>
 </template>
 <script setup lang="ts">
