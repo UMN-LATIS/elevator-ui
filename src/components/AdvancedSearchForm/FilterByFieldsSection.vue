@@ -23,7 +23,7 @@
         :filter="filter"
         :rowIndex="index"
       />
-      <div v-if="searchStore.hasDateRangeFilter">Date Range Row</div>
+      <FilterByGlobalDateRow v-if="searchStore.hasDateRangeFilter" />
     </div>
 
     <div class="flex justify-between items-baseline">
@@ -75,6 +75,7 @@ import AdvSearchDropDown from "./AdvSearchDropDown.vue";
 import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import FilterByFieldsRow from "./FilterByFieldsRow.vue";
+import FilterByGlobalDateRow from "./FilterByGlobalDateRow.vue";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();

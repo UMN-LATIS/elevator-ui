@@ -32,8 +32,8 @@ export interface SearchStoreState {
     searchableFieldsMap: Map<string, SearchableFieldFilter>;
     searchableFieldsOperator: "AND" | "OR";
     dateRange: null | {
-      startDate: string | null;
-      endDate: string | null;
+      startDate: string;
+      endDate: string;
     };
   };
 
@@ -200,8 +200,8 @@ const actions = (state: SearchStoreState) => ({
 
   addDateRangeFilter() {
     state.filterBy.dateRange = {
-      startDate: null,
-      endDate: null,
+      startDate: "",
+      endDate: "",
     };
   },
 

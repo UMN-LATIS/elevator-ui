@@ -23,14 +23,13 @@
             <div>
               <InputGroup
                 id="username"
-                :value="username"
+                v-model="username"
                 label="Username"
                 :inputClass="{
                   '!border-red-500 !bg-red-50': !!errors.username,
                 }"
                 type="string"
                 aria-required="true"
-                @input="username = ($event.target as HTMLInputElement).value"
               />
               <p
                 v-if="errors.username"
@@ -42,14 +41,13 @@
             <div>
               <InputGroup
                 id="password"
+                v-model="password"
                 label="Password"
-                :value="password"
                 :inputClass="{
                   '!border-red-500 !bg-red-50': !!errors.password,
                 }"
                 :type="showPassword ? 'text' : 'password'"
                 aria-required="true"
-                @input="password = ($event.target as HTMLInputElement).value"
               >
                 <template #append>
                   <button class="border-none" type="button">

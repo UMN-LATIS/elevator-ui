@@ -2,14 +2,13 @@
   <InputGroup
     id="search"
     ref="inputGroup"
+    v-model="searchStore.query"
     label="Search"
     :labelHidden="true"
     placeholder="Search"
-    :value="searchStore.query"
     inputClass="!rounded-full"
     @focus="searchInputHasFocus = true"
     @blur="searchInputHasFocus = false"
-    @input="searchStore.query = ($event.target as HTMLInputElement).value"
   >
     <template #append>
       <div class="flex gap-1 items-center">

@@ -32,10 +32,10 @@
       class="flex-1 text-sm"
       inputClass="!bg-white !border !border-neutral-200"
       :label="currentField.label"
-      :value="filter.value"
+      :modelValue="filter.value"
       :labelHidden="true"
       :placeholder="`Type your ${currentField.label.toLowerCase()}...`"
-      @input="handleFilterValueChange"
+      @update:modelValue="handleFilterValueChange"
     />
 
     <SelectFieldOptions
@@ -57,7 +57,7 @@
     />
 
     <label
-      class="text-xs font-bold uppercase text-center cursor-pointer leading-none text-orient-sideways sm:text-orient-normal"
+      class="text-xs font-bold uppercase text-center cursor-pointer leading-none"
       :class="{
         'text-blue-600': filter.isFuzzy,
         'text-neutral-300': !filter.isFuzzy,
@@ -69,7 +69,10 @@
         :checked="filter.isFuzzy"
         @change="handleIsFuzzyChange"
       />
-      Fuzzy
+      <span class="md:hidden">FZY</span>
+      <span class="hidden md:inline-block" aria-label="Fuzzy Search"
+        >Fuzzy</span
+      >
     </label>
 
     <button
@@ -155,9 +158,8 @@ function handleFieldChange(event: Event) {
   searchStore.updateSearchableFieldFilterValue(props.filter.id, "");
 }
 
-function handleFilterValueChange(event: Event) {
-  const target = event.target as HTMLInputElement | HTMLSelectElement;
-  searchStore.updateSearchableFieldFilterValue(props.filter.id, target.value);
+function handleFilterValueChange(value: string) {
+  searchStore.updateSearchableFieldFilterValue(props.filter.id, value);
 }
 
 function handleIsFuzzyChange(event: Event) {
