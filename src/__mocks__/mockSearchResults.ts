@@ -1,4 +1,4 @@
-import { SearchResultsResponse } from "@/types";
+import { SearchResultsResponse, SpecificFieldSearchItem } from "@/types";
 
 const mockSearch: SearchResultsResponse = {
   searchResults: [
@@ -35,6 +35,30 @@ const mockSearch: SearchResultsResponse = {
   ],
   totalResults: 11311,
   searchId: "bb15c171-15dd-4f74-b5e4-d7ac9dffc4dc",
+  sortableWidgets: {
+    "0": "Best Match",
+    "lastModified.desc": "Modified Date (newest to oldest)",
+    "lastModified.asc": "Modified Date (oldest to newest)",
+    "title.raw": "Default Title",
+    collection: "Collection",
+    template: "Template",
+    "author_1.raw": "Author",
+    "cascadeselect_1.raw": "Cascade Select",
+    "copyright_1.raw": "Copyright",
+    "course_1.raw": "Course",
+    "dateCache.startDate.desc": "Subject Date (newest to oldest)",
+    "dateCache.startDate.asc": "Subject Date (oldest to newest)",
+    "geneds_1.raw": "GenEds",
+    "instructor_1.raw": "Instructor",
+    "itemtype_1.raw": "Item Type",
+    "location_1.raw": "Location",
+    "samplemultiselect_1.raw": "Sample Multiselect",
+    "system_1.raw": "System",
+    "tags_1.raw": "Tags",
+    "title_1.raw": "Title",
+    "transcript_1.raw": "Transcript",
+    "work_1.raw": "Work",
+  },
   matches: [
     {
       dates: [
@@ -785,15 +809,13 @@ const mockSearch: SearchResultsResponse = {
     fuzzySearch: "0",
     searchText: "",
     sort: "lastModified.desc",
-    specificSearchField: [""],
-    specificSearchText: [""],
-    specificSearchFuzzy: [""],
-    specificFieldSearch: [],
+    specificFieldSearch: [] as SpecificFieldSearchItem[],
     searchDate: {
       date: "2022-08-15 18:38:35.316883",
       timezone_type: 3,
       timezone: "UTC",
     },
+    combineSpecificSearches: "AND",
   },
 };
 
