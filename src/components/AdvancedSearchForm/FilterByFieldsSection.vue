@@ -44,7 +44,7 @@
           </div>
           <div>
             <AdvSearchDropDownItem
-              class="flex items-center justify-between cursor-pointer"
+              class="flex items-center justify-between cursor-pointer aria-disabled:opacity-25"
               :disabled="searchStore.hasDateRangeFilter"
               @click="searchStore.addDateRangeFilter()"
             >
