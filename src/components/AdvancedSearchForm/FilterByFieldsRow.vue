@@ -4,7 +4,7 @@
       class="text-xs w-6 !ml-0"
       :class="{
         invisible: rowIndex === 0,
-        hidden: searchStore.fieldFilters.length === 1,
+        hidden: searchStore.specificFieldFilters.length === 1,
       }"
       variant="tertiary"
       type="button"
@@ -18,7 +18,7 @@
       @change="handleFieldChange"
     >
       <option
-        v-for="supportedField in supportedSearchableFields"
+        v-for="supportedField in supportedSpecificFields"
         :key="supportedField.id"
         :value="supportedField.id"
       >
@@ -95,20 +95,20 @@ import SelectFieldOptions from "./SelectFieldOptions.vue";
 import CheckboxFieldOptions from "./CheckboxFieldOptions.vue";
 import MultiSelectFieldOptions from "./MultiSelectFieldOptions.vue";
 import type {
-  SearchableFieldFilter,
-  SearchableField,
+  SearchableSpecificFieldFilter,
+  SearchableSpecificField,
   SearchableCheckboxFieldFilter,
 } from "@/types";
 
 const props = defineProps<{
-  filter: SearchableFieldFilter;
+  filter: SearchableSpecificFieldFilter;
   rowIndex: number;
 }>();
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 
-const currentField = computed((): SearchableField => {
+const currentField = computed((): SearchableSpecificField => {
   const field = instanceStore.getSearchableField(props.filter.fieldId);
 
   if (!field) {
@@ -119,9 +119,9 @@ const currentField = computed((): SearchableField => {
   return field;
 });
 
-const supportedSearchableFields = computed(() => {
+const supportedSpecificFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
-    searchStore.supportedSearchableFieldTypes.includes(field.type)
+    searchStore.supportedSpecificFieldTypes.includes(field.type)
   );
 });
 

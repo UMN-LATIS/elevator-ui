@@ -10,7 +10,7 @@ import {
   ApiGetSelectFieldInfoResponse,
   ApiGetCheckboxFieldInfoResponse,
   ApiGetMultiSelectFieldInfoResponse,
-  SearchableField,
+  SearchableSpecificField,
   SearchableSelectField,
   SearchableCheckboxField,
   SearchableMultiSelectField,
@@ -174,7 +174,7 @@ async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
 }
 
 async function getSearchableFieldInfo<T extends ApiGetFieldInfoResponse>(
-  field: SearchableField
+  field: SearchableSpecificField
 ): Promise<T | null> {
   const fieldKey = `${field.id}-${field.template}`;
 

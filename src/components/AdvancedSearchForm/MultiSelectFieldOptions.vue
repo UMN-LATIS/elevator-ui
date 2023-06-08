@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import api from "@/api";
 import {
-  SearchableFieldFilter,
+  SearchableSpecificFieldFilter,
   SearchableMultiSelectField,
   TreeNode,
 } from "@/types";
@@ -24,7 +24,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import CascadeSelect from "@/components/CascadeSelect/CascadeSelect.vue";
 
 const props = defineProps<{
-  filter: SearchableFieldFilter;
+  filter: SearchableSpecificFieldFilter;
 }>();
 
 const searchStore = useSearchStore();

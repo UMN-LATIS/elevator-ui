@@ -16,10 +16,8 @@ import type {
   ApiInstanceNavResponse,
   SearchRequestOptions,
   LocalLoginResponse,
-  SearchableFieldFilter,
   ApiGetFieldInfoResponse,
-  SearchableSelectField,
-  SearchableField,
+  SearchableSpecificField,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -243,7 +241,7 @@ export async function loginAsGuest({
 }
 
 export async function fetchSearchableFieldInfo<T = ApiGetFieldInfoResponse>(
-  field: SearchableField
+  field: SearchableSpecificField
 ) {
   const formdata = new FormData();
   formdata.append("fieldTitle", field.id);

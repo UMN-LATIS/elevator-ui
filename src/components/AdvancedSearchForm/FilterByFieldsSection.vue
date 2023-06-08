@@ -18,7 +18,7 @@
       class="p-2 bg-transparent-black-50 rounded-md mb-4 flex flex-col gap-2"
     >
       <FilterByFieldsRow
-        v-for="(filter, index) in searchStore.fieldFilters"
+        v-for="(filter, index) in searchStore.specificFieldFilters"
         :key="filter.id"
         :filter="filter"
         :rowIndex="index"
@@ -82,7 +82,7 @@ const searchStore = useSearchStore();
 
 const supportedSearchableFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
-    searchStore.supportedSearchableFieldTypes.includes(field.type)
+    searchStore.supportedSpecificFieldTypes.includes(field.type)
   );
 });
 </script>
