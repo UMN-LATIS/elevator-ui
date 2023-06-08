@@ -667,6 +667,7 @@ export interface SearchableSpecificFieldFilter {
   fieldId: string;
   value: string;
   isFuzzy: boolean;
+  createdAt: string;
 }
 
 export interface SearchableCheckboxFieldFilter

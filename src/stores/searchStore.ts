@@ -253,6 +253,7 @@ const actions = (state: SearchStoreState) => ({
       value: "",
       isFuzzy: false,
       id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
       ...initialProps,
     };
 
