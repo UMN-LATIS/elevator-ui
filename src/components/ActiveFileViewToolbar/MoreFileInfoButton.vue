@@ -41,6 +41,7 @@
               class=""
             >
               <MapMarker
+                id="more-info-location-map-marker"
                 :lng="fileMetaData.coordinates[0]"
                 :lat="fileMetaData.coordinates[1]"
               />

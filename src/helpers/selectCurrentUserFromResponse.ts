@@ -15,7 +15,6 @@ export function selectCurrentUserFromResponse(
     userCanManageAssets,
     userIsAdmin,
     userIsSuperAdmin,
-    userCanSearchAndBrowse,
   } = instanceNav;
 
   // check the userId to see if a current user is logged in
@@ -28,6 +27,5 @@ export function selectCurrentUserFromResponse(
     isSuperAdmin: userIsSuperAdmin,
     canManageAssets: userCanManageAssets,
     canManageDrawers: userCanCreateDrawers,
-    canSearchAndBrowse: userCanSearchAndBrowse,
   };
 }
