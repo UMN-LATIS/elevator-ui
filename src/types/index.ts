@@ -346,6 +346,10 @@ export interface SearchEntry {
   sort?: string;
   specificFieldSearch?: SpecificFieldSearchItem[];
   combineSpecificSearches: "OR" | "AND";
+  startDateText?: string;
+  startDate?: string; // unix timestamp
+  endDateText?: string;
+  endDate?: string; // unix timestamp
 }
 
 export interface SearchSortOptions {
@@ -511,7 +515,7 @@ export interface InstanceStoreState {
   currentUser: User | null;
   instance: ElevatorInstance;
   collections: AssetCollection[];
-  searchableFields: SearchableField[];
+  searchableFields: SearchableSpecificField[];
 }
 
 export interface ElevatorInstance {
@@ -646,29 +650,33 @@ export interface ApiGetMultiSelectFieldInfoResponse
   rawContent: TreeNode; // recursive tree of options
 }
 
-export interface SearchableField extends RawSortableField {
+export interface SearchableSpecificField extends RawSortableField {
   id: string;
 }
 
-export interface SearchableSelectField extends SearchableField {
+export interface SearchableSelectField extends SearchableSpecificField {
   type: "select";
 }
 
-export interface SearchableCheckboxField extends SearchableField {
+export interface SearchableCheckboxField extends SearchableSpecificField {
   type: "checkbox";
 }
 
-export interface SearchableMultiSelectField extends SearchableField {
+export interface SearchableMultiSelectField extends SearchableSpecificField {
   type: "multiselect";
 }
 
-export interface SearchableFieldFilter {
+export interface SearchableSpecificFieldFilter {
   id: string; // filter uuid not field id
   fieldId: string;
   value: string;
   isFuzzy: boolean;
+  createdAt: string;
 }
 
-export interface SearchableCheckboxFieldFilter extends SearchableFieldFilter {
+export type GlobalSearchableFieldFilter = SearchableSpecificFieldFilter;
+
+export interface SearchableCheckboxFieldFilter
+  extends SearchableSpecificFieldFilter {
   value: "boolean_true" | "boolean_false";
 }

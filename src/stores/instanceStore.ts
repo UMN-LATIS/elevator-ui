@@ -9,7 +9,7 @@ import {
   ElevatorInstance,
   User,
   AssetCollection,
-  SearchableField,
+  SearchableSpecificField,
 } from "@/types";
 import {
   toCollectionIndex,
@@ -22,7 +22,7 @@ const createState = () => ({
   currentUser: ref<User | null>(null),
   pages: ref<Page[]>([]),
   collections: ref<AssetCollection[]>([]),
-  searchableFields: ref<SearchableField[]>([]),
+  searchableFields: ref<SearchableSpecificField[]>([]),
   instance: ref<ElevatorInstance>({
     id: null,
     name: "Elevator",
@@ -64,9 +64,9 @@ const getters = (state: ReturnType<typeof createState>) => ({
     }
   },
 
-  getSearchableField<T extends SearchableField = SearchableField>(
-    fieldId: string
-  ): T | null {
+  getSearchableField<
+    T extends SearchableSpecificField = SearchableSpecificField
+  >(fieldId: string): T | null {
     return (
       (state.searchableFields.value.find((f) => f.id === fieldId) as T) ?? null
     );

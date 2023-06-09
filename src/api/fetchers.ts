@@ -16,10 +16,8 @@ import type {
   ApiInstanceNavResponse,
   SearchRequestOptions,
   LocalLoginResponse,
-  SearchableFieldFilter,
   ApiGetFieldInfoResponse,
-  SearchableSelectField,
-  SearchableField,
+  SearchableSpecificField,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -160,24 +158,23 @@ export async function fetchSearchId(
   query: string,
   opts: Omit<SearchRequestOptions, "searchText"> = {}
 ): Promise<string> {
-  const params = new URLSearchParams();
-  const searchQuery: SearchRequestOptions = { searchText: query };
+  const { collection, ...rest } = opts;
+  const searchQuery: SearchRequestOptions = {
+    searchText: query,
+    ...rest,
+  };
 
+  // only add collection if it's defined
+  if (collection) {
+    searchQuery.collection = collection.map(String);
+  }
+
+  // only add sort if it's defined
   if (opts.sort) {
     searchQuery.sort = opts.sort;
   }
 
-  if (opts.collection) {
-    searchQuery.collection = opts.collection.map(String);
-  }
-
-  if (opts.specificFieldSearch) {
-    searchQuery.specificFieldSearch = opts.specificFieldSearch;
-
-    // default to AND combine operator
-    searchQuery.combineSpecificSearches = opts.combineSpecificSearches ?? "AND";
-  }
-
+  const params = new URLSearchParams();
   params.append("searchQuery", JSON.stringify(searchQuery));
 
   // this param gets searchID without all the results
@@ -243,7 +240,7 @@ export async function loginAsGuest({
 }
 
 export async function fetchSearchableFieldInfo<T = ApiGetFieldInfoResponse>(
-  field: SearchableField
+  field: SearchableSpecificField
 ) {
   const formdata = new FormData();
   formdata.append("fieldTitle", field.id);

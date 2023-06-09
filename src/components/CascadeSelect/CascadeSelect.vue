@@ -12,6 +12,7 @@
       </label>
       <select
         :class="['rounded-md', selectClass]"
+        :style="{ width: '100%' }"
         :value="selected.value"
         @change="
           handleSelectChange(

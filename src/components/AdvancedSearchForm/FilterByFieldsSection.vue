@@ -4,7 +4,7 @@
       <header class="flex items-baseline gap-2 mb-2">
         <h3 class="font-bold">Fields</h3>
         <Button
-          v-if="searchStore.filterBy.searchableFieldsMap.size"
+          v-if="searchStore.hasFieldFiltersApplied"
           variant="tertiary"
           @click="searchStore.clearSearchableFieldsFilters"
         >
@@ -14,15 +14,16 @@
     </div>
 
     <div
-      v-if="searchStore.fieldFilters.length"
-      class="p-2 bg-transparent-black-50 rounded-md mb-4 flex flex-col gap-2"
+      v-if="searchStore.hasFieldFiltersApplied"
+      class="p-4 bg-transparent-black-50 rounded-md flex flex-col gap-4 sm:gap-2 my-4"
     >
-      <FilterByFieldsRow
-        v-for="(filter, index) in searchStore.fieldFilters"
-        :key="filter.id"
-        :filter="filter"
-        :rowIndex="index"
-      />
+      <div v-for="(filter, index) in sortedFilterRows" :key="filter.id">
+        <FilterByGlobalDateRow
+          v-if="filter.fieldId === GLOBAL_FIELD_IDS.DATE_RANGE"
+          :rowIndex="index"
+        />
+        <FilterByFieldsRow v-else :filter="filter" :rowIndex="index" />
+      </div>
     </div>
 
     <div class="flex justify-between items-baseline">
@@ -30,17 +31,27 @@
         v-if="supportedSearchableFields.length"
         label="Add Field"
       >
-        <AdvSearchDropDownItem
-          v-for="field in supportedSearchableFields"
-          :key="field.id"
-          class="flex items-center justify-between cursor-pointer"
-          @click="searchStore.addSearchableFieldFilter(field.id)"
-        >
-          <span class="flex-1">{{ field.label }}</span>
-          <span class="text-xs text-neutral-300 capitalize">{{
-            field.type
-          }}</span>
-        </AdvSearchDropDownItem>
+        <div class="divide-y divide-neutral-200">
+          <div>
+            <AdvSearchDropDownItem
+              v-for="field in supportedSearchableFields"
+              :key="field.id"
+              class="flex items-center justify-between cursor-pointer"
+              @click="searchStore.addSearchableFieldFilter(field.id)"
+            >
+              <span class="flex-1">{{ field.label }}</span>
+            </AdvSearchDropDownItem>
+          </div>
+          <div>
+            <AdvSearchDropDownItem
+              class="flex items-center cursor-pointer aria-disabled:opacity-25"
+              :disabled="searchStore.hasDateRangeFilter"
+              @click="searchStore.addDateRangeFilter()"
+            >
+              Any Date
+            </AdvSearchDropDownItem>
+          </div>
+        </div>
       </AdvSearchDropDown>
     </div>
   </section>
@@ -53,13 +64,36 @@ import AdvSearchDropDown from "./AdvSearchDropDown.vue";
 import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import FilterByFieldsRow from "./FilterByFieldsRow.vue";
+import FilterByGlobalDateRow from "./FilterByGlobalDateRow.vue";
+import type { SearchableSpecificFieldFilter } from "@/types";
+import { GLOBAL_FIELD_IDS } from "@/constants/constants";
 
 const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 
 const supportedSearchableFields = computed(() => {
   return instanceStore.searchableFields.filter((field) =>
-    searchStore.supportedSearchableFieldTypes.includes(field.type)
+    searchStore.supportedSpecificFieldTypes.includes(field.type)
   );
+});
+
+const activeGlobalFilters = computed((): SearchableSpecificFieldFilter[] => {
+  const { globalDateRangeAsFilter, globalLocationAsFilter } = searchStore;
+
+  // if either filter is null, remove them from our list
+  return [globalDateRangeAsFilter, globalLocationAsFilter].filter(
+    (filter): filter is SearchableSpecificFieldFilter => Boolean(filter)
+  );
+});
+
+const sortedFilterRows = computed((): SearchableSpecificFieldFilter[] => {
+  return [
+    ...searchStore.specificFieldFilters,
+    ...activeGlobalFilters.value,
+  ].sort((a, b) => {
+    if (a.createdAt > b.createdAt) return 1;
+    if (a.createdAt < b.createdAt) return -1;
+    return 0;
+  });
 });
 </script>

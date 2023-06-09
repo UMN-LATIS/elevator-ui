@@ -1,7 +1,7 @@
 <template>
   <select
     :value="selectedOption"
-    class="rounded-md"
+    class="rounded-md w-full"
     @change="handleSelectChange"
   >
     <option v-for="opt in options" :key="opt" :value="opt">
@@ -11,13 +11,13 @@
 </template>
 <script setup lang="ts">
 import api from "@/api";
-import { SearchableFieldFilter, SearchableSelectField } from "@/types";
+import { SearchableSpecificFieldFilter, SearchableSelectField } from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
-  filter: SearchableFieldFilter;
+  filter: SearchableSpecificFieldFilter;
 }>();
 
 // adding a ref for selected value so that we can reactively

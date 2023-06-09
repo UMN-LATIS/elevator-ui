@@ -18,7 +18,7 @@
         :id="id"
         :type="type"
         :name="id"
-        :value="value"
+        :value="modelValue"
         class="block w-full rounded-md border border-transparent focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4"
         :class="[
           {
@@ -30,7 +30,9 @@
         v-bind="$attrs"
         @focus="$emit('focus', $event)"
         @blur="$emit('blur', $event)"
-        @input="$emit('input', $event)"
+        @input="
+          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+        "
       />
       <div
         v-if="$slots.append"
@@ -49,7 +51,7 @@ withDefaults(
     id: string;
     label: string;
     labelHidden?: boolean;
-    value: string;
+    modelValue: string;
     type?: string;
     inputClass?: CSSClass;
   }>(),
@@ -63,7 +65,7 @@ withDefaults(
 defineEmits<{
   (eventName: "focus", event: FocusEvent): void;
   (eventName: "blur", event: FocusEvent): void;
-  (eventName: "input", event: InputEvent): void;
+  (eventName: "update:modelValue", value: string): void;
 }>();
 </script>
 <style scoped></style>

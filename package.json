@@ -21,6 +21,7 @@
     "@fontsource/material-icons": "^5.0.1",
     "@fontsource/open-sans": "^5.0.1",
     "@fontsource/work-sans": "^5.0.1",
+    "@headlessui-float/vue": "^0.11.2",
     "@headlessui/vue": "^1.7.13",
     "@knight-lab/timelinejs": "^3.9.2",
     "@mdx-js/react": "^2.3.0",

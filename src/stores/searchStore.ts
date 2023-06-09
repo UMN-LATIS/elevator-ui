@@ -7,13 +7,14 @@ import {
   SearchEntry,
   SearchResultsView,
   SearchSortOptions,
-  SearchableFieldFilter,
+  SearchableSpecificFieldFilter,
   SearchRequestOptions,
   SpecificFieldSearchItem,
   WidgetType,
 } from "@/types";
-import { SORT_KEYS } from "@/constants/constants";
+import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
+import { parseDateString } from "@/helpers/parseDateString";
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -29,8 +30,18 @@ export interface SearchStoreState {
   // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
-    searchableFieldsMap: Map<string, SearchableFieldFilter>;
+    specificFieldsMap: Map<string, SearchableSpecificFieldFilter>;
     searchableFieldsOperator: "AND" | "OR";
+    globalDateRange: null | {
+      startDate: string;
+      endDate: string;
+      createdAt: string;
+    };
+    globalLocation: null | {
+      lng: number;
+      lat: number;
+      createdAt: string;
+    };
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -60,8 +71,10 @@ const createState = (): SearchStoreState => ({
   query: ref(""),
   filterBy: reactive({
     collectionIds: [],
-    searchableFieldsMap: new Map<string, SearchableFieldFilter>(),
+    specificFieldsMap: new Map<string, SearchableSpecificFieldFilter>(),
     searchableFieldsOperator: "AND",
+    globalDateRange: null,
+    globalLocation: null,
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -81,11 +94,81 @@ const getters = (state: SearchStoreState) => ({
     return state.matches.value.length < (state.totalResults.value ?? 0);
   }),
 
+  hasDateRangeFilter: computed(() => {
+    return state.filterBy.globalDateRange !== null;
+  }),
+
   filteredByCount: computed((): number => {
     return (
       state.filterBy.collectionIds.length +
-      state.filterBy.searchableFieldsMap.size
+      state.filterBy.specificFieldsMap.size +
+      (state.filterBy.globalDateRange ? 1 : 0) +
+      (state.filterBy.globalLocation ? 1 : 0)
     );
+  }),
+
+  // this is the number of specific fields that are being used
+  specificFieldFilterCount: computed((): number => {
+    return state.filterBy.specificFieldsMap.size;
+  }),
+
+  // this is the number of global fields that are being used
+  globalFieldFilterCount: computed((): number => {
+    return (
+      (state.filterBy.globalDateRange ? 1 : 0) +
+      (state.filterBy.globalLocation ? 1 : 0)
+    );
+  }),
+
+  totalFieldFilterCount: computed((): number => {
+    return (
+      getters(state).specificFieldFilterCount.value +
+      getters(state).globalFieldFilterCount.value
+    );
+  }),
+
+  hasFieldFiltersApplied: computed((): boolean => {
+    return (
+      state.filterBy.specificFieldsMap.size > 0 ||
+      state.filterBy.globalDateRange !== null ||
+      state.filterBy.globalLocation !== null
+    );
+  }),
+
+  globalDateRangeAsFilter: computed(
+    (): SearchableSpecificFieldFilter | null => {
+      if (!state.filterBy.globalDateRange) {
+        return null;
+      }
+
+      return {
+        id: GLOBAL_FIELD_IDS.DATE_RANGE,
+        fieldId: GLOBAL_FIELD_IDS.DATE_RANGE,
+        value: JSON.stringify([
+          state.filterBy.globalDateRange?.startDate ?? null,
+          state.filterBy.globalDateRange?.endDate ?? null,
+        ]),
+        isFuzzy: false,
+        createdAt: state.filterBy.globalDateRange.createdAt,
+      };
+    }
+  ),
+
+  globalLocationAsFilter: computed((): SearchableSpecificFieldFilter | null => {
+    if (!state.filterBy.globalLocation) {
+      return null;
+    }
+
+    return {
+      id: GLOBAL_FIELD_IDS.LOCATION,
+      fieldId: GLOBAL_FIELD_IDS.LOCATION,
+      value: JSON.stringify({
+        lng: state.filterBy.globalLocation.lng,
+        lat: state.filterBy.globalLocation.lat,
+      }),
+      isFuzzy: false,
+      createdAt: state.filterBy.globalLocation.createdAt,
+    };
   }),
 
   hasFiltersApplied: computed((): boolean => {
@@ -94,7 +177,7 @@ const getters = (state: SearchStoreState) => ({
 
   searchRequestOptions: computed((): SearchRequestOptions => {
     const searchableFieldsArray = Array.from(
-      state.filterBy.searchableFieldsMap.values()
+      state.filterBy.specificFieldsMap.values()
     );
 
     // convert to SpecificFieldSearch shape
@@ -105,6 +188,11 @@ const getters = (state: SearchStoreState) => ({
         fuzzy: filter.isFuzzy,
       }));
 
+    const startDateText =
+      state.filterBy.globalDateRange?.startDate.toString() ?? "";
+    const endDateText =
+      state.filterBy.globalDateRange?.endDate.toString() ?? "";
+
     return {
       sort: state.sort.value,
       collection: state.filterBy.collectionIds.length
@@ -112,11 +200,15 @@ const getters = (state: SearchStoreState) => ({
         : undefined,
       combineSpecificSearches: state.filterBy.searchableFieldsOperator,
       specificFieldSearch,
+      startDateText,
+      startDate: parseDateString(startDateText) ?? "",
+      endDateText,
+      endDate: parseDateString(endDateText) ?? "",
     };
   }),
 
-  fieldFilters: computed((): SearchableFieldFilter[] => {
-    return Array.from(state.filterBy.searchableFieldsMap.values());
+  specificFieldFilters: computed((): SearchableSpecificFieldFilter[] => {
+    return Array.from(state.filterBy.specificFieldsMap.values());
   }),
 
   /**
@@ -142,7 +234,7 @@ const getters = (state: SearchStoreState) => ({
     return firstCollectionId ? Number.parseInt(firstCollectionId) : null;
   }),
 
-  supportedSearchableFieldTypes: computed((): WidgetType[] => [
+  supportedSpecificFieldTypes: computed((): WidgetType[] => [
     "text",
     "select",
     "checkbox",
@@ -181,13 +273,27 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.collectionIds = [];
   },
 
-  getSearchableFieldFilter(filterId: string): SearchableFieldFilter | null {
-    return state.filterBy.searchableFieldsMap.get(filterId) ?? null;
+  addDateRangeFilter() {
+    state.filterBy.globalDateRange = {
+      startDate: "",
+      endDate: "",
+      createdAt: new Date().toISOString(),
+    };
+  },
+
+  removeDateRangeFilter() {
+    state.filterBy.globalDateRange = null;
+  },
+
+  getSearchableFieldFilter(
+    filterId: string
+  ): SearchableSpecificFieldFilter | null {
+    return state.filterBy.specificFieldsMap.get(filterId) ?? null;
   },
 
   updateSearchableFieldFilter(
     filterId: string,
-    updatedFilterProps: Partial<SearchableFieldFilter>
+    updatedFilterProps: Partial<SearchableSpecificFieldFilter>
   ) {
     const currentFilter = this.getSearchableFieldFilter(filterId);
 
@@ -203,7 +309,7 @@ const actions = (state: SearchStoreState) => ({
       );
     }
 
-    state.filterBy.searchableFieldsMap.set(filterId, {
+    state.filterBy.specificFieldsMap.set(filterId, {
       ...currentFilter,
       ...updatedFilterProps,
     });
@@ -211,7 +317,7 @@ const actions = (state: SearchStoreState) => ({
 
   async addSearchableFieldFilter(
     fieldId: string,
-    initialProps?: Partial<SearchableFieldFilter>
+    initialProps?: Partial<SearchableSpecificFieldFilter>
   ) {
     const instanceStore = useInstanceStore();
     const field = instanceStore.getSearchableField(fieldId);
@@ -222,11 +328,12 @@ const actions = (state: SearchStoreState) => ({
       );
     }
 
-    const newFilter: SearchableFieldFilter = {
+    const newFilter: SearchableSpecificFieldFilter = {
       fieldId,
       value: "",
       isFuzzy: false,
       id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
       ...initialProps,
     };
 
@@ -234,15 +341,15 @@ const actions = (state: SearchStoreState) => ({
       newFilter.value = "boolean_true";
     }
 
-    state.filterBy.searchableFieldsMap.set(newFilter.id, newFilter);
+    state.filterBy.specificFieldsMap.set(newFilter.id, newFilter);
   },
 
   removeSearchableFieldFilter(filterId: string) {
-    state.filterBy.searchableFieldsMap.delete(filterId);
+    state.filterBy.specificFieldsMap.delete(filterId);
   },
 
   updateSearchableFieldFilterValue(filterId: string, newValue: string) {
-    const filter = state.filterBy.searchableFieldsMap.get(filterId);
+    const filter = state.filterBy.specificFieldsMap.get(filterId);
     if (!filter) {
       throw new Error(
         `Cannot update value of searchable field filter ${filterId}: no such filter found`
@@ -253,13 +360,15 @@ const actions = (state: SearchStoreState) => ({
   },
 
   clearSearchableFieldsFilters() {
-    state.filterBy.searchableFieldsMap.clear();
+    state.filterBy.specificFieldsMap.clear();
+    state.filterBy.searchableFieldsOperator = "AND";
+    state.filterBy.globalDateRange = null;
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {
     const instanceStore = useInstanceStore();
 
-    const currentFilter = state.filterBy.searchableFieldsMap.get(filterId);
+    const currentFilter = state.filterBy.specificFieldsMap.get(filterId);
 
     if (!currentFilter) {
       throw new Error(
@@ -287,7 +396,7 @@ const actions = (state: SearchStoreState) => ({
       fieldId: field.id,
     };
 
-    state.filterBy.searchableFieldsMap.set(filterId, updatedFilter);
+    state.filterBy.specificFieldsMap.set(filterId, updatedFilter);
   },
 
   updateSearchableFieldsOperator(operator: string) {
@@ -304,7 +413,7 @@ const actions = (state: SearchStoreState) => ({
   },
 
   updateSearchableFieldFilterIsFuzzy(filterId: string, isFuzzy: boolean) {
-    const filter = state.filterBy.searchableFieldsMap.get(filterId);
+    const filter = state.filterBy.specificFieldsMap.get(filterId);
     if (!filter) {
       throw new Error(
         `Cannot update isFuzzy of searchable field filter ${filterId}: no such filter found`
@@ -373,7 +482,7 @@ const actions = (state: SearchStoreState) => ({
 
           // Update searchableFields with response
           if (res.searchEntry.specificFieldSearch) {
-            state.filterBy.searchableFieldsMap.clear();
+            state.filterBy.specificFieldsMap.clear();
 
             res.searchEntry.specificFieldSearch?.forEach((searchField) => {
               actions(state).addSearchableFieldFilter(searchField.field, {
@@ -381,6 +490,17 @@ const actions = (state: SearchStoreState) => ({
                 isFuzzy: searchField.fuzzy,
               });
             });
+          }
+
+          // set the global date range if included
+          if (res.searchEntry.startDateText || res.searchEntry.endDateText) {
+            state.filterBy.globalDateRange = {
+              startDate: res.searchEntry?.startDateText ?? "",
+              endDate: res.searchEntry?.endDateText ?? "",
+              createdAt: new Date().toISOString(),
+            };
+          } else {
+            state.filterBy.globalDateRange = null;
           }
 
           // set query to the search text if it's not already set
