@@ -23,7 +23,7 @@
           >
             <ResultsCount class="mb-2 sm:mb-0" />
             <SearchResultsSortSelect
-              v-if="!['map', 'timline'].includes(searchStore.resultsView)"
+              v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
               :sortOptions="searchStore.sortOptions"
               :selectedSortOption="searchStore.sort"
               :searchQuery="
