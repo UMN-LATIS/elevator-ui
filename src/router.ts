@@ -137,17 +137,4 @@ router.beforeResolve((to, from, next) => {
   next();
 });
 
-router.beforeEach((to, from) => {
-  // reset the search query and filters unless we're
-  // on the search or asset pages
-  console.log(to.name, from.name);
-  if (["search", "asset"].includes(to.name as string)) {
-    return;
-  }
-
-  const searchStore = useSearchStore();
-  searchStore.query = "";
-  searchStore.clearAllFilters();
-});
-
 export default router;

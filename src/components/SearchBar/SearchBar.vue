@@ -34,11 +34,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import { useSearchStore } from "@/stores/searchStore";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
 import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
 
@@ -83,6 +83,21 @@ function removeFocusOnEscape(event: KeyboardEvent) {
 
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
+
+const route = useRoute();
+
+watch(
+  route,
+  (to) => {
+    // make sure the search query and filters are cleared
+    // if not on the search or asset page
+    if (!["search", "asset"].includes(to.name as string)) {
+      searchStore.query = "";
+      searchStore.clearAllFilters();
+    }
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 @media (min-width: 640px) {

@@ -92,7 +92,7 @@
 </template>
 <script setup lang="ts">
 import { watch, computed, onMounted, nextTick, ref } from "vue";
-import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
@@ -144,17 +144,10 @@ searchStore.onAfterNewSearch(() => {
   isNewSearchReadyForDisplay.value = true;
 });
 
-// if search with this id is not currently in flight,
-// then kick it off
+// load search results
 watch(
   () => props.searchId,
-  () => {
-    if (searchStore.searchId === props.searchId) {
-      isNewSearchReadyForDisplay.value = true;
-      return;
-    }
-    searchStore.search(props.searchId);
-  },
+  () => searchStore.search(props.searchId),
   { immediate: true }
 );
 
