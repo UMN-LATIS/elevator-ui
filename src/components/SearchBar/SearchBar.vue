@@ -88,10 +88,13 @@ const route = useRoute();
 
 watch(
   route,
-  (to) => {
-    // make sure the search query and filters are cleared
-    // if not on the search or asset page
-    if (!["search", "asset"].includes(to.name as string)) {
+  (to, from) => {
+    const isNewRoute = to.name !== from?.name;
+    const isNotSearchOrAssetPage = !["search", "asset"].includes(
+      to.name as string
+    );
+
+    if (isNewRoute && isNotSearchOrAssetPage) {
       searchStore.query = "";
       searchStore.clearAllFilters();
     }
