@@ -17,8 +17,6 @@ import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { ref, watch } from "vue";
 import { ApiStaticPageResponse } from "@/types";
 import api from "@/api";
-import { onBeforeRouteUpdate } from "vue-router";
-import { useSearchStore } from "@/stores/searchStore";
 
 const props = defineProps<{
   pageId: number;
@@ -33,12 +31,6 @@ watch(
   },
   { immediate: true }
 );
-
-const searchStore = useSearchStore();
-onBeforeRouteUpdate(() => {
-  searchStore.query = "";
-  searchStore.clearAllFilters();
-});
 </script>
 <style scoped>
 .static-page__content {

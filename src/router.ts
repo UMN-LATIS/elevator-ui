@@ -8,6 +8,7 @@ import SearchResultsPage from "./pages/SearchResultsPage/SearchResultsPage.vue";
 import LocalLoginPage from "./pages/LocalLoginPage/LocalLoginPage.vue";
 import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
 import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
+import { useSearchStore } from "./stores/searchStore";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -65,6 +66,7 @@ const router = createRouter({
       // import("@/pages/AllCollectionsPage/AllCollectionsPage.vue"),
     },
     {
+      name: "browseCollection",
       path: "/collections/browseCollection/:collectionId",
       alias: "/collections/:collectionId",
       component: BrowseCollectionPage,
@@ -96,7 +98,7 @@ const router = createRouter({
       }),
     },
     {
-      name: "StaticContentPage",
+      name: "staticContentPage",
       path: "/page/view/:pageId",
       component: StaticContentPage,
       // component: () =>
@@ -115,6 +117,7 @@ const router = createRouter({
       }),
     },
     {
+      name: "catchall",
       path: "/:pathMatch(.*)",
       component: ErrorPage,
       // component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
@@ -132,6 +135,19 @@ router.beforeResolve((to, from, next) => {
     next(path);
   }
   next();
+});
+
+router.beforeEach((to, from) => {
+  // reset the search query and filters unless we're
+  // on the search or asset pages
+  console.log(to.name, from.name);
+  if (["search", "asset"].includes(to.name as string)) {
+    return;
+  }
+
+  const searchStore = useSearchStore();
+  searchStore.query = "";
+  searchStore.clearAllFilters();
 });
 
 export default router;
