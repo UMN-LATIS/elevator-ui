@@ -653,7 +653,7 @@ export interface ApiGetMultiSelectFieldInfoResponse
 export interface SearchableSpecificField extends RawSortableField {
   id: string;
   label: string;
-  template: number | null;
+  template: number;
   type: WidgetType;
   isPsuedoField?: boolean;
 }
