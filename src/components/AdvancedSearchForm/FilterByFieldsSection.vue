@@ -44,16 +44,11 @@
           </div>
           <div>
             <AdvSearchDropDownItem
-              class="flex items-center justify-between cursor-pointer aria-disabled:opacity-25"
+              class="flex items-center cursor-pointer aria-disabled:opacity-25"
               :disabled="searchStore.hasDateRangeFilter"
               @click="searchStore.addDateRangeFilter()"
             >
-              <span class="flex-1">Any Date</span>
-            </AdvSearchDropDownItem>
-            <AdvSearchDropDownItem
-              class="flex items-center justify-between cursor-pointer"
-            >
-              <span class="flex-1">Any Location</span>
+              Any Date
             </AdvSearchDropDownItem>
           </div>
         </div>
