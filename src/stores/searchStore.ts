@@ -250,7 +250,9 @@ const actions = (state: SearchStoreState) => ({
     state.sort.value = option;
 
     // refresh search results
-    return this.search();
+    if (state.searchId.value) {
+      return this.search(state.searchId.value);
+    }
   },
 
   addCollectionIdFilter(collectionId: number) {
@@ -429,38 +431,27 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.searchableFieldsOperator = "AND";
   },
 
-  async search(searchId?: string): Promise<string | void> {
+  async getSearchId(): Promise<string> {
+    return api
+      .getSearchId(state.query.value, getters(state).searchRequestOptions.value)
+      .catch((err) => {
+        throw new Error(`Cannot getSearchId for query: ${state.query}: ${err}`);
+      });
+  },
+
+  async search(searchId: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
 
     // clear old search results
     state.status.value = "fetching";
-    state.searchId.value = undefined;
+    state.searchId.value = searchId;
     state.matches.value = [];
     state.totalResults.value = undefined;
     state.currentPage.value = 0;
     state.searchEntry.value = null;
 
     try {
-      // first get the id of the search for this query
-      // if it's passed, use that
-      state.searchId.value = searchId
-        ? searchId
-        : await api
-            .getSearchId(
-              state.query.value,
-              getters(state).searchRequestOptions.value
-            )
-            .catch((err) => {
-              state.status.value = "error";
-              throw new Error(
-                `Cannot getSearchId for query: ${state.query}: ${err}`
-              );
-            });
-
-      // async (don't await) get search results and update store
-      // so that we can return the search id so they can redirect
-      // if needed
       api
         .getSearchResultsById(state.searchId.value)
         .then((res) => {

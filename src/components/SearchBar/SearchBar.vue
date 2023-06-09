@@ -34,14 +34,13 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { ref } from "vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter } from "vue-router";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
 import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
-import { useScrollLock } from "@vueuse/core";
 
 const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const isAdvancedSearchModalOpen = ref(false);
@@ -52,7 +51,7 @@ async function handleSubmit() {
   // close advanced search modal if open
   isAdvancedSearchModalOpen.value = false;
 
-  const searchId = await searchStore.search();
+  const searchId = await searchStore.getSearchId();
   if (!searchId) {
     router.push({
       name: "error",
@@ -84,13 +83,6 @@ function removeFocusOnEscape(event: KeyboardEvent) {
 
 document.addEventListener("keydown", focusInputOnCommandK);
 document.addEventListener("keydown", removeFocusOnEscape);
-
-// setup body scroll lock when advanced search modal is open
-// const body = document.querySelector("body");
-// const isLocked = useScrollLock(body);
-// watch(isAdvancedSearchModalOpen, () => {
-//   isLocked.value = isAdvancedSearchModalOpen.value;
-// });
 </script>
 <style scoped>
 @media (min-width: 640px) {
