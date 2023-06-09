@@ -14,6 +14,7 @@ import {
 } from "@/types";
 import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
+import { parseDateString } from "@/helpers/parseDateString";
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -187,6 +188,11 @@ const getters = (state: SearchStoreState) => ({
         fuzzy: filter.isFuzzy,
       }));
 
+    const startDateText =
+      state.filterBy.globalDateRange?.startDate.toString() ?? "";
+    const endDateText =
+      state.filterBy.globalDateRange?.endDate.toString() ?? "";
+
     return {
       sort: state.sort.value,
       collection: state.filterBy.collectionIds.length
@@ -194,6 +200,10 @@ const getters = (state: SearchStoreState) => ({
         : undefined,
       combineSpecificSearches: state.filterBy.searchableFieldsOperator,
       specificFieldSearch,
+      startDateText,
+      startDate: parseDateString(startDateText) ?? "",
+      endDateText,
+      endDate: parseDateString(endDateText) ?? "",
     };
   }),
 
