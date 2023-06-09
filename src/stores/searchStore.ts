@@ -492,6 +492,17 @@ const actions = (state: SearchStoreState) => ({
             });
           }
 
+          // set the global date range if included
+          if (res.searchEntry.startDateText || res.searchEntry.endDateText) {
+            state.filterBy.globalDateRange = {
+              startDate: res.searchEntry?.startDateText ?? "",
+              endDate: res.searchEntry?.endDateText ?? "",
+              createdAt: new Date().toISOString(),
+            };
+          } else {
+            state.filterBy.globalDateRange = null;
+          }
+
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters
           // the search results page with a search id in the url, but

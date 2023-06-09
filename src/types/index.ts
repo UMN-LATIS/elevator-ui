@@ -346,6 +346,10 @@ export interface SearchEntry {
   sort?: string;
   specificFieldSearch?: SpecificFieldSearchItem[];
   combineSpecificSearches: "OR" | "AND";
+  startDateText?: string;
+  startDate?: string; // unix timestamp
+  endDateText?: string;
+  endDate?: string; // unix timestamp
 }
 
 export interface SearchSortOptions {
