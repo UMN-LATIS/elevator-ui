@@ -38,7 +38,6 @@ import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/api";
 import Modal from "@/components/Modal/Modal.vue";
 import Chip from "@/components/Chip/Chip.vue";
-import { getColorClassesForString } from "@/helpers/getColorClassesForString";
 
 const assetStore = useAssetStore();
 const isOpen = ref(false);

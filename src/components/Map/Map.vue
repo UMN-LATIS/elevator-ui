@@ -64,7 +64,7 @@ import { Point } from "geojson";
 const props = withDefaults(
   defineProps<{
     center: LngLat;
-    bounds: BoundingBox;
+    bounds?: BoundingBox;
     zoom: number;
     apiKey: string;
     labelsClass?: string;

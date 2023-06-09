@@ -32,7 +32,11 @@
       :apiKey="config.arcgis.apiKey"
       class="bg-neutral-100 p-1 rounded"
     >
-      <MapMarker :lng="mapCenter.lng" :lat="mapCenter.lat" />
+      <MapMarker
+        :id="`locationItem-${locationLabel}`"
+        :lng="mapCenter.lng"
+        :lat="mapCenter.lat"
+      />
     </Map>
     <div class="w-min flex gap-4 my-4">
       <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
