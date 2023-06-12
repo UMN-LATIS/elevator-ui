@@ -350,6 +350,9 @@ export interface SearchEntry {
   startDate?: string; // unix timestamp
   endDateText?: string;
   endDate?: string; // unix timestamp
+  longitude?: string;
+  latitude?: string;
+  distance?: string; // radius to search in miles
 }
 
 export interface SearchSortOptions {

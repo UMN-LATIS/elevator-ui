@@ -315,7 +315,7 @@ const actions = (state: SearchStoreState) => ({
   },
 
   removeLocationFilter() {
-    console.log("remove location filter");
+    state.filterBy.globalLocation = null;
   },
 
   updateLocationFilter(
@@ -544,6 +544,22 @@ const actions = (state: SearchStoreState) => ({
             };
           } else {
             state.filterBy.globalDateRange = null;
+          }
+
+          // set the location filter if included
+          if (
+            res.searchEntry.longitude &&
+            res.searchEntry.latitude &&
+            res.searchEntry.distance
+          ) {
+            state.filterBy.globalLocation = {
+              lng: res.searchEntry.longitude,
+              lat: res.searchEntry.latitude,
+              radius: res.searchEntry.distance,
+              createdAt: new Date().toISOString(),
+            };
+          } else {
+            state.filterBy.globalLocation = null;
           }
 
           // set query to the search text if it's not already set
