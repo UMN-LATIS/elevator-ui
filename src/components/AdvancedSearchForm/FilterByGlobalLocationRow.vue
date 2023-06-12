@@ -126,7 +126,7 @@ import Map from "@/components/Map/Map.vue";
 import MapMarker from "@/components/MapMarker/MapMarker.vue";
 import { LngLat } from "@/types";
 import config from "@/config";
-import { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
+import { GeoJSONSource, Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import turfCircle from "@turf/circle";
 
 defineProps<{
@@ -230,10 +230,17 @@ function handleRemoveFilter() {
 }
 
 function handleMapLoad(map: MapLibreMap) {
-  console.log("handling map load");
   // eslint-disable-next-line
   // @ts-ignore - deep nested type conplaints
   mapRef.value = map as MapLibreMap;
+
+  map.on("click", (e: MapMouseEvent) => {
+    const lngLat = e.lngLat;
+    searchStore.updateLocationFilter({
+      lng: lngLat.lng.toString(),
+      lat: lngLat.lat.toString(),
+    });
+  });
 
   // add a new source and layer for the
   // radius circle if needed
