@@ -38,9 +38,9 @@ export interface SearchStoreState {
       createdAt: string;
     };
     globalLocation: null | {
-      lng: number; // -180 to 180
-      lat: number; // -90 to 90
-      radius: number; // in miles
+      lng: string; // -180 to 180
+      lat: string; // -90 to 90
+      radius: string; // in miles
       createdAt: string;
     };
   };
@@ -198,6 +198,12 @@ const getters = (state: SearchStoreState) => ({
     const endDateText =
       state.filterBy.globalDateRange?.endDate.toString() ?? "";
 
+    // const parsedLng = parseFloat(state.filterBy.globalLocation?.lng ?? "");
+    // const parsedLat = parseFloat(state.filterBy.globalLocation?.lat ?? "");
+    // const parsedRadius = parseFloat(
+    //   state.filterBy.globalLocation?.radius ?? ""
+    // );
+
     return {
       sort: state.sort.value,
       collection: state.filterBy.collectionIds.length
@@ -209,6 +215,13 @@ const getters = (state: SearchStoreState) => ({
       startDate: parseDateString(startDateText) ?? "",
       endDateText,
       endDate: parseDateString(endDateText) ?? "",
+      longitude: state.filterBy.globalLocation?.lng ?? "",
+      latitude: state.filterBy.globalLocation?.lat ?? "",
+      distance: state.filterBy.globalLocation?.radius ?? "",
+      // only include if valid
+      // longitude: isNaN(parsedLng) ? "" : parsedLng.toString(),
+      // latitude: isNaN(parsedLat) ? "" : parsedLat.toString(),
+      // distance: isNaN(parsedRadius) ? "" : parsedRadius.toString(),
     };
   }),
 
@@ -294,15 +307,36 @@ const actions = (state: SearchStoreState) => ({
 
   addLocationFilter() {
     state.filterBy.globalLocation = {
-      lng: 0,
-      lat: 0,
-      radius: 100,
+      lng: "",
+      lat: "",
+      radius: "100",
       createdAt: new Date().toISOString(),
     };
   },
 
   removeLocationFilter() {
     console.log("remove location filter");
+  },
+
+  updateLocationFilter(
+    updatedLocation: Partial<{
+      lng: string; // -180 to 180
+      lat: string; // -90 to 90
+      radius: string; // in miles
+    }>
+  ) {
+    const currentLocation = state.filterBy.globalLocation;
+
+    if (!currentLocation) {
+      throw new Error(
+        "Cannot update location filter. No location filter exists."
+      );
+    }
+
+    state.filterBy.globalLocation = {
+      ...currentLocation,
+      ...updatedLocation,
+    };
   },
 
   getSearchableFieldFilter(
