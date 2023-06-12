@@ -38,33 +38,33 @@
         />
       </Map>
       <div>
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-4">
-            <Tuple label="Lng" variant="inline"
-              >{{ lngFloat.toFixed(4) }}°</Tuple
-            >
-            <Tuple label="Lat" variant="inline"
-              >{{ latFloat.toFixed(4) }}°</Tuple
-            >
-          </div>
-          <div class="flex items-center gap-2">
-            <label
-              for="filter-by-location-radius"
-              class="text-xs uppercase flex items-baseline"
-            >
-              Radius
-            </label>
-            <input
-              v-if="searchStore.filterBy.globalLocation"
-              id="filter-by-location-radius"
-              v-model="searchStore.filterBy.globalLocation.radius"
-              class="flex-1"
-              type="range"
-              min="1"
-              max="4000"
-            />
-            <span class="text-xs">{{ Math.round(radiusFloat) }} mi</span>
-          </div>
+        <div class="flex items-center gap-4">
+          <Tuple label="Lng" variant="value-only">
+            {{ Math.abs(lngFloat).toFixed(4) }}°
+            {{ lngFloat > 0 ? "E" : "W" }}
+          </Tuple>
+          <Tuple label="Lat" variant="value-only">
+            {{ Math.abs(latFloat).toFixed(4) }}°
+            {{ latFloat > 0 ? "N" : "S" }}
+          </Tuple>
+        </div>
+        <div class="flex items-center gap-2 mt-2 mb-4">
+          <label
+            for="filter-by-location-radius"
+            class="text-xs uppercase flex items-baseline"
+          >
+            Radius
+          </label>
+          <input
+            v-if="searchStore.filterBy.globalLocation"
+            id="filter-by-location-radius"
+            v-model="searchStore.filterBy.globalLocation.radius"
+            class="flex-1"
+            type="range"
+            min="1"
+            max="4000"
+          />
+          <span class="text-xs">{{ Math.round(radiusFloat) }} mi</span>
         </div>
       </div>
     </div>
