@@ -160,7 +160,7 @@ function handleSearchOperatorClick() {
 }
 
 function handleRemoveFilter() {
-  searchStore.removeDateRangeFilter();
+  searchStore.removeLocationFilter();
 }
 </script>
 <style scoped>
