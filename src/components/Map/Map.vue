@@ -75,6 +75,7 @@ const props = withDefaults(
     labelsClass?: string;
     mapStyle?: keyof typeof mapStyles;
     mapContainerClass?: string | string[] | Record<string, boolean>;
+    fullscreenControl?: boolean;
     mapOptions?: Partial<MapLibreMapOptions>;
   }>(),
   {
@@ -82,6 +83,7 @@ const props = withDefaults(
     labelsClass: "",
     bounds: undefined,
     mapContainerClass: "",
+    fullscreenControl: true,
     mapOptions: () => ({}),
   }
 );
@@ -273,14 +275,18 @@ onMounted(() => {
     style: getArcGISUrl(activeMapStyleKey.value),
     zoom: props.zoom,
     bounds: props.bounds,
-    attributionControl: false,
     ...props.mapOptions,
-  })
-    .addControl(
+  });
+
+  if (props.fullscreenControl) {
+    map.addControl(
       new FullscreenControl({
         container: document.querySelector("body") as HTMLBodyElement,
       })
-    )
+    );
+  }
+
+  map
     .addControl(
       new GeolocateControl({
         positionOptions: {
