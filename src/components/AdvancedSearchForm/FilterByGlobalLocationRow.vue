@@ -14,77 +14,8 @@
     >
       {{ searchOperator }}
     </Button>
-    <p class="filter-row__name text-sm p-2">Any Location</p>
+    <p class="filter-row__name text-sm p-2 self-start">Any Location</p>
     <div class="flex flex-col">
-      <div class="filter-row__value flex flex-col sm:flex-row gap-1">
-        <div>
-          <InputGroup
-            v-if="searchStore.filterBy.globalLocation"
-            id="filter-by-location-lng"
-            :modelValue="searchStore.filterBy.globalLocation.lng.toString()"
-            class="text-sm flex flex-col"
-            inputClass="!bg-white !border !border-neutral-200"
-            :labelHidden="true"
-            label="Longitude"
-            placeholder="Lng"
-            @update:modelValue="handleLngUpdate"
-          />
-          <p
-            v-if="isLngTouched && !isLngValid"
-            class="text-xs text-red-500 mt-1"
-          >
-            Longitude must be between -180 and 180
-          </p>
-        </div>
-        <div>
-          <InputGroup
-            v-if="searchStore.filterBy.globalLocation"
-            id="filter-by-location-lat"
-            :modelValue="searchStore.filterBy.globalLocation.lat.toString()"
-            class="text-sm"
-            inputClass="!bg-white !border !border-neutral-200"
-            :labelHidden="true"
-            label="Latitude"
-            placeholder="Lat"
-            @update:modelValue="handleLatUpdate"
-          />
-          <p
-            v-if="isLatTouched && !isLatValid"
-            class="text-xs text-red-500 mt-2"
-          >
-            Latitude must be between -90 and 90
-          </p>
-        </div>
-        <div>
-          <InputGroup
-            v-if="searchStore.filterBy.globalLocation"
-            id="filter-by-location-radius"
-            :modelValue="searchStore.filterBy.globalLocation.radius.toString()"
-            class="text-sm"
-            inputClass="!bg-white !border !border-neutral-200"
-            :labelHidden="true"
-            label="Within Radius"
-            placeholder="Radius"
-            @update:modelValue="handleRadiusUpdate"
-          >
-            <template #append>
-              <button
-                class="text-xs text-neutral-400 uppercase pr-2 cursor-default"
-                type="button"
-                @click="focusRadiusInput"
-              >
-                miles
-              </button>
-            </template>
-          </InputGroup>
-          <p
-            v-if="isRadiusTouched && !isRadiusValid"
-            class="text-xs text-red-500 mt-2"
-          >
-            Radius must be larger than 0
-          </p>
-        </div>
-      </div>
       <Map
         v-if="mapCenter"
         :center="mapCenter"
@@ -93,6 +24,7 @@
         class="my-2 border border-neutral-300 rounded-md"
         labelsClass="hidden"
         mapContainerClass="!h-[12rem] !min-h-[12rem]"
+        :fullscreenControl="false"
         :mapOptions="{
           attributionControl: false,
         }"
@@ -105,6 +37,29 @@
           :lat="latFloat"
         />
       </Map>
+      <div>
+        <div class="flex">
+          <Tuple label="Lng">{{ lngFloat.toFixed(4) }}°</Tuple>
+          <Tuple label="Lat">{{ latFloat.toFixed(4) }}°</Tuple>
+          <Tuple label="Radius">
+            {{ radiusFloat.toFixed(2) }} miles
+            <label
+              for="filter-by-location-radius"
+              class="text-xs uppercase flex items-center sr-only"
+            >
+              Radius
+            </label>
+            <input
+              v-if="searchStore.filterBy.globalLocation"
+              id="filter-by-location-radius"
+              v-model="searchStore.filterBy.globalLocation.radius"
+              type="range"
+              min="0"
+              max="4000"
+            />
+          </Tuple>
+        </div>
+      </div>
     </div>
 
     <button
@@ -121,43 +76,24 @@ import { computed, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { CircleXIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Map from "@/components/Map/Map.vue";
 import MapMarker from "@/components/MapMarker/MapMarker.vue";
 import { LngLat } from "@/types";
 import config from "@/config";
 import { GeoJSONSource, Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import turfCircle from "@turf/circle";
+import Tuple from "../Tuple/Tuple.vue";
 
 defineProps<{
   rowIndex: number;
 }>();
 
 const searchStore = useSearchStore();
-
-const isLatTouched = ref(false);
-const isLngTouched = ref(false);
-const isRadiusTouched = ref(false);
 const mapRef = ref<MapLibreMap | null>(null);
 
 const searchOperator = computed(
   () => searchStore.filterBy.searchableFieldsOperator
 );
-
-const isLatValid = computed(() => {
-  const lat = latFloat.value;
-  return !isNaN(lat) && lat >= -90 && lat <= 90;
-});
-
-const isLngValid = computed(() => {
-  const lng = lngFloat.value;
-  return !isNaN(lng) && lng >= -180 && lng <= 180;
-});
-
-const isRadiusValid = computed(() => {
-  const radius = radiusFloat.value;
-  return !isNaN(radius) && radius > 0;
-});
 
 const mapCenter = computed((): LngLat | null => {
   if (!lngFloat.value || !latFloat.value) {
@@ -190,34 +126,6 @@ const circleGeoJson = computed(() => {
     units: "miles",
   });
 });
-
-function focusRadiusInput() {
-  // if Miles label is clicked, focus the input
-  document
-    .querySelector<HTMLInputElement>("#filter-by-location-radius")
-    ?.focus();
-}
-
-function handleLngUpdate(newLng: string) {
-  isLngTouched.value = true;
-  searchStore.updateLocationFilter({
-    lng: newLng,
-  });
-}
-
-function handleLatUpdate(newLat: string) {
-  isLatTouched.value = true;
-  searchStore.updateLocationFilter({
-    lat: newLat,
-  });
-}
-
-function handleRadiusUpdate(newRadius: string) {
-  isRadiusTouched.value = true;
-  searchStore.updateLocationFilter({
-    radius: newRadius,
-  });
-}
 
 function handleSearchOperatorClick() {
   const currentOperator = searchStore.filterBy.searchableFieldsOperator;
