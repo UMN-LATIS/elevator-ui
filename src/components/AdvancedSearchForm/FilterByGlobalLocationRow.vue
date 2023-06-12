@@ -15,11 +15,11 @@
       {{ searchOperator }}
     </Button>
     <p class="filter-row__name text-sm p-2 self-start">Any Location</p>
-    <div class="flex flex-col">
+    <div class="filter-row__value">
       <Map
         v-if="mapCenter"
         :center="mapCenter"
-        :zoom="3"
+        :zoom="2"
         :apiKey="config.arcgis.apiKey"
         class="my-2 border border-neutral-300 rounded-md"
         labelsClass="hidden"
@@ -38,14 +38,19 @@
         />
       </Map>
       <div>
-        <div class="flex">
-          <Tuple label="Lng">{{ lngFloat.toFixed(4) }}°</Tuple>
-          <Tuple label="Lat">{{ latFloat.toFixed(4) }}°</Tuple>
-          <Tuple label="Radius">
-            {{ radiusFloat.toFixed(2) }} miles
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-4">
+            <Tuple label="Lng" variant="inline"
+              >{{ lngFloat.toFixed(4) }}°</Tuple
+            >
+            <Tuple label="Lat" variant="inline"
+              >{{ latFloat.toFixed(4) }}°</Tuple
+            >
+          </div>
+          <div class="flex items-center gap-2">
             <label
               for="filter-by-location-radius"
-              class="text-xs uppercase flex items-center sr-only"
+              class="text-xs uppercase flex items-baseline"
             >
               Radius
             </label>
@@ -53,11 +58,13 @@
               v-if="searchStore.filterBy.globalLocation"
               id="filter-by-location-radius"
               v-model="searchStore.filterBy.globalLocation.radius"
+              class="flex-1"
               type="range"
               min="1"
               max="4000"
             />
-          </Tuple>
+            <span class="text-xs">{{ Math.round(radiusFloat) }} mi</span>
+          </div>
         </div>
       </div>
     </div>
