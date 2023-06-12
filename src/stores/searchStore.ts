@@ -38,8 +38,9 @@ export interface SearchStoreState {
       createdAt: string;
     };
     globalLocation: null | {
-      lng: number;
-      lat: number;
+      lng: number; // -180 to 180
+      lat: number; // -90 to 90
+      radius: number; // in miles
       createdAt: string;
     };
   };
@@ -96,6 +97,10 @@ const getters = (state: SearchStoreState) => ({
 
   hasDateRangeFilter: computed(() => {
     return state.filterBy.globalDateRange !== null;
+  }),
+
+  hasLocationFilter: computed(() => {
+    return state.filterBy.globalLocation !== null;
   }),
 
   filteredByCount: computed((): number => {
@@ -285,6 +290,19 @@ const actions = (state: SearchStoreState) => ({
 
   removeDateRangeFilter() {
     state.filterBy.globalDateRange = null;
+  },
+
+  addLocationFilter() {
+    state.filterBy.globalLocation = {
+      lng: 0,
+      lat: 0,
+      radius: 100,
+      createdAt: new Date().toISOString(),
+    };
+  },
+
+  removeLocationFilter() {
+    console.log("remove location filter");
   },
 
   getSearchableFieldFilter(

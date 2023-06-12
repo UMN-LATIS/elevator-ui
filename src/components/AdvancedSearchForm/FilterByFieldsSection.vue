@@ -22,7 +22,11 @@
           v-if="filter.fieldId === GLOBAL_FIELD_IDS.DATE_RANGE"
           :rowIndex="index"
         />
-        <FilterByFieldsRow v-else :filter="filter" :rowIndex="index" />
+        <FilterByGlobalLocationRow
+          v-else-if="filter.fieldId === GLOBAL_FIELD_IDS.LOCATION"
+          :rowIndex="index"
+        />
+        <FilterBySpecificFieldsRow v-else :filter="filter" :rowIndex="index" />
       </div>
     </div>
 
@@ -50,6 +54,14 @@
             >
               Any Date
             </AdvSearchDropDownItem>
+
+            <AdvSearchDropDownItem
+              class="flex items-center cursor-pointer aria-disabled:opacity-25"
+              :disabled="searchStore.hasLocationFilter"
+              @click="searchStore.addLocationFilter()"
+            >
+              Any Location
+            </AdvSearchDropDownItem>
           </div>
         </div>
       </AdvSearchDropDown>
@@ -63,8 +75,9 @@ import { useSearchStore } from "@/stores/searchStore";
 import AdvSearchDropDown from "./AdvSearchDropDown.vue";
 import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
-import FilterByFieldsRow from "./FilterByFieldsRow.vue";
+import FilterBySpecificFieldsRow from "./FilterBySpecificFieldsRow.vue";
 import FilterByGlobalDateRow from "./FilterByGlobalDateRow.vue";
+import FilterByGlobalLocationRow from "./FilterByGlobalLocationRow.vue";
 import type { SearchableSpecificFieldFilter } from "@/types";
 import { GLOBAL_FIELD_IDS } from "@/constants/constants";
 
