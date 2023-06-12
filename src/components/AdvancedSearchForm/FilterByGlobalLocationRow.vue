@@ -54,7 +54,7 @@
               id="filter-by-location-radius"
               v-model="searchStore.filterBy.globalLocation.radius"
               type="range"
-              min="0"
+              min="1"
               max="4000"
             />
           </Tuple>

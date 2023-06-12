@@ -297,9 +297,9 @@ const actions = (state: SearchStoreState) => ({
 
   addLocationFilter() {
     state.filterBy.globalLocation = {
-      lng: "",
-      lat: "",
-      radius: "100",
+      lng: "-93.2277",
+      lat: "44.9740",
+      radius: "500",
       createdAt: new Date().toISOString(),
     };
   },
