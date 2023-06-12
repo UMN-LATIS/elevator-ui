@@ -30,7 +30,8 @@
       :zoom="10"
       mapStyle="streets"
       :apiKey="config.arcgis.apiKey"
-      class="bg-neutral-100 p-1 rounded"
+      class="p-1 rounded"
+      mapContainerClass="!h-[50vh]"
     >
       <MapMarker
         :id="`locationItem-${locationLabel}`"

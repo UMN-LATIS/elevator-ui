@@ -198,12 +198,6 @@ const getters = (state: SearchStoreState) => ({
     const endDateText =
       state.filterBy.globalDateRange?.endDate.toString() ?? "";
 
-    // const parsedLng = parseFloat(state.filterBy.globalLocation?.lng ?? "");
-    // const parsedLat = parseFloat(state.filterBy.globalLocation?.lat ?? "");
-    // const parsedRadius = parseFloat(
-    //   state.filterBy.globalLocation?.radius ?? ""
-    // );
-
     return {
       sort: state.sort.value,
       collection: state.filterBy.collectionIds.length
@@ -218,10 +212,6 @@ const getters = (state: SearchStoreState) => ({
       longitude: state.filterBy.globalLocation?.lng ?? "",
       latitude: state.filterBy.globalLocation?.lat ?? "",
       distance: state.filterBy.globalLocation?.radius ?? "",
-      // only include if valid
-      // longitude: isNaN(parsedLng) ? "" : parsedLng.toString(),
-      // latitude: isNaN(parsedLat) ? "" : parsedLat.toString(),
-      // distance: isNaN(parsedRadius) ? "" : parsedRadius.toString(),
     };
   }),
 
@@ -417,6 +407,7 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.specificFieldsMap.clear();
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.globalDateRange = null;
+    state.filterBy.globalLocation = null;
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {
