@@ -6,17 +6,17 @@
     <MediaCard
       :imgSrc="thumbnailImgSrc"
       :imgAlt="title"
-      class="search-result-card transition-all flex w-full h-full group-hover:outline outline-blue-600 group-hover:bg-blue-50 group-hover:text-blue-700 relative"
+      class="search-result-card flex w-full h-full group-hover:bg-blue-50 group-hover:border-blue-700 group-hover:outline-offset-2 group-hover:text-blue-700 relative transition-colors"
     >
       <Chip
         v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
-        class="absolute top-1 right-1 z-10 bg-transparent-black-900 text-neutral-200 group-hover:border group-hover:border-blue-700 group-hover:bg-blue-100 group-hover:text-blue-700"
+        class="absolute top-1 right-1 z-10 !bg-neutral-900 !text-neutral-200 border !border-neutral-900 group-hover:!border-blue-700 group-hover:!bg-blue-100 group-hover:!text-blue-700 transition-colors"
       >
         {{ searchMatch.fileAssets }} files
       </Chip>
       <div ref="cardContents" class="relative h-full">
         <h1
-          class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700"
+          class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700 transition-colors"
         >
           {{ title }}
         </h1>
@@ -24,7 +24,7 @@
           v-if="props.searchMatch?.entries"
           class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
         >
-          <dl class="text-sm group-hover:text-blue-700">
+          <dl class="text-sm group-hover:text-blue-700 transition-colors">
             <div
               v-for="(entry, index) in props.searchMatch.entries"
               :key="index"
@@ -38,7 +38,7 @@
           </dl>
         </div>
         <div
-          class="absolute w-10 h-10 bottom-0 right-0 inline-flex justify-center items-center rounded-full group-hover:!bg-blue-700 group-hover:!text-white"
+          class="absolute w-10 h-10 bottom-0 right-0 inline-flex justify-center items-center rounded-full group-hover:!bg-blue-700 group-hover:!text-white transition-colors"
         >
           <ArrowForwardIcon />
           <span class="sr-only">View Asset</span>
