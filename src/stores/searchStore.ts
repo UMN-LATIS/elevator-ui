@@ -91,6 +91,18 @@ const createState = (): SearchStoreState => ({
 const getters = (state: SearchStoreState) => ({
   isReady: computed(() => state.status.value === "success"),
 
+  isValidSearch: computed(() => {
+    // make sure if there's a location search, the radius is valid
+    if (state.filterBy.globalLocation) {
+      const radius = parseFloat(state.filterBy.globalLocation.radius);
+      if (isNaN(radius) || radius <= 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }),
+
   hasMoreResults: computed(() => {
     return state.matches.value.length < (state.totalResults.value ?? 0);
   }),
