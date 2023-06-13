@@ -4,7 +4,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { type Ref, onMounted, onUnmounted } from "vue";
+import { type Ref, onUnmounted, watch } from "vue";
 import { inject, provide } from "vue";
 import { MapInjectionKey, MarkerInjectionKey } from "@/constants/mapConstants";
 import { MapContext, MarkerContext } from "@/types";
@@ -17,19 +17,24 @@ const props = defineProps<{
 
 const mapContext = inject<MapContext>(MapInjectionKey);
 
-onMounted(() => {
-  if (!mapContext) {
-    throw new Error(
-      `Cannot add marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
-    );
-  }
+watch(
+  [() => props.lng, () => props.lat],
+  () => {
+    if (!mapContext) {
+      throw new Error(
+        `Cannot add marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
+      );
+    }
+    console.log("rendering map marker", props);
 
-  mapContext.createOrUpdateMarker({
-    id: props.id,
-    lng: props.lng,
-    lat: props.lat,
-  });
-});
+    mapContext.createOrUpdateMarker({
+      id: props.id,
+      lng: props.lng,
+      lat: props.lat,
+    });
+  },
+  { immediate: true }
+);
 
 onUnmounted(() => {
   if (!mapContext) {

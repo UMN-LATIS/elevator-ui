@@ -38,8 +38,9 @@ export interface SearchStoreState {
       createdAt: string;
     };
     globalLocation: null | {
-      lng: number;
-      lat: number;
+      lng: string; // -180 to 180
+      lat: string; // -90 to 90
+      radius: string; // in miles
       createdAt: string;
     };
   };
@@ -90,12 +91,28 @@ const createState = (): SearchStoreState => ({
 const getters = (state: SearchStoreState) => ({
   isReady: computed(() => state.status.value === "success"),
 
+  isValidSearch: computed(() => {
+    // make sure if there's a location search, the radius is valid
+    if (state.filterBy.globalLocation) {
+      const radius = parseFloat(state.filterBy.globalLocation.radius);
+      if (isNaN(radius) || radius <= 0) {
+        return false;
+      }
+    }
+
+    return true;
+  }),
+
   hasMoreResults: computed(() => {
     return state.matches.value.length < (state.totalResults.value ?? 0);
   }),
 
   hasDateRangeFilter: computed(() => {
     return state.filterBy.globalDateRange !== null;
+  }),
+
+  hasLocationFilter: computed(() => {
+    return state.filterBy.globalLocation !== null;
   }),
 
   filteredByCount: computed((): number => {
@@ -204,6 +221,9 @@ const getters = (state: SearchStoreState) => ({
       startDate: parseDateString(startDateText) ?? "",
       endDateText,
       endDate: parseDateString(endDateText) ?? "",
+      longitude: state.filterBy.globalLocation?.lng ?? "",
+      latitude: state.filterBy.globalLocation?.lat ?? "",
+      distance: state.filterBy.globalLocation?.radius ?? "",
     };
   }),
 
@@ -287,6 +307,40 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.globalDateRange = null;
   },
 
+  addLocationFilter() {
+    state.filterBy.globalLocation = {
+      lng: "-93.2277",
+      lat: "44.9740",
+      radius: "500",
+      createdAt: new Date().toISOString(),
+    };
+  },
+
+  removeLocationFilter() {
+    state.filterBy.globalLocation = null;
+  },
+
+  updateLocationFilter(
+    updatedLocation: Partial<{
+      lng: string; // -180 to 180
+      lat: string; // -90 to 90
+      radius: string; // in miles
+    }>
+  ) {
+    const currentLocation = state.filterBy.globalLocation;
+
+    if (!currentLocation) {
+      throw new Error(
+        "Cannot update location filter. No location filter exists."
+      );
+    }
+
+    state.filterBy.globalLocation = {
+      ...currentLocation,
+      ...updatedLocation,
+    };
+  },
+
   getSearchableFieldFilter(
     filterId: string
   ): SearchableSpecificFieldFilter | null {
@@ -365,6 +419,7 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.specificFieldsMap.clear();
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.globalDateRange = null;
+    state.filterBy.globalLocation = null;
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {
@@ -492,6 +547,22 @@ const actions = (state: SearchStoreState) => ({
             };
           } else {
             state.filterBy.globalDateRange = null;
+          }
+
+          // set the location filter if included
+          if (
+            res.searchEntry.longitude &&
+            res.searchEntry.latitude &&
+            res.searchEntry.distance
+          ) {
+            state.filterBy.globalLocation = {
+              lng: res.searchEntry.longitude,
+              lat: res.searchEntry.latitude,
+              radius: res.searchEntry.distance,
+              createdAt: new Date().toISOString(),
+            };
+          } else {
+            state.filterBy.globalLocation = null;
           }
 
           // set query to the search text if it's not already set

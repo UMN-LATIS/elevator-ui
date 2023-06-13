@@ -1,5 +1,5 @@
 <template>
-  <div class="search-results-map">
+  <div class="search-results-map mb-16">
     <div
       v-if="!markers.length"
       class="flex flex-col items-center justify-center py-16 gap-4"
@@ -24,6 +24,7 @@
       :apiKey="config.arcgis.apiKey"
       :bounds="boundingBox"
       :center="center"
+      mapContainerClass="!h-[50vh]"
     >
       <MapMarker
         v-for="marker in markers"

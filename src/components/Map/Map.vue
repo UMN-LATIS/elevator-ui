@@ -17,7 +17,11 @@
         {{ style.label }}
       </button>
     </div>
-    <div ref="mapContainerRef" class="map-container" />
+    <div
+      ref="mapContainerRef"
+      class="map-container"
+      :class="mapContainerClass"
+    />
     <Skeleton v-if="!isLoaded" class="w-full h-[75vh]" />
     <div class="hidden">
       <!--
@@ -55,6 +59,7 @@ import {
   FullscreenControl,
   GeolocateControl,
   ScaleControl,
+  MapOptions as MapLibreMapOptions,
 } from "maplibre-gl";
 import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
@@ -69,10 +74,17 @@ const props = withDefaults(
     apiKey: string;
     labelsClass?: string;
     mapStyle?: keyof typeof mapStyles;
+    mapContainerClass?: string | string[] | Record<string, boolean>;
+    fullscreenControl?: boolean;
+    mapOptions?: Partial<MapLibreMapOptions>;
   }>(),
   {
     mapStyle: "light",
     labelsClass: "",
+    bounds: undefined,
+    mapContainerClass: "",
+    fullscreenControl: true,
+    mapOptions: () => ({}),
   }
 );
 
@@ -263,12 +275,18 @@ onMounted(() => {
     style: getArcGISUrl(activeMapStyleKey.value),
     zoom: props.zoom,
     bounds: props.bounds,
-  })
-    .addControl(
+    ...props.mapOptions,
+  });
+
+  if (props.fullscreenControl) {
+    map.addControl(
       new FullscreenControl({
         container: document.querySelector("body") as HTMLBodyElement,
       })
-    )
+    );
+  }
+
+  map
     .addControl(
       new GeolocateControl({
         positionOptions: {
@@ -487,7 +505,7 @@ provide<MapContext>(MapInjectionKey, {
 .map-container {
   width: 100%;
   height: 100%;
-  min-height: 75vh;
+  min-height: 25rem;
   background: #ddd;
 }
 </style>

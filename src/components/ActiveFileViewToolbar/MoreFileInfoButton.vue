@@ -38,7 +38,7 @@
               :zoom="10"
               mapStyle="streets"
               :apiKey="config.arcgis.apiKey"
-              class=""
+              mapContainerClass="!h-[50vh]"
             >
               <MapMarker
                 id="more-info-location-map-marker"

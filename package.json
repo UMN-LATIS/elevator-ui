@@ -26,6 +26,7 @@
     "@knight-lab/timelinejs": "^3.9.2",
     "@mdx-js/react": "^2.3.0",
     "@storybook/client-api": "^6.5.16",
+    "@turf/circle": "^6.5.0",
     "@vueuse/components": "^10.1.2",
     "@vueuse/core": "^10.1.2",
     "@vueuse/integrations": "^10.1.2",

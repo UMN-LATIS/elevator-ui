@@ -2,7 +2,7 @@
   <form
     ref="advancedSearchForm"
     class="bg-white rounded-3xl shadow-md"
-    @submit.prevent="$emit('submit')"
+    @submit.prevent="handleSubmit"
   >
     <div class="p-2">
       <h1 class="sr-only">Advanced Search</h1>
@@ -29,7 +29,12 @@
         @click="searchStore.clearAllFilters"
         >Clear All</Button
       >
-      <Button variant="primary" type="submit" class="!rounded-full">
+      <Button
+        variant="primary"
+        type="submit"
+        class="!rounded-full"
+        :disabled="!searchStore.isValidSearch"
+      >
         Search
       </Button>
     </div>
@@ -60,6 +65,12 @@ function handleEscapeKey(event: KeyboardEvent) {
   if (event.key === "Escape") {
     emit("close");
   }
+}
+
+function handleSubmit(event: Event) {
+  event.preventDefault();
+  if (!searchStore.isValidSearch) return;
+  emit("submit");
 }
 
 onMounted(() => {
