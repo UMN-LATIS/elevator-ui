@@ -488,6 +488,7 @@ const actions = (state: SearchStoreState) => ({
     this.clearCollectionIdFilters();
     this.clearSearchableFieldsFilters();
     state.filterBy.searchableFieldsOperator = "AND";
+    state.filterBy.includeHiddenAssets = false;
   },
 
   async getSearchId(): Promise<string> {
@@ -568,6 +569,9 @@ const actions = (state: SearchStoreState) => ({
           } else {
             state.filterBy.globalLocation = null;
           }
+
+          // set the include hidden assets filter if included
+          state.filterBy.includeHiddenAssets = !!res.searchEntry.showHidden;
 
           // set query to the search text if it's not already set
           // to something. This handles the case when a user enters
