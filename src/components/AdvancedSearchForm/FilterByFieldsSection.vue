@@ -15,7 +15,7 @@
 
     <div
       v-if="searchStore.hasFieldFiltersApplied"
-      class="p-4 bg-transparent-black-50 rounded-md flex flex-col gap-4 sm:gap-2 my-4"
+      class="p-4 bg-transparent-black-50 rounded-md flex flex-col gap-4 sm:gap-2 mb-4"
     >
       <div v-for="(filter, index) in sortedFilterRows" :key="filter.id">
         <FilterByGlobalDateRow
