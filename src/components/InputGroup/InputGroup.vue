@@ -3,7 +3,7 @@
     <label
       :for="id"
       class="block text-xs font-medium text-neutral-700 uppercase mb-1"
-      :class="{ 'sr-only': labelHidden }"
+      :class="[{ 'sr-only': labelHidden }, labelClass]"
     >
       {{ label }}
     </label>
@@ -54,11 +54,13 @@ withDefaults(
     modelValue: string;
     type?: string;
     inputClass?: CSSClass;
+    labelClass?: CSSClass;
   }>(),
   {
     labelHidden: false,
     type: "text",
     inputClass: () => ({}),
+    labelClass: () => ({}),
   }
 );
 

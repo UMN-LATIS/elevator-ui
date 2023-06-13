@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="searchStore.filterBy.globalLocation"
     class="filter-row"
     :class="{
       'filter-row--is-only-row': searchStore.totalFieldFilterCount === 1,
@@ -16,6 +17,16 @@
     </Button>
     <p class="filter-row__name text-sm p-2 self-start">Any Location</p>
     <div class="filter-row__value">
+      <div class="flex items-baseline mt-2 text-sm gap-2">
+        <span>
+          {{ Math.abs(lngFloat).toFixed(4) }}°
+          {{ lngFloat > 0 ? "E" : "W" }}
+        </span>
+        <span>
+          {{ Math.abs(latFloat).toFixed(4) }}°
+          {{ latFloat > 0 ? "N" : "S" }}
+        </span>
+      </div>
       <Map
         v-if="mapCenter"
         :center="mapCenter"
@@ -38,34 +49,35 @@
         />
       </Map>
       <div>
-        <div class="flex items-center gap-4">
-          <Tuple label="Lng" variant="value-only">
-            {{ Math.abs(lngFloat).toFixed(4) }}°
-            {{ lngFloat > 0 ? "E" : "W" }}
-          </Tuple>
-          <Tuple label="Lat" variant="value-only">
-            {{ Math.abs(latFloat).toFixed(4) }}°
-            {{ latFloat > 0 ? "N" : "S" }}
-          </Tuple>
-        </div>
-        <div class="flex items-center gap-2 mt-2 mb-4">
-          <label
-            for="filter-by-location-radius"
-            class="text-xs uppercase flex items-baseline"
-          >
-            Radius
-          </label>
-          <input
-            v-if="searchStore.filterBy.globalLocation"
-            id="filter-by-location-radius"
-            v-model="searchStore.filterBy.globalLocation.radius"
-            class="flex-1"
-            type="range"
-            min="1"
-            max="4000"
-          />
-          <span class="text-xs">{{ Math.round(radiusFloat) }} mi</span>
-        </div>
+        <InputGroup
+          id="filter-by-global-location-radius"
+          :modelValue="searchStore.filterBy.globalLocation.radius ?? ''"
+          type="text"
+          label="Search Radius"
+          :labelClass="{
+            '!text-red-700': radiusTouched && !isRadiusValid,
+          }"
+          :inputClass="{
+            'border-red-600 text-red-700': radiusTouched && !isRadiusValid,
+          }"
+          @update:modelValue="handleRadiusUpdate"
+        >
+          <template #append>
+            <span
+              class="text-sm text-neutral-600 mr-2"
+              :class="{
+                '!text-red-700': radiusTouched && !isRadiusValid,
+              }"
+              >miles</span
+            >
+          </template>
+        </InputGroup>
+        <p
+          v-if="radiusTouched && !isRadiusValid"
+          class="text-xs text-red-700 mt-2"
+        >
+          Radius must be a number greater than 0.
+        </p>
       </div>
     </div>
 
@@ -89,7 +101,7 @@ import { LngLat } from "@/types";
 import config from "@/config";
 import { GeoJSONSource, Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import turfCircle from "@turf/circle";
-import Tuple from "../Tuple/Tuple.vue";
+import InputGroup from "../InputGroup/InputGroup.vue";
 
 defineProps<{
   rowIndex: number;
@@ -97,6 +109,7 @@ defineProps<{
 
 const searchStore = useSearchStore();
 const mapRef = ref<MapLibreMap | null>(null);
+const radiusTouched = ref(false);
 
 const searchOperator = computed(
   () => searchStore.filterBy.searchableFieldsOperator
@@ -133,6 +146,17 @@ const circleGeoJson = computed(() => {
     units: "miles",
   });
 });
+
+const isRadiusValid = computed(() => {
+  return radiusFloat.value > 0;
+});
+
+function handleRadiusUpdate(newRadius: string) {
+  radiusTouched.value = true;
+  searchStore.updateLocationFilter({
+    radius: newRadius,
+  });
+}
 
 function handleSearchOperatorClick() {
   const currentOperator = searchStore.filterBy.searchableFieldsOperator;
