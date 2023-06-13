@@ -10,7 +10,7 @@
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
       <div class="px-2">
         <h2
-          class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200 mb-4"
+          class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200"
         >
           Filter By
         </h2>
@@ -21,22 +21,35 @@
       </div>
     </div>
     <div
-      class="flex bg-transparent-black-100 p-2 justify-end items-center gap-4"
+      class="flex bg-transparent-black-100 p-2 justify-between items-center gap-4"
     >
-      <Button
-        variant="tertiary"
-        type="button"
-        @click="searchStore.clearAllFilters"
-        >Clear All</Button
-      >
-      <Button
-        variant="primary"
-        type="submit"
-        class="!rounded-full"
-        :disabled="!searchStore.isValidSearch"
-      >
-        Search
-      </Button>
+      <div>
+        <Toggle
+          v-if="instanceStore.currentUser?.isAdmin"
+          v-model="searchStore.filterBy.includeHiddenAssets"
+          class="ml-4"
+          settingLabel="Include Hidden Assets"
+          onLabel="Include Hidden"
+          onLabelClass="text-sm"
+        >
+        </Toggle>
+      </div>
+      <div>
+        <Button
+          variant="tertiary"
+          type="button"
+          @click="searchStore.clearAllFilters"
+          >Clear All</Button
+        >
+        <Button
+          variant="primary"
+          type="submit"
+          class="!rounded-full"
+          :disabled="!searchStore.isValidSearch"
+        >
+          Search
+        </Button>
+      </div>
     </div>
   </form>
 </template>
@@ -48,6 +61,8 @@ import { onClickOutside } from "@vueuse/core";
 import SearchTextInputGroup from "../SearchBar/SearchTextInputGroup.vue";
 import FilterByCollectionsSection from "./FilterByCollectionsSection.vue";
 import FilterByFieldsSection from "./FilterByFieldsSection.vue";
+import Toggle from "@/components/Toggle/Toggle.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const emit = defineEmits<{
   (eventName: "close"): void;
@@ -55,6 +70,7 @@ const emit = defineEmits<{
 }>();
 
 const searchStore = useSearchStore();
+const instanceStore = useInstanceStore();
 const advancedSearchForm = ref<HTMLDivElement | null>(null);
 
 onClickOutside(advancedSearchForm, () => {

@@ -43,6 +43,7 @@ export interface SearchStoreState {
       radius: string; // in miles
       createdAt: string;
     };
+    includeHiddenAssets: boolean; // only available for admins
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -76,6 +77,7 @@ const createState = (): SearchStoreState => ({
     searchableFieldsOperator: "AND",
     globalDateRange: null,
     globalLocation: null,
+    includeHiddenAssets: false,
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -120,7 +122,8 @@ const getters = (state: SearchStoreState) => ({
       state.filterBy.collectionIds.length +
       state.filterBy.specificFieldsMap.size +
       (state.filterBy.globalDateRange ? 1 : 0) +
-      (state.filterBy.globalLocation ? 1 : 0)
+      (state.filterBy.globalLocation ? 1 : 0) +
+      (state.filterBy.includeHiddenAssets ? 1 : 0)
     );
   }),
 
@@ -224,6 +227,7 @@ const getters = (state: SearchStoreState) => ({
       longitude: state.filterBy.globalLocation?.lng ?? "",
       latitude: state.filterBy.globalLocation?.lat ?? "",
       distance: state.filterBy.globalLocation?.radius ?? "",
+      showHidden: state.filterBy.includeHiddenAssets ? "on" : undefined,
     };
   }),
 

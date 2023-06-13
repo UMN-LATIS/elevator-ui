@@ -386,6 +386,7 @@ export interface SearchRequestOptions {
   startDate?: string;
   endDateText?: string;
   endDate?: string;
+  showHidden?: "on" | undefined;
 }
 
 export interface SearchResultsResponse {
