@@ -9,6 +9,7 @@ import LocalLoginPage from "./pages/LocalLoginPage/LocalLoginPage.vue";
 import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
 import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
+import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -77,9 +78,17 @@ const router = createRouter({
       }),
     },
     {
-      name: "listDrawers",
+      name: "allDrawersPage",
       path: "/drawers/listDrawers",
       component: AllDrawersPage,
+    },
+    {
+      name: "viewDrawerPage",
+      path: "/drawers/viewDrawer/:drawerId",
+      component: DrawerViewPage,
+      props: (route) => ({
+        drawerId: parseIntFromParam(route.params.drawerId),
+      }),
     },
     {
       name: "search",
