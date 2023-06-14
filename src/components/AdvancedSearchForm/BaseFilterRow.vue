@@ -14,10 +14,16 @@
     >
       {{ searchOperator }}
     </Button>
-    <p class="filter-row__name text-sm p-2">{{ label }}</p>
+    <slot name="label">
+      <p class="filter-row__name text-sm p-2">{{ label }}</p>
+    </slot>
 
     <div class="filter-row__value text-sm">
       <slot />
+    </div>
+
+    <div class="filter-row__is-fuzzy">
+      <slot name="fuzzy" />
     </div>
 
     <button
@@ -36,7 +42,7 @@ import { CircleXIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 
 defineProps<{
-  label: string;
+  label?: string;
   rowIndex: number;
 }>();
 

@@ -1,5 +1,5 @@
 <template>
-  <BaseFilterByGlobalFieldRow
+  <BaseFilterRow
     label="Any Date"
     :rowIndex="rowIndex"
     @remove="searchStore.removeDateRangeFilter"
@@ -26,12 +26,12 @@
         :placeholder="`End Date`"
       />
     </div>
-  </BaseFilterByGlobalFieldRow>
+  </BaseFilterRow>
 </template>
 <script setup lang="ts">
 import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import BaseFilterByGlobalFieldRow from "./BaseFilterByGlobalFieldRow.vue";
+import BaseFilterRow from "./BaseFilterRow.vue";
 
 defineProps<{
   rowIndex: number;

@@ -1,5 +1,5 @@
 <template>
-  <BaseFilterByGlobalFieldRow
+  <BaseFilterRow
     label="File Type"
     :rowIndex="rowIndex"
     @remove="searchStore.removeFileTypeFilter"
@@ -13,11 +13,11 @@
         {{ opt.label }}
       </option>
     </select>
-  </BaseFilterByGlobalFieldRow>
+  </BaseFilterRow>
 </template>
 <script setup lang="ts">
 import { GlobalSearchableFileType } from "@/types";
-import BaseFilterByGlobalFieldRow from "./BaseFilterByGlobalFieldRow.vue";
+import BaseFilterRow from "./BaseFilterRow.vue";
 import { useSearchStore } from "@/stores/searchStore";
 
 defineProps<{

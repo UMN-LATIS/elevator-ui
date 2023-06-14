@@ -1,5 +1,5 @@
 <template>
-  <BaseFilterByGlobalFieldRow
+  <BaseFilterRow
     v-if="searchStore.filterBy.globalLocation"
     :rowIndex="rowIndex"
     label="Any Location"
@@ -68,7 +68,7 @@
         Radius must be a number greater than 0.
       </p>
     </div>
-  </BaseFilterByGlobalFieldRow>
+  </BaseFilterRow>
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
@@ -80,7 +80,7 @@ import config from "@/config";
 import { GeoJSONSource, Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import turfCircle from "@turf/circle";
 import InputGroup from "../InputGroup/InputGroup.vue";
-import BaseFilterByGlobalFieldRow from "./BaseFilterByGlobalFieldRow.vue";
+import BaseFilterRow from "./BaseFilterRow.vue";
 
 defineProps<{
   rowIndex: number;
