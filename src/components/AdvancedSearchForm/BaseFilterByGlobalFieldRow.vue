@@ -14,9 +14,9 @@
     >
       {{ searchOperator }}
     </Button>
-    <p class="filter-row__name text-sm p-2">{{ fieldName }}</p>
+    <p class="filter-row__name text-sm p-2">{{ label }}</p>
 
-    <div class="filter-row__value flex flex-col sm:flex-row gap-1 text-sm">
+    <div class="filter-row__value text-sm">
       <slot />
     </div>
 
@@ -36,7 +36,7 @@ import { CircleXIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 
 defineProps<{
-  fieldName: string;
+  label: string;
   rowIndex: number;
 }>();
 
