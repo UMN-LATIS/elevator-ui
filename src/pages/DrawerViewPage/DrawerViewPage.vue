@@ -1,68 +1,71 @@
 <template>
   <DefaultLayout class="drawer-view-page">
-    <div class="px-4">
-      <header class="my-8">
-        <Link :to="`/drawers/listDrawers`" class="flex items-center gap-1 mb-4">
-          <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
-          Back to Drawers
-        </Link>
-        <h2 class="text-4xl font-bold">{{ drawerTitle }}</h2>
-      </header>
+    <Transition name="fade">
+      <div v-if="fetchStatus === 'success'" class="px-4">
+        <header class="my-8">
+          <Link
+            :to="`/drawers/listDrawers`"
+            class="flex items-center gap-1 mb-4"
+          >
+            <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
+            Back to Drawers
+          </Link>
+          <h2 class="text-4xl font-bold">{{ drawerTitle }}</h2>
+        </header>
 
-      <Tabs
-        labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
-        :activeTabId="activeTabId"
-        @tabChange="handleTabChange"
-      >
-        <div
-          class="sm:flex items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
+        <Tabs
+          labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
+          :activeTabId="activeTabId"
+          @tabChange="handleTabChange"
         >
-          <ResultsCount
-            class="mb-2 sm:mb-0"
-            :total="totalResults"
-            :fetchStatus="fetchStatus"
-            :showingCount="results.length"
-            @loadMore="handleLoadMore"
-            @loadAll="handleLoadAll"
-          />
-        </div>
-        <Tab id="grid" label="Grid">
-          <SearchResultsGrid
-            :totalResults="results.length"
-            :matches="results"
-            :status="fetchStatus"
-          />
-        </Tab>
-        <Tab id="list" label="List">
-          <SearchResultsList
-            :totalResults="results.length"
-            :matches="results"
-            :status="fetchStatus"
-          />
-        </Tab>
-        <Tab id="timeline" label="Timeline">
-          <SearchResultsTimeline
-            :totalResults="results.length"
-            :matches="results"
-            :status="fetchStatus"
-          />
-        </Tab>
-        <Tab id="map" label="Map">
-          <SearchResultsMap
-            :totalResults="results.length"
-            :matches="results"
-            :status="fetchStatus"
-          />
-        </Tab>
-        <Tab id="gallery" label="Gallery">
-          <SearchResultsGallery
-            :totalResults="results.length"
-            :matches="results"
-            :status="fetchStatus"
-          />
-        </Tab>
-      </Tabs>
-    </div>
+          <div class="bg-transparent-black-50 rounded-md mb-4">
+            <ResultsCount
+              class="mb-2 sm:mb-0 p-2"
+              :total="totalResults"
+              :fetchStatus="fetchStatus"
+              :showingCount="results.length"
+              @loadMore="handleLoadMore"
+              @loadAll="handleLoadAll"
+            />
+          </div>
+          <Tab id="grid" label="Grid">
+            <SearchResultsGrid
+              :totalResults="results.length"
+              :matches="results"
+              :status="fetchStatus"
+            />
+          </Tab>
+          <Tab id="list" label="List">
+            <SearchResultsList
+              :totalResults="results.length"
+              :matches="results"
+              :status="fetchStatus"
+            />
+          </Tab>
+          <Tab id="timeline" label="Timeline">
+            <SearchResultsTimeline
+              :totalResults="results.length"
+              :matches="results"
+              :status="fetchStatus"
+            />
+          </Tab>
+          <Tab id="map" label="Map">
+            <SearchResultsMap
+              :totalResults="results.length"
+              :matches="results"
+              :status="fetchStatus"
+            />
+          </Tab>
+          <Tab id="gallery" label="Gallery">
+            <SearchResultsGallery
+              :totalResults="results.length"
+              :matches="results"
+              :status="fetchStatus"
+            />
+          </Tab>
+        </Tabs>
+      </div>
+    </Transition>
   </DefaultLayout>
 </template>
 <script setup lang="ts">

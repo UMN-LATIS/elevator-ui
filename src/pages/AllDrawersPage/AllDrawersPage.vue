@@ -1,38 +1,40 @@
 <template>
   <DefaultLayout>
-    <div class="p-8 px-4">
-      <h1 class="text-4xl font-bold my-8">Drawers</h1>
-      <!-- <nav class="mb-4">
+    <Transition name="fade">
+      <div v-if="fetchStatus === 'success'" class="p-8 px-4">
+        <h1 class="text-4xl font-bold my-8">Drawers</h1>
+        <!-- <nav class="mb-4">
         <Button @click="handleCreateDrawer">Create Drawer</Button>
       </nav> -->
-      <div ref="gridContainer" class="grid grid-cols-2 gap-2">
-        <article
-          v-for="drawer in drawers"
-          :key="drawer.id"
-          class="bg-white rounded-lg p-4 relative"
-        >
-          <h2 class="mr-6">
-            <Link :to="`/drawers/viewDrawer/${drawer.id}`"
-              >{{ drawer.title }}
-            </Link>
-          </h2>
+        <div ref="gridContainer" class="grid grid-cols-2 gap-2">
+          <article
+            v-for="drawer in drawers"
+            :key="drawer.id"
+            class="bg-white rounded-lg p-4 relative"
+          >
+            <h2 class="mr-6">
+              <Link :to="`/drawers/viewDrawer/${drawer.id}`"
+                >{{ drawer.title }}
+              </Link>
+            </h2>
 
-          <!-- <button
+            <!-- <button
             class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center hover:text-red-600"
             type="button"
             @click="handleRemoveDrawer(drawer.id)"
           >
             <CircleXIcon class="!w-5 !h-5" />
           </button> -->
-        </article>
+          </article>
+        </div>
       </div>
-    </div>
+    </Transition>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { Drawer } from "@/types";
+import { Drawer, FetchStatus } from "@/types";
 import api from "@/api";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
@@ -42,6 +44,7 @@ import { useResizeObserver } from "@vueuse/core";
 const gridContainer = ref<HTMLElement | null>(null);
 const drawers = ref<Drawer[]>([]);
 const numCols = ref(1);
+const fetchStatus = ref<FetchStatus>("idle");
 
 // by default, css grid will order the items by left-to-right,
 // then top-to-bottom. This makes is difficult to read:
@@ -72,7 +75,9 @@ function handleRemoveDrawer(drawerId: string) {
 }
 
 onMounted(async () => {
+  fetchStatus.value = "fetching";
   drawers.value = await api.getDrawers();
+  fetchStatus.value = "success";
 });
 </script>
 <style scoped>
