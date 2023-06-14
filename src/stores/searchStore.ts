@@ -11,6 +11,7 @@ import {
   SearchRequestOptions,
   SpecificFieldSearchItem,
   WidgetType,
+  GlobalSearchableFileType,
 } from "@/types";
 import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
@@ -41,6 +42,10 @@ export interface SearchStoreState {
       lng: string; // -180 to 180
       lat: string; // -90 to 90
       radius: string; // in miles
+      createdAt: string;
+    };
+    globalFileType: null | {
+      fileType: GlobalSearchableFileType;
       createdAt: string;
     };
     includeHiddenAssets: boolean; // only available for admins
@@ -77,6 +82,7 @@ const createState = (): SearchStoreState => ({
     searchableFieldsOperator: "AND",
     globalDateRange: null,
     globalLocation: null,
+    globalFileType: null,
     includeHiddenAssets: false,
   }),
   matches: ref([]),
@@ -117,13 +123,18 @@ const getters = (state: SearchStoreState) => ({
     return state.filterBy.globalLocation !== null;
   }),
 
+  hasFileTypeFilter: computed(() => {
+    return state.filterBy.globalFileType !== null;
+  }),
+
   filteredByCount: computed((): number => {
     return (
       state.filterBy.collectionIds.length +
       state.filterBy.specificFieldsMap.size +
       (state.filterBy.globalDateRange ? 1 : 0) +
       (state.filterBy.globalLocation ? 1 : 0) +
-      (state.filterBy.includeHiddenAssets ? 1 : 0)
+      (state.filterBy.includeHiddenAssets ? 1 : 0) +
+      (state.filterBy.globalFileType ? 1 : 0)
     );
   }),
 
@@ -136,7 +147,8 @@ const getters = (state: SearchStoreState) => ({
   globalFieldFilterCount: computed((): number => {
     return (
       (state.filterBy.globalDateRange ? 1 : 0) +
-      (state.filterBy.globalLocation ? 1 : 0)
+      (state.filterBy.globalLocation ? 1 : 0) +
+      (state.filterBy.globalFileType ? 1 : 0)
     );
   }),
 
@@ -148,11 +160,7 @@ const getters = (state: SearchStoreState) => ({
   }),
 
   hasFieldFiltersApplied: computed((): boolean => {
-    return (
-      state.filterBy.specificFieldsMap.size > 0 ||
-      state.filterBy.globalDateRange !== null ||
-      state.filterBy.globalLocation !== null
-    );
+    return getters(state).totalFieldFilterCount.value > 0;
   }),
 
   globalDateRangeAsFilter: computed(
@@ -188,6 +196,20 @@ const getters = (state: SearchStoreState) => ({
       }),
       isFuzzy: false,
       createdAt: state.filterBy.globalLocation.createdAt,
+    };
+  }),
+
+  globalFileTypeAsFilter: computed((): SearchableSpecificFieldFilter | null => {
+    if (!state.filterBy.globalFileType) {
+      return null;
+    }
+
+    return {
+      id: GLOBAL_FIELD_IDS.FILE_TYPE,
+      fieldId: GLOBAL_FIELD_IDS.FILE_TYPE,
+      value: state.filterBy.globalFileType.fileType,
+      isFuzzy: false,
+      createdAt: state.filterBy.globalFileType.createdAt,
     };
   }),
 
@@ -227,6 +249,7 @@ const getters = (state: SearchStoreState) => ({
       longitude: state.filterBy.globalLocation?.lng ?? "",
       latitude: state.filterBy.globalLocation?.lat ?? "",
       distance: state.filterBy.globalLocation?.radius ?? "",
+      fileTypesSearch: state.filterBy.globalFileType?.fileType,
       showHidden: state.filterBy.includeHiddenAssets ? "on" : undefined,
     };
   }),
@@ -345,6 +368,32 @@ const actions = (state: SearchStoreState) => ({
     };
   },
 
+  addFileTypeFilter(fileType: GlobalSearchableFileType) {
+    state.filterBy.globalFileType = {
+      fileType,
+      createdAt: new Date().toISOString(),
+    };
+  },
+
+  updateFileTypeFilter(fileType: GlobalSearchableFileType) {
+    const currentFileType = state.filterBy.globalFileType;
+
+    if (!currentFileType) {
+      throw new Error(
+        "Cannot update file type filter. No file type filter exists."
+      );
+    }
+
+    state.filterBy.globalFileType = {
+      ...currentFileType,
+      fileType,
+    };
+  },
+
+  removeFileTypeFilter() {
+    state.filterBy.globalFileType = null;
+  },
+
   getSearchableFieldFilter(
     filterId: string
   ): SearchableSpecificFieldFilter | null {
@@ -424,6 +473,7 @@ const actions = (state: SearchStoreState) => ({
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.globalDateRange = null;
     state.filterBy.globalLocation = null;
+    state.filterBy.globalFileType = null;
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {
@@ -568,6 +618,16 @@ const actions = (state: SearchStoreState) => ({
             };
           } else {
             state.filterBy.globalLocation = null;
+          }
+
+          // set the file type filter if included
+          if (res.searchEntry?.fileTypesSearch) {
+            state.filterBy.globalFileType = {
+              fileType: res.searchEntry.fileTypesSearch,
+              createdAt: new Date().toISOString(),
+            };
+          } else {
+            state.filterBy.globalFileType = null;
           }
 
           // set the include hidden assets filter if included
