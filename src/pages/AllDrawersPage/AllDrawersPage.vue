@@ -2,15 +2,29 @@
   <DefaultLayout>
     <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Drawers</h1>
+      <nav class="mb-4">
+        <Button @click="handleCreateDrawer">Create Drawer</Button>
+      </nav>
       <div ref="gridContainer" class="grid grid-cols-2 gap-2">
-        <Link
+        <article
           v-for="drawer in drawers"
           :key="drawer.id"
-          :to="`/drawers/viewDrawer/${drawer.id}`"
-          class="bg-white rounded-lg p-4"
+          class="bg-white rounded-lg p-4 relative"
         >
-          {{ drawer.title }}
-        </Link>
+          <h2 class="mr-6">
+            <Link :to="`/drawers/viewDrawer/${drawer.id}`"
+              >{{ drawer.title }}
+            </Link>
+          </h2>
+
+          <button
+            class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center hover:text-red-600"
+            type="button"
+            @click="handleRemoveDrawer(drawer.id)"
+          >
+            <CircleXIcon class="!w-5 !h-5" />
+          </button>
+        </article>
       </div>
     </div>
   </DefaultLayout>
@@ -21,7 +35,9 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { Drawer } from "@/types";
 import api from "@/api";
 import Link from "@/components/Link/Link.vue";
+import Button from "@/components/Button/Button.vue";
 import { useResizeObserver } from "@vueuse/core";
+import CircleXIcon from "@/icons/CircleXIcon.vue";
 
 const gridContainer = ref<HTMLElement | null>(null);
 const drawers = ref<Drawer[]>([]);
@@ -46,6 +62,14 @@ useResizeObserver(gridContainer, (entries) => {
 const numRows = computed(() => {
   return Math.ceil(drawers.value.length / numCols.value);
 });
+
+function handleCreateDrawer() {
+  console.log("create drawer");
+}
+
+function handleRemoveDrawer(drawerId: string) {
+  console.log("remove drawer", drawerId);
+}
 
 onMounted(async () => {
   drawers.value = await api.getDrawers();
