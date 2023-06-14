@@ -14,9 +14,11 @@
     >
       {{ searchOperator }}
     </Button>
-    <slot name="label">
-      <p class="filter-row__name text-sm p-2">{{ label }}</p>
-    </slot>
+    <div class="filter-row__name text-sm">
+      <slot name="label">
+        <p class="p-2">{{ label }}</p>
+      </slot>
+    </div>
 
     <div class="filter-row__value text-sm">
       <slot />
