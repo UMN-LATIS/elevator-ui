@@ -698,3 +698,10 @@ export type GlobalSearchableFileType =
   | "zipobj"
   | "zipmeddicom"
   | "zipscorm";
+
+export interface Drawer {
+  id: string;
+  title: string;
+}
+
+export type ApiDrawerResponse = Record<string, { title: string }>;

@@ -18,6 +18,7 @@ import type {
   LocalLoginResponse,
   ApiGetFieldInfoResponse,
   SearchableSpecificField,
+  ApiDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -247,6 +248,14 @@ export async function fetchSearchableFieldInfo<T = ApiGetFieldInfoResponse>(
   formdata.append("template", String(field.template));
 
   const res = await axios.post<T>(`${BASE_URL}/search/getFieldInfo`, formdata);
+
+  return res.data;
+}
+
+export async function fetchDrawers(): Promise<ApiDrawerResponse> {
+  const res = await axios.get<ApiDrawerResponse>(
+    `${BASE_URL}/drawers/listDrawers/true`
+  );
 
   return res.data;
 }

@@ -1,28 +1,30 @@
 <template>
   <DefaultLayout>
-    <div class="collections-page p-8 px-4">
+    <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Drawers</h1>
-      <div ref="collectionGrid" class="grid">
-        <DrawerItem
-          v-for="collection in collections"
-          :key="collection.id"
-          :collection="collection"
-        />
+      <div ref="gridContainer" class="grid grid-cols-2 gap-2">
+        <Link
+          v-for="drawer in drawers"
+          :key="drawer.id"
+          :to="`/drawers/viewDrawer/${drawer.id}`"
+          class="bg-white rounded-lg p-4"
+        >
+          {{ drawer.title }}
+        </Link>
       </div>
     </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import DrawerItem from "./DrawerItem.vue";
+import { onMounted, ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { Drawer } from "@/types";
+import api from "@/api";
+import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
 
-const instanceStore = useInstanceStore();
-const collectionGrid = ref<HTMLElement | null>(null);
-
-const collections = computed(() => instanceStore.collections);
+const gridContainer = ref<HTMLElement | null>(null);
+const drawers = ref<Drawer[]>([]);
 const numCols = ref(1);
 
 // by default, css grid will order the items by left-to-right,
@@ -32,7 +34,7 @@ const numCols = ref(1);
 // once we know the number of rows and columns, we can
 // use css grid and set grid-auto-flow to column
 // to achieve this.
-useResizeObserver(collectionGrid, (entries) => {
+useResizeObserver(gridContainer, (entries) => {
   const [entry] = entries;
   const { width } = entry.contentRect;
   if (width < 640) numCols.value = 1;
@@ -42,8 +44,11 @@ useResizeObserver(collectionGrid, (entries) => {
 });
 
 const numRows = computed(() => {
-  const numCollections = collections.value.length;
-  return Math.ceil(numCollections / numCols.value);
+  return Math.ceil(drawers.value.length / numCols.value);
+});
+
+onMounted(async () => {
+  drawers.value = await api.getDrawers();
 });
 </script>
 <style scoped>

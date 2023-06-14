@@ -15,6 +15,7 @@ import {
   SearchableCheckboxField,
   SearchableMultiSelectField,
   TreeNode,
+  Drawer,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -232,6 +233,28 @@ async function getSearchableMultiSelectFieldValues(
   return data?.rawContent ?? {};
 }
 
+let listOfDrawers: null | Drawer[] = null;
+async function getDrawers(): Promise<Drawer[]> {
+  // return cached data if it exists
+  if (listOfDrawers) {
+    return listOfDrawers;
+  }
+
+  // otherwise fetch it
+  const data = await fetchers.fetchDrawers();
+
+  // the data is an object, so we need to convert it to an array
+  // and add the key as the id
+  listOfDrawers = Object.entries(data)
+    .map(([key, value]) => ({
+      id: key,
+      ...value,
+    }))
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  return listOfDrawers;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -251,6 +274,7 @@ const api = {
   getSearchableSelectFieldValues,
   getSearchableCheckboxFieldValues,
   getSearchableMultiSelectFieldValues,
+  getDrawers,
 };
 
 export default api;
