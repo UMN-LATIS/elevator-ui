@@ -1,7 +1,7 @@
 <template>
   <select
     :value="selectedOption"
-    class="rounded-md"
+    class="rounded-md border-neutral-200"
     @change="handleSelectChange"
   >
     <option value="boolean_true">{{ trueLabel }}</option>
