@@ -69,35 +69,6 @@
       </p>
     </div>
   </BaseFilterByGlobalFieldRow>
-  <!-- <div
-    v-if="searchStore.filterBy.globalLocation"
-    class="filter-row"
-    :class="{
-      'filter-row--is-only-row': searchStore.totalFieldFilterCount === 1,
-      'filter-row--is-first-row': rowIndex === 0,
-    }"
-  >
-    <Button
-      class="text-xs filter-row__operator"
-      variant="tertiary"
-      type="button"
-      @click="handleSearchOperatorClick"
-    >
-      {{ searchOperator }}
-    </Button>
-    <p class="filter-row__name text-sm p-2 self-start">Any Location</p>
-    <div class="filter-row__value">
-
-    </div>
-
-    <button
-      class="filter-row__remove py-2 self-start w-full flex items-center justify-center"
-      type="button"
-      @click="handleRemoveFilter"
-    >
-      <CircleXIcon class="!w-5 !h-5" />
-    </button>
-  </div> -->
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
