@@ -8,7 +8,7 @@ import SearchResultsPage from "./pages/SearchResultsPage/SearchResultsPage.vue";
 import LocalLoginPage from "./pages/LocalLoginPage/LocalLoginPage.vue";
 import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
 import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
-import { useSearchStore } from "./stores/searchStore";
+import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -75,6 +75,11 @@ const router = createRouter({
       props: (route) => ({
         collectionId: parseIntFromParam(route.params.collectionId),
       }),
+    },
+    {
+      name: "listDrawers",
+      path: "drawers/listDrawers",
+      component: AllDrawersPage,
     },
     {
       name: "search",
