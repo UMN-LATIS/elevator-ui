@@ -26,6 +26,10 @@
           v-else-if="filter.fieldId === GLOBAL_FIELD_IDS.LOCATION"
           :rowIndex="index"
         />
+        <FilterByGlobalFileTypeRow
+          v-else-if="filter.fieldId === GLOBAL_FIELD_IDS.FILE_TYPE"
+          :rowIndex="index"
+        />
         <FilterBySpecificFieldsRow v-else :filter="filter" :rowIndex="index" />
       </div>
     </div>
@@ -62,6 +66,13 @@
             >
               Any Location
             </AdvSearchDropDownItem>
+            <AdvSearchDropDownItem
+              class="flex items-center cursor-pointer aria-disabled:opacity-25"
+              :disabled="searchStore.hasFileTypeFilter"
+              @click="searchStore.addFileTypeFilter()"
+            >
+              Any File Type
+            </AdvSearchDropDownItem>
           </div>
         </div>
       </AdvSearchDropDown>
@@ -78,6 +89,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import FilterBySpecificFieldsRow from "./FilterBySpecificFieldsRow.vue";
 import FilterByGlobalDateRow from "./FilterByGlobalDateRow.vue";
 import FilterByGlobalLocationRow from "./FilterByGlobalLocationRow.vue";
+import FilterByGlobalFileTypeRow from "./FilterByGlobalFileTypeRow.vue";
 import type { SearchableSpecificFieldFilter } from "@/types";
 import { GLOBAL_FIELD_IDS } from "@/constants/constants";
 
@@ -91,11 +103,19 @@ const supportedSearchableFields = computed(() => {
 });
 
 const activeGlobalFilters = computed((): SearchableSpecificFieldFilter[] => {
-  const { globalDateRangeAsFilter, globalLocationAsFilter } = searchStore;
+  const {
+    globalDateRangeAsFilter,
+    globalLocationAsFilter,
+    globalFileTypeAsFilter,
+  } = searchStore;
 
   // if either filter is null, remove them from our list
-  return [globalDateRangeAsFilter, globalLocationAsFilter].filter(
-    (filter): filter is SearchableSpecificFieldFilter => Boolean(filter)
+  return [
+    globalDateRangeAsFilter,
+    globalLocationAsFilter,
+    globalFileTypeAsFilter,
+  ].filter((filter): filter is SearchableSpecificFieldFilter =>
+    Boolean(filter)
   );
 });
 

@@ -353,6 +353,7 @@ export interface SearchEntry {
   longitude?: string;
   latitude?: string;
   distance?: string; // radius to search in miles
+  fileTypesSearch?: GlobalSearchableFileType;
 }
 
 export interface SearchSortOptions {
@@ -684,3 +685,16 @@ export interface SearchableCheckboxFieldFilter
   extends SearchableSpecificFieldFilter {
   value: "boolean_true" | "boolean_false";
 }
+
+export type GlobalSearchableFileType =
+  | ""
+  | "image"
+  | "movie"
+  | "audio"
+  | "office"
+  | "txt"
+  | "pdf"
+  | "ply"
+  | "zipobj"
+  | "zipmeddicom"
+  | "zipscorm";

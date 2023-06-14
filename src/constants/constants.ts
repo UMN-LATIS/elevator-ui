@@ -31,4 +31,5 @@ export const SORT_KEYS = {
 export const GLOBAL_FIELD_IDS = {
   DATE_RANGE: "GLOBAL_DATE_RANGE",
   LOCATION: "GLOBAL_LOCATION",
+  FILE_TYPE: "GLOBAL_FILE_TYPE",
 } as const;
