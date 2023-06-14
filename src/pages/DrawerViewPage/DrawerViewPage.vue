@@ -28,7 +28,7 @@
             :status="fetchStatus"
           />
         </Tab>
-        <!-- <Tab id="timeline" label="Timeline">
+        <Tab id="timeline" label="Timeline">
           <SearchResultsTimeline
             :totalResults="results.length"
             :matches="results"
@@ -48,7 +48,7 @@
             :matches="results"
             :status="fetchStatus"
           />
-        </Tab> -->
+        </Tab>
       </Tabs>
     </div>
   </DefaultLayout>
@@ -61,6 +61,9 @@ import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
+import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
+import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
+import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
 import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 import Link from "@/components/Link/Link.vue";
 import {
