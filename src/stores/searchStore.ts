@@ -368,9 +368,9 @@ const actions = (state: SearchStoreState) => ({
     };
   },
 
-  addFileTypeFilter(fileType: GlobalSearchableFileType) {
+  addFileTypeFilter() {
     state.filterBy.globalFileType = {
-      fileType,
+      fileType: "",
       createdAt: new Date().toISOString(),
     };
   },
