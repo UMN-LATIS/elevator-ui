@@ -9,6 +9,7 @@
       v-model="searchStore.filterBy.globalFileType.fileType"
       class="rounded-md w-full text-sm"
     >
+      <option value="">All</option>
       <option v-for="opt in sortedOptions" :key="opt.label" :value="opt.value">
         {{ opt.label }}
       </option>
@@ -32,10 +33,6 @@ interface FileTypeOption {
 }
 
 const fileTypeOptions: FileTypeOption[] = [
-  {
-    label: "All",
-    value: "",
-  },
   {
     label: "Image",
     value: "image",
