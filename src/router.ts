@@ -78,7 +78,7 @@ const router = createRouter({
     },
     {
       name: "listDrawers",
-      path: "drawers/listDrawers",
+      path: "/drawers/listDrawers",
       component: AllDrawersPage,
     },
     {
