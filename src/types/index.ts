@@ -704,4 +704,9 @@ export interface Drawer {
   title: string;
 }
 
-export type ApiDrawerResponse = Record<string, { title: string }>;
+export type ApiListDrawersResponse = Record<string, { title: string }>;
+
+export interface ApiGetDrawerResponse extends SearchResultsResponse {
+  drawerId: number;
+  drawerTitle: string;
+}

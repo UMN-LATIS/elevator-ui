@@ -18,7 +18,8 @@ import type {
   LocalLoginResponse,
   ApiGetFieldInfoResponse,
   SearchableSpecificField,
-  ApiDrawerResponse,
+  ApiListDrawersResponse as ApiListDrawersResponse,
+  ApiGetDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -252,9 +253,19 @@ export async function fetchSearchableFieldInfo<T = ApiGetFieldInfoResponse>(
   return res.data;
 }
 
-export async function fetchDrawers(): Promise<ApiDrawerResponse> {
-  const res = await axios.get<ApiDrawerResponse>(
+export async function fetchDrawers(): Promise<ApiListDrawersResponse> {
+  const res = await axios.get<ApiListDrawersResponse>(
     `${BASE_URL}/drawers/listDrawers/true`
+  );
+
+  return res.data;
+}
+
+export async function fetchDrawer(
+  drawerId: number
+): Promise<ApiGetDrawerResponse> {
+  const res = await axios.get<ApiGetDrawerResponse>(
+    `${BASE_URL}/drawers/getDrawer/${drawerId}`
   );
 
   return res.data;

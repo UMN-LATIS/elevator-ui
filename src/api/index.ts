@@ -16,6 +16,7 @@ import {
   SearchableMultiSelectField,
   TreeNode,
   Drawer,
+  ApiGetDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -34,6 +35,7 @@ const collectionDescriptions = new Map<number, string | null>();
 const collectionSearchIds = new Map<number, string | null>();
 const staticPages = new Map<number, ApiStaticPageResponse | null>();
 const searchableFieldDetails = new Map<string, ApiGetFieldInfoResponse>();
+const drawerDetails = new Map<number, ApiGetDrawerResponse | null>();
 
 async function getAsset(assetId: string): Promise<Asset | null> {
   if (!assetId) return null;
@@ -255,6 +257,15 @@ async function getDrawers(): Promise<Drawer[]> {
   return listOfDrawers;
 }
 
+export async function getDrawer(id: number): Promise<ApiGetDrawerResponse> {
+  const data = drawerDetails.get(id) ?? (await fetchers.fetchDrawer(id));
+
+  // cache the response
+  drawerDetails.set(id, data);
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -275,6 +286,7 @@ const api = {
   getSearchableCheckboxFieldValues,
   getSearchableMultiSelectFieldValues,
   getDrawers,
+  getDrawer,
 };
 
 export default api;
