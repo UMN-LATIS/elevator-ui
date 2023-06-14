@@ -91,6 +91,11 @@
               (searchStore.totalResults ?? 0) > 6
             "
             class="mt-4"
+            :fetchStatus="searchStore.status"
+            :showingCount="searchStore.matches.length"
+            :total="searchStore.totalResults ?? 0"
+            @loadMore="searchStore.loadMore"
+            @loadAll="searchStore.loadMore({ loadAll: true })"
           />
         </Tabs>
       </template>

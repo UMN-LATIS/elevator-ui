@@ -678,7 +678,7 @@ const actions = (state: SearchStoreState) => ({
     }
 
     if (!getters(state).hasMoreResults.value) {
-      console.log("cannot load more results, already at the end");
+      console.error("cannot load more results, already at the end");
       return;
     }
 

@@ -66,7 +66,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Tab from "@/components/Tabs/Tab.vue";
