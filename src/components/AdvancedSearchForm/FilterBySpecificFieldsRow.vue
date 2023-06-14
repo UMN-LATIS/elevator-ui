@@ -2,7 +2,7 @@
   <BaseFilterRow :rowIndex="rowIndex" @remove="handleRemoveFilter">
     <template #label>
       <select
-        class="rounded-md text-sm filter-row__name w-full border-none bg-transparent"
+        class="rounded-md text-sm filter-row__name w-full border-neutral-200 bg-transparent"
         :value="currentField.id"
         @change="handleFieldChange"
       >
