@@ -14,6 +14,18 @@
         :activeTabId="activeTabId"
         @tabChange="handleTabChange"
       >
+        <div
+          class="sm:flex items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
+        >
+          <ResultsCount
+            class="mb-2 sm:mb-0"
+            :total="totalResults"
+            :fetchStatus="fetchStatus"
+            :showingCount="results.length"
+            @loadMore="handleLoadMore"
+            @loadAll="handleLoadAll"
+          />
+        </div>
         <Tab id="grid" label="Grid">
           <SearchResultsGrid
             :totalResults="results.length"
@@ -54,7 +66,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Tab from "@/components/Tabs/Tab.vue";
@@ -66,11 +78,13 @@ import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
 import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 import Link from "@/components/Link/Link.vue";
+import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import {
   SearchResultsView,
   Tab as TabType,
   FetchStatus,
   SearchResultMatch,
+  ApiGetDrawerResponse,
 } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import api from "@/api";
@@ -89,6 +103,7 @@ const drawerTitle = ref("");
 const activeTabId = ref<SearchResultsView>("grid");
 const results = ref<SearchResultMatch[]>([]);
 const fetchStatus = ref<FetchStatus>("idle");
+const totalResults = ref(0);
 
 type SearchViewTab = TabType & { id: SearchResultsView };
 const isValidTab = (tab: TabType): tab is SearchViewTab => {
@@ -111,10 +126,21 @@ function handleTabChange(tab: TabType) {
   });
 }
 
+function handleLoadMore() {
+  console.log("load more");
+}
+
+function handleLoadAll() {
+  console.log("load all");
+}
+
 onMounted(async () => {
+  fetchStatus.value = "fetching";
   const data = await api.getDrawer(props.drawerId);
   drawerTitle.value = data.drawerTitle;
   results.value = data.matches;
+  totalResults.value = data.totalResults;
+  fetchStatus.value = "success";
 });
 </script>
 <style scoped></style>
