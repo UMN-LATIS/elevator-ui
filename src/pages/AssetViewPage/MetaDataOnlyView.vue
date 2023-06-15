@@ -10,7 +10,11 @@
       </h2>
 
       <WidgetList v-if="assetId" :assetId="assetId" />
-      <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />
+      <MoreLikeThis
+        v-if="assetId"
+        :items="moreLikeThisItems"
+        listContainerClass="sm:!grid sm:!grid-cols-2"
+      />
     </article>
   </div>
 </template>
