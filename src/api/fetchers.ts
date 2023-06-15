@@ -18,7 +18,7 @@ import type {
   LocalLoginResponse,
   ApiGetFieldInfoResponse,
   SearchableSpecificField,
-  ApiListDrawersResponse as ApiListDrawersResponse,
+  ApiListDrawersResponse,
   ApiGetDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
