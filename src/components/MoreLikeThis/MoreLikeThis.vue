@@ -8,7 +8,7 @@
         <CountChip>{{ items.length }}</CountChip>
       </h3>
 
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2" :class="listContainerClass">
         <SearchResultCard
           v-for="searchMatch in inlineResultsList"
           :key="searchMatch.objectId"
@@ -55,8 +55,10 @@ import Modal from "../Modal/Modal.vue";
 import ButtonWithCount from "./ButtonWithCount.vue";
 import CountChip from "./CountChip.vue";
 
+type CSSClass = string | string[] | Record<string, boolean>;
 const props = defineProps<{
   items: SearchResultMatch[];
+  listContainerClass?: CSSClass;
 }>();
 
 const inlineResultsList = computed(() => {
