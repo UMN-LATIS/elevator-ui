@@ -50,11 +50,5 @@ function handleLoadMoreClick() {
   }
   emit("loadMore");
 }
-
-// const searchStore = useSearchStore();
-
-// const total = computed(() => searchStore.totalResults ?? 0);
-// const showingCount = computed(() => searchStore.matches.length);
-// const status = computed(() => searchStore.status);
 </script>
 <style scoped></style>

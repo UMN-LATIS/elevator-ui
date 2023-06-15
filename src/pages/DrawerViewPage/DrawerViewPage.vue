@@ -87,7 +87,6 @@ import {
   Tab as TabType,
   FetchStatus,
   SearchResultMatch,
-  ApiGetDrawerResponse,
 } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import api from "@/api";
