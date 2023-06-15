@@ -15,10 +15,7 @@
           Collections
         </AppMenuItem>
 
-        <AppMenuItem
-          v-if="currentUser"
-          :href="`${BASE_URL}/drawers/listDrawers`"
-        >
+        <AppMenuItem v-if="currentUser" to="/drawers/listDrawers">
           Drawers
         </AppMenuItem>
 

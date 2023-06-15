@@ -7,19 +7,19 @@
       <Button
         v-if="showingCount < total"
         variant="tertiary"
-        @click="searchStore.loadMore({ loadAll: true })"
+        @click="handleLoadMoreClick"
       >
         <slot name="loadMoreButtonLabel">
           Load {{ total - showingCount < 1000 ? "All" : "More" }}
         </slot>
         <SpinnerIcon
-          v-show="status === 'fetching'"
+          v-show="fetchStatus === 'fetching'"
           class="w-3 h-3 text-blue-600 ml-1"
         />
       </Button>
     </div>
     <p
-      v-if="status !== 'fetching' && total === 0"
+      v-if="fetchStatus !== 'fetching' && total === 0"
       class="text-sm text-neutral-500"
     >
       No results found.
@@ -27,14 +27,28 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { useSearchStore } from "@/stores/searchStore";
-const searchStore = useSearchStore();
+import { FetchStatus } from "@/types";
 
-const total = computed(() => searchStore.totalResults ?? 0);
-const showingCount = computed(() => searchStore.matches.length);
-const status = computed(() => searchStore.status);
+const props = defineProps<{
+  showingCount: number;
+  total: number;
+  fetchStatus: FetchStatus;
+}>();
+
+const emit = defineEmits<{
+  (eventName: "loadMore"): void;
+  (eventName: "loadAll"): void;
+}>();
+
+function handleLoadMoreClick() {
+  if (props.fetchStatus === "fetching") return;
+  if (props.total - props.showingCount < 1000) {
+    emit("loadAll");
+    return;
+  }
+  emit("loadMore");
+}
 </script>
 <style scoped></style>

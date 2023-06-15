@@ -15,6 +15,8 @@ import {
   SearchableCheckboxField,
   SearchableMultiSelectField,
   TreeNode,
+  Drawer,
+  ApiGetDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -33,6 +35,7 @@ const collectionDescriptions = new Map<number, string | null>();
 const collectionSearchIds = new Map<number, string | null>();
 const staticPages = new Map<number, ApiStaticPageResponse | null>();
 const searchableFieldDetails = new Map<string, ApiGetFieldInfoResponse>();
+const drawerDetails = new Map<number, ApiGetDrawerResponse | null>();
 
 async function getAsset(assetId: string): Promise<Asset | null> {
   if (!assetId) return null;
@@ -232,6 +235,37 @@ async function getSearchableMultiSelectFieldValues(
   return data?.rawContent ?? {};
 }
 
+let listOfDrawers: null | Drawer[] = null;
+async function getDrawers(): Promise<Drawer[]> {
+  // return cached data if it exists
+  if (listOfDrawers) {
+    return listOfDrawers;
+  }
+
+  // otherwise fetch it
+  const data = await fetchers.fetchDrawers();
+
+  // the data is an object, so we need to convert it to an array
+  // and add the key as the id
+  listOfDrawers = Object.entries(data)
+    .map(([key, value]) => ({
+      id: key,
+      ...value,
+    }))
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  return listOfDrawers;
+}
+
+export async function getDrawer(id: number): Promise<ApiGetDrawerResponse> {
+  const data = drawerDetails.get(id) ?? (await fetchers.fetchDrawer(id));
+
+  // cache the response
+  drawerDetails.set(id, data);
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -251,6 +285,8 @@ const api = {
   getSearchableSelectFieldValues,
   getSearchableCheckboxFieldValues,
   getSearchableMultiSelectFieldValues,
+  getDrawers,
+  getDrawer,
 };
 
 export default api;

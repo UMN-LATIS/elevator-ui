@@ -25,7 +25,6 @@ watch(
         `Cannot add marker ${props.id} for [${props.lng}, ${props.lat}]. Map context is null.`
       );
     }
-    console.log("rendering map marker", props);
 
     mapContext.createOrUpdateMarker({
       id: props.id,

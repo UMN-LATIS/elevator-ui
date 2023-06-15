@@ -19,11 +19,19 @@
           @tabChange="handleTabChange"
         >
           <div
-            class="sm:flex justify-between items-baseline bg-transparent-black-50 p-2 rounded-md mb-4"
+            class="sm:flex justify-between items-baseline bg-transparent-black-50 rounded-md mb-4"
           >
-            <ResultsCount class="mb-2 sm:mb-0" />
+            <ResultsCount
+              class="mb-2 sm:mb-0 p-2"
+              :fetchStatus="searchStore.status"
+              :showingCount="searchStore.matches.length"
+              :total="searchStore.totalResults ?? 0"
+              @loadMore="searchStore.loadMore"
+              @loadAll="searchStore.loadMore({ loadAll: true })"
+            />
             <SearchResultsSortSelect
               v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
+              class="p-2"
               :sortOptions="searchStore.sortOptions"
               :selectedSortOption="searchStore.sort"
               :searchQuery="
@@ -84,6 +92,11 @@
               (searchStore.totalResults ?? 0) > 6
             "
             class="mt-4"
+            :fetchStatus="searchStore.status"
+            :showingCount="searchStore.matches.length"
+            :total="searchStore.totalResults ?? 0"
+            @loadMore="searchStore.loadMore"
+            @loadAll="searchStore.loadMore({ loadAll: true })"
           />
         </Tabs>
       </template>
