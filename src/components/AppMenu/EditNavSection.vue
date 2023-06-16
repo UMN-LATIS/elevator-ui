@@ -1,7 +1,7 @@
 <template>
-  <AppMenuGroup v-if="currentUser?.canManageAssets" label="My Assets">
+  <AppMenuGroup v-if="currentUser?.canManageAssets" label="Manage Assets">
     <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
-      List Assets
+      All My Assets
     </AppMenuItem>
     <AppMenuItem to="/asset/create">Add Asset</AppMenuItem>
     <template v-if="assetId">
