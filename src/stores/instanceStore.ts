@@ -33,6 +33,7 @@ const createState = () => ({
     featuredAssetId: null,
     featuredAssetText: null,
     userCanSearchAndBrowse: false,
+    templates: [],
   }),
 });
 
