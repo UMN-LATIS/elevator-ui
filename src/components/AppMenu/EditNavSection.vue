@@ -3,23 +3,7 @@
     <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
       List Assets
     </AppMenuItem>
-    <DropDown
-      label="Add Asset"
-      class="edit-nav-section__add-asset-dropdown w-full"
-      labelClass="flex justify-between pr-0 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:bg-blue-100 hover:text-neutral-900 rounded-none"
-      chevronClass="add-asset-dropdown__chevron w-4 h-4 transform -rotate-90 text-neutral-400 transition"
-    >
-      <DropDownItem :disabled="true" class="italic text-neutral-400"
-        >Choose a template</DropDownItem
-      >
-      <DropDownItem
-        v-for="template in instanceStore.instance.templates"
-        :key="template.id"
-        @click="addAssetUsingTemplate(template.id)"
-      >
-        {{ template.name }}
-      </DropDownItem>
-    </DropDown>
+    <AppMenuItem to="/asset/create">Add Asset</AppMenuItem>
     <template v-if="assetId">
       <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
         Edit Asset
@@ -38,11 +22,11 @@ import AppMenuItem from "./AppMenuItem.vue";
 import Divider from "./Divider.vue";
 import config from "@/config";
 import { ElevatorInstance, User } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
+// import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
-import DropDown from "../DropDown/DropDown.vue";
-import DropDownItem from "../DropDown/DropDownItem.vue";
-import { submitHiddenForm } from "@/helpers/submitHiddenForm";
+// import DropDown from "../DropDown/DropDown.vue";
+// import DropDownItem from "../DropDown/DropDownItem.vue";
+// import { submitHiddenForm } from "@/helpers/submitHiddenForm";
 
 const BASE_URL = config.instance.base.url;
 
@@ -51,18 +35,6 @@ const props = defineProps<{
   instance: ElevatorInstance;
   assetId: string | null;
 }>();
-
-const instanceStore = useInstanceStore();
-
-function addAssetUsingTemplate(templateId: number) {
-  submitHiddenForm({
-    action: `${BASE_URL}/assetManager/addAsset`,
-    method: "POST",
-    inputs: {
-      templateId: templateId.toString(),
-    },
-  });
-}
 
 async function handleDeleteAssetClick() {
   if (!props.assetId) {

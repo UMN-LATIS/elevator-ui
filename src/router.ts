@@ -10,6 +10,7 @@ import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
 import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
+import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -57,6 +58,11 @@ const router = createRouter({
         assetId: route.params.assetId,
         objectId: route.hash?.substring(1),
       }),
+    },
+    {
+      name: "addAsset",
+      path: "/asset/create",
+      component: CreateAssetPage,
     },
     {
       name: "listCollections",
