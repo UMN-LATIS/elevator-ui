@@ -1,29 +1,32 @@
 <template>
   <Link :to="getAssetUrl(assetId)" class="group hover:no-underline relative">
-    <article
-      class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-blue-700"
-    >
-      <div
-        class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 p-4"
+    <Transition name="fade">
+      <article
+        v-if="asset"
+        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-blue-700"
       >
-        <LazyLoadImage
-          v-if="imgSrc"
-          :src="imgSrc"
-          :alt="title || 'Untitled'"
-          loading="lazy"
-          class="object-contain w-full h-full !bg-transparent"
-        />
-        <DocumentIcon v-else />
-      </div>
-      <div class="flex-1 p-4 flex justify-between items-center">
-        <h1
-          class="search-result-card__title font-bold leading-tight group-hover:text-blue-700 text-center"
+        <div
+          class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 p-4"
         >
-          <SanitizedHTML :html="title" />
-        </h1>
-        <ArrowForwardIcon class="group-hover:text-blue-700" />
-      </div>
-    </article>
+          <LazyLoadImage
+            v-if="imgSrc"
+            :src="imgSrc"
+            :alt="title || 'Untitled'"
+            loading="lazy"
+            class="object-contain w-full h-full !bg-transparent"
+          />
+          <DocumentIcon v-else />
+        </div>
+        <div class="flex-1 p-4 flex justify-between items-center">
+          <h1
+            class="search-result-card__title font-bold leading-tight group-hover:text-blue-700 text-center"
+          >
+            <SanitizedHTML :html="title" />
+          </h1>
+          <ArrowForwardIcon class="group-hover:text-blue-700" />
+        </div>
+      </article>
+    </Transition>
   </Link>
 </template>
 
