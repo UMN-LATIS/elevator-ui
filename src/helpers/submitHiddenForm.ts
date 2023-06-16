@@ -20,5 +20,7 @@ export const submitHiddenForm = ({
     form.appendChild(input);
   });
 
+  document.body.appendChild(form);
+
   form.submit();
 };
