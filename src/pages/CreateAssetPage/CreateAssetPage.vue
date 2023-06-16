@@ -9,7 +9,13 @@
         class="flex flex-col gap-4"
       >
         <label for="templateId">Choose a template </label>
-        <select id="templateId" name="templateId" class="rounded-md">
+        <select
+          id="templateId"
+          v-model="selectedTemplate"
+          name="templateId"
+          class="rounded-md"
+          required
+        >
           <option value="" disabled selected>--</option>
           <option
             v-for="template in instanceStore.instance.templates"
@@ -19,7 +25,11 @@
             {{ template.name }}
           </option>
         </select>
-        <Button type="submit" variant="primary" class="block my-4 w-full"
+        <Button
+          type="submit"
+          variant="primary"
+          class="block my-4 w-full"
+          :disabled="!selectedTemplate"
           >Add Asset</Button
         >
       </form>
@@ -27,6 +37,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
+import { ref } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
@@ -34,6 +45,8 @@ import config from "@/config";
 
 const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
+
+const selectedTemplate = ref<string | null>("");
 </script>
 <style scoped>
 .static-page__content {
