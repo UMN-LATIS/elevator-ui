@@ -22,11 +22,7 @@ import AppMenuItem from "./AppMenuItem.vue";
 import Divider from "./Divider.vue";
 import config from "@/config";
 import { ElevatorInstance, User } from "@/types";
-// import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
-// import DropDown from "../DropDown/DropDown.vue";
-// import DropDownItem from "../DropDown/DropDownItem.vue";
-// import { submitHiddenForm } from "@/helpers/submitHiddenForm";
 
 const BASE_URL = config.instance.base.url;
 
