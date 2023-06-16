@@ -3,31 +3,23 @@
     <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
       List Assets
     </AppMenuItem>
-    <!-- this goes to the legacy add asset page, so just use a plain form -->
-    <form
-      action="https://dev.elevator.umn.edu/defaultinstance/assetManager/addAsset"
-      method="POST"
-      role="form"
+    <DropDown
+      label="Add Asset"
+      class="edit-nav-section__add-asset-dropdown w-full"
+      labelClass="flex justify-between pr-0 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:bg-blue-100 hover:text-neutral-900 rounded-none"
+      chevronClass="add-asset-dropdown__chevron w-4 h-4 transform -rotate-90 text-neutral-400 transition"
     >
-      <DropDown
-        label="Add Asset"
-        class="edit-nav-section__add-asset-dropdown w-full"
-        labelClass="flex justify-between pr-0"
-        chevronClass="add-asset-dropdown__chevron w-4 h-4 transform -rotate-90 text-neutral-400 transition"
+      <DropDownItem :disabled="true" class="italic text-neutral-400"
+        >Choose a template</DropDownItem
       >
-        <DropDownItem disabled="true" class="italic text-neutral-400"
-          >Choose a template</DropDownItem
-        >
-        <DropDownItem
-          v-for="template in instanceStore.instance.templates"
-          :key="template.id"
-        >
-          <button type="submit" name="templateId" :value="template.id">
-            {{ template.name }}
-          </button>
-        </DropDownItem>
-      </DropDown>
-    </form>
+      <DropDownItem
+        v-for="template in instanceStore.instance.templates"
+        :key="template.id"
+        @click="addAssetUsingTemplate(template.id)"
+      >
+        {{ template.name }}
+      </DropDownItem>
+    </DropDown>
     <template v-if="assetId">
       <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
         Edit Asset
@@ -50,6 +42,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
 import DropDown from "../DropDown/DropDown.vue";
 import DropDownItem from "../DropDown/DropDownItem.vue";
+import { submitHiddenForm } from "@/helpers/submitHiddenForm";
 
 const BASE_URL = config.instance.base.url;
 
@@ -60,6 +53,16 @@ const props = defineProps<{
 }>();
 
 const instanceStore = useInstanceStore();
+
+function addAssetUsingTemplate(templateId: number) {
+  submitHiddenForm({
+    action: `${BASE_URL}/assetManager/addAsset`,
+    method: "POST",
+    inputs: {
+      templateId: templateId.toString(),
+    },
+  });
+}
 
 async function handleDeleteAssetClick() {
   if (!props.assetId) {
