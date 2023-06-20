@@ -5,58 +5,56 @@
   <Modal
     label="File Info"
     :isOpen="isFileInfoOpen"
-    class="max-w-4xl m-auto"
+    class="max-w-4xl m-auto h-[75vh]"
     @close="isFileInfoOpen = false"
   >
-    <div v-if="!isFileMetaDataReady">
-      <Skeleton v-for="index in 10" :key="index" />
-    </div>
+    <Transition name="fade">
+      <div v-if="isFileMetaDataReady">
+        <span v-if="!fileMetaData">No meta data found.</span>
 
-    <div v-if="isFileMetaDataReady">
-      <span v-if="!fileMetaData">No meta data found.</span>
+        <section v-if="fileMetaData?.exif" class="flex flex-col gap-6">
+          <Tuple label="File Type">
+            {{ fileMetaData.exif?.File?.FileType ?? "Unknown" }}
+          </Tuple>
+          <Tuple label="Original Name">
+            {{ fileMetaData.sourcefile ?? "Unknown" }}
+          </Tuple>
+          <Tuple label="File Size">
+            {{ fileMetaData.exif?.File?.FileSize ?? "Unknown" }}
+          </Tuple>
+          <Tuple label="Image Size">
+            {{ fileMetaData.width ?? "Unknown" }} x
+            {{ fileMetaData.height ?? "Unknonwn" }}
+          </Tuple>
+          <Tuple v-if="fileMetaData.coordinates" label="Location">
+            <div class="bg-neutral-200 p-4 rounded-xl">
+              <Map
+                :center="{
+                  lng: fileMetaData.coordinates[0],
+                  lat: fileMetaData.coordinates[1],
+                }"
+                :zoom="10"
+                mapStyle="streets"
+                :apiKey="config.arcgis.apiKey"
+                mapContainerClass="!h-[50vh]"
+              >
+                <MapMarker
+                  id="more-info-location-map-marker"
+                  :lng="fileMetaData.coordinates[0]"
+                  :lat="fileMetaData.coordinates[1]"
+                />
+              </Map>
+            </div>
+          </Tuple>
 
-      <section v-if="fileMetaData?.exif" class="flex flex-col gap-6">
-        <Tuple label="File Type">
-          {{ fileMetaData.exif?.File?.FileType ?? "Unknown" }}
-        </Tuple>
-        <Tuple label="Original Name">
-          {{ fileMetaData.sourcefile ?? "Unknown" }}
-        </Tuple>
-        <Tuple label="File Size">
-          {{ fileMetaData.exif?.File?.FileSize ?? "Unknown" }}
-        </Tuple>
-        <Tuple label="Image Size">
-          {{ fileMetaData.width ?? "Unknown" }} x
-          {{ fileMetaData.height ?? "Unknonwn" }}
-        </Tuple>
-        <Tuple v-if="fileMetaData.coordinates" label="Location">
-          <div class="bg-neutral-200 p-4 rounded-xl">
-            <Map
-              :center="{
-                lng: fileMetaData.coordinates[0],
-                lat: fileMetaData.coordinates[1],
-              }"
-              :zoom="10"
-              mapStyle="streets"
-              :apiKey="config.arcgis.apiKey"
-              mapContainerClass="!h-[50vh]"
-            >
-              <MapMarker
-                id="more-info-location-map-marker"
-                :lng="fileMetaData.coordinates[0]"
-                :lat="fileMetaData.coordinates[1]"
-              />
-            </Map>
-          </div>
-        </Tuple>
-
-        <h2 class="text-xl font-bold mt-6 border-t pt-6">EXIF Details</h2>
-        <pre>{{ fileMetaData.exif }}</pre>
-      </section>
-      <section v-else>
-        <pre>{{ fileMetaData }}</pre>
-      </section>
-    </div>
+          <h2 class="text-xl font-bold mt-6 border-t pt-6">EXIF Details</h2>
+          <pre>{{ fileMetaData.exif }}</pre>
+        </section>
+        <section v-else>
+          <pre>{{ fileMetaData }}</pre>
+        </section>
+      </div>
+    </Transition>
   </Modal>
 </template>
 <script setup lang="ts">
@@ -66,7 +64,6 @@ import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import api from "@/api";
 import { useAssetStore } from "@/stores/assetStore";
-import Skeleton from "../Skeleton/Skeleton.vue";
 import { computed } from "vue";
 import Tuple from "../Tuple/Tuple.vue";
 import config from "@/config";
