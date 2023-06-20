@@ -140,6 +140,20 @@ async function getSearchIdForCollection(collectionId: number): Promise<string> {
   return searchId;
 }
 
+export function resetCache() {
+  assets.clear();
+  templates.clear();
+  moreLikeThisMatches.clear();
+  fileMetaData.clear();
+  fileDownloadResponses.clear();
+  paginatedSearchResults.clear();
+  collectionDescriptions.clear();
+  collectionSearchIds.clear();
+  staticPages.clear();
+  searchableFieldDetails.clear();
+  drawerDetails.clear();
+}
+
 async function getSearchResultsById(
   searchId: string,
   page = 0,
@@ -287,6 +301,7 @@ const api = {
   getSearchableMultiSelectFieldValues,
   getDrawers,
   getDrawer,
+  resetCache,
 };
 
 export default api;

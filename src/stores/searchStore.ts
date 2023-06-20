@@ -549,6 +549,8 @@ const actions = (state: SearchStoreState) => ({
       });
   },
 
+  resetCache: api.resetCache,
+
   async search(searchId: string): Promise<string | void> {
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
