@@ -126,6 +126,7 @@ import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 import SearchErrorNotification from "./SearchErrorNotification.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = withDefaults(
   defineProps<{
@@ -256,6 +257,19 @@ watch(
     });
   },
   { immediate: true }
+);
+
+const instanceStore = useInstanceStore();
+// refresh search results if user status changes
+watch(
+  () => instanceStore.isLoggedIn,
+  () => {
+    // clear cached results
+    searchStore.resetCache();
+
+    // refresh
+    searchStore.search(props.searchId);
+  }
 );
 </script>
 <style scoped></style>
