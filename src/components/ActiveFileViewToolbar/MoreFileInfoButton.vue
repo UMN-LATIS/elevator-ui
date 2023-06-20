@@ -17,16 +17,17 @@
 
       <section v-if="fileMetaData?.exif" class="flex flex-col gap-6">
         <Tuple label="File Type">
-          {{ fileMetaData.exif.File.FileType }}
+          {{ fileMetaData.exif?.File?.FileType ?? "Unknown" }}
         </Tuple>
         <Tuple label="Original Name">
-          {{ fileMetaData.sourcefile }}
+          {{ fileMetaData.sourcefile ?? "Unknown" }}
         </Tuple>
         <Tuple label="File Size">
-          {{ fileMetaData.exif.File.FileSize }}
+          {{ fileMetaData.exif?.File?.FileSize ?? "Unknown" }}
         </Tuple>
         <Tuple label="Image Size">
-          {{ fileMetaData.width }}x{{ fileMetaData.height }}
+          {{ fileMetaData.width ?? "Unknown" }} x
+          {{ fileMetaData.height ?? "Unknonwn" }}
         </Tuple>
         <Tuple v-if="fileMetaData.coordinates" label="Location">
           <div class="bg-neutral-200 p-4 rounded-xl">
@@ -50,27 +51,10 @@
         </Tuple>
 
         <h2 class="text-xl font-bold mt-6 border-t pt-6">EXIF Details</h2>
-        <Accordion
-          v-for="(exifSectionProps, exifSectionLabel) in fileMetaData.exif"
-          :key="exifSectionLabel"
-          :label="exifSectionLabel"
-          class="border mt-6"
-        >
-          <Tuple
-            v-for="(value, key) in exifSectionProps"
-            :key="key"
-            :label="key"
-          >
-            {{ value }}
-          </Tuple>
-        </Accordion>
+        <pre>{{ fileMetaData.exif }}</pre>
       </section>
       <section v-else>
-        <div v-for="(value, key) in fileMetaData" :key="key" class="my-6">
-          <Tuple :label="key">
-            {{ value }}
-          </Tuple>
-        </div>
+        <pre>{{ fileMetaData }}</pre>
       </section>
     </div>
   </Modal>
@@ -85,7 +69,6 @@ import { useAssetStore } from "@/stores/assetStore";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { computed } from "vue";
 import Tuple from "../Tuple/Tuple.vue";
-import Accordion from "../Accordion/Accordion.vue";
 import config from "@/config";
 import InfoIcon from "@/icons/InfoIcon.vue";
 
