@@ -503,6 +503,7 @@ export interface ApiInstanceNavResponse {
   centralAuthLabel: string;
   collections: RawAssetCollection[];
   sortableFields: Record<string, RawSortableField>;
+  templates: Record<number, string>; // { templateId: templateName }
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
 }
@@ -535,6 +536,7 @@ export interface ElevatorInstance {
   // whether or not to show search and browse
   // may be true even if user is not logged in
   userCanSearchAndBrowse: boolean;
+  templates: { id: number; name: string }[];
 }
 
 export interface RawAssetCollection {

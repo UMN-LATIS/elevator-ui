@@ -14,6 +14,7 @@ export function selectInstanceFromResponse(
     featuredAssetId,
     featuredAssetText,
     userCanSearchAndBrowse,
+    templates,
   } = apiResponse;
 
   const logoImg = instanceHasLogo
@@ -26,6 +27,16 @@ export function selectInstanceFromResponse(
       }
     : null;
 
+  const templatesArray = Object.entries(templates)
+    .map(([id, name]) => ({
+      id: Number.parseInt(id),
+      name,
+    }))
+    // remove the empty template (has a label of [] for some reason)
+    .filter(({ name }) => typeof name === "string")
+    // sort by name
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   return {
     id: instanceId,
     name: instanceName ?? "Elevator",
@@ -36,5 +47,6 @@ export function selectInstanceFromResponse(
     featuredAssetId,
     featuredAssetText,
     userCanSearchAndBrowse,
+    templates: templatesArray,
   };
 }

@@ -48,13 +48,11 @@ import PagesNavSection from "./PagesNavSection.vue";
 import EditNavSection from "./EditNavSection.vue";
 import AdminNavSection from "./AdminNavSection.vue";
 import HelpNavSection from "./HelpNavSection.vue";
-import config from "@/config";
 
 const emit = defineEmits<{
   (eventName: "close"): void;
 }>();
 
-const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
 const assetStore = useAssetStore();
 

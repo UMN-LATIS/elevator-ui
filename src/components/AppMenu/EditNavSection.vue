@@ -1,8 +1,9 @@
 <template>
-  <AppMenuGroup v-if="currentUser?.canManageAssets" label="Edit">
-    <AppMenuItem :href="`${BASE_URL}/assetManager/addAssetModal`">
-      Add Asset
+  <AppMenuGroup v-if="currentUser?.canManageAssets" label="Manage Assets">
+    <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
+      All My Assets
     </AppMenuItem>
+    <AppMenuItem to="/asset/create">Add Asset</AppMenuItem>
     <template v-if="assetId">
       <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
         Edit Asset
@@ -13,9 +14,6 @@
       </AppMenuItem>
       <Divider />
     </template>
-    <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
-      All My Assets
-    </AppMenuItem>
   </AppMenuGroup>
 </template>
 <script setup lang="ts">
@@ -54,4 +52,9 @@ async function handleDeleteAssetClick() {
   }
 }
 </script>
-<style scoped></style>
+<style>
+.edit-nav-section__add-asset-dropdown[data-headlessui-state="open"]
+  .add-asset-dropdown__chevron {
+  transform: rotate(0deg);
+}
+</style>
