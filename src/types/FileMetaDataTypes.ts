@@ -1,23 +1,23 @@
 export interface FileMetaData {
-  exif: Exif;
-  width: number;
-  height: number;
-  filesize: number;
-  rotation: number;
-  coordinates: number[];
-  creationDate: string;
-  sourcefile: string;
+  exif?: Exif;
+  width?: number;
+  height?: number;
+  filesize?: number;
+  rotation?: number;
+  coordinates?: number[];
+  creationDate?: string;
+  sourcefile?: string;
 }
 
 export interface Exif {
-  MPF: Mpf;
-  EXIF: EXIFClass;
-  File: File;
-  JFIF: Jfif;
-  ExifTool: ExifTool;
-  Composite: Composite;
-  MakerNotes: MakerNotes;
-  ICC_Profile: ICCProfile;
+  MPF?: Partial<Mpf>;
+  EXIF?: Partial<EXIFClass>;
+  File?: Partial<File>;
+  JFIF?: Partial<Jfif>;
+  ExifTool?: Partial<ExifTool>;
+  Composite?: Partial<Composite>;
+  MakerNotes?: Partial<MakerNotes>;
+  ICC_Profile?: Partial<ICCProfile>;
 }
 
 export interface Composite {
