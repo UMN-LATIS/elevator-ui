@@ -2,24 +2,22 @@
   <div
     class="notification rounded-md max-w-lg mx-auto border border-neutral-200 overflow-hidden"
   >
-    <div class="flex gap-4">
-      <div
-        class="p-2 border-l-4"
-        :class="{
-          'notification--info border-l-blue-600': type === 'info',
-          'notification--warning border-l-yellow-300': type === 'warning',
-          'notification--error border-l-red-400': type === 'error',
-          'notification--success border-l-green-400': type === 'success',
-        }"
-      >
-        <div class="notification__icon rounded-full p-2">
-          <WarningIcon v-if="type === 'warning'" />
-          <InfoIcon v-if="type === 'info'" />
-          <CircleCheckIcon v-if="type === 'success'" />
-          <CircleXIcon v-if="type === 'error'" />
-        </div>
+    <div
+      class="flex gap-4 p-4 border-l-4 items-start"
+      :class="{
+        'notification--info border-l-blue-600': type === 'info',
+        'notification--warning border-l-yellow-300': type === 'warning',
+        'notification--error border-l-red-400': type === 'error',
+        'notification--success border-l-green-400': type === 'success',
+      }"
+    >
+      <div class="notification__icon rounded-full p-2 -mt-1">
+        <WarningIcon v-if="type === 'warning'" />
+        <InfoIcon v-if="type === 'info'" />
+        <CircleCheckIcon v-if="type === 'success'" />
+        <CircleXIcon v-if="type === 'error'" />
       </div>
-      <div class="py-4">
+      <div>
         <h3 class="notification__title text-sm font-bold uppercase">
           {{ title }}
         </h3>
