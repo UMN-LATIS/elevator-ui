@@ -6,9 +6,7 @@
     >
       <h2 class="text-2xl font-medium">No Timeline Events</h2>
 
-      <p>
-        Sorry, the loaded results don't have dates, so we can't make a timeline.
-      </p>
+      <p>The loaded results don't have dates, so we can't make a timeline.</p>
       <Button v-if="matches.length < totalResults" @click="$emit('loadMore')">
         Load More
         <SpinnerIcon v-if="status === 'fetching'" class="w-4 h-4 ml-2" />

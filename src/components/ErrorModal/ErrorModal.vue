@@ -16,7 +16,7 @@
           class="w-full max-w-md border-none max-h-[80vh] !overflow-auto"
           @dismiss="errorStore.clearError()"
         >
-          <p>Sorry. {{ message }}</p>
+          <p>{{ message }}</p>
 
           <div class="mt-1">
             <!-- using href for force app reload -->

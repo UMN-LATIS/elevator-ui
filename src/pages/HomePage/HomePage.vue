@@ -38,9 +38,8 @@
       class="my-8 mx-4"
     >
       <p>
-        Sorry. Your account does not have permission to search and browse
-        assets. Please contact your administrator if you believe this is an
-        error.
+        Your account does not have permission to search and browse assets.
+        Please contact your administrator if you believe this is an error.
       </p>
     </Notification>
   </DefaultLayout>
