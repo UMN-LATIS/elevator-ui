@@ -2,11 +2,11 @@
   <ul>
     <template v-for="category in organizedSelectCategories" :key="category">
       <li v-if="content.fieldContents[category]">
-        <ClickToSearchLink
+        <MultiSelectSearchLink
           :widget="widget"
           :linkText="contentsUpToCategory(category)"
           >{{ content.fieldContents[category] }}
-        </ClickToSearchLink>
+        </MultiSelectSearchLink>
       </li>
     </template>
   </ul>
@@ -16,7 +16,7 @@
 import { recursiveSort, uniqueValues } from "./MultiSelectWidget";
 import { computed } from "vue";
 import { MultiSelectWidgetContent, MultiSelectWidgetProps } from "@/types";
-import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
+import MultiSelectSearchLink from "./MultiSelectSearchLink.vue";
 
 interface Props {
   widget: MultiSelectWidgetProps;
