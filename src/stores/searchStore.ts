@@ -534,11 +534,20 @@ const actions = (state: SearchStoreState) => ({
     filter.isFuzzy = isFuzzy;
   },
 
+  clearQuery() {
+    state.query.value = "";
+  },
+
   clearAllFilters() {
     this.clearCollectionIdFilters();
     this.clearSearchableFieldsFilters();
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.includeHiddenAssets = false;
+  },
+
+  reset() {
+    this.clearAllFilters();
+    this.clearQuery();
   },
 
   async getSearchId(): Promise<string> {
