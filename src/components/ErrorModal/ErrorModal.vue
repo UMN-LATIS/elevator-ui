@@ -16,7 +16,7 @@
           class="w-full max-w-md border-none max-h-[80vh] !overflow-auto"
           @dismiss="errorStore.clearError()"
         >
-          <p>Sorry. {{ error.message }}</p>
+          <p>Sorry. {{ message }}</p>
 
           <div class="mt-1">
             <Button href="/" variant="tertiary"> Go Home </Button>
@@ -48,6 +48,40 @@ const isCurrentUserUnauthorized = computed(() => {
     error.value instanceof ApiError &&
     error.value.statusCode === 401
   );
+});
+
+const messages: Record<number | string, string> = {
+  0: "There was a problem connecting to the server. Please check your internet connection and try again.",
+  401: "You do not have permission to access this resource.",
+  403: "You do not have permission to access this resource.",
+  404: "The resource you are looking for could not be found.",
+
+  // 4xx errors
+  400: "There was a problem with your request. Please check your input and try again.",
+
+  // 5xx errors
+  500: "There was a problem on our end. Please contact support if the problem persists.",
+};
+
+const message = computed(() => {
+  if (!(error.value instanceof ApiError)) {
+    return error.value?.message || "An unknown error occurred.";
+  }
+
+  const status = error.value.statusCode;
+  if (status in messages) {
+    return messages[status];
+  }
+
+  if (status >= 400 && status < 500) {
+    return messages[400];
+  }
+
+  if (status >= 500 && status < 600) {
+    return messages[500];
+  }
+
+  return error.value.message;
 });
 </script>
 <style scoped></style>
