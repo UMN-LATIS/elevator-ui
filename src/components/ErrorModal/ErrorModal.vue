@@ -19,7 +19,7 @@
           <p>Sorry. {{ message }}</p>
 
           <div class="mt-1">
-            <Button href="/" variant="tertiary"> Go Home </Button>
+            <Button :href="BASE_URL" variant="tertiary"> Go Home </Button>
           </div>
         </Notification>
       </div>
@@ -34,14 +34,16 @@ import Notification from "../Notification/Notification.vue";
 import { ApiError } from "@/api/ApiError";
 import { useInstanceStore } from "@/stores/instanceStore";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
+import config from "@/config";
 
+const BASE_URL = config.instance.base.url;
 const errorStore = useErrorStore();
+const instanceStore = useInstanceStore();
+
 const error = computed(() => errorStore.error);
 const errorTitle = computed(() =>
   error.value instanceof ApiError ? `${error.value.statusCode} Error` : `Error`
 );
-const instanceStore = useInstanceStore();
-
 const isCurrentUserUnauthorized = computed(() => {
   return (
     !instanceStore.isLoggedIn &&
