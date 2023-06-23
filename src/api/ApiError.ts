@@ -2,13 +2,11 @@ export class ApiError extends Error {
   public readonly name = "ApiError";
   public readonly statusCode: number;
   public readonly data?: unknown;
-  public readonly rawMessage: string;
 
   constructor(message: string, statusCode: number, data?: unknown) {
     super(message);
     this.statusCode = statusCode;
     this.data = data;
-    this.rawMessage = message;
 
     // this is for somewhat more readable stack traces
     // we manually create a stack trace here to avoid including
