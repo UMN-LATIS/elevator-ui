@@ -19,6 +19,7 @@
           <p>Sorry. {{ message }}</p>
 
           <div class="mt-1">
+            <!-- using href for force app reload -->
             <Button :href="BASE_URL" variant="tertiary"> Go Home </Button>
           </div>
         </Notification>
@@ -41,9 +42,17 @@ const errorStore = useErrorStore();
 const instanceStore = useInstanceStore();
 
 const error = computed(() => errorStore.error);
-const errorTitle = computed(() =>
-  error.value instanceof ApiError ? `${error.value.statusCode} Error` : `Error`
-);
+const errorTitle = computed(() => {
+  if (!(error.value instanceof ApiError)) {
+    return "Error";
+  }
+
+  if (error.value.statusCode === 0) {
+    return "Connection Error";
+  }
+
+  return `Error: ${error.value.statusCode}`;
+});
 const isCurrentUserUnauthorized = computed(() => {
   return (
     !instanceStore.isLoggedIn &&
@@ -53,7 +62,7 @@ const isCurrentUserUnauthorized = computed(() => {
 });
 
 const messages: Record<number | string, string> = {
-  0: "There was a problem connecting to the server. Please check your internet connection and try again.",
+  0: "There was a problem connecting to the server. If the problem persists, please contact support.",
   401: "You do not have permission to access this resource.",
   403: "You do not have permission to access this resource.",
   404: "The resource you are looking for could not be found.",
