@@ -11,7 +11,7 @@
       <XIcon />
     </button>
     <div
-      class="flex gap-4 p-4 border-l-4 items-start"
+      class="flex gap-4 p-4 border-l-8 items-start"
       :class="{
         'notification--info border-l-blue-600': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
