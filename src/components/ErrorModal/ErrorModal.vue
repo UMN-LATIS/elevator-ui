@@ -63,9 +63,9 @@ const isCurrentUserUnauthorized = computed(() => {
 
 const messages: Record<number | string, string> = {
   0: "There was a problem connecting to the server. If the problem persists, please contact support.",
-  401: "You do not have permission to access this resource.",
-  403: "You do not have permission to access this resource.",
-  404: "The resource you are looking for could not be found.",
+  401: "You do not have permission to access this.",
+  403: "You do not have permission to access this.",
+  404: "We couldn't find this. Please check your link and try again.",
 
   // 4xx errors
   400: "There was a problem with your request. Please check your input and try again.",
