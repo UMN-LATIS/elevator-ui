@@ -1,8 +1,6 @@
 <template>
   <Notification type="error" title="Error">
-    <p class="mb-2">
-      Sorry, something went wrong loading these search results.
-    </p>
+    <p class="mb-2">Something went wrong loading these search results.</p>
 
     <div>
       <span class="uppercase text-xs mr-4">Search Text</span>

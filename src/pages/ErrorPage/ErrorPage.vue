@@ -19,15 +19,15 @@ import { usePageTitle } from "@/helpers/usePageTitle";
 const statusMessages = {
   400: {
     message: "Bad Request",
-    detailedMessage: "Sorry. We couldn't understand your request.",
+    detailedMessage: "We couldn't understand your request.",
   },
   404: {
     message: "Page not found",
-    detailedMessage: "Sorry. We couldn't find this page.",
+    detailedMessage: "We couldn't find this page.",
   },
   500: {
     message: "Internal Server Error",
-    detailedMessage: "Sorry. Something went wrong on our end.",
+    detailedMessage: "Something went wrong on our end.",
   },
 };
 
@@ -36,9 +36,7 @@ function getMessage(code: number) {
 }
 
 function getDetailedMessage(code: number) {
-  return (
-    statusMessages[code]?.detailedMessage || "Sorry. Something went wrong."
-  );
+  return statusMessages[code]?.detailedMessage || "Something went wrong.";
 }
 const props = withDefaults(
   defineProps<{

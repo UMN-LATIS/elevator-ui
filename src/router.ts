@@ -11,6 +11,7 @@ import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
 import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
+import { useErrorStore } from "./stores/errorStore";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -148,7 +149,17 @@ const router = createRouter({
   ],
 });
 
+router.onError((error) => {
+  const errorStore = useErrorStore();
+  errorStore.setError(error);
+});
+
 router.beforeResolve((to, from, next) => {
+  // clear any errors in our error store
+  // this prevents the error modal from persisting across pages
+  const errorStore = useErrorStore();
+  errorStore.clearError();
+
   // scrub any '//' in the path
   const path = to.path.replace(/\/\//g, "/");
   if (path !== to.path) {

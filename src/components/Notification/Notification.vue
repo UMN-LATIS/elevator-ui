@@ -1,9 +1,17 @@
 <template>
   <div
-    class="notification rounded-md max-w-lg mx-auto border border-neutral-200 overflow-hidden"
+    class="notification rounded-md max-w-lg mx-auto border overflow-hidden relative"
   >
+    <button
+      v-if="isDismissable"
+      class="absolute top-0 right-0 p-4"
+      @click="$emit('dismiss')"
+    >
+      <span class="sr-only">Close</span>
+      <XIcon />
+    </button>
     <div
-      class="flex gap-4 p-4 border-l-4 items-start"
+      class="flex gap-4 p-4 border-l-8 items-start"
       :class="{
         'notification--info border-l-blue-600': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
@@ -18,7 +26,7 @@
         <CircleXIcon v-if="type === 'error'" />
       </div>
       <div>
-        <h3 class="notification__title text-sm font-bold uppercase">
+        <h3 class="notification__title text-sm font-bold uppercase pr-6">
           {{ title }}
         </h3>
         <div class="notification__contents mt-2 text-sm">
@@ -30,17 +38,24 @@
 </template>
 <script setup lang="ts">
 import { WarningIcon, InfoIcon, CircleCheckIcon, CircleXIcon } from "@/icons";
+import XIcon from "@/icons/XIcon.vue";
 
 withDefaults(
   defineProps<{
     title?: string;
     type?: "warning" | "info" | "error" | "success";
+    isDismissable?: boolean;
   }>(),
   {
     title: "Heads Up",
     type: "info",
+    isDismissable: false,
   }
 );
+
+defineEmits<{
+  (eventName: "dismiss"): void;
+}>();
 </script>
 <style scoped>
 .notification {

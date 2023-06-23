@@ -24,10 +24,39 @@ import type {
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
+import { ApiError } from "./ApiError";
+import { useErrorStore } from "@/stores/errorStore";
 
 const BASE_URL = config.instance.base.url;
 
 axios.defaults.withCredentials = true;
+
+// this interceptor is used to catch errors from the API
+// convert them into API errors and store them in the error store
+// so that they're displayed to the user
+axios.interceptors.response.use(undefined, async (err: AxiosError) => {
+  const errorStore = useErrorStore();
+  let apiError: ApiError;
+
+  if (err.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    const data = (err.response.data as { message?: string }) ?? {};
+    const message = data?.message ?? err.message;
+    const statusCode = err.response.status;
+
+    apiError = new ApiError(message, statusCode, data);
+  } else {
+    // Something happened in setting up the request that triggered an Error
+    // This is likely a network error.
+    apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
+  }
+
+  // Add the ApiError to the errorStore
+  errorStore.setError(apiError);
+
+  return Promise.reject(apiError);
+});
 
 export async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(

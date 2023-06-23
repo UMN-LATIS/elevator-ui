@@ -1,6 +1,9 @@
 <template>
   <DefaultLayout>
-    <SignInRequiredNotice v-if="isReady && !canSearchAndBrowse" />
+    <SignInRequiredNotice
+      v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"
+      class="my-8 mx-4"
+    />
     <div
       v-if="isReady && canSearchAndBrowse"
       class="home-page-content flex-1 md:grid"
@@ -29,6 +32,16 @@
         <FeaturedAssetCard :assetId="featuredAssetId" />
       </aside>
     </div>
+    <Notification
+      v-else-if="isReady && !canSearchAndBrowse && instanceStore.isLoggedIn"
+      title="Nothing to See Here"
+      class="my-8 mx-4"
+    >
+      <p>
+        Your account does not have permission to search and browse assets.
+        Please contact your administrator if you believe this is an error.
+      </p>
+    </Notification>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -40,6 +53,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
+import Notification from "@/components/Notification/Notification.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();

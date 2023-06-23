@@ -6,9 +6,7 @@
     >
       <h2 class="text-2xl font-medium">No Locations</h2>
 
-      <p>
-        Sorry, the loaded results don't have locations, so we can't make a map.
-      </p>
+      <p>The loaded results don't have locations, so we can't make a map.</p>
       <Button
         v-if="matches.length < (totalResults ?? Infinity)"
         @click="$emit('loadMore')"
