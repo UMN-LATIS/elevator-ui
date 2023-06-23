@@ -2,6 +2,7 @@
   <DefaultLayout>
     <SignInRequiredNotice
       v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"
+      class="my-8 mx-4"
     />
     <div
       v-if="isReady && canSearchAndBrowse"
@@ -34,7 +35,7 @@
     <Notification
       v-else-if="isReady && !canSearchAndBrowse && instanceStore.isLoggedIn"
       title="Nothing to See Here"
-      class="mt-8"
+      class="my-8 mx-4"
     >
       <p>
         Sorry. Your account does not have permission to search and browse
