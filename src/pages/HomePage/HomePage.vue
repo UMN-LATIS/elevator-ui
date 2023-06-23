@@ -1,6 +1,8 @@
 <template>
   <DefaultLayout>
-    <SignInRequiredNotice v-if="isReady && !canSearchAndBrowse" />
+    <SignInRequiredNotice
+      v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"
+    />
     <div
       v-if="isReady && canSearchAndBrowse"
       class="home-page-content flex-1 md:grid"
