@@ -149,6 +149,11 @@ const router = createRouter({
   ],
 });
 
+router.onError((error) => {
+  const errorStore = useErrorStore();
+  errorStore.setError(error);
+});
+
 router.beforeResolve((to, from, next) => {
   // clear any errors in our error store
   // this prevents the error modal from persisting across pages
