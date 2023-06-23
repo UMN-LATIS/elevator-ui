@@ -12,6 +12,7 @@ import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
 import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
 import { useErrorStore } from "./stores/errorStore";
+import BlankPage from "@/pages/BlankPage/BlankPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -96,6 +97,13 @@ const router = createRouter({
       props: (route) => ({
         drawerId: parseIntFromParam(route.params.drawerId),
       }),
+    },
+    {
+      // used as an interstitial page to show while we're
+      // waiting for the searchId from the api
+      name: "blank",
+      path: "/blank",
+      component: BlankPage,
     },
     {
       name: "search",
