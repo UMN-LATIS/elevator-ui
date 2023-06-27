@@ -2,7 +2,7 @@
   <DefaultLayout>
     <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Drawers</h1>
-      <nav class="mb-4">
+      <nav v-if="currentUser?.canManageDrawers" class="mb-4">
         <CreateDrawerButton />
       </nav>
       <div ref="gridContainer" class="grid grid-cols-2 gap-2">
@@ -19,6 +19,7 @@
             </h2>
 
             <button
+              v-if="currentUser?.canManageDrawers"
               class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
               type="button"
               @click="handleRemoveDrawer(drawer.id)"
@@ -40,10 +41,13 @@ import { useResizeObserver } from "@vueuse/core";
 import CircleXIcon from "@/icons/CircleXIcon.vue";
 import CreateDrawerButton from "@/components/CreateDrawerButton/CreateDrawerButton.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const gridContainer = ref<HTMLElement | null>(null);
 const numCols = ref(1);
+const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
+const currentUser = computed(() => instanceStore.currentUser);
 const drawers = computed(() => drawerStore.drawers);
 
 // by default, css grid will order the items by left-to-right,

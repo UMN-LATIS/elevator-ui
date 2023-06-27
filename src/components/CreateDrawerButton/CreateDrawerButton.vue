@@ -23,13 +23,16 @@ import { ref } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import { createDrawer } from "@/api/fetchers";
+import { useDrawerStore } from "@/stores/drawerStore";
 
 const isCreateDrawerModalOpen = ref(false);
 const newDrawerTitle = ref("");
+const drawerStore = useDrawerStore();
 
 function handleCreateDrawer() {
-  console.log("create drawer", newDrawerTitle.value);
+  drawerStore.createDrawer(newDrawerTitle.value);
+  isCreateDrawerModalOpen.value = false;
+  newDrawerTitle.value = "";
 }
 </script>
 <style scoped></style>

@@ -19,5 +19,10 @@ export const useDrawerStore = defineStore("drawer", {
     async init() {
       await this.refresh();
     },
+
+    async createDrawer(name: string) {
+      await api.createDrawer(name);
+      await this.refresh();
+    },
   },
 });
