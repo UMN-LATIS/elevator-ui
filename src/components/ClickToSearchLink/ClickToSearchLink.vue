@@ -5,11 +5,11 @@
       class="text-blue-600 hover:text-blue-700 hover:underline"
       @click.prevent="handleClick"
     >
-      <slot />
+      <slot :isClickable="true" />
     </a>
   </span>
   <span v-else>
-    <slot />
+    <slot :isClickable="false" />
   </span>
 </template>
 

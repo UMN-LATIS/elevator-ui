@@ -3,8 +3,19 @@
     <li v-for="(content, key) in contents" :key="key">
       <ul class="flex gap-2">
         <li v-for="(tag, index) in content.tags" :key="index">
-          <ClickToSearchLink :linkText="tag" :widget="widget">
-            <Chip>{{ tag }}</Chip>
+          <ClickToSearchLink
+            v-slot="{ isClickable }"
+            :linkText="tag"
+            :widget="widget"
+          >
+            <Chip
+              :class="{
+                'chip--is-clickable border border-blue-700  bg-blue-100 text-blue-700 cursor-pointer hover:bg-blue-700 hover:text-white transition-colors ease-in-out':
+                  isClickable,
+              }"
+            >
+              {{ tag }}
+            </Chip>
           </ClickToSearchLink>
         </li>
       </ul>
