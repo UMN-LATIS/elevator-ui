@@ -1,8 +1,11 @@
 <template>
   <span v-if="props.widget.clickToSearch">
-    <a :href="linkUrl">
+    <button
+      class="text-blue-600 hover:text-blue-700 hover:underline"
+      @click="handleClick"
+    >
       <slot />
-    </a>
+    </button>
   </span>
   <span v-else>
     <slot />
@@ -10,9 +13,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { useRouter } from "vue-router";
 import { WidgetProps } from "@/types";
-import { toClickToSearchUrl } from "@/helpers/displayUtils";
+import api from "@/api";
 
 interface Props {
   linkText: string;
@@ -20,8 +23,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const router = useRouter();
 
-const linkUrl = computed((): string =>
-  toClickToSearchUrl(props.linkText, props.widget)
-);
+async function handleClick() {
+  const searchId = await api.getSearchIdForClickToSearch(
+    props.linkText,
+    props.widget
+  );
+
+  router.push(`/search/s/${searchId}`);
+}
 </script>
