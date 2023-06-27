@@ -20,12 +20,14 @@ import type {
   SearchableSpecificField,
   ApiListDrawersResponse,
   ApiGetDrawerResponse,
+  WidgetProps,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 import { ApiError } from "./ApiError";
 import { useErrorStore } from "@/stores/errorStore";
+import { toClickToSearchUrl } from "@/helpers/displayUtils";
 
 const BASE_URL = config.instance.base.url;
 
@@ -150,6 +152,15 @@ export async function fetchSearchIdForCollection(
     params
   );
 
+  return res.data.searchId;
+}
+
+export async function fetchSearchIdForClickToSearch(
+  linkText: string,
+  widgetProps: WidgetProps
+): Promise<string> {
+  const url = toClickToSearchUrl(linkText, widgetProps);
+  const res = await axios.get<{ searchId: string }>(url);
   return res.data.searchId;
 }
 
