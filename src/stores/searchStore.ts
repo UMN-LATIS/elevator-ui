@@ -534,11 +534,20 @@ const actions = (state: SearchStoreState) => ({
     filter.isFuzzy = isFuzzy;
   },
 
+  clearQuery() {
+    state.query.value = "";
+  },
+
   clearAllFilters() {
     this.clearCollectionIdFilters();
     this.clearSearchableFieldsFilters();
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.includeHiddenAssets = false;
+  },
+
+  reset() {
+    this.clearAllFilters();
+    this.clearQuery();
   },
 
   async getSearchId(): Promise<string> {
@@ -550,6 +559,7 @@ const actions = (state: SearchStoreState) => ({
   },
 
   async search(searchId: string): Promise<string | void> {
+    const instanceStore = useInstanceStore();
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
 
@@ -586,6 +596,14 @@ const actions = (state: SearchStoreState) => ({
             state.filterBy.specificFieldsMap.clear();
 
             res.searchEntry.specificFieldSearch?.forEach((searchField) => {
+              // if the searchable field doesn't exist in our list of fields,
+              // then ignore it
+              if (!instanceStore.getSearchableField(searchField.field)) {
+                console.log("skipping search entry field", searchField.field);
+                return;
+              }
+
+              console.log("adding search entry field", searchField.field);
               actions(state).addSearchableFieldFilter(searchField.field, {
                 value: searchField.text,
                 isFuzzy: searchField.fuzzy,
