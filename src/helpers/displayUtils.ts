@@ -132,7 +132,7 @@ export function toClickToSearchUrl(
     return (
       config.instance.base.url +
       "/search/querySearch/" +
-      stripTags(cleanedLinkText)
+      encodeURIComponent(stripTags(cleanedLinkText))
     );
   }
 
