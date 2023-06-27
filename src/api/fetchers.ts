@@ -160,6 +160,7 @@ export async function fetchSearchIdForClickToSearch(
   widgetProps: WidgetProps
 ): Promise<string> {
   const url = toClickToSearchUrl(linkText, widgetProps);
+
   // add `/true` to the url to get the searchId as JSON
   const res = await axios.get<{ searchId: string }>(`${url}/true`);
   return res.data.searchId;

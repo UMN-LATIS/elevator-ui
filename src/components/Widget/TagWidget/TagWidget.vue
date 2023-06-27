@@ -3,9 +3,9 @@
     <li v-for="(content, key) in contents" :key="key">
       <ul class="flex gap-2">
         <li v-for="(tag, index) in content.tags" :key="index">
-          <Chip :href="toClickToSearchUrl(tag, widget)">
-            {{ tag }}
-          </Chip>
+          <ClickToSearchLink :linkText="tag" :widget="widget">
+            <Chip>{{ tag }}</Chip>
+          </ClickToSearchLink>
         </li>
       </ul>
     </li>
@@ -14,8 +14,8 @@
 
 <script setup lang="ts">
 import { TagListWidgetProps, TagListWidgetContent } from "@/types";
-import { toClickToSearchUrl } from "@/helpers/displayUtils";
 import Chip from "@/components/Chip/Chip.vue";
+import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 
 defineProps<{
   widget: TagListWidgetProps;
