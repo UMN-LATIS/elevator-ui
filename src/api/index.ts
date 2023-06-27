@@ -236,9 +236,13 @@ async function getSearchableMultiSelectFieldValues(
 }
 
 let listOfDrawers: null | Drawer[] = null;
-async function getDrawers(): Promise<Drawer[]> {
+async function getDrawers({
+  refresh = false,
+}: {
+  refresh?: boolean;
+} = {}): Promise<Drawer[]> {
   // return cached data if it exists
-  if (listOfDrawers) {
+  if (listOfDrawers && !refresh) {
     return listOfDrawers;
   }
 
@@ -288,6 +292,7 @@ const api = {
   getSearchableMultiSelectFieldValues,
   getDrawers,
   getDrawer,
+  createDrawer: fetchers.createDrawer,
 };
 
 export default api;

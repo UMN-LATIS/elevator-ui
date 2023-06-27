@@ -1,12 +1,12 @@
 <template>
   <DefaultLayout>
-    <Transition name="fade">
-      <div v-if="fetchStatus === 'success'" class="p-8 px-4">
-        <h1 class="text-4xl font-bold my-8">Drawers</h1>
-        <!-- <nav class="mb-4">
-        <Button @click="handleCreateDrawer">Create Drawer</Button>
-      </nav> -->
-        <div ref="gridContainer" class="grid grid-cols-2 gap-2">
+    <div class="p-8 px-4">
+      <h1 class="text-4xl font-bold my-8">Drawers</h1>
+      <nav class="mb-4">
+        <CreateDrawerButton />
+      </nav>
+      <div ref="gridContainer" class="grid grid-cols-2 gap-2">
+        <TransitionGroup name="fade">
           <article
             v-for="drawer in drawers"
             :key="drawer.id"
@@ -18,33 +18,33 @@
               </Link>
             </h2>
 
-            <!-- <button
-            class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center hover:text-red-600"
-            type="button"
-            @click="handleRemoveDrawer(drawer.id)"
-          >
-            <CircleXIcon class="!w-5 !h-5" />
-          </button> -->
+            <button
+              class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
+              type="button"
+              @click="handleRemoveDrawer(drawer.id)"
+            >
+              <span class="sr-only">Remove drawer</span>
+              <CircleXIcon class="!w-5 !h-5" />
+            </button>
           </article>
-        </div>
+        </TransitionGroup>
       </div>
-    </Transition>
+    </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { Drawer, FetchStatus } from "@/types";
-import api from "@/api";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
-// import Button from "@/components/Button/Button.vue";
-// import CircleXIcon from "@/icons/CircleXIcon.vue";
+import CircleXIcon from "@/icons/CircleXIcon.vue";
+import CreateDrawerButton from "@/components/CreateDrawerButton/CreateDrawerButton.vue";
+import { useDrawerStore } from "@/stores/drawerStore";
 
 const gridContainer = ref<HTMLElement | null>(null);
-const drawers = ref<Drawer[]>([]);
 const numCols = ref(1);
-const fetchStatus = ref<FetchStatus>("idle");
+const drawerStore = useDrawerStore();
+const drawers = computed(() => drawerStore.drawers);
 
 // by default, css grid will order the items by left-to-right,
 // then top-to-bottom. This makes is difficult to read:
@@ -66,18 +66,12 @@ const numRows = computed(() => {
   return Math.ceil(drawers.value.length / numCols.value);
 });
 
-function handleCreateDrawer() {
-  console.log("create drawer");
-}
-
 function handleRemoveDrawer(drawerId: string) {
   console.log("remove drawer", drawerId);
 }
 
 onMounted(async () => {
-  fetchStatus.value = "fetching";
-  drawers.value = await api.getDrawers();
-  fetchStatus.value = "success";
+  drawerStore.init();
 });
 </script>
 <style scoped>

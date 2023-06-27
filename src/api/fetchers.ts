@@ -21,6 +21,7 @@ import type {
   ApiListDrawersResponse,
   ApiGetDrawerResponse,
   WidgetProps,
+  ApiCreateDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -308,6 +309,18 @@ export async function fetchDrawer(
 ): Promise<ApiGetDrawerResponse> {
   const res = await axios.get<ApiGetDrawerResponse>(
     `${BASE_URL}/drawers/getDrawer/${drawerId}`
+  );
+
+  return res.data;
+}
+
+export async function createDrawer(drawerTitle: string) {
+  const formdata = new FormData();
+  formdata.append("drawerTitle", drawerTitle);
+
+  const res = await axios.post<ApiCreateDrawerResponse>(
+    `${BASE_URL}/drawers/addDrawer`,
+    formdata
   );
 
   return res.data;

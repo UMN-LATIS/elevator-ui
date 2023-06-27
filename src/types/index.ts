@@ -712,3 +712,8 @@ export interface ApiGetDrawerResponse extends SearchResultsResponse {
   drawerId: number;
   drawerTitle: string;
 }
+
+export interface ApiCreateDrawerResponse {
+  drawerId: number;
+  drawerTitle: string;
+}
