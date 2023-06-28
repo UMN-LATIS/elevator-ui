@@ -11,7 +11,7 @@
           v-else
           :title="errorTitle"
           :message="error.name"
-          type="error"
+          type="danger"
           :isDismissable="true"
           class="w-full max-w-md border-none max-h-[80vh] !overflow-auto"
           @dismiss="errorStore.clearError()"

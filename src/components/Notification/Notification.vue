@@ -15,9 +15,7 @@
       :class="{
         'notification--info border-l-blue-600': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
-        'notification--error border-l-red-400': ['error', 'danger'].includes(
-          type
-        ),
+        'notification--error border-l-red-400': type === 'danger',
         'notification--success border-l-green-400': type === 'success',
       }"
     >
@@ -25,7 +23,7 @@
         <WarningIcon v-if="type === 'warning'" />
         <InfoIcon v-if="type === 'info'" />
         <CircleCheckIcon v-if="type === 'success'" />
-        <CircleXIcon v-if="type === 'error'" />
+        <CircleXIcon v-if="type === 'danger'" />
       </div>
       <div>
         <h3 class="notification__title text-sm font-bold uppercase pr-6">
@@ -45,7 +43,7 @@ import XIcon from "@/icons/XIcon.vue";
 withDefaults(
   defineProps<{
     title?: string;
-    type?: "warning" | "info" | "error" | "success" | "danger";
+    type?: "warning" | "info" | "success" | "danger";
     isDismissable?: boolean;
   }>(),
   {

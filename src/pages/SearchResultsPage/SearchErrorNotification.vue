@@ -1,5 +1,5 @@
 <template>
-  <Notification type="error" title="Error">
+  <Notification type="danger" title="Error">
     <p class="mb-2">Something went wrong loading these search results.</p>
 
     <div>
