@@ -33,6 +33,7 @@ function handleCreateDrawer() {
   drawerStore.createDrawer(newDrawerTitle.value);
   isCreateDrawerModalOpen.value = false;
   newDrawerTitle.value = "";
+  console.log("handleCreateDrawer");
 }
 </script>
 <style scoped></style>

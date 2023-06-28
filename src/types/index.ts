@@ -702,18 +702,15 @@ export type GlobalSearchableFileType =
   | "zipscorm";
 
 export interface Drawer {
-  id: string;
+  id: number;
   title: string;
 }
 
-export type ApiListDrawersResponse = Record<string, { title: string }>;
+export type ApiListDrawersResponse = Record<number, { title: string }>;
 
 export interface ApiGetDrawerResponse extends SearchResultsResponse {
   drawerId: number;
   drawerTitle: string;
 }
 
-export interface ApiCreateDrawerResponse {
-  drawerId: number;
-  drawerTitle: string;
-}
+export type ApiCreateDrawerResponse = ApiGetDrawerResponse;

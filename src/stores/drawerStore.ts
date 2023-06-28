@@ -20,9 +20,13 @@ export const useDrawerStore = defineStore("drawer", {
       await this.refresh();
     },
 
-    async createDrawer(name: string) {
-      await api.createDrawer(name);
-      await this.refresh();
+    async createDrawer(title: string) {
+      // optimstic update
+      const newDrawer = await api.createDrawer(title);
+      this.drawers.push({
+        id: newDrawer.drawerId,
+        title: newDrawer.drawerTitle,
+      });
     },
   },
 });

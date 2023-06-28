@@ -253,7 +253,7 @@ async function getDrawers({
   // and add the key as the id
   listOfDrawers = Object.entries(data)
     .map(([key, value]) => ({
-      id: key,
+      id: Number.parseInt(key),
       ...value,
     }))
     .sort((a, b) => a.title.localeCompare(b.title));

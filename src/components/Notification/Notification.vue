@@ -1,6 +1,6 @@
 <template>
   <div
-    class="notification rounded-md max-w-lg mx-auto border overflow-hidden relative"
+    class="notification rounded-md max-w-lg mx-auto overflow-hidden relative"
   >
     <button
       v-if="isDismissable"
@@ -15,7 +15,9 @@
       :class="{
         'notification--info border-l-blue-600': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
-        'notification--error border-l-red-400': type === 'error',
+        'notification--error border-l-red-400': ['error', 'danger'].includes(
+          type
+        ),
         'notification--success border-l-green-400': type === 'success',
       }"
     >
@@ -43,7 +45,7 @@ import XIcon from "@/icons/XIcon.vue";
 withDefaults(
   defineProps<{
     title?: string;
-    type?: "warning" | "info" | "error" | "success";
+    type?: "warning" | "info" | "error" | "success" | "danger";
     isDismissable?: boolean;
   }>(),
   {

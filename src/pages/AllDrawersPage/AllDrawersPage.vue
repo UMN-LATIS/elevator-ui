@@ -10,23 +10,17 @@
           <article
             v-for="drawer in drawers"
             :key="drawer.id"
-            class="bg-white rounded-lg p-4 relative"
+            class="relative drawer-list-item rounded hover:bg-white group transition-colors duration-150"
           >
-            <h2 class="mr-6">
-              <Link :to="`/drawers/viewDrawer/${drawer.id}`"
-                >{{ drawer.title }}
-              </Link>
-            </h2>
-
-            <button
-              v-if="currentUser?.canManageDrawers"
-              class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
-              type="button"
-              @click="handleRemoveDrawer(drawer.id)"
+            <DeleteDrawerButton :drawer="drawer" class="float-right" />
+            <Link
+              class="p-4 block hover:no-underline w-full h-full"
+              :to="`/drawers/viewDrawer/${drawer.id}`"
             >
-              <span class="sr-only">Remove drawer</span>
-              <CircleXIcon class="!w-5 !h-5" />
-            </button>
+              <h2 class="transition-colors duration-150">
+                {{ drawer.title }}
+              </h2>
+            </Link>
           </article>
         </TransitionGroup>
       </div>
@@ -38,8 +32,8 @@ import { onMounted, ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
-import CircleXIcon from "@/icons/CircleXIcon.vue";
-import CreateDrawerButton from "@/components/CreateDrawerButton/CreateDrawerButton.vue";
+import DeleteDrawerButton from "./DeleteDrawerButton.vue";
+import CreateDrawerButton from "./CreateDrawerButton.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import { useInstanceStore } from "@/stores/instanceStore";
 
@@ -70,10 +64,6 @@ const numRows = computed(() => {
   return Math.ceil(drawers.value.length / numCols.value);
 });
 
-function handleRemoveDrawer(drawerId: string) {
-  console.log("remove drawer", drawerId);
-}
-
 onMounted(async () => {
   drawerStore.init();
 });
@@ -85,5 +75,12 @@ onMounted(async () => {
   grid-template-rows: repeat(v-bind("numRows"), auto);
   grid-auto-flow: column;
   gap: 0.5rem;
+}
+
+.drawer-list-item {
+  border: var(--app-accordion-outer-borderWidth) solid
+    var(--app-accordion-outer-borderColor);
+  background: var(--app-accordion-header-backgroundColor);
+  color: var(--app-accordion-header-textColor);
 }
 </style>
