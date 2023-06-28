@@ -278,6 +278,7 @@ const api = {
   fetchInstanceNav: fetchers.fetchInstanceNav,
   getSearchId: fetchers.fetchSearchId,
   getSearchIdForCollection,
+  getSearchIdForClickToSearch: fetchers.fetchSearchIdForClickToSearch,
   getSearchResultsById,
   getStaticPage,
   deleteAsset: fetchers.deleteAsset,
