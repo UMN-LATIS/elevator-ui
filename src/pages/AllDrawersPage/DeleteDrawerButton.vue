@@ -1,6 +1,5 @@
 <template>
   <button
-    v-if="instanceStore.currentUser?.canManageDrawers"
     class="px-2 py-4 inline-flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
     type="button"
     v-bind="$attrs"
@@ -27,7 +26,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { useInstanceStore } from "@/stores/instanceStore";
 import { CircleXIcon } from "@/icons";
 import { Drawer } from "@/types";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
@@ -36,7 +34,6 @@ const props = defineProps<{
   drawer: Drawer;
 }>();
 
-const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
 const isConfirmOpen = ref(false);
 

@@ -12,7 +12,11 @@
             :key="drawer.id"
             class="relative drawer-list-item rounded hover:bg-white group transition-colors duration-150"
           >
-            <DeleteDrawerButton :drawer="drawer" class="float-right" />
+            <DeleteDrawerButton
+              v-if="currentUser?.canManageDrawers"
+              :drawer="drawer"
+              class="float-right"
+            />
             <Link
               class="p-4 block hover:no-underline w-full h-full"
               :to="`/drawers/viewDrawer/${drawer.id}`"
