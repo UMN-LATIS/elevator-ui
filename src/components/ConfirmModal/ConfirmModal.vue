@@ -9,7 +9,7 @@
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div class="fixed inset-0 z-40 bg-black/30" aria-hidden="true" />
+        <div class="fixed inset-0 z-40 bg-black/70" aria-hidden="true" />
       </TransitionChild>
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <TransitionChild
@@ -19,8 +19,9 @@
           leave="duration-200 ease-in"
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
+          as="template"
         >
-          <DialogPanel>
+          <DialogPanel class="flex-1">
             <Notification
               :title="title"
               :type="type"
@@ -50,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, ref } from "vue";
+import { computed, ref } from "vue";
 import {
   Dialog,
   DialogPanel,
