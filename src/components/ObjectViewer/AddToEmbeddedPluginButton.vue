@@ -1,52 +1,40 @@
 <template>
-  <div
-    v-if="elevatorPlugin"
-    class="object-viewer__button-bar flex justify-end items-center gap-2 p-2"
+  <Button
+    variant="tertiary"
+    :title="`Add to ${elevatorPlugin || 'Elevator Plugin'}`"
+    @click="handleAddButtonClick"
   >
-    <Button
-      class="block p-2 text-sm"
-      variant="primary"
-      @click="handleAddButtonClick"
-    >
-      <PlusIcon v-if="addingToPluginStatus === 'idle'" class="!w-4 !h-4" />
-      <SpinnerIcon
-        v-if="addingToPluginStatus === 'loading'"
-        class="!w-4 !h-4"
-      />
-      <CircleCheckIcon
-        v-if="addingToPluginStatus === 'success'"
-        class="!w-4 !h-4"
-      />
-      <CircleXIcon v-if="addingToPluginStatus === 'error'" class="!w-4 !h-4" />
-      Add to {{ elevatorPlugin }}
-    </Button>
-    <ConfirmModal
-      :isOpen="isInterstitialOpen"
-      :title="`Add to ${elevatorPlugin}`"
-      @close="handleCloseInterstitial"
-      @confirm="handleInterstitialConfirm"
-    >
-      <div
-        v-if="interstitial?.interstitialText"
-        v-html="interstitial?.interstitialText"
-      />
-      <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
-    </ConfirmModal>
-    <form
-      v-if="elevatorCallbackType == 'lti'"
-      ref="returnForm"
-      :action="returnUrl ?? ''"
-      method="POST"
-    >
-      <input type="hidden" name="lti_version" value="LTI-1p0" />
-      <input
-        type="hidden"
-        name="lti_message_type"
-        value="ContentItemSelection"
-      />
-      <input type="hidden" name="content_items" :value="ltiContentItems" />
-    </form>
-  </div>
+    <PlusIcon v-if="addingToPluginStatus === 'idle'" class="!w-4 !h-4" />
+    <SpinnerIcon v-if="addingToPluginStatus === 'loading'" class="!w-4 !h-4" />
+    <CircleCheckIcon
+      v-if="addingToPluginStatus === 'success'"
+      class="!w-4 !h-4"
+    />
+    <CircleXIcon v-if="addingToPluginStatus === 'error'" class="!w-4 !h-4" />
+    {{ elevatorPlugin ?? "Elevator Plugin" }}
+  </Button>
+  <ConfirmModal
+    :isOpen="isInterstitialOpen"
+    :title="`Add to ${elevatorPlugin}`"
+    @close="handleCloseInterstitial"
+    @confirm="handleInterstitialConfirm"
+  >
+    <div
+      v-if="interstitial?.interstitialText"
+      v-html="interstitial?.interstitialText"
+    />
+    <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
+  </ConfirmModal>
+  <form
+    v-if="elevatorCallbackType == 'lti'"
+    ref="returnForm"
+    :action="returnUrl ?? ''"
+    method="POST"
+  >
+    <input type="hidden" name="lti_version" value="LTI-1p0" />
+    <input type="hidden" name="lti_message_type" value="ContentItemSelection" />
+    <input type="hidden" name="content_items" :value="ltiContentItems" />
+  </form>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch, nextTick } from "vue";

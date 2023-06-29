@@ -1,10 +1,15 @@
 <template>
   <section class="object-viewer relative flex flex-col">
     <h2 class="sr-only">Object Viewer</h2>
-    <AddToEmbeddedPluginButton
-      v-if="isInEmbedMode"
-      :fileHandlerId="fileHandlerId"
-    />
+    <div
+      class="object-viewer__button-bar flex justify-end items-center gap-2 p-2 border-b"
+    >
+      <AddToEmbeddedPluginButton
+        v-if="isInEmbedMode"
+        :fileHandlerId="fileHandlerId"
+      />
+      <AddToDrawerButton v-if="instanceStore.currentUser?.canManageDrawers" />
+    </div>
     <iframe
       v-if="fileHandlerId"
       class="object-viewer__iframe w-full flex-1"
@@ -25,8 +30,11 @@
 <script setup lang="ts">
 import config from "@/config";
 import AddToEmbeddedPluginButton from "./AddToEmbeddedPluginButton.vue";
+import AddToDrawerButton from "./AddToDrawerButton.vue";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
+import { useInstanceStore } from "@/stores/instanceStore";
 
+const instanceStore = useInstanceStore();
 const { isInEmbedMode } = useElevatorSessionStorage();
 
 defineProps<{
