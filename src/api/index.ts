@@ -294,6 +294,7 @@ const api = {
   getDrawer,
   createDrawer: fetchers.createDrawer,
   deleteDrawer: fetchers.deleteDrawer,
+  addAssetToDrawer: fetchers.addAssetToDrawer,
 };
 
 export default api;

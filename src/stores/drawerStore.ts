@@ -24,11 +24,13 @@ export const useDrawerStore = defineStore("drawer", {
     },
 
     async createDrawer(title: string) {
-      const newDrawer = await api.createDrawer(title);
-      this.drawers.push({
-        id: newDrawer.drawerId,
-        title: newDrawer.drawerTitle,
-      });
+      const data = await api.createDrawer(title);
+      const newDrawer = {
+        id: data.drawerId,
+        title: data.drawerTitle,
+      };
+      this.drawers.push(newDrawer);
+      return newDrawer;
     },
 
     async deleteDrawer(drawerId: number) {

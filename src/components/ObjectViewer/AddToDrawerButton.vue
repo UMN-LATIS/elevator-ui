@@ -1,6 +1,9 @@
 <template>
   <Button variant="tertiary" title="Add to Drawer" @click="isModalOpen = true">
-    <PlusIcon class="!w-4 !h-4" />
+    <PlusIcon v-if="fetchStatus === 'idle'" class="!w-4 !h-4" />
+    <SpinnerIcon v-if="fetchStatus === 'fetching'" class="!w-4 !h-4" />
+    <CircleCheckIcon v-if="fetchStatus === 'success'" class="!w-4 !h-4" />
+    <CircleXIcon v-if="fetchStatus === 'error'" class="!w-4 !h-4" />
     Drawer
   </Button>
   <Modal
@@ -13,7 +16,7 @@
     <div>
       <form
         class="flex items-center justify-between gap-2"
-        @submit.prevent="handleAddToDrawer"
+        @submit.prevent="handleAddToDrawer(selectedDrawer)"
       >
         <div class="flex-1 flex gap-4 items-center">
           <label class="sr-only">Add to Drawer</label>
@@ -22,7 +25,11 @@
             class="border border-neutral-200 rounded w-full text-sm"
           >
             <option disabled value="">-- Select a Drawer --</option>
-            <option v-for="drawer in drawerStore.drawers" :key="drawer.id">
+            <option
+              v-for="drawer in drawerStore.drawers"
+              :key="drawer.id"
+              :value="drawer.id"
+            >
               {{ drawer.title }}
             </option>
           </select>
@@ -47,31 +54,77 @@
           :labelHidden="true"
         />
 
-        <Button type="submit" class="text-sm"> Create Drawer </Button>
+        <Button type="submit" class="text-sm" :disabled="!isDrawerNameValid">
+          Create Drawer
+        </Button>
       </form>
     </div>
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-import { PlusIcon } from "@/icons";
+import { ref, computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
+import api from "@/api";
+import { useAssetStore } from "@/stores/assetStore";
+import { FetchStatus } from "@/types";
+import { SpinnerIcon, CircleCheckIcon, CircleXIcon, PlusIcon } from "@/icons";
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
 const newDrawerName = ref("");
+const fetchStatus = ref<FetchStatus>("idle");
 
 const drawerStore = useDrawerStore();
+const assetStore = useAssetStore();
 
-function handleAddToDrawer() {
-  console.log("Add to drawer", selectedDrawer.value);
+const isDrawerNameValid = computed(() => {
+  return (
+    newDrawerName.value.trim() &&
+    // must be unique
+    !drawerStore.drawers.some((drawer) => drawer.title === newDrawerName.value)
+  );
+});
+
+async function handleAddToDrawer(drawerId: string | number) {
+  const drawerIdInt: number =
+    typeof drawerId === "string" ? Number.parseInt(drawerId) : drawerId;
+
+  if (isNaN(drawerIdInt)) {
+    throw new Error("Cannot add to drawer. Drawer ID is not a number.");
+  }
+
+  if (!assetStore.activeAssetId) {
+    throw new Error("Cannot add to drawer. No active asset.");
+  }
+
+  isModalOpen.value = false;
+
+  fetchStatus.value = "fetching";
+  await api.addAssetToDrawer({
+    assetId: assetStore.activeAssetId,
+    drawerId: drawerIdInt,
+  });
+  fetchStatus.value = "success";
+  setTimeout(() => {
+    fetchStatus.value = "idle";
+  }, 3000);
 }
 
-function handleCreateNewDrawerThenAdd() {
-  console.log("Create new drawer then add", newDrawerName.value);
+async function handleCreateNewDrawerThenAdd() {
+  if (!isDrawerNameValid.value) {
+    throw new Error(
+      `Cannot create drawer. Drawer name '${newDrawerName.value}' is invalid'.`
+    );
+  }
+
+  fetchStatus.value = "fetching";
+  isModalOpen.value = false;
+
+  const newDrawer = await drawerStore.createDrawer(newDrawerName.value);
+  handleAddToDrawer(newDrawer.id);
 }
 </script>
 <style scoped></style>
