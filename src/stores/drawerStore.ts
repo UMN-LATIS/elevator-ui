@@ -4,11 +4,13 @@ import api from "@/api";
 
 export interface DrawerStoreState {
   drawers: Drawer[];
+  isReady: boolean;
 }
 
 export const useDrawerStore = defineStore("drawer", {
   state: (): DrawerStoreState => ({
     drawers: [],
+    isReady: false,
   }),
   actions: {
     async refresh() {
@@ -18,6 +20,7 @@ export const useDrawerStore = defineStore("drawer", {
 
     async init() {
       await this.refresh();
+      this.isReady = true;
     },
 
     async createDrawer(title: string) {

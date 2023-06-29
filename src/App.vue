@@ -3,12 +3,13 @@
     <Teleport to="body">
       <ErrorModal />
     </Teleport>
-    <RouterView v-if="instanceStore.isReady" />
+    <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
   </div>
 </template>
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useInstanceStore } from "./stores/instanceStore";
+import { useDrawerStore } from "./stores/drawerStore";
 import { useTheming } from "./helpers/useTheming";
 import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 
@@ -17,10 +18,13 @@ import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 // tries to add search field filters before the instance store
 // has returned specifics about the available search fields
 const instanceStore = useInstanceStore();
+const drawerStore = useDrawerStore();
 
 onMounted(() => {
   console.log("app mounted");
   instanceStore.init();
+  drawerStore.init();
+
   useTheming();
 });
 </script>
