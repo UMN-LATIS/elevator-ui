@@ -25,7 +25,7 @@
   </ConfirmModal>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { CircleXIcon } from "@/icons";
@@ -40,9 +40,8 @@ const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
 const isConfirmOpen = ref(false);
 
-function handleDeleteDrawer() {
-  console.log("handleDeleteDrawer");
-  // drawerStore.deleteDrawer(props.drawerId);
+async function handleDeleteDrawer() {
+  drawerStore.deleteDrawer(props.drawer.id);
 }
 </script>
 <style scoped></style>

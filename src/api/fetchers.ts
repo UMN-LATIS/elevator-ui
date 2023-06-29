@@ -325,3 +325,9 @@ export async function createDrawer(drawerTitle: string) {
 
   return res.data;
 }
+
+export async function deleteDrawer(drawerId: number) {
+  const res = await axios.post(`${BASE_URL}/drawers/delete/${drawerId}/true`);
+
+  return res.data;
+}

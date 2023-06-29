@@ -293,6 +293,7 @@ const api = {
   getDrawers,
   getDrawer,
   createDrawer: fetchers.createDrawer,
+  deleteDrawer: fetchers.deleteDrawer,
 };
 
 export default api;

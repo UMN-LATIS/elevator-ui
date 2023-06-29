@@ -21,12 +21,16 @@ export const useDrawerStore = defineStore("drawer", {
     },
 
     async createDrawer(title: string) {
-      // optimstic update
       const newDrawer = await api.createDrawer(title);
       this.drawers.push({
         id: newDrawer.drawerId,
         title: newDrawer.drawerTitle,
       });
+    },
+
+    async deleteDrawer(drawerId: number) {
+      await api.deleteDrawer(drawerId);
+      this.drawers = this.drawers.filter((drawer) => drawer.id !== drawerId);
     },
   },
 });
