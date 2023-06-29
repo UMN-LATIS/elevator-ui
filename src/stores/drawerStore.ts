@@ -29,8 +29,18 @@ export const useDrawerStore = defineStore("drawer", {
     },
 
     async deleteDrawer(drawerId: number) {
-      await api.deleteDrawer(drawerId);
-      this.drawers = this.drawers.filter((drawer) => drawer.id !== drawerId);
+      try {
+        // optimistically remove the drawer from the list
+        this.drawers = this.drawers.filter((drawer) => drawer.id !== drawerId);
+        await api.deleteDrawer(drawerId, { skipErrorNotifications: true });
+      } catch (e) {
+        console.log(
+          `Failed to delete drawer: ${drawerId}. Refreshing the drawer list.`
+        );
+
+        // if the request fails for some reason, refresh the list
+        await this.refresh();
+      }
     },
   },
 });
