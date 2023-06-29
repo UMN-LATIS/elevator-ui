@@ -4,7 +4,7 @@
     :isOpen="isCreateDrawerModalOpen"
     label="Create Drawer"
     class="max-w-lg mx-auto m-4"
-    @close="isCreateDrawerModalOpen = false"
+    @close="handleClose"
   >
     <form class="flex flex-col gap-6" @submit.prevent="handleCreateDrawer">
       <div>
@@ -33,9 +33,12 @@
           Drawer title must be unique.
         </p>
       </div>
-      <Button type="submit" variant="primary" :disabled="!isTitleValid">
-        Create
-      </Button>
+      <div class="flex justify-end gap-2 items-center">
+        <Button variant="tertiary" @click="handleClose">Cancel</Button>
+        <Button type="submit" variant="primary" :disabled="!isTitleValid">
+          Create
+        </Button>
+      </div>
     </form>
   </Modal>
 </template>
@@ -73,6 +76,11 @@ function handleCreateDrawer() {
 function resetForm() {
   newDrawerTitle.value = "";
   isTitleTouched.value = false;
+}
+
+function handleClose() {
+  isCreateDrawerModalOpen.value = false;
+  resetForm();
 }
 </script>
 <style scoped></style>
