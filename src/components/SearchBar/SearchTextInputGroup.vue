@@ -18,6 +18,7 @@
           class="text-transparent-black-500 hover:text-neutral-900"
           @click="searchStore.query = ''"
         >
+          <span class="sr-only">Clear Search</span>
           <CircleXIcon />
         </button>
         <button
