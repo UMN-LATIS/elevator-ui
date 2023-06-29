@@ -32,7 +32,7 @@
         v-show="showMore"
         :key="child.id"
         :collection="child"
-        class="p-0 m-2 ml-8"
+        class="!p-0 m-2 ml-8"
       />
     </div>
   </div>

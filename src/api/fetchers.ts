@@ -3,7 +3,7 @@
  * any caching should happen in API getters.
  */
 
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
 import type {
@@ -21,6 +21,7 @@ import type {
   ApiListDrawersResponse,
   ApiGetDrawerResponse,
   WidgetProps,
+  ApiCreateDrawerResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -33,10 +34,16 @@ const BASE_URL = config.instance.base.url;
 
 axios.defaults.withCredentials = true;
 
+interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  skipErrorNotifications?: boolean;
+}
+
 // this interceptor is used to catch errors from the API
 // convert them into API errors and store them in the error store
 // so that they're displayed to the user
 axios.interceptors.response.use(undefined, async (err: AxiosError) => {
+  const customConfig = err.config as CustomAxiosRequestConfig;
+
   const errorStore = useErrorStore();
   let apiError: ApiError;
 
@@ -54,8 +61,10 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  // Add the ApiError to the errorStore
-  errorStore.setError(apiError);
+  if (!customConfig.skipErrorNotifications) {
+    // Add the ApiError to the errorStore
+    errorStore.setError(apiError);
+  }
 
   return Promise.reject(apiError);
 });
@@ -308,6 +317,35 @@ export async function fetchDrawer(
 ): Promise<ApiGetDrawerResponse> {
   const res = await axios.get<ApiGetDrawerResponse>(
     `${BASE_URL}/drawers/getDrawer/${drawerId}`
+  );
+
+  return res.data;
+}
+
+export async function createDrawer(
+  drawerTitle: string,
+  customConfig: CustomAxiosRequestConfig = {}
+) {
+  const formdata = new FormData();
+  formdata.append("drawerTitle", drawerTitle);
+
+  const res = await axios.post<ApiCreateDrawerResponse>(
+    `${BASE_URL}/drawers/addDrawer`,
+    formdata,
+    customConfig
+  );
+
+  return res.data;
+}
+
+export async function deleteDrawer(
+  drawerId: number,
+  customConfig: CustomAxiosRequestConfig = {}
+) {
+  const res = await axios.post(
+    `${BASE_URL}/drawers/delete/${drawerId}/true`,
+    undefined,
+    customConfig
   );
 
   return res.data;

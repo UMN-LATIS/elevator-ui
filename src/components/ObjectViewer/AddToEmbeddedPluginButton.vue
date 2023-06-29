@@ -4,19 +4,25 @@
     class="object-viewer__button-bar flex justify-end items-center gap-2 p-2"
   >
     <Button
-      class="block text-xs p-2 uppercase font-bold"
+      class="block p-2 text-sm"
       variant="primary"
       @click="handleAddButtonClick"
     >
-      <PlusIcon v-if="addingToPluginStatus === 'idle'" />
-      <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
-      <CircleCheckIcon v-if="addingToPluginStatus === 'success'" />
-      <CircleXIcon v-if="addingToPluginStatus === 'error'" />
+      <PlusIcon v-if="addingToPluginStatus === 'idle'" class="!w-4 !h-4" />
+      <SpinnerIcon
+        v-if="addingToPluginStatus === 'loading'"
+        class="!w-4 !h-4"
+      />
+      <CircleCheckIcon
+        v-if="addingToPluginStatus === 'success'"
+        class="!w-4 !h-4"
+      />
+      <CircleXIcon v-if="addingToPluginStatus === 'error'" class="!w-4 !h-4" />
       Add to {{ elevatorPlugin }}
     </Button>
     <ConfirmModal
       :isOpen="isInterstitialOpen"
-      :label="`Add to ${elevatorPlugin}`"
+      :title="`Add to ${elevatorPlugin}`"
       @close="handleCloseInterstitial"
       @confirm="handleInterstitialConfirm"
     >

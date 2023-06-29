@@ -236,9 +236,13 @@ async function getSearchableMultiSelectFieldValues(
 }
 
 let listOfDrawers: null | Drawer[] = null;
-async function getDrawers(): Promise<Drawer[]> {
+async function getDrawers({
+  refresh = false,
+}: {
+  refresh?: boolean;
+} = {}): Promise<Drawer[]> {
   // return cached data if it exists
-  if (listOfDrawers) {
+  if (listOfDrawers && !refresh) {
     return listOfDrawers;
   }
 
@@ -249,7 +253,7 @@ async function getDrawers(): Promise<Drawer[]> {
   // and add the key as the id
   listOfDrawers = Object.entries(data)
     .map(([key, value]) => ({
-      id: key,
+      id: Number.parseInt(key),
       ...value,
     }))
     .sort((a, b) => a.title.localeCompare(b.title));
@@ -288,6 +292,8 @@ const api = {
   getSearchableMultiSelectFieldValues,
   getDrawers,
   getDrawer,
+  createDrawer: fetchers.createDrawer,
+  deleteDrawer: fetchers.deleteDrawer,
 };
 
 export default api;

@@ -1,50 +1,56 @@
 <template>
   <DefaultLayout>
-    <Transition name="fade">
-      <div v-if="fetchStatus === 'success'" class="p-8 px-4">
-        <h1 class="text-4xl font-bold my-8">Drawers</h1>
-        <!-- <nav class="mb-4">
-        <Button @click="handleCreateDrawer">Create Drawer</Button>
-      </nav> -->
-        <div ref="gridContainer" class="grid grid-cols-2 gap-2">
+    <div class="p-8 px-4">
+      <h1 class="text-4xl font-bold my-8">Drawers</h1>
+      <nav v-if="currentUser?.canManageDrawers" class="mb-4">
+        <CreateDrawerButton />
+      </nav>
+      <div ref="gridContainer" class="grid grid-cols-2 gap-2">
+        <TransitionGroup name="fade">
           <article
             v-for="drawer in drawers"
             :key="drawer.id"
-            class="bg-white rounded-lg p-4 relative"
+            class="relative drawer-list-item rounded hover:bg-white group transition-colors duration-150"
           >
-            <h2 class="mr-6">
-              <Link :to="`/drawers/viewDrawer/${drawer.id}`"
-                >{{ drawer.title }}
-              </Link>
-            </h2>
-
-            <!-- <button
-            class="absolute top-0 right-0 px-2 py-4 flex items-center justify-center hover:text-red-600"
-            type="button"
-            @click="handleRemoveDrawer(drawer.id)"
-          >
-            <CircleXIcon class="!w-5 !h-5" />
-          </button> -->
+            <DeleteDrawerButton
+              v-if="currentUser?.canManageDrawers"
+              :drawer="drawer"
+              class="float-right"
+            />
+            <Link
+              class="p-4 block hover:no-underline w-full h-full"
+              :to="`/drawers/viewDrawer/${drawer.id}`"
+            >
+              <h2 class="transition-colors duration-150">
+                {{ drawer.title }}
+              </h2>
+            </Link>
           </article>
-        </div>
+        </TransitionGroup>
       </div>
-    </Transition>
+    </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { Drawer, FetchStatus } from "@/types";
-import api from "@/api";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
-// import Button from "@/components/Button/Button.vue";
-// import CircleXIcon from "@/icons/CircleXIcon.vue";
+import DeleteDrawerButton from "./DeleteDrawerButton.vue";
+import CreateDrawerButton from "./CreateDrawerButton.vue";
+import { useDrawerStore } from "@/stores/drawerStore";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const gridContainer = ref<HTMLElement | null>(null);
-const drawers = ref<Drawer[]>([]);
 const numCols = ref(1);
-const fetchStatus = ref<FetchStatus>("idle");
+const instanceStore = useInstanceStore();
+const drawerStore = useDrawerStore();
+const currentUser = computed(() => instanceStore.currentUser);
+const drawers = computed(() =>
+  [...drawerStore.drawers].sort((a, b) => {
+    return a.title.localeCompare(b.title);
+  })
+);
 
 // by default, css grid will order the items by left-to-right,
 // then top-to-bottom. This makes is difficult to read:
@@ -66,18 +72,8 @@ const numRows = computed(() => {
   return Math.ceil(drawers.value.length / numCols.value);
 });
 
-function handleCreateDrawer() {
-  console.log("create drawer");
-}
-
-function handleRemoveDrawer(drawerId: string) {
-  console.log("remove drawer", drawerId);
-}
-
 onMounted(async () => {
-  fetchStatus.value = "fetching";
-  drawers.value = await api.getDrawers();
-  fetchStatus.value = "success";
+  drawerStore.init();
 });
 </script>
 <style scoped>
@@ -87,5 +83,12 @@ onMounted(async () => {
   grid-template-rows: repeat(v-bind("numRows"), auto);
   grid-auto-flow: column;
   gap: 0.5rem;
+}
+
+.drawer-list-item {
+  border: var(--app-accordion-outer-borderWidth) solid
+    var(--app-accordion-outer-borderColor);
+  background: var(--app-accordion-header-backgroundColor);
+  color: var(--app-accordion-header-textColor);
 }
 </style>
