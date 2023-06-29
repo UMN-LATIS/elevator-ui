@@ -42,7 +42,11 @@ const numCols = ref(1);
 const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
 const currentUser = computed(() => instanceStore.currentUser);
-const drawers = computed(() => drawerStore.drawers);
+const drawers = computed(() =>
+  [...drawerStore.drawers].sort((a, b) => {
+    return a.title.localeCompare(b.title);
+  })
+);
 
 // by default, css grid will order the items by left-to-right,
 // then top-to-bottom. This makes is difficult to read:
