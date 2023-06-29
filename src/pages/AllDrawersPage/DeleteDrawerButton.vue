@@ -9,48 +9,39 @@
     <span class="sr-only">Delete drawer</span>
     <CircleXIcon class="!w-5 !h-5" />
   </button>
-  <Dialog :isOpen="isConfirmOpen">
-    <Notification
-      title="Delete Drawer"
-      type="danger"
-      isDismissable
-      @dismiss="isConfirmOpen = false"
-    >
-      <p>
-        Are you sure you want to delete drawer
-        <b>{{ drawer.title }}</b
-        >? This action cannot be undone.
-      </p>
-      <div class="mt-4 flex justify-end gap-4">
-        <Button variant="tertiary" class="!px-4" @click="isConfirmOpen = false">
-          Cancel
-        </Button>
-        <Button variant="danger" class="!px-4" @click="handleDeleteDrawer">
-          Delete
-        </Button>
-      </div>
-    </Notification>
-  </Dialog>
+  <ConfirmModal
+    :isOpen="isConfirmOpen"
+    title="Delete Drawer"
+    type="danger"
+    confirmLabel="Delete"
+    @close="isConfirmOpen = false"
+    @confirm="handleDeleteDrawer"
+  >
+    <p>
+      Are you sure you want to delete drawer
+      <b>{{ drawer.title }}</b
+      >? This action cannot be undone.
+    </p>
+  </ConfirmModal>
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import { useInstanceStore } from "@/stores/instanceStore";
-import Dialog from "@/components/Dialog/Dialog.vue";
 import { CircleXIcon } from "@/icons";
-import Notification from "@/components/Notification/Notification.vue";
-import Button from "@/components/Button/Button.vue";
 import { Drawer } from "@/types";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
 const props = defineProps<{
   drawer: Drawer;
 }>();
 
 const instanceStore = useInstanceStore();
-// const drawerStore = useDrawerStore();
+const drawerStore = useDrawerStore();
 const isConfirmOpen = ref(false);
 
 function handleDeleteDrawer() {
+  console.log("handleDeleteDrawer");
   // drawerStore.deleteDrawer(props.drawerId);
 }
 </script>

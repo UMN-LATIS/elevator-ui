@@ -16,7 +16,7 @@
     </Button>
     <ConfirmModal
       :isOpen="isInterstitialOpen"
-      :label="`Add to ${elevatorPlugin}`"
+      :title="`Add to ${elevatorPlugin}`"
       @close="handleCloseInterstitial"
       @confirm="handleInterstitialConfirm"
     >

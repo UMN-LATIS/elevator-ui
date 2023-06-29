@@ -25,7 +25,7 @@
         <CircleCheckIcon v-if="type === 'success'" />
         <CircleXIcon v-if="type === 'danger'" />
       </div>
-      <div>
+      <div class="flex-1">
         <h3 class="notification__title text-sm font-bold uppercase pr-6">
           {{ title }}
         </h3>
