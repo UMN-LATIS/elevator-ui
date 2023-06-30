@@ -1,9 +1,7 @@
 <template>
   <ActiveFileViewButton title="Add to Drawer" @click="isModalOpen = true">
-    <AddToDrawerIcon v-if="fetchStatus === 'idle'" />
-    <SpinnerIcon v-else-if="fetchStatus === 'fetching'" />
-    <CircleCheckIcon v-else-if="fetchStatus === 'success'" class="w-6 h-6" />
-    <CircleXIcon v-else-if="fetchStatus === 'error'" class="w-6 h-6" />
+    <SpinnerIcon v-if="fetchStatus === 'fetching'" />
+    <AddToDrawerIcon v-else />
     <span class="sr-only">Add to Drawer</span>
   </ActiveFileViewButton>
   <Modal
@@ -75,13 +73,9 @@ import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
 import api from "@/api";
 import { useAssetStore } from "@/stores/assetStore";
 import { FetchStatus } from "@/types";
-import {
-  SpinnerIcon,
-  CircleCheckIcon,
-  CircleXIcon,
-  AddToDrawerIcon,
-} from "@/icons";
+import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
+import { useToastStore } from "@/stores/toastStore";
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
@@ -90,6 +84,7 @@ const fetchStatus = ref<FetchStatus>("idle");
 
 const drawerStore = useDrawerStore();
 const assetStore = useAssetStore();
+const toastStore = useToastStore();
 
 const isDrawerNameValid = computed(() => {
   return (
@@ -118,10 +113,13 @@ async function handleAddToDrawer(drawerId: string | number) {
     assetId: assetStore.activeAssetId,
     drawerId: drawerIdInt,
   });
-  fetchStatus.value = "success";
-  setTimeout(() => {
-    fetchStatus.value = "idle";
-  }, 1000);
+
+  const drawerTitle = drawerStore.drawers.find(
+    (drawer) => drawer.id === drawerIdInt
+  )?.title;
+
+  toastStore.addToast(`Asset added to drawer '${drawerTitle}'.`);
+  reset();
 }
 
 async function handleCreateNewDrawerThenAdd() {
@@ -136,6 +134,12 @@ async function handleCreateNewDrawerThenAdd() {
 
   const newDrawer = await drawerStore.createDrawer(newDrawerName.value);
   handleAddToDrawer(newDrawer.id);
+}
+
+function reset() {
+  selectedDrawer.value = "";
+  newDrawerName.value = "";
+  fetchStatus.value = "idle";
 }
 </script>
 <style scoped></style>
