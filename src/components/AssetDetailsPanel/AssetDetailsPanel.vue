@@ -1,6 +1,6 @@
 <template>
   <div class="asset-details">
-    <Drawer
+    <Panel
       :label="assetTitle"
       :isOpen="isOpen"
       :showToggle="showToggle"
@@ -8,7 +8,7 @@
       @toggle="$emit('toggle')"
     >
       <template #header-label>
-        <DrawerLabel
+        <PanelLabel
           :label="assetTitle || '(No Title)'"
           :class="{
             'text-2xl': isOpen,
@@ -17,17 +17,17 @@
       </template>
       <WidgetList v-if="assetId" :assetId="assetId" class="py-4 md:py-0" />
       <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />
-    </Drawer>
+    </Panel>
   </div>
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import Drawer from "@/components/Drawer/Drawer.vue";
+import Panel from "@/components/Panel/Panel.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
-import DrawerLabel from "../Drawer/DrawerLabel.vue";
+import PanelLabel from "../Panel/PanelLabel.vue";
 import api from "@/api";
 import { SearchResultMatch } from "@/types";
 

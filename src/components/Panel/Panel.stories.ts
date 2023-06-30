@@ -1,20 +1,20 @@
 import { Meta, StoryFn } from "@storybook/vue3";
-import Drawer from "@/components/Drawer/Drawer.vue";
+import Panel from "@/components/Panel/Panel.vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Chip from "@/components/Chip/Chip.vue";
 import Accordion from "@/components/Accordion/Accordion.vue";
 
 export default {
-  component: Drawer,
-} as Meta<typeof Drawer>;
+  component: Panel,
+} as Meta<typeof Panel>;
 
-const Template: StoryFn<typeof Drawer> = (args) => ({
-  components: { Drawer, Chip, Tuple, Accordion },
+const Template: StoryFn<typeof Panel> = (args) => ({
+  components: { Panel, Chip, Tuple, Accordion },
   setup() {
     return { args };
   },
   template: `
-    <Drawer v-bind="args">
+    <Panel v-bind="args">
       <Tuple label="Type of View">Exterior</Tuple>
       <Tuple label="Keywords" class="flex gap-1 flex-wrap mt-2">
         <Chip
@@ -47,18 +47,18 @@ const Template: StoryFn<typeof Drawer> = (args) => ({
             <Tuple label="Role">Architect</Tuple>
           </Accordion>
         </Tuple>
-    </Drawer>
+    </Panel>
   `,
 });
 
 export const Primary = Template.bind({});
 Primary.args = {
-  label: "Primary Drawer Title",
+  label: "Primary Panel Title",
   variant: "primary",
 };
 
 export const Secondary = Template.bind({});
 Secondary.args = {
-  label: "Secondary Drawer Title",
+  label: "Secondary Panel Title",
   variant: "secondary",
 };
