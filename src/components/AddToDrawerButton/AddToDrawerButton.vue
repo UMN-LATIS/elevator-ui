@@ -1,9 +1,9 @@
 <template>
   <ActiveFileViewButton title="Add to Drawer" @click="isModalOpen = true">
     <AddToDrawerIcon v-if="fetchStatus === 'idle'" />
-    <SpinnerIcon v-if="fetchStatus === 'fetching'" />
-    <CircleCheckIcon v-if="fetchStatus === 'success'" />
-    <CircleXIcon v-if="fetchStatus === 'error'" />
+    <SpinnerIcon v-else-if="fetchStatus === 'fetching'" />
+    <CircleCheckIcon v-else-if="fetchStatus === 'success'" class="w-6 h-6" />
+    <CircleXIcon v-else-if="fetchStatus === 'error'" class="w-6 h-6" />
     <span class="sr-only">Add to Drawer</span>
   </ActiveFileViewButton>
   <Modal

@@ -9,8 +9,11 @@
       <span v-else>+ {{ elevatorPlugin ?? "Elevator Plugin" }}</span>
     </template>
     <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
-    <CircleCheckIcon v-if="addingToPluginStatus === 'success'" />
-    <CircleXIcon v-if="addingToPluginStatus === 'error'" />
+    <CircleCheckIcon
+      v-if="addingToPluginStatus === 'success'"
+      class="w-6 h-6"
+    />
+    <CircleXIcon v-if="addingToPluginStatus === 'error'" class="w-6 h-6" />
   </ActiveFileViewButton>
   <ConfirmModal
     :isOpen="isInterstitialOpen"
