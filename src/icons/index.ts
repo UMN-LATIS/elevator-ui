@@ -1,3 +1,4 @@
+export { default as AddToDrawerIcon } from "./AddToDrawerIcon.vue";
 export { default as ArrowForwardIcon } from "./ArrowForwardIcon.vue";
 export { default as ChevronDownIcon } from "./ChevronDownIcon.vue";
 export { default as ChevronUpIcon } from "./ChevronUpIcon.vue";
