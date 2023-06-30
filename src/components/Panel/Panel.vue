@@ -16,7 +16,7 @@
           <ChevronUpIcon v-if="!isOpen" class="w-5 h-5" />
         </span>
         <slot name="header-label">
-          <DrawerLabel :label="label" :isOpen="isOpen" />
+          <PanelLabel :label="label" :isOpen="isOpen" />
         </slot>
       </button>
 
@@ -34,7 +34,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import DrawerLabel from "./DrawerLabel.vue";
+import PanelLabel from "./PanelLabel.vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
 

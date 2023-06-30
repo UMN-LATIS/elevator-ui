@@ -1,5 +1,5 @@
 import { Meta, StoryFn } from "@storybook/vue3";
-import AssetDetails from "./AssetDetailsDrawer.vue";
+import AssetDetails from "./AssetDetailsPanel.vue";
 
 export default {
   component: AssetDetails,

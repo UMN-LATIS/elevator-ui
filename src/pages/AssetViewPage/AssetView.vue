@@ -15,7 +15,7 @@
       }"
       :fileHandlerId="assetStore.activeFileObjectId"
     />
-    <AssetDetailsDrawer
+    <AssetDetailsPanel
       class="asset-view__asset-panel md:absolute"
       :class="{
         'asset-view__asset-panel--open': isAssetDetailsOpen,
@@ -30,7 +30,7 @@
       :isOpen="permitDrawerToggle ? isAssetDetailsOpen : true"
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
-    <ObjectDetailsDrawer
+    <ObjectDetailsPanel
       class="asset-view__details-panel md:absolute"
       :class="{
         'asset-view__details-panel--open': isObjectDetailsOpen,
@@ -55,8 +55,8 @@
 import { ref } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
-import ObjectDetailsDrawer from "@/components/ObjectDetailsDrawer/ObjectDetailsDrawer.vue";
-import AssetDetailsDrawer from "@/components/AssetDetailsDrawer/AssetDetailsDrawer.vue";
+import ObjectDetailsPanel from "@/components/ObjectDetailsPanel/ObjectDetailsPanel.vue";
+import AssetDetailsPanel from "@/components/AssetDetailsPanel/AssetDetailsPanel.vue";
 import { useMediaQuery } from "@vueuse/core";
 
 defineProps<{
