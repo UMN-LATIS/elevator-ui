@@ -5,23 +5,7 @@ import { Toast } from "@/types";
 
 export const useToastStore = defineStore("toastStore", {
   state: () => ({
-    toasts: [
-      {
-        id: "1",
-        message: "This is a toast",
-        duration: 5000,
-      },
-      {
-        id: "2",
-        message: "This is another toast",
-        duration: 5000,
-      },
-      {
-        id: "3",
-        message: "This is a third toast",
-        duration: 5000,
-      },
-    ] as Toast[],
+    toasts: [] as Toast[],
   }),
   actions: {
     addToast(message: string, duration = 5000) {
