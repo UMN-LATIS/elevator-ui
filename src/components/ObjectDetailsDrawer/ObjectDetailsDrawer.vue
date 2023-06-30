@@ -3,7 +3,7 @@
     <div v-if="!objectId" class="h-full flex justify-end">
       <ActiveFileViewToolbar />
     </div>
-    <Drawer
+    <Panel
       v-else
       label="Details"
       variant="secondary"
@@ -21,12 +21,12 @@
       <footer v-if="objectId" class="flex gap-2">
         <ArrowButton v-if="assetUrl" :to="assetUrl" />
       </footer>
-    </Drawer>
+    </Panel>
   </div>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import Drawer from "@/components/Drawer/Drawer.vue";
+import Panel from "@/components/Panel/Panel.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
 import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
