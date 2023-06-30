@@ -7,7 +7,7 @@
         <ShareButton />
         <AddToDrawerButton />
         <AddToEmbeddedPluginButton
-          v-if="isInEmbedMode || true"
+          v-if="isInEmbedMode"
           :fileHandlerId="fileHandlerId"
         />
       </div>

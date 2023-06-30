@@ -4,7 +4,7 @@
     @click="handleAddButtonClick"
   >
     <template v-if="addingToPluginStatus === 'idle'">
-      <AddToCanvasIcon v-if="true || elevatorPlugin === 'Canvas'" />
+      <AddToCanvasIcon v-if="elevatorPlugin === 'Canvas'" />
       <AddToWordPressIcon v-else-if="elevatorPlugin === 'WordPress'" />
       <span v-else>+ {{ elevatorPlugin ?? "Elevator Plugin" }}</span>
     </template>
