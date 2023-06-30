@@ -1,5 +1,5 @@
 import { Meta, StoryFn } from "@storybook/vue3";
-import ObjectDetails from "./ObjectDetailsDrawer.vue";
+import ObjectDetails from "./ObjectDetailsPanel.vue";
 
 export default {
   component: ObjectDetails,

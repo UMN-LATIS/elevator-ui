@@ -30,7 +30,7 @@ import Panel from "@/components/Panel/Panel.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { getAssetUrl } from "@/helpers/displayUtils";
 import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
-import ArrowButton from "../ArrowButton/ArrowButton.vue";
+import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 
 const props = withDefaults(
   defineProps<{
