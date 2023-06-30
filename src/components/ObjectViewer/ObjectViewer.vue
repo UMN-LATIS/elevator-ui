@@ -1,7 +1,6 @@
 <template>
   <section class="object-viewer relative flex flex-col">
     <h2 class="sr-only">Object Viewer</h2>
-    <ObjectViewerButtonBar :fileHandlerId="fileHandlerId" />
     <iframe
       v-if="fileHandlerId"
       class="object-viewer__iframe w-full flex-1"
@@ -21,7 +20,6 @@
 
 <script setup lang="ts">
 import config from "@/config";
-import ObjectViewerButtonBar from "../ObjectViewerButtonBar/ObjectViewerButtonBar.vue";
 
 defineProps<{
   fileHandlerId: string | null;

@@ -1,11 +1,11 @@
 <template>
-  <Button variant="tertiary" title="Add to Drawer" @click="isModalOpen = true">
-    <PlusIcon v-if="fetchStatus === 'idle'" class="!w-4 !h-4" />
-    <SpinnerIcon v-if="fetchStatus === 'fetching'" class="!w-4 !h-4" />
-    <CircleCheckIcon v-if="fetchStatus === 'success'" class="!w-4 !h-4" />
-    <CircleXIcon v-if="fetchStatus === 'error'" class="!w-4 !h-4" />
-    Drawer
-  </Button>
+  <ActiveFileViewButton title="Add to Drawer" @click="isModalOpen = true">
+    <AddToDrawerIcon v-if="fetchStatus === 'idle'" />
+    <SpinnerIcon v-if="fetchStatus === 'fetching'" />
+    <CircleCheckIcon v-if="fetchStatus === 'success'" />
+    <CircleXIcon v-if="fetchStatus === 'error'" />
+    <span class="sr-only">Add to Drawer</span>
+  </ActiveFileViewButton>
   <Modal
     type="info"
     label="Add to Drawer"
@@ -23,6 +23,9 @@
           <select
             v-model="selectedDrawer"
             class="border border-neutral-200 rounded w-full text-sm"
+            :class="{
+              'text-neutral-400': !selectedDrawer,
+            }"
           >
             <option disabled value="">-- Select a Drawer --</option>
             <option
@@ -34,7 +37,9 @@
             </option>
           </select>
         </div>
-        <Button class="text-sm" type="submit">Add to Drawer</Button>
+        <Button class="text-sm" type="submit" :disabled="!selectedDrawer">
+          Add to Drawer
+        </Button>
       </form>
 
       <p
@@ -50,7 +55,7 @@
         <DrawerTitleInput
           v-model="newDrawerName"
           class="flex-1 border border-neutral-200 rounded"
-          inputClass="bg-white"
+          inputClass="bg-white placeholder-neutral-400"
           :labelHidden="true"
         />
 
@@ -70,7 +75,13 @@ import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
 import api from "@/api";
 import { useAssetStore } from "@/stores/assetStore";
 import { FetchStatus } from "@/types";
-import { SpinnerIcon, CircleCheckIcon, CircleXIcon, PlusIcon } from "@/icons";
+import {
+  SpinnerIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+  AddToDrawerIcon,
+} from "@/icons";
+import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
@@ -110,7 +121,7 @@ async function handleAddToDrawer(drawerId: string | number) {
   fetchStatus.value = "success";
   setTimeout(() => {
     fetchStatus.value = "idle";
-  }, 3000);
+  }, 1000);
 }
 
 async function handleCreateNewDrawerThenAdd() {

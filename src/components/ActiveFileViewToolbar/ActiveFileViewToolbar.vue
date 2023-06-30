@@ -5,6 +5,7 @@
         <MoreFileInfoButton />
         <DownloadFileButton />
         <ShareButton />
+        <AddToDrawerButton />
       </div>
     </div>
   </div>
@@ -13,5 +14,6 @@
 import MoreFileInfoButton from "./MoreFileInfoButton.vue";
 import DownloadFileButton from "./DownloadFileButton.vue";
 import ShareButton from "./ShareButton.vue";
+import AddToDrawerButton from "@/components/AddToDrawerButton/AddToDrawerButton.vue";
 </script>
 <style scoped></style>

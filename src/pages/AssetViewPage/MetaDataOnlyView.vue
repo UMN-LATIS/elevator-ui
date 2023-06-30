@@ -1,6 +1,5 @@
 <template>
   <div class="h-full relative">
-    <ObjectViewerButtonBar class="sticky top-0" />
     <div class="meta-data-only-view h-full sm:p-8">
       <article
         class="meta-data-only-view__article m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-12"
@@ -28,7 +27,6 @@ import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
 import { SearchResultMatch } from "@/types";
 import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
-import ObjectViewerButtonBar from "@/components/ObjectViewerButtonBar/ObjectViewerButtonBar.vue";
 import api from "@/api";
 
 const props = defineProps<{
