@@ -3,17 +3,12 @@
     :title="`Add to ${elevatorPlugin || 'Elevator Plugin'}`"
     @click="handleAddButtonClick"
   >
-    <template v-if="addingToPluginStatus === 'idle'">
+    <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
+    <template v-else>
       <AddToCanvasIcon v-if="elevatorPlugin === 'Canvas'" />
       <AddToWordPressIcon v-else-if="elevatorPlugin === 'WordPress'" />
       <span v-else>+ {{ elevatorPlugin ?? "Elevator Plugin" }}</span>
     </template>
-    <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
-    <CircleCheckIcon
-      v-if="addingToPluginStatus === 'success'"
-      class="w-6 h-6"
-    />
-    <CircleXIcon v-if="addingToPluginStatus === 'error'" class="w-6 h-6" />
   </ActiveFileViewButton>
   <ConfirmModal
     :isOpen="isInterstitialOpen"
@@ -44,21 +39,17 @@ import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.
 import api from "@/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";
-import {
-  AddToCanvasIcon,
-  SpinnerIcon,
-  CircleCheckIcon,
-  CircleXIcon,
-  AddToWordPressIcon,
-} from "@/icons";
+import { AddToCanvasIcon, SpinnerIcon, AddToWordPressIcon } from "@/icons";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
 import { useAssetStore } from "@/stores/assetStore";
+import { useToastStore } from "@/stores/toastStore";
 
 const props = defineProps<{
   fileHandlerId: string | null;
 }>();
 
 const assetStore = useAssetStore();
+const toastStore = useToastStore();
 const {
   elevatorPlugin,
   elevatorCallbackType,
@@ -139,6 +130,7 @@ async function onConfirmedToAdd() {
 
       returnForm.value.submit();
       addingToPluginStatus.value = "success";
+      toastStore.addToast("Added to Canvas");
     });
   }
 
@@ -156,6 +148,7 @@ async function onConfirmedToAdd() {
       "*"
     );
     addingToPluginStatus.value = "success";
+    toastStore.addToast("Added to Canvas");
     window.close();
   }
 }
