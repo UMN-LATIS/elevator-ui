@@ -1,18 +1,17 @@
 <template>
-  <Button
-    variant="tertiary"
+  <ActiveFileViewButton
     :title="`Add to ${elevatorPlugin || 'Elevator Plugin'}`"
     @click="handleAddButtonClick"
   >
-    <PlusIcon v-if="addingToPluginStatus === 'idle'" class="!w-4 !h-4" />
-    <SpinnerIcon v-if="addingToPluginStatus === 'loading'" class="!w-4 !h-4" />
-    <CircleCheckIcon
-      v-if="addingToPluginStatus === 'success'"
-      class="!w-4 !h-4"
-    />
-    <CircleXIcon v-if="addingToPluginStatus === 'error'" class="!w-4 !h-4" />
-    {{ elevatorPlugin ?? "Elevator Plugin" }}
-  </Button>
+    <template v-if="addingToPluginStatus === 'idle'">
+      <AddToCanvasIcon v-if="true || elevatorPlugin === 'Canvas'" />
+      <AddToWordPressIcon v-else-if="elevatorPlugin === 'WordPress'" />
+      <span v-else>+ {{ elevatorPlugin ?? "Elevator Plugin" }}</span>
+    </template>
+    <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
+    <CircleCheckIcon v-if="addingToPluginStatus === 'success'" />
+    <CircleXIcon v-if="addingToPluginStatus === 'error'" />
+  </ActiveFileViewButton>
   <ConfirmModal
     :isOpen="isInterstitialOpen"
     :title="`Add to ${elevatorPlugin}`"
@@ -38,14 +37,17 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch, nextTick } from "vue";
-import Button from "@/components/Button/Button.vue";
+import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
 import api from "@/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";
-import PlusIcon from "@/icons/PlusIcon.vue";
-import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
-import CircleXIcon from "@/icons/CircleXIcon.vue";
+import {
+  AddToCanvasIcon,
+  SpinnerIcon,
+  CircleCheckIcon,
+  CircleXIcon,
+  AddToWordPressIcon,
+} from "@/icons";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
 import { useAssetStore } from "@/stores/assetStore";
 
