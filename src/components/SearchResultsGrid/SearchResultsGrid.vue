@@ -7,6 +7,7 @@
         :key="match.objectId"
         :searchMatch="match"
         :showDetails="false"
+        :drawerId="drawerId"
       />
       <SkeletonCard
         v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
@@ -27,6 +28,7 @@ const props = defineProps<{
   totalResults?: number;
   matches: SearchResultMatch[];
   status: FetchStatus;
+  drawerId?: number;
 }>();
 
 const emits = defineEmits<{

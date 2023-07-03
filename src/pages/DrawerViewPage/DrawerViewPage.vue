@@ -33,6 +33,7 @@
               :totalResults="results.length"
               :matches="results"
               :status="fetchStatus"
+              :drawerId="drawerId"
             />
           </Tab>
           <Tab id="list" label="List">
