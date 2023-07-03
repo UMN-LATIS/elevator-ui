@@ -148,7 +148,7 @@ async function onConfirmedToAdd() {
       "*"
     );
     addingToPluginStatus.value = "success";
-    toastStore.addToast("Added to Canvas");
+    toastStore.addToast("Added to WordPress");
     window.close();
   }
 }
