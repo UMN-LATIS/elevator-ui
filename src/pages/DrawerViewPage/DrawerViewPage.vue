@@ -1,14 +1,17 @@
 <template>
   <DefaultLayout class="drawer-view-page">
     <ConfirmModal
-      :isOpen="removeFromDrawerObjectId !== null"
-      title="Remove Item from Drawer"
+      :isOpen="!!objectIdToRemove"
+      :title="`Remove from drawer`"
       type="danger"
       confirmLabel="Remove"
-      @close="removeFromDrawerObjectId = null"
+      @close="objectIdToRemove = null"
       @confirm="handleRemoveFromDrawer"
     >
-      Are you sure you want to remove this item from the drawer?
+      Are you sure you want to remove
+      <b>{{ objectToRemove?.title ?? "this asset" }}</b> from the drawer
+      <b>{{ drawerTitle }}</b
+      >?
     </ConfirmModal>
     <Transition name="fade">
       <div v-if="fetchStatus === 'success'" class="px-4">
@@ -82,7 +85,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Tab from "@/components/Tabs/Tab.vue";
@@ -105,6 +108,7 @@ import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import api from "@/api";
 import { useInstanceStore } from "@/stores/instanceStore";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import { useToastStore } from "@/stores/toastStore";
 
 const props = withDefaults(
   defineProps<{
@@ -121,9 +125,15 @@ const activeTabId = ref<SearchResultsView>("grid");
 const results = ref<SearchResultMatch[]>([]);
 const fetchStatus = ref<FetchStatus>("idle");
 const totalResults = ref(0);
-const removeFromDrawerObjectId = ref<string | null>(null);
+const objectIdToRemove = ref<string | null>(null);
+const objectToRemove = computed(() => {
+  return results.value.find(
+    (result) => result.objectId === objectIdToRemove.value
+  );
+});
 
 const instanceStore = useInstanceStore();
+const toastStore = useToastStore();
 
 type SearchViewTab = TabType & { id: SearchResultsView };
 const isValidTab = (tab: TabType): tab is SearchViewTab => {
@@ -155,22 +165,31 @@ function handleLoadAll() {
 }
 
 function confirmRemoveFromDrawer(objectId: string) {
-  removeFromDrawerObjectId.value = objectId;
+  objectIdToRemove.value = objectId;
 }
 
-function handleRemoveFromDrawer() {
-  const objectToRemove = removeFromDrawerObjectId.value;
+async function handleRemoveFromDrawer() {
+  // cache the object to remove
+  const removedObject = objectToRemove.value;
+  if (!removedObject) throw new Error("No object to remove");
+
   // optimistically update
   results.value = results.value.filter(
-    (result) => result.objectId !== objectToRemove
+    (result) => result.objectId !== removedObject.objectId
   );
-  totalResults.value -= 1;
-  removeFromDrawerObjectId.value = null;
+  totalResults.value = totalResults.value - 1;
+  objectIdToRemove.value = null;
 
-  // do the api stuff
-  console.log("remove from drawer");
+  fetchStatus.value = "fetching";
+  await api.removeAssetFromDrawer({
+    drawerId: props.drawerId,
+    assetId: removedObject.objectId,
+  });
+  fetchStatus.value = "success";
 
-  // if it fails refresh the results
+  toastStore.addToast(
+    `Removed ${removedObject.title} from ${drawerTitle.value} drawer`
+  );
 }
 
 onMounted(async () => {
