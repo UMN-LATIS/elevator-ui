@@ -62,9 +62,8 @@ function startTimer() {
       emit("dismiss", props.toast.id);
     }
 
-    // update the start time
+    // update the timestamp
     prevTimestamp = Date.now();
-    console.log("raf");
   });
 }
 
