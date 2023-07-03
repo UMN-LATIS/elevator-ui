@@ -17,6 +17,10 @@ import {
   TreeNode,
   Drawer,
   ApiGetDrawerResponse,
+  ApiAddAssetToDrawerResponse,
+  ApiRemoveAssetFromDrawerResponse,
+  ApiCreateDrawerResponse,
+  CustomAxiosRequestConfig,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -36,6 +40,7 @@ const collectionSearchIds = new Map<number, string | null>();
 const staticPages = new Map<number, ApiStaticPageResponse | null>();
 const searchableFieldDetails = new Map<string, ApiGetFieldInfoResponse>();
 const drawerDetails = new Map<number, ApiGetDrawerResponse | null>();
+let listOfDrawers: null | Drawer[] = null;
 
 async function getAsset(assetId: string): Promise<Asset | null> {
   if (!assetId) return null;
@@ -235,7 +240,6 @@ async function getSearchableMultiSelectFieldValues(
   return data?.rawContent ?? {};
 }
 
-let listOfDrawers: null | Drawer[] = null;
 async function getDrawers({
   refresh = false,
 }: {
@@ -270,6 +274,60 @@ export async function getDrawer(id: number): Promise<ApiGetDrawerResponse> {
   return data;
 }
 
+export async function addAssetToDrawer({
+  drawerId,
+  assetId,
+}: {
+  assetId: string;
+  drawerId: number;
+}): Promise<ApiAddAssetToDrawerResponse> {
+  const data = await fetchers.addAssetToDrawer({ drawerId, assetId });
+
+  // clear the cache for this drawer
+  drawerDetails.delete(drawerId);
+
+  return data;
+}
+
+export async function removeAssetFromDrawer({
+  assetId,
+  drawerId,
+}: {
+  assetId: string;
+  drawerId: number;
+}): Promise<ApiRemoveAssetFromDrawerResponse> {
+  const data = await fetchers.removeAssetFromDrawer({ drawerId, assetId });
+
+  // clear the cache for this drawer
+  drawerDetails.delete(drawerId);
+
+  return data;
+}
+
+export async function createDrawer(
+  drawerTitle: string,
+  customConfig: CustomAxiosRequestConfig = {}
+): Promise<ApiCreateDrawerResponse> {
+  const data = await fetchers.createDrawer(drawerTitle, customConfig);
+
+  // clear the list of drawers cache
+  listOfDrawers = null;
+
+  return data;
+}
+
+export async function deleteDrawer(
+  drawerId: number,
+  customConfig: CustomAxiosRequestConfig = {}
+): Promise<unknown> {
+  const data = await fetchers.deleteDrawer(drawerId, customConfig);
+
+  // clear the list of drawers cache
+  listOfDrawers = null;
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -292,9 +350,10 @@ const api = {
   getSearchableMultiSelectFieldValues,
   getDrawers,
   getDrawer,
-  createDrawer: fetchers.createDrawer,
-  deleteDrawer: fetchers.deleteDrawer,
-  addAssetToDrawer: fetchers.addAssetToDrawer,
+  createDrawer,
+  deleteDrawer,
+  addAssetToDrawer,
+  removeAssetFromDrawer,
 };
 
 export default api;
