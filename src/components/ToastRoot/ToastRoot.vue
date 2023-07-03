@@ -1,6 +1,6 @@
 <template>
   <div
-    class="notification-root fixed bottom-0 sm:top-0 right-0 z-50 p-4 w-full max-w-sm pointer-events-none flex flex-col items-end gap-1"
+    class="notification-root fixed top-12 right-0 z-50 p-4 w-full max-w-sm pointer-events-none flex flex-col items-end gap-1"
   >
     <TransitionGroup name="fade">
       <Toast
