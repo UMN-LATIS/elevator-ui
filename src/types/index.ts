@@ -1,5 +1,7 @@
 import type { Ref } from "vue";
 import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
+import { AxiosRequestConfig } from "axios";
+
 export * from "./TimelineJSTypes";
 
 export interface AppConfig {
@@ -715,8 +717,19 @@ export interface ApiGetDrawerResponse extends SearchResultsResponse {
 
 export type ApiCreateDrawerResponse = ApiGetDrawerResponse;
 
+export interface ApiAddAssetToDrawerResponse {
+  success?: boolean;
+  error?: string;
+}
+
+export type ApiRemoveAssetFromDrawerResponse = ApiAddAssetToDrawerResponse;
+
 export interface Toast {
   id: string;
   message: string;
   duration?: number;
+}
+
+export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  skipErrorNotifications?: boolean;
 }
