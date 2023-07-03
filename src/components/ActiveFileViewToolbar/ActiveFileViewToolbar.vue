@@ -5,7 +5,7 @@
         <MoreFileInfoButton />
         <DownloadFileButton />
         <ShareButton />
-        <AddToDrawerButton />
+        <AddToDrawerButton v-if="instanceStore.currentUser?.canManageDrawers" />
         <AddToEmbeddedPluginButton
           v-if="isInEmbedMode"
           :fileHandlerId="fileHandlerId"
@@ -21,11 +21,13 @@ import ShareButton from "./ShareButton.vue";
 import AddToDrawerButton from "@/components/AddToDrawerButton/AddToDrawerButton.vue";
 import AddToEmbeddedPluginButton from "../AddToEmbeddedPluginButton/AddToEmbeddedPluginButton.vue";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 defineProps<{
   fileHandlerId: string | null;
 }>();
 
+const instanceStore = useInstanceStore();
 const { isInEmbedMode } = useElevatorSessionStorage();
 </script>
 <style scoped></style>
