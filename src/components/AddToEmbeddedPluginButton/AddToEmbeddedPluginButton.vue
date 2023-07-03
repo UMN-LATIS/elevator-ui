@@ -1,71 +1,55 @@
 <template>
-  <div
-    v-if="elevatorPlugin"
-    class="object-viewer__button-bar flex justify-end items-center gap-2 p-2"
+  <ActiveFileViewButton
+    :title="`Add to ${elevatorPlugin || 'Elevator Plugin'}`"
+    @click="handleAddButtonClick"
   >
-    <Button
-      class="block p-2 text-sm"
-      variant="primary"
-      @click="handleAddButtonClick"
-    >
-      <PlusIcon v-if="addingToPluginStatus === 'idle'" class="!w-4 !h-4" />
-      <SpinnerIcon
-        v-if="addingToPluginStatus === 'loading'"
-        class="!w-4 !h-4"
-      />
-      <CircleCheckIcon
-        v-if="addingToPluginStatus === 'success'"
-        class="!w-4 !h-4"
-      />
-      <CircleXIcon v-if="addingToPluginStatus === 'error'" class="!w-4 !h-4" />
-      Add to {{ elevatorPlugin }}
-    </Button>
-    <ConfirmModal
-      :isOpen="isInterstitialOpen"
-      :title="`Add to ${elevatorPlugin}`"
-      @close="handleCloseInterstitial"
-      @confirm="handleInterstitialConfirm"
-    >
-      <div
-        v-if="interstitial?.interstitialText"
-        v-html="interstitial?.interstitialText"
-      />
-      <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
-    </ConfirmModal>
-    <form
-      v-if="elevatorCallbackType == 'lti'"
-      ref="returnForm"
-      :action="returnUrl ?? ''"
-      method="POST"
-    >
-      <input type="hidden" name="lti_version" value="LTI-1p0" />
-      <input
-        type="hidden"
-        name="lti_message_type"
-        value="ContentItemSelection"
-      />
-      <input type="hidden" name="content_items" :value="ltiContentItems" />
-    </form>
-  </div>
+    <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
+    <template v-else>
+      <AddToCanvasIcon v-if="elevatorPlugin === 'Canvas'" />
+      <AddToWordPressIcon v-else-if="elevatorPlugin === 'WordPress'" />
+      <span v-else>+ {{ elevatorPlugin ?? "Elevator Plugin" }}</span>
+    </template>
+  </ActiveFileViewButton>
+  <ConfirmModal
+    :isOpen="isInterstitialOpen"
+    :title="`Add to ${elevatorPlugin}`"
+    @close="handleCloseInterstitial"
+    @confirm="handleInterstitialConfirm"
+  >
+    <div
+      v-if="interstitial?.interstitialText"
+      v-html="interstitial?.interstitialText"
+    />
+    <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
+  </ConfirmModal>
+  <form
+    v-if="elevatorCallbackType == 'lti'"
+    ref="returnForm"
+    :action="returnUrl ?? ''"
+    method="POST"
+  >
+    <input type="hidden" name="lti_version" value="LTI-1p0" />
+    <input type="hidden" name="lti_message_type" value="ContentItemSelection" />
+    <input type="hidden" name="content_items" :value="ltiContentItems" />
+  </form>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch, nextTick } from "vue";
-import Button from "@/components/Button/Button.vue";
+import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
 import api from "@/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";
-import PlusIcon from "@/icons/PlusIcon.vue";
-import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
-import CircleXIcon from "@/icons/CircleXIcon.vue";
+import { AddToCanvasIcon, SpinnerIcon, AddToWordPressIcon } from "@/icons";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
 import { useAssetStore } from "@/stores/assetStore";
+import { useToastStore } from "@/stores/toastStore";
 
 const props = defineProps<{
   fileHandlerId: string | null;
 }>();
 
 const assetStore = useAssetStore();
+const toastStore = useToastStore();
 const {
   elevatorPlugin,
   elevatorCallbackType,
@@ -146,6 +130,7 @@ async function onConfirmedToAdd() {
 
       returnForm.value.submit();
       addingToPluginStatus.value = "success";
+      toastStore.addToast("Added to Canvas");
     });
   }
 
@@ -163,6 +148,7 @@ async function onConfirmedToAdd() {
       "*"
     );
     addingToPluginStatus.value = "success";
+    toastStore.addToast("Added to Canvas");
     window.close();
   }
 }

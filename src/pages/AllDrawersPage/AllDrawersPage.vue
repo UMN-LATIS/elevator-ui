@@ -71,10 +71,6 @@ useResizeObserver(gridContainer, (entries) => {
 const numRows = computed(() => {
   return Math.ceil(drawers.value.length / numCols.value);
 });
-
-onMounted(async () => {
-  drawerStore.init();
-});
 </script>
 <style scoped>
 .grid {

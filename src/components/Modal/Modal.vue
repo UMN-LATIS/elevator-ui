@@ -3,14 +3,14 @@
     <div
       ref="modal"
       :class="{
-        'modal flex bg-transparent-black-700 fixed inset-0 z-50 justify-center items-center':
+        'modal flex bg-transparent-black-700 fixed inset-0 z-50 justify-center items-center p-4':
           isOpen,
         hidden: !isOpen,
       }"
       @click.self="$emit('close')"
     >
       <div
-        class="modal-contents shadow-lg absolute rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[80vh] m-auto w-full"
+        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[80vh] m-auto w-full"
         v-bind="$attrs"
       >
         <XButton

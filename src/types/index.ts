@@ -714,3 +714,9 @@ export interface ApiGetDrawerResponse extends SearchResultsResponse {
 }
 
 export type ApiCreateDrawerResponse = ApiGetDrawerResponse;
+
+export interface Toast {
+  id: string;
+  message: string;
+  duration?: number;
+}

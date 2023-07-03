@@ -7,32 +7,7 @@
     @close="handleClose"
   >
     <form class="flex flex-col gap-6" @submit.prevent="handleCreateDrawer">
-      <div>
-        <InputGroup
-          id="new-drawer-title"
-          v-model="newDrawerTitle"
-          label="Title"
-          @input.once="isTitleTouched = true"
-        >
-          <template #append>
-            <button
-              v-if="newDrawerTitle.length"
-              type="button"
-              class="text-transparent-black-500 hover:text-neutral-900 float-right"
-              @click="resetForm"
-            >
-              <span class="sr-only">Clear</span>
-              <CircleXIcon />
-            </button>
-          </template>
-        </InputGroup>
-        <p
-          v-if="!isTitleValid && isTitleTouched"
-          class="text-sm text-red-600 mt-2"
-        >
-          Drawer title must be unique.
-        </p>
-      </div>
+      <DrawerTitleInput v-model="newDrawerTitle" />
       <div class="flex justify-end gap-2 items-center">
         <Button variant="tertiary" @click="handleClose">Cancel</Button>
         <Button type="submit" variant="primary" :disabled="!isTitleValid">
@@ -46,9 +21,8 @@
 import { ref, computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import DrawerTitleInput from "@/components/DrawerTitleInput/DrawerTitleInput.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { CircleXIcon } from "@/icons";
 
 const isCreateDrawerModalOpen = ref(false);
 const newDrawerTitle = ref("");

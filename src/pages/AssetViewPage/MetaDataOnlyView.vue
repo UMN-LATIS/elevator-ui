@@ -1,21 +1,23 @@
 <template>
-  <div class="meta-data-only-view h-full sm:p-8">
-    <article
-      class="meta-data-only-view__article m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-12"
-    >
-      <h2
-        class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
+  <div class="h-full relative">
+    <div class="meta-data-only-view h-full sm:p-8">
+      <article
+        class="meta-data-only-view__article m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-12"
       >
-        {{ assetTitle || "(No Title)" }}
-      </h2>
+        <h2
+          class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
+        >
+          {{ assetTitle || "(No Title)" }}
+        </h2>
 
-      <WidgetList v-if="assetId" :assetId="assetId" />
-      <MoreLikeThis
-        v-if="assetId"
-        :items="moreLikeThisItems"
-        listContainerClass="sm:!grid sm:!grid-cols-2"
-      />
-    </article>
+        <WidgetList v-if="assetId" :assetId="assetId" />
+        <MoreLikeThis
+          v-if="assetId"
+          :items="moreLikeThisItems"
+          listContainerClass="sm:!grid sm:!grid-cols-2"
+        />
+      </article>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
