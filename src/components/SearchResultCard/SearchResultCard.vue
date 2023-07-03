@@ -1,9 +1,10 @@
 <template>
   <div
-    class="relative search-result-card border border-transparent rounded-md transition-colors"
+    class="relative search-result-card border-2 border-transparent rounded-md"
   >
     <button
-      class="bg-white w-6 h-6 text-neutral-300 inline-flex justify-center items-center absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 rounded-full shadow-sm hover:bg-neutral-900 hover:text-neutral-200 remove-from-drawer-btn group"
+      class="bg-white w-6 h-6 text-neutral-300 inline-flex justify-center items-center absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 rounded-full shadow-sm hover:bg-neutral-900 hover:text-neutral-200 remove-from-drawer-btn transition-all"
+      title="Remove from drawer"
     >
       <span class="sr-only">Remove from drawer</span>
       &times;
@@ -46,12 +47,6 @@
               </div>
             </dl>
           </div>
-          <div
-            class="absolute w-10 h-10 bottom-0 right-0 inline-flex justify-center items-center rounded-full group-hover:!bg-blue-700 group-hover:!text-white transition-colors"
-          >
-            <ArrowForwardIcon />
-            <span class="sr-only">View Asset</span>
-          </div>
         </div>
       </MediaCard>
     </Link>
@@ -65,7 +60,6 @@ import { computed, ref } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
 import Chip from "../Chip/Chip.vue";
-import { ArrowForwardIcon } from "@/icons";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
