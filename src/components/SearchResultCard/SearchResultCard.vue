@@ -3,11 +3,12 @@
     class="relative search-result-card border-2 border-transparent rounded-lg"
   >
     <button
-      v-if="drawerId && instanceStore.currentUser?.canManageDrawers"
+      v-if="showRemoveButton"
       class="bg-white w-6 h-6 text-neutral-300 inline-flex justify-center items-center absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 rounded-full shadow-sm hover:bg-neutral-900 hover:text-neutral-200 remove-from-drawer-btn transition-all"
-      title="Remove from drawer"
+      title="Remove"
+      @click="$emit('remove')"
     >
-      <span class="sr-only">Remove from drawer</span>
+      <span class="sr-only">Remove</span>
       &times;
     </button>
     <Link
@@ -61,15 +62,17 @@ import { computed, ref } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
 import Chip from "../Chip/Chip.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
-  drawerId?: number;
+  showRemoveButton: boolean;
+}>();
+
+defineEmits<{
+  (eventName: "remove"): void;
 }>();
 
 const cardContents = ref<HTMLElement | null>(null);
-const instanceStore = useInstanceStore();
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {

@@ -1,5 +1,15 @@
 <template>
   <DefaultLayout class="drawer-view-page">
+    <ConfirmModal
+      :isOpen="removeFromDrawerObjectId !== null"
+      title="Remove Item from Drawer"
+      type="danger"
+      confirmLabel="Remove"
+      @close="removeFromDrawerObjectId = null"
+      @confirm="handleRemoveFromDrawer"
+    >
+      Are you sure you want to remove this item from the drawer?
+    </ConfirmModal>
     <Transition name="fade">
       <div v-if="fetchStatus === 'success'" class="px-4">
         <header class="my-8">
@@ -34,6 +44,8 @@
               :matches="results"
               :status="fetchStatus"
               :drawerId="drawerId"
+              :showRemoveButton="instanceStore.currentUser?.canManageDrawers"
+              @remove="confirmRemoveFromDrawer"
             />
           </Tab>
           <Tab id="list" label="List">
@@ -91,6 +103,8 @@ import {
 } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import api from "@/api";
+import { useInstanceStore } from "@/stores/instanceStore";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -107,6 +121,9 @@ const activeTabId = ref<SearchResultsView>("grid");
 const results = ref<SearchResultMatch[]>([]);
 const fetchStatus = ref<FetchStatus>("idle");
 const totalResults = ref(0);
+const removeFromDrawerObjectId = ref<string | null>(null);
+
+const instanceStore = useInstanceStore();
 
 type SearchViewTab = TabType & { id: SearchResultsView };
 const isValidTab = (tab: TabType): tab is SearchViewTab => {
@@ -135,6 +152,25 @@ function handleLoadMore() {
 
 function handleLoadAll() {
   console.log("load all");
+}
+
+function confirmRemoveFromDrawer(objectId: string) {
+  removeFromDrawerObjectId.value = objectId;
+}
+
+function handleRemoveFromDrawer() {
+  const objectToRemove = removeFromDrawerObjectId.value;
+  // optimistically update
+  results.value = results.value.filter(
+    (result) => result.objectId !== objectToRemove
+  );
+  totalResults.value -= 1;
+  removeFromDrawerObjectId.value = null;
+
+  // do the api stuff
+  console.log("remove from drawer");
+
+  // if it fails refresh the results
 }
 
 onMounted(async () => {
