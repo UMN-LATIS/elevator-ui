@@ -15,9 +15,12 @@
       <DocumentIcon v-else />
     </div>
 
-    <div class="flex-1 p-4">
+    <div class="flex-1 m-4">
       <slot />
     </div>
+    <footer>
+      <slot name="footer" />
+    </footer>
   </article>
 </template>
 <script setup lang="ts">
