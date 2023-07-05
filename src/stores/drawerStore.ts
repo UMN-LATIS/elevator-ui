@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { Drawer } from "@/types";
 import api from "@/api";
 import { useToastStore } from "./toastStore";
+import { useAssetStore } from "./assetStore";
 
 export interface DrawerStoreState {
   drawerRecords: Record<number, Drawer>;
@@ -72,9 +73,14 @@ export const useDrawerStore = defineStore("drawer", {
         drawerId,
       });
 
-      const drawerTitle = this.drawerRecords[drawerId].title;
+      const assetStore = useAssetStore();
       const toastStore = useToastStore();
-      toastStore.addToast(`Asset added to drawer '${drawerTitle}'.`);
+
+      const drawerTitle = this.drawerRecords[drawerId].title;
+      const assetTitle = await assetStore.getAssetTitle(assetId);
+      toastStore.addToast(
+        `'${assetTitle ?? "Asset"}' added to drawer '${drawerTitle}'.`
+      );
 
       // invalidate the drawer contents so that it's refetched
       // on next access
