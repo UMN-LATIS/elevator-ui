@@ -2,15 +2,13 @@
   <div
     class="relative search-result-card border-2 border-transparent rounded-lg"
   >
-    <button
-      v-if="showRemoveButton"
-      class="bg-white w-6 h-6 text-neutral-300 inline-flex justify-center items-center absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 rounded-full shadow-sm hover:bg-neutral-900 hover:text-neutral-200 remove-from-drawer-btn transition-all"
-      title="Remove"
-      @click="$emit('remove')"
-    >
-      <span class="sr-only">Remove</span>
-      &times;
-    </button>
+    <RemoveFromDrawerButton
+      v-if="drawerId && instanceStore.currentUser?.canManageDrawers"
+      class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 remove-from-drawer-btn"
+      :drawerId="drawerId"
+      :objectId="searchMatch.objectId"
+    />
+
     <MediaCard
       :imgSrc="thumbnailImgSrc"
       :imgAlt="title"
@@ -44,8 +42,11 @@
         </dl>
       </div>
       <template #footer>
-        <div v-if="showAddToDrawerButton" class="flex justify-end">
-          <AddToDrawerButton :objectId="searchMatch.objectId" />
+        <div class="flex justify-end">
+          <AddToDrawerButton
+            v-if="instanceStore.currentUser?.canManageDrawers"
+            :objectId="searchMatch.objectId"
+          />
         </div>
       </template>
     </MediaCard>
@@ -59,22 +60,15 @@ import { computed } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Chip from "../Chip/Chip.vue";
 import AddToDrawerButton from "../AddToDrawerButton/AddToDrawerButton.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
+import RemoveFromDrawerButton from "@/components/RemoveFromDrawerButton/RemoveFromDrawerButton.vue";
 
-const props = withDefaults(
-  defineProps<{
-    searchMatch: SearchResultMatch;
-    showRemoveButton?: boolean;
-    showAddToDrawerButton?: boolean;
-  }>(),
-  {
-    showRemoveButton: false,
-    showAddToDrawerButton: false,
-  }
-);
-
-defineEmits<{
-  (eventName: "remove"): void;
+const props = defineProps<{
+  searchMatch: SearchResultMatch;
+  drawerId?: number;
 }>();
+
+const instanceStore = useInstanceStore();
 
 const assetUrl = computed(() => getAssetUrl(props.searchMatch.objectId));
 
