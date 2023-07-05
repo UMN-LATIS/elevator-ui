@@ -44,6 +44,7 @@
         </dl>
       </div>
       <template #footer>
+        <div v-if="showAddToDrawerButton" class="flex justify-end">
           <AddToDrawerButton :objectId="searchMatch.objectId" />
         </div>
       </template>
@@ -58,18 +59,22 @@ import { computed } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Chip from "../Chip/Chip.vue";
 import AddToDrawerButton from "../AddToDrawerButton/AddToDrawerButton.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 
-const props = defineProps<{
-  searchMatch: SearchResultMatch;
-  showRemoveButton: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    searchMatch: SearchResultMatch;
+    showRemoveButton?: boolean;
+    showAddToDrawerButton?: boolean;
+  }>(),
+  {
+    showRemoveButton: false,
+    showAddToDrawerButton: false,
+  }
+);
 
 defineEmits<{
   (eventName: "remove"): void;
 }>();
-
-const instanceStore = useInstanceStore();
 
 const assetUrl = computed(() => getAssetUrl(props.searchMatch.objectId));
 

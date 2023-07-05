@@ -48,6 +48,7 @@
               :status="fetchStatus"
               :drawerId="drawerId"
               :showRemoveButton="instanceStore.currentUser?.canManageDrawers"
+              :showAddToDrawerButton="false"
               @remove="confirmRemoveFromDrawer"
             />
           </Tab>

@@ -45,6 +45,9 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
+              :showAddToDrawerButton="
+                instanceStore.currentUser?.canManageDrawers
+              "
               @loadMore="() => searchStore.loadMore()"
             />
           </Tab>
@@ -126,6 +129,7 @@ import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 import SearchErrorNotification from "./SearchErrorNotification.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = withDefaults(
   defineProps<{
@@ -139,6 +143,7 @@ const props = withDefaults(
   }
 );
 
+const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 const route = useRoute();
 const router = useRouter();
