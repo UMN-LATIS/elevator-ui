@@ -45,7 +45,7 @@
         <div class="flex justify-end">
           <AddToDrawerButton
             v-if="instanceStore.currentUser?.canManageDrawers"
-            :objectId="searchMatch.objectId"
+            :assetId="searchMatch.objectId"
           />
         </div>
       </template>
