@@ -78,9 +78,11 @@ export const useDrawerStore = defineStore("drawer", {
 
       const drawerTitle = this.drawerRecords[drawerId].title;
       const assetTitle = await assetStore.getAssetTitle(assetId);
-      toastStore.addToast(
-        `'${assetTitle ?? "Asset"}' added to drawer '${drawerTitle}'.`
-      );
+      toastStore.addToast({
+        message: `'${assetTitle ?? "Asset"}' added to drawer '${drawerTitle}'.`,
+        url: `/drawers/viewDrawer/${drawerId}`,
+        urlText: "View drawer",
+      });
 
       // invalidate the drawer contents so that it's refetched
       // on next access
@@ -138,9 +140,11 @@ export const useDrawerStore = defineStore("drawer", {
       });
 
       const toastStore = useToastStore();
-      toastStore.addToast(
-        `Removed '${assetTitle}' from drawer '${drawerTitle}'.`
-      );
+      toastStore.addToast({
+        message: `Removed '${assetTitle}' from drawer '${drawerTitle}'.`,
+        url: `/drawers/viewDrawer/${drawerId}`,
+        urlText: "View drawer",
+      });
     },
   },
 });

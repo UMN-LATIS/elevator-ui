@@ -130,7 +130,7 @@ async function onConfirmedToAdd() {
 
       returnForm.value.submit();
       addingToPluginStatus.value = "success";
-      toastStore.addToast("Added to Canvas");
+      toastStore.addToast({ message: "Added to Canvas" });
     });
   }
 
@@ -148,7 +148,7 @@ async function onConfirmedToAdd() {
       "*"
     );
     addingToPluginStatus.value = "success";
-    toastStore.addToast("Added to WordPress");
+    toastStore.addToast({ message: "Added to WordPress" });
     window.close();
   }
 }
