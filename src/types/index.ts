@@ -732,6 +732,8 @@ export interface Toast {
   id: string;
   message: string;
   duration?: number;
+  url?: string;
+  urlText?: string;
 }
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
