@@ -8,6 +8,7 @@
         :searchMatch="match"
         :showDetails="false"
         :showRemoveButton="showRemoveButton"
+        :showAddToDrawerButton="showAddToDrawerButton"
         @remove="$emit('remove', match.objectId)"
       />
       <SkeletonCard
@@ -32,11 +33,13 @@ const props = withDefaults(
     status: FetchStatus;
     drawerId?: number;
     showRemoveButton?: boolean;
+    showAddToDrawerButton?: boolean;
   }>(),
   {
     totalResults: undefined,
     drawerId: undefined,
     showRemoveButton: false,
+    showAddToDrawerButton: false,
   }
 );
 
