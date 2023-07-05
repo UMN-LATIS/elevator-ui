@@ -7,6 +7,8 @@
         :key="match.objectId"
         :searchMatch="match"
         :showDetails="false"
+        :showRemoveButton="showRemoveButton"
+        @remove="$emit('remove', match.objectId)"
       />
       <SkeletonCard
         v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
@@ -23,14 +25,24 @@ import { computed, watch } from "vue";
 import { FetchStatus, SearchResultMatch } from "@/types";
 import { useScroll } from "@vueuse/core";
 
-const props = defineProps<{
-  totalResults?: number;
-  matches: SearchResultMatch[];
-  status: FetchStatus;
-}>();
+const props = withDefaults(
+  defineProps<{
+    totalResults?: number;
+    matches: SearchResultMatch[];
+    status: FetchStatus;
+    drawerId?: number;
+    showRemoveButton?: boolean;
+  }>(),
+  {
+    totalResults: undefined,
+    drawerId: undefined,
+    showRemoveButton: false,
+  }
+);
 
 const emits = defineEmits<{
   (event: "loadMore");
+  (event: "remove", objectId: string);
 }>();
 
 const { arrivedState } = useScroll(window, {

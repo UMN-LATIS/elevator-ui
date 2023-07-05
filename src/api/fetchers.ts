@@ -22,6 +22,9 @@ import type {
   ApiGetDrawerResponse,
   WidgetProps,
   ApiCreateDrawerResponse,
+  ApiAddAssetToDrawerResponse,
+  ApiRemoveAssetFromDrawerResponse,
+  CustomAxiosRequestConfig,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -33,10 +36,6 @@ import { toClickToSearchUrl } from "@/helpers/displayUtils";
 const BASE_URL = config.instance.base.url;
 
 axios.defaults.withCredentials = true;
-
-interface CustomAxiosRequestConfig extends AxiosRequestConfig {
-  skipErrorNotifications?: boolean;
-}
 
 // this interceptor is used to catch errors from the API
 // convert them into API errors and store them in the error store
@@ -362,9 +361,22 @@ export async function addAssetToDrawer({
   formdata.append("objectId", assetId);
   formdata.append("drawerList", String(drawerId));
 
-  const res = await axios.post(
+  const res = await axios.post<ApiAddAssetToDrawerResponse>(
     `${BASE_URL}/drawers/addToDrawer/true`,
     formdata
+  );
+  return res.data;
+}
+
+export async function removeAssetFromDrawer({
+  assetId,
+  drawerId,
+}: {
+  assetId: string;
+  drawerId: number;
+}) {
+  const res = await axios.post<ApiRemoveAssetFromDrawerResponse>(
+    `${BASE_URL}/drawers/removeFromDrawer/${drawerId}/${assetId}/true`
   );
   return res.data;
 }
