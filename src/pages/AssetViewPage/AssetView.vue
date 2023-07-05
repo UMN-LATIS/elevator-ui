@@ -25,9 +25,9 @@
         'md:bottom-0 md:left-0 md:h-16 md:w-1/2':
           !isAssetDetailsOpen && !isObjectDetailsOpen, //neither open
       }"
-      :showToggle="permitDrawerToggle"
+      :showToggle="permitPanelToggle"
       :assetId="assetStore.activeAssetId"
-      :isOpen="permitDrawerToggle ? isAssetDetailsOpen : true"
+      :isOpen="permitPanelToggle ? isAssetDetailsOpen : true"
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
     />
     <ObjectDetailsPanel
@@ -44,10 +44,10 @@
         'md:bottom-0 md:right-0 md:h-16 md:w-1/2':
           !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
       }"
-      :showToggle="permitDrawerToggle"
+      :showToggle="permitPanelToggle"
       :objectId="assetStore.activeObjectId"
       :fileHandlerId="assetStore.activeFileObjectId"
-      :isOpen="permitDrawerToggle ? isObjectDetailsOpen : true"
+      :isOpen="permitPanelToggle ? isObjectDetailsOpen : true"
       @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
     />
   </div>
@@ -69,7 +69,7 @@ const isAssetDetailsOpen = ref(true);
 const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
 
-const permitDrawerToggle = useMediaQuery("(min-width: 768px)");
+const permitPanelToggle = useMediaQuery("(min-width: 768px)");
 </script>
 <style scoped lang="postcss">
 @media (min-width: 48rem) {
