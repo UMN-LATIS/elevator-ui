@@ -5,7 +5,7 @@
         <header class="my-8">
           <Link
             :to="`/drawers/listDrawers`"
-            class="flex items-center gap-1 mb-4"
+            class="flex items-center gap-1 mb-4 hover:no-underline"
           >
             <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
             Back to Drawers
@@ -106,7 +106,7 @@ const route = useRoute();
 const drawer = computed(() => drawerStore.getDrawerById(props.drawerId));
 
 const drawerTitle = computed(() => {
-  return drawerStore.drawers.find((d) => d.id === props.drawerId)?.title;
+  return drawerStore.drawerRecords[props.drawerId]?.title;
 });
 
 type SearchViewTab = TabType & { id: SearchResultsView };
