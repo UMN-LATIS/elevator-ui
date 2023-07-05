@@ -2,34 +2,43 @@
   <article
     class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm"
   >
-    <div
-      class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200"
-    >
-      <LazyLoadImage
-        v-if="imgSrc"
-        :src="imgSrc"
-        :alt="imgAlt || 'Untitled'"
-        loading="lazy"
-        class="object-cover w-full h-full"
-      />
-      <DocumentIcon v-else />
+    <div class="placeholder-image aspect-video overflow-hidden">
+      <component
+        :is="to ? Link : 'div'"
+        :to="to"
+        class="flex items-center justify-center w-full h-full media-card__image"
+      >
+        <LazyLoadImage
+          v-if="imgSrc"
+          :src="imgSrc"
+          :alt="imgAlt || 'Untitled'"
+          loading="lazy"
+          class="object-cover w-full h-full"
+        />
+        <DocumentIcon v-else />
+      </component>
     </div>
 
-    <div class="flex-1 m-4">
+    <component
+      :is="to ? Link : 'div'"
+      class="flex-1 p-4 media-card__body hover:no-underline"
+    >
       <slot />
-    </div>
-    <footer>
+    </component>
+    <footer class="p-4 pt-0">
       <slot name="footer" />
     </footer>
   </article>
 </template>
 <script setup lang="ts">
 import { DocumentIcon } from "@/icons";
-import LazyLoadImage from "../LazyLoadImage/LazyLoadImage.vue";
+import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
+import Link from "@/components/Link/Link.vue";
 
 defineProps<{
   imgSrc?: string | null;
   imgAlt?: string | null;
+  to?: string;
 }>();
 </script>
 <style scoped>
@@ -38,5 +47,27 @@ defineProps<{
   color: var(--app-mediaCard-textColor);
   border: var(--app-mediaCard-borderWidth) solid
     var(--app-mediaCard-borderColor);
+
+  & :is(h1, h2, h3, h4, h5, a) {
+    color: var(--app-mediaCard-textColor);
+  }
+}
+
+.media-card__image {
+  background: var(--app-thumbnailImage-backgroundColor);
+  color: var(--app-thumbnailImage-textColor);
+}
+
+.media-card:has(.media-card__image:hover),
+.media-card:has(.media-card__body:hover) {
+  --hover-text-color: var(--color-blue-600);
+  --hover-bg-color: var(--color-blue-50);
+  background: var(--hover-bg-color);
+  color: var(--hover-text-color);
+  border-color: var(--hover-text-color);
+
+  & :is(h1, h2, h3, h4, h5, a) {
+    color: var(--hover-text-color);
+  }
 }
 </style>
