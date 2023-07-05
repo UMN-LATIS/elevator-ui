@@ -5,7 +5,7 @@ import api from "@/api";
 export interface AssetStoreState {
   activeAssetId: string | null;
   activeObjectId: string | null;
-  activeFileObjectId: string | null;
+  activeFileObjectId: string | null; // fileHandlerId
 }
 
 export const useAssetStore = defineStore("asset2", {

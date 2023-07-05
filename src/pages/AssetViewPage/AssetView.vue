@@ -46,6 +46,7 @@
       }"
       :showToggle="permitDrawerToggle"
       :objectId="assetStore.activeObjectId"
+      :fileHandlerId="assetStore.activeFileObjectId"
       :isOpen="permitDrawerToggle ? isObjectDetailsOpen : true"
       @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
     />
