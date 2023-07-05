@@ -7,7 +7,8 @@
         :key="match.objectId"
         :searchMatch="match"
         :showDetails="false"
-        :drawerId="drawerId"
+        :showRemoveButton="showRemoveButton"
+        @remove="$emit('remove', match.objectId)"
       />
       <SkeletonCard
         v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
@@ -30,15 +31,18 @@ const props = withDefaults(
     matches: SearchResultMatch[];
     status: FetchStatus;
     drawerId?: number;
+    showRemoveButton?: boolean;
   }>(),
   {
     totalResults: undefined,
     drawerId: undefined,
+    showRemoveButton: false,
   }
 );
 
 const emits = defineEmits<{
   (event: "loadMore");
+  (event: "remove", objectId: string);
 }>();
 
 const { arrivedState } = useScroll(window, {

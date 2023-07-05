@@ -1,9 +1,5 @@
 <template>
-  <ActiveFileViewButton
-    title="Add to Drawer"
-    v-bind="$attrs"
-    @click="isModalOpen = true"
-  >
+  <ActiveFileViewButton title="Add to Drawer" @click="isModalOpen = true">
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
     <span class="sr-only">Add to Drawer</span>
@@ -74,13 +70,12 @@ import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
+import api from "@/api";
+import { useAssetStore } from "@/stores/assetStore";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
-
-const props = defineProps<{
-  assetId: string;
-}>();
+import { useToastStore } from "@/stores/toastStore";
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
@@ -88,6 +83,8 @@ const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 
 const drawerStore = useDrawerStore();
+const assetStore = useAssetStore();
+const toastStore = useToastStore();
 
 const isDrawerNameValid = computed(() => {
   return (
@@ -105,18 +102,23 @@ async function handleAddToDrawer(drawerId: string | number) {
     throw new Error("Cannot add to drawer. Drawer ID is not a number.");
   }
 
-  if (!props.assetId) {
+  if (!assetStore.activeAssetId) {
     throw new Error("Cannot add to drawer. No active asset.");
   }
 
   isModalOpen.value = false;
 
   fetchStatus.value = "fetching";
-  await drawerStore.addAssetToDrawer({
-    assetId: props.assetId,
+  await api.addAssetToDrawer({
+    assetId: assetStore.activeAssetId,
     drawerId: drawerIdInt,
   });
-  fetchStatus.value = "idle";
+
+  const drawerTitle = drawerStore.drawers.find(
+    (drawer) => drawer.id === drawerIdInt
+  )?.title;
+
+  toastStore.addToast(`Asset added to drawer '${drawerTitle}'.`);
   reset();
 }
 

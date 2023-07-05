@@ -265,19 +265,13 @@ async function getDrawers({
   return listOfDrawers;
 }
 
-export async function getDrawer(id: number): Promise<Drawer> {
+export async function getDrawer(id: number): Promise<ApiGetDrawerResponse> {
   const data = drawerDetails.get(id) ?? (await fetchers.fetchDrawer(id));
 
   // cache the response
   drawerDetails.set(id, data);
 
-  const { drawerId, drawerTitle, ...contents } = data;
-
-  return {
-    id: drawerId,
-    title: drawerTitle,
-    contents,
-  };
+  return data;
 }
 
 export async function addAssetToDrawer({

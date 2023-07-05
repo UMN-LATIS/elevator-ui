@@ -1,12 +1,11 @@
 import { Asset } from "@/types";
 import { defineStore } from "pinia";
 import api from "@/api";
-import { getAssetTitle } from "@/helpers/displayUtils";
 
 export interface AssetStoreState {
   activeAssetId: string | null;
   activeObjectId: string | null;
-  activeFileObjectId: string | null; // fileHandlerId
+  activeFileObjectId: string | null;
 }
 
 export const useAssetStore = defineStore("asset2", {
@@ -63,18 +62,6 @@ export const useAssetStore = defineStore("asset2", {
       this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
 
       return asset;
-    },
-
-    async getAsset(assetId: string): Promise<Asset | null> {
-      const { asset } = await api.getAssetWithTemplate(assetId);
-
-      return asset;
-    },
-
-    async getAssetTitle(assetId: string): Promise<string | null> {
-      const asset = await this.getAsset(assetId);
-      if (!asset) return null;
-      return getAssetTitle(asset);
     },
   },
 });

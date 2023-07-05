@@ -15,15 +15,7 @@
         transform: `translateX(-${timerWidthPercent}%)`,
       }"
     />
-    <p>{{ toast.message }}</p>
-    <p v-if="toast.url" class="mt-1 flex justify-end">
-      <Link
-        :to="toast.url"
-        class="uppercase text-xs py-1 px-2 bg-transparent-white-200 text-neutral-400 hover:no-underline hover:text-neutral-900 hover:bg-neutral-200 rounded-md"
-      >
-        {{ toast.urlText || "View" }}
-      </Link>
-    </p>
+    {{ toast.message }}
   </div>
 </template>
 <script setup lang="ts">
@@ -31,8 +23,6 @@ import { Toast } from "@/types";
 import { onMounted, ref, computed } from "vue";
 import { useRafFn } from "@vueuse/core";
 import { XIcon } from "@/icons";
-import Button from "@/components/Button/Button.vue";
-import Link from "../Link/Link.vue";
 
 const props = withDefaults(
   defineProps<{

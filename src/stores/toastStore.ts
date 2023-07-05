@@ -8,12 +8,12 @@ export const useToastStore = defineStore("toastStore", {
     toasts: [] as Toast[],
   }),
   actions: {
-    addToast(toast: Omit<Toast, "id">) {
+    addToast(message: string, duration = 5000) {
       const id = crypto.randomUUID();
       this.toasts.push({
-        ...toast,
         id,
-        duration: toast.duration ?? 5000,
+        message,
+        duration,
       });
     },
 

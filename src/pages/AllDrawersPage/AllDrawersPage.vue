@@ -32,7 +32,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";

@@ -13,7 +13,6 @@
           v-for="searchMatch in inlineResultsList"
           :key="searchMatch.objectId"
           :searchMatch="searchMatch"
-          :showAddToDrawerButton="instanceStore.currentUser?.canManageDrawers"
         />
       </div>
     </div>
@@ -42,7 +41,6 @@
           v-for="searchMatch in items"
           :key="searchMatch.objectId"
           :searchMatch="searchMatch"
-          :showAddToDrawerButton="instanceStore.currentUser?.canManageDrawers"
         />
       </div>
     </Modal>
@@ -56,15 +54,12 @@ import config from "@/config";
 import Modal from "../Modal/Modal.vue";
 import ButtonWithCount from "./ButtonWithCount.vue";
 import CountChip from "./CountChip.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 
 type CSSClass = string | string[] | Record<string, boolean>;
 const props = defineProps<{
   items: SearchResultMatch[];
   listContainerClass?: CSSClass;
 }>();
-
-const instanceStore = useInstanceStore();
 
 const inlineResultsList = computed(() => {
   return props.items.slice(0, config.moreLikeThis.maxInlineResults);
