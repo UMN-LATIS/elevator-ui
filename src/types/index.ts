@@ -706,16 +706,20 @@ export type GlobalSearchableFileType =
 export interface Drawer {
   id: number;
   title: string;
+  contents?: SearchResultsResponse;
 }
 
 export type ApiListDrawersResponse = Record<number, { title: string }>;
+
+export interface ApiCreateDrawerResponse {
+  drawerId: number;
+  drawerTitle: string;
+}
 
 export interface ApiGetDrawerResponse extends SearchResultsResponse {
   drawerId: number;
   drawerTitle: string;
 }
-
-export type ApiCreateDrawerResponse = ApiGetDrawerResponse;
 
 export interface ApiAddAssetToDrawerResponse {
   success?: boolean;
