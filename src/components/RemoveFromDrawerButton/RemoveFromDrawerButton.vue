@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import { useToastStore } from "@/stores/toastStore";
 import { useDrawerStore } from "@/stores/drawerStore";
 
 const props = defineProps<{
@@ -34,13 +33,20 @@ const props = defineProps<{
 }>();
 
 const drawerStore = useDrawerStore();
+const drawer = computed(() => drawerStore.getDrawerById(props.drawerId));
+const object = computed(() =>
+  drawer.value?.contents?.matches?.find(
+    (match) => match.objectId === props.objectId
+  )
+);
 
 const isConfirmModalOpen = ref(false);
 const objectTitle = computed(() => {
-  return "TODO";
+  return object.value?.title;
 });
+
 const drawerTitle = computed(() => {
-  return "TODO";
+  return drawer.value?.title;
 });
 
 async function handleRemoveFromDrawer() {
