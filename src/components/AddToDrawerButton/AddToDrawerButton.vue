@@ -1,5 +1,9 @@
 <template>
-  <ActiveFileViewButton title="Add to Drawer" @click="isModalOpen = true">
+  <ActiveFileViewButton
+    title="Add to Drawer"
+    v-bind="$attrs"
+    @click="isModalOpen = true"
+  >
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
     <span class="sr-only">Add to Drawer</span>
