@@ -54,27 +54,6 @@ async function handleRemoveFromDrawer() {
     drawerId: props.drawerId,
     assetId: props.objectId,
   });
-
-  // // cache the object to remove
-  // if (!removedObject) throw new Error("No object to remove");
-
-  // // optimistically update
-  // results.value = results.value.filter(
-  //   (result) => result.objectId !== removedObject.objectId
-  // );
-  // totalResults.value = totalResults.value - 1;
-  // objectIdToRemove.value = null;
-
-  // fetchStatus.value = "fetching";
-  // await api.removeAssetFromDrawer({
-  //   drawerId: props.drawerId,
-  //   assetId: removedObject.objectId,
-  // });
-  // fetchStatus.value = "success";
-
-  // toastStore.addToast(
-  //   `Removed ${removedObject.title} from ${drawerTitle.value} drawer`
-  // );
 }
 </script>
 <style scoped></style>
