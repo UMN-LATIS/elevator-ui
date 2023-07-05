@@ -1,7 +1,7 @@
 <template>
   <div class="object-details">
     <div v-if="!objectId" class="h-full flex justify-end">
-      <ActiveFileViewToolbar />
+      <ActiveFileViewToolbar :fileHandlerId="fileHandlerId" />
     </div>
     <Panel
       v-else
@@ -13,7 +13,7 @@
       @toggle="$emit('toggle')"
     >
       <template #header-utils>
-        <ActiveFileViewToolbar />
+        <ActiveFileViewToolbar :fileHandlerId="fileHandlerId" />
       </template>
 
       <WidgetList v-if="objectId" :assetId="objectId" />
@@ -35,6 +35,7 @@ import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 const props = withDefaults(
   defineProps<{
     objectId: string | null;
+    fileHandlerId: string | null;
     isOpen: boolean;
     showToggle?: boolean;
   }>(),
