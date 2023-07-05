@@ -11,57 +11,58 @@
       <span class="sr-only">Remove</span>
       &times;
     </button>
-    <Link
-      :to="getAssetUrl(searchMatch.objectId)"
-      class="group hover:no-underline relative"
+    <MediaCard
+      :imgSrc="thumbnailImgSrc"
+      :imgAlt="title"
+      :to="assetUrl"
+      class="search-result-card flex w-full h-full relative transition-colors"
     >
-      <MediaCard
-        :imgSrc="thumbnailImgSrc"
-        :imgAlt="title"
-        class="search-result-card flex w-full h-full group-hover:bg-blue-50 group-hover:outline-offset-2 group-hover:text-blue-700 group-hover:border-blue-700 relative transition-colors"
+      <Chip
+        v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
+        class="absolute top-1 right-1 z-10 !bg-neutral-900 !text-neutral-200 border !border-neutral-900"
       >
-        <Chip
-          v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
-          class="absolute top-1 right-1 z-10 !bg-neutral-900 !text-neutral-200 border !border-neutral-900 group-hover:!border-blue-700 group-hover:!bg-blue-100 group-hover:!text-blue-700 transition-colors"
-        >
-          {{ searchMatch.fileAssets }} files
-        </Chip>
-        <div ref="cardContents" class="relative h-full">
-          <h1
-            class="search-result-card__title font-bold leading-tight mb-2 group-hover:text-blue-700 transition-colors"
-          >
-            {{ title }}
-          </h1>
+        {{ searchMatch.fileAssets }} files
+      </Chip>
+      <h1 class="search-result-card__title font-bold leading-tight mb-2">
+        {{ title }}
+      </h1>
+      <div
+        v-if="props.searchMatch?.entries"
+        class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
+      >
+        <dl class="text-sm">
           <div
-            v-if="props.searchMatch?.entries"
-            class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
+            v-for="(entry, index) in props.searchMatch.entries"
+            :key="index"
+            class="mb-2"
           >
-            <dl class="text-sm group-hover:text-blue-700 transition-colors">
-              <div
-                v-for="(entry, index) in props.searchMatch.entries"
-                :key="index"
-                class="mb-2"
-              >
-                <dt class="font-bold text-xs uppercase">
-                  {{ entry?.label ?? "Item" }}
-                </dt>
-                <dd>{{ entry.entries?.join(", ") }}</dd>
-              </div>
-            </dl>
+            <dt class="font-bold text-xs uppercase">
+              {{ entry?.label ?? "Item" }}
+            </dt>
+            <dd>{{ entry.entries?.join(", ") }}</dd>
           </div>
+        </dl>
+      </div>
+      <template #footer>
+        <div
+          v-if="instanceStore.currentUser?.canManageDrawers"
+          class="flex justify-end"
+        >
+          <AddToDrawerButton />
         </div>
-      </MediaCard>
-    </Link>
+      </template>
+    </MediaCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { SearchResultMatch } from "@/types";
 import { getAssetUrl, getThumbURL, stripTags } from "@/helpers/displayUtils";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
-import Link from "@/components/Link/Link.vue";
 import Chip from "../Chip/Chip.vue";
+import AddToDrawerButton from "../AddToDrawerButton/AddToDrawerButton.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
@@ -72,7 +73,9 @@ defineEmits<{
   (eventName: "remove"): void;
 }>();
 
-const cardContents = ref<HTMLElement | null>(null);
+const instanceStore = useInstanceStore();
+
+const assetUrl = computed(() => getAssetUrl(props.searchMatch.objectId));
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {
@@ -92,10 +95,6 @@ const thumbnailImgSrc = computed(() => {
 });
 </script>
 <style scoped>
-.search-result-card__title {
-  color: var(--app-mediaCard-title-textColor);
-}
-
 .search-result-card:has(.remove-from-drawer-btn:hover) {
   border-color: var(--neutral-900);
 }
