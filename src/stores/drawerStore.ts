@@ -100,8 +100,47 @@ export const useDrawerStore = defineStore("drawer", {
       assetId: string;
       drawerId: number;
     }) {
-      // TODO
-      console.log("removeAssetFromDrawer");
+      const assetStore = useAssetStore();
+      const drawerTitle = this.drawerRecords[drawerId].title;
+      const assetTitle = await assetStore.getAssetTitle(assetId);
+
+      if (!assetId) {
+        throw new Error(`Cannot remove asset from drawer: no assetId provided`);
+      }
+
+      if (!drawerId) {
+        throw new Error(
+          `Cannot remove asset from drawer: no drawerId provided`
+        );
+      }
+
+      // drawer contents should exist at this point
+      if (!this.drawerRecords[drawerId].contents) {
+        throw new Error(
+          `Cannot remove asset from drawer: drawer contents not found`
+        );
+      }
+
+      // optimistically remove the asset from the drawer
+      const previousMatches = this.drawerRecords[drawerId].contents?.matches;
+
+      if (previousMatches) {
+        const updatedMatches = previousMatches.filter(
+          (match) => match.objectId !== assetId
+        );
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.drawerRecords[drawerId].contents!.matches = updatedMatches;
+      }
+
+      await api.removeAssetFromDrawer({
+        assetId,
+        drawerId,
+      });
+
+      const toastStore = useToastStore();
+      toastStore.addToast(
+        `Removed '${assetTitle}' from drawer '${drawerTitle}'.`
+      );
     },
   },
 });
