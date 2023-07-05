@@ -1,7 +1,10 @@
 <template>
   <div class="object-details">
     <div v-if="!objectId" class="h-full flex justify-end">
-      <ActiveFileViewToolbar :fileHandlerId="fileHandlerId" />
+      <ActiveFileViewToolbar
+        :fileHandlerId="fileHandlerId"
+        :objectId="objectId"
+      />
     </div>
     <Panel
       v-else
@@ -13,7 +16,10 @@
       @toggle="$emit('toggle')"
     >
       <template #header-utils>
-        <ActiveFileViewToolbar :fileHandlerId="fileHandlerId" />
+        <ActiveFileViewToolbar
+          :fileHandlerId="fileHandlerId"
+          :objectId="objectId"
+        />
       </template>
 
       <WidgetList v-if="objectId" :assetId="objectId" />

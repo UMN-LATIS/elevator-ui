@@ -44,11 +44,7 @@
         </dl>
       </div>
       <template #footer>
-        <div
-          v-if="instanceStore.currentUser?.canManageDrawers"
-          class="flex justify-end"
-        >
-          <AddToDrawerButton />
+          <AddToDrawerButton :objectId="searchMatch.objectId" />
         </div>
       </template>
     </MediaCard>
