@@ -98,7 +98,6 @@ const isDrawerNameValid = computed(() => {
 });
 
 async function handleAddToDrawer(drawerId: string | number) {
-  console.log("handleAddToDrawer", drawerId);
   const drawerIdInt: number =
     typeof drawerId === "string" ? Number.parseInt(drawerId) : drawerId;
 
