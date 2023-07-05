@@ -74,14 +74,12 @@ import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
-import api from "@/api";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
-import { useToastStore } from "@/stores/toastStore";
 
 const props = defineProps<{
-  objectId: string | null;
+  assetId: string;
 }>();
 
 const isModalOpen = ref(false);
@@ -90,7 +88,6 @@ const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 
 const drawerStore = useDrawerStore();
-const toastStore = useToastStore();
 
 const isDrawerNameValid = computed(() => {
   return (
@@ -101,6 +98,7 @@ const isDrawerNameValid = computed(() => {
 });
 
 async function handleAddToDrawer(drawerId: string | number) {
+  console.log("handleAddToDrawer", drawerId);
   const drawerIdInt: number =
     typeof drawerId === "string" ? Number.parseInt(drawerId) : drawerId;
 
@@ -108,7 +106,7 @@ async function handleAddToDrawer(drawerId: string | number) {
     throw new Error("Cannot add to drawer. Drawer ID is not a number.");
   }
 
-  if (!props.objectId) {
+  if (!props.assetId) {
     throw new Error("Cannot add to drawer. No active asset.");
   }
 
@@ -116,7 +114,7 @@ async function handleAddToDrawer(drawerId: string | number) {
 
   fetchStatus.value = "fetching";
   await drawerStore.addAssetToDrawer({
-    assetId: props.objectId,
+    assetId: props.assetId,
     drawerId: drawerIdInt,
   });
   fetchStatus.value = "idle";

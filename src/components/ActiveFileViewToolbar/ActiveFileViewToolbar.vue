@@ -6,8 +6,8 @@
         <DownloadFileButton />
         <ShareButton />
         <AddToDrawerButton
-          v-if="instanceStore.currentUser?.canManageDrawers"
-          :objectId="objectId"
+          v-if="instanceStore.currentUser?.canManageDrawers && assetId"
+          :assetId="assetId"
         />
         <AddToEmbeddedPluginButton
           v-if="isInEmbedMode"
@@ -28,7 +28,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 
 defineProps<{
   fileHandlerId: string | null;
-  objectId: string | null;
+  assetId: string | null;
 }>();
 
 const instanceStore = useInstanceStore();

@@ -45,6 +45,7 @@
           !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
       }"
       :showToggle="permitPanelToggle"
+      :assetId="assetStore.activeAssetId"
       :objectId="assetStore.activeObjectId"
       :fileHandlerId="assetStore.activeFileObjectId"
       :isOpen="permitPanelToggle ? isObjectDetailsOpen : true"

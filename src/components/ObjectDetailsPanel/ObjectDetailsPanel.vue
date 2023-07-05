@@ -3,7 +3,7 @@
     <div v-if="!objectId" class="h-full flex justify-end">
       <ActiveFileViewToolbar
         :fileHandlerId="fileHandlerId"
-        :objectId="objectId"
+        :assetId="assetId"
       />
     </div>
     <Panel
@@ -18,7 +18,7 @@
       <template #header-utils>
         <ActiveFileViewToolbar
           :fileHandlerId="fileHandlerId"
-          :objectId="objectId"
+          :assetId="objectId"
         />
       </template>
 
@@ -40,6 +40,7 @@ import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 
 const props = withDefaults(
   defineProps<{
+    assetId: string | null;
     objectId: string | null;
     fileHandlerId: string | null;
     isOpen: boolean;
