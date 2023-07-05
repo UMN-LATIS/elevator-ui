@@ -343,7 +343,7 @@ export interface SearchEntry {
   searchDate?: DateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
-  showHidden?: boolean;
+  showHidden?: boolean | "0" | "1";
   fuzzySearch?: "0" | "1";
   sort?: string;
   specificFieldSearch?: SpecificFieldSearchItem[];
