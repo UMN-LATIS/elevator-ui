@@ -26,7 +26,7 @@
 import { ref, computed } from "vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { getAssetTitle, stripTags } from "@/helpers/displayUtils";
+import { stripTags } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   drawerId: number;
