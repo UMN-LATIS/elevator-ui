@@ -150,8 +150,6 @@ export const useDrawerStore = defineStore("drawer", {
       const toastStore = useToastStore();
       toastStore.addToast({
         message: `Removed '${assetTitle}' from drawer '${drawerTitle}'.`,
-        url: `/drawers/viewDrawer/${drawerId}`,
-        urlText: "View drawer",
       });
     },
   },
