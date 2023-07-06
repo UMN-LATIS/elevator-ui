@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout class="drawer-view-page">
     <Transition name="fade">
-      <div v-if="drawer.contents" class="px-4">
+      <div class="px-4">
         <header class="my-8">
           <Link
             :to="`/drawers/listDrawers`"
@@ -18,18 +18,50 @@
           :activeTabId="activeTabId"
           @tabChange="handleTabChange"
         >
-          <div class="bg-transparent-black-50 rounded-md mb-4">
-            <ResultsCount
-              class="mb-2 sm:mb-0 p-2"
-              :total="drawer.contents.totalResults"
-              :fetchStatus="fetchStatus"
-              :showingCount="drawer.contents.matches.length"
-              @loadMore="handleLoadMore"
-              @loadAll="handleLoadAll"
-            />
+          <div
+            class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2"
+          >
+            <div>
+              <ResultsCount
+                v-if="drawer.contents"
+                class="mb-2 sm:mb-0"
+                :total="drawer.contents.totalResults"
+                :fetchStatus="fetchStatus"
+                :showingCount="drawer.contents.matches.length"
+                @loadMore="handleLoadMore"
+                @loadAll="handleLoadAll"
+              />
+
+              <div
+                v-else
+                class="flex items-center gap-2 text-neutral-500 text-sm"
+              >
+                <SpinnerIcon class="animate-spin h-5 w-5" />
+                Loading...
+              </div>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <label for="location" class="sr-only">Sort</label>
+              <select
+                id="sort"
+                name="sort"
+                class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
+                :value="selectedSortOption"
+                @change="handleSortOptionChange"
+              >
+                <option
+                  v-for="(sortOptionLabel, sortOptionKey) in sortOptions"
+                  :key="sortOptionKey"
+                  :value="sortOptionKey"
+                >
+                  {{ sortOptionLabel }}
+                </option>
+              </select>
+            </div>
           </div>
           <Tab id="grid" label="Grid">
             <SearchResultsGrid
+              v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
@@ -38,6 +70,7 @@
           </Tab>
           <Tab id="list" label="List">
             <SearchResultsList
+              v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
@@ -45,6 +78,7 @@
           </Tab>
           <Tab id="timeline" label="Timeline">
             <SearchResultsTimeline
+              v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
@@ -52,6 +86,7 @@
           </Tab>
           <Tab id="map" label="Map">
             <SearchResultsMap
+              v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
@@ -59,6 +94,7 @@
           </Tab>
           <Tab id="gallery" label="Gallery">
             <SearchResultsGallery
+              v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
@@ -86,6 +122,9 @@ import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import { SearchResultsView, Tab as TabType, FetchStatus } from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import { useDrawerStore } from "@/stores/drawerStore";
+import { SORT_KEYS } from "@/constants/constants";
+import { useErrorStore } from "@/stores/errorStore";
+import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -104,12 +143,19 @@ const drawerStore = useDrawerStore();
 const router = useRouter();
 const route = useRoute();
 const drawer = computed(() => drawerStore.getDrawerById(props.drawerId));
+const sortOptions = {
+  [SORT_KEYS.TITLE]: "Default Title",
+  [SORT_KEYS.CUSTOM]: "Custom",
+};
+const selectedSortOption = ref<keyof typeof sortOptions>(SORT_KEYS.TITLE);
 
 const drawerTitle = computed(() => {
   return drawerStore.drawerRecords[props.drawerId]?.title;
 });
 
 type SearchViewTab = TabType & { id: SearchResultsView };
+type supportedSortOption = keyof typeof sortOptions;
+
 const isValidTab = (tab: TabType): tab is SearchViewTab => {
   return SEARCH_RESULTS_VIEWS.includes(tab.id as SearchResultsView);
 };
@@ -136,9 +182,65 @@ function handleLoadAll() {
   console.log("load all");
 }
 
+const isValidSortOption = (sort: unknown): sort is supportedSortOption =>
+  typeof sort === "string" && sort in sortOptions;
+
+function handleSortOptionChange(event: Event) {
+  const sortOption = (event.target as HTMLSelectElement).value;
+  if (!isValidSortOption(sortOption)) {
+    throw new Error(`Invalid sort option: ${sortOption}`);
+  }
+
+  selectedSortOption.value = sortOption;
+  setSortQueryParam(sortOption);
+  drawerStore.setDrawerSortBy(props.drawerId, sortOption);
+}
+
+function setSortQueryParam(sortOption: supportedSortOption) {
+  router.replace({
+    query: {
+      ...route.query,
+      sort: sortOption,
+    },
+  });
+}
+const errorStore = useErrorStore();
+
 onMounted(async () => {
   fetchStatus.value = "fetching";
+  // get current drawer contents
   await drawerStore.refreshDrawer(props.drawerId);
+
+  // sortBy is persisted in the drawer record, so check its current value
+  const drawerRecord = drawerStore.drawerRecords[props.drawerId];
+  if (!drawerRecord.contents) {
+    fetchStatus.value = "error";
+    return errorStore.setError(new Error("Couldn't find drawer content."));
+  }
+
+  // first check the query param for sort.
+  // If it's invalid or empty,  just set it to match the drawer record
+  if (!route.query.sort || !isValidSortOption(route.query.sort)) {
+    selectedSortOption.value = drawerRecord.contents.sortBy ?? SORT_KEYS.TITLE;
+    setSortQueryParam(selectedSortOption.value);
+    fetchStatus.value = "success";
+    return;
+  }
+
+  // if the query param is set, valid, and matches the drawer record
+  // then just set the initial selected sort option
+  if (route.query.sort === drawerRecord.contents.sortBy) {
+    selectedSortOption.value = route.query.sort;
+    fetchStatus.value = "success";
+    return;
+  }
+
+  // finally, if the query param is set, valid, but
+  // doesn't match the drawer record, then set the sortby option
+  // and refresh the drawer contents
+  selectedSortOption.value = route.query.sort;
+  await drawerStore.setDrawerSortBy(props.drawerId, route.query.sort);
+
   fetchStatus.value = "success";
 });
 </script>
