@@ -280,14 +280,11 @@ export async function getDrawer(id: number): Promise<Drawer> {
   };
 }
 
-export async function addAssetToDrawer({
-  drawerId,
-  assetId,
-}: {
-  assetId: string;
-  drawerId: number;
-}): Promise<ApiAddAssetToDrawerResponse> {
-  const data = await fetchers.addAssetToDrawer({ drawerId, assetId });
+export async function addAssetToDrawer(
+  assetId: string,
+  drawerId: number
+): Promise<ApiAddAssetToDrawerResponse> {
+  const data = await fetchers.addAssetToDrawer(assetId, drawerId);
 
   // clear the cache for this drawer
   drawerDetails.delete(drawerId);

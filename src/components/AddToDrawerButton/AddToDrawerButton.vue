@@ -112,10 +112,7 @@ async function handleAddToDrawer(drawerId: string | number) {
   isModalOpen.value = false;
 
   fetchStatus.value = "fetching";
-  await drawerStore.addAssetToDrawer({
-    assetId: props.assetId,
-    drawerId: drawerIdInt,
-  });
+  await drawerStore.addAssetToDrawer(props.assetId, drawerIdInt);
   fetchStatus.value = "idle";
   reset();
 }

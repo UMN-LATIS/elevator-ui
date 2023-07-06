@@ -350,13 +350,7 @@ export async function deleteDrawer(
   return res.data;
 }
 
-export async function addAssetToDrawer({
-  assetId,
-  drawerId,
-}: {
-  assetId: string;
-  drawerId: number;
-}) {
+export async function addAssetToDrawer(assetId: string, drawerId: number) {
   const formdata = new FormData();
   formdata.append("objectId", assetId);
   formdata.append("drawerList", String(drawerId));

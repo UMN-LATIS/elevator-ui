@@ -61,17 +61,8 @@ export const useDrawerStore = defineStore("drawer", {
       }
     },
 
-    async addAssetToDrawer({
-      assetId,
-      drawerId,
-    }: {
-      assetId: string;
-      drawerId: number;
-    }) {
-      await api.addAssetToDrawer({
-        assetId,
-        drawerId,
-      });
+    async addAssetToDrawer(assetId: string, drawerId: number) {
+      await api.addAssetToDrawer(assetId, drawerId);
 
       const assetStore = useAssetStore();
       const toastStore = useToastStore();
