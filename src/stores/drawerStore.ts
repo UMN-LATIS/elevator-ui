@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { Drawer } from "@/types";
+import { Drawer, DrawerSortOptions } from "@/types";
 import api from "@/api";
 import { useToastStore } from "./toastStore";
 import { useAssetStore } from "./assetStore";
@@ -101,6 +101,13 @@ export const useDrawerStore = defineStore("drawer", {
       const drawer = await api.getDrawer(drawerId);
       this.drawerRecords[drawerId] = drawer;
       return drawer;
+    },
+
+    async setDrawerSortBy(drawerId: number, sortBy: DrawerSortOptions) {
+      // clear the drawer contents
+      this.drawerRecords[drawerId].contents = undefined;
+      await api.setDrawerSortBy(drawerId, sortBy);
+      return this.refreshDrawer(drawerId);
     },
 
     async removeAssetFromDrawer({
