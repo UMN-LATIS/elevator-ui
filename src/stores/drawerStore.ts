@@ -89,6 +89,23 @@ export const useDrawerStore = defineStore("drawer", {
       this.drawerRecords[drawerId].contents = undefined;
     },
 
+    async addAssetListToDrawer(assetIds: string[], drawerId: number) {
+      await api.addAssetListToDrawer(assetIds, drawerId);
+      const toastStore = useToastStore();
+
+      const drawerTitle = this.drawerRecords[drawerId].title;
+
+      toastStore.addToast({
+        message: `${assetIds.length} assets added to drawer '${drawerTitle}'.`,
+        url: `/drawers/viewDrawer/${drawerId}`,
+        urlText: "View drawer",
+      });
+
+      // invalidate the drawer contents so that it's refetched
+      // on next access
+      this.drawerRecords[drawerId].contents = undefined;
+    },
+
     async refreshDrawer(drawerId: number) {
       const drawer = await api.getDrawer(drawerId);
       this.drawerRecords[drawerId] = drawer;

@@ -25,9 +25,7 @@
     >
       <slot />
     </component>
-    <footer class="p-4 pt-0">
-      <slot name="footer" />
-    </footer>
+    <slot name="footer"></slot>
   </article>
 </template>
 <script setup lang="ts">

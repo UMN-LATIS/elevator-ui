@@ -295,6 +295,18 @@ export async function addAssetToDrawer({
   return data;
 }
 
+export async function addAssetListToDrawer(
+  assetIds: string[],
+  drawerId: number
+): Promise<ApiAddAssetToDrawerResponse> {
+  const data = await fetchers.addAssetListToDrawer(assetIds, drawerId);
+
+  // clear the cache for this drawer
+  drawerDetails.delete(drawerId);
+
+  return data;
+}
+
 export async function removeAssetFromDrawer({
   assetId,
   drawerId,
@@ -359,6 +371,7 @@ const api = {
   createDrawer,
   deleteDrawer,
   addAssetToDrawer,
+  addAssetListToDrawer,
   removeAssetFromDrawer,
 };
 

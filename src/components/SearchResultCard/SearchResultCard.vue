@@ -41,14 +41,14 @@
           </div>
         </dl>
       </div>
-      <template #footer>
+      <!-- <template #footer>
         <div class="flex justify-end">
           <AddToDrawerButton
             v-if="instanceStore.currentUser?.canManageDrawers"
             :assetId="searchMatch.objectId"
           />
         </div>
-      </template>
+      </template> -->
     </MediaCard>
   </div>
 </template>

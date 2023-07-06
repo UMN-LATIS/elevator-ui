@@ -3,15 +3,23 @@
     <div class="px-4">
       <SearchErrorNotification v-if="searchStore.status === 'error'" />
       <template v-else>
-        <BrowseCollectionHeader
-          v-if="searchStore.browsingCollectionId"
-          :collectionId="searchStore.browsingCollectionId"
-        />
-        <h2 v-else-if="searchStore.isReady" class="text-4xl my-8 font-bold">
-          <q v-if="nonBrowsingPageTitle">{{ nonBrowsingPageTitle }}</q>
-          <span v-else>Search Results</span>
-        </h2>
-        <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
+        <div class="flex justify-between items-baseline my-8">
+          <BrowseCollectionHeader
+            v-if="searchStore.browsingCollectionId"
+            :collectionId="searchStore.browsingCollectionId"
+          />
+          <h2 v-else-if="searchStore.isReady" class="text-4xl font-bold">
+            <q v-if="nonBrowsingPageTitle">{{ nonBrowsingPageTitle }}</q>
+            <span v-else>Search Results</span>
+          </h2>
+          <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
+
+          <AddSearchResultsToDrawerButton
+            v-if="
+              searchStore.isReady && instanceStore.currentUser?.canManageDrawers
+            "
+          />
+        </div>
 
         <Tabs
           labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
@@ -130,6 +138,7 @@ import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/Search
 import SearchErrorNotification from "./SearchErrorNotification.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import AddSearchResultsToDrawerButton from "./AddSearchResultsToDrawerButton.vue";
 
 const props = withDefaults(
   defineProps<{
