@@ -5,7 +5,10 @@
         <MoreFileInfoButton />
         <DownloadFileButton />
         <ShareButton />
-        <AddToDrawerButton v-if="instanceStore.currentUser?.canManageDrawers" />
+        <AddToDrawerButton
+          v-if="instanceStore.currentUser?.canManageDrawers && assetId"
+          :assetId="assetId"
+        />
         <AddToEmbeddedPluginButton
           v-if="isInEmbedMode"
           :fileHandlerId="fileHandlerId"
@@ -25,6 +28,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 
 defineProps<{
   fileHandlerId: string | null;
+  assetId: string | null;
 }>();
 
 const instanceStore = useInstanceStore();

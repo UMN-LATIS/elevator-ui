@@ -343,7 +343,7 @@ export interface SearchEntry {
   searchDate?: DateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
-  showHidden?: boolean;
+  showHidden?: boolean | "0" | "1";
   fuzzySearch?: "0" | "1";
   sort?: string;
   specificFieldSearch?: SpecificFieldSearchItem[];
@@ -706,16 +706,20 @@ export type GlobalSearchableFileType =
 export interface Drawer {
   id: number;
   title: string;
+  contents?: SearchResultsResponse;
 }
 
 export type ApiListDrawersResponse = Record<number, { title: string }>;
+
+export interface ApiCreateDrawerResponse {
+  drawerId: number;
+  drawerTitle: string;
+}
 
 export interface ApiGetDrawerResponse extends SearchResultsResponse {
   drawerId: number;
   drawerTitle: string;
 }
-
-export type ApiCreateDrawerResponse = ApiGetDrawerResponse;
 
 export interface ApiAddAssetToDrawerResponse {
   success?: boolean;
@@ -728,6 +732,8 @@ export interface Toast {
   id: string;
   message: string;
   duration?: number;
+  url?: string;
+  urlText?: string;
 }
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {

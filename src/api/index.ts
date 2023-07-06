@@ -265,23 +265,38 @@ async function getDrawers({
   return listOfDrawers;
 }
 
-export async function getDrawer(id: number): Promise<ApiGetDrawerResponse> {
+export async function getDrawer(id: number): Promise<Drawer> {
   const data = drawerDetails.get(id) ?? (await fetchers.fetchDrawer(id));
 
   // cache the response
   drawerDetails.set(id, data);
 
+  const { drawerId, drawerTitle, ...contents } = data;
+
+  return {
+    id: drawerId,
+    title: drawerTitle,
+    contents,
+  };
+}
+
+export async function addAssetToDrawer(
+  assetId: string,
+  drawerId: number
+): Promise<ApiAddAssetToDrawerResponse> {
+  const data = await fetchers.addAssetToDrawer(assetId, drawerId);
+
+  // clear the cache for this drawer
+  drawerDetails.delete(drawerId);
+
   return data;
 }
 
-export async function addAssetToDrawer({
-  drawerId,
-  assetId,
-}: {
-  assetId: string;
-  drawerId: number;
-}): Promise<ApiAddAssetToDrawerResponse> {
-  const data = await fetchers.addAssetToDrawer({ drawerId, assetId });
+export async function addAssetListToDrawer(
+  assetIds: string[],
+  drawerId: number
+): Promise<ApiAddAssetToDrawerResponse> {
+  const data = await fetchers.addAssetListToDrawer(assetIds, drawerId);
 
   // clear the cache for this drawer
   drawerDetails.delete(drawerId);
@@ -353,6 +368,7 @@ const api = {
   createDrawer,
   deleteDrawer,
   addAssetToDrawer,
+  addAssetListToDrawer,
   removeAssetFromDrawer,
 };
 

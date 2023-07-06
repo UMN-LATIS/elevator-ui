@@ -10,12 +10,21 @@
       <XIcon />
     </button>
     <div
-      class="timer absolute top-0 left-0 w-full h-2 bg-neutral-600 transform"
+      class="timer absolute top-0 left-0 w-full h-1 bg-neutral-600 transform"
       :style="{
         transform: `translateX(-${timerWidthPercent}%)`,
       }"
     />
-    {{ toast.message }}
+    <p>{{ toast.message }}</p>
+    <p v-if="toast.url" class="mt-1 flex justify-end">
+      <Link
+        :to="toast.url"
+        class="uppercase text-xs py-1 px-2 bg-transparent-white-200 text-neutral-400 hover:no-underline hover:text-neutral-900 hover:bg-neutral-200 rounded-md"
+        @click="$emit('dismiss', toast.id)"
+      >
+        {{ toast.urlText || "View" }}
+      </Link>
+    </p>
   </div>
 </template>
 <script setup lang="ts">
@@ -23,16 +32,11 @@ import { Toast } from "@/types";
 import { onMounted, ref, computed } from "vue";
 import { useRafFn } from "@vueuse/core";
 import { XIcon } from "@/icons";
+import Link from "../Link/Link.vue";
 
-const props = withDefaults(
-  defineProps<{
-    toast: Toast;
-    duration?: number;
-  }>(),
-  {
-    duration: 5000,
-  }
-);
+const props = defineProps<{
+  toast: Toast;
+}>();
 
 const emit = defineEmits<{
   (eventName: "dismiss", id: string): void;
@@ -40,10 +44,9 @@ const emit = defineEmits<{
 
 const elapsedTime = ref(0);
 const isPaused = ref(false);
+const duration = props.toast.duration ?? 3000;
 
-const timerWidthPercent = computed(
-  () => (elapsedTime.value / props.duration) * 100
-);
+const timerWidthPercent = computed(() => (elapsedTime.value / duration) * 100);
 
 function startTimer() {
   isPaused.value = false;
@@ -58,7 +61,7 @@ function startTimer() {
     }
 
     // if we've reached the duration, close the toast
-    if (elapsedTime.value >= props.duration) {
+    if (elapsedTime.value >= duration) {
       emit("dismiss", props.toast.id);
     }
 

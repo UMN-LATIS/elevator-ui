@@ -350,15 +350,24 @@ export async function deleteDrawer(
   return res.data;
 }
 
-export async function addAssetToDrawer({
-  assetId,
-  drawerId,
-}: {
-  assetId: string;
-  drawerId: number;
-}) {
+export async function addAssetToDrawer(assetId: string, drawerId: number) {
   const formdata = new FormData();
   formdata.append("objectId", assetId);
+  formdata.append("drawerList", String(drawerId));
+
+  const res = await axios.post<ApiAddAssetToDrawerResponse>(
+    `${BASE_URL}/drawers/addToDrawer/true`,
+    formdata
+  );
+  return res.data;
+}
+
+export async function addAssetListToDrawer(
+  assetIds: string[],
+  drawerId: number
+) {
+  const formdata = new FormData();
+  formdata.append("objectArray", JSON.stringify(assetIds));
   formdata.append("drawerList", String(drawerId));
 
   const res = await axios.post<ApiAddAssetToDrawerResponse>(

@@ -1,16 +1,18 @@
 <template>
-  <ActiveFileViewButton
-    title="Add to Drawer"
+  <button
+    title="Add Search Results to Drawer"
     v-bind="$attrs"
+    :disabled="searchStore.matches.length === 0"
+    class="bg-white w-12 h-12 inline-flex justify-center items-center rounded-md shadow-sm hover:bg-neutral-900 hover:text-neutral-200 transition-all overflow-hidden"
     @click="isModalOpen = true"
   >
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
-    <span class="sr-only">Add to Drawer</span>
-  </ActiveFileViewButton>
+    <span class="sr-only"> Add Search Results </span>
+  </button>
   <Modal
     type="info"
-    label="Add to Drawer"
+    label="Add Search Results to Drawer"
     :isOpen="isModalOpen"
     class="max-w-lg"
     @close="isModalOpen = false"
@@ -73,14 +75,10 @@ import { ref, computed } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
+import { useSearchStore } from "@/stores/searchStore";
+import DrawerTitleInput from "@/components/DrawerTitleInput/DrawerTitleInput.vue";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
-import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
-
-const props = defineProps<{
-  assetId: string;
-}>();
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
@@ -88,6 +86,7 @@ const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 
 const drawerStore = useDrawerStore();
+const searchStore = useSearchStore();
 
 const isDrawerNameValid = computed(() => {
   return (
@@ -105,16 +104,14 @@ async function handleAddToDrawer(drawerId: string | number) {
     throw new Error("Cannot add to drawer. Drawer ID is not a number.");
   }
 
-  if (!props.assetId) {
-    throw new Error("Cannot add to drawer. No active asset.");
-  }
-
   isModalOpen.value = false;
 
   fetchStatus.value = "fetching";
-  await drawerStore.addAssetToDrawer(props.assetId, drawerIdInt);
+
+  const assetIds = searchStore.matches.map((match) => match.objectId);
+  await drawerStore.addAssetListToDrawer(assetIds, drawerIdInt);
   fetchStatus.value = "idle";
-  reset();
+  newDrawerName.value = "";
 }
 
 async function handleCreateNewDrawerThenAdd() {
@@ -129,12 +126,6 @@ async function handleCreateNewDrawerThenAdd() {
 
   const newDrawer = await drawerStore.createDrawer(newDrawerName.value);
   handleAddToDrawer(newDrawer.id);
-}
-
-function reset() {
-  selectedDrawer.value = "";
-  newDrawerName.value = "";
-  fetchStatus.value = "idle";
 }
 </script>
 <style scoped></style>
