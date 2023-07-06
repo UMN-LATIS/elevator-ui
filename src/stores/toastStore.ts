@@ -13,7 +13,7 @@ export const useToastStore = defineStore("toastStore", {
       this.toasts.push({
         ...toast,
         id,
-        duration: toast.duration ?? 5000,
+        duration: toast.duration ?? 3000,
       });
     },
 
