@@ -21,6 +21,7 @@ import {
   ApiRemoveAssetFromDrawerResponse,
   ApiCreateDrawerResponse,
   CustomAxiosRequestConfig,
+  DrawerSortOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -343,6 +344,18 @@ export async function deleteDrawer(
   return data;
 }
 
+export async function setDrawerSortBy(
+  drawerId: number,
+  sortBy: DrawerSortOptions
+) {
+  const data = await fetchers.setDrawerSortBy(drawerId, sortBy);
+
+  // clear the drawer cache
+  drawerDetails.delete(drawerId);
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -370,6 +383,7 @@ const api = {
   addAssetToDrawer,
   addAssetListToDrawer,
   removeAssetFromDrawer,
+  setDrawerSortBy,
 };
 
 export default api;
