@@ -23,6 +23,7 @@ export const SORT_KEYS = {
   TITLE: "title.raw",
   LAST_MODIFIED_DESC: "lastModified.desc",
   LAST_MODIFIED_ASC: "lastModified.asc",
+  CUSTOM: "custom",
 } as const;
 
 // these are ids for searchable fields that don't actually exist
