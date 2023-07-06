@@ -20,6 +20,7 @@
       <Link
         :to="toast.url"
         class="uppercase text-xs py-1 px-2 bg-transparent-white-200 text-neutral-400 hover:no-underline hover:text-neutral-900 hover:bg-neutral-200 rounded-md"
+        @click="$emit('dismiss', toast.id)"
       >
         {{ toast.urlText || "View" }}
       </Link>
