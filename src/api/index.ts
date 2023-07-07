@@ -356,6 +356,18 @@ export async function setDrawerSortBy(
   return data;
 }
 
+export async function setCustomDrawerOrder(
+  drawerId: number,
+  assetIds: string[]
+) {
+  const data = await fetchers.setCustomDrawerOrder(drawerId, assetIds);
+
+  // clear the drawer cache
+  drawerDetails.delete(drawerId);
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -384,6 +396,7 @@ const api = {
   addAssetListToDrawer,
   removeAssetFromDrawer,
   setDrawerSortBy,
+  setCustomDrawerOrder,
 };
 
 export default api;

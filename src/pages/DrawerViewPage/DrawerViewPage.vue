@@ -60,12 +60,14 @@
             </div>
           </div>
           <Tab id="grid" label="Grid">
-            <SearchResultsGrid
+            <DrawerItemsGrid
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
               :drawerId="drawerId"
+              :isDraggable="selectedSortOption === SORT_KEYS.CUSTOM"
+              @dragEnd="handleDragEnd"
             />
           </Tab>
           <Tab id="list" label="List">
@@ -119,12 +121,18 @@ import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResult
 import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 import Link from "@/components/Link/Link.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
-import { SearchResultsView, Tab as TabType, FetchStatus } from "@/types";
+import {
+  SearchResultsView,
+  Tab as TabType,
+  FetchStatus,
+  SearchResultMatch,
+} from "@/types";
 import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import { useDrawerStore } from "@/stores/drawerStore";
 import { SORT_KEYS } from "@/constants/constants";
 import { useErrorStore } from "@/stores/errorStore";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
+import DrawerItemsGrid from "./DrawerItemsGrid.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -172,6 +180,10 @@ function handleTabChange(tab: TabType) {
       resultsView: tab.id,
     },
   });
+}
+
+function handleDragEnd(updatedListOfItems: SearchResultMatch[]) {
+  drawerStore.setDrawerItems(props.drawerId, updatedListOfItems);
 }
 
 function handleLoadMore() {

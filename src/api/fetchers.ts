@@ -401,3 +401,18 @@ export async function setDrawerSortBy(
 
   return res.data;
 }
+
+export async function setCustomDrawerOrder(
+  drawerId: number,
+  assetIds: string[]
+) {
+  const formdata = new FormData();
+  formdata.append("orderArray", JSON.stringify(assetIds));
+
+  const res = await axios.post(
+    `${BASE_URL}/drawers/setCustomOrder/${drawerId}`,
+    formdata
+  );
+
+  return res.data;
+}
