@@ -9,6 +9,10 @@ export interface DrawerStoreState {
   isReady: boolean;
 }
 
+const arraysEqual = (arr1: string[], arr2: string[]) =>
+  arr1.length === arr2.length &&
+  arr1.every((value, index) => value === arr2[index]);
+
 export const useDrawerStore = defineStore("drawer", {
   state: (): DrawerStoreState => ({
     drawerRecords: {},
@@ -122,7 +126,7 @@ export const useDrawerStore = defineStore("drawer", {
       const newOrder = items.map((item) => item.objectId);
 
       // if nothing has changed, don't make a request
-      if (currentOrder.join(",") === newOrder.join(",")) {
+      if (arraysEqual(currentOrder, newOrder)) {
         return;
       }
 
