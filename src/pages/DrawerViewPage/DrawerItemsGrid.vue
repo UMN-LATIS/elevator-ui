@@ -96,6 +96,11 @@ const hasMoreResults = computed(() => {
 });
 </script>
 <style scoped>
+.grid {
+  /* give all rows the same height to avoid height change with drag/drop */
+  grid-auto-rows: 1fr;
+}
+
 .drag-handle {
   background: white;
   border: var(--app-mediaCard-borderWidth) solid
