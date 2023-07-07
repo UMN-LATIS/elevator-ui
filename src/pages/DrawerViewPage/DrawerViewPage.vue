@@ -1,65 +1,65 @@
 <template>
   <DefaultLayout class="drawer-view-page">
-    <Transition name="fade">
-      <div class="px-4">
-        <header class="my-8">
-          <Link
-            :to="`/drawers/listDrawers`"
-            class="flex items-center gap-1 mb-4 hover:no-underline"
-          >
-            <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
-            Back to Drawers
-          </Link>
-          <h2 class="text-4xl font-bold">{{ drawerTitle }}</h2>
-        </header>
-
-        <Tabs
-          labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
-          :activeTabId="activeTabId"
-          @tabChange="handleTabChange"
+    <div class="px-4">
+      <header class="my-8">
+        <Link
+          :to="`/drawers/listDrawers`"
+          class="flex items-center gap-1 mb-4 hover:no-underline"
         >
-          <div
-            class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2"
-          >
-            <div>
-              <ResultsCount
-                v-if="drawer.contents"
-                class="mb-2 sm:mb-0"
-                :total="drawer.contents.totalResults"
-                :fetchStatus="fetchStatus"
-                :showingCount="drawer.contents.matches.length"
-                @loadMore="handleLoadMore"
-                @loadAll="handleLoadAll"
-              />
+          <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
+          Back to Drawers
+        </Link>
+        <h2 class="text-4xl font-bold">{{ drawerTitle }}</h2>
+      </header>
 
-              <div
-                v-else
-                class="flex items-center gap-2 text-neutral-500 text-sm"
-              >
-                <SpinnerIcon class="animate-spin h-5 w-5" />
-                Loading...
-              </div>
-            </div>
-            <div class="flex items-baseline gap-2">
-              <label for="location" class="sr-only">Sort</label>
-              <select
-                id="sort"
-                name="sort"
-                class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
-                :value="selectedSortOption"
-                @change="handleSortOptionChange"
-              >
-                <option
-                  v-for="(sortOptionLabel, sortOptionKey) in sortOptions"
-                  :key="sortOptionKey"
-                  :value="sortOptionKey"
-                >
-                  {{ sortOptionLabel }}
-                </option>
-              </select>
+      <Tabs
+        labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
+        :activeTabId="activeTabId"
+        @tabChange="handleTabChange"
+      >
+        <div
+          class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2"
+        >
+          <div>
+            <ResultsCount
+              v-if="drawer.contents"
+              class="mb-2 sm:mb-0"
+              :total="drawer.contents.totalResults"
+              :fetchStatus="fetchStatus"
+              :showingCount="drawer.contents.matches.length"
+              @loadMore="handleLoadMore"
+              @loadAll="handleLoadAll"
+            />
+
+            <div
+              v-else
+              class="flex items-center gap-2 text-neutral-500 text-sm"
+            >
+              <SpinnerIcon class="animate-spin h-5 w-5" />
+              Loading...
             </div>
           </div>
-          <Tab id="grid" label="Grid">
+          <div class="flex items-baseline gap-2">
+            <label for="location" class="sr-only">Sort</label>
+            <select
+              id="sort"
+              name="sort"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
+              :value="selectedSortOption"
+              @change="handleSortOptionChange"
+            >
+              <option
+                v-for="(sortOptionLabel, sortOptionKey) in sortOptions"
+                :key="sortOptionKey"
+                :value="sortOptionKey"
+              >
+                {{ sortOptionLabel }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <Tab id="grid" label="Grid">
+          <Transition name="fade">
             <DrawerItemsGrid
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
@@ -69,8 +69,10 @@
               :isDraggable="selectedSortOption === SORT_KEYS.CUSTOM"
               @dragEnd="handleDragEnd"
             />
-          </Tab>
-          <Tab id="list" label="List">
+          </Transition>
+        </Tab>
+        <Tab id="list" label="List">
+          <Transition name="fade">
             <DrawerItemsList
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
@@ -80,34 +82,40 @@
               :isDraggable="selectedSortOption === SORT_KEYS.CUSTOM"
               @dragEnd="handleDragEnd"
             />
-          </Tab>
-          <Tab id="timeline" label="Timeline">
+          </Transition>
+        </Tab>
+        <Tab id="timeline" label="Timeline">
+          <Transition name="fade">
             <SearchResultsTimeline
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
             />
-          </Tab>
-          <Tab id="map" label="Map">
+          </Transition>
+        </Tab>
+        <Tab id="map" label="Map">
+          <Transition name="fade">
             <SearchResultsMap
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
             />
-          </Tab>
-          <Tab id="gallery" label="Gallery">
+          </Transition>
+        </Tab>
+        <Tab id="gallery" label="Gallery">
+          <Transition name="fade">
             <SearchResultsGallery
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
             />
-          </Tab>
-        </Tabs>
-      </div>
-    </Transition>
+          </Transition>
+        </Tab>
+      </Tabs>
+    </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
