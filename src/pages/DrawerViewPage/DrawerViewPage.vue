@@ -71,11 +71,14 @@
             />
           </Tab>
           <Tab id="list" label="List">
-            <SearchResultsList
+            <DrawerItemsList
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
               :status="fetchStatus"
+              :drawerId="drawerId"
+              :isDraggable="selectedSortOption === SORT_KEYS.CUSTOM"
+              @dragEnd="handleDragEnd"
             />
           </Tab>
           <Tab id="timeline" label="Timeline">
@@ -133,6 +136,7 @@ import { SORT_KEYS } from "@/constants/constants";
 import { useErrorStore } from "@/stores/errorStore";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import DrawerItemsGrid from "./DrawerItemsGrid.vue";
+import DrawerItemsList from "./DrawerItemsList.vue";
 
 const props = withDefaults(
   defineProps<{

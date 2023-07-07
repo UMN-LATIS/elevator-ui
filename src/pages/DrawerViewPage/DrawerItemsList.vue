@@ -1,8 +1,8 @@
 <template>
-  <div ref="containerRef">
+  <div>
     <Draggable
       v-model="clonedMatches"
-      class="grid grid-cols-auto-md gap-4"
+      class="flex flex-col gap-2"
       itemKey="objectId"
       handle=".drag-handle"
       ghostClass="draggable-ghost"
@@ -11,24 +11,22 @@
       @end="emits('dragEnd', clonedMatches)"
     >
       <template #item="{ element }">
-        <div class="item-container relative rounded flex items-start group">
+        <div class="item-container relative rounded flex group">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move h-full py-1 rounded-l border border-l-0 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors"
+            class="drag-handle cursor-move py-1 rounded-l border border-l-0 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors"
           >
             <DragIcon />
           </div>
-
-          <SearchResultCard
+          <SearchResultRow
             :id="`object-${element.objectId}`"
+            :key="element.objectId"
             :searchMatch="element"
             :showDetails="false"
-            :drawerId="drawerId"
-            class="search-result-card h-full flex-1 !rounded-l-none"
-            :mediaCardClass="[
-              'group-hover:bg-blue-50 group-hover:border-blue-600 group-hover:!text-blue-600',
-              isDraggable ? 'rounded-l-none border-l-none' : '',
-            ]"
+            class="search-result-row flex-1"
+            :class="{
+              'rounded-l-none border-l-none': isDraggable,
+            }"
           />
         </div>
       </template>
@@ -36,10 +34,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import SearchResultCard from "@/components/SearchResultCard/SearchResultCard.vue";
 import { computed, watch, ref } from "vue";
 import { FetchStatus, SearchResultMatch } from "@/types";
 import { useScroll } from "@vueuse/core";
+import SearchResultRow from "@/components/SearchResultRow/SearchResultRow.vue";
 import Draggable from "vuedraggable";
 import { DragIcon } from "@/icons";
 
@@ -48,12 +46,10 @@ const props = withDefaults(
     totalResults?: number;
     matches: SearchResultMatch[];
     status: FetchStatus;
-    drawerId?: number;
     isDraggable?: boolean;
   }>(),
   {
     totalResults: undefined,
-    drawerId: undefined,
     isDraggable: false,
   }
 );
@@ -62,8 +58,6 @@ const emits = defineEmits<{
   (event: "loadMore");
   (event: "dragEnd", matches: SearchResultMatch[]);
 }>();
-
-const containerRef = ref<HTMLElement | null>(null);
 
 // Clone the matches so that we can use them with v-model
 // in the draggable component
@@ -124,7 +118,7 @@ const hasMoreResults = computed(() => {
   color: var(--color-blue-100);
 }
 
-.is-dragging .search-result-card {
+.is-dragging .search-result-row {
   background: #fff;
 }
 </style>
