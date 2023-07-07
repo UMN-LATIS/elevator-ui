@@ -21,6 +21,7 @@
 
     <component
       :is="to ? Link : 'div'"
+      :to="to"
       class="flex-1 p-4 media-card__body hover:no-underline"
     >
       <slot />

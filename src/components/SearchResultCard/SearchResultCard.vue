@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="relative search-result-card border-2 border-transparent rounded-lg"
-  >
+  <div class="relative search-result-card rounded-lg">
     <RemoveFromDrawerButton
       v-if="drawerId && instanceStore.currentUser?.canManageDrawers"
       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 remove-from-drawer-btn"
@@ -14,6 +12,7 @@
       :imgAlt="title"
       :to="assetUrl"
       class="search-result-card flex w-full h-full relative transition-colors"
+      :class="mediaCardClass"
     >
       <Chip
         v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
@@ -59,13 +58,13 @@ import { getAssetUrl, getThumbURL, stripTags } from "@/helpers/displayUtils";
 import { computed } from "vue";
 import MediaCard from "../MediaCard/MediaCard.vue";
 import Chip from "../Chip/Chip.vue";
-import AddToDrawerButton from "../AddToDrawerButton/AddToDrawerButton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import RemoveFromDrawerButton from "@/components/RemoveFromDrawerButton/RemoveFromDrawerButton.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
   drawerId?: number;
+  mediaCardClass?: string | string[] | Record<string, boolean>;
 }>();
 
 const instanceStore = useInstanceStore();

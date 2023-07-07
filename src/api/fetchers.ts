@@ -3,7 +3,7 @@
  * any caching should happen in API getters.
  */
 
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios, { AxiosError } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
 import type {
@@ -25,6 +25,7 @@ import type {
   ApiAddAssetToDrawerResponse,
   ApiRemoveAssetFromDrawerResponse,
   CustomAxiosRequestConfig,
+  DrawerSortOptions,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -387,5 +388,31 @@ export async function removeAssetFromDrawer({
   const res = await axios.post<ApiRemoveAssetFromDrawerResponse>(
     `${BASE_URL}/drawers/removeFromDrawer/${drawerId}/${assetId}/true`
   );
+  return res.data;
+}
+
+export async function setDrawerSortBy(
+  drawerId: number,
+  sortBy: DrawerSortOptions
+) {
+  const res = await axios.post(
+    `${BASE_URL}/drawers/setSortOrder/${drawerId}/${sortBy}/true`
+  );
+
+  return res.data;
+}
+
+export async function setCustomDrawerOrder(
+  drawerId: number,
+  assetIds: string[]
+) {
+  const formdata = new FormData();
+  formdata.append("orderArray", JSON.stringify(assetIds));
+
+  const res = await axios.post(
+    `${BASE_URL}/drawers/setCustomOrder/${drawerId}`,
+    formdata
+  );
+
   return res.data;
 }

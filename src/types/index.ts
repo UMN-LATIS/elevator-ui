@@ -706,7 +706,11 @@ export type GlobalSearchableFileType =
 export interface Drawer {
   id: number;
   title: string;
-  contents?: SearchResultsResponse;
+  contents?: {
+    matches: SearchResultMatch[];
+    sortBy: DrawerSortOptions | null;
+    totalResults: number;
+  };
 }
 
 export type ApiListDrawersResponse = Record<number, { title: string }>;
@@ -716,9 +720,15 @@ export interface ApiCreateDrawerResponse {
   drawerTitle: string;
 }
 
-export interface ApiGetDrawerResponse extends SearchResultsResponse {
+export type DrawerSortOptions = "title.raw" | "custom";
+
+export interface ApiGetDrawerResponse {
+  searchResults: string[];
+  matches: SearchResultMatch[];
+  totalResults: number;
   drawerId: number;
   drawerTitle: string;
+  sortBy: DrawerSortOptions | null; // this is persisted in the database
 }
 
 export interface ApiAddAssetToDrawerResponse {
