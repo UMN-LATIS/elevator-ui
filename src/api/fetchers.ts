@@ -396,7 +396,7 @@ export async function setDrawerSortBy(
   sortBy: DrawerSortOptions
 ) {
   const res = await axios.post(
-    `${BASE_URL}/drawers/setSortOrder/${drawerId}/${sortBy}/true`
+    `${BASE_URL}/drawers/setSortOrder/${drawerId}/${sortBy}`
   );
 
   return res.data;
