@@ -90,13 +90,6 @@ const hasMoreResults = computed(() => {
 });
 </script>
 <style scoped>
-/* .drag-handle {
-  background: white;
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
-  border-right: none;
-} */
-
 .draggable-ghost {
   opacity: 0.5;
   /* border-radius: 0.25rem; */

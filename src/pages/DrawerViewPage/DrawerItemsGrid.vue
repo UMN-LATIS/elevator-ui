@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef">
+  <div class="drawer-items-grid">
     <Draggable
       v-model="clonedMatches"
       class="grid grid-cols-auto-md gap-4"
@@ -64,8 +64,6 @@ const emits = defineEmits<{
   (event: "loadMore");
   (event: "dragEnd", matches: SearchResultMatch[]);
 }>();
-
-const containerRef = ref<HTMLElement | null>(null);
 
 // Clone the matches so that we can use them with v-model
 // in the draggable component
