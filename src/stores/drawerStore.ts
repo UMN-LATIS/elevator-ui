@@ -111,17 +111,26 @@ export const useDrawerStore = defineStore("drawer", {
     },
 
     async setDrawerItems(drawerId: number, items: SearchResultMatch[]) {
-      // optimistically update the drawer items
-      if (!this.drawerRecords[drawerId].contents) {
+      const drawer = this.drawerRecords[drawerId];
+
+      if (!drawer.contents) {
         throw new Error(`Cannot set drawer items: drawer contents not found`);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.drawerRecords[drawerId].contents!.matches = items;
+      // check if the order has changed
+      const currentOrder = drawer.contents.matches.map((item) => item.objectId);
+      const newOrder = items.map((item) => item.objectId);
 
-      const objectIds = items.map((item) => item.objectId);
+      // if nothing has changed, don't make a request
+      if (currentOrder.join(",") === newOrder.join(",")) {
+        return;
+      }
 
-      api.setCustomDrawerOrder(drawerId, objectIds);
+      // optimistically update the drawer contents
+      drawer.contents.matches = items;
+
+      // update the drawer contents on the server
+      api.setCustomDrawerOrder(drawerId, newOrder);
     },
 
     async removeAssetFromDrawer({
