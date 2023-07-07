@@ -154,23 +154,18 @@ export const useDrawerStore = defineStore("drawer", {
         );
       }
 
-      // drawer contents should exist at this point
-      if (!this.drawerRecords[drawerId].contents) {
+      const drawer = this.drawerRecords[drawerId];
+
+      if (!drawer.contents) {
         throw new Error(
           `Cannot remove asset from drawer: drawer contents not found`
         );
       }
 
       // optimistically remove the asset from the drawer
-      const previousMatches = this.drawerRecords[drawerId].contents?.matches;
-
-      if (previousMatches) {
-        const updatedMatches = previousMatches.filter(
-          (match) => match.objectId !== assetId
-        );
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.drawerRecords[drawerId].contents!.matches = updatedMatches;
-      }
+      drawer.contents.matches = drawer.contents.matches.filter(
+        (match) => match.objectId !== assetId
+      );
 
       await api.removeAssetFromDrawer({
         assetId,
