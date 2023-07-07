@@ -11,10 +11,10 @@
       @end="emits('dragEnd', clonedMatches)"
     >
       <template #item="{ element }">
-        <div class="item-container relative rounded flex group">
+        <div class="item-container relative rounded flex group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move py-1 rounded-l border border-l-0 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors"
+            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors bg-white"
           >
             <DragIcon />
           </div>
@@ -90,12 +90,12 @@ const hasMoreResults = computed(() => {
 });
 </script>
 <style scoped>
-.drag-handle {
+/* .drag-handle {
   background: white;
   border: var(--app-mediaCard-borderWidth) solid
     var(--app-mediaCard-borderColor);
   border-right: none;
-}
+} */
 
 .draggable-ghost {
   opacity: 0.5;
