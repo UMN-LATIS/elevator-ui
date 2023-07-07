@@ -116,8 +116,6 @@ import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
-import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
-import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
@@ -144,11 +142,18 @@ const props = withDefaults(
     resultsView?: SearchResultsView;
   }>(),
   {
-    resultsView: undefined,
+    resultsView: "grid",
   }
 );
 
-const activeTabId = ref<SearchResultsView>("grid");
+const isValidResultsView = (view: string): view is SearchResultsView => {
+  return SEARCH_RESULTS_VIEWS.includes(view as SearchResultsView);
+};
+
+const initialTab = isValidResultsView(props.resultsView)
+  ? props.resultsView
+  : "grid";
+const activeTabId = ref<SearchResultsView>(initialTab);
 const fetchStatus = ref<FetchStatus>("idle");
 
 const drawerStore = useDrawerStore();

@@ -95,6 +95,7 @@ const router = createRouter({
       component: DrawerViewPage,
       props: (route) => ({
         drawerId: parseIntFromParam(route.params.drawerId),
+        resultsView: route.query.resultsView ?? null,
       }),
     },
     {
