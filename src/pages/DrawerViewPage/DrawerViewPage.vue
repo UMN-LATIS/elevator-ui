@@ -19,6 +19,7 @@
       </header>
 
       <Tabs
+        v-if="drawer"
         labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="activeTabId"
         @tabChange="handleTabChange"
@@ -245,18 +246,18 @@ function setSortQueryParam(sortOption: supportedSortOption) {
 }
 const errorStore = useErrorStore();
 
-function handleDownloadDrawer() {
-  console.log("download drawer");
-}
-
 onMounted(async () => {
   fetchStatus.value = "fetching";
   // get current drawer contents
-  await drawerStore.refreshDrawer(props.drawerId);
+  const drawerRecord = await drawerStore.refreshDrawer(props.drawerId);
+
+  if (!drawerRecord) {
+    return errorStore.setError(new Error("Couldn't find drawer content."));
+  }
 
   // sortBy is persisted in the drawer record, so check its current value
-  const drawerRecord = drawerStore.drawerRecords[props.drawerId];
-  if (!drawerRecord.contents) {
+  // const drawerRecord = drawerStore.drawerRecords[props.drawerId];
+  if (!drawerRecord?.contents) {
     fetchStatus.value = "error";
     return errorStore.setError(new Error("Couldn't find drawer content."));
   }
