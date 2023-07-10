@@ -7,10 +7,7 @@
       <template v-else-if="archiveStatus?.status === 'completed'">
         <h1 class="text-2xl my-8">Your Download is Ready</h1>
         <p>
-          <Button
-            variant="primary"
-            @click="filedownloader.downloadFile(archiveStatus.url)"
-          >
+          <Button variant="primary" :href="archiveStatus.url">
             Download
           </Button>
         </p>
@@ -35,8 +32,9 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Button from "@/components/Button/Button.vue";
 import { onMounted, ref } from "vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { useFileDownloader } from "@/helpers/useFileDownloader";
+import { useInstanceStore } from "@/stores/instanceStore";
 import { SpinnerIcon } from "@/icons";
+import { onBeforeRouteUpdate, useRouter } from "vue-router";
 
 const props = defineProps<{
   drawerId: number;
@@ -45,11 +43,20 @@ const props = defineProps<{
 const isPageReady = ref(false);
 const drawerStore = useDrawerStore();
 const archiveStatus = ref<ApiStartDrawerDownloadResponse | null>(null);
-const filedownloader = useFileDownloader();
+const instanceStore = useInstanceStore();
+const router = useRouter();
 
 onMounted(async () => {
   archiveStatus.value = await drawerStore.downloadDrawer(props.drawerId);
   isPageReady.value = true;
+});
+
+onBeforeRouteUpdate(() => {
+  // if user doesn't have download permissions, redirect to drawer page
+  if (!instanceStore.currentUser?.canManageDrawers) {
+    router.push(`/drawers/viewDrawer/${props.drawerId}`);
+    return;
+  }
 });
 </script>
 <style scoped></style>
