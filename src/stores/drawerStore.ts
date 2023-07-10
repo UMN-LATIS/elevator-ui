@@ -114,6 +114,10 @@ export const useDrawerStore = defineStore("drawer", {
       return this.refreshDrawer(drawerId);
     },
 
+    async downloadDrawer(drawerId: number) {
+      return api.startDrawerDownload(drawerId);
+    },
+
     async setDrawerItems(drawerId: number, items: SearchResultMatch[]) {
       const drawer = this.drawerRecords[drawerId];
 

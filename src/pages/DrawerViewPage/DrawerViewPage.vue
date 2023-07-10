@@ -1,15 +1,21 @@
 <template>
   <DefaultLayout class="drawer-view-page">
     <div class="px-4">
-      <header class="my-8">
-        <Link
-          :to="`/drawers/listDrawers`"
-          class="flex items-center gap-1 mb-4 hover:no-underline"
-        >
-          <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
-          Back to Drawers
-        </Link>
-        <h2 class="text-4xl font-bold">{{ drawerTitle }}</h2>
+      <Link
+        :to="`/drawers/listDrawers`"
+        class="flex items-center gap-1 mb-4 hover:no-underline mt-8"
+      >
+        <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
+        Back to Drawers
+      </Link>
+      <header class="my-8 flex flex-wrap items-baseline">
+        <h2 class="text-4xl font-bold flex-grow">
+          {{ drawerTitle }}
+        </h2>
+        <DownloadDrawerButton
+          v-if="instanceStore.currentUser?.canManageDrawers"
+          :drawerId="drawerId"
+        />
       </header>
 
       <Tabs
@@ -143,6 +149,8 @@ import { useErrorStore } from "@/stores/errorStore";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import DrawerItemsGrid from "./DrawerItemsGrid.vue";
 import DrawerItemsList from "./DrawerItemsList.vue";
+import DownloadDrawerButton from "../DownloadDrawerPage/DownloadDrawerButton.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = withDefaults(
   defineProps<{
@@ -153,6 +161,8 @@ const props = withDefaults(
     resultsView: "grid",
   }
 );
+
+const instanceStore = useInstanceStore();
 
 const isValidResultsView = (view: string): view is SearchResultsView => {
   return SEARCH_RESULTS_VIEWS.includes(view as SearchResultsView);
@@ -234,6 +244,10 @@ function setSortQueryParam(sortOption: supportedSortOption) {
   });
 }
 const errorStore = useErrorStore();
+
+function handleDownloadDrawer() {
+  console.log("download drawer");
+}
 
 onMounted(async () => {
   fetchStatus.value = "fetching";

@@ -96,7 +96,6 @@ function handleConfirm() {
 }
 
 function handleClose() {
-  console.log("close");
   emit("close");
 }
 </script>

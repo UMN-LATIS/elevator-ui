@@ -397,6 +397,7 @@ const api = {
   removeAssetFromDrawer,
   setDrawerSortBy,
   setCustomDrawerOrder,
+  startDrawerDownload: fetchers.startDrawerDownload,
 };
 
 export default api;

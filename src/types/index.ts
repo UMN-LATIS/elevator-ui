@@ -731,12 +731,17 @@ export interface ApiGetDrawerResponse {
   sortBy: DrawerSortOptions | null; // this is persisted in the database
 }
 
-export interface ApiAddAssetToDrawerResponse {
-  success?: boolean;
-  error?: string;
+export interface ApiErrorResponse {
+  error: string;
 }
 
-export type ApiRemoveAssetFromDrawerResponse = ApiAddAssetToDrawerResponse;
+export interface ApiSuccessResponse {
+  success: boolean;
+}
+
+export type ApiAddAssetToDrawerResponse = ApiSuccessResponse;
+
+export type ApiRemoveAssetFromDrawerResponse = ApiSuccessResponse;
 
 export interface Toast {
   id: string;
@@ -749,3 +754,13 @@ export interface Toast {
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   skipErrorNotifications?: boolean;
 }
+
+export type ApiStartDrawerDownloadResponse =
+  | {
+      status: "accepted";
+      jobId: number;
+    }
+  | {
+      status: "completed";
+      url: string;
+    };
