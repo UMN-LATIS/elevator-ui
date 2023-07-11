@@ -26,6 +26,7 @@ import type {
   ApiRemoveAssetFromDrawerResponse,
   CustomAxiosRequestConfig,
   DrawerSortOptions,
+  ApiStartDrawerDownloadResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -414,5 +415,12 @@ export async function setCustomDrawerOrder(
     formdata
   );
 
+  return res.data;
+}
+
+export async function startDrawerDownload(drawerId: number) {
+  const res = await axios.post<ApiStartDrawerDownloadResponse>(
+    `${BASE_URL}/drawers/downloadDrawer/${drawerId}/true`
+  );
   return res.data;
 }

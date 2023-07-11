@@ -11,6 +11,7 @@ import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
 import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
+import DownloadDrawerPage from "./pages/DownloadDrawerPage/DownloadDrawerPage.vue";
 import { useErrorStore } from "./stores/errorStore";
 
 function parseIntFromParam(
@@ -96,6 +97,14 @@ const router = createRouter({
       props: (route) => ({
         drawerId: parseIntFromParam(route.params.drawerId),
         resultsView: route.query.resultsView ?? null,
+      }),
+    },
+    {
+      name: "downloadDrawerPage",
+      path: "/drawers/downloadDrawer/:drawerId",
+      component: DownloadDrawerPage,
+      props: (route) => ({
+        drawerId: parseIntFromParam(route.params.drawerId),
       }),
     },
     {

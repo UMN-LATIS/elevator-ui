@@ -1,18 +1,25 @@
 <template>
   <DefaultLayout class="drawer-view-page">
     <div class="px-4">
-      <header class="my-8">
-        <Link
-          :to="`/drawers/listDrawers`"
-          class="flex items-center gap-1 mb-4 hover:no-underline"
-        >
-          <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
-          Back to Drawers
-        </Link>
-        <h2 class="text-4xl font-bold">{{ drawerTitle }}</h2>
+      <Link
+        :to="`/drawers/listDrawers`"
+        class="flex items-center gap-1 mb-4 hover:no-underline mt-8"
+      >
+        <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
+        Back to Drawers
+      </Link>
+      <header class="my-8 flex flex-wrap items-baseline">
+        <h2 class="text-4xl font-bold flex-grow">
+          {{ drawerTitle }}
+        </h2>
+        <DownloadDrawerButton
+          v-if="instanceStore.currentUser?.canManageDrawers"
+          :drawerId="drawerId"
+        />
       </header>
 
       <Tabs
+        v-if="drawer"
         labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="activeTabId"
         @tabChange="handleTabChange"
@@ -143,6 +150,8 @@ import { useErrorStore } from "@/stores/errorStore";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import DrawerItemsGrid from "./DrawerItemsGrid.vue";
 import DrawerItemsList from "./DrawerItemsList.vue";
+import DownloadDrawerButton from "../DownloadDrawerPage/DownloadDrawerButton.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = withDefaults(
   defineProps<{
@@ -153,6 +162,8 @@ const props = withDefaults(
     resultsView: "grid",
   }
 );
+
+const instanceStore = useInstanceStore();
 
 const isValidResultsView = (view: string): view is SearchResultsView => {
   return SEARCH_RESULTS_VIEWS.includes(view as SearchResultsView);
@@ -238,11 +249,10 @@ const errorStore = useErrorStore();
 onMounted(async () => {
   fetchStatus.value = "fetching";
   // get current drawer contents
-  await drawerStore.refreshDrawer(props.drawerId);
+  const drawerRecord = await drawerStore.refreshDrawer(props.drawerId);
 
   // sortBy is persisted in the drawer record, so check its current value
-  const drawerRecord = drawerStore.drawerRecords[props.drawerId];
-  if (!drawerRecord.contents) {
+  if (!drawerRecord?.contents) {
     fetchStatus.value = "error";
     return errorStore.setError(new Error("Couldn't find drawer content."));
   }
