@@ -251,12 +251,7 @@ onMounted(async () => {
   // get current drawer contents
   const drawerRecord = await drawerStore.refreshDrawer(props.drawerId);
 
-  if (!drawerRecord) {
-    return errorStore.setError(new Error("Couldn't find drawer content."));
-  }
-
   // sortBy is persisted in the drawer record, so check its current value
-  // const drawerRecord = drawerStore.drawerRecords[props.drawerId];
   if (!drawerRecord?.contents) {
     fetchStatus.value = "error";
     return errorStore.setError(new Error("Couldn't find drawer content."));
