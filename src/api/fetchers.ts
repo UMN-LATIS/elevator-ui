@@ -273,22 +273,27 @@ export async function loginAsGuest({
   formdata.append("password", password);
 
   try {
+    // skip the error notification because we want to
+    // handle it ourselves, so that a user
+    // can be reprompted if their username/password
+    // is incorrect
     const res = await axios.post<LocalLoginResponse>(
       `${BASE_URL}/loginManager/localLoginAsync`,
-      formdata
+      formdata,
+      { skipErrorNotifications: true } as CustomAxiosRequestConfig
     );
 
     return res.data;
   } catch (e: unknown) {
-    if (!(e instanceof AxiosError)) {
-      throw e;
+    const isBadCredentialsError = e instanceof ApiError && e.statusCode === 401;
+
+    if (isBadCredentialsError) {
+      return {
+        status: "error",
+        message: e.message,
+      };
     }
 
-    if (e.response?.status === 401) {
-      return e.response.data;
-    }
-
-    console.error(e.response?.data);
     throw e;
   }
 }
