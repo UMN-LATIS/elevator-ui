@@ -5,6 +5,14 @@
       <nav v-if="currentUser?.canManageDrawers" class="mb-4">
         <CreateDrawerButton />
       </nav>
+      <p
+        v-if="drawerStore.isReady && !drawers.length"
+        key="no-drawers"
+        class="text-center"
+      >
+        No drawers.
+      </p>
+
       <div ref="gridContainer" class="grid grid-cols-2 gap-2">
         <TransitionGroup name="fade">
           <article
