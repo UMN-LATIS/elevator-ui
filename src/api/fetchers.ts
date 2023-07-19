@@ -429,3 +429,8 @@ export async function startDrawerDownload(drawerId: number) {
   );
   return res.data;
 }
+
+export async function logout() {
+  const res = await axios.post(`${BASE_URL}/loginManager/logout`);
+  return res.data;
+}

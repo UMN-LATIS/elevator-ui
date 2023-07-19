@@ -385,6 +385,7 @@ const api = {
   getStaticPage,
   deleteAsset: fetchers.deleteAsset,
   loginAsGuest: fetchers.loginAsGuest,
+  logout: fetchers.logout,
   getSearchableSelectFieldValues,
   getSearchableCheckboxFieldValues,
   getSearchableMultiSelectFieldValues,
