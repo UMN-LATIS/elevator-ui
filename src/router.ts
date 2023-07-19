@@ -13,6 +13,7 @@ import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
 import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
 import DownloadDrawerPage from "./pages/DownloadDrawerPage/DownloadDrawerPage.vue";
 import { useErrorStore } from "./stores/errorStore";
+import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -127,6 +128,11 @@ const router = createRouter({
       props: (route) => ({
         redirectURL: route.query.redirect ?? null,
       }),
+    },
+    {
+      name: "logout",
+      path: "/logout",
+      component: LogoutPage,
     },
     {
       name: "staticContentPage",
