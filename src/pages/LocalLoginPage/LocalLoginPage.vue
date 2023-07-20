@@ -115,7 +115,7 @@ const props = withDefaults(
     redirectURL?: string;
   }>(),
   {
-    redirectURL: "/",
+    redirectURL: config.instance.base.path,
   }
 );
 
@@ -173,8 +173,10 @@ const login = async () => {
 
   if (status === "success") {
     errors.form = "";
-    instanceStore.refresh();
-    router.push(props.redirectURL);
+
+    // do a full reload to reinit stores and
+    // clear any cached api responses
+    window.location.href = props.redirectURL;
   }
 };
 
