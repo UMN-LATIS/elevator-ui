@@ -14,10 +14,11 @@
         </h2>
         <div class="flex items-center gap-2 bg-white p-1 rounded-md">
           <IconButton
-            :to="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
+            v-if="instanceStore.currentUser?.canManageDrawers"
+            :href="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
             title="Edit Permissions"
           >
-            <UsersIcon />
+            <UsersIcon class="!w-5 !h-5" />
             <span class="sr-only">Edit Permissions</span>
           </IconButton>
           <IconButton
