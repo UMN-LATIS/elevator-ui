@@ -280,6 +280,5 @@ watch(
 
 .search-results-page .app-header {
   z-index: 30; /* keep app header dropdowns above tabs */
-  border-bottom-color: transparent !important;
 }
 </style>
