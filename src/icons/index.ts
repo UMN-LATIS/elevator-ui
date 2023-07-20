@@ -27,6 +27,7 @@ export { default as SearchIcon } from "./SearchIcon.vue";
 export { default as ShareIcon } from "./ShareIcon.vue";
 export { default as SpinnerIcon } from "./SpinnerIcon.vue";
 export { default as ThemeIcon } from "./ThemeIcon.vue";
+export { default as UsersIcon } from "./UsersIcon.vue";
 export { default as VerticalDotsIcon } from "./VerticalDotsIcon.vue";
 export { default as WarningIcon } from "./WarningIcon.vue";
 export { default as XIcon } from "./XIcon.vue";

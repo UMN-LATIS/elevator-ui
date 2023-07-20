@@ -48,6 +48,8 @@ declare global {
   }
 }
 
+export type CSSClass = string | Record<string, boolean> | CSSClass[];
+
 export type FetchStatus = "idle" | "fetching" | "success" | "error";
 
 export type WidgetType =

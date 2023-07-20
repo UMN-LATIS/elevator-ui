@@ -8,14 +8,27 @@
         <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
         Back to Drawers
       </Link>
-      <header class="my-8 flex flex-wrap items-baseline">
+      <header class="my-8 flex flex-wrap items-center">
         <h2 class="text-4xl font-bold flex-grow">
           {{ drawerTitle }}
         </h2>
-        <DownloadDrawerButton
-          v-if="instanceStore.currentUser?.canManageDrawers"
-          :drawerId="drawerId"
-        />
+        <div class="flex items-center gap-2 bg-white p-1 rounded-md">
+          <IconButton
+            :to="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
+            title="Edit Permissions"
+          >
+            <UsersIcon />
+            <span class="sr-only">Edit Permissions</span>
+          </IconButton>
+          <IconButton
+            v-if="instanceStore.currentUser?.canManageDrawers"
+            title="Download Drawer"
+            :to="`/drawers/downloadDrawer/${drawerId}`"
+          >
+            <DownloadIcon class="!w-5 !h-5" />
+            <span class="sr-only">Download Drawer</span>
+          </IconButton>
+        </div>
       </header>
 
       <Tabs
@@ -134,7 +147,8 @@ import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
-import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
+import Button from "@/components/Button/Button.vue";
+import { ArrowForwardIcon, UsersIcon, DownloadIcon } from "@/icons";
 import Link from "@/components/Link/Link.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import {
@@ -150,8 +164,9 @@ import { useErrorStore } from "@/stores/errorStore";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import DrawerItemsGrid from "./DrawerItemsGrid.vue";
 import DrawerItemsList from "./DrawerItemsList.vue";
-import DownloadDrawerButton from "../DownloadDrawerPage/DownloadDrawerButton.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import config from "@/config";
 
 const props = withDefaults(
   defineProps<{
@@ -163,6 +178,7 @@ const props = withDefaults(
   }
 );
 
+const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
 
 const isValidResultsView = (view: string): view is SearchResultsView => {
