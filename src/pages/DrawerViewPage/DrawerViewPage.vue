@@ -12,9 +12,11 @@
         <h2 class="text-4xl font-bold flex-grow">
           {{ drawerTitle }}
         </h2>
-        <div class="flex items-center gap-2 bg-white p-1 rounded-md">
+        <div
+          v-if="instanceStore.currentUser?.canManageDrawers"
+          class="flex items-center gap-2 bg-white p-1 rounded-md"
+        >
           <IconButton
-            v-if="instanceStore.currentUser?.canManageDrawers"
             :href="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
             title="Edit Permissions"
           >
@@ -22,7 +24,6 @@
             <span class="sr-only">Edit Permissions</span>
           </IconButton>
           <IconButton
-            v-if="instanceStore.currentUser?.canManageDrawers"
             title="Download Drawer"
             :to="`/drawers/downloadDrawer/${drawerId}`"
           >

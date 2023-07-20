@@ -1,15 +1,14 @@
 <template>
-  <button
+  <IconButton
     title="Add Search Results to Drawer"
     v-bind="$attrs"
     :disabled="searchStore.matches.length === 0"
-    class="bg-white w-12 h-12 inline-flex justify-center items-center rounded-md shadow-sm hover:bg-neutral-900 hover:text-neutral-200 transition-all overflow-hidden"
     @click="isModalOpen = true"
   >
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
     <span class="sr-only"> Add Search Results </span>
-  </button>
+  </IconButton>
   <Modal
     type="info"
     label="Add Search Results to Drawer"
@@ -79,6 +78,7 @@ import { useSearchStore } from "@/stores/searchStore";
 import DrawerTitleInput from "@/components/DrawerTitleInput/DrawerTitleInput.vue";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
+import IconButton from "@/components/IconButton/IconButton.vue";
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
