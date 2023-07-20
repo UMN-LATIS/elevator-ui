@@ -11,8 +11,8 @@ import api from "@/api";
 onMounted(() => {
   api.logout();
 
-  // do a full reload to clear any cache
-  window.location.href = "/";
+  // do a full reload to clear any cached state
+  window.location.href = config.instance.base.path;
 });
 </script>
 <style scoped></style>
