@@ -13,7 +13,7 @@ onMounted(() => {
   api.logout();
 
   // do a full reload to clear any cached state
-  window.location.href = config.instance.base.url;
+  window.location.href = config.instance.base.path;
 });
 </script>
 <style scoped></style>
