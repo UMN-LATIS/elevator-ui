@@ -1,5 +1,5 @@
 <template>
-  <ActiveFileViewButton
+  <IconButton
     :title="`Add to ${elevatorPlugin || 'Elevator Plugin'}`"
     @click="handleAddButtonClick"
   >
@@ -9,7 +9,7 @@
       <AddToWordPressIcon v-else-if="elevatorPlugin === 'WordPress'" />
       <span v-else>+ {{ elevatorPlugin ?? "Elevator Plugin" }}</span>
     </template>
-  </ActiveFileViewButton>
+  </IconButton>
   <ConfirmModal
     :isOpen="isInterstitialOpen"
     :title="`Add to ${elevatorPlugin}`"
@@ -35,7 +35,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch, nextTick } from "vue";
-import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import api from "@/api";
 import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
 import { ApiInterstitialResponse } from "@/types";

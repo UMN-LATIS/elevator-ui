@@ -3,7 +3,7 @@
     <div class="px-4">
       <SearchErrorNotification v-if="searchStore.status === 'error'" />
       <template v-else>
-        <div class="flex justify-between items-baseline my-8">
+        <div class="flex justify-between items-center my-8">
           <BrowseCollectionHeader
             v-if="searchStore.browsingCollectionId"
             :collectionId="searchStore.browsingCollectionId"
@@ -14,11 +14,14 @@
           </h2>
           <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
 
-          <AddSearchResultsToDrawerButton
+          <div
             v-if="
               searchStore.isReady && instanceStore.currentUser?.canManageDrawers
             "
-          />
+            class="flex items-center p-1 bg-white rounded-md"
+          >
+            <AddSearchResultsToDrawerButton />
+          </div>
         </div>
 
         <Tabs
