@@ -1,7 +1,8 @@
 <template>
-  <ActiveFileViewButton @click="handleInfoButtonClick">
+  <IconButton title="More Info" @click="handleInfoButtonClick">
     <InfoIcon />
-  </ActiveFileViewButton>
+    <span class="sr-only">More Info</span>
+  </IconButton>
   <Modal
     label="File Info"
     :isOpen="isFileInfoOpen"
@@ -59,7 +60,7 @@
 </template>
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from "vue";
-import ActiveFileViewButton from "./ActiveFileViewButton.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import api from "@/api";

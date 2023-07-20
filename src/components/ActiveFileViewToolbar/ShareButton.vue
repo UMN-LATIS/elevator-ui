@@ -1,7 +1,8 @@
 <template>
-  <ActiveFileViewButton @click="isOpen = !isOpen">
+  <IconButton title="Share" @click="isOpen = !isOpen">
     <ShareIcon />
-  </ActiveFileViewButton>
+    <span class="sr-only">Share</span>
+  </IconButton>
   <Modal
     label="Share"
     :isOpen="isOpen"
@@ -23,7 +24,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import ActiveFileViewButton from "./ActiveFileViewButton.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import config from "@/config";
 import Modal from "../Modal/Modal.vue";

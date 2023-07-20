@@ -1,7 +1,8 @@
 <template>
-  <ActiveFileViewButton @click="handleDownloadFileClick">
+  <IconButton title="Download File" @click="handleDownloadFileClick">
     <DownloadIcon />
-  </ActiveFileViewButton>
+    <span class="sr-only">Download File</span>
+  </IconButton>
   <Modal
     label="File Downloads"
     :isOpen="isOpen"
@@ -31,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import ActiveFileViewButton from "./ActiveFileViewButton.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import { FileDownloadNormalized } from "@/types";
 import DownloadIcon from "@/icons/DownloadIcon.vue";

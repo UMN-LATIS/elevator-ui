@@ -1,13 +1,9 @@
 <template>
-  <ActiveFileViewButton
-    title="Add to Drawer"
-    v-bind="$attrs"
-    @click="isModalOpen = true"
-  >
+  <IconButton title="Add to Drawer" v-bind="$attrs" @click="isModalOpen = true">
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
     <span class="sr-only">Add to Drawer</span>
-  </ActiveFileViewButton>
+  </IconButton>
   <Modal
     type="info"
     label="Add to Drawer"
@@ -76,7 +72,7 @@ import { useDrawerStore } from "@/stores/drawerStore";
 import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
-import ActiveFileViewButton from "../ActiveFileViewToolbar/ActiveFileViewButton.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 
 const props = defineProps<{
   assetId: string;
