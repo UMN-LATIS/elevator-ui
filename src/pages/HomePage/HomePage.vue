@@ -42,6 +42,7 @@
         Please contact your administrator if you believe this is an error.
       </p>
     </Notification>
+    <AppFooter />
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -54,6 +55,7 @@ import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 import Notification from "@/components/Notification/Notification.vue";
+import AppFooter from "@/components/AppFooter/AppFooter.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();

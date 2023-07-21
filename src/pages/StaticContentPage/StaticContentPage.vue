@@ -11,11 +11,13 @@
         <SanitizedHTML :html="page.content ?? ''" class="w-full" />
       </div>
     </div>
+    <AppFooter />
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import { ref, watch } from "vue";
 import { ApiStaticPageResponse } from "@/types";
 import api from "@/api";
