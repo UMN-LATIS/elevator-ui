@@ -295,11 +295,11 @@ const getters = (state: SearchStoreState) => ({
 const actions = (state: SearchStoreState) => ({
   async setSortOption(option: keyof SearchSortOptions) {
     state.sort.value = option;
+    // get the search ID for this sort option
+    state.searchId.value = await this.getSearchId();
 
-    // refresh search results
-    if (state.searchId.value) {
-      return this.search(state.searchId.value);
-    }
+    // update search results
+    return this.search(state.searchId.value);
   },
 
   addCollectionIdFilter(collectionId: number) {
