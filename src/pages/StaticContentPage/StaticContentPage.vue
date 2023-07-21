@@ -2,12 +2,14 @@
   <DefaultLayout>
     <div
       v-if="page"
-      class="static-page__content prose prose-neutral p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
+      class="static-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
     >
-      <h1 class="text-4xl font-bold">
-        {{ page.title || "No Title" }}
-      </h1>
-      <SanitizedHTML :html="page.content ?? ''" />
+      <div class="prose prose-neutral">
+        <h1 class="text-4xl font-bold">
+          {{ page.title || "No Title" }}
+        </h1>
+        <SanitizedHTML :html="page.content ?? ''" class="w-full" />
+      </div>
     </div>
   </DefaultLayout>
 </template>

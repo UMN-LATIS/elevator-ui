@@ -6,7 +6,7 @@
     />
     <div
       v-if="isReady && canSearchAndBrowse"
-      class="home-page-content flex-1 md:grid"
+      class="home-page-content flex-1 md:grid max-w-screen-xl w-full mx-auto"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
         'md:grid-cols-3': featuredAssetId,
@@ -17,7 +17,7 @@
           <SanitizedHTML
             v-if="page"
             :html="page.content ?? ''"
-            class="prose prose-neutral mx-auto"
+            class="prose prose-neutral"
           />
         </Transition>
       </article>
