@@ -12,7 +12,7 @@
             <q v-if="nonBrowsingPageTitle">{{ nonBrowsingPageTitle }}</q>
             <span v-else>Search Results</span>
           </h2>
-          <Skeleton v-else class="!w-1/2 !h-12 !my-8" />
+          <Skeleton v-else class="!w-1/2 !h-12" />
 
           <div
             v-if="
