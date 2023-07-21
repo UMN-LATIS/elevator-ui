@@ -510,6 +510,7 @@ export interface ApiInstanceNavResponse {
   templates: Record<number, string>; // { templateId: templateName }
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
+  customFooter: string | null; // html
 }
 
 export interface StaticContentPage {
