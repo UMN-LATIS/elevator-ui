@@ -6,6 +6,7 @@
     <main id="main" class="flex-1 flex flex-col" tabindex="-1">
       <slot />
     </main>
+    <AppFooter />
     <Transition name="fade">
       <a
         v-show="showScrollToTop"
@@ -21,6 +22,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import AppHeader from "@/components/AppHeader/AppHeader.vue";
+import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import { ChevronUpIcon } from "@/icons";
 import { useWindowScroll } from "@vueuse/core";
 import SkipNavLink from "@/components/SkipNavLink/SkipNavLink.vue";
