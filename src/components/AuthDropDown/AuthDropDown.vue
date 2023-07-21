@@ -17,15 +17,7 @@
       >
         Preferences
       </DropDownItem>
-      <DropDownItem
-        :href="`${
-          config.instance.base.url
-        }/loginManager/logout?redirect=${encodeURIComponent(
-          config.instance.base.url
-        )}`"
-      >
-        Logout
-      </DropDownItem>
+      <DropDownItem to="/logout">Logout</DropDownItem>
     </template>
     <template v-else>
       <DropDownItem

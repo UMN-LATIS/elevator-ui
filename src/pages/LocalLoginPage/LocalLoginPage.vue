@@ -103,19 +103,21 @@
 import Button from "@/components/Button/Button.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useRouter } from "vue-router";
 import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/icons";
 import config from "@/config";
 import api from "@/api";
+import { resetAllStores } from "@/stores/resetAllStores";
+import { useDrawerStore } from "@/stores/drawerStore";
 
 const props = withDefaults(
   defineProps<{
     redirectURL?: string;
   }>(),
   {
-    redirectURL: "/",
+    redirectURL: config.instance.base.path,
   }
 );
 
@@ -135,6 +137,7 @@ const errors = reactive<{
 const shakeForm = ref(false);
 
 const instanceStore = useInstanceStore();
+const drawerStore = useDrawerStore();
 const router = useRouter();
 
 const login = async () => {
@@ -173,7 +176,13 @@ const login = async () => {
 
   if (status === "success") {
     errors.form = "";
-    instanceStore.refresh();
+
+    // once the user is successfully logged in,
+    // reset the cache and reinitialize stores
+    api.clearCache();
+    resetAllStores();
+    await instanceStore.init();
+    await drawerStore.init();
     router.push(props.redirectURL);
   }
 };

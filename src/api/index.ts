@@ -26,29 +26,39 @@ import {
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
 
-// caches for api results
-const assets = new Map<string, Asset | null>();
-const templates = new Map<string, Template | null>();
-const moreLikeThisMatches = new Map<string, SearchResultMatch[]>();
-const fileMetaData = new Map<string, FileMetaData>();
-const fileDownloadResponses = new Map<string, FileDownloadNormalized[]>();
-const paginatedSearchResults = new Map<
-  string,
-  Record<number, SearchResultsResponse>
->();
-const collectionDescriptions = new Map<number, string | null>();
-const collectionSearchIds = new Map<number, string | null>();
-const staticPages = new Map<number, ApiStaticPageResponse | null>();
-const searchableFieldDetails = new Map<string, ApiGetFieldInfoResponse>();
-const drawerDetails = new Map<number, ApiGetDrawerResponse | null>();
-let listOfDrawers: null | Drawer[] = null;
+function createCache() {
+  return {
+    assets: new Map<string, Asset | null>(),
+    templates: new Map<string, Template | null>(),
+    moreLikeThisMatches: new Map<string, SearchResultMatch[]>(),
+    fileMetaData: new Map<string, FileMetaData>(),
+    fileDownloadResponses: new Map<string, FileDownloadNormalized[]>(),
+    paginatedSearchResults: new Map<
+      string,
+      Record<number, SearchResultsResponse>
+    >(),
+    collectionDescriptions: new Map<number, string | null>(),
+    collectionSearchIds: new Map<number, string | null>(),
+    staticPages: new Map<number, ApiStaticPageResponse | null>(),
+    searchableFieldDetails: new Map<string, ApiGetFieldInfoResponse>(),
+    drawerDetails: new Map<number, ApiGetDrawerResponse | null>(),
+    listOfDrawers: null as null | Drawer[],
+  };
+}
+
+let cache = createCache();
+
+export function clearCache() {
+  cache = createCache();
+}
 
 async function getAsset(assetId: string): Promise<Asset | null> {
   if (!assetId) return null;
 
   // load asset and cache it in the store
-  const asset = assets.get(assetId) || (await fetchers.fetchAsset(assetId));
-  assets.set(assetId, asset);
+  const asset =
+    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId));
+  cache.assets.set(assetId, asset);
 
   return asset;
 }
@@ -61,26 +71,28 @@ async function getAssetWithTemplate(
   }
 
   // load asset and cache it in the store
-  const asset = assets.get(assetId) || (await fetchers.fetchAsset(assetId));
-  assets.set(assetId, asset);
+  const asset =
+    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId));
+  cache.assets.set(assetId, asset);
 
   if (!asset) return { asset: null, template: null };
 
   // load template and cache it in the store
   const templateId = String(asset.templateId);
   const template =
-    templates.get(templateId) || (await fetchers.fetchTemplate(templateId));
-  templates.set(templateId, template);
+    cache.templates.get(templateId) ||
+    (await fetchers.fetchTemplate(templateId));
+  cache.templates.set(templateId, template);
 
   return { asset, template };
 }
 
 async function getCollectionDescription(id: number): Promise<string | null> {
   const description =
-    collectionDescriptions.get(id) ||
+    cache.collectionDescriptions.get(id) ||
     (await fetchers.fetchCollectionDescription(id));
 
-  collectionDescriptions.set(id, description);
+  cache.collectionDescriptions.set(id, description);
 
   return description;
 }
@@ -91,11 +103,11 @@ async function getMoreLikeThis(
   if (!assetId) return [];
 
   const matches =
-    moreLikeThisMatches.get(assetId) ||
+    cache.moreLikeThisMatches.get(assetId) ||
     (await fetchers.fetchMoreLikeThis(assetId));
 
   // cache matches
-  moreLikeThisMatches.set(assetId, matches);
+  cache.moreLikeThisMatches.set(assetId, matches);
   return matches;
 }
 
@@ -105,10 +117,11 @@ async function getFileMetaData(
   if (!fileId) return null;
 
   const metadata =
-    fileMetaData.get(fileId) || (await fetchers.fetchFileMetaData(fileId));
+    cache.fileMetaData.get(fileId) ||
+    (await fetchers.fetchFileMetaData(fileId));
 
   // cache metadata
-  fileMetaData.set(fileId, metadata);
+  cache.fileMetaData.set(fileId, metadata);
   return metadata;
 }
 
@@ -120,10 +133,10 @@ async function getFileDownloadInfo(
 
   const key = `${fileId}.${parentObjectId}`;
   const fileDownloadInfo =
-    fileDownloadResponses.get(key) ||
+    cache.fileDownloadResponses.get(key) ||
     (await fetchers.fetchFileDownloadInfo(fileId, parentObjectId));
 
-  fileDownloadResponses.set(key, fileDownloadInfo);
+  cache.fileDownloadResponses.set(key, fileDownloadInfo);
 
   return fileDownloadInfo;
 }
@@ -136,11 +149,11 @@ async function getEmbedPluginInterstitial(): Promise<ApiInterstitialResponse> {
 async function getSearchIdForCollection(collectionId: number): Promise<string> {
   // check the cache first before making the request
   const searchId =
-    collectionSearchIds.get(collectionId) ||
+    cache.collectionSearchIds.get(collectionId) ||
     (await fetchers.fetchSearchIdForCollection(collectionId));
 
   // update cache
-  collectionSearchIds.set(collectionId, searchId);
+  cache.collectionSearchIds.set(collectionId, searchId);
 
   // return the searchId
   return searchId;
@@ -152,7 +165,7 @@ async function getSearchResultsById(
   loadAll = false
 ): Promise<SearchResultsResponse> {
   // check the cache first
-  const searchMap = paginatedSearchResults.get(searchId);
+  const searchMap = cache.paginatedSearchResults.get(searchId);
   if (searchMap && searchMap[page]) {
     return searchMap[page];
   }
@@ -164,7 +177,7 @@ async function getSearchResultsById(
   );
 
   // cache the results
-  paginatedSearchResults.set(searchId, {
+  cache.paginatedSearchResults.set(searchId, {
     ...(searchMap || {}), // add to existing cache if it exists
     [page]: searchResults,
   });
@@ -174,10 +187,10 @@ async function getSearchResultsById(
 async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
   // check the cache first
   const page =
-    staticPages.get(pageId) || (await fetchers.fetchStaticPage(pageId));
+    cache.staticPages.get(pageId) || (await fetchers.fetchStaticPage(pageId));
 
   // cache the page
-  staticPages.set(pageId, page);
+  cache.staticPages.set(pageId, page);
 
   return page;
 }
@@ -188,8 +201,8 @@ async function getSearchableFieldInfo<T extends ApiGetFieldInfoResponse>(
   const fieldKey = `${field.id}-${field.template}`;
 
   // return cached data if it exists
-  if (searchableFieldDetails.has(fieldKey)) {
-    const cachedResponse = searchableFieldDetails.get(fieldKey) as T;
+  if (cache.searchableFieldDetails.has(fieldKey)) {
+    const cachedResponse = cache.searchableFieldDetails.get(fieldKey) as T;
     return cachedResponse ?? null;
   }
 
@@ -197,7 +210,7 @@ async function getSearchableFieldInfo<T extends ApiGetFieldInfoResponse>(
   const data = await fetchers.fetchSearchableFieldInfo<T>(field);
 
   // cache the response
-  searchableFieldDetails.set(fieldKey, data);
+  cache.searchableFieldDetails.set(fieldKey, data);
 
   // and return the values
   return data;
@@ -247,8 +260,8 @@ async function getDrawers({
   refresh?: boolean;
 } = {}): Promise<Drawer[]> {
   // return cached data if it exists
-  if (listOfDrawers && !refresh) {
-    return listOfDrawers;
+  if (cache.listOfDrawers && !refresh) {
+    return cache.listOfDrawers;
   }
 
   // otherwise fetch it
@@ -256,21 +269,21 @@ async function getDrawers({
 
   // the data is an object, so we need to convert it to an array
   // and add the key as the id
-  listOfDrawers = Object.entries(data)
+  cache.listOfDrawers = Object.entries(data)
     .map(([key, value]) => ({
       id: Number.parseInt(key),
       ...value,
     }))
     .sort((a, b) => a.title.localeCompare(b.title));
 
-  return listOfDrawers;
+  return cache.listOfDrawers;
 }
 
 export async function getDrawer(id: number): Promise<Drawer> {
-  const data = drawerDetails.get(id) ?? (await fetchers.fetchDrawer(id));
+  const data = cache.drawerDetails.get(id) ?? (await fetchers.fetchDrawer(id));
 
   // cache the response
-  drawerDetails.set(id, data);
+  cache.drawerDetails.set(id, data);
 
   const { drawerId, drawerTitle, ...contents } = data;
 
@@ -288,7 +301,7 @@ export async function addAssetToDrawer(
   const data = await fetchers.addAssetToDrawer(assetId, drawerId);
 
   // clear the cache for this drawer
-  drawerDetails.delete(drawerId);
+  cache.drawerDetails.delete(drawerId);
 
   return data;
 }
@@ -300,7 +313,7 @@ export async function addAssetListToDrawer(
   const data = await fetchers.addAssetListToDrawer(assetIds, drawerId);
 
   // clear the cache for this drawer
-  drawerDetails.delete(drawerId);
+  cache.drawerDetails.delete(drawerId);
 
   return data;
 }
@@ -315,7 +328,7 @@ export async function removeAssetFromDrawer({
   const data = await fetchers.removeAssetFromDrawer({ drawerId, assetId });
 
   // clear the cache for this drawer
-  drawerDetails.delete(drawerId);
+  cache.drawerDetails.delete(drawerId);
 
   return data;
 }
@@ -327,7 +340,7 @@ export async function createDrawer(
   const data = await fetchers.createDrawer(drawerTitle, customConfig);
 
   // clear the list of drawers cache
-  listOfDrawers = null;
+  cache.listOfDrawers = null;
 
   return data;
 }
@@ -339,7 +352,7 @@ export async function deleteDrawer(
   const data = await fetchers.deleteDrawer(drawerId, customConfig);
 
   // clear the list of drawers cache
-  listOfDrawers = null;
+  cache.listOfDrawers = null;
 
   return data;
 }
@@ -351,7 +364,7 @@ export async function setDrawerSortBy(
   const data = await fetchers.setDrawerSortBy(drawerId, sortBy);
 
   // clear the drawer cache
-  drawerDetails.delete(drawerId);
+  cache.drawerDetails.delete(drawerId);
 
   return data;
 }
@@ -363,7 +376,7 @@ export async function setCustomDrawerOrder(
   const data = await fetchers.setCustomDrawerOrder(drawerId, assetIds);
 
   // clear the drawer cache
-  drawerDetails.delete(drawerId);
+  cache.drawerDetails.delete(drawerId);
 
   return data;
 }
@@ -385,6 +398,7 @@ const api = {
   getStaticPage,
   deleteAsset: fetchers.deleteAsset,
   loginAsGuest: fetchers.loginAsGuest,
+  logout: fetchers.logout,
   getSearchableSelectFieldValues,
   getSearchableCheckboxFieldValues,
   getSearchableMultiSelectFieldValues,
@@ -398,6 +412,7 @@ const api = {
   setDrawerSortBy,
   setCustomDrawerOrder,
   startDrawerDownload: fetchers.startDrawerDownload,
+  clearCache,
 };
 
 export default api;
