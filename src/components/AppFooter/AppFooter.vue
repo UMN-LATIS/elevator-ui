@@ -1,8 +1,8 @@
 <template>
-  <footer class="app-footer px-4 py-8 bg-transparent-black-100">
+  <footer class="app-footer bg-transparent-black-100">
     <SanitizedHTML
       v-if="instanceStore.customFooter"
-      class="flex flex-col max-w-screen-xl mx-auto"
+      class="flex flex-col max-w-screen-xl mx-auto p-4 lg:p-8"
       :html="instanceStore.customFooter"
     />
   </footer>
