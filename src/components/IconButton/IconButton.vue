@@ -8,6 +8,7 @@
       v-bind="$attrs"
       class="flex items-center justify-center aspect-square p-2 text-neutral-900 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-600 rounded-md transition-colors duration-150"
       :title="title"
+      @click="($event) => $emit('click', $event)"
     >
       <slot />
     </component>
@@ -34,6 +35,10 @@ const props = withDefaults(
     type: "button",
   }
 );
+
+defineEmits<{
+  (eventName: "click", event: MouseEvent): true;
+}>();
 
 const router = useRouter();
 const resolvedHref = computed(() => {
