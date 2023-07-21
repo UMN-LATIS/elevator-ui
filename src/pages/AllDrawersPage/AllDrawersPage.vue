@@ -7,10 +7,13 @@
       </nav>
       <div ref="gridContainer" class="grid grid-cols-2 gap-2">
         <TransitionGroup name="fade">
+          <p v-if="drawerStore.isReady && !drawers.length" key="no-drawers">
+            No drawers.
+          </p>
           <article
             v-for="drawer in drawers"
             :key="drawer.id"
-            class="relative drawer-list-item rounded hover:bg-white group transition-colors duration-150"
+            class="relative drawer-list-item rounded group transition-colors duration-150"
           >
             <DeleteDrawerButton
               v-if="currentUser?.canManageDrawers"
@@ -82,9 +85,25 @@ const numRows = computed(() => {
 }
 
 .drawer-list-item {
-  border: var(--app-accordion-outer-borderWidth) solid
-    var(--app-accordion-outer-borderColor);
-  background: var(--app-accordion-header-backgroundColor);
-  color: var(--app-accordion-header-textColor);
+  background: var(--app-mediaCard-backgroundColor);
+  color: var(--app-mediaCard-textColor);
+  border: var(--app-mediaCard-borderWidth) solid
+    var(--app-mediaCard-borderColor);
+
+  & :is(h1, h2, h3, h4, h5, a) {
+    color: var(--app-mediaCard-textColor);
+  }
+}
+
+.drawer-list-item:hover {
+  --hover-text-color: var(--color-blue-600);
+  --hover-bg-color: var(--color-blue-50);
+  background: var(--hover-bg-color);
+  color: var(--hover-text-color);
+  border-color: var(--hover-text-color);
+
+  & :is(h1, h2, h3, h4, h5, a) {
+    color: var(--hover-text-color);
+  }
 }
 </style>
