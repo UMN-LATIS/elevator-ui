@@ -30,7 +30,7 @@ export interface AppConfig {
        * height of the the collapsed text area
        * in pixels
        */
-      defaultTextTruncationLength: number;
+      defaultTextTruncationHeight: number;
     };
   };
   arcgis: {
@@ -464,8 +464,8 @@ export interface Template {
   widgetArray: WidgetProps[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
-    | Record<string | number, string | undefined | unknown>
-    | unknown[];
+  | Record<string | number, string | undefined | unknown>
+  | unknown[];
 }
 
 export interface LngLat {
@@ -767,10 +767,10 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 
 export type ApiStartDrawerDownloadResponse =
   | {
-      status: "accepted";
-      jobId: number;
-    }
+    status: "accepted";
+    jobId: number;
+  }
   | {
-      status: "completed";
-      url: string;
-    };
+    status: "completed";
+    url: string;
+  };
