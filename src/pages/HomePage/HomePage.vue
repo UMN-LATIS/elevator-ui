@@ -6,7 +6,7 @@
     />
     <div
       v-if="isReady && canSearchAndBrowse"
-      class="home-page-content flex-1 md:grid"
+      class="home-page-content flex-1 md:grid max-w-screen-xl w-full mx-auto"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
         'md:grid-cols-3': featuredAssetId,
@@ -17,7 +17,7 @@
           <SanitizedHTML
             v-if="page"
             :html="page.content ?? ''"
-            class="prose prose-neutral mx-auto"
+            class="prose prose-neutral"
           />
         </Transition>
       </article>
@@ -42,6 +42,7 @@
         Please contact your administrator if you believe this is an error.
       </p>
     </Notification>
+    <AppFooter />
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -54,6 +55,7 @@ import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 import Notification from "@/components/Notification/Notification.vue";
+import AppFooter from "@/components/AppFooter/AppFooter.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
