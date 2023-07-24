@@ -16,6 +16,15 @@ export interface AppConfig {
       enabled: boolean;
       defaultTheme: string;
     };
+    moreLikeThis: {
+      /**
+       * Number of results to show in More Like This
+       * section before showing the "Show More" button.
+       * If set to 0, users won't see any preview results
+       * and will have to click a "More Like This" button.
+       */
+      maxInlineResults: number;
+    };
   };
   arcgis: {
     apiKey: string;
@@ -24,15 +33,6 @@ export interface AppConfig {
     test: string | null;
   };
   mode: "development" | "production" | string | null;
-  moreLikeThis: {
-    /**
-     * Number of results to show in More Like This
-     * section before showing the "Show More" button.
-     * If set to 0, users won't see any preview results
-     * and will have to click a "More Like This" button.
-     */
-    maxInlineResults: number;
-  };
 }
 
 /**
