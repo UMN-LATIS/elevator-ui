@@ -25,6 +25,13 @@ export interface AppConfig {
        */
       maxInlineResults: number;
     };
+    textAreaItem: {
+      /**
+       * height of the the collapsed text area
+       * in pixels
+       */
+      defaultTextTruncationLength: number;
+    };
   };
   arcgis: {
     apiKey: string;

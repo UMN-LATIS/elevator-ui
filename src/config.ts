@@ -21,6 +21,9 @@ const defaultConfig: AppConfig = {
     moreLikeThis: {
       maxInlineResults: 3,
     },
+    textAreaItem: {
+      defaultTextTruncationLength: 75,
+    },
   },
   arcgis: {
     apiKey:
