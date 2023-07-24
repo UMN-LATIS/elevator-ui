@@ -19,15 +19,17 @@ import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
+import config from "@/config";
 
 const props = withDefaults(
   defineProps<{
     fieldContents: string;
     widget: WidgetProps;
-    textTruncationLength?: number;
+    textTruncationHeight?: number;
   }>(),
   {
-    textTruncationLength: 75,
+    textTruncationHeight:
+      config.instance.textAreaItem.defaultTextTruncationHeight,
   }
 );
 const show = ref(false);
@@ -45,7 +47,7 @@ function updateShave() {
 
   shave(
     [truncateText.value] as unknown as NodeList,
-    props.textTruncationLength
+    props.textTruncationHeight
   );
   isTruncated.value =
     truncateText.value.querySelector<HTMLElement>(".js-shave") !== null;

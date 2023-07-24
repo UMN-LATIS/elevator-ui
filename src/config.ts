@@ -18,6 +18,14 @@ const defaultConfig: AppConfig = {
         import.meta.env.VITE_THEMING_ENABLED?.toLowerCase() === "true" ?? true,
       defaultTheme: import.meta.env.VITE_THEMING_DEFAULT ?? "light",
     },
+    moreLikeThis: {
+      maxInlineResults: 3,
+    },
+    textAreaItem: {
+      // height in pixels
+      // ex. for 3 lines: 16px * 1.5 line-height * 3 lines = 72px
+      defaultTextTruncationHeight: 72,
+    },
   },
   arcgis: {
     apiKey:
@@ -27,9 +35,6 @@ const defaultConfig: AppConfig = {
     test: import.meta.env.VITE_TEST_ROUTE ?? null,
   },
   mode: import.meta.env.MODE ?? null,
-  moreLikeThis: {
-    maxInlineResults: 3,
-  },
 };
 
 const overwriteMerge = (destArray, sourceArray) => sourceArray;

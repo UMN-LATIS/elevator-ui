@@ -23,7 +23,9 @@
       @click="isShowingFullListOfResults = true"
     >
       {{
-        config.moreLikeThis.maxInlineResults ? "Show More" : "More Like This"
+        config.instance.moreLikeThis.maxInlineResults
+          ? "Show More"
+          : "More Like This"
       }}
     </ButtonWithCount>
 
@@ -62,7 +64,7 @@ const props = defineProps<{
 }>();
 
 const inlineResultsList = computed(() => {
-  return props.items.slice(0, config.moreLikeThis.maxInlineResults);
+  return props.items.slice(0, config.instance.moreLikeThis.maxInlineResults);
 });
 
 const numOfSeeMoreResults = computed(() => {

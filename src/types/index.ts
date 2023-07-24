@@ -16,6 +16,22 @@ export interface AppConfig {
       enabled: boolean;
       defaultTheme: string;
     };
+    moreLikeThis: {
+      /**
+       * Number of results to show in More Like This
+       * section before showing the "Show More" button.
+       * If set to 0, users won't see any preview results
+       * and will have to click a "More Like This" button.
+       */
+      maxInlineResults: number;
+    };
+    textAreaItem: {
+      /**
+       * height of the the collapsed text area
+       * in pixels
+       */
+      defaultTextTruncationHeight: number;
+    };
   };
   arcgis: {
     apiKey: string;
@@ -24,15 +40,6 @@ export interface AppConfig {
     test: string | null;
   };
   mode: "development" | "production" | string | null;
-  moreLikeThis: {
-    /**
-     * Number of results to show in More Like This
-     * section before showing the "Show More" button.
-     * If set to 0, users won't see any preview results
-     * and will have to click a "More Like This" button.
-     */
-    maxInlineResults: number;
-  };
 }
 
 /**
@@ -457,8 +464,8 @@ export interface Template {
   widgetArray: WidgetProps[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
-    | Record<string | number, string | undefined | unknown>
-    | unknown[];
+  | Record<string | number, string | undefined | unknown>
+  | unknown[];
 }
 
 export interface LngLat {
@@ -760,10 +767,10 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 
 export type ApiStartDrawerDownloadResponse =
   | {
-      status: "accepted";
-      jobId: number;
-    }
+    status: "accepted";
+    jobId: number;
+  }
   | {
-      status: "completed";
-      url: string;
-    };
+    status: "completed";
+    url: string;
+  };
