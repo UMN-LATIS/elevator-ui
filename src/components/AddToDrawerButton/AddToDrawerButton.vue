@@ -12,6 +12,39 @@
     @close="isModalOpen = false"
   >
     <div>
+      <ObjectViewer
+        :fileHandlerId="assetStore.activeFileObjectId"
+        class="aspect-video mb-4"
+      />
+      <div class="excerpt-details flex gap-4 mb-8">
+        <div class="flex gap-1">
+          <!-- <input
+            v-model="excerpt.useStartTime"
+            type="checkbox"
+            aria-label="Include Excerpt Start Time"
+          /> -->
+          <InputGroup
+            id="excerpt__start-time"
+            v-model="excerpt.startTime"
+            label="Start Time"
+            type="text"
+          />
+        </div>
+        <div class="flex gap-1">
+          <!-- <input
+            v-model="excerpt.useEndTime"
+            type="checkbox"
+            aria-label="Include Excerpt Start Time"
+          /> -->
+          <InputGroup
+            id="excerpt__end-time"
+            v-model="excerpt.endTime"
+            label="End Time"
+            type="text"
+          />
+        </div>
+      </div>
+
       <form
         class="flex items-center justify-between gap-2"
         @submit.prevent="handleAddToDrawer(selectedDrawer)"
@@ -65,7 +98,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -73,6 +106,9 @@ import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import IconButton from "@/components/IconButton/IconButton.vue";
+import ObjectViewer from "../ObjectViewer/ObjectViewer.vue";
+import { useAssetStore } from "@/stores/assetStore";
+import InputGroup from "../InputGroup/InputGroup.vue";
 
 const props = defineProps<{
   assetId: string;
@@ -82,8 +118,15 @@ const isModalOpen = ref(false);
 const selectedDrawer = ref("");
 const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
+const excerpt = reactive({
+  useStartTime: false,
+  useEndTime: false,
+  startTime: 0,
+  endTime: -1,
+});
 
 const drawerStore = useDrawerStore();
+const assetStore = useAssetStore();
 
 const isDrawerNameValid = computed(() => {
   return (

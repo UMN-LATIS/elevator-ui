@@ -51,7 +51,7 @@ withDefaults(
     id: string;
     label: string;
     labelHidden?: boolean;
-    modelValue: string;
+    modelValue: string | number;
     type?: string;
     inputClass?: CSSClass;
     labelClass?: CSSClass;
@@ -67,7 +67,7 @@ withDefaults(
 defineEmits<{
   (eventName: "focus", event: FocusEvent): void;
   (eventName: "blur", event: FocusEvent): void;
-  (eventName: "update:modelValue", value: string): void;
+  (eventName: "update:modelValue", value: string | number): void;
 }>();
 </script>
 <style scoped></style>
