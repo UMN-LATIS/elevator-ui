@@ -29,9 +29,7 @@
           placeholder="00:00"
           type="text"
           class="w-32"
-          @blur="
-            $emit('update:startTime', timeStringToSeconds(startTimeString))
-          "
+          @blur="handleUpdateStartTime"
         >
           <template #append>
             <Button
@@ -53,7 +51,7 @@
           :class="{
             'border-red-600': !isValidEndTime,
           }"
-          @blur="$emit('update:endTime', timeStringToSeconds(endTimeString))"
+          @blur="handleUpdateEndTime"
         >
           <template #append>
             <Button
@@ -85,13 +83,14 @@ const props = defineProps<{
   fileObjectId: string;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (eventName: "update:startTime", value: number | null): void;
   (eventName: "update:endTime", value: number | null): void;
 }>();
 
 const isAddingExcerpt = ref(false);
 const currentScrubberPosition = ref(0);
+const duration = ref(0);
 const endTimeString = ref("");
 const startTimeString = ref("");
 
@@ -172,14 +171,30 @@ window.addEventListener("message", (event: ScrubberUpdateMessageEvent) => {
     );
   }
 
-  if (!["seeked", "pause"].includes(event.data.type)) {
+  if (!["ready", "seeked", "pause"].includes(event.data.type)) {
     return;
   }
 
   // update current scrubber position
   currentScrubberPosition.value = event.data.currentPosition;
-  console.log("scrubber position updated", currentScrubberPosition.value);
+  duration.value = event.data.duration;
 });
+
+function handleUpdateStartTime() {
+  const newStartTime = timeStringToSeconds(startTimeString.value) ?? 0;
+
+  emit("update:startTime", newStartTime);
+  // update the start time string too, in case the previous value was invalid
+  startTimeString.value = secondsToTimeString(newStartTime);
+}
+
+function handleUpdateEndTime() {
+  const newEndTime = timeStringToSeconds(endTimeString.value);
+
+  emit("update:endTime", newEndTime);
+  // update the end time string too, in case the previous value was invalid
+  endTimeString.value = secondsToTimeString(newEndTime);
+}
 
 watch(
   () => props.startTime,
@@ -191,7 +206,9 @@ watch(
 
 watch(
   () => props.endTime,
-  () => (endTimeString.value = secondsToTimeString(props.endTime)),
+  () => {
+    endTimeString.value = secondsToTimeString(props.endTime);
+  },
   { immediate: true }
 );
 </script>
