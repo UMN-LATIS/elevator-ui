@@ -29,14 +29,17 @@
           placeholder="00:00"
           type="text"
           class="w-32"
-          @blur="handleStartTimeChange"
+          @blur="
+            $emit('update:startTime', timeStringToSeconds(startTimeString))
+          "
         >
           <template #append>
             <Button
               variant="tertiary"
               class="text-sm"
-              @click="handleSetCurrentAsStartTime"
-              >Set</Button
+              @click="$emit('update:startTime', currentScrubberPosition)"
+            >
+              Set</Button
             >
           </template>
         </InputGroup>
@@ -50,15 +53,16 @@
           :class="{
             'border-red-600': !isValidEndTime,
           }"
-          @blur="handleEndTimeChange"
+          @blur="$emit('update:endTime', timeStringToSeconds(endTimeString))"
         >
           <template #append>
             <Button
               variant="tertiary"
               class="text-sm"
-              @click="handleSetCurrentAsEndTime"
-              >Set</Button
+              @click="$emit('update:endTime', currentScrubberPosition)"
             >
+              Set
+            </Button>
           </template>
         </InputGroup>
       </div>
@@ -69,24 +73,21 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import config from "@/config";
 
-export interface Excerpt {
+const props = defineProps<{
   startTime: number | null;
   endTime: number | null;
-}
-
-const props = defineProps<{
-  modelValue: Excerpt;
   fileObjectId: string;
 }>();
 
-const emit = defineEmits<{
-  (eventName: "update:modelValue", value: Excerpt): void;
+defineEmits<{
+  (eventName: "update:startTime", value: number | null): void;
+  (eventName: "update:endTime", value: number | null): void;
 }>();
 
 const isAddingExcerpt = ref(false);
@@ -95,18 +96,8 @@ const endTimeString = ref("");
 const startTimeString = ref("");
 
 function isValidTimeString(timeString: string) {
-  const parts = timeString.split(":");
-  if (parts.length < 0 || parts.length > 3) return false;
-  for (const part of parts) {
-    const partAsNumber = Number.parseInt(part);
-
-    // I mean, I guess the number of hours could be greater than 60, but I'm
-    // going to assume that's not the case for now.
-    if (Number.isNaN(partAsNumber) || partAsNumber < 0 || partAsNumber >= 60) {
-      return false;
-    }
-  }
-  return true;
+  const validTimeStringRegex = /^(\d{1,2}:)?([0-5]?\d:)?[0-5]?\d$/;
+  return validTimeStringRegex.test(timeString);
 }
 
 function secondsToTimeString(seconds: number | null) {
@@ -155,35 +146,11 @@ const isValidEndTime = computed(() => {
   return startTime === null || endTime === null || endTime > startTime;
 });
 
-function handleEndTimeChange() {
-  const startTime = timeStringToSeconds(startTimeString.value);
-  emit("update:modelValue", {
-    ...props.modelValue,
-    endTime: timeStringToSeconds(endTimeString.value),
-  });
-}
-
-function handleStartTimeChange() {
-  emit("update:modelValue", {
-    ...props.modelValue,
-    startTime: timeStringToSeconds(startTimeString.value),
-  });
-}
-
-function handleSetCurrentAsEndTime() {
-  endTimeString.value = secondsToTimeString(currentScrubberPosition.value);
-  handleEndTimeChange();
-}
-
-function handleSetCurrentAsStartTime() {
-  startTimeString.value = secondsToTimeString(currentScrubberPosition.value);
-  handleStartTimeChange();
-}
-
 interface ScrubberUpdateMessageEvent extends MessageEvent {
   data: {
     type: "pause" | "seeked";
-    currentPosition: number; // seconds from start
+    currentPosition: number; // seconds from start,
+    duration: number; // seconds
   };
 }
 
@@ -205,9 +172,27 @@ window.addEventListener("message", (event: ScrubberUpdateMessageEvent) => {
     );
   }
 
+  if (!["seeked", "pause"].includes(event.data.type)) {
+    return;
+  }
+
   // update current scrubber position
   currentScrubberPosition.value = event.data.currentPosition;
   console.log("scrubber position updated", currentScrubberPosition.value);
 });
+
+watch(
+  () => props.startTime,
+  () => {
+    startTimeString.value = secondsToTimeString(props.startTime);
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.endTime,
+  () => (endTimeString.value = secondsToTimeString(props.endTime)),
+  { immediate: true }
+);
 </script>
 <style scoped></style>

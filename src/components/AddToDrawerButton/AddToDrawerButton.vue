@@ -64,7 +64,8 @@
 
       <AddExcerptToDrawerSection
         v-if="assetStore.activeFileObjectId"
-        v-model="excerpt"
+        v-model:startTime="excerpt.startTime"
+        v-model:endTime="excerpt.endTime"
         :fileObjectId="assetStore.activeFileObjectId"
         class="mt-4"
       />
@@ -80,9 +81,7 @@ import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
 import { FetchStatus } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import IconButton from "@/components/IconButton/IconButton.vue";
-import AddExcerptToDrawerSection, {
-  type Excerpt,
-} from "./AddExcerptToDrawerSection.vue";
+import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
 import { useAssetStore } from "@/stores/assetStore";
 
 const props = defineProps<{
@@ -93,9 +92,9 @@ const isModalOpen = ref(false);
 const selectedDrawer = ref("");
 const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
-const excerpt: Excerpt = reactive({
-  startTime: null,
-  endTime: null,
+const excerpt = reactive({
+  startTime: null as number | null,
+  endTime: null as number | null,
 });
 
 const drawerStore = useDrawerStore();
