@@ -11,13 +11,10 @@
     class="max-w-xl"
     @close="isModalOpen = false"
   >
-    <div>
-      <form
-        class="flex items-center justify-between gap-2"
-        @submit.prevent="handleAddToDrawer(selectedDrawer)"
-      >
-        <div class="flex-1 flex gap-4 items-center">
-          <label class="sr-only">Add to Drawer</label>
+    <form @submit.prevent="handleAddToDrawer">
+      <div class="flex items-end justify-between gap-2">
+        <div class="flex-1 flex flex-col gap-1">
+          <label class="text-xs uppercase font-medium">Existing Drawer</label>
           <select
             v-model="selectedDrawer"
             class="border border-neutral-200 rounded w-full text-sm"
@@ -35,32 +32,20 @@
             </option>
           </select>
         </div>
-        <Button class="text-sm" type="submit" :disabled="!selectedDrawer">
-          Add to Drawer
-        </Button>
-      </form>
 
-      <p
-        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center"
-      >
-        <span class="bg-neutral-50 relative z-10 px-2">or</span>
-      </p>
+        <p
+          class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center text-sm"
+        >
+          <span class="bg-neutral-50 relative z-10 px-2">or</span>
+        </p>
 
-      <form
-        class="flex items-center justify-between gap-2"
-        @submit.prevent="handleCreateNewDrawerThenAdd"
-      >
         <DrawerTitleInput
           v-model="newDrawerName"
-          class="flex-1 border border-neutral-200 rounded"
-          inputClass="bg-white placeholder-neutral-400"
-          :labelHidden="true"
+          class="flex-1"
+          label="New Drawer"
+          inputClass="bg-white placeholder-neutral-400 border !border-neutral-200 rounded"
         />
-
-        <Button type="submit" class="text-sm" :disabled="!isDrawerNameValid">
-          Create Drawer
-        </Button>
-      </form>
+      </div>
 
       <AddExcerptToDrawerSection
         v-if="assetStore.activeFileObjectId"
@@ -69,7 +54,19 @@
         :fileObjectId="assetStore.activeFileObjectId"
         class="mt-4"
       />
-    </div>
+
+      <div>
+        <p v-if="areBothDrawerFieldsFilled" class="text-red-600 text-sm">
+          Please select an existing drawer or create a new one (not both).
+        </p>
+      </div>
+
+      <div class="flex justify-end mt-4">
+        <Button class="text-sm" type="submit" :disabled="!isFormValid">
+          Add to Drawer
+        </Button>
+      </div>
+    </form>
   </Modal>
 </template>
 <script setup lang="ts">
@@ -108,38 +105,54 @@ const isDrawerNameValid = computed(() => {
   );
 });
 
-async function handleAddToDrawer(drawerId: string | number) {
-  const drawerIdInt: number =
-    typeof drawerId === "string" ? Number.parseInt(drawerId) : drawerId;
+const areBothDrawerFieldsFilled = computed(() => {
+  return selectedDrawer.value && newDrawerName.value.trim();
+});
 
-  if (isNaN(drawerIdInt)) {
-    throw new Error("Cannot add to drawer. Drawer ID is not a number.");
-  }
+const isFormValid = computed(() => {
+  return (
+    (selectedDrawer.value && !newDrawerName.value.trim()) ||
+    (!selectedDrawer.value &&
+      newDrawerName.value.trim() &&
+      isDrawerNameValid.value)
+  );
+});
+
+async function handleAddToDrawer() {
+  const drawerIdInt: number = Number.parseInt(selectedDrawer.value);
+  const newDrawerNameTrimmed = newDrawerName.value.trim();
 
   if (!props.assetId) {
     throw new Error("Cannot add to drawer. No active asset.");
   }
 
-  isModalOpen.value = false;
-
-  fetchStatus.value = "fetching";
-  await drawerStore.addAssetToDrawer(props.assetId, drawerIdInt);
-  fetchStatus.value = "idle";
-  reset();
-}
-
-async function handleCreateNewDrawerThenAdd() {
-  if (!isDrawerNameValid.value) {
-    throw new Error(
-      `Cannot create drawer. Drawer name '${newDrawerName.value}' is invalid'.`
-    );
+  if (!drawerIdInt && !newDrawerNameTrimmed) {
+    throw new Error(`Cannot add to drawer. No new or selected drawer.`);
   }
 
-  fetchStatus.value = "fetching";
-  isModalOpen.value = false;
+  if (drawerIdInt && newDrawerNameTrimmed) {
+    throw new Error(`Cannot add to existing and new drawer at the same time.`);
+  }
 
-  const newDrawer = await drawerStore.createDrawer(newDrawerName.value);
-  handleAddToDrawer(newDrawer.id);
+  if (newDrawerNameTrimmed && !isDrawerNameValid.value) {
+    throw new Error("Drawer name is invalid.");
+  }
+
+  if (drawerIdInt && isNaN(drawerIdInt)) {
+    throw new Error("Cannot add to drawer. Drawer ID is not a number.");
+  }
+
+  isModalOpen.value = false;
+  fetchStatus.value = "fetching";
+
+  if (newDrawerNameTrimmed) {
+    const newDrawer = await drawerStore.createDrawer(newDrawerNameTrimmed);
+    await drawerStore.addAssetToDrawer(props.assetId, newDrawer.id);
+  } else {
+    await drawerStore.addAssetToDrawer(props.assetId, drawerIdInt);
+  }
+
+  reset();
 }
 
 function reset() {
