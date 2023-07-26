@@ -84,8 +84,8 @@ const title = computed(() => {
 });
 
 const thumbnailImgSrc = computed(() => {
-  const { primaryHandlerId } = props.searchMatch;
-  return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
+  const { primaryHandlerThumbnail2x } = props.searchMatch;
+  return primaryHandlerThumbnail2x ? primaryHandlerThumbnail2x : null;
 });
 </script>
 <style scoped>
