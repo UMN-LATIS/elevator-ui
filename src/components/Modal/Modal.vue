@@ -29,6 +29,9 @@
         <div class="modal-contents__body flex-1 overflow-auto p-4 md:p-8">
           <slot />
         </div>
+        <div v-if="$slots.footer" class="modal-contents__footer">
+          <slot name="footer" />
+        </div>
       </div>
     </div>
   </Teleport>
