@@ -21,57 +21,61 @@
     >
       <ObjectViewer :fileHandlerId="fileObjectId" class="aspect-video mb-4" />
 
-      <div class="flex gap-4 justify-center">
+      <div class="flex flex-col gap-4">
         <InputGroup
-          id="excerpt__start-time"
-          v-model="startTimeString"
-          label="Start Time"
-          placeholder="00:00"
-          type="text"
-          class="w-32"
-          @blur="handleUpdateStartTime"
-        >
-          <template #append>
-            <Button
-              variant="tertiary"
-              class="text-sm"
-              @click="$emit('update:startTime', currentScrubberPosition)"
-            >
-              Set</Button
-            >
-          </template>
-        </InputGroup>
-        <InputGroup
-          id="excerpt__end-time"
-          v-model="endTimeString"
-          label="End Time"
-          placeholder="00:00"
-          type="text"
-          class="w-32"
-          :class="{
-            'border-red-600': !isValidEndTime,
-          }"
-          @blur="handleUpdateEndTime"
-        >
-          <template #append>
-            <Button
-              variant="tertiary"
-              class="text-sm"
-              @click="$emit('update:endTime', currentScrubberPosition)"
-            >
-              Set
-            </Button>
-          </template>
-        </InputGroup>
+          id="excerpt-name"
+          v-model="excerptName"
+          label="Excerpt Name"
+          placeholder="Excerpt Name"
+          class="flex-1"
+          required
+        />
+        <div class="flex gap-4">
+          <InputGroup
+            id="excerpt__start-time"
+            v-model="startTimeString"
+            label="Start Time"
+            placeholder="00:00"
+            type="text"
+            class="flex-1"
+            @blur="handleUpdateStartTime"
+          >
+            <template #append>
+              <Button
+                variant="tertiary"
+                class="text-sm"
+                @click="$emit('update:startTime', currentScrubberPosition)"
+              >
+                Set</Button
+              >
+            </template>
+          </InputGroup>
+          <InputGroup
+            id="excerpt__end-time"
+            v-model="endTimeString"
+            label="End Time"
+            placeholder="00:00"
+            type="text"
+            class="flex-1"
+            @blur="handleUpdateEndTime"
+          >
+            <template #append>
+              <Button
+                variant="tertiary"
+                class="text-sm"
+                @click="$emit('update:endTime', currentScrubberPosition)"
+              >
+                Set
+              </Button>
+            </template>
+          </InputGroup>
+        </div>
       </div>
-      <p v-if="!isValidEndTime" class="text-red-600 text-xs italic text-center">
-        End time must be after start time.
-      </p>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, watch } from "vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
@@ -89,10 +93,11 @@ const emit = defineEmits<{
 }>();
 
 const isAddingExcerpt = ref(false);
+const excerptName = ref("");
+const startTimeString = ref("");
+const endTimeString = ref("");
 const currentScrubberPosition = ref(0);
 const duration = ref(0);
-const endTimeString = ref("");
-const startTimeString = ref("");
 
 function isValidTimeString(timeString: string) {
   const validTimeStringRegex = /^(\d{1,2}:)?([0-5]?\d:)?[0-5]?\d$/;
@@ -136,14 +141,6 @@ function timeStringToSeconds(timeString: string): number | null {
   });
   return seconds;
 }
-
-// check that startTime < endTime
-const isValidEndTime = computed(() => {
-  const startTime = timeStringToSeconds(startTimeString.value);
-  const endTime = timeStringToSeconds(endTimeString.value);
-
-  return startTime === null || endTime === null || endTime > startTime;
-});
 
 interface ScrubberUpdateMessageEvent extends MessageEvent {
   data: {
