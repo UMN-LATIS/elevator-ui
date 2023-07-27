@@ -48,7 +48,7 @@
       </div>
 
       <AddExcerptToDrawerSection
-        v-if="assetStore.activeFileObjectId"
+        v-if="assetStore.activeFileObjectId && isExcerptable"
         v-model:startTime="excerpt.startTime"
         v-model:endTime="excerpt.endTime"
         :fileObjectId="assetStore.activeFileObjectId"
@@ -70,7 +70,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
+import { ref, computed, reactive, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -80,6 +80,7 @@ import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
 import { useAssetStore } from "@/stores/assetStore";
+import api from "@/api";
 
 const props = defineProps<{
   assetId: string;
@@ -160,5 +161,39 @@ function reset() {
   newDrawerName.value = "";
   fetchStatus.value = "idle";
 }
+
+const isExcerptable = ref(false);
+
+// when the activeFileObjectId changes
+// check if the file is a movie or audio file
+watch(
+  [() => assetStore.activeFileObjectId, isModalOpen],
+  async () => {
+    // prevent making requests from running when the modal is closed
+    if (!isModalOpen.value) {
+      return;
+    }
+
+    if (!assetStore.activeFileObjectId) {
+      isExcerptable.value = false;
+      return;
+    }
+
+    const fileMetaData = await api.getFileMetaData(
+      assetStore.activeFileObjectId
+    );
+    isExcerptable.value =
+      !!fileMetaData?.handlerType &&
+      ["MovieHandler", "AudioHandler"].includes(fileMetaData.handlerType);
+    console.log(
+      "isExcerptable",
+      isExcerptable.value,
+      fileMetaData?.handlerType
+    );
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 <style scoped></style>
