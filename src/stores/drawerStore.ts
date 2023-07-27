@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-import { Drawer, DrawerSortOptions, SearchResultMatch } from "@/types";
+import {
+  AssetExcerpt,
+  Drawer,
+  DrawerSortOptions,
+  SearchResultMatch,
+} from "@/types";
 import api from "@/api";
 import { useToastStore } from "./toastStore";
 import { useAssetStore } from "./assetStore";
@@ -65,14 +70,19 @@ export const useDrawerStore = defineStore("drawer", {
       }
     },
 
-    async addAssetToDrawer(assetId: string, drawerId: number) {
-      await api.addAssetToDrawer(assetId, drawerId);
+    async addAssetToDrawer(
+      assetId: string,
+      drawerId: number,
+      excerpt?: AssetExcerpt | null
+    ) {
+      await api.addAssetToDrawer(assetId, drawerId, excerpt);
 
       const assetStore = useAssetStore();
       const toastStore = useToastStore();
 
       const drawerTitle = this.drawerRecords[drawerId].title;
-      const assetTitle = await assetStore.getAssetTitle(assetId);
+      const assetTitle =
+        excerpt?.name ?? (await assetStore.getAssetTitle(assetId));
       toastStore.addToast({
         message: `'${assetTitle ?? "Asset"}' added to drawer '${drawerTitle}'.`,
         url: `/drawers/viewDrawer/${drawerId}`,

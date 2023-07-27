@@ -22,6 +22,7 @@ import {
   ApiCreateDrawerResponse,
   CustomAxiosRequestConfig,
   DrawerSortOptions,
+  AssetExcerpt,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -296,9 +297,10 @@ export async function getDrawer(id: number): Promise<Drawer> {
 
 export async function addAssetToDrawer(
   assetId: string,
-  drawerId: number
+  drawerId: number,
+  excerpt?: AssetExcerpt | null
 ): Promise<ApiAddAssetToDrawerResponse> {
-  const data = await fetchers.addAssetToDrawer(assetId, drawerId);
+  const data = await fetchers.addAssetToDrawer(assetId, drawerId, excerpt);
 
   // clear the cache for this drawer
   cache.drawerDetails.delete(drawerId);

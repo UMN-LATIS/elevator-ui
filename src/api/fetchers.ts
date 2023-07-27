@@ -27,6 +27,7 @@ import type {
   CustomAxiosRequestConfig,
   DrawerSortOptions,
   ApiStartDrawerDownloadResponse,
+  AssetExcerpt,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -357,10 +358,21 @@ export async function deleteDrawer(
   return res.data;
 }
 
-export async function addAssetToDrawer(assetId: string, drawerId: number) {
+export async function addAssetToDrawer(
+  assetId: string,
+  drawerId: number,
+  excerpt?: AssetExcerpt | null
+) {
   const formdata = new FormData();
   formdata.append("objectId", assetId);
   formdata.append("drawerList", String(drawerId));
+
+  if (excerpt) {
+    formdata.append("label", excerpt.name);
+    formdata.append("startTime", String(excerpt.startTime));
+    formdata.append("endTime", String(excerpt.endTime));
+    formdata.append("fileHandlerId", excerpt.fileHandlerId);
+  }
 
   const res = await axios.post<ApiAddAssetToDrawerResponse>(
     `${BASE_URL}/drawers/addToDrawer/true`,

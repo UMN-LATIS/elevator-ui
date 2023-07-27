@@ -51,13 +51,18 @@
         v-if="assetStore.activeFileObjectId && isExcerptable"
         v-model:startTime="excerpt.startTime"
         v-model:endTime="excerpt.endTime"
+        v-model:excerptName="excerpt.name"
+        v-model:is-adding-excerpt="isAddingExcerpt"
         :fileObjectId="assetStore.activeFileObjectId"
         class="mt-4"
       />
 
       <div>
-        <p v-if="areBothDrawerFieldsFilled" class="text-red-600 text-sm">
-          Please select an existing drawer or create a new one (not both).
+        <p v-if="!onlyOneDrawerNameFieldIsFilled" class="text-red-600 text-sm">
+          Select a drawer or enter a new drawer name.
+        </p>
+        <p v-if="isAddingExcerpt && !isExcerptValid">
+          Please enter a valid excerpt name, start time, and end time.
         </p>
       </div>
     </div>
@@ -83,7 +88,7 @@ import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
 import DrawerTitleInput from "../DrawerTitleInput/DrawerTitleInput.vue";
-import { FetchStatus } from "@/types";
+import { FetchStatus, AssetExcerpt } from "@/types";
 import { SpinnerIcon, AddToDrawerIcon } from "@/icons";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
@@ -98,13 +103,17 @@ const isModalOpen = ref(false);
 const selectedDrawer = ref("");
 const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
-const excerpt = reactive({
-  startTime: null as number | null,
-  endTime: null as number | null,
-});
+const isAddingExcerpt = ref(false);
 
 const drawerStore = useDrawerStore();
 const assetStore = useAssetStore();
+
+const excerpt = reactive({
+  fileHandlerId: assetStore.activeFileObjectId,
+  name: "",
+  startTime: 0,
+  endTime: 0,
+});
 
 const isDrawerNameValid = computed(() => {
   return (
@@ -114,16 +123,22 @@ const isDrawerNameValid = computed(() => {
   );
 });
 
-const areBothDrawerFieldsFilled = computed(() => {
-  return selectedDrawer.value && newDrawerName.value.trim();
+const onlyOneDrawerNameFieldIsFilled = computed(() => {
+  return !(selectedDrawer.value && newDrawerName.value.trim());
+});
+
+const isExcerptValid = computed(() => {
+  return (
+    excerpt.startTime >= 0 &&
+    excerpt.endTime > excerpt.startTime &&
+    excerpt.name.trim()
+  );
 });
 
 const isFormValid = computed(() => {
   return (
-    (selectedDrawer.value && !newDrawerName.value.trim()) ||
-    (!selectedDrawer.value &&
-      newDrawerName.value.trim() &&
-      isDrawerNameValid.value)
+    onlyOneDrawerNameFieldIsFilled.value &&
+    (!isAddingExcerpt.value || isExcerptValid)
   );
 });
 
@@ -151,15 +166,29 @@ async function handleAddToDrawer() {
     throw new Error("Cannot add to drawer. Drawer ID is not a number.");
   }
 
+  if (isAddingExcerpt.value && !isExcerptValid.value) {
+    throw new Error("Cannot add excerpt. Excerpt is invalid.");
+  }
+
+  if (isAddingExcerpt.value && !excerpt.fileHandlerId) {
+    throw new Error("Cannot add excerpt. No file handler ID.");
+  }
+
   isModalOpen.value = false;
   fetchStatus.value = "fetching";
 
-  if (newDrawerNameTrimmed) {
-    const newDrawer = await drawerStore.createDrawer(newDrawerNameTrimmed);
-    await drawerStore.addAssetToDrawer(props.assetId, newDrawer.id);
-  } else {
-    await drawerStore.addAssetToDrawer(props.assetId, drawerIdInt);
-  }
+  const drawerId =
+    drawerIdInt ?? (await drawerStore.createDrawer(newDrawerNameTrimmed)).id;
+
+  // swap excerpt start and end time if start time is greater than end time
+  excerpt.startTime = Math.min(excerpt.startTime, excerpt.endTime);
+  excerpt.endTime = Math.max(excerpt.startTime, excerpt.endTime);
+
+  await drawerStore.addAssetToDrawer(
+    props.assetId,
+    drawerId,
+    isAddingExcerpt.value ? (excerpt as AssetExcerpt) : null
+  );
 
   reset();
 }
@@ -186,6 +215,8 @@ watch(
       isExcerptable.value = false;
       return;
     }
+
+    excerpt.fileHandlerId = assetStore.activeFileObjectId;
 
     const fileMetaData = await api.getFileMetaData(
       assetStore.activeFileObjectId

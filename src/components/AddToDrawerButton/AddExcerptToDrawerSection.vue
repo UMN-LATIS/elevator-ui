@@ -7,10 +7,16 @@
   >
     <label class="inline-flex gap-1 items-center">
       <input
-        v-model="isAddingExcerpt"
+        :checked="isAddingExcerpt"
         type="checkbox"
         aria-label="Add Excerpt"
         class="text-sm rounded-sm"
+        @change="
+          $emit(
+            'update:isAddingExcerpt',
+            ($event.target as HTMLInputElement).checked
+          )
+        "
       />
       Add as Excerpt
     </label>
@@ -24,11 +30,12 @@
       <div class="flex flex-col gap-4">
         <InputGroup
           id="excerpt-name"
-          v-model="excerptName"
+          :modelValue="excerptName"
           label="Excerpt Name"
           placeholder="Excerpt Name"
           class="flex-1"
           required
+          @update:modelValue="$emit('update:excerptName', $event)"
         />
         <div class="flex gap-4">
           <InputGroup
@@ -82,18 +89,20 @@ import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import config from "@/config";
 
 const props = defineProps<{
+  isAddingExcerpt: boolean;
   startTime: number | null;
   endTime: number | null;
+  excerptName: string;
   fileObjectId: string;
 }>();
 
 const emit = defineEmits<{
   (eventName: "update:startTime", value: number | null): void;
   (eventName: "update:endTime", value: number | null): void;
+  (eventName: "update:excerptName", value: string): void;
+  (eventName: "update:isAddingExcerpt", value: boolean): void;
 }>();
 
-const isAddingExcerpt = ref(false);
-const excerptName = ref("");
 const startTimeString = ref("");
 const endTimeString = ref("");
 const currentScrubberPosition = ref(0);
