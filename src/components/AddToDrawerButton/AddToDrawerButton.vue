@@ -11,8 +11,8 @@
     class="max-w-xl"
     @close="isModalOpen = false"
   >
-    <form @submit.prevent="handleAddToDrawer">
-      <div class="flex items-end justify-between gap-2">
+    <div class="flex-1 max-h-full overflow-auto">
+      <div class="flex items-end justify-between gap-2 flex-1">
         <div class="flex-1 flex flex-col gap-1">
           <label class="text-xs uppercase font-medium">Existing Drawer</label>
           <select
@@ -60,13 +60,21 @@
           Please select an existing drawer or create a new one (not both).
         </p>
       </div>
+    </div>
 
-      <div class="flex justify-end mt-4">
-        <Button class="text-sm" type="submit" :disabled="!isFormValid">
+    <template #footer>
+      <div class="flex justify-end gap-4 p-4 bg-neutral-100">
+        <Button variant="tertiary" @click="isModalOpen = false">Cancel</Button>
+        <Button
+          class="text-sm"
+          :disabled="!isFormValid"
+          variant="primary"
+          @click="handleAddToDrawer"
+        >
           Add to Drawer
         </Button>
       </div>
-    </form>
+    </template>
   </Modal>
 </template>
 <script setup lang="ts">
