@@ -5,8 +5,8 @@
         v-if="excerpt"
         class="p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
       >
-        <header class="mb-2 flex justify-between items-baseline">
-          <h1 class="text-4xl font-bold mb-4 flex-1">
+        <header class="flex justify-between items-baseline my-4 flex-wrap">
+          <h1 class="text-4xl font-bold flex-1">
             {{ excerpt.label || `Excerpt ${excerpt.id}` }}
           </h1>
           <Button variant="tertiary" :to="`/asset/viewAsset/${excerpt.assetId}`"
@@ -20,9 +20,8 @@
           frameBorder="0"
           allowfullscreen="true"
           class="w-full aspect-video"
-          @load="isVideoPlayerLoaded = true"
         />
-        <div class="flex justify-between p-1 items-center">
+        <div class="flex justify-between p-1 items-center flex-wrap">
           <div class="inline-flex gap-2 items-center">
             <span class="font-bold text-xs uppercase">Time</span>
             <span class="text-sm">
@@ -55,39 +54,81 @@ import DownloadFileButton from "@/components/DownloadFileButton/DownloadFileButt
 import Button from "@/components/Button/Button.vue";
 import ShareFileButton from "@/components/ShareFileButton/ShareFileButton.vue";
 
+interface ResponseMessageEvent extends MessageEvent {
+  data: {
+    type: keyof typeof responses;
+    payload: unknown;
+  };
+}
+
 const props = defineProps<{
   excerptId: number;
 }>();
 
 const excerpt = ref<ApiGetExcerptResponse | null>(null);
 const videoPlayerIframe = ref<HTMLIFrameElement | null>(null);
-const isVideoPlayerLoaded = ref(false);
 
-function setVideoPlayBounds(startTime: number, endTime: number) {
-  if (!videoPlayerIframe.value?.contentWindow) {
-    throw new Error("videoPlayerIframe is not loaded");
-  }
+// set up messaging between the parent and the iframe
+// see assets/js/excerpt.js for the iframe listener
+const requests = {
+  SET_PLAY_BOUNDS: "SET_PLAY_BOUNDS",
+  GET_SCRUBBER_POSITION: "GET_SCRUBBER_POSITION",
+} as const;
 
-  // send a message to the iframe to set the play bounds
-  videoPlayerIframe.value.contentWindow?.postMessage(
-    {
-      type: "setPlayBounds",
-      startTime,
-      endTime,
-    },
-    "*"
-  );
-}
-watch(isVideoPlayerLoaded, () => {
-  if (!isVideoPlayerLoaded.value) return;
+const responses = {
+  MEDIAPLAYER_READY: "MEDIAPLAYER_READY",
+  CURRENT_SCRUBBER_POSITION: "CURRENT_SCRUBBER_POSITION",
+  SET_PLAY_BOUNDS_SUCCESS: "SET_PLAY_BOUNDS_SUCCESS",
+} as const;
 
+const log = (...args) => console.log("[PARENT] ", ...args);
+
+function iFrameResponseHandler(event: ResponseMessageEvent) {
   if (!excerpt.value) {
     throw new Error("excerpt is not loaded.");
   }
-  setVideoPlayBounds(excerpt.value.startTime, excerpt.value.endTime);
-});
+
+  log(
+    "message received:",
+    event.data.type ?? "unknown type",
+    event.data.payload ?? ""
+  );
+  const { type } = event.data;
+  if (type === responses.MEDIAPLAYER_READY) {
+    return setVideoPlayBounds(
+      excerpt.value.startTime || 0,
+      excerpt.value.endTime || 0
+    );
+  }
+  if (type === responses.CURRENT_SCRUBBER_POSITION) {
+    return log("current scrubber position", event.data.payload);
+  }
+  if (type === responses.SET_PLAY_BOUNDS_SUCCESS) {
+    return log("set play bounds success");
+  }
+}
+
+function postMessage<T>(message: { type: keyof typeof requests; payload?: T }) {
+  const postMessageToIframe =
+    videoPlayerIframe.value?.contentWindow?.postMessage;
+  if (!postMessageToIframe) {
+    throw new Error("videoPlayerIframe is not loaded");
+  }
+  postMessageToIframe(message, "*");
+}
+
+function setVideoPlayBounds(startTime: number, endTime: number) {
+  postMessage<{ startTime: number; endTime: number }>({
+    type: requests.SET_PLAY_BOUNDS,
+    payload: {
+      startTime,
+      endTime,
+    },
+  });
+}
 
 onMounted(async () => {
+  window.addEventListener("message", iFrameResponseHandler);
   excerpt.value = await api.getExcerpt(props.excerptId);
   console.log("excerpt", excerpt.value);
 });
