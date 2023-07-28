@@ -10,8 +10,9 @@
   </iframe>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onUnmounted, ref, watch } from "vue";
 import config from "@/config";
+import { is } from "ramda";
 
 interface ResponseMessageEvent extends MessageEvent {
   data: {
@@ -92,10 +93,16 @@ function setVideoPlayBounds(startTime?: number, endTime?: number) {
   });
 }
 
+const isiFrameResponseHandlerSetup = ref(false);
 watch(videoPlayerIframe, () => {
-  if (videoPlayerIframe.value) {
+  if (videoPlayerIframe.value && !isiFrameResponseHandlerSetup.value) {
     window.addEventListener("message", iFrameResponseHandler);
+    isiFrameResponseHandlerSetup.value = true;
   }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("message", iFrameResponseHandler);
 });
 </script>
 <style scoped></style>
