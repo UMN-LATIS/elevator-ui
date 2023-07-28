@@ -88,7 +88,10 @@
               :matches="drawer.contents.matches"
               :status="fetchStatus"
               :drawerId="drawerId"
-              :isDraggable="selectedSortOption === SORT_KEYS.CUSTOM"
+              :isDraggable="
+                selectedSortOption === SORT_KEYS.CUSTOM &&
+                instanceStore.currentUser?.canManageDrawers
+              "
               @dragEnd="handleDragEnd"
             />
           </Transition>
@@ -101,7 +104,10 @@
               :matches="drawer.contents.matches"
               :status="fetchStatus"
               :drawerId="drawerId"
-              :isDraggable="selectedSortOption === SORT_KEYS.CUSTOM"
+              :isDraggable="
+                selectedSortOption === SORT_KEYS.CUSTOM &&
+                instanceStore.currentUser?.canManageDrawers
+              "
               @dragEnd="handleDragEnd"
             />
           </Transition>
@@ -149,7 +155,6 @@ import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
-import Button from "@/components/Button/Button.vue";
 import { ArrowForwardIcon, UsersIcon, DownloadIcon } from "@/icons";
 import Link from "@/components/Link/Link.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
