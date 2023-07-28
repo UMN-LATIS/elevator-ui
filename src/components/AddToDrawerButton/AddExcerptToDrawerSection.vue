@@ -149,8 +149,8 @@ const emit = defineEmits<{
   (eventName: "update:isAddingExcerpt", value: boolean): void;
 }>();
 
-const startTimeString = ref("");
-const endTimeString = ref("");
+const startTimeString = ref(secondsToTimeString(props.startTime ?? 0));
+const endTimeString = ref(secondsToTimeString(props.endTime ?? 0));
 const currentScrubberPosition = ref(0);
 const isStartTimeTouched = ref(false);
 const isEndTimeTouched = ref(false);
