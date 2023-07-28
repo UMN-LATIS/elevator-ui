@@ -11,18 +11,21 @@
     class="max-w-xl"
     @close="isModalOpen = false"
   >
-    <div class="flex-1 max-h-full overflow-auto">
-      <div class="flex items-end justify-between gap-2 flex-1">
+    <div class="flex-1 max-h-full overflow-y-scroll">
+      <fieldset class="flex items-end justify-between gap-2 flex-1">
+        <legend class="sr-only">Choose a drawer</legend>
         <div class="flex-1 flex flex-col gap-1">
           <label class="text-xs uppercase font-medium">Existing Drawer</label>
           <select
             v-model="selectedDrawer"
             class="border border-neutral-200 rounded w-full text-sm"
             :class="{
-              'text-neutral-400': !selectedDrawer,
+              ' !border-red-500 text-red-700':
+                !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             }"
+            @update:modelValue="isSelectDrawerTouched = true"
           >
-            <option disabled value="">-- Select a Drawer --</option>
+            <option value="">-</option>
             <option
               v-for="drawer in drawerStore.drawers"
               :key="drawer.id"
@@ -43,10 +46,22 @@
           v-model="newDrawerName"
           class="flex-1"
           label="New Drawer"
-          inputClass="bg-white placeholder-neutral-400 border !border-neutral-200 rounded"
+          :inputClass="[
+            'bg-white placeholder-neutral-400 border !border-neutral-200 rounded',
+            {
+              '!border !border-red-500 !text-red-700':
+                !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
+            },
+          ]"
+          @update:modelValue="isSelectDrawerTouched = true"
         />
-      </div>
-
+      </fieldset>
+      <p
+        v-if="!exactlyOneDrawerIsChosen && isSelectDrawerTouched"
+        class="text-xs italic text-red-500 my-2"
+      >
+        Please select a drawer or enter a new drawer name.
+      </p>
       <AddExcerptToDrawerSection
         v-if="assetStore.activeFileObjectId && isExcerptable"
         v-model:startTime="excerpt.startTime"
@@ -56,29 +71,23 @@
         :fileObjectId="assetStore.activeFileObjectId"
         class="mt-4"
       />
-
-      <div>
-        <p v-if="!onlyOneDrawerNameFieldIsFilled" class="text-red-600 text-sm">
-          Select a drawer or enter a new drawer name.
-        </p>
-        <p v-if="isAddingExcerpt && !isExcerptValid">
-          Please enter a valid excerpt name, start time, and end time.
-        </p>
-      </div>
     </div>
-
     <template #footer>
-      <div class="flex justify-end gap-4 p-4 bg-neutral-100">
-        <Button variant="tertiary" @click="isModalOpen = false">Cancel</Button>
-        <Button
-          class="text-sm"
-          :disabled="!isFormValid"
-          variant="primary"
-          @click="handleAddToDrawer"
-        >
-          Add to Drawer
-        </Button>
-      </div>
+      <footer class="p-4 bg-neutral-200">
+        <div class="flex justify-end gap-4">
+          <Button variant="tertiary" @click="isModalOpen = false"
+            >Cancel</Button
+          >
+          <Button
+            class="text-sm"
+            :disabled="!isFormValid"
+            variant="primary"
+            @click="handleAddToDrawer"
+          >
+            Add to Drawer
+          </Button>
+        </div>
+      </footer>
     </template>
   </Modal>
 </template>
@@ -104,6 +113,7 @@ const selectedDrawer = ref("");
 const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 const isAddingExcerpt = ref(false);
+const isSelectDrawerTouched = ref(false);
 
 const drawerStore = useDrawerStore();
 const assetStore = useAssetStore();
@@ -123,8 +133,12 @@ const isDrawerNameValid = computed(() => {
   );
 });
 
-const onlyOneDrawerNameFieldIsFilled = computed(() => {
-  return !(selectedDrawer.value && newDrawerName.value.trim());
+const exactlyOneDrawerIsChosen = computed(() => {
+  // new or selected drawer and not both
+  return (
+    (selectedDrawer.value || newDrawerName.value.trim()) &&
+    !(selectedDrawer.value && newDrawerName.value.trim())
+  );
 });
 
 const isExcerptValid = computed(() => {
@@ -133,8 +147,7 @@ const isExcerptValid = computed(() => {
 
 const isFormValid = computed(() => {
   return (
-    onlyOneDrawerNameFieldIsFilled.value &&
-    (!isAddingExcerpt.value || isExcerptValid)
+    exactlyOneDrawerIsChosen.value && (!isAddingExcerpt.value || isExcerptValid)
   );
 });
 
@@ -225,19 +238,10 @@ watch(
     isExcerptable.value =
       !!fileMetaData?.handlerType &&
       ["MovieHandler", "AudioHandler"].includes(fileMetaData.handlerType);
-    console.log(
-      "isExcerptable",
-      isExcerptable.value,
-      fileMetaData?.handlerType
-    );
   },
   {
     immediate: true,
   }
 );
-
-watch(excerpt, () => {
-  console.log("excerpt", excerpt);
-});
 </script>
 <style scoped></style>

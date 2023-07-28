@@ -40,8 +40,17 @@
           label="Excerpt Name"
           placeholder="Excerpt Name"
           class="flex-1"
+          :inputClass="{
+            '!border !border-red-500': !excerptName && isNameTouched,
+          }"
           required
-          @update:modelValue="$emit('update:excerptName', $event)"
+          @update:modelValue="
+            (val) => {
+              isNameTouched = true;
+              $emit('update:excerptName', val);
+            }
+          "
+          @blur="isNameTouched = true"
         />
         <div class="flex gap-4">
           <InputGroup
@@ -51,10 +60,21 @@
             placeholder="00:00"
             type="text"
             class="flex-1"
+            :inputClass="{
+              '!border !border-red-500': isStartTimeTouched && !startTimeString,
+            }"
             @update:modelValue="
-              (str) => $emit('update:startTime', timeStringToSeconds(str) ?? 0)
+              (str) => {
+                isStartTimeTouched = true;
+                $emit('update:startTime', timeStringToSeconds(str) ?? 0);
+              }
             "
-            @blur="startTimeString = secondsToTimeString(startTime ?? 0)"
+            @blur="
+              () => {
+                isStartTimeTouched = true;
+                startTimeString = secondsToTimeString(startTime ?? 0);
+              }
+            "
           >
             <template #append>
               <Button
@@ -73,10 +93,21 @@
             placeholder="00:00"
             type="text"
             class="flex-1"
+            :inputClass="{
+              '!border !border-red-500': isEndTimeTouched && !endTimeString,
+            }"
             @update:modelValue="
-              (str) => $emit('update:endTime', timeStringToSeconds(str) ?? 0)
+              (str) => {
+                isEndTimeTouched = true;
+                $emit('update:endTime', timeStringToSeconds(str) ?? 0);
+              }
             "
-            @blur="endTimeString = secondsToTimeString(endTime ?? 0)"
+            @blur="
+              () => {
+                isEndTimeTouched = true;
+                endTimeString = secondsToTimeString(endTime ?? 0);
+              }
+            "
           >
             <template #append>
               <Button
@@ -121,6 +152,9 @@ const emit = defineEmits<{
 const startTimeString = ref("");
 const endTimeString = ref("");
 const currentScrubberPosition = ref(0);
+const isStartTimeTouched = ref(false);
+const isEndTimeTouched = ref(false);
+const isNameTouched = ref(false);
 
 function handleSetStartTimeClick() {
   startTimeString.value = secondsToTimeString(currentScrubberPosition.value);

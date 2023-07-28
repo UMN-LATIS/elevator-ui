@@ -65,7 +65,7 @@ function iFrameResponseHandler(event: ResponseMessageEvent) {
     return emit("update:currentScrubberPosition", event.data.payload as number);
   }
   if (type === responses.SET_PLAY_BOUNDS_SUCCESS) {
-    return log("set play bounds success");
+    return emit("ready");
   }
 }
 

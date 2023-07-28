@@ -60,7 +60,6 @@ const excerpt = ref<ApiGetExcerptResponse | null>(null);
 
 onMounted(async () => {
   excerpt.value = await api.getExcerpt(props.excerptId);
-  console.log(excerpt.value);
 });
 </script>
 <style scoped></style>
