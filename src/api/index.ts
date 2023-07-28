@@ -22,6 +22,7 @@ import {
   ApiCreateDrawerResponse,
   CustomAxiosRequestConfig,
   DrawerSortOptions,
+  ApiGetExcerptResponse,
   AssetExcerpt,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -31,6 +32,7 @@ function createCache() {
   return {
     assets: new Map<string, Asset | null>(),
     templates: new Map<string, Template | null>(),
+    excerpts: new Map<number, ApiGetExcerptResponse | null>(),
     moreLikeThisMatches: new Map<string, SearchResultMatch[]>(),
     fileMetaData: new Map<string, FileMetaData>(),
     fileDownloadResponses: new Map<string, FileDownloadNormalized[]>(),
@@ -383,6 +385,16 @@ export async function setCustomDrawerOrder(
   return data;
 }
 
+export async function getExcerpt(excerptId: number) {
+  const data =
+    cache.excerpts.get(excerptId) ?? (await fetchers.fetchExcerpt(excerptId));
+
+  // cache the response
+  cache.excerpts.set(excerptId, data);
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -391,6 +403,7 @@ const api = {
   getFileMetaData,
   getFileDownloadInfo,
   getEmbedPluginInterstitial,
+  getExcerpt,
   postLtiPayload: fetchers.postLtiPayload,
   fetchInstanceNav: fetchers.fetchInstanceNav,
   getSearchId: fetchers.fetchSearchId,

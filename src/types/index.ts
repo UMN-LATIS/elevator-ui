@@ -345,6 +345,10 @@ export interface SearchResultMatch {
   base_url?: string; // '/defaultinstance/'
   isChild?: boolean;
   hasChildren?: boolean;
+  excerpt?: true;
+  excerptAsset?: string;
+  excerptId?: number;
+  excerptLabel?: string;
 }
 
 export interface SearchEntry {
@@ -780,4 +784,14 @@ export interface AssetExcerpt {
   name: string;
   startTime: number;
   endTime: number;
+}
+
+export interface ApiGetExcerptResponse {
+  id: number;
+  label: string;
+  startTime: number;
+  endTime: number;
+  fileObjectId: string;
+  isEmbedded: boolean;
+  embedUrl: string;
 }

@@ -28,6 +28,7 @@ import type {
   DrawerSortOptions,
   ApiStartDrawerDownloadResponse,
   AssetExcerpt,
+  ApiGetExcerptResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -444,5 +445,13 @@ export async function startDrawerDownload(drawerId: number) {
 
 export async function logout() {
   const res = await axios.post(`${BASE_URL}/loginManager/logout`);
+  return res.data;
+}
+
+export async function fetchExcerpt(excerptId: number) {
+  const res = await axios.get<ApiGetExcerptResponse>(
+    `${BASE_URL}/asset/viewExcerpt/${excerptId}/true/true`
+  );
+
   return res.data;
 }
