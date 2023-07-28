@@ -5,21 +5,13 @@
         v-if="excerpt"
         class="p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
       >
-        <header class="mb-4">
-          <div class="flex justify-between items-center">
-            <h1 class="text-4xl font-bold mb-4">
-              {{ excerpt.label || `Excerpt ${excerpt.id}` }}
-            </h1>
-            <Button
-              variant="tertiary"
-              :to="`/asset/viewAsset/${excerpt.assetId}`"
-              >View Asset</Button
-            >
-          </div>
-          <Tuple label="Excerpt Range">
-            {{ secondsToTimeString(excerpt.startTime) }} -
-            {{ secondsToTimeString(excerpt.endTime) }}
-          </Tuple>
+        <header class="mb-2 flex justify-between items-baseline">
+          <h1 class="text-4xl font-bold mb-4 flex-1">
+            {{ excerpt.label || `Excerpt ${excerpt.id}` }}
+          </h1>
+          <Button variant="tertiary" :to="`/asset/viewAsset/${excerpt.assetId}`"
+            >View Asset</Button
+          >
         </header>
 
         <iframe
@@ -30,13 +22,22 @@
           class="w-full aspect-video"
           @load="isVideoPlayerLoaded = true"
         />
-        <div class="flex justify-end p-1">
-          <MoreFileInfoButton :fileObjectId="excerpt.fileObjectId" />
-          <DownloadFileButton
-            :assetId="excerpt.assetId"
-            :fileObjectId="excerpt.fileObjectId"
-          />
-          <ShareFileButton :fileObjectId="excerpt.fileObjectId" />
+        <div class="flex justify-between p-1 items-center">
+          <div class="inline-flex gap-2 items-center">
+            <span class="font-bold text-xs uppercase">Time</span>
+            <span class="text-sm">
+              {{ secondsToTimeString(excerpt.startTime) }} -
+              {{ secondsToTimeString(excerpt.endTime) }}
+            </span>
+          </div>
+          <div>
+            <MoreFileInfoButton :fileObjectId="excerpt.fileObjectId" />
+            <DownloadFileButton
+              :assetId="excerpt.assetId"
+              :fileObjectId="excerpt.fileObjectId"
+            />
+            <ShareFileButton :fileObjectId="excerpt.fileObjectId" />
+          </div>
         </div>
       </div>
     </Transition>
@@ -48,7 +49,6 @@ import api from "@/api";
 import { ApiGetExcerptResponse } from "@/types";
 import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import config from "@/config";
-import Tuple from "@/components/Tuple/Tuple.vue";
 import { secondsToTimeString } from "@/helpers/excerptHelpers";
 import MoreFileInfoButton from "@/components/MoreFileInfoButton/MoreFileInfoButton.vue";
 import DownloadFileButton from "@/components/DownloadFileButton/DownloadFileButton.vue";
