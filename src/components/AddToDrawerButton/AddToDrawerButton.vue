@@ -143,7 +143,12 @@ const exactlyOneDrawerIsChosen = computed(() => {
 });
 
 const isExcerptValid = computed(() => {
-  return excerpt.startTime >= 0 && excerpt.endTime >= 0 && excerpt.name.trim();
+  return (
+    excerpt.startTime >= 0 &&
+    excerpt.endTime >= 0 &&
+    excerpt.name.trim() &&
+    Math.abs(excerpt.endTime - excerpt.startTime) >= 1
+  );
 });
 
 const isFormValid = computed(() => {
@@ -192,8 +197,9 @@ async function handleAddToDrawer() {
     drawerIdInt ?? (await drawerStore.createDrawer(newDrawerNameTrimmed)).id;
 
   // swap excerpt start and end time if start time is greater than end time
-  const sortedTimes = [excerpt.startTime, excerpt.endTime].sort();
-  [excerpt.startTime, excerpt.endTime] = sortedTimes;
+  if (excerpt.startTime > excerpt.endTime) {
+    [excerpt.startTime, excerpt.endTime] = [excerpt.endTime, excerpt.startTime];
+  }
 
   await drawerStore.addAssetToDrawer(
     props.assetId,
