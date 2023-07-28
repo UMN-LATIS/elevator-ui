@@ -114,6 +114,7 @@ const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 const isAddingExcerpt = ref(false);
 const isSelectDrawerTouched = ref(false);
+const isExcerptable = ref(false);
 
 const drawerStore = useDrawerStore();
 const assetStore = useAssetStore();
@@ -147,7 +148,8 @@ const isExcerptValid = computed(() => {
 
 const isFormValid = computed(() => {
   return (
-    exactlyOneDrawerIsChosen.value && (!isAddingExcerpt.value || isExcerptValid)
+    exactlyOneDrawerIsChosen.value &&
+    (!isAddingExcerpt.value || isExcerptValid.value)
   );
 });
 
@@ -211,9 +213,8 @@ function reset() {
   excerpt.startTime = 0;
   excerpt.endTime = 0;
   excerpt.fileHandlerId = assetStore.activeFileObjectId;
+  isSelectDrawerTouched.value = false;
 }
-
-const isExcerptable = ref(false);
 
 // when the activeFileObjectId changes
 // check if the file is a movie or audio file
