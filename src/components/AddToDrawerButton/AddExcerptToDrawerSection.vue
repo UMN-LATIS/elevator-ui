@@ -25,7 +25,13 @@
       v-if="isAddingExcerpt"
       class="excerpt-details flex flex-col gap-2 mt-4"
     >
-      <ObjectViewer :fileHandlerId="fileObjectId" class="aspect-video mb-4" />
+      <ExcerptableIframe
+        :fileObjectId="fileObjectId"
+        class="aspect-video mb-4"
+        @update:currentScrubberPosition="
+          (val) => (currentScrubberPosition = val)
+        "
+      />
 
       <div class="flex flex-col gap-4">
         <InputGroup
@@ -85,12 +91,12 @@
 import { ref, watch } from "vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Button from "@/components/Button/Button.vue";
-import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import config from "@/config";
 import {
   secondsToTimeString,
   timeStringToSeconds,
 } from "@/helpers/excerptHelpers";
+import ExcerptableIframe from "../ExcerptableIframe/ExcerptableIframe.vue";
 
 const props = defineProps<{
   isAddingExcerpt: boolean;
