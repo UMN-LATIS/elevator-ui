@@ -2,7 +2,7 @@
   <component
     :is="href ? 'a' : 'div'"
     :href="href"
-    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm opacity-75 hover:opacity-100 group transition-all"
+    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm group transition-all"
     :class="{
       'thumbnail-image--is-active ring ring-offset-1 ring-blue-600': isActive,
     }"
@@ -15,27 +15,49 @@
     <LazyLoadImage
       :src="src"
       :alt="alt"
-      class="group-hover:scale-110 w-full h-full object-cover transition-all"
+      class="group-hover:scale-110 w-full h-full object-cover transition-all group-hover:opacity-100 opacity-80"
     />
+    <div
+      v-if="isVideo || isAudio"
+      class="backdrop-blur-md bg-transparent-white-500 text-neutral-900 flex absolute bottom-1 right-1 z-10 rounded-full justify-center items-center p-1 w-6 h-6"
+    >
+      <AudioIcon v-if="isAudio" />
+      <VideoIcon v-if="isVideo" />
+    </div>
     <slot />
   </component>
 </template>
 <script setup lang="ts">
+import { computed } from "vue";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
-import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
+import { ArrowForwardIcon, AudioIcon, VideoIcon } from "@/icons";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     src: string;
     alt: string | null;
     href?: string;
     isActive?: boolean;
+    fileType?: string | undefined;
   }>(),
   {
     href: undefined,
     isActive: false,
+    fileType: undefined,
   }
 );
+
+const isVideo = computed((): boolean => {
+  if (!props.fileType) return false;
+  return ["mp4", "webm", "mov"].includes(props.fileType.toLowerCase());
+});
+
+console.log("isVideo", isVideo.value, props.fileType);
+
+const isAudio = computed((): boolean => {
+  if (!props.fileType) return false;
+  return ["mp3", "wav", "ogg"].includes(props.fileType.toLowerCase());
+});
 </script>
 <style scoped>
 .thumbnail-image--is-active {
