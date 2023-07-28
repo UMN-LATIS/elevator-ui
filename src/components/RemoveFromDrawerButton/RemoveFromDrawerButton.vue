@@ -17,8 +17,10 @@
     @confirm="handleRemoveFromDrawer"
   >
     Are you sure you want to remove
-    <b>{{ objectTitle ?? "this asset" }}</b> from the drawer
-    <b>{{ drawerTitle }}</b
+    <b>{{
+      excerptId ? excerptTitle ?? "this excerpt" : objectTitle ?? "this asset"
+    }}</b>
+    from the drawer <b>{{ drawerTitle }}</b
     >?
   </ConfirmModal>
 </template>
@@ -31,6 +33,7 @@ import { stripTags } from "@/helpers/displayUtils";
 const props = defineProps<{
   drawerId: number;
   objectId: string;
+  excerptId?: number;
 }>();
 
 const drawerStore = useDrawerStore();
@@ -41,6 +44,12 @@ const object = computed(() =>
   )
 );
 
+const excerpt = computed(() =>
+  drawer.value?.contents?.matches?.find(
+    (match) => match.excerptId === props.excerptId
+  )
+);
+
 const isConfirmModalOpen = ref(false);
 const objectTitle = computed(() => {
   const rawTitle = object.value?.title;
@@ -48,11 +57,20 @@ const objectTitle = computed(() => {
   return Array.isArray(rawTitle) ? stripTags(rawTitle[0]) : stripTags(rawTitle);
 });
 
+const excerptTitle = computed(() => excerpt.value?.excerptLabel ?? null);
+
 const drawerTitle = computed(() => {
   return drawer.value?.title;
 });
 
 async function handleRemoveFromDrawer() {
+  if (props.excerptId) {
+    return drawerStore.removeExcerptFromDrawer({
+      drawerId: props.drawerId,
+      excerptId: props.excerptId,
+    });
+  }
+
   drawerStore.removeAssetFromDrawer({
     drawerId: props.drawerId,
     assetId: props.objectId,

@@ -4,7 +4,7 @@
  */
 
 import axios, { AxiosError } from "axios";
-import { omit } from "ramda";
+import { omit, remove } from "ramda";
 import config from "@/config";
 import type {
   Asset,
@@ -29,6 +29,7 @@ import type {
   ApiStartDrawerDownloadResponse,
   AssetExcerpt,
   ApiGetExcerptResponse,
+  ApiSuccessResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -397,13 +398,32 @@ export async function addAssetListToDrawer(
   return res.data;
 }
 
+export async function removeExcerptFromDrawer({
+  drawerId,
+  excerptId,
+}: {
+  drawerId: number;
+  excerptId: number;
+}) {
+  const res = await axios.post<ApiSuccessResponse>(
+    `${BASE_URL}/drawers/removeExcerpt/${drawerId}/${excerptId}/true`
+  );
+  return res.data;
+}
+
 export async function removeAssetFromDrawer({
   assetId,
   drawerId,
+  excerptId,
 }: {
   assetId: string;
   drawerId: number;
+  excerptId?: number;
 }) {
+  if (excerptId) {
+    return removeExcerptFromDrawer({ drawerId, excerptId });
+  }
+
   const res = await axios.post<ApiRemoveAssetFromDrawerResponse>(
     `${BASE_URL}/drawers/removeFromDrawer/${drawerId}/${assetId}/true`
   );

@@ -5,7 +5,7 @@
       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 remove-from-drawer-btn"
       :drawerId="drawerId"
       :objectId="searchMatch.objectId"
-      :excerptId="searchMatch.excerptId ?? null"
+      :excerptId="searchMatch.excerptId ?? undefined"
     />
 
     <MediaCard

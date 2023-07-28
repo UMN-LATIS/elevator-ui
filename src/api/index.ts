@@ -322,6 +322,21 @@ export async function addAssetListToDrawer(
   return data;
 }
 
+export async function removeExcerptFromDrawer({
+  excerptId,
+  drawerId,
+}: {
+  excerptId: number;
+  drawerId: number;
+}): Promise<ApiRemoveAssetFromDrawerResponse> {
+  const data = await fetchers.removeExcerptFromDrawer({ drawerId, excerptId });
+
+  // clear the cache for this drawer
+  cache.drawerDetails.delete(drawerId);
+
+  return data;
+}
+
 export async function removeAssetFromDrawer({
   assetId,
   drawerId,
@@ -424,6 +439,7 @@ const api = {
   addAssetToDrawer,
   addAssetListToDrawer,
   removeAssetFromDrawer,
+  removeExcerptFromDrawer,
   setDrawerSortBy,
   setCustomDrawerOrder,
   startDrawerDownload: fetchers.startDrawerDownload,
