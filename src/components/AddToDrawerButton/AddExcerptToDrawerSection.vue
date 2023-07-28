@@ -51,13 +51,16 @@
             placeholder="00:00"
             type="text"
             class="flex-1"
-            @blur="handleUpdateStartTime"
+            @update:modelValue="
+              (str) => $emit('update:startTime', timeStringToSeconds(str) ?? 0)
+            "
+            @blur="startTimeString = secondsToTimeString(startTime ?? 0)"
           >
             <template #append>
               <Button
                 variant="tertiary"
                 class="text-sm"
-                @click="$emit('update:startTime', currentScrubberPosition)"
+                @click="handleSetStartTimeClick"
               >
                 Set</Button
               >
@@ -70,13 +73,16 @@
             placeholder="00:00"
             type="text"
             class="flex-1"
-            @blur="handleUpdateEndTime"
+            @update:modelValue="
+              (str) => $emit('update:endTime', timeStringToSeconds(str) ?? 0)
+            "
+            @blur="endTimeString = secondsToTimeString(endTime ?? 0)"
           >
             <template #append>
               <Button
                 variant="tertiary"
                 class="text-sm"
-                @click="$emit('update:endTime', currentScrubberPosition)"
+                @click="handleSetEndTimeClick"
               >
                 Set
               </Button>
@@ -88,10 +94,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Button from "@/components/Button/Button.vue";
-import config from "@/config";
 import {
   secondsToTimeString,
   timeStringToSeconds,
@@ -116,71 +121,15 @@ const emit = defineEmits<{
 const startTimeString = ref("");
 const endTimeString = ref("");
 const currentScrubberPosition = ref(0);
-const duration = ref(0);
 
-interface ScrubberUpdateMessageEvent extends MessageEvent {
-  data: {
-    type: "pause" | "seeked";
-    currentPosition: number; // seconds from start,
-    duration: number; // seconds
-  };
+function handleSetStartTimeClick() {
+  startTimeString.value = secondsToTimeString(currentScrubberPosition.value);
+  emit("update:startTime", currentScrubberPosition.value);
 }
 
-const allowedMessageEventOriginPatterns = [
-  config.instance.base.origin,
-  window.location.origin,
-];
-const allowedMessageEventOriginsRegex = new RegExp(
-  `^(${allowedMessageEventOriginPatterns.join("|")})$`
-);
-
-window.addEventListener("message", (event: ScrubberUpdateMessageEvent) => {
-  // If invalid origin, discard the message
-  if (!allowedMessageEventOriginsRegex.test(event.origin)) {
-    throw new Error(
-      `Cannot update current scruber position. The MessageEvent is from invalid origin: ${event.origin}`
-    );
-  }
-
-  if (!["ready", "seeked", "pause"].includes(event.data.type)) {
-    return;
-  }
-
-  // update current scrubber position
-  currentScrubberPosition.value = event.data.currentPosition;
-  duration.value = event.data.duration;
-});
-
-function handleUpdateStartTime() {
-  const newStartTime = timeStringToSeconds(startTimeString.value) ?? 0;
-
-  emit("update:startTime", newStartTime);
-  // update the start time string too, in case the previous value was invalid
-  startTimeString.value = secondsToTimeString(newStartTime);
+function handleSetEndTimeClick() {
+  endTimeString.value = secondsToTimeString(currentScrubberPosition.value);
+  emit("update:endTime", currentScrubberPosition.value);
 }
-
-function handleUpdateEndTime() {
-  const newEndTime = timeStringToSeconds(endTimeString.value);
-
-  emit("update:endTime", newEndTime);
-  // update the end time string too, in case the previous value was invalid
-  endTimeString.value = secondsToTimeString(newEndTime);
-}
-
-watch(
-  () => props.startTime,
-  () => {
-    startTimeString.value = secondsToTimeString(props.startTime);
-  },
-  { immediate: true }
-);
-
-watch(
-  () => props.endTime,
-  () => {
-    endTimeString.value = secondsToTimeString(props.endTime);
-  },
-  { immediate: true }
-);
 </script>
 <style scoped></style>
