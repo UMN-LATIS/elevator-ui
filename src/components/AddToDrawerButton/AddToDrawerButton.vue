@@ -180,8 +180,6 @@ async function handleAddToDrawer() {
   const sortedTimes = [excerpt.startTime, excerpt.endTime].sort();
   [excerpt.startTime, excerpt.endTime] = sortedTimes;
 
-  console.log("adding excerpt", excerpt);
-
   await drawerStore.addAssetToDrawer(
     props.assetId,
     drawerId,
@@ -195,6 +193,11 @@ function reset() {
   selectedDrawer.value = "";
   newDrawerName.value = "";
   fetchStatus.value = "idle";
+  isAddingExcerpt.value = false;
+  excerpt.name = "";
+  excerpt.startTime = 0;
+  excerpt.endTime = 0;
+  excerpt.fileHandlerId = assetStore.activeFileObjectId;
 }
 
 const isExcerptable = ref(false);
