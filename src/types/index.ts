@@ -794,4 +794,5 @@ export interface ApiGetExcerptResponse {
   fileObjectId: string;
   isEmbedded: boolean;
   embedUrl: string;
+  assetId: string;
 }

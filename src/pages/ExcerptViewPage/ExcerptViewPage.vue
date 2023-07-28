@@ -5,15 +5,23 @@
         v-if="excerpt"
         class="p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
       >
-        <header class="my-8">
-          <h1 class="text-4xl font-bold mb-4">
-            {{ excerpt.label || `Excerpt ${excerpt.id}` }}
-          </h1>
+        <header class="mb-4">
+          <div class="flex justify-between items-center">
+            <h1 class="text-4xl font-bold mb-4">
+              {{ excerpt.label || `Excerpt ${excerpt.id}` }}
+            </h1>
+            <Button
+              variant="tertiary"
+              :to="`/asset/viewAsset/${excerpt.assetId}`"
+              >View Asset</Button
+            >
+          </div>
           <Tuple label="Excerpt Range">
             {{ secondsToTimeString(excerpt.startTime) }} -
             {{ secondsToTimeString(excerpt.endTime) }}
           </Tuple>
         </header>
+
         <iframe
           ref="videoPlayerIframe"
           :src="`${config.instance.base.url}/asset/getEmbed/${excerpt.fileObjectId}`"
@@ -22,6 +30,14 @@
           class="w-full aspect-video"
           @load="isVideoPlayerLoaded = true"
         />
+        <div class="flex justify-end p-1">
+          <MoreFileInfoButton :fileObjectId="excerpt.fileObjectId" />
+          <DownloadFileButton
+            :assetId="excerpt.assetId"
+            :fileObjectId="excerpt.fileObjectId"
+          />
+          <ShareFileButton :fileObjectId="excerpt.fileObjectId" />
+        </div>
       </div>
     </Transition>
   </NoScrollLayout>
@@ -34,6 +50,10 @@ import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import config from "@/config";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import { secondsToTimeString } from "@/helpers/excerptHelpers";
+import MoreFileInfoButton from "@/components/MoreFileInfoButton/MoreFileInfoButton.vue";
+import DownloadFileButton from "@/components/DownloadFileButton/DownloadFileButton.vue";
+import Button from "@/components/Button/Button.vue";
+import ShareFileButton from "@/components/ShareFileButton/ShareFileButton.vue";
 
 const props = defineProps<{
   excerptId: number;
@@ -69,6 +89,7 @@ watch(isVideoPlayerLoaded, () => {
 
 onMounted(async () => {
   excerpt.value = await api.getExcerpt(props.excerptId);
+  console.log("excerpt", excerpt.value);
 });
 </script>
 <style scoped></style>

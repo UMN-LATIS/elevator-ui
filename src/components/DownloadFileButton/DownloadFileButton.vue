@@ -33,14 +33,17 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
-import { useAssetStore } from "@/stores/assetStore";
 import { FileDownloadNormalized } from "@/types";
 import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/api";
 import Modal from "@/components/Modal/Modal.vue";
 import Chip from "@/components/Chip/Chip.vue";
 
-const assetStore = useAssetStore();
+const props = defineProps<{
+  fileObjectId: string;
+  assetId: string;
+}>();
+
 const isOpen = ref(false);
 const downloadFileInfo = ref<FileDownloadNormalized[] | null | undefined>(
   undefined
@@ -53,8 +56,8 @@ async function handleDownloadFileClick() {
   isOpen.value = true;
   downloadFileInfo.value = undefined; // undef means we're fetching
   downloadFileInfo.value = await api.getFileDownloadInfo(
-    assetStore.activeFileObjectId,
-    assetStore.activeAssetId
+    props.fileObjectId,
+    props.assetId
   );
 }
 </script>

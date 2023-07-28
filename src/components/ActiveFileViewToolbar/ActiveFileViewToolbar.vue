@@ -2,9 +2,16 @@
   <div class="object-toolbar">
     <div class="flex justify-between items-center w-full px-4 py-2">
       <div class="flex gap-1 items-center leading-none">
-        <MoreFileInfoButton />
-        <DownloadFileButton />
-        <ShareButton />
+        <MoreFileInfoButton
+          v-if="fileHandlerId"
+          :fileObjectId="fileHandlerId"
+        />
+        <DownloadFileButton
+          v-if="assetId && fileHandlerId"
+          :assetId="assetId"
+          :fileObjectId="fileHandlerId"
+        />
+        <ShareFileButton v-if="fileHandlerId" :fileObjectId="fileHandlerId" />
         <AddToDrawerButton
           v-if="instanceStore.currentUser?.canManageDrawers && assetId"
           :assetId="assetId"
@@ -18,9 +25,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import MoreFileInfoButton from "./MoreFileInfoButton.vue";
-import DownloadFileButton from "./DownloadFileButton.vue";
-import ShareButton from "./ShareButton.vue";
+import MoreFileInfoButton from "@/components/MoreFileInfoButton/MoreFileInfoButton.vue";
+import DownloadFileButton from "@/components/DownloadFileButton/DownloadFileButton.vue";
+import ShareFileButton from "@/components/ShareFileButton/ShareFileButton.vue";
 import AddToDrawerButton from "@/components/AddToDrawerButton/AddToDrawerButton.vue";
 import AddToEmbeddedPluginButton from "../AddToEmbeddedPluginButton/AddToEmbeddedPluginButton.vue";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
