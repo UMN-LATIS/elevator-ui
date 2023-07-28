@@ -128,11 +128,7 @@ const onlyOneDrawerNameFieldIsFilled = computed(() => {
 });
 
 const isExcerptValid = computed(() => {
-  return (
-    excerpt.startTime >= 0 &&
-    excerpt.endTime > excerpt.startTime &&
-    excerpt.name.trim()
-  );
+  return excerpt.startTime >= 0 && excerpt.endTime >= 0 && excerpt.name.trim();
 });
 
 const isFormValid = computed(() => {
@@ -181,8 +177,10 @@ async function handleAddToDrawer() {
     drawerIdInt ?? (await drawerStore.createDrawer(newDrawerNameTrimmed)).id;
 
   // swap excerpt start and end time if start time is greater than end time
-  excerpt.startTime = Math.min(excerpt.startTime, excerpt.endTime);
-  excerpt.endTime = Math.max(excerpt.startTime, excerpt.endTime);
+  const sortedTimes = [excerpt.startTime, excerpt.endTime].sort();
+  [excerpt.startTime, excerpt.endTime] = sortedTimes;
+
+  console.log("adding excerpt", excerpt);
 
   await drawerStore.addAssetToDrawer(
     props.assetId,
@@ -234,5 +232,9 @@ watch(
     immediate: true,
   }
 );
+
+watch(excerpt, () => {
+  console.log("excerpt", excerpt);
+});
 </script>
 <style scoped></style>
