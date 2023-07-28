@@ -52,8 +52,6 @@ const isVideo = computed((): boolean => {
   return ["mp4", "webm", "mov"].includes(props.fileType.toLowerCase());
 });
 
-console.log("isVideo", isVideo.value, props.fileType);
-
 const isAudio = computed((): boolean => {
   if (!props.fileType) return false;
   return ["mp3", "wav", "ogg"].includes(props.fileType.toLowerCase());

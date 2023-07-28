@@ -5,13 +5,20 @@
         v-if="excerpt"
         class="p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
       >
-        <h1 class="text-4xl font-bold my-8">
-          {{ excerpt.label || `Excerpt ${excerpt.id}` }}
-        </h1>
-
+        <header class="my-8">
+          <h1 class="text-4xl font-bold mb-4">
+            {{ excerpt.label || `Excerpt ${excerpt.id}` }}
+          </h1>
+          <Tuple label="Excerpt Range">
+            {{ secondsToTimeString(excerpt.startTime) }} -
+            {{ secondsToTimeString(excerpt.endTime) }}
+          </Tuple>
+        </header>
         <iframe
           ref="videoPlayerIframe"
-          :src="excerpt.embedUrl"
+          :src="`${config.instance.base.url}/asset/getEmbed/${excerpt.fileObjectId}`"
+          frameBorder="0"
+          allowfullscreen="true"
           class="w-full aspect-video"
           @load="isVideoPlayerLoaded = true"
         />
@@ -24,6 +31,9 @@ import { onMounted, ref, watch } from "vue";
 import api from "@/api";
 import { ApiGetExcerptResponse } from "@/types";
 import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
+import config from "@/config";
+import Tuple from "@/components/Tuple/Tuple.vue";
+import { secondsToTimeString } from "@/helpers/excerptHelpers";
 
 const props = defineProps<{
   excerptId: number;

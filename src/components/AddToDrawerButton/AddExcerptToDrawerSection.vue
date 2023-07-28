@@ -87,6 +87,10 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import config from "@/config";
+import {
+  secondsToTimeString,
+  timeStringToSeconds,
+} from "@/helpers/excerptHelpers";
 
 const props = defineProps<{
   isAddingExcerpt: boolean;
@@ -108,49 +112,6 @@ const endTimeString = ref("");
 const currentScrubberPosition = ref(0);
 const duration = ref(0);
 
-function isValidTimeString(timeString: string) {
-  const validTimeStringRegex = /^(\d{1,2}:)?([0-5]?\d:)?[0-5]?\d$/;
-  return validTimeStringRegex.test(timeString);
-}
-
-function secondsToTimeString(seconds: number | null) {
-  if (seconds === null) return "";
-
-  if (Number.isNaN(seconds)) {
-    throw new Error("Cannot convert seconds to time string: seconds is NaN");
-  }
-
-  if (seconds >= 60 * 60 * 24) {
-    throw new Error(
-      "Cannot convert seconds to time string: seconds larger than 1 day"
-    );
-  }
-
-  if (seconds < 60 * 60) {
-    // MM:SS
-    return new Date(seconds * 1000).toISOString().slice(14, 19);
-  }
-
-  // HH:MM:SS
-  return new Date(seconds * 1000).toISOString().slice(11, 19);
-}
-
-function timeStringToSeconds(timeString: string): number | null {
-  if (!isValidTimeString(timeString)) {
-    return null;
-  }
-
-  // 12:34:56 => [56, 34, 12]
-  const parts = timeString.split(":").reverse();
-
-  let seconds = 0;
-  parts.forEach((part, index) => {
-    // 12:34:56 => 56 * 60^0 + 34 * 60^1 + 12 * 60^2
-    seconds += Number.parseInt(part) * Math.pow(60, index);
-  });
-  return seconds;
-}
-
 interface ScrubberUpdateMessageEvent extends MessageEvent {
   data: {
     type: "pause" | "seeked";
@@ -160,8 +121,6 @@ interface ScrubberUpdateMessageEvent extends MessageEvent {
 }
 
 const allowedMessageEventOriginPatterns = [
-  // "https?:\/\/localhost:\\d+",
-  // "https?:\/\/.*\.elevator\.umn.\.edu",
   config.instance.base.origin,
   window.location.origin,
 ];
