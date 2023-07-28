@@ -16,7 +16,11 @@
     >
       <div class="absolute top-1 right-1 z-10 flex gap-1">
         <Chip
-          v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
+          v-if="
+            !searchMatch.excerpt &&
+            searchMatch.fileAssets &&
+            searchMatch.fileAssets > 1
+          "
           class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900"
         >
           {{ searchMatch.fileAssets }} files
