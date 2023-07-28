@@ -1,10 +1,5 @@
 <template>
-  <div
-    class="text-sm rounded-md"
-    :class="{
-      'border border-neutral-200 p-4 bg-white': isAddingExcerpt,
-    }"
-  >
+  <div class="text-sm rounded-md">
     <label class="inline-flex gap-1 items-center">
       <input
         :checked="isAddingExcerpt"
@@ -23,104 +18,109 @@
 
     <div
       v-if="isAddingExcerpt"
-      class="excerpt-details flex flex-col gap-2 mt-4"
+      class="excerpt-details flex flex-col gap-4 mt-2 border border-neutral-300 bg-neutral-100 p-4 rounded-md"
     >
+      <InputGroup
+        id="excerpt-name"
+        :modelValue="excerptName"
+        label="Excerpt Name"
+        placeholder="Excerpt Name"
+        class="flex-1 text-sm"
+        :inputClass="[
+          '!bg-white border !border-neutral-300',
+          {
+            '!border !border-red-500': !excerptName && isNameTouched,
+          },
+        ]"
+        @update:modelValue="
+          (val) => {
+            isNameTouched = true;
+            $emit('update:excerptName', val);
+          }
+        "
+        @blur="isNameTouched = true"
+      />
+      <div class="flex gap-4">
+        <InputGroup
+          id="excerpt__start-time"
+          v-model="startTimeString"
+          label="Start Time"
+          placeholder="00:00"
+          type="text"
+          class="flex-1 text-sm"
+          :inputClass="[
+            '!bg-white border !border-neutral-300',
+            {
+              '!border !border-red-500': isStartTimeTouched && !startTimeString,
+            },
+          ]"
+          @update:modelValue="
+            (str) => {
+              isStartTimeTouched = true;
+              $emit('update:startTime', timeStringToSeconds(str) ?? 0);
+            }
+          "
+          @blur="
+            () => {
+              isStartTimeTouched = true;
+              startTimeString = secondsToTimeString(startTime ?? 0);
+            }
+          "
+        >
+          <template #append>
+            <Button
+              variant="tertiary"
+              class="text-sm"
+              @click="handleSetStartTimeClick"
+            >
+              Set</Button
+            >
+          </template>
+        </InputGroup>
+        <InputGroup
+          id="excerpt__end-time"
+          v-model="endTimeString"
+          label="End Time"
+          placeholder="00:00"
+          type="text"
+          class="flex-1 text-sm"
+          :inputClass="[
+            '!bg-white border !border-neutral-300',
+            {
+              '!border !border-red-500': isEndTimeTouched && !endTimeString,
+            },
+          ]"
+          @update:modelValue="
+            (str) => {
+              isEndTimeTouched = true;
+              $emit('update:endTime', timeStringToSeconds(str) ?? 0);
+            }
+          "
+          @blur="
+            () => {
+              isEndTimeTouched = true;
+              endTimeString = secondsToTimeString(endTime ?? 0);
+            }
+          "
+        >
+          <template #append>
+            <Button
+              variant="tertiary"
+              class="text-sm"
+              @click="handleSetEndTimeClick"
+            >
+              Set
+            </Button>
+          </template>
+        </InputGroup>
+      </div>
       <ExcerptableIframe
         :fileObjectId="fileObjectId"
-        class="aspect-video mb-4"
+        class="aspect-video rounded"
         @update:currentScrubberPosition="
           (val) => (currentScrubberPosition = val)
         "
       />
-
-      <div class="flex flex-col gap-4">
-        <InputGroup
-          id="excerpt-name"
-          :modelValue="excerptName"
-          label="Excerpt Name"
-          placeholder="Excerpt Name"
-          class="flex-1"
-          :inputClass="{
-            '!border !border-red-500': !excerptName && isNameTouched,
-          }"
-          required
-          @update:modelValue="
-            (val) => {
-              isNameTouched = true;
-              $emit('update:excerptName', val);
-            }
-          "
-          @blur="isNameTouched = true"
-        />
-        <div class="flex gap-4">
-          <InputGroup
-            id="excerpt__start-time"
-            v-model="startTimeString"
-            label="Start Time"
-            placeholder="00:00"
-            type="text"
-            class="flex-1"
-            :inputClass="{
-              '!border !border-red-500': isStartTimeTouched && !startTimeString,
-            }"
-            @update:modelValue="
-              (str) => {
-                isStartTimeTouched = true;
-                $emit('update:startTime', timeStringToSeconds(str) ?? 0);
-              }
-            "
-            @blur="
-              () => {
-                isStartTimeTouched = true;
-                startTimeString = secondsToTimeString(startTime ?? 0);
-              }
-            "
-          >
-            <template #append>
-              <Button
-                variant="tertiary"
-                class="text-sm"
-                @click="handleSetStartTimeClick"
-              >
-                Set</Button
-              >
-            </template>
-          </InputGroup>
-          <InputGroup
-            id="excerpt__end-time"
-            v-model="endTimeString"
-            label="End Time"
-            placeholder="00:00"
-            type="text"
-            class="flex-1"
-            :inputClass="{
-              '!border !border-red-500': isEndTimeTouched && !endTimeString,
-            }"
-            @update:modelValue="
-              (str) => {
-                isEndTimeTouched = true;
-                $emit('update:endTime', timeStringToSeconds(str) ?? 0);
-              }
-            "
-            @blur="
-              () => {
-                isEndTimeTouched = true;
-                endTimeString = secondsToTimeString(endTime ?? 0);
-              }
-            "
-          >
-            <template #append>
-              <Button
-                variant="tertiary"
-                class="text-sm"
-                @click="handleSetEndTimeClick"
-              >
-                Set
-              </Button>
-            </template>
-          </InputGroup>
-        </div>
-      </div>
     </div>
   </div>
 </template>

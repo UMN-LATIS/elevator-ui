@@ -12,7 +12,6 @@
 <script setup lang="ts">
 import { onUnmounted, ref, watch } from "vue";
 import config from "@/config";
-import { is } from "ramda";
 
 interface ResponseMessageEvent extends MessageEvent {
   data: {

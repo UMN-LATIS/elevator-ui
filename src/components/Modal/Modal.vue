@@ -10,7 +10,7 @@
       @click.self="$emit('close')"
     >
       <div
-        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[80vh] m-auto w-full"
+        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[90vh] m-auto w-full"
         v-bind="$attrs"
       >
         <XButton

@@ -6,6 +6,7 @@
       :class="[{ 'sr-only': labelHidden }, labelClass]"
     >
       {{ label }}
+      <span v-if="required" class="text-red-600">*</span>
     </label>
     <div class="relative rounded-md">
       <div
@@ -20,6 +21,7 @@
         :name="id"
         :value="modelValue"
         class="block w-full rounded-md border border-transparent focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4"
+        :required="required"
         :class="[
           {
             'pl-10': $slots.prepend,
@@ -44,7 +46,7 @@
   </div>
 </template>
 <script setup lang="ts">
-type CSSClass = Partial<Record<string, boolean>> | string | string[];
+import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
@@ -55,10 +57,12 @@ withDefaults(
     type?: string;
     inputClass?: CSSClass;
     labelClass?: CSSClass;
+    required?: boolean;
   }>(),
   {
     labelHidden: false,
     type: "text",
+    required: false,
     inputClass: () => ({}),
     labelClass: () => ({}),
   }
