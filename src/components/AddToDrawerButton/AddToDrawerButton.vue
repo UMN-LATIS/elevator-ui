@@ -11,7 +11,7 @@
     class="max-w-xl"
     @close="isModalOpen = false"
   >
-    <div class="flex-1 max-h-full overflow-y-scroll">
+    <div>
       <fieldset class="flex items-end justify-between gap-2 flex-1">
         <legend class="sr-only">Choose a drawer</legend>
         <div class="flex-1 flex flex-col gap-1">
@@ -193,8 +193,9 @@ async function handleAddToDrawer() {
   isModalOpen.value = false;
   fetchStatus.value = "fetching";
 
-  const drawerId =
-    drawerIdInt ?? (await drawerStore.createDrawer(newDrawerNameTrimmed)).id;
+  const drawerId = isNaN(drawerIdInt)
+    ? (await drawerStore.createDrawer(newDrawerNameTrimmed)).id
+    : drawerIdInt;
 
   // swap excerpt start and end time if start time is greater than end time
   if (excerpt.startTime > excerpt.endTime) {
