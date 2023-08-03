@@ -1,5 +1,5 @@
 <template>
-  <Popover>
+  <Popover :content="title">
     <component
       :is="componentType"
       :href="resolvedHref"
@@ -12,9 +12,6 @@
     >
       <slot />
     </component>
-    <template #content>
-      {{ title }}
-    </template>
   </Popover>
 </template>
 <script setup lang="ts">

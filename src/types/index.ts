@@ -345,6 +345,10 @@ export interface SearchResultMatch {
   base_url?: string; // '/defaultinstance/'
   isChild?: boolean;
   hasChildren?: boolean;
+  excerpt?: true;
+  excerptAsset?: string;
+  excerptId?: number;
+  excerptLabel?: string;
 }
 
 export interface SearchEntry {
@@ -464,8 +468,8 @@ export interface Template {
   widgetArray: WidgetProps[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
-  | Record<string | number, string | undefined | unknown>
-  | unknown[];
+    | Record<string | number, string | undefined | unknown>
+    | unknown[];
 }
 
 export interface LngLat {
@@ -767,10 +771,28 @@ export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 
 export type ApiStartDrawerDownloadResponse =
   | {
-    status: "accepted";
-    jobId: number;
-  }
+      status: "accepted";
+      jobId: number;
+    }
   | {
-    status: "completed";
-    url: string;
-  };
+      status: "completed";
+      url: string;
+    };
+
+export interface AssetExcerpt {
+  fileHandlerId: string;
+  name: string;
+  startTime: number;
+  endTime: number;
+}
+
+export interface ApiGetExcerptResponse {
+  id: number;
+  label: string;
+  startTime: number;
+  endTime: number;
+  fileObjectId: string;
+  isEmbedded: boolean;
+  embedUrl: string;
+  assetId: string;
+}

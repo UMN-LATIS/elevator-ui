@@ -4,7 +4,7 @@
  */
 
 import axios, { AxiosError } from "axios";
-import { omit } from "ramda";
+import { omit, remove } from "ramda";
 import config from "@/config";
 import type {
   Asset,
@@ -27,6 +27,9 @@ import type {
   CustomAxiosRequestConfig,
   DrawerSortOptions,
   ApiStartDrawerDownloadResponse,
+  AssetExcerpt,
+  ApiGetExcerptResponse,
+  ApiSuccessResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -357,10 +360,21 @@ export async function deleteDrawer(
   return res.data;
 }
 
-export async function addAssetToDrawer(assetId: string, drawerId: number) {
+export async function addAssetToDrawer(
+  assetId: string,
+  drawerId: number,
+  excerpt?: AssetExcerpt | null
+) {
   const formdata = new FormData();
   formdata.append("objectId", assetId);
   formdata.append("drawerList", String(drawerId));
+
+  if (excerpt) {
+    formdata.append("label", excerpt.name);
+    formdata.append("startTime", String(excerpt.startTime));
+    formdata.append("endTime", String(excerpt.endTime));
+    formdata.append("fileHandlerId", excerpt.fileHandlerId);
+  }
 
   const res = await axios.post<ApiAddAssetToDrawerResponse>(
     `${BASE_URL}/drawers/addToDrawer/true`,
@@ -384,13 +398,32 @@ export async function addAssetListToDrawer(
   return res.data;
 }
 
+export async function removeExcerptFromDrawer({
+  drawerId,
+  excerptId,
+}: {
+  drawerId: number;
+  excerptId: number;
+}) {
+  const res = await axios.post<ApiSuccessResponse>(
+    `${BASE_URL}/drawers/removeExcerpt/${drawerId}/${excerptId}/true`
+  );
+  return res.data;
+}
+
 export async function removeAssetFromDrawer({
   assetId,
   drawerId,
+  excerptId,
 }: {
   assetId: string;
   drawerId: number;
+  excerptId?: number;
 }) {
+  if (excerptId) {
+    return removeExcerptFromDrawer({ drawerId, excerptId });
+  }
+
   const res = await axios.post<ApiRemoveAssetFromDrawerResponse>(
     `${BASE_URL}/drawers/removeFromDrawer/${drawerId}/${assetId}/true`
   );
@@ -432,5 +465,13 @@ export async function startDrawerDownload(drawerId: number) {
 
 export async function logout() {
   const res = await axios.post(`${BASE_URL}/loginManager/logout`);
+  return res.data;
+}
+
+export async function fetchExcerpt(excerptId: number) {
+  const res = await axios.get<ApiGetExcerptResponse>(
+    `${BASE_URL}/asset/viewExcerpt/${excerptId}/true/true`
+  );
+
   return res.data;
 }

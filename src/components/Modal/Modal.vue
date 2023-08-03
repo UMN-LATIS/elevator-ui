@@ -10,7 +10,7 @@
       @click.self="$emit('close')"
     >
       <div
-        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[80vh] m-auto w-full"
+        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[90vh] m-auto w-full"
         v-bind="$attrs"
       >
         <XButton
@@ -29,12 +29,16 @@
         <div class="modal-contents__body flex-1 overflow-auto p-4 md:p-8">
           <slot />
         </div>
+        <div v-if="$slots.footer" class="modal-contents__footer">
+          <slot name="footer" />
+        </div>
       </div>
     </div>
   </Teleport>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, provide, computed } from "vue";
+import { IsModalOpenKey } from "@/constants/constants";
 import XButton from "../XButton/XButton.vue";
 
 const props = withDefaults(
@@ -65,6 +69,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
+
+provide(
+  IsModalOpenKey,
+  computed(() => props.isOpen)
+);
 </script>
 <style scoped>
 .modal-contents {

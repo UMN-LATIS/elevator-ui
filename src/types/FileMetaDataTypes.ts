@@ -7,6 +7,7 @@ export interface FileMetaData {
   coordinates?: number[];
   creationDate?: string;
   sourcefile?: string;
+  handlerType?: "MovieHandler" | "AudioHandler" | string;
 }
 
 export interface Exif {

@@ -1,5 +1,5 @@
 import { LngLat } from "@/types";
-import type { InjectionKey } from "vue";
+import type { InjectionKey, ComputedRef } from "vue";
 
 export const UMN_LNGLAT: LngLat = {
   lat: 44.972109,
@@ -7,6 +7,7 @@ export const UMN_LNGLAT: LngLat = {
 };
 
 export const TabsInjectionKey = Symbol("Tabs") as InjectionKey<string>;
+export const IsModalOpenKey = Symbol() as InjectionKey<ComputedRef<boolean>>;
 
 // this is a constant so that we can use it in SearchResultsPage
 // and the searchStore

@@ -25,20 +25,22 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
-import { useAssetStore } from "@/stores/assetStore";
 import config from "@/config";
-import Modal from "../Modal/Modal.vue";
-import CopyableTextArea from "../CopyableTextArea/CopyableTextArea.vue";
-import Button from "../Button/Button.vue";
+import Modal from "@/components/Modal/Modal.vue";
+import CopyableTextArea from "@/components/CopyableTextArea/CopyableTextArea.vue";
+import Button from "@/components/Button/Button.vue";
 import ShareIcon from "@/icons/ShareIcon.vue";
 
-const assetStore = useAssetStore();
+const props = defineProps<{
+  fileObjectId: string;
+}>();
+
 const removeExtraWhitespace = (str: string) => str.replace(/\s+/g, " ").trim();
 
 const isOpen = ref(false);
 const linkValue = computed(
   () =>
-    `${config.instance.base.url}/asset/getEmbed/${assetStore.activeFileObjectId}/null/true`
+    `${config.instance.base.url}/asset/getEmbed/${props.fileObjectId}/null/true`
 );
 
 const embedValue = computed(() => {

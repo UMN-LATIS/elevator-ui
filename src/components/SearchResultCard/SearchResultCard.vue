@@ -5,23 +5,36 @@
       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 remove-from-drawer-btn"
       :drawerId="drawerId"
       :objectId="searchMatch.objectId"
+      :excerptId="searchMatch.excerptId ?? undefined"
     />
 
     <MediaCard
       :imgSrc="thumbnailImgSrc"
       :imgAlt="title"
-      :to="assetUrl"
+      :to="excerptUrl ?? assetUrl"
       class="search-result-card flex w-full h-full relative transition-colors"
       :class="mediaCardClass"
     >
-      <Chip
-        v-if="searchMatch.fileAssets && searchMatch.fileAssets > 1"
-        class="absolute top-1 right-1 z-10 !bg-neutral-900 !text-neutral-200 border !border-neutral-900"
-      >
-        {{ searchMatch.fileAssets }} files
-      </Chip>
+      <div class="absolute top-1 right-1 z-10 flex gap-1">
+        <Chip
+          v-if="
+            !searchMatch.excerpt &&
+            searchMatch.fileAssets &&
+            searchMatch.fileAssets > 1
+          "
+          class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900"
+        >
+          {{ searchMatch.fileAssets }} files
+        </Chip>
+        <Chip
+          v-if="searchMatch.excerpt"
+          class="!bg-neutral-50 !text-neutral-900 border !border-neutral-50"
+        >
+          Excerpt
+        </Chip>
+      </div>
       <h1 class="search-result-card__title font-bold leading-tight mb-2">
-        {{ title }}
+        {{ excerptLabel ?? title }}
       </h1>
       <div
         v-if="props.searchMatch?.entries"
@@ -69,6 +82,22 @@ const props = defineProps<{
 
 const instanceStore = useInstanceStore();
 
+const excerptUrl = computed((): string | null => {
+  if (!props.searchMatch.excerpt) return null;
+
+  if (!props.searchMatch.excerptId) {
+    throw new Error("Excerpt is missing excerptId");
+  }
+
+  return `/asset/viewExcerpt/${props.searchMatch.excerptId}`;
+});
+
+const excerptLabel = computed(() => {
+  if (!props.searchMatch.excerpt) return null;
+
+  return props.searchMatch.excerptLabel;
+});
+
 const assetUrl = computed(() => getAssetUrl(props.searchMatch.objectId));
 
 const title = computed(() => {
@@ -84,8 +113,10 @@ const title = computed(() => {
 });
 
 const thumbnailImgSrc = computed(() => {
-  const { primaryHandlerThumbnail2x } = props.searchMatch;
-  return primaryHandlerThumbnail2x ? primaryHandlerThumbnail2x : null;
+  const { excerptAsset: excerptFileObjectId, primaryHandlerThumbnail2x } =
+    props.searchMatch;
+  if (excerptFileObjectId) return getThumbURL(excerptFileObjectId);
+  return primaryHandlerThumbnail2x ?? null;
 });
 </script>
 <style scoped>

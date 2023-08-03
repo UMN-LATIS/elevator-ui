@@ -3,7 +3,12 @@
     <Draggable
       v-model="clonedMatches"
       class="grid grid-cols-auto-md gap-4"
-      itemKey="objectId"
+      :itemKey="
+        (item) =>
+          item.excerptId
+            ? `${item.objectId}-${item.excerptId}`
+            : `${item.objectId}`
+      "
       handle=".drag-handle"
       ghostClass="draggable-ghost"
       dragClass="is-dragging"

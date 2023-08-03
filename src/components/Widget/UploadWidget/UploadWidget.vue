@@ -11,6 +11,7 @@
         :alt="content.fileDescription"
         :isActive="isFileActive(content.fileId)"
         iconOnHover="arrow_forward"
+        :fileType="content.fileType"
       />
     </button>
   </div>

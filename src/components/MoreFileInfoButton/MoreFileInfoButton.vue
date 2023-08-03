@@ -64,11 +64,14 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import api from "@/api";
-import { useAssetStore } from "@/stores/assetStore";
 import { computed } from "vue";
 import Tuple from "../Tuple/Tuple.vue";
 import config from "@/config";
 import InfoIcon from "@/icons/InfoIcon.vue";
+
+const props = defineProps<{
+  fileObjectId: string;
+}>();
 
 const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
 const MapMarker = defineAsyncComponent(
@@ -79,12 +82,10 @@ const isFileInfoOpen = ref(false);
 const fileMetaData = ref<FileMetaData | null | undefined>(undefined);
 const isFileMetaDataReady = computed(() => fileMetaData.value !== undefined);
 
-const assetStore = useAssetStore();
-
 async function handleInfoButtonClick() {
   isFileInfoOpen.value = !isFileInfoOpen.value;
   fileMetaData.value = undefined;
-  fileMetaData.value = await api.getFileMetaData(assetStore.activeFileObjectId);
+  fileMetaData.value = await api.getFileMetaData(props.fileObjectId);
 }
 </script>
 <style scoped></style>

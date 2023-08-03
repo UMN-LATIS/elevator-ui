@@ -22,6 +22,8 @@ import {
   ApiCreateDrawerResponse,
   CustomAxiosRequestConfig,
   DrawerSortOptions,
+  ApiGetExcerptResponse,
+  AssetExcerpt,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
@@ -30,6 +32,7 @@ function createCache() {
   return {
     assets: new Map<string, Asset | null>(),
     templates: new Map<string, Template | null>(),
+    excerpts: new Map<number, ApiGetExcerptResponse | null>(),
     moreLikeThisMatches: new Map<string, SearchResultMatch[]>(),
     fileMetaData: new Map<string, FileMetaData>(),
     fileDownloadResponses: new Map<string, FileDownloadNormalized[]>(),
@@ -296,9 +299,10 @@ export async function getDrawer(id: number): Promise<Drawer> {
 
 export async function addAssetToDrawer(
   assetId: string,
-  drawerId: number
+  drawerId: number,
+  excerpt?: AssetExcerpt | null
 ): Promise<ApiAddAssetToDrawerResponse> {
-  const data = await fetchers.addAssetToDrawer(assetId, drawerId);
+  const data = await fetchers.addAssetToDrawer(assetId, drawerId, excerpt);
 
   // clear the cache for this drawer
   cache.drawerDetails.delete(drawerId);
@@ -311,6 +315,21 @@ export async function addAssetListToDrawer(
   drawerId: number
 ): Promise<ApiAddAssetToDrawerResponse> {
   const data = await fetchers.addAssetListToDrawer(assetIds, drawerId);
+
+  // clear the cache for this drawer
+  cache.drawerDetails.delete(drawerId);
+
+  return data;
+}
+
+export async function removeExcerptFromDrawer({
+  excerptId,
+  drawerId,
+}: {
+  excerptId: number;
+  drawerId: number;
+}): Promise<ApiRemoveAssetFromDrawerResponse> {
+  const data = await fetchers.removeExcerptFromDrawer({ drawerId, excerptId });
 
   // clear the cache for this drawer
   cache.drawerDetails.delete(drawerId);
@@ -381,6 +400,16 @@ export async function setCustomDrawerOrder(
   return data;
 }
 
+export async function getExcerpt(excerptId: number) {
+  const data =
+    cache.excerpts.get(excerptId) ?? (await fetchers.fetchExcerpt(excerptId));
+
+  // cache the response
+  cache.excerpts.set(excerptId, data);
+
+  return data;
+}
+
 const api = {
   getAsset,
   getAssetWithTemplate,
@@ -389,6 +418,7 @@ const api = {
   getFileMetaData,
   getFileDownloadInfo,
   getEmbedPluginInterstitial,
+  getExcerpt,
   postLtiPayload: fetchers.postLtiPayload,
   fetchInstanceNav: fetchers.fetchInstanceNav,
   getSearchId: fetchers.fetchSearchId,
@@ -409,6 +439,7 @@ const api = {
   addAssetToDrawer,
   addAssetListToDrawer,
   removeAssetFromDrawer,
+  removeExcerptFromDrawer,
   setDrawerSortBy,
   setCustomDrawerOrder,
   startDrawerDownload: fetchers.startDrawerDownload,

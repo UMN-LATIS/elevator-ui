@@ -5,7 +5,7 @@
     :class="{
       'button--primary px-4 py-3': variant === 'primary',
       'button--secondary px-4 py-3': variant === 'secondary',
-      'button--tertiary text-xs uppercase font-medium p-2 -ml-2':
+      'button--tertiary text-xs uppercase font-medium p-2':
         variant === 'tertiary',
       'button--primary px-4 py-3 !bg-red-500 !border-red-500 text-red-100 hover:!bg-red-600 hover:!border-red-600':
         variant === 'danger',

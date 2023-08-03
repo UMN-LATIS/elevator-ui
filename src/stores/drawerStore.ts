@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-import { Drawer, DrawerSortOptions, SearchResultMatch } from "@/types";
+import {
+  AssetExcerpt,
+  Drawer,
+  DrawerSortOptions,
+  SearchResultMatch,
+} from "@/types";
 import api from "@/api";
 import { useToastStore } from "./toastStore";
 import { useAssetStore } from "./assetStore";
@@ -65,14 +70,19 @@ export const useDrawerStore = defineStore("drawer", {
       }
     },
 
-    async addAssetToDrawer(assetId: string, drawerId: number) {
-      await api.addAssetToDrawer(assetId, drawerId);
+    async addAssetToDrawer(
+      assetId: string,
+      drawerId: number,
+      excerpt?: AssetExcerpt | null
+    ) {
+      await api.addAssetToDrawer(assetId, drawerId, excerpt);
 
       const assetStore = useAssetStore();
       const toastStore = useToastStore();
 
       const drawerTitle = this.drawerRecords[drawerId].title;
-      const assetTitle = await assetStore.getAssetTitle(assetId);
+      const assetTitle =
+        excerpt?.name ?? (await assetStore.getAssetTitle(assetId));
       toastStore.addToast({
         message: `'${assetTitle ?? "Asset"}' added to drawer '${drawerTitle}'.`,
         url: `/drawers/viewDrawer/${drawerId}`,
@@ -141,6 +151,43 @@ export const useDrawerStore = defineStore("drawer", {
       api.setCustomDrawerOrder(drawerId, newOrder);
     },
 
+    async removeExcerptFromDrawer({
+      drawerId,
+      excerptId,
+    }: {
+      drawerId: number;
+      excerptId: number;
+    }) {
+      const drawer = this.drawerRecords[drawerId];
+
+      if (!drawer.contents) {
+        throw new Error(
+          `Cannot remove excerpt from drawer: drawer contents not found`
+        );
+      }
+
+      // optimistically remove the excerpt from the drawer
+      const index = drawer.contents.matches.findIndex(
+        (item) => item.excerptId === excerptId
+      );
+      const removedDrawerItem = drawer.contents.matches[index];
+      drawer.contents.matches.splice(index, 1);
+
+      // update the drawer contents on the server
+      await api.removeExcerptFromDrawer({
+        drawerId,
+        excerptId,
+      });
+
+      // confirm with toast
+      const toastStore = useToastStore();
+      toastStore.addToast({
+        message: `Excerpt '${removedDrawerItem.excerptLabel}' removed from drawer '${drawer.title}'.`,
+        url: `/drawers/viewDrawer/${drawerId}`,
+        urlText: "View drawer",
+      });
+    },
+
     async removeAssetFromDrawer({
       assetId,
       drawerId,
@@ -149,6 +196,7 @@ export const useDrawerStore = defineStore("drawer", {
       drawerId: number;
     }) {
       const assetStore = useAssetStore();
+      const toastStore = useToastStore();
       const drawerTitle = this.drawerRecords[drawerId].title;
       const assetTitle = await assetStore.getAssetTitle(assetId);
 
@@ -170,9 +218,9 @@ export const useDrawerStore = defineStore("drawer", {
         );
       }
 
-      // optimistically remove the asset from the drawer
+      // optimistically remove excerpt from drawer
       drawer.contents.matches = drawer.contents.matches.filter(
-        (match) => match.objectId !== assetId
+        (item) => item.objectId !== assetId
       );
 
       await api.removeAssetFromDrawer({
@@ -180,7 +228,6 @@ export const useDrawerStore = defineStore("drawer", {
         drawerId,
       });
 
-      const toastStore = useToastStore();
       toastStore.addToast({
         message: `Removed '${assetTitle}' from drawer '${drawerTitle}'.`,
       });
