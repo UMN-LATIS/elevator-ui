@@ -92,7 +92,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onUnmounted, onMounted } from "vue";
+import { ref, computed, reactive, watch, onMounted } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -225,7 +225,9 @@ function reset() {
 }
 
 const mainObjectViewerIframe = ref<HTMLIFrameElement | null>(null);
-const iframeMessaging = useIframeMessaging(mainObjectViewerIframe);
+const { postMessage: postMessageToObjectViewer } = useIframeMessaging(
+  mainObjectViewerIframe
+);
 
 onMounted(() => {
   // this gets the iframe element from the main object viewer so that
@@ -262,7 +264,7 @@ watch(
 
     // pause the media player when the modal is opened
     if (isExcerptable.value) {
-      iframeMessaging.postMessage({
+      postMessageToObjectViewer({
         type: requestTypes.PAUSE_PLAYER,
       });
     }
@@ -271,9 +273,5 @@ watch(
     immediate: true,
   }
 );
-
-onUnmounted(() => {
-  iframeMessaging.destroy();
-});
 </script>
 <style scoped></style>
