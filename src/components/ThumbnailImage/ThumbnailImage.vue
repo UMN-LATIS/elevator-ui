@@ -47,14 +47,34 @@ const props = withDefaults(
   }
 );
 
+// this should match the list in the backend
+// AudioHandler and MovieHandler
+const supportedAudioTypes = ["mp3", "aiff", "aif", "m4a", "wav", "wave", "wma"];
+const supportedVideoTypes = [
+  "mov",
+  "mp4",
+  "m4v",
+  "mts",
+  "mkv",
+  "avi",
+  "mpeg",
+  "mpg",
+  "m2t",
+  "m2ts",
+  "dv",
+  "vob",
+  "mxf",
+  "wmv",
+];
+
 const isVideo = computed((): boolean => {
   if (!props.fileType) return false;
-  return ["mp4", "webm", "mov"].includes(props.fileType.toLowerCase());
+  return supportedVideoTypes.includes(props.fileType.toLowerCase());
 });
 
 const isAudio = computed((): boolean => {
   if (!props.fileType) return false;
-  return ["mp3", "wav", "ogg"].includes(props.fileType.toLowerCase());
+  return supportedAudioTypes.includes(props.fileType.toLowerCase());
 });
 </script>
 <style scoped>
