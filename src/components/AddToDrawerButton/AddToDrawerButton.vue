@@ -92,7 +92,15 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onMounted } from "vue";
+import {
+  ref,
+  computed,
+  reactive,
+  watch,
+  onMounted,
+  provide,
+  readonly,
+} from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -104,6 +112,7 @@ import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import api from "@/api";
 import { useIframeMessaging, requestTypes } from "@/helpers/useiFrameMessaging";
+import { AddToDrawerIsModelOpenKey } from "@/constants/constants";
 
 const props = defineProps<{
   assetId: string;
@@ -273,5 +282,7 @@ watch(
     immediate: true,
   }
 );
+
+provide(AddToDrawerIsModelOpenKey, readonly(isModalOpen));
 </script>
 <style scoped></style>
