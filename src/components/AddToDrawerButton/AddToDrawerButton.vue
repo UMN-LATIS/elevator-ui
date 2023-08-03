@@ -92,7 +92,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from "vue";
+import { ref, computed, reactive, watch, onUnmounted, onMounted } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -103,6 +103,7 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import api from "@/api";
+import { useIframeMessaging, requestTypes } from "@/helpers/useiFrameMessaging";
 
 const props = defineProps<{
   assetId: string;
@@ -223,6 +224,18 @@ function reset() {
   isSelectDrawerTouched.value = false;
 }
 
+const mainObjectViewerIframe = ref<HTMLIFrameElement | null>(null);
+const iframeMessaging = useIframeMessaging(mainObjectViewerIframe);
+
+onMounted(() => {
+  // this gets the iframe element from the main object viewer so that
+  // we can send post messages to it. It's a bit hacky, but and maybe better
+  // with a provide/inject, but this works for now.
+  mainObjectViewerIframe.value = document.querySelector(
+    ".object-viewer__iframe"
+  ) as HTMLIFrameElement;
+});
+
 // when the activeFileObjectId changes
 // check if the file is a movie or audio file
 watch(
@@ -246,10 +259,21 @@ watch(
     isExcerptable.value =
       !!fileMetaData?.handlerType &&
       ["MovieHandler", "AudioHandler"].includes(fileMetaData.handlerType);
+
+    // pause the media player when the modal is opened
+    if (isExcerptable.value) {
+      iframeMessaging.postMessage({
+        type: requestTypes.PAUSE_PLAYER,
+      });
+    }
   },
   {
     immediate: true,
   }
 );
+
+onUnmounted(() => {
+  iframeMessaging.destroy();
+});
 </script>
 <style scoped></style>

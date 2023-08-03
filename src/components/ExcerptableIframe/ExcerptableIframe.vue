@@ -9,13 +9,19 @@
     <slot />
   </iframe>
 </template>
+
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from "vue";
+import { ref } from "vue";
 import config from "@/config";
+import {
+  useIframeMessaging,
+  responseTypes,
+  requestTypes,
+} from "@/helpers/useiFrameMessaging";
 
 interface ResponseMessageEvent extends MessageEvent {
   data: {
-    type: keyof typeof responses;
+    type: keyof typeof responseTypes;
     payload: unknown;
   };
 }
@@ -32,76 +38,28 @@ const emit = defineEmits<{
 }>();
 
 const videoPlayerIframe = ref<HTMLIFrameElement | null>(null);
-
-// set up messaging between the parent and the iframe
-// see assets/js/excerpt.js for the iframe listener
-const requests = {
-  SET_PLAY_BOUNDS: "SET_PLAY_BOUNDS",
-  GET_SCRUBBER_POSITION: "GET_SCRUBBER_POSITION",
-} as const;
-
-const responses = {
-  MEDIAPLAYER_READY: "MEDIAPLAYER_READY",
-  CURRENT_SCRUBBER_POSITION: "CURRENT_SCRUBBER_POSITION",
-  SET_PLAY_BOUNDS_SUCCESS: "SET_PLAY_BOUNDS_SUCCESS",
-} as const;
-
-const log = (...args) => console.log("[PARENT] ", ...args);
 const currentScrubberPosition = ref<number>(0);
+const iframeMessaging = useIframeMessaging(videoPlayerIframe);
 
-function iFrameResponseHandler(event: ResponseMessageEvent) {
-  log(
-    "message received:",
-    event.data.type ?? "unknown type",
-    event.data.payload ?? ""
-  );
+iframeMessaging.addResponseHandler((event: ResponseMessageEvent) => {
   const { type } = event.data;
-  if (type === responses.MEDIAPLAYER_READY) {
-    return setVideoPlayBounds(props.startTime, props.endTime);
+  if (type === responseTypes.MEDIAPLAYER_READY) {
+    return iframeMessaging.postMessage({
+      type: requestTypes.SET_PLAY_BOUNDS,
+      payload: {
+        startTime: props.startTime,
+        endTime: props.endTime,
+      },
+    });
   }
-  if (type === responses.CURRENT_SCRUBBER_POSITION) {
+  if (type === responseTypes.CURRENT_SCRUBBER_POSITION) {
     currentScrubberPosition.value = event.data.payload as number;
     return emit("update:currentScrubberPosition", event.data.payload as number);
   }
-  if (type === responses.SET_PLAY_BOUNDS_SUCCESS) {
+  if (type === responseTypes.SET_PLAY_BOUNDS_SUCCESS) {
     return emit("ready");
   }
-}
-
-function postMessage<T>(message: { type: keyof typeof requests; payload?: T }) {
-  const postMessageToIframe =
-    videoPlayerIframe.value?.contentWindow?.postMessage;
-  if (!postMessageToIframe) {
-    throw new Error("videoPlayerIframe is not loaded");
-  }
-  postMessageToIframe(message, "*");
-}
-
-function setVideoPlayBounds(startTime?: number, endTime?: number) {
-  if (startTime === undefined || endTime === undefined) {
-    log("startTime or endTime is undefined. skipping setVideoPlayBounds");
-    return;
-  }
-
-  postMessage<{ startTime: number; endTime: number }>({
-    type: requests.SET_PLAY_BOUNDS,
-    payload: {
-      startTime,
-      endTime,
-    },
-  });
-}
-
-const isiFrameResponseHandlerSetup = ref(false);
-watch(videoPlayerIframe, () => {
-  if (videoPlayerIframe.value && !isiFrameResponseHandlerSetup.value) {
-    window.addEventListener("message", iFrameResponseHandler);
-    isiFrameResponseHandlerSetup.value = true;
-  }
-});
-
-onUnmounted(() => {
-  window.removeEventListener("message", iFrameResponseHandler);
 });
 </script>
+
 <style scoped></style>
