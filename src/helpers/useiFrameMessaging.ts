@@ -1,4 +1,4 @@
-import { type Ref, watch, onUnmounted } from "vue";
+import { type Ref, watch, onBeforeUnmount } from "vue";
 
 export interface ResponseMessageEvent<T = unknown> extends MessageEvent {
   data: {
@@ -54,7 +54,7 @@ export function useIframeMessaging(iframeRef: Ref<HTMLIFrameElement | null>) {
     }
   });
 
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     window.removeEventListener("message", handleResponses);
   });
 

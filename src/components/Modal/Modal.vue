@@ -37,7 +37,8 @@
   </Teleport>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, provide, computed } from "vue";
+import { IsModalOpenKey } from "@/constants/constants";
 import XButton from "../XButton/XButton.vue";
 
 const props = withDefaults(
@@ -68,6 +69,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
+
+provide(
+  IsModalOpenKey,
+  computed(() => props.isOpen)
+);
 </script>
 <style scoped>
 .modal-contents {

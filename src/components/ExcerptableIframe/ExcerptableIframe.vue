@@ -18,7 +18,7 @@ import {
   responseTypes,
   requestTypes,
 } from "@/helpers/useiFrameMessaging";
-import { AddToDrawerIsModelOpenKey } from "@/constants/constants";
+import { IsModalOpenKey } from "@/constants/constants";
 
 interface ResponseMessageEvent extends MessageEvent {
   data: {
@@ -63,9 +63,9 @@ iframeMessaging.addResponseHandler((event: ResponseMessageEvent) => {
 });
 
 // if this modal is within the AddToDrawerModal, pause the video on any modal state change
-const isAddToDrawerModalOpen = inject(AddToDrawerIsModelOpenKey);
-if (isAddToDrawerModalOpen) {
-  watch(isAddToDrawerModalOpen, () => {
+const isModalOpen = inject(IsModalOpenKey);
+if (isModalOpen) {
+  watch(isModalOpen, () => {
     // pause the video on any modal state change
     iframeMessaging.postMessage({
       type: requestTypes.PAUSE_PLAYER,
