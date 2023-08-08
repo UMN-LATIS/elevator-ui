@@ -1,8 +1,7 @@
 <template>
-  <component
-    :is="to ? Link : 'div'"
+  <Link
     :to="to"
-    class="media-card hover:no-underline group border rounded-md shadow-sm overflow-hidden opacity-75 focus:opacity-100 hover:opacity-100 hover:shadow-lg focus:shadow-lg"
+    class="media-card hover:no-underline group border rounded-md shadow-sm overflow-hidden hover:shadow-lg focus:shadow-lg"
   >
     <article class="flex flex-col w-full">
       <div class="placeholder-image aspect-video overflow-hidden">
@@ -25,7 +24,7 @@
       </div>
       <slot name="footer"></slot>
     </article>
-  </component>
+  </Link>
 </template>
 <script setup lang="ts">
 import { DocumentIcon } from "@/icons";
@@ -35,7 +34,7 @@ import Link from "@/components/Link/Link.vue";
 defineProps<{
   imgSrc?: string | null;
   imgAlt?: string | null;
-  to?: string;
+  to: string;
 }>();
 </script>
 <style scoped>
