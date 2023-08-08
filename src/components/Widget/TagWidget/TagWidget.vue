@@ -1,7 +1,7 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <ul class="flex gap-2">
+      <ul class="flex gap-2 flex-wrap">
         <li v-for="(tag, index) in content.tags" :key="index">
           <ClickToSearchLink
             v-slot="{ isClickable }"
