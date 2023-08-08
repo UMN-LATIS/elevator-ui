@@ -57,10 +57,9 @@ const router = createRouter({
       name: "asset",
       path: "/asset/viewAsset/:assetId",
       component: AssetViewPage,
-      // component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),
       props: (route) => ({
         assetId: route.params.assetId,
-        objectId: route.hash?.substring(1),
+        objectId: route.query.activeObjectId ?? null,
       }),
     },
     {

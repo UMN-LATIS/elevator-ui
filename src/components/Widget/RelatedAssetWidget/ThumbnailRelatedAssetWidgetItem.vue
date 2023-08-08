@@ -2,7 +2,7 @@
   <RouterLink
     :title="title"
     class="thumbnail-related-asset-widget-image inline-flex"
-    :to="`#${assetId}`"
+    :to="{ query: { activeObjectId: assetId } }"
   >
     <ThumbnailImage
       v-if="assetCache.primaryHandler"
