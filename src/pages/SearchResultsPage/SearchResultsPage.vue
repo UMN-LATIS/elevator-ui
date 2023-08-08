@@ -259,15 +259,20 @@ onMounted(() => {
 
 // scroll to objectId if it's in the search results
 watch(
-  () => props.objectId,
-  (objectId) => {
-    if (!objectId) return;
+  [() => props.objectId, () => searchStore.status],
+  ([objectId, status]) => {
+    if (!objectId || status === "fetching") return;
     nextTick(() => {
+      if (!objectId) {
+        throw new Error("objectId should be set when scrolling to it");
+      }
       const el = document.getElementById(`object-${objectId}`);
-      if (!el) return;
+
+      if (!el) {
+        throw new Error(`Could not find element with id: object-${objectId}`);
+      }
 
       el.scrollIntoView({
-        behavior: "smooth",
         block: "center",
       });
     });
