@@ -32,17 +32,23 @@ const router = createRouter({
       return savedPosition;
     }
 
-    // scroll to anchor if it exists on the page
-    if (to.hash && document.querySelector(to.hash)) {
+    const anchor = to.hash
+      ? document.getElementById(to.hash.substring(1))
+      : null;
+
+    // if the anchor exists on the page, scroll to it
+    if (anchor) {
       return {
-        el: to.hash,
+        el: anchor,
         behavior: "smooth",
         top: 100, // offset to account for app header
       };
     }
 
-    // otherwise scroll to top
-    return { top: 0 };
+    // otherwise scroll to the top of the page
+    return {
+      top: 0,
+    };
   },
   routes: [
     {
