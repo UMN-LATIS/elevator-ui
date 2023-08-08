@@ -3,9 +3,7 @@
     class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm"
   >
     <div class="placeholder-image aspect-video overflow-hidden">
-      <component
-        :is="to ? Link : 'div'"
-        :to="to"
+      <div
         class="flex items-center justify-center w-full h-full media-card__image"
       >
         <LazyLoadImage
@@ -16,28 +14,22 @@
           class="object-cover w-full h-full"
         />
         <DocumentIcon v-else />
-      </component>
+      </div>
     </div>
 
-    <component
-      :is="to ? Link : 'div'"
-      :to="to"
-      class="flex-1 p-4 media-card__body hover:no-underline"
-    >
+    <div class="flex-1 p-4 media-card__body hover:no-underline">
       <slot />
-    </component>
+    </div>
     <slot name="footer"></slot>
   </article>
 </template>
 <script setup lang="ts">
 import { DocumentIcon } from "@/icons";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
-import Link from "@/components/Link/Link.vue";
 
 defineProps<{
   imgSrc?: string | null;
   imgAlt?: string | null;
-  to?: string;
 }>();
 </script>
 <style scoped>
@@ -58,7 +50,8 @@ defineProps<{
 }
 
 .media-card:has(.media-card__image:hover),
-.media-card:has(.media-card__body:hover) {
+.media-card:has(.media-card__body:hover),
+a:focus .media-card {
   --hover-text-color: var(--color-blue-600);
   --hover-bg-color: var(--color-blue-50);
   background: var(--hover-bg-color);
