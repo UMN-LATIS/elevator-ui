@@ -8,60 +8,53 @@
       :excerptId="searchMatch.excerptId ?? undefined"
     />
 
-    <MediaCard
-      :imgSrc="thumbnailImgSrc"
-      :imgAlt="title"
-      :to="excerptUrl ?? assetUrl"
-      class="search-result-card flex w-full h-full relative transition-colors"
-      :class="mediaCardClass"
-    >
-      <div class="absolute top-1 right-1 z-10 flex gap-1">
-        <Chip
-          v-if="
-            !searchMatch.excerpt &&
-            searchMatch.fileAssets &&
-            searchMatch.fileAssets > 1
-          "
-          class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900"
-        >
-          {{ searchMatch.fileAssets }} files
-        </Chip>
-        <Chip
-          v-if="searchMatch.excerpt"
-          class="!bg-neutral-50 !text-neutral-900 border !border-neutral-50"
-        >
-          Excerpt
-        </Chip>
-      </div>
-      <h1 class="search-result-card__title font-bold leading-tight mb-2">
-        {{ excerptLabel ?? title }}
-      </h1>
-      <div
-        v-if="props.searchMatch?.entries"
-        class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
+    <Link :to="excerptUrl ?? assetUrl" class="rounded-md hover:no-underline">
+      <MediaCard
+        :imgSrc="thumbnailImgSrc"
+        :imgAlt="title"
+        class="search-result-card flex w-full h-full relative transition-colors"
+        :class="mediaCardClass"
       >
-        <dl class="text-sm">
-          <div
-            v-for="(entry, index) in props.searchMatch.entries"
-            :key="index"
-            class="mb-2"
+        <div class="absolute top-1 right-1 z-10 flex gap-1">
+          <Chip
+            v-if="
+              !searchMatch.excerpt &&
+              searchMatch.fileAssets &&
+              searchMatch.fileAssets > 1
+            "
+            class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900"
           >
-            <dt class="font-bold text-xs uppercase">
-              {{ entry?.label ?? "Item" }}
-            </dt>
-            <dd>{{ entry.entries?.join(", ") }}</dd>
-          </div>
-        </dl>
-      </div>
-      <!-- <template #footer>
-        <div class="flex justify-end">
-          <AddToDrawerButton
-            v-if="instanceStore.currentUser?.canManageDrawers"
-            :assetId="searchMatch.objectId"
-          />
+            {{ searchMatch.fileAssets }} files
+          </Chip>
+          <Chip
+            v-if="searchMatch.excerpt"
+            class="!bg-neutral-50 !text-neutral-900 border !border-neutral-50"
+          >
+            Excerpt
+          </Chip>
         </div>
-      </template> -->
-    </MediaCard>
+        <h1 class="search-result-card__title font-bold leading-tight mb-2">
+          {{ excerptLabel ?? title }}
+        </h1>
+        <div
+          v-if="props.searchMatch?.entries"
+          class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
+        >
+          <dl class="text-sm">
+            <div
+              v-for="(entry, index) in props.searchMatch.entries"
+              :key="index"
+              class="mb-2"
+            >
+              <dt class="font-bold text-xs uppercase">
+                {{ entry?.label ?? "Item" }}
+              </dt>
+              <dd>{{ entry.entries?.join(", ") }}</dd>
+            </div>
+          </dl>
+        </div>
+      </MediaCard>
+    </Link>
   </div>
 </template>
 
@@ -69,8 +62,9 @@
 import { SearchResultMatch } from "@/types";
 import { getAssetUrl, getThumbURL, stripTags } from "@/helpers/displayUtils";
 import { computed } from "vue";
-import MediaCard from "../MediaCard/MediaCard.vue";
-import Chip from "../Chip/Chip.vue";
+import MediaCard from "@/components/MediaCard/MediaCard.vue";
+import Link from "@/components/Link/Link.vue";
+import Chip from "@/components/Chip/Chip.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import RemoveFromDrawerButton from "@/components/RemoveFromDrawerButton/RemoveFromDrawerButton.vue";
 
