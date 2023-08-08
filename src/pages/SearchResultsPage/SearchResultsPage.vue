@@ -259,15 +259,14 @@ onMounted(() => {
 
 // scroll to objectId if it's in the search results
 watch(
-  () => props.objectId,
-  (objectId) => {
-    if (!objectId) return;
+  [() => props.objectId, () => searchStore.status],
+  ([objectId, status]) => {
+    if (!objectId || status === "fetching") return;
     nextTick(() => {
       const el = document.getElementById(`object-${objectId}`);
       if (!el) return;
 
       el.scrollIntoView({
-        behavior: "smooth",
         block: "center",
       });
     });
