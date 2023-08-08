@@ -4,7 +4,7 @@
     :to="to"
     class="media-card hover:no-underline group border rounded-md shadow-sm overflow-hidden opacity-75 focus:opacity-100 hover:opacity-100 hover:shadow-lg focus:shadow-lg"
   >
-    <article class="flex flex-col">
+    <article class="flex flex-col w-full">
       <div class="placeholder-image aspect-video overflow-hidden">
         <div
           class="flex items-center justify-center w-full h-full media-card__image"
