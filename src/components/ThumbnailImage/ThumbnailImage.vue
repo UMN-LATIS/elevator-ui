@@ -2,10 +2,7 @@
   <component
     :is="href ? 'a' : 'div'"
     :href="href"
-    class="thumbnail-image block rounded overflow-hidden hover:shadow-md w-24 aspect-square relative border border-transparent-black-200 shadow-sm group transition-all"
-    :class="{
-      'thumbnail-image--is-active ring ring-offset-1 ring-blue-600': isActive,
-    }"
+    class="thumbnail-image block rounded overflow-hidden w-24 aspect-square relative border border-transparent-black-200 shadow-sm group transition-all"
   >
     <div
       class="thumbnail-image__icon absolute z-10 bg-transparent-white-500 rounded-full w-12 h-12 flex justify-center items-center backdrop-blur-sm top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all"
@@ -37,12 +34,10 @@ const props = withDefaults(
     src: string;
     alt: string | null;
     href?: string;
-    isActive?: boolean;
     fileType?: string | undefined;
   }>(),
   {
     href: undefined,
-    isActive: false,
     fileType: undefined,
   }
 );
