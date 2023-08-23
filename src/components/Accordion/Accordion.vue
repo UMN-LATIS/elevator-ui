@@ -12,7 +12,7 @@
             'font-bold ': isOpen,
             'font-normal': !isOpen,
           }"
-          >{{ label }}</span
+          >{{ convertHtmlToText(label) }}</span
         >
       </slot>
       <div class="place-items-center flex p-4">
@@ -34,6 +34,7 @@
 import { ref } from "vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
+import { convertHtmlToText } from "@/helpers/displayUtils";
 
 withDefaults(
   defineProps<{

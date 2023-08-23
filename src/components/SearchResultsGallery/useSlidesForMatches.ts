@@ -1,6 +1,10 @@
 import { SearchResultMatch, RelatedAssetCacheItemWithId, Asset } from "@/types";
 import { reactive } from "vue";
-import { getThumbURL, getAssetTitle, stripTags } from "@/helpers/displayUtils";
+import {
+  getThumbURL,
+  getAssetTitle,
+  convertHtmlToText,
+} from "@/helpers/displayUtils";
 import api from "@/api";
 
 export interface Slide {
@@ -22,9 +26,9 @@ export interface Slide {
 
 const selectTitleFromMatch = (match: SearchResultMatch) => {
   if (Array.isArray(match.title)) {
-    return match.title.map(stripTags).join(", ");
+    return match.title.map(convertHtmlToText).join(", ");
   }
-  return match.title?.length ? stripTags(match.title) : "(No Title)";
+  return match.title?.length ? convertHtmlToText(match.title) : "(No Title)";
 };
 
 const selectThumbSrc = (match: SearchResultMatch) => {

@@ -114,10 +114,10 @@ export function getWidgetsForDisplay({
 
 export function getAssetTitle(asset: Asset): string {
   const title = asset?.title?.[0] ?? "(No Title)";
-  return stripTags(title);
+  return convertHtmlToText(title);
 }
 
-export function stripTags(html: string): string {
+export function convertHtmlToText(html: string): string {
   const doc = new DOMParser().parseFromString(html, "text/html");
   return doc.body.textContent || "";
 }
@@ -132,7 +132,7 @@ export function toClickToSearchUrl(
     return (
       config.instance.base.url +
       "/search/querySearch/" +
-      encodeURIComponent(stripTags(cleanedLinkText))
+      encodeURIComponent(convertHtmlToText(cleanedLinkText))
     );
   }
 

@@ -60,7 +60,11 @@
 
 <script lang="ts" setup>
 import { SearchResultMatch } from "@/types";
-import { getAssetUrl, getThumbURL, stripTags } from "@/helpers/displayUtils";
+import {
+  getAssetUrl,
+  getThumbURL,
+  convertHtmlToText,
+} from "@/helpers/displayUtils";
 import { computed } from "vue";
 import MediaCard from "@/components/MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
@@ -96,11 +100,13 @@ const assetUrl = computed(() => getAssetUrl(props.searchMatch.objectId));
 
 const title = computed(() => {
   if (Array.isArray(props.searchMatch.title)) {
-    return props.searchMatch.title.map((str) => stripTags(str)).join(",");
+    return props.searchMatch.title
+      .map((str) => convertHtmlToText(str))
+      .join(",");
   }
 
   if (props.searchMatch.title && props.searchMatch.title.length > 0) {
-    return stripTags(props.searchMatch.title);
+    return convertHtmlToText(props.searchMatch.title);
   }
 
   return "(no title)";

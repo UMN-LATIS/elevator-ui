@@ -28,7 +28,7 @@
 import { ref, computed } from "vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { stripTags } from "@/helpers/displayUtils";
+import { convertHtmlToText } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   drawerId: number;
@@ -54,7 +54,9 @@ const isConfirmModalOpen = ref(false);
 const objectTitle = computed(() => {
   const rawTitle = object.value?.title;
   if (!rawTitle) return null;
-  return Array.isArray(rawTitle) ? stripTags(rawTitle[0]) : stripTags(rawTitle);
+  return Array.isArray(rawTitle)
+    ? convertHtmlToText(rawTitle[0])
+    : convertHtmlToText(rawTitle);
 });
 
 const excerptTitle = computed(() => excerpt.value?.excerptLabel ?? null);
