@@ -35,10 +35,7 @@
     </div>
 
     <div class="flex justify-between items-baseline">
-      <AdvSearchDropDown
-        v-if="supportedSearchableFields.length"
-        label="Add Field"
-      >
+      <AdvSearchDropDown label="Add Field">
         <div class="divide-y divide-neutral-200">
           <div>
             <AdvSearchDropDownItem
