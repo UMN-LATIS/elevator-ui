@@ -2,6 +2,11 @@
   <DefaultLayout>
     <div class="collections-page p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Collections</h1>
+      <SanitizedHTML
+        v-if="collectionPageContent?.content"
+        class="mb-8"
+        :html="collectionPageContent.content"
+      />
       <div ref="collectionGrid" class="grid">
         <CollectionItem
           v-for="collection in collections"
@@ -13,17 +18,30 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import CollectionItem from "./CollectionItem.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useResizeObserver } from "@vueuse/core";
+import { ApiStaticPageResponse } from "@/types";
+import api from "@/api";
+import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 
 const instanceStore = useInstanceStore();
 const collectionGrid = ref<HTMLElement | null>(null);
 
 const collections = computed(() => instanceStore.collections);
 const numCols = ref(1);
+const collectionPageContent = ref<ApiStaticPageResponse | null>(null);
+
+onMounted(async () => {
+  const collectionPage = instanceStore.pages.find(
+    (page) => page.title === "Collection Page"
+  );
+  if (!collectionPage) return;
+
+  collectionPageContent.value = await api.getStaticPage(collectionPage.id);
+});
 
 // by default, css grid will order the items by left-to-right,
 // then top-to-bottom. This makes is difficult to read:
