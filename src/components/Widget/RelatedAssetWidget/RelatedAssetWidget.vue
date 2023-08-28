@@ -1,5 +1,11 @@
 <template>
-  <div class="related-asset-widget gap-2 flex flex-wrap w-full">
+  <div
+    class="related-asset-widget flex flex-wrap w-full"
+    :class="{
+      'flex-col gap-0': widgetType === LinkedRelatedAssetWidgetItem,
+      'gap-2': widgetType !== AccordionRelatedAssetWidgetItem,
+    }"
+  >
     <component
       :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"
