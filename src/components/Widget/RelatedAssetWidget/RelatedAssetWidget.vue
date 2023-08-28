@@ -2,8 +2,8 @@
   <div
     class="related-asset-widget flex flex-wrap w-full"
     :class="{
-      'flex-col gap-0': widgetType === LinkedRelatedAssetWidgetItem,
-      'gap-2': widgetType !== AccordionRelatedAssetWidgetItem,
+      'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
+      'gap-2': widgetType !== LinkedRelatedAssetWidgetItem,
     }"
   >
     <component
