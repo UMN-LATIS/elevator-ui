@@ -53,22 +53,28 @@ const activeIndex = computed(() =>
 
 const hasActiveFileWithin = computed(() => activeIndex.value !== -1);
 
+function setPrevFileAsActive() {
+  const prevFileIndex =
+    (activeIndex.value - 1 + props.contents.length) % props.contents.length;
+  assetStore.activeFileObjectId = props.contents[prevFileIndex].fileId;
+}
+
+function setNextFileAsActive() {
+  const nextFileIndex = (activeIndex.value + 1) % props.contents.length;
+  assetStore.activeFileObjectId = props.contents[nextFileIndex].fileId;
+}
+
 // within a widget, pressing the left or right arrow keys will
 // navigate to the previous or next file
 function handleNextPrevArrowPresses(event: KeyboardEvent) {
   if (!hasActiveFileWithin.value) return;
 
-  const nextFileIndex = (activeIndex.value + 1) % props.contents.length;
-  const prevFileIndex =
-    (activeIndex.value - 1 + props.contents.length) % props.contents.length;
-
   if (event.key === "ArrowLeft") {
-    assetStore.activeFileObjectId = props.contents[prevFileIndex].fileId;
-    return;
+    return setPrevFileAsActive();
   }
+
   if (event.key === "ArrowRight") {
-    console.log("nextFileIndex", nextFileIndex);
-    assetStore.activeFileObjectId = props.contents[nextFileIndex].fileId;
+    return setNextFileAsActive();
   }
 }
 
