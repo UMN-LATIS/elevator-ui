@@ -17,6 +17,7 @@ const props = withDefaults(
 
 const sanitizeConfig = {
   FORBID_ATTR: props.removeInlineStyles ? ["style"] : [],
+  ADD_TAGS: ["iframe"],
 };
 
 const sanitizedHtml = computed(() =>
