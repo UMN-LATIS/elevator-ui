@@ -10,8 +10,8 @@
     :to="`#${assetId}`"
   >
     <ThumbnailImage
-      v-if="assetCache.primaryHandler"
-      :src="getTinyURL(assetCache.primaryHandler)"
+      v-if="assetCacheItem.primaryHandler"
+      :src="getTinyURL(assetCacheItem.primaryHandler)"
       :alt="title"
       class="thumbnail-related-asset-widget__image max-w-full"
     />
@@ -27,7 +27,6 @@
 import { computed } from "vue";
 import { getTinyURL } from "@/helpers/displayUtils";
 import type { RelatedAssetCacheItem } from "@/types";
-import { useAssetStore } from "@/stores/assetStore";
 import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
@@ -35,15 +34,12 @@ import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 
 const props = defineProps<{
   assetId: string;
-  assetCache: RelatedAssetCacheItem;
+  assetCacheItem: RelatedAssetCacheItem;
+  isActiveObject: boolean;
 }>();
 
-const assetStore = useAssetStore();
-
-const title = computed((): string => getTitleFromCacheItem(props.assetCache));
-
-const isActiveObject = computed(
-  (): boolean => assetStore.activeObjectId === props.assetId
+const title = computed((): string =>
+  getTitleFromCacheItem(props.assetCacheItem)
 );
 </script>
 <style scoped></style>

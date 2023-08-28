@@ -35,8 +35,9 @@ import config from "@/config";
 import { useAssetStore } from "@/stores/assetStore";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import { computed, onMounted, onBeforeUnmount } from "vue";
 
-defineProps<{
+const props = defineProps<{
   widget: UploadWidgetProps;
   contents: UploadWidgetContent[];
 }>();
@@ -45,4 +46,46 @@ const assetStore = useAssetStore();
 
 const isFileActive = (fileId: string) =>
   assetStore.activeFileObjectId === fileId;
+
+const activeIndex = computed(() =>
+  props.contents.findIndex((content) => isFileActive(content.fileId))
+);
+
+const hasActiveFileWithin = computed(() => activeIndex.value !== -1);
+
+function setPrevFileAsActive() {
+  const prevFileIndex =
+    (activeIndex.value - 1 + props.contents.length) % props.contents.length;
+  assetStore.activeFileObjectId = props.contents[prevFileIndex].fileId;
+}
+
+function setNextFileAsActive() {
+  const nextFileIndex = (activeIndex.value + 1) % props.contents.length;
+  assetStore.activeFileObjectId = props.contents[nextFileIndex].fileId;
+}
+
+// within a widget, pressing the left or right arrow keys will
+// navigate to the previous or next file
+function handleNextPrevArrowPresses(event: KeyboardEvent) {
+  if (!hasActiveFileWithin.value) return;
+
+  if (event.key === "ArrowLeft") {
+    return setPrevFileAsActive();
+  }
+
+  if (event.key === "ArrowRight") {
+    return setNextFileAsActive();
+  }
+}
+
+onMounted(() => {
+  // if there aren't multiple files, don't bother
+  // listening for arrow key presses
+  if (props.contents.length < 2) return;
+  window.addEventListener("keydown", handleNextPrevArrowPresses);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleNextPrevArrowPresses);
+});
 </script>
