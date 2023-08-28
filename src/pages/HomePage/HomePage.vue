@@ -13,12 +13,17 @@
       }"
     >
       <article class="page-content-block col-span-2 p-4 lg:p-8">
-        <Transition name="fade">
+        <Transition v-if="page" name="fade">
           <SanitizedHTML
-            v-if="page"
-            :html="page.content ?? ''"
+            v-if="page.content"
+            :html="page.content"
             class="prose prose-neutral"
           />
+          <section v-else class="bg-white p-8 my-8 shadow-sm">
+            <h1 class="text-4xl text-center font-bold">
+              {{ instanceStore.instance?.name ?? "Elevator" }}
+            </h1>
+          </section>
         </Transition>
       </article>
       <aside
