@@ -102,10 +102,16 @@ function handleNextPrevArrowPresses(event: KeyboardEvent) {
   }
 }
 
+const isThumbnailRelatedAsset = computed(
+  () => widgetType.value === ThumbnailRelatedAssetWidgetItem
+);
+
 onMounted(() => {
-  // if there aren't multiple files, don't bother
-  // listening for arrow key presses
-  if (contentsWithAssetId.value.length < 2) return;
+  // only listen for key presses if there are multiple assets
+  // and this is a thumbnail related asset widget
+  if (!isThumbnailRelatedAsset.value || contentsWithAssetId.value.length < 2) {
+    return;
+  }
   window.addEventListener("keydown", handleNextPrevArrowPresses);
 });
 
