@@ -13,9 +13,9 @@
       }"
     >
       <article class="page-content-block col-span-2 p-4 lg:p-8">
-        <Transition name="fade">
+        <Transition v-if="page" name="fade">
           <SanitizedHTML
-            v-if="page?.content"
+            v-if="page.content"
             :html="page.content"
             class="prose prose-neutral"
           />
