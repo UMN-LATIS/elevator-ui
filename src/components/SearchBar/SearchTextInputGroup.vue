@@ -5,6 +5,7 @@
     v-model="searchStore.query"
     label="Search"
     type="search"
+    inputmode="search"
     :labelHidden="true"
     placeholder="Search"
     inputClass="!rounded-full"
