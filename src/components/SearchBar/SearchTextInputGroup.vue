@@ -4,6 +4,7 @@
     ref="inputGroup"
     v-model="searchStore.query"
     label="Search"
+    type="search"
     :labelHidden="true"
     placeholder="Search"
     inputClass="!rounded-full"
