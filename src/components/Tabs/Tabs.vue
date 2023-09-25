@@ -4,12 +4,14 @@
       <button
         v-for="tab in tabs"
         :key="tab.id"
-        class="tab-button px-4 py-2 text-sm border-b-2"
-        :class="{
-          'border-transparent text-neutral-400': tab.id !== activeTabId,
-          'tab-button--is-active border-neutral-900 text-neutral-900 font-bold':
-            tab.id === activeTabId,
-        }"
+        :class="[
+          `tab-button tab-button--${tab.id} px-4 py-2 text-sm border-b-2`,
+          {
+            'border-transparent text-neutral-400': tab.id !== activeTabId,
+            'tab-button--is-active border-neutral-900 text-neutral-900 font-bold':
+              tab.id === activeTabId,
+          },
+        ]"
         @click="setActiveTab(tab.id)"
       >
         {{ tab.label }}
