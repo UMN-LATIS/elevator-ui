@@ -1,5 +1,6 @@
 <template>
   <header class="app-header flex flex-col gap-2">
+    <CustomAppHeader v-if="instanceStore.customHeader" />
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
         <Link to="/" class="app-header__logo-link hover:no-underline mr-4">
@@ -30,6 +31,7 @@ import SearchBar from "@/components/SearchBar/SearchBar.vue";
 import AppLogoMark from "@/components/AppLogoMark/AppLogoMark.vue";
 import Link from "@/components/Link/Link.vue";
 import AuthDropDown from "@/components/AuthDropDown/AuthDropDown.vue";
+import CustomAppHeader from "../CustomAppHeader/CustomAppHeader.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const instanceStore = useInstanceStore();

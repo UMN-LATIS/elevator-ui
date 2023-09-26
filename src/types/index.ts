@@ -521,6 +521,7 @@ export interface ApiInstanceNavResponse {
   templates: Record<number, string>; // { templateId: templateName }
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
+  customHeader: string | null; // html
   customFooter: string | null; // html
 }
 
