@@ -1,11 +1,13 @@
 <template>
   <div id="top" class="min-h-screen pt-18 flex flex-col">
     <SkipNavLink href="#main" />
+    <slot name="custom-header" />
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
 
     <main id="main" class="flex-1 flex flex-col" tabindex="-1">
       <slot />
     </main>
+    <slot name="footer" />
     <Transition name="fade">
       <a
         v-show="showScrollToTop"
@@ -24,6 +26,7 @@ import AppHeader from "@/components/AppHeader/AppHeader.vue";
 import { ChevronUpIcon } from "@/icons";
 import { useWindowScroll } from "@vueuse/core";
 import SkipNavLink from "@/components/SkipNavLink/SkipNavLink.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const { y: scrollY } = useWindowScroll();
 
