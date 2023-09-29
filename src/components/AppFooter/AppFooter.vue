@@ -6,6 +6,7 @@
     <SanitizedHTML
       class="flex flex-col max-w-screen-xl mx-auto p-4 lg:p-8"
       :html="instanceStore.customFooter"
+      :addTags="['style']"
     />
   </footer>
 </template>

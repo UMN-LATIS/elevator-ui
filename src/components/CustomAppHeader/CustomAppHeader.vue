@@ -1,6 +1,9 @@
 <template>
   <div class="custom-app-header bg-transparent-black-100">
-    <SanitizedHTML :html="instanceStore?.customHeader ?? ''" />
+    <SanitizedHTML
+      :html="instanceStore?.customHeader ?? ''"
+      :addTags="['style']"
+    />
   </div>
 </template>
 <script setup lang="ts">
