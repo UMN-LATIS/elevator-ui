@@ -1,5 +1,8 @@
 <template>
   <DefaultLayout>
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeader" />
+    </template>
     <SignInRequiredNotice
       v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"
       class="my-8 mx-4"
@@ -61,6 +64,7 @@ import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 import Notification from "@/components/Notification/Notification.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();

@@ -35,6 +35,7 @@ const createState = () => ({
     userCanSearchAndBrowse: false,
     templates: [],
   }),
+  customHeader: ref<string | null>(null),
   customFooter: ref<string | null>(null),
 });
 
@@ -89,6 +90,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.collections.value = normalizeAssetCollections(
         apiResponse.collections
       );
+      state.customHeader.value = apiResponse.customHeader;
       state.customFooter.value = apiResponse.customFooter;
 
       // add id to searchable field object from api response
