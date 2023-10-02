@@ -24,6 +24,11 @@
           </div>
         </div>
 
+        <DidYouMeanSuggestions
+          v-if="searchStore.isReady"
+          :searchTerm="searchStore.currentSearchTerm"
+        />
+
         <Tabs
           labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
           :activeTabId="searchStore.resultsView"
@@ -142,6 +147,7 @@ import SearchErrorNotification from "./SearchErrorNotification.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import AddSearchResultsToDrawerButton from "./AddSearchResultsToDrawerButton.vue";
+import DidYouMeanSuggestions from "./DidYouMeanSuggestions.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -240,7 +246,7 @@ onMounted(() => {
 
   // set initial sort option based on query param
   searchStore.sort = getInitialSortOption(
-    searchStore.searchEntry?.searchText ?? searchStore.query
+    searchStore.currentSearchTerm ?? searchStore.query
   );
 
   // if the query param is set, use it to set the state

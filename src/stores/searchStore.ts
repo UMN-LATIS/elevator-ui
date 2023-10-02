@@ -290,6 +290,10 @@ const getters = (state: SearchStoreState) => ({
     "text area",
     "multiselect",
   ]),
+
+  currentSearchTerm: computed((): string => {
+    return state.searchEntry.value?.searchText ?? "";
+  }),
 });
 
 const actions = (state: SearchStoreState) => ({
