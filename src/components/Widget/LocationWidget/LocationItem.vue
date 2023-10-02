@@ -1,13 +1,9 @@
 <template>
   <Accordion>
     <template #label>
-      <div v-if="!locationLabel" class="flex gap-6 p-4">
-        <Tuple label="Latitude" class="w-auto" variant="inline">{{
-          latStr
-        }}</Tuple>
-        <Tuple label="Longitude" class="w-auto" variant="inline">{{
-          lngStr
-        }}</Tuple>
+      <div v-if="!locationLabel" class="flex gap-4 p-4 pr-0 flex-wrap">
+        <Tuple label="Lat" class="w-auto" variant="inline">{{ latStr }}</Tuple>
+        <Tuple label="Lng" class="w-auto" variant="inline">{{ lngStr }}</Tuple>
       </div>
       <span v-else class="p-4">{{ locationLabel }}</span>
     </template>
