@@ -12,10 +12,12 @@ import Link from "@/components/Link/Link.vue";
 
 const props = defineProps<{
   assetId: string;
-  assetCache: RelatedAssetCacheItem | null;
+  assetCacheItem: RelatedAssetCacheItem | null;
 }>();
 
-const title = computed((): string => getTitleFromCacheItem(props.assetCache));
+const title = computed((): string =>
+  getTitleFromCacheItem(props.assetCacheItem)
+);
 const assetUrl = computed((): string => getAssetUrl(props.assetId));
 </script>
 <style scoped></style>

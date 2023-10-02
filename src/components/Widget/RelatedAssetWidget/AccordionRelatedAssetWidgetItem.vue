@@ -1,14 +1,14 @@
 <template>
   <div class="accordion-related-asset-widget-item w-full max-w-lg">
     <Accordion :label="title">
-      <template v-if="assetCache?.primaryHandler" #label>
+      <template v-if="assetCacheItem?.primaryHandler" #label>
         <div
-          v-if="assetCache?.primaryHandler"
+          v-if="assetCacheItem?.primaryHandler"
           class="flex items-center flex-1 w-full gap-4 py-2 pl-2 pr-4"
         >
           <img
-            v-if="assetCache.primaryHandler"
-            :src="getTinyURL(assetCache.primaryHandler)"
+            v-if="assetCacheItem.primaryHandler"
+            :src="getTinyURL(assetCacheItem.primaryHandler)"
             :alt="title"
             class="aspect-square h-10 overflow-hidden rounded"
             loading="lazy"
@@ -31,9 +31,9 @@ import { getTinyURL } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   assetId: string;
-  assetCache: RelatedAssetCacheItem | null;
+  assetCacheItem: RelatedAssetCacheItem | null;
 }>();
 
-const title = computed(() => getTitleFromCacheItem(props.assetCache));
+const title = computed(() => getTitleFromCacheItem(props.assetCacheItem));
 </script>
 <style scoped></style>

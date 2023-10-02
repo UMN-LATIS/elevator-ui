@@ -16,10 +16,10 @@ import { useAsset } from "@/helpers/useAsset";
 
 const props = defineProps<{
   assetId: string;
-  assetCache: RelatedAssetCacheItem | null;
+  assetCacheItem: RelatedAssetCacheItem | null;
 }>();
 
-const title = computed(() => getTitleFromCacheItem(props.assetCache));
+const title = computed(() => getTitleFromCacheItem(props.assetCacheItem));
 const assetIdRef = computed(() => props.assetId);
 const { asset } = useAsset(assetIdRef);
 </script>
