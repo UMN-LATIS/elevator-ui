@@ -444,6 +444,7 @@ const api = {
   setCustomDrawerOrder,
   startDrawerDownload: fetchers.startDrawerDownload,
   clearCache,
+  getDidYouMeanSuggestions: fetchers.fetchDidYouMeanSuggestions,
 };
 
 export default api;

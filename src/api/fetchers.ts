@@ -4,7 +4,7 @@
  */
 
 import axios, { AxiosError } from "axios";
-import { omit, remove } from "ramda";
+import { omit } from "ramda";
 import config from "@/config";
 import type {
   Asset,
@@ -471,6 +471,19 @@ export async function logout() {
 export async function fetchExcerpt(excerptId: number) {
   const res = await axios.get<ApiGetExcerptResponse>(
     `${BASE_URL}/asset/viewExcerpt/${excerptId}/true/true`
+  );
+
+  return res.data;
+}
+
+type FetchSuggestionsApiResponse = Record<string, string>;
+export async function fetchDidYouMeanSuggestions(searchTerm: string) {
+  const formdata = new FormData();
+  formdata.append("searchTerm", searchTerm);
+
+  const res = await axios.post<FetchSuggestionsApiResponse>(
+    `${BASE_URL}/search/getSuggestion`,
+    formdata
   );
 
   return res.data;
