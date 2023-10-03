@@ -109,7 +109,7 @@ interface SearchResultMapMarker {
   id: string;
   assetUrl: string;
   title: string;
-  imgSrc: string;
+  imgSrc: string | null; // if there's no primaryHandlerId, this will be null
   entries: SearchResultMatchEntry[];
   lat: number;
   lng: number;
@@ -124,10 +124,10 @@ function getMatchTitle(match: SearchResultMatch): string {
 
 const markers = computed((): SearchResultMapMarker[] => {
   return props.matches.reduce((acc, match) => {
-    if (!match.primaryHandlerId) return acc;
-
     const assetUrl = getAssetUrl(match.objectId);
-    const imgSrc = getThumbURL(match.primaryHandlerId);
+    const imgSrc = match.primaryHandlerId
+      ? getThumbURL(match.primaryHandlerId)
+      : null;
     const title = getMatchTitle(match);
     const lngLats = convertSearchResultToLngLats(match);
 
