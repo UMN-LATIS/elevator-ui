@@ -65,7 +65,6 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
-import { useThrottleFn } from "@vueuse/core";
 
 const props = withDefaults(
   defineProps<{
