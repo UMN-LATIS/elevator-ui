@@ -45,6 +45,9 @@ const router = createRouter({
       };
     }
 
+    // if we're navigating to the same page, don't scroll
+    if (to.path === from.path) return false;
+
     // otherwise scroll to the top of the page
     return {
       top: 0,
