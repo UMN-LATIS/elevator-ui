@@ -176,7 +176,7 @@ function getOtherMarkersWithSameCoords({
   });
 }
 
-function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
+function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
   const otherMarkersWithSameCoords = getOtherMarkersWithSameCoords({
     id,
     lng,
@@ -201,14 +201,12 @@ function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
   };
 
   markers.set(id, newFeature);
-  renderMarkers();
 
   return newFeature;
 }
 
 function removeMarker(markerId: string) {
   markers.delete(markerId);
-  renderMarkers();
 }
 
 const markerPopupContainerRefs = new Map<string, Ref<HTMLElement | null>>();
@@ -262,7 +260,6 @@ function renderMarkers() {
 
 watch(activeMapStyleKey, updateStyle);
 watch([() => props.bounds, mapRef], updateBounds);
-watch([mapRef, markers, activeMapStyleKey], renderMarkers);
 
 onMounted(() => {
   if (!mapContainerRef.value) {
@@ -493,10 +490,11 @@ onUnmounted(() => {
 });
 
 provide<MapContext>(MapInjectionKey, {
-  createOrUpdateMarker,
+  addMarker,
   removeMarker,
   setMarkerPopupContainer,
   removeMarkerPopup,
+  renderMarkers,
 });
 </script>
 

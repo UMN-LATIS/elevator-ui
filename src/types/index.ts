@@ -631,13 +631,14 @@ export interface AddMarkerArgs {
 }
 
 export interface MapContext {
-  createOrUpdateMarker: (args: AddMarkerArgs) => GeoJSON.Feature;
+  addMarker: (args: AddMarkerArgs) => GeoJSON.Feature;
   removeMarker: (markerId: string) => void;
   setMarkerPopupContainer: (
     markerId: string,
     popupContainerRef: Ref<HTMLElement | null>
   ) => void;
   removeMarkerPopup: (markerId: string) => void;
+  renderMarkers: () => void;
 }
 
 export interface LocalLoginResponse {

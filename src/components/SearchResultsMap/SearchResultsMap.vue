@@ -16,7 +16,7 @@
       </Button>
     </div>
     <Map
-      v-if="markers.length > 0"
+      v-show="markers.length > 0"
       :zoom="10"
       mapStyle="light"
       :apiKey="config.arcgis.apiKey"
@@ -109,7 +109,7 @@ interface SearchResultMapMarker {
   id: string;
   assetUrl: string;
   title: string;
-  imgSrc: string;
+  imgSrc: string | null; // if there's no primaryHandlerId, this will be null
   entries: SearchResultMatchEntry[];
   lat: number;
   lng: number;
@@ -124,12 +124,14 @@ function getMatchTitle(match: SearchResultMatch): string {
 
 const markers = computed((): SearchResultMapMarker[] => {
   return props.matches.reduce((acc, match) => {
-    if (!match.primaryHandlerId) return acc;
+    const lngLats = convertSearchResultToLngLats(match);
+    if (!lngLats.length) return acc;
 
     const assetUrl = getAssetUrl(match.objectId);
-    const imgSrc = getThumbURL(match.primaryHandlerId);
+    const imgSrc = match.primaryHandlerId
+      ? getThumbURL(match.primaryHandlerId)
+      : null;
     const title = getMatchTitle(match);
-    const lngLats = convertSearchResultToLngLats(match);
 
     const markersForThisMatch = lngLats.map((lngLat) => ({
       id: `${match.objectId}-${lngLat.lng}-${lngLat.lat}`,
