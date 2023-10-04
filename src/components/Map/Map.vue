@@ -377,7 +377,7 @@ onMounted(() => {
     .on("mouseleave", UNCLUSTERED_LAYER_ID, function () {
       map.getCanvas().style.cursor = "";
     })
-    .on("styledata", (event) => {
+    .on("styledata", () => {
       // add the source and layers for the markers and clusters
       // do this here instead of in the `load` event because the style
       // may change after the map is loaded
