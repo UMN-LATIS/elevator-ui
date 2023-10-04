@@ -65,6 +65,7 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
+import { useThrottleFn } from "@vueuse/core";
 
 const props = withDefaults(
   defineProps<{
@@ -176,7 +177,7 @@ function getOtherMarkersWithSameCoords({
   });
 }
 
-function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
+function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
   const otherMarkersWithSameCoords = getOtherMarkersWithSameCoords({
     id,
     lng,
@@ -201,14 +202,12 @@ function createOrUpdateMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
   };
 
   markers.set(id, newFeature);
-  renderMarkers();
 
   return newFeature;
 }
 
 function removeMarker(markerId: string) {
   markers.delete(markerId);
-  renderMarkers();
 }
 
 const markerPopupContainerRefs = new Map<string, Ref<HTMLElement | null>>();
@@ -262,7 +261,6 @@ function renderMarkers() {
 
 watch(activeMapStyleKey, updateStyle);
 watch([() => props.bounds, mapRef], updateBounds);
-watch([mapRef, markers, activeMapStyleKey], renderMarkers);
 
 onMounted(() => {
   if (!mapContainerRef.value) {
@@ -380,7 +378,7 @@ onMounted(() => {
     .on("mouseleave", UNCLUSTERED_LAYER_ID, function () {
       map.getCanvas().style.cursor = "";
     })
-    .on("styledata", () => {
+    .on("styledata", (event) => {
       // add the source and layers for the markers and clusters
       // do this here instead of in the `load` event because the style
       // may change after the map is loaded
@@ -493,10 +491,11 @@ onUnmounted(() => {
 });
 
 provide<MapContext>(MapInjectionKey, {
-  createOrUpdateMarker,
+  addMarker,
   removeMarker,
   setMarkerPopupContainer,
   removeMarkerPopup,
+  renderMarkers,
 });
 </script>
 

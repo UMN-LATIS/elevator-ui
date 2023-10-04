@@ -4,7 +4,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { type Ref, onUnmounted, watch, onMounted } from "vue";
+import { type Ref, onUnmounted, onMounted } from "vue";
 import { inject, provide } from "vue";
 import { MapInjectionKey, MarkerInjectionKey } from "@/constants/mapConstants";
 import { MapContext, MarkerContext } from "@/types";
@@ -24,7 +24,7 @@ onMounted(() => {
     );
   }
 
-  mapContext.createOrUpdateMarker({
+  mapContext.addMarker({
     id: props.id,
     lng: props.lng,
     lat: props.lat,
