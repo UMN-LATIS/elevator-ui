@@ -13,15 +13,6 @@
             <span v-else>Search Results</span>
           </h2>
           <Skeleton v-else class="!w-1/2 !h-12" />
-
-          <div
-            v-if="
-              searchStore.isReady && instanceStore.currentUser?.canManageDrawers
-            "
-            class="flex items-center p-1 bg-white rounded-md"
-          >
-            <AddSearchResultsToDrawerButton />
-          </div>
         </div>
 
         <DidYouMeanSuggestions
@@ -35,26 +26,36 @@
           @tabChange="handleTabChange"
         >
           <div
-            class="sm:flex justify-between items-baseline bg-transparent-black-50 rounded-md mb-4"
+            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap"
           >
             <ResultsCount
-              class="mb-2 sm:mb-0 p-2"
+              class="mb-2 sm:mb-0"
               :fetchStatus="searchStore.status"
               :showingCount="searchStore.matches.length"
               :total="searchStore.totalResults ?? 0"
               @loadMore="searchStore.loadMore"
               @loadAll="searchStore.loadMore({ loadAll: true })"
             />
-            <SearchResultsSortSelect
-              v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
-              class="p-2"
-              :sortOptions="searchStore.sortOptions"
-              :selectedSortOption="searchStore.sort"
-              :searchQuery="
-                searchStore.searchEntry?.searchText ?? searchStore.query
-              "
-              @sortOptionChange="handleSortOptionChange"
-            />
+            <div class="flex items-center gap-2">
+              <SearchResultsSortSelect
+                v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
+                :sortOptions="searchStore.sortOptions"
+                :selectedSortOption="searchStore.sort"
+                :searchQuery="
+                  searchStore.searchEntry?.searchText ?? searchStore.query
+                "
+                @sortOptionChange="handleSortOptionChange"
+              />
+              <div
+                v-if="
+                  searchStore.isReady &&
+                  instanceStore.currentUser?.canManageDrawers
+                "
+                class="flex items-center w-10 h-10 bg-white rounded-md border border-neutral-300 justify-center"
+              >
+                <AddSearchResultsToDrawerButton />
+              </div>
+            </div>
           </div>
           <Tab id="grid" label="Grid">
             <SearchResultsGrid
