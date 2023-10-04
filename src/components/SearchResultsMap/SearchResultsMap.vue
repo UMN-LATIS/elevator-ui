@@ -124,12 +124,14 @@ function getMatchTitle(match: SearchResultMatch): string {
 
 const markers = computed((): SearchResultMapMarker[] => {
   return props.matches.reduce((acc, match) => {
+    const lngLats = convertSearchResultToLngLats(match);
+    if (!lngLats.length) return acc;
+
     const assetUrl = getAssetUrl(match.objectId);
     const imgSrc = match.primaryHandlerId
       ? getThumbURL(match.primaryHandlerId)
       : null;
     const title = getMatchTitle(match);
-    const lngLats = convertSearchResultToLngLats(match);
 
     const markersForThisMatch = lngLats.map((lngLat) => ({
       id: `${match.objectId}-${lngLat.lng}-${lngLat.lat}`,
