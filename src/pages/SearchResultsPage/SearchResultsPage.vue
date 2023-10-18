@@ -20,10 +20,15 @@
           :searchTerm="searchStore.currentSearchTerm"
         />
 
-        <Tabs
-          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+        <SearchResultsTabs
           :activeTabId="searchStore.resultsView"
+          :fetchStatus="searchStore.status"
+          :totalResults="searchStore.totalResults"
+          :matches="searchStore.matches"
+          :showAddToDrawerButton="instanceStore.currentUser?.canManageDrawers"
           @tabChange="handleTabChange"
+          @loadMore="searchStore.loadMore"
+          @loadAll="() => searchStore.loadMore({ loadAll: true })"
         >
           <div
             class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap"
@@ -36,89 +41,8 @@
               @loadMore="searchStore.loadMore"
               @loadAll="searchStore.loadMore({ loadAll: true })"
             />
-            <div class="flex items-center gap-2">
-              <SearchResultsSortSelect
-                v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
-                :sortOptions="searchStore.sortOptions"
-                :selectedSortOption="searchStore.sort"
-                :searchQuery="
-                  searchStore.searchEntry?.searchText ?? searchStore.query
-                "
-                @sortOptionChange="handleSortOptionChange"
-              />
-              <div
-                v-if="
-                  searchStore.isReady &&
-                  instanceStore.currentUser?.canManageDrawers
-                "
-                class="flex items-center w-10 h-10 bg-white rounded-md border border-neutral-300 justify-center"
-              >
-                <AddSearchResultsToDrawerButton />
-              </div>
-            </div>
           </div>
-          <Tab id="grid" label="Grid">
-            <SearchResultsGrid
-              :totalResults="searchStore.totalResults"
-              :matches="searchStore.matches"
-              :status="searchStore.status"
-              :showAddToDrawerButton="
-                instanceStore.currentUser?.canManageDrawers
-              "
-              @loadMore="() => searchStore.loadMore()"
-            />
-          </Tab>
-          <Tab id="list" label="List">
-            <SearchResultsList
-              :totalResults="searchStore.totalResults"
-              :matches="searchStore.matches"
-              :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
-          </Tab>
-          <Tab id="timeline" label="Timeline">
-            <SearchResultsTimeline
-              v-if="
-                searchStore.totalResults && searchStore.status === 'success'
-              "
-              :totalResults="searchStore.totalResults"
-              :matches="searchStore.matches"
-              :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
-          </Tab>
-          <Tab id="map" label="Map">
-            <SearchResultsMap
-              v-if="searchStore.isReady"
-              :totalResults="searchStore.totalResults"
-              :matches="searchStore.matches"
-              :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
-          </Tab>
-          <Tab id="gallery" label="Gallery">
-            <SearchResultsGallery
-              v-if="isNewSearchReadyForDisplay"
-              :totalResults="searchStore.totalResults ?? Infinity"
-              :matches="searchStore.matches"
-              :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
-          </Tab>
-
-          <ResultsCount
-            v-if="
-              ['grid', 'list'].includes(searchStore.resultsView) &&
-              (searchStore.totalResults ?? 0) > 6
-            "
-            class="mt-4"
-            :fetchStatus="searchStore.status"
-            :showingCount="searchStore.matches.length"
-            :total="searchStore.totalResults ?? 0"
-            @loadMore="searchStore.loadMore"
-            @loadAll="searchStore.loadMore({ loadAll: true })"
-          />
-        </Tabs>
+        </SearchResultsTabs>
       </template>
     </div>
   </DefaultLayout>
@@ -129,13 +53,7 @@ import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
-import Tab from "@/components/Tabs/Tab.vue";
-import Tabs from "@/components/Tabs/Tabs.vue";
-import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
-import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
-import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
-import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
-import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
+import SearchResultsTabs from "./SearchResultsTabs.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import type {
   SearchResultsView,
@@ -196,16 +114,14 @@ const isSearchViewTab = (tab: TabType): tab is SearchViewTab => {
 
 function handleTabChange(tab: TabType) {
   if (!isSearchViewTab(tab)) throw new Error(`Invalid tab id: ${tab.id}`);
-
   searchStore.setResultsView(tab.id);
-
   // update the url query param to match state
-  router.replace({
-    query: {
-      ...route.query,
-      resultsView: tab.id,
-    },
-  });
+  // router.replace({
+  //   query: {
+  //     ...route.query,
+  //     resultsView: tab.id,
+  //   },
+  // });
 }
 
 async function handleSortOptionChange(sortOption: keyof SearchSortOptions) {
