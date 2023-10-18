@@ -5,22 +5,28 @@
     @tabChange="$emit('tabChange', $event)"
   >
     <slot />
-    <Tab id="grid" label="Grid">
-      <SearchResultsGrid
-        :totalResults="totalResults"
-        :matches="matches"
-        :status="fetchStatus"
-        :showAddToDrawerButton="showAddToDrawerButton"
-        @loadMore="$emit('loadMore')"
-      />
+    <Tab id="grid" v-slot="{ isActiveTab }" label="Grid">
+      <Transition name="fade">
+        <SearchResultsGrid
+          v-show="isActiveTab"
+          :totalResults="totalResults"
+          :matches="matches"
+          :status="fetchStatus"
+          :showAddToDrawerButton="showAddToDrawerButton"
+          @loadMore="$emit('loadMore')"
+        />
+      </Transition>
     </Tab>
-    <Tab id="list" label="List">
-      <SearchResultsList
-        :totalResults="totalResults"
-        :matches="matches"
-        :status="fetchStatus"
-        @loadMore="$emit('loadMore')"
-      />
+    <Tab id="list" v-slot="{ isActiveTab }" label="List">
+      <Transition name="fade">
+        <SearchResultsList
+          v-show="isActiveTab"
+          :totalResults="totalResults"
+          :matches="matches"
+          :status="fetchStatus"
+          @loadMore="$emit('loadMore')"
+        />
+      </Transition>
     </Tab>
     <!-- <Tab id="timeline" label="Timeline" :unmountWhenInactive="true">
       <SearchResultsTimeline

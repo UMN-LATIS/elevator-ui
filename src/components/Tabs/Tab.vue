@@ -1,6 +1,6 @@
 <template>
-  <div v-if="isActiveTab || !unmountWhenInactive" v-show="isActiveTab">
-    <slot></slot>
+  <div v-show="isActiveTab">
+    <slot :isActiveTab="isActiveTab"></slot>
   </div>
 </template>
 
@@ -9,16 +9,10 @@ import { inject, onMounted, onUnmounted, computed } from "vue";
 import { TabsInjectionKey } from "@/constants/constants";
 import type { TabsContext } from "@/types";
 
-const props = withDefaults(
-  defineProps<{
-    id: string;
-    label: string;
-    unmountWhenInactive?: boolean;
-  }>(),
-  {
-    unmountWhenInactive: false,
-  }
-);
+const props = defineProps<{
+  id: string;
+  label: string;
+}>();
 
 const tabsContext = inject<TabsContext>(TabsInjectionKey);
 const isActiveTab = computed(() => {
