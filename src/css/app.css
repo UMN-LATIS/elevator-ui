@@ -96,6 +96,18 @@ a:hover {
   color: var(--app-textColor);
 }
 
+.prose img,
+.prose iframe {
+  border: 1px solid #ccc;
+  background: #eee;
+  border-radius: 0.5rem;
+}
+
+.prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
 h1,
 h2,
 h3,

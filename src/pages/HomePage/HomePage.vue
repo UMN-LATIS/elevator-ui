@@ -128,16 +128,4 @@ watch(
 .featured-asset-block {
   border-left: var(--border-width) solid var(--border-color);
 }
-
-.prose img,
-.prose iframe {
-  border: 1px solid #ccc;
-  background: #eee;
-  border-radius: 0.5rem;
-}
-
-.prose iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-}
 </style>

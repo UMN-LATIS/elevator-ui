@@ -69,15 +69,4 @@ watch(
 .prose :first-child {
   margin-top: 0;
 }
-.prose img,
-.prose iframe {
-  border: 1px solid #ccc;
-  background: #eee;
-  border-radius: 0.5rem;
-}
-
-.prose iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-}
 </style>
