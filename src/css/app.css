@@ -155,14 +155,6 @@ h6 {
 * (all prefixed with `el-` to avoid conflicts)
 **/
 
-.el-static-page-img {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  background: #ddd;
-  width: 100%;
-}
-
 .el-btn {
   display: inline-block;
   border: var(--app-button-borderWidth) solid var(--app-button-borderColor);

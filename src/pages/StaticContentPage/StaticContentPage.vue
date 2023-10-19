@@ -13,7 +13,7 @@
         class="float-right uppercase text-xs font-medium bg-blue-100 px-2 py-1 rounded-md no-underline hover:bg-blue-600 hover:text-blue-100 hover:no-underline"
         >Edit Page
       </a>
-      <div class="prose prose-neutral">
+      <div class="prose prose-neutral mx-auto">
         <h1 class="text-4xl font-bold">
           {{ page.title || "No Title" }}
         </h1>
@@ -69,5 +69,11 @@ watch(
 
 .prose :first-child {
   margin-top: 0;
+}
+.prose img,
+.prose iframe {
+  border: 1px solid #ccc;
+  background: #eee;
+  border-radius: 0.5rem;
 }
 </style>
