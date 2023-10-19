@@ -5,13 +5,12 @@
     </template>
     <div
       v-if="page"
-      class="static-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
-    >
+      class="static-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">
       <a
         v-if="canCurrentUserEdit"
         :href="`${BASE_URL}/instances/editPage/${pageId}`"
-        class="float-right uppercase text-xs font-medium bg-blue-100 px-2 py-1 rounded-md no-underline hover:bg-blue-600 hover:text-blue-100 hover:no-underline"
-        >Edit Page
+        class="float-right uppercase text-xs font-medium bg-blue-100 px-2 py-1 rounded-md no-underline hover:bg-blue-600 hover:text-blue-100 hover:no-underline">
+        Edit Page
       </a>
       <div class="prose prose-neutral mx-auto">
         <h1 class="text-4xl font-bold">
@@ -75,5 +74,10 @@ watch(
   border: 1px solid #ccc;
   background: #eee;
   border-radius: 0.5rem;
+}
+
+.prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
 }
 </style>
