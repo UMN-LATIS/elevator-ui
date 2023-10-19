@@ -149,3 +149,73 @@ h6 {
     transform: translate3d(4px, 0, 0);
   }
 }
+
+/**
+* CLASSES THAT CAN BE USED ON STATIC PAGES
+* (all prefixed with `el-` to avoid conflicts)
+**/
+
+.el-static-page-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  background: #ddd;
+  width: 100%;
+}
+
+.el-btn {
+  display: inline-block;
+  border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
+  background: var(--app-button-primary-backgroundColor);
+  color: var(--app-button-primary-textColor);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--app-button-primary-hover-borderColor);
+    background: var(--app-button-primary-hover-backgroundColor);
+    color: var(--app-button-primary-hover-textColor);
+    text-decoration: none;
+  }
+
+  &:active {
+    border-color: var(--app-button-primary-active-borderColor);
+    background: var(--app-button-primary-active-backgroundColor);
+    color: var(--app-button-primary-active-textColor);
+    text-decoration: none;
+  }
+
+  &:disabled {
+    border-color: var(--app-button-primary-disabled-borderColor);
+    background: var(--app-button-primary-disabled-backgroundColor);
+    color: var(--app-button-primary-disabled-textColor);
+    cursor: not-allowed;
+  }
+}
+
+.el-text-center {
+  @apply text-center;
+}
+
+.el-alert {
+  @apply p-4 text-neutral-900 rounded-2xl border border-solid border-neutral-100 bg-neutral-100 text-sm;
+  background-image: url("/img/warning-icon.svg");
+  background-position: 1rem 1.25rem;
+  background-repeat: no-repeat;
+  background-size: 1.5rem;
+  padding-left: 3.5rem;
+
+  & p {
+    margin-bottom: 0;
+    margin-top: 0.5em;
+  }
+}
+
+.el-alert-warning {
+  @apply bg-amber-300;
+  background-image: url("/img/warning-icon.svg");
+}
+
+/** END CLASSES THAT CAN BE USED ON STATIC PAGES **/
