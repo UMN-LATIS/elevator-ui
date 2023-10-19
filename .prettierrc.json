@@ -1,1 +1,4 @@
-{}
+{
+  "htmlWhitespaceSensitivity": "ignore",
+  "bracketSameLine": true
+}
