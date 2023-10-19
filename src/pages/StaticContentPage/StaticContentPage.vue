@@ -13,8 +13,8 @@
         Edit Page
       </a>
       <div class="prose prose-neutral mx-auto">
-        <h1 class="text-4xl font-bold">
-          {{ page.title || "No Title" }}
+        <h1 class="text-4xl font-bold text-center">
+          {{ page.title || "Untitled" }}
         </h1>
 
         <SanitizedHTML :html="page.content ?? ''" class="w-full" />
