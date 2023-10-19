@@ -1,20 +1,24 @@
 <template>
-  <div>
-    <div class="grid grid-cols-auto-md gap-4">
+  <div class="w-full overflow-y-auto">
+    <VirtualScroller
+      v-slot="{ item: match }"
+      :items="matches"
+      keyField="objectId"
+      class="grid grid-cols-auto-md gap-4"
+    >
       <SearchResultCard
-        v-for="match in matches"
         :id="`object-${match.objectId}`"
         :key="match.objectId"
         :searchMatch="match"
         :showDetails="false"
         :drawerId="drawerId"
       />
-      <SkeletonCard
+    </VirtualScroller>
+    <!-- <SkeletonCard
         v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
         v-show="status === 'fetching'"
         :key="i"
-      />
-    </div>
+      /> -->
   </div>
 </template>
 <script setup lang="ts">
@@ -23,6 +27,7 @@ import SkeletonCard from "@/components/SkeletonCard/SkeletonCard.vue";
 import { computed, watch } from "vue";
 import { FetchStatus, SearchResultMatch } from "@/types";
 import { useScroll } from "@vueuse/core";
+import VirtualScroller from "@/components/VirtualScroller/VirtualScroller.vue";
 
 const props = withDefaults(
   defineProps<{

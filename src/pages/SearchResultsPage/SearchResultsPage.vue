@@ -3,7 +3,7 @@
     <div class="px-4">
       <SearchErrorNotification v-if="searchStore.status === 'error'" />
       <template v-else>
-        <div class="flex justify-between items-center my-8">
+        <!-- <div class="flex justify-between items-center my-8">
           <BrowseCollectionHeader
             v-if="searchStore.browsingCollectionId"
             :collectionId="searchStore.browsingCollectionId"
@@ -13,7 +13,7 @@
             <span v-else>Search Results</span>
           </h2>
           <Skeleton v-else class="!w-1/2 !h-12" />
-        </div>
+        </div> -->
 
         <DidYouMeanSuggestions
           v-if="searchStore.isReady"
@@ -76,10 +76,12 @@
               @loadMore="() => searchStore.loadMore()"
             />
           </Tab>
-          <Tab id="timeline" label="Timeline">
+          <Tab id="timeline" v-slot="{ isActiveTab }" label="Timeline">
             <SearchResultsTimeline
               v-if="
-                searchStore.totalResults && searchStore.status === 'success'
+                isActiveTab &&
+                searchStore.totalResults &&
+                searchStore.status === 'success'
               "
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
@@ -87,18 +89,18 @@
               @loadMore="() => searchStore.loadMore()"
             />
           </Tab>
-          <Tab id="map" label="Map">
+          <Tab id="map" v-slot="{ isActiveTab }" label="Map">
             <SearchResultsMap
-              v-if="searchStore.isReady"
+              v-if="isActiveTab && searchStore.isReady"
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
               @loadMore="() => searchStore.loadMore()"
             />
           </Tab>
-          <Tab id="gallery" label="Gallery">
+          <Tab id="gallery" v-slot="{ isActiveTab }" label="Gallery">
             <SearchResultsGallery
-              v-if="isNewSearchReadyForDisplay"
+              v-if="isActiveTab && isNewSearchReadyForDisplay"
               :totalResults="searchStore.totalResults ?? Infinity"
               :matches="searchStore.matches"
               :status="searchStore.status"
