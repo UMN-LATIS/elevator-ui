@@ -23,7 +23,7 @@
     <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
   </ConfirmModal>
   <form
-    v-if="elevatorCallbackType == 'lti'"
+    v-if="elevatorCallbackType == 'lti' && elevatorLTIVersion == '1.1'"
     ref="returnForm"
     :action="returnUrl ?? ''"
     method="POST"
@@ -54,6 +54,8 @@ const {
   elevatorPlugin,
   elevatorCallbackType,
   returnUrl,
+  elevatorLTIVersion,
+  elevatorLaunchId,
   clear: clearElevatorSessionStorage,
 } = useElevatorSessionStorage();
 
@@ -114,24 +116,38 @@ async function onConfirmedToAdd() {
   }
 
   if (elevatorCallbackType.value === "lti") {
-    const data = await api.postLtiPayload({
-      fileObjectId: props.fileHandlerId,
-      excerptId: "",
-      returnUrl: returnUrl.value ?? "",
-    });
 
-    ltiContentItems.value = JSON.stringify(data);
 
-    nextTick(() => {
-      if (!returnForm.value) {
-        addingToPluginStatus.value = "error";
-        throw new Error("Return form not set");
-      }
+    if (elevatorLTIVersion.value == "1.3") {
+      const data = await api.postLtiPayload13({
+        fileObjectId: props.fileHandlerId,
+        excerptId: "",
+        returnUrl: returnUrl.value ?? "",
+        launchId: elevatorLaunchId.value ?? "",
+      });
 
-      returnForm.value.submit();
-      addingToPluginStatus.value = "success";
-      toastStore.addToast({ message: "Added to Canvas" });
-    });
+      document.body.innerHTML += data;
+      (document.getElementById('auto_submit') as HTMLFormElement)?.submit();
+    }
+    else {
+      const data = await api.postLtiPayload({
+        fileObjectId: props.fileHandlerId,
+        excerptId: "",
+        returnUrl: returnUrl.value ?? ""
+      });
+      ltiContentItems.value = JSON.stringify(data);
+
+      nextTick(() => {
+        if (!returnForm.value) {
+          addingToPluginStatus.value = "error";
+          throw new Error("Return form not set");
+        }
+
+        returnForm.value.submit();
+        addingToPluginStatus.value = "success";
+        toastStore.addToast({ message: "Added to Canvas" });
+      });
+    }
   }
 
   if (elevatorCallbackType.value === "JS") {

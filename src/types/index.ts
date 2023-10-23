@@ -492,6 +492,8 @@ export interface ApiInterstitialResponse {
 export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
 
 export type ElevatorCallbackType = "lti" | "JS";
+export type ElevatorLTIVersion = "1.1" | "1.3";
+export type ElevatorLTIId = string;
 
 export interface RawSortableField {
   label: string;
