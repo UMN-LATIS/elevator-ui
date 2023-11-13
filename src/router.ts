@@ -15,6 +15,7 @@ import DownloadDrawerPage from "./pages/DownloadDrawerPage/DownloadDrawerPage.vu
 import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
+import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -137,6 +138,12 @@ const router = createRouter({
         objectId: route.query.objectId ?? null,
         resultsView: route.query.resultsView ?? null,
       }),
+    },
+    {
+      name: "searchResultsMapEmbed",
+      path: "/search/:embedType/:searchId",
+      component: SearchResultsEmbedPage,
+      props: true,
     },
     {
       name: "localLogin",
