@@ -6,8 +6,7 @@
         <div class="flex justify-between items-center my-8">
           <BrowseCollectionHeader
             v-if="searchStore.browsingCollectionId"
-            :collectionId="searchStore.browsingCollectionId"
-          />
+            :collectionId="searchStore.browsingCollectionId" />
           <h2 v-else-if="searchStore.isReady" class="text-4xl font-bold">
             <q v-if="nonBrowsingPageTitle">{{ nonBrowsingPageTitle }}</q>
             <span v-else>Search Results</span>
@@ -17,25 +16,21 @@
 
         <DidYouMeanSuggestions
           v-if="searchStore.isReady"
-          :searchTerm="searchStore.currentSearchTerm"
-        />
+          :searchTerm="searchStore.currentSearchTerm" />
 
         <Tabs
           labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
           :activeTabId="searchStore.resultsView"
-          @tabChange="handleTabChange"
-        >
+          @tabChange="handleTabChange">
           <div
-            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap"
-          >
+            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap">
             <ResultsCount
               class="mb-2 sm:mb-0"
               :fetchStatus="searchStore.status"
               :showingCount="searchStore.matches.length"
               :total="searchStore.totalResults ?? 0"
               @loadMore="searchStore.loadMore"
-              @loadAll="searchStore.loadMore({ loadAll: true })"
-            />
+              @loadAll="searchStore.loadMore({ loadAll: true })" />
             <div class="flex items-center gap-2">
               <SearchResultsSortSelect
                 v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
@@ -44,17 +39,19 @@
                 :searchQuery="
                   searchStore.searchEntry?.searchText ?? searchStore.query
                 "
-                @sortOptionChange="handleSortOptionChange"
-              />
+                @sortOptionChange="handleSortOptionChange" />
               <div
                 v-if="
                   searchStore.isReady &&
                   instanceStore.currentUser?.canManageDrawers
                 "
-                class="flex items-center w-10 h-10 bg-white rounded-md border border-neutral-300 justify-center"
-              >
+                class="flex items-center w-10 h-10 bg-white rounded-md border border-neutral-300 justify-center">
                 <AddSearchResultsToDrawerButton />
               </div>
+              <ShareButton
+                v-if="searchStore.isReady"
+                url="http://localhost"
+                class="!bg-white rounded-md border border-neutral-300 justify-center" />
             </div>
           </div>
           <Tab id="grid" label="Grid">
@@ -65,16 +62,14 @@
               :showAddToDrawerButton="
                 instanceStore.currentUser?.canManageDrawers
               "
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="list" label="List">
             <SearchResultsList
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="timeline" label="Timeline">
             <SearchResultsTimeline
@@ -84,8 +79,7 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="map" label="Map">
             <SearchResultsMap
@@ -93,8 +87,7 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="gallery" label="Gallery">
             <SearchResultsGallery
@@ -102,8 +95,7 @@
               :totalResults="searchStore.totalResults ?? Infinity"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
 
           <ResultsCount
@@ -116,8 +108,7 @@
             :showingCount="searchStore.matches.length"
             :total="searchStore.totalResults ?? 0"
             @loadMore="searchStore.loadMore"
-            @loadAll="searchStore.loadMore({ loadAll: true })"
-          />
+            @loadAll="searchStore.loadMore({ loadAll: true })" />
         </Tabs>
       </template>
     </div>
@@ -149,6 +140,7 @@ import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import AddSearchResultsToDrawerButton from "./AddSearchResultsToDrawerButton.vue";
 import DidYouMeanSuggestions from "./DidYouMeanSuggestions.vue";
+import ShareButton from "@/components/ShareButton/ShareButton.vue";
 
 const props = withDefaults(
   defineProps<{
