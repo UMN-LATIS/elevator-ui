@@ -31,7 +31,7 @@
               :total="searchStore.totalResults ?? 0"
               @loadMore="searchStore.loadMore"
               @loadAll="searchStore.loadMore({ loadAll: true })" />
-            <div class="flex items-center gap-2">
+            <div v-if="searchStore.isReady" class="flex items-center">
               <SearchResultsSortSelect
                 v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
                 :sortOptions="searchStore.sortOptions"
@@ -39,20 +39,13 @@
                 :searchQuery="
                   searchStore.searchEntry?.searchText ?? searchStore.query
                 "
+                class="mr-1"
                 @sortOptionChange="handleSortOptionChange" />
-              <div
-                v-if="
-                  searchStore.isReady &&
-                  instanceStore.currentUser?.canManageDrawers
-                "
-                class="flex items-center w-10 h-10 bg-white rounded-md border border-neutral-300 justify-center">
-                <AddSearchResultsToDrawerButton />
-              </div>
+              <AddSearchResultsToDrawerButton
+                v-if="instanceStore.currentUser?.canManageDrawers" />
+
               <ShareButton
-                v-if="
-                  searchStore.isReady &&
-                  ['map', 'timeline'].includes(searchStore.resultsView)
-                "
+                v-if="['map', 'timeline'].includes(searchStore.resultsView)"
                 :url="embedUrl"
                 class="!bg-white rounded-md border border-neutral-300 justify-center" />
             </div>
