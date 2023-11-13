@@ -49,8 +49,11 @@
                 <AddSearchResultsToDrawerButton />
               </div>
               <ShareButton
-                v-if="searchStore.isReady"
-                url="http://localhost"
+                v-if="
+                  searchStore.isReady &&
+                  ['map', 'timeline'].includes(searchStore.resultsView)
+                "
+                :url="embedUrl"
                 class="!bg-white rounded-md border border-neutral-300 justify-center" />
             </div>
           </div>
@@ -119,6 +122,7 @@ import { watch, computed, onMounted, nextTick, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
+import config from "@/config";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
@@ -160,6 +164,10 @@ const route = useRoute();
 const router = useRouter();
 const nonBrowsingPageTitle = computed(() => {
   return searchStore.searchEntry?.searchText ?? searchStore.query;
+});
+const BASE_URL = config.instance.base.url;
+const embedUrl = computed(() => {
+  return `${BASE_URL}/search/${props.resultsView}/${searchStore.searchId}`;
 });
 
 // will be true once a new search with a new searchId has been loaded for the
