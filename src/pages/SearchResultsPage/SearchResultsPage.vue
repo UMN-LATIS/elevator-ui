@@ -45,7 +45,11 @@
                 v-if="instanceStore.currentUser?.canManageDrawers" />
 
               <ShareButton
-                v-if="['map', 'timeline'].includes(searchStore.resultsView)"
+                v-if="
+                  ['map', 'timeline', 'gallery'].includes(
+                    searchStore.resultsView
+                  )
+                "
                 :url="embedUrl"
                 class="!bg-white rounded-md border border-neutral-300 justify-center" />
             </div>
