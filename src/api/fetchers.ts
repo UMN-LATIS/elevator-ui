@@ -246,11 +246,23 @@ export async function fetchSearchId(
 
 export async function fetchSearchResultsById(
   searchId: string,
-  page: number,
-  loadAll: boolean
+  opts: {
+    page?: number;
+    loadAll?: boolean;
+  } = {}
 ) {
+  const defaultOpts = {
+    page: 0,
+    loadAll: false,
+  };
+
+  const finalOpts = {
+    ...defaultOpts,
+    ...opts,
+  };
+
   const res = await axios.get<SearchResultsResponse>(
-    `${BASE_URL}/search/searchResults/${searchId}/${page}/${loadAll}`
+    `${BASE_URL}/search/searchResults/${searchId}/${finalOpts.page}/${finalOpts.loadAll}`
   );
 
   const searchResults = res.data;

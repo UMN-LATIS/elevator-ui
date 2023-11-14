@@ -164,25 +164,33 @@ async function getSearchIdForCollection(collectionId: number): Promise<string> {
 
 async function getSearchResultsById(
   searchId: string,
-  page = 0,
-  loadAll = false
+  opts: { page?: number; loadAll?: boolean } = {}
 ): Promise<SearchResultsResponse> {
+  const defaultOpts = {
+    page: 0,
+    loadAll: false,
+  };
+
+  const finalOpts = {
+    ...defaultOpts,
+    ...opts,
+  };
+
   // check the cache first
   const searchMap = cache.paginatedSearchResults.get(searchId);
-  if (searchMap && searchMap[page]) {
-    return searchMap[page];
+  if (searchMap && searchMap[finalOpts.page]) {
+    return searchMap[finalOpts.page];
   }
 
   const searchResults = await fetchers.fetchSearchResultsById(
     searchId,
-    page,
-    loadAll
+    finalOpts
   );
 
   // cache the results
   cache.paginatedSearchResults.set(searchId, {
     ...(searchMap || {}), // add to existing cache if it exists
-    [page]: searchResults,
+    [finalOpts.page]: searchResults,
   });
   return searchResults;
 }
