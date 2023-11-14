@@ -2,7 +2,7 @@
   <div class="p-4">
     <Transition name="fade" mode="out-in">
       <div
-        v-if="!searchStore.isReady"
+        v-if="!isReady"
         class="flex items-center justify-center bg-neutral-200 p-4 gap-4 min-h-[480px]">
         <Skeleton width="100%" height="100%" class="rounded-none">
           Loading...
@@ -37,7 +37,7 @@
 </template>
 <script setup lang="ts">
 import { useSearchStore } from "@/stores/searchStore";
-import { watch } from "vue";
+import { watch, ref } from "vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
@@ -50,10 +50,19 @@ const props = defineProps<{
 
 const searchStore = useSearchStore();
 
+const isReady = ref(false);
+searchStore.onBeforeNewSearch(() => {
+  isReady.value = false;
+});
+searchStore.onAfterNewSearch(() => {
+  isReady.value = true;
+});
+
 watch(
   () => props.searchId,
   () => {
-    searchStore.search(props.searchId, { loadAll: true });
+    const loadAll = ["map", "timeline"].includes(props.embedType);
+    searchStore.search(props.searchId, { loadAll });
   },
   { immediate: true }
 );
