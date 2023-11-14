@@ -12,6 +12,7 @@ import {
   SpecificFieldSearchItem,
   WidgetType,
   GlobalSearchableFileType,
+  SearchResultsResponse,
 } from "@/types";
 import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
@@ -562,122 +563,132 @@ const actions = (state: SearchStoreState) => ({
       });
   },
 
-  async search(searchId: string): Promise<string | void> {
+  _clearSearchResults() {
+    state.matches.value = [];
+    state.totalResults.value = undefined;
+    state.currentPage.value = 0;
+    state.searchEntry.value = null;
+  },
+
+  _updateStoreWithSearchResultResponse(res: SearchResultsResponse) {
     const instanceStore = useInstanceStore();
+
+    state.searchEntry.value = res.searchEntry;
+    state.totalResults.value = res.totalResults;
+    state.matches.value = res.matches;
+    state.status.value = "success";
+    state.sortOptions.value = res.sortableWidgets;
+
+    // update the boolean operator
+    state.filterBy.searchableFieldsOperator =
+      res.searchEntry.combineSpecificSearches;
+
+    // set the collections list to the collections in the search entry
+    state.filterBy.collectionIds =
+      res.searchEntry.collection?.map((idStr) => Number.parseInt(idStr)) ?? [];
+
+    // Update searchableFields with response
+    if (res.searchEntry.specificFieldSearch) {
+      state.filterBy.specificFieldsMap.clear();
+
+      res.searchEntry.specificFieldSearch?.forEach((searchField) => {
+        // if the searchable field doesn't exist in our list of fields,
+        // then ignore it
+        if (!instanceStore.getSearchableField(searchField.field)) {
+          console.log("skipping search entry field", searchField.field);
+          return;
+        }
+
+        console.log("adding search entry field", searchField.field);
+        actions(state).addSearchableFieldFilter(searchField.field, {
+          value: searchField.text,
+          isFuzzy: searchField.fuzzy,
+        });
+      });
+    }
+
+    // set the global date range if included
+    if (res.searchEntry.startDateText || res.searchEntry.endDateText) {
+      state.filterBy.globalDateRange = {
+        startDate: res.searchEntry?.startDateText ?? "",
+        endDate: res.searchEntry?.endDateText ?? "",
+        createdAt: new Date().toISOString(),
+      };
+    } else {
+      state.filterBy.globalDateRange = null;
+    }
+
+    // set the location filter if included
+    if (
+      res.searchEntry.longitude &&
+      res.searchEntry.latitude &&
+      res.searchEntry.distance
+    ) {
+      state.filterBy.globalLocation = {
+        lng: res.searchEntry.longitude,
+        lat: res.searchEntry.latitude,
+        radius: res.searchEntry.distance,
+        createdAt: new Date().toISOString(),
+      };
+    } else {
+      state.filterBy.globalLocation = null;
+    }
+
+    // set the file type filter if included
+    if (res.searchEntry?.fileTypesSearch) {
+      state.filterBy.globalFileType = {
+        fileType: res.searchEntry.fileTypesSearch,
+        createdAt: new Date().toISOString(),
+      };
+    } else {
+      state.filterBy.globalFileType = null;
+    }
+
+    // set the include hidden assets filter if included
+    state.filterBy.includeHiddenAssets = !!res.searchEntry.showHidden;
+
+    // set query to the search text if it's not already set
+    // to something. This handles the case when a user enters
+    // the search results page with a search id in the url, but
+    // nothing yet in the search input box
+    state.query.value = state.query.value || res.searchEntry?.searchText || "";
+  },
+
+  async search(
+    searchId: string,
+    opts: {
+      loadAll?: boolean;
+      page?: number;
+    } = {}
+  ): Promise<string | void> {
+    const defaultOpts = {
+      loadAll: false,
+      page: 0,
+    };
+
+    const finalOpts = {
+      ...defaultOpts,
+      ...opts,
+    };
+
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
 
     // clear old search results
     state.status.value = "fetching";
     state.searchId.value = searchId;
-    state.matches.value = [];
-    state.totalResults.value = undefined;
-    state.currentPage.value = 0;
-    state.searchEntry.value = null;
+    this._clearSearchResults();
 
     try {
-      api
-        .getSearchResultsById(state.searchId.value)
-        .then((res) => {
-          state.searchEntry.value = res.searchEntry;
-          state.totalResults.value = res.totalResults;
-          state.matches.value = res.matches;
-          state.status.value = "success";
-          state.sortOptions.value = res.sortableWidgets;
-
-          // update the boolean operator
-          state.filterBy.searchableFieldsOperator =
-            res.searchEntry.combineSpecificSearches;
-
-          // set the collections list to the collections in the search entry
-          state.filterBy.collectionIds =
-            res.searchEntry.collection?.map((idStr) =>
-              Number.parseInt(idStr)
-            ) ?? [];
-
-          // Update searchableFields with response
-          if (res.searchEntry.specificFieldSearch) {
-            state.filterBy.specificFieldsMap.clear();
-
-            res.searchEntry.specificFieldSearch?.forEach((searchField) => {
-              // if the searchable field doesn't exist in our list of fields,
-              // then ignore it
-              if (!instanceStore.getSearchableField(searchField.field)) {
-                console.log("skipping search entry field", searchField.field);
-                return;
-              }
-
-              console.log("adding search entry field", searchField.field);
-              actions(state).addSearchableFieldFilter(searchField.field, {
-                value: searchField.text,
-                isFuzzy: searchField.fuzzy,
-              });
-            });
-          }
-
-          // set the global date range if included
-          if (res.searchEntry.startDateText || res.searchEntry.endDateText) {
-            state.filterBy.globalDateRange = {
-              startDate: res.searchEntry?.startDateText ?? "",
-              endDate: res.searchEntry?.endDateText ?? "",
-              createdAt: new Date().toISOString(),
-            };
-          } else {
-            state.filterBy.globalDateRange = null;
-          }
-
-          // set the location filter if included
-          if (
-            res.searchEntry.longitude &&
-            res.searchEntry.latitude &&
-            res.searchEntry.distance
-          ) {
-            state.filterBy.globalLocation = {
-              lng: res.searchEntry.longitude,
-              lat: res.searchEntry.latitude,
-              radius: res.searchEntry.distance,
-              createdAt: new Date().toISOString(),
-            };
-          } else {
-            state.filterBy.globalLocation = null;
-          }
-
-          // set the file type filter if included
-          if (res.searchEntry?.fileTypesSearch) {
-            state.filterBy.globalFileType = {
-              fileType: res.searchEntry.fileTypesSearch,
-              createdAt: new Date().toISOString(),
-            };
-          } else {
-            state.filterBy.globalFileType = null;
-          }
-
-          // set the include hidden assets filter if included
-          state.filterBy.includeHiddenAssets = !!res.searchEntry.showHidden;
-
-          // set query to the search text if it's not already set
-          // to something. This handles the case when a user enters
-          // the search results page with a search id in the url, but
-          // nothing yet in the search input box
-          state.query.value =
-            state.query.value || res.searchEntry?.searchText || "";
-
-          // call all registered after handlers
-          state.afterNewSearchHandlers.forEach((fn) => fn(state));
-        })
-        .catch((err) => {
-          state.status.value = "error";
-          throw new Error(
-            `Cannot getSearchResultsById for search id: ${JSON.stringify(
-              state.searchId
-            )}: ${err}`
-          );
-        });
+      const res = await api.getSearchResultsById(
+        state.searchId.value,
+        finalOpts
+      );
+      this._updateStoreWithSearchResultResponse(res);
     } catch (error) {
       console.error(error);
       state.status.value = "error";
-
-      // call all registered after handlers even if error
+    } finally {
       state.afterNewSearchHandlers.forEach((fn) => fn(state));
     }
 
@@ -708,11 +719,10 @@ const actions = (state: SearchStoreState) => ({
     const prevPage = state.currentPage.value;
     try {
       state.currentPage.value = prevPage + 1;
-      const res = await api.getSearchResultsById(
-        state.searchId.value,
-        state.currentPage.value,
-        loadAll
-      );
+      const res = await api.getSearchResultsById(state.searchId.value, {
+        page: state.currentPage.value,
+        loadAll,
+      });
       state.matches.value.push(...res.matches);
       state.searchEntry.value = res.searchEntry;
       state.status.value = "success";

@@ -6,8 +6,7 @@
         <div class="flex justify-between items-center my-8">
           <BrowseCollectionHeader
             v-if="searchStore.browsingCollectionId"
-            :collectionId="searchStore.browsingCollectionId"
-          />
+            :collectionId="searchStore.browsingCollectionId" />
           <h2 v-else-if="searchStore.isReady" class="text-4xl font-bold">
             <q v-if="nonBrowsingPageTitle">{{ nonBrowsingPageTitle }}</q>
             <span v-else>Search Results</span>
@@ -17,26 +16,22 @@
 
         <DidYouMeanSuggestions
           v-if="searchStore.isReady"
-          :searchTerm="searchStore.currentSearchTerm"
-        />
+          :searchTerm="searchStore.currentSearchTerm" />
 
         <Tabs
           labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
           :activeTabId="searchStore.resultsView"
-          @tabChange="handleTabChange"
-        >
+          @tabChange="handleTabChange">
           <div
-            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap"
-          >
+            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap">
             <ResultsCount
               class="mb-2 sm:mb-0"
               :fetchStatus="searchStore.status"
               :showingCount="searchStore.matches.length"
               :total="searchStore.totalResults ?? 0"
               @loadMore="searchStore.loadMore"
-              @loadAll="searchStore.loadMore({ loadAll: true })"
-            />
-            <div class="flex items-center gap-2">
+              @loadAll="searchStore.loadMore({ loadAll: true })" />
+            <div v-if="searchStore.isReady" class="flex items-center">
               <SearchResultsSortSelect
                 v-if="!['map', 'timeline'].includes(searchStore.resultsView)"
                 :sortOptions="searchStore.sortOptions"
@@ -44,17 +39,18 @@
                 :searchQuery="
                   searchStore.searchEntry?.searchText ?? searchStore.query
                 "
-                @sortOptionChange="handleSortOptionChange"
-              />
-              <div
+                class="mr-1"
+                @sortOptionChange="handleSortOptionChange" />
+              <AddSearchResultsToDrawerButton
+                v-if="instanceStore.currentUser?.canManageDrawers" />
+
+              <ShareButton
                 v-if="
-                  searchStore.isReady &&
-                  instanceStore.currentUser?.canManageDrawers
+                  ['map', 'timeline', 'gallery'].includes(
+                    searchStore.resultsView
+                  )
                 "
-                class="flex items-center w-10 h-10 bg-white rounded-md border border-neutral-300 justify-center"
-              >
-                <AddSearchResultsToDrawerButton />
-              </div>
+                :url="embedUrl" />
             </div>
           </div>
           <Tab id="grid" label="Grid">
@@ -65,16 +61,14 @@
               :showAddToDrawerButton="
                 instanceStore.currentUser?.canManageDrawers
               "
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="list" label="List">
             <SearchResultsList
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="timeline" label="Timeline">
             <SearchResultsTimeline
@@ -84,8 +78,7 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="map" label="Map">
             <SearchResultsMap
@@ -93,8 +86,7 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="gallery" label="Gallery">
             <SearchResultsGallery
@@ -102,8 +94,7 @@
               :totalResults="searchStore.totalResults ?? Infinity"
               :matches="searchStore.matches"
               :status="searchStore.status"
-              @loadMore="() => searchStore.loadMore()"
-            />
+              @loadMore="() => searchStore.loadMore()" />
           </Tab>
 
           <ResultsCount
@@ -116,8 +107,7 @@
             :showingCount="searchStore.matches.length"
             :total="searchStore.totalResults ?? 0"
             @loadMore="searchStore.loadMore"
-            @loadAll="searchStore.loadMore({ loadAll: true })"
-          />
+            @loadAll="searchStore.loadMore({ loadAll: true })" />
         </Tabs>
       </template>
     </div>
@@ -128,6 +118,7 @@ import { watch, computed, onMounted, nextTick, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
+import config from "@/config";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
@@ -149,6 +140,7 @@ import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import AddSearchResultsToDrawerButton from "./AddSearchResultsToDrawerButton.vue";
 import DidYouMeanSuggestions from "./DidYouMeanSuggestions.vue";
+import ShareButton from "@/components/ShareButton/ShareButton.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -168,6 +160,10 @@ const route = useRoute();
 const router = useRouter();
 const nonBrowsingPageTitle = computed(() => {
   return searchStore.searchEntry?.searchText ?? searchStore.query;
+});
+const BASE_URL = config.instance.base.url;
+const embedUrl = computed(() => {
+  return `${BASE_URL}/search/${props.resultsView}/${searchStore.searchId}`;
 });
 
 // will be true once a new search with a new searchId has been loaded for the
