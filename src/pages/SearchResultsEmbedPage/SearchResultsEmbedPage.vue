@@ -41,7 +41,6 @@ import { watch } from "vue";
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
-import { SpinnerIcon } from "@/icons";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
 const props = defineProps<{
@@ -54,7 +53,7 @@ const searchStore = useSearchStore();
 watch(
   () => props.searchId,
   () => {
-    searchStore.search(props.searchId);
+    searchStore.search(props.searchId, { loadAll: true });
   },
   { immediate: true }
 );
