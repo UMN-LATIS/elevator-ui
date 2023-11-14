@@ -2,24 +2,24 @@
   <IconButton title="Share" @click="isOpen = !isOpen">
     <ShareIcon />
     <span class="sr-only">Share</span>
+    <Modal
+      label="Share"
+      :isOpen="isOpen"
+      class="max-w-xl mx-auto"
+      @close="isOpen = false">
+      <div class="flex flex-col gap-4">
+        <CopyableTextArea label="Embed" :value="embedValue" />
+        <CopyableTextArea label="Link" :value="props.url" />
+        <Button
+          icon="open_in_new"
+          label="Open in New Window"
+          :href="props.url"
+          target="_blank">
+          Open Viewer in New Window
+        </Button>
+      </div>
+    </Modal>
   </IconButton>
-  <Modal
-    label="Share"
-    :isOpen="isOpen"
-    class="max-w-xl mx-auto"
-    @close="isOpen = false">
-    <div class="flex flex-col gap-4">
-      <CopyableTextArea label="Embed" :value="embedValue" />
-      <CopyableTextArea label="Link" :value="props.url" />
-      <Button
-        icon="open_in_new"
-        label="Open in New Window"
-        :href="props.url"
-        target="_blank">
-        Open Viewer in New Window
-      </Button>
-    </div>
-  </Modal>
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";

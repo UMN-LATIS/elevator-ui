@@ -50,8 +50,7 @@
                     searchStore.resultsView
                   )
                 "
-                :url="embedUrl"
-                class="!bg-white rounded-md border border-neutral-300 justify-center" />
+                :url="embedUrl" />
             </div>
           </div>
           <Tab id="grid" label="Grid">
