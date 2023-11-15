@@ -2,8 +2,7 @@
   <div class="custom-app-header bg-transparent-black-100">
     <SanitizedHTML
       :html="instanceStore?.customHeader ?? ''"
-      :addTags="['style']"
-    />
+      :addTags="['style', 'link']" />
   </div>
 </template>
 <script setup lang="ts">
