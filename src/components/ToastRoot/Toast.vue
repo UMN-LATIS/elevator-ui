@@ -1,10 +1,9 @@
 <template>
   <div
     :key="toast.id"
-    class="pointer-events-auto shadow-md bg-neutral-900 text-neutral-200 p-4 rounded-md relative overflow-hidden"
+    class="toast-root__toast pointer-events-auto shadow-md bg-neutral-900 text-neutral-200 p-4 rounded-md relative overflow-hidden"
     @mouseenter="isPaused = true"
-    @mouseleave="isPaused = false"
-  >
+    @mouseleave="isPaused = false">
     <button class="float-right" @click="$emit('dismiss', toast.id)">
       <span class="sr-only">Close</span>
       <XIcon />
@@ -13,15 +12,13 @@
       class="timer absolute top-0 left-0 w-full h-1 bg-neutral-600 transform"
       :style="{
         transform: `translateX(-${timerWidthPercent}%)`,
-      }"
-    />
+      }" />
     <p>{{ toast.message }}</p>
     <p v-if="toast.url" class="mt-1 flex justify-end">
       <Link
         :to="toast.url"
         class="uppercase text-xs py-1 px-2 bg-transparent-white-200 text-neutral-400 hover:no-underline hover:text-neutral-900 hover:bg-neutral-200 rounded-md"
-        @click="$emit('dismiss', toast.id)"
-      >
+        @click="$emit('dismiss', toast.id)">
         {{ toast.urlText || "View" }}
       </Link>
     </p>

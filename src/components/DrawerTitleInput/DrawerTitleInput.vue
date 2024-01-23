@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="drawer-title-input">
     <InputGroup
       id="new-drawer-title"
       :label="label"
@@ -7,15 +7,13 @@
       :labelHidden="labelHidden"
       :placeholder="placeholder"
       :inputClass="inputClass"
-      @update:modelValue="(val) => emit('update:modelValue', val)"
-    >
+      @update:modelValue="(val) => emit('update:modelValue', val)">
       <template #append>
         <button
           v-if="modelValue.length"
           type="button"
           class="text-transparent-black-500 hover:text-neutral-900 float-right"
-          @click="resetForm"
-        >
+          @click="resetForm">
           <span class="sr-only">Clear</span>
           <CircleXIcon />
         </button>
@@ -23,8 +21,7 @@
     </InputGroup>
     <p
       v-if="!isTitleValid && modelValue.length > 0"
-      class="text-xs text-red-600 mt-1"
-    >
+      class="text-xs text-red-600 mt-1">
       Drawer title must be unique.
     </p>
   </div>

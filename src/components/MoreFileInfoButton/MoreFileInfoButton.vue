@@ -1,5 +1,8 @@
 <template>
-  <IconButton title="More Info" @click="handleInfoButtonClick">
+  <IconButton
+    class="more-file-info-button"
+    title="More Info"
+    @click="handleInfoButtonClick">
     <InfoIcon />
     <span class="sr-only">More Info</span>
   </IconButton>
@@ -7,8 +10,7 @@
     label="File Info"
     :isOpen="isFileInfoOpen"
     class="max-w-4xl m-auto h-[75vh]"
-    @close="isFileInfoOpen = false"
-  >
+    @close="isFileInfoOpen = false">
     <Transition name="fade">
       <div v-if="isFileMetaDataReady">
         <span v-if="!fileMetaData">No meta data found.</span>
@@ -37,13 +39,11 @@
                 :zoom="10"
                 mapStyle="streets"
                 :apiKey="config.arcgis.apiKey"
-                mapContainerClass="!h-[50vh]"
-              >
+                mapContainerClass="!h-[50vh]">
                 <MapMarker
                   id="more-info-location-map-marker"
                   :lng="fileMetaData.coordinates[0]"
-                  :lat="fileMetaData.coordinates[1]"
-                />
+                  :lat="fileMetaData.coordinates[1]" />
               </Map>
             </div>
           </Tuple>

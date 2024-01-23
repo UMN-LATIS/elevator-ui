@@ -1,6 +1,6 @@
 <template>
   <article
-    class="card-skeleton flex flex-col overflow-hidden border rounded-md shadow-sm">
+    class="skeleton-card flex flex-col overflow-hidden border rounded-md shadow-sm">
     <div
       class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden">
       <Skeleton width="100%" height="100%" class="rounded-none">

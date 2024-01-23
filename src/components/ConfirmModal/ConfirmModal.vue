@@ -1,5 +1,8 @@
 <template>
-  <TransitionRoot :show="isOpen" as="template" class="fixed inset-0 z-40">
+  <TransitionRoot
+    :show="isOpen"
+    as="template"
+    class="confirm-modal fixed inset-0 z-40">
     <Dialog as="div" @close="handleClose">
       <TransitionChild
         enter="duration-300 ease-out"
@@ -7,8 +10,7 @@
         enterTo="opacity-100"
         leave="duration-200 ease-in"
         leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
+        leaveTo="opacity-0">
         <div class="fixed inset-0 z-40 bg-black/70" aria-hidden="true" />
       </TransitionChild>
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -19,15 +21,13 @@
           leave="duration-200 ease-in"
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
-          as="template"
-        >
+          as="template">
           <DialogPanel class="flex-1">
             <Notification
               :title="title"
               :type="type"
               isDismissable
-              @dismiss="handleClose"
-            >
+              @dismiss="handleClose">
               <slot />
 
               <div class="flex justify-end mt-4 space-x-2">
@@ -37,8 +37,7 @@
                 <Button
                   ref="confirmButtonRef"
                   :variant="confirmButtonVariant"
-                  @click="handleConfirm"
-                >
+                  @click="handleConfirm">
                   {{ confirmLabel }}
                 </Button>
               </div>

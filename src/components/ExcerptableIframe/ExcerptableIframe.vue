@@ -4,8 +4,7 @@
     :src="`${config.instance.base.url}/asset/getEmbed/${fileObjectId}`"
     frameBorder="0"
     allowfullscreen="true"
-    class="w-full aspect-video"
-  >
+    class="excerptable-iframe w-full aspect-video">
     <slot />
   </iframe>
 </template>

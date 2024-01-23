@@ -1,17 +1,15 @@
 <template>
-  <div class="h-full">
+  <div class="app-menu h-full">
     <AppMenuPure
       :instance="instanceStore.instance"
       :currentUser="instanceStore.currentUser"
-      @close="$emit('close')"
-    >
+      @close="$emit('close')">
       <template v-if="instanceStore.instance.userCanSearchAndBrowse">
         <PagesNavSection :pages="pages" />
 
         <AppMenuItem
           v-if="currentUser || instanceStore.collections.length"
-          :to="`/search/listCollections`"
-        >
+          :to="`/search/listCollections`">
           Collections
         </AppMenuItem>
 
@@ -23,14 +21,12 @@
           v-if="currentUser?.canManageAssets"
           :currentUser="currentUser"
           :instance="instance"
-          :assetId="activeAssetId"
-        />
+          :assetId="activeAssetId" />
 
         <AdminNavSection
           v-if="currentUser?.isAdmin"
           :currentUser="currentUser"
-          :instance="instance"
-        />
+          :instance="instance" />
       </template>
       <HelpNavSection :instance="instance" />
     </AppMenuPure>

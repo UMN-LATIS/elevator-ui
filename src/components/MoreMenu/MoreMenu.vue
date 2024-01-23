@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="more-menu relative">
     <Button
       label="open more options menu"
       icon="more_vert"
@@ -7,8 +7,7 @@
       :class="{
         'bg-neutral-200 text-neutral-800 hover:!text-neutral-800': isOpen,
       }"
-      @click="isOpen = !isOpen"
-    />
+      @click="isOpen = !isOpen" />
 
     <!-- Dropdown menu -->
     <div
@@ -17,9 +16,8 @@
       :class="{
         'top-full mt-2': openDirection === 'down',
         hidden: !isOpen,
-      }"
-    >
-      <slot> More options </slot>
+      }">
+      <slot>More options</slot>
     </div>
   </div>
 </template>

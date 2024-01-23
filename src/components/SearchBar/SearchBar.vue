@@ -1,6 +1,6 @@
 <template>
-  <div class="relative">
-    <form class="search-bar" @submit.prevent="handleSubmit">
+  <div class="search-bar relative">
+    <form class="search-bar__form" @submit.prevent="handleSubmit">
       <!-- main search bar -->
       <SearchTextInputGroup
         @moreOptionClick="isAdvancedSearchModalOpen = true"
@@ -11,8 +11,7 @@
             if (isAdvancedSearchModalOpen) return;
             handleSubmit();
           }
-        "
-      />
+        " />
     </form>
     <TransitionFade>
       <AdvancedSearchForm
@@ -20,16 +19,14 @@
         :isOpen="isAdvancedSearchModalOpen"
         class="fixed top-1 right-1 left-1 m-auto z-40 sm:absolute sm:!-top-2 sm:!-right-2 sm:!-left-2 advanced-search-form"
         @submit="handleSubmit"
-        @close="isAdvancedSearchModalOpen = false"
-      />
+        @close="isAdvancedSearchModalOpen = false" />
     </TransitionFade>
 
     <!-- overlay -->
     <TransitionFade>
       <div
         v-if="isAdvancedSearchModalOpen"
-        class="fixed inset-0 bg-transparent-black-700 z-30"
-      />
+        class="fixed inset-0 bg-transparent-black-700 z-30" />
     </TransitionFade>
   </div>
 </template>

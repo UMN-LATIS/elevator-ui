@@ -1,5 +1,8 @@
 <template>
-  <IconButton title="Download File" @click="handleDownloadFileClick">
+  <IconButton
+    class="download-file-button"
+    title="Download File"
+    @click="handleDownloadFileClick">
     <DownloadIcon />
     <span class="sr-only">Download File</span>
   </IconButton>
@@ -7,8 +10,7 @@
     label="File Downloads"
     :isOpen="isOpen"
     class="max-w-sm"
-    @close="isOpen = false"
-  >
+    @close="isOpen = false">
     <div v-if="isDownloadFileInfoReady">
       <span v-if="!downloadFileInfo">No Downloads available</span>
       <ul v-else class="max-w-sm">
@@ -16,8 +18,7 @@
           <a
             v-if="download.isReady || download.filetype === 'original'"
             :href="download.url"
-            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
-          >
+            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group">
             <li class="flex justify-between">
               <span class="group-hover:underline">{{ download.filetype }}</span>
               <Chip class="group-hover:bg-blue-100 group-hover:text-blue-600">

@@ -1,10 +1,9 @@
 <template>
-  <div class="object-details">
+  <div class="object-details-panel">
     <div v-if="!objectId" class="h-full flex justify-end">
       <ActiveFileViewToolbar
         :fileHandlerId="fileHandlerId"
-        :assetId="assetId"
-      />
+        :assetId="assetId" />
     </div>
     <Panel
       v-else
@@ -13,13 +12,11 @@
       :isOpen="isOpen"
       :showToggle="showToggle"
       class="h-full"
-      @toggle="$emit('toggle')"
-    >
+      @toggle="$emit('toggle')">
       <template #header-utils>
         <ActiveFileViewToolbar
           :fileHandlerId="fileHandlerId"
-          :assetId="objectId"
-        />
+          :assetId="objectId" />
       </template>
 
       <WidgetList v-if="objectId" :assetId="objectId" />

@@ -1,18 +1,16 @@
 <template>
-  <div>
+  <div class="input-group">
     <label
       :for="id"
       class="block text-xs font-medium text-neutral-700 uppercase mb-1"
-      :class="[{ 'sr-only': labelHidden }, labelClass]"
-    >
+      :class="[{ 'sr-only': labelHidden }, labelClass]">
       {{ label }}
       <span v-if="required" class="text-red-600">*</span>
     </label>
     <div class="relative rounded-md">
       <div
         v-if="$slots.prepend"
-        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-      >
+        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
         <slot name="prepend" />
       </div>
       <input
@@ -34,12 +32,10 @@
         @blur="$emit('blur', $event)"
         @input="
           $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-        "
-      />
+        " />
       <div
         v-if="$slots.append"
-        class="absolute inset-y-0 right-0 flex items-center pr-1"
-      >
+        class="absolute inset-y-0 right-0 flex items-center pr-1">
         <slot name="append" />
       </div>
     </div>

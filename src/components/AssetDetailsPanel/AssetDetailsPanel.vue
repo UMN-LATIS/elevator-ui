@@ -1,19 +1,17 @@
 <template>
-  <div class="asset-details">
+  <div class="asset-details-panel">
     <Panel
       :label="assetTitle"
       :isOpen="isOpen"
       :showToggle="showToggle"
       class="h-full py-4 md:py-0"
-      @toggle="$emit('toggle')"
-    >
+      @toggle="$emit('toggle')">
       <template #header-label>
         <PanelLabel
           :label="assetTitle || '(No Title)'"
           :class="{
             'text-2xl': isOpen,
-          }"
-        />
+          }" />
       </template>
       <WidgetList v-if="assetId" :assetId="assetId" class="py-4 md:py-0" />
       <MoreLikeThis v-if="assetId" :items="moreLikeThisItems" />

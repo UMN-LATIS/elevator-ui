@@ -1,7 +1,6 @@
 <template>
   <div
-    class="search-result-row flex bg-white p-2 sm:p-4 gap-4 rounded-md border-2 border-transparent"
-  >
+    class="skeleton-result-row flex bg-white p-2 sm:p-4 gap-4 rounded-md border-2 border-transparent">
     <Skeleton width="4rem" height="4rem">
       <ImageIcon class="opacity-25" />
     </Skeleton>
@@ -13,8 +12,7 @@
         :key="i"
         class="my-2"
         height="0.75rem"
-        width="50%"
-      />
+        width="50%" />
     </div>
   </div>
 </template>

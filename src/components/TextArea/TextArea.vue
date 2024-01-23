@@ -1,11 +1,10 @@
 <template>
-  <div>
+  <div class="text-area">
     <div class="flex justify-between items-baseline">
       <slot name="label">
         <label
           for="share-embed"
-          class="block text-sm font-medium text-gray-700"
-        >
+          class="block text-sm font-medium text-gray-700">
           {{ label }}
         </label>
       </slot>
@@ -20,8 +19,7 @@
         class="block w-full rounded border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 font-mono text-neutral-500 focus:text-neutral-900 h-24"
         :placeholder="placeholder"
         :value="value"
-        @input="(event) => $emit('input', event)"
-      />
+        @input="(event) => $emit('input', event)" />
     </div>
   </div>
 </template>

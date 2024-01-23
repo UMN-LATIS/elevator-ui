@@ -1,5 +1,5 @@
 <template>
-  <Popover :content="title">
+  <Popover :content="title" class="icon-button">
     <component
       :is="componentType"
       :href="resolvedHref"
@@ -8,8 +8,7 @@
       v-bind="$attrs"
       class="flex items-center justify-center aspect-square p-2 text-neutral-900 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-600 rounded-md transition-colors duration-150"
       :title="title"
-      @click="($event) => $emit('click', $event)"
-    >
+      @click="($event) => $emit('click', $event)">
       <slot />
     </component>
   </Popover>

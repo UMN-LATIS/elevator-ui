@@ -1,10 +1,9 @@
 <template>
   <button
-    class="bg-white w-6 h-6 text-neutral-500 inline-flex justify-center items-center rounded-full shadow-sm border border-neutral-200 hover:bg-neutral-900 hover:text-neutral-200 transition-all"
+    class="bg-white w-6 h-6 text-neutral-500 inline-flex justify-center items-center rounded-full shadow-sm border border-neutral-200 hover:bg-neutral-900 hover:text-neutral-200 transition-all remove-from-drawer-button"
     title="Remove"
     v-bind="$attrs"
-    @click="isConfirmModalOpen = true"
-  >
+    @click="isConfirmModalOpen = true">
     <span class="sr-only">Remove</span>
     &times;
   </button>
@@ -14,14 +13,16 @@
     type="danger"
     confirmLabel="Remove"
     @close="isConfirmModalOpen = false"
-    @confirm="handleRemoveFromDrawer"
-  >
+    @confirm="handleRemoveFromDrawer">
     Are you sure you want to remove
-    <b>{{
-      excerptId ? excerptTitle ?? "this excerpt" : objectTitle ?? "this asset"
-    }}</b>
-    from the drawer <b>{{ drawerTitle }}</b
-    >?
+    <b>
+      {{
+        excerptId ? excerptTitle ?? "this excerpt" : objectTitle ?? "this asset"
+      }}
+    </b>
+    from the drawer
+    <b>{{ drawerTitle }}</b>
+    ?
   </ConfirmModal>
 </template>
 <script setup lang="ts">

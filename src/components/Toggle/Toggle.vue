@@ -1,9 +1,9 @@
 <template>
-  <SwitchGroup>
+  <SwitchGroup class="toggle">
     <div class="inline-flex items-center gap-1.5">
-      <SwitchLabel v-if="offLabel" :class="offLabelClass">{{
-        offLabel
-      }}</SwitchLabel>
+      <SwitchLabel v-if="offLabel" :class="offLabelClass">
+        {{ offLabel }}
+      </SwitchLabel>
       <Switch
         :modelValue="modelValue"
         :class="[
@@ -12,20 +12,18 @@
           toggleClass,
           modelValue ? toggleOnClass : toggleOffClass,
         ]"
-        @update:modelValue="(val) => $emit('update:modelValue', val)"
-      >
+        @update:modelValue="(val) => $emit('update:modelValue', val)">
         <span class="sr-only">{{ settingLabel }}</span>
         <span
           aria-hidden="true"
           :class="[
             modelValue ? 'translate-x-5' : 'translate-x-0',
             'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
-          ]"
-        />
+          ]" />
       </Switch>
       <SwitchLabel v-if="onLabel" :class="onLabelClass">
-        {{ onLabel }}</SwitchLabel
-      >
+        {{ onLabel }}
+      </SwitchLabel>
     </div>
   </SwitchGroup>
 </template>
