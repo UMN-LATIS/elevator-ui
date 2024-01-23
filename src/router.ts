@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import config from "@/config";
 import HomePage from "@/pages/HomePage/HomePage.vue";
 import AssetViewPage from "@/pages/AssetViewPage/AssetViewPage.vue";
@@ -25,6 +25,24 @@ function parseIntFromParam(
   }
   return null;
 }
+
+// creates a home route based on the config
+// if a redirect is set, it will create a redirect route
+// instead of the normal homepage route
+const createHomeRoute = (): RouteRecordRaw => {
+  if (config.routes.home.redirect) {
+    return {
+      name: "home",
+      path: "/",
+      redirect: config.routes.home.redirect,
+    };
+  }
+  return {
+    name: "home",
+    path: "/",
+    component: HomePage,
+  };
+};
 
 const router = createRouter({
   history: createWebHistory(config.instance.base.path),
@@ -55,12 +73,7 @@ const router = createRouter({
     };
   },
   routes: [
-    {
-      name: "home",
-      path: "/",
-      component: HomePage,
-      // component: () => import("@/pages/HomePage/HomePage.vue"),
-    },
+    createHomeRoute(),
     {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
