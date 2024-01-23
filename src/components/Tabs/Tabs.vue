@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="tabs flex" :class="labelsClass">
+  <div class="tabs">
+    <div class="flex" :class="labelsClass">
       <button
         v-for="tab in tabs"
         :key="tab.id"
@@ -12,8 +12,7 @@
               tab.id === activeTabId,
           },
         ]"
-        @click="setActiveTab(tab.id)"
-      >
+        @click="setActiveTab(tab.id)">
         {{ tab.label }}
       </button>
     </div>

@@ -1,11 +1,14 @@
 <template>
-  <TextArea :label="label" :value="value" :placeholder="placeholder">
+  <TextArea
+    :label="label"
+    :value="value"
+    :placeholder="placeholder"
+    class="copyable-text-area">
     <template #corner>
       <Button
         :icon="copied ? 'check' : 'content_copy'"
         variant="tertiary"
-        @click="copy()"
-      >
+        @click="copy()">
         <!-- eslint-disable-next-line vue/no-textarea-mustache-->
         {{ copied ? "Copied" : "Copy" }}
       </Button>

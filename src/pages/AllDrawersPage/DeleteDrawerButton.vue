@@ -1,10 +1,9 @@
 <template>
   <button
-    class="px-2 py-4 inline-flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
+    class="all-drawers-page__delete-drawer-button px-2 py-4 inline-flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
     type="button"
     v-bind="$attrs"
-    @click="isConfirmOpen = true"
-  >
+    @click="isConfirmOpen = true">
     <span class="sr-only">Delete drawer</span>
     <CircleXIcon class="!w-5 !h-5" />
   </button>
@@ -14,12 +13,11 @@
     type="danger"
     confirmLabel="Delete"
     @close="isConfirmOpen = false"
-    @confirm="handleDeleteDrawer"
-  >
+    @confirm="handleDeleteDrawer">
     <p>
       Are you sure you want to delete drawer
-      <b>{{ drawer.title }}</b
-      >? This action cannot be undone.
+      <b>{{ drawer.title }}</b>
+      ? This action cannot be undone.
     </p>
   </ConfirmModal>
 </template>

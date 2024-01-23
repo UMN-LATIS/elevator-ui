@@ -1,5 +1,5 @@
 <template>
-  <div class="drawer-items-grid">
+  <div class="drawer-view-page__drawer-items-grid">
     <Draggable
       v-model="clonedMatches"
       class="grid grid-cols-auto-md gap-4"
@@ -13,16 +13,13 @@
       ghostClass="draggable-ghost"
       dragClass="is-dragging"
       :disabled="!isDraggable"
-      @end="emits('dragEnd', clonedMatches)"
-    >
+      @end="emits('dragEnd', clonedMatches)">
       <template #item="{ element }">
         <div
-          class="item-container relative rounded flex items-start group shadow-sm"
-        >
+          class="item-container relative rounded flex items-start group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move h-full py-1 rounded-l border border-r-0 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors"
-          >
+            class="drag-handle cursor-move h-full py-1 rounded-l border border-r-0 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors">
             <DragIcon />
           </div>
 
@@ -35,8 +32,7 @@
             :mediaCardClass="[
               'group-hover:bg-blue-50 group-hover:border-blue-600 group-hover:!text-blue-600',
               isDraggable ? 'rounded-l-none !border-l-0 shadow-none' : '',
-            ]"
-          />
+            ]" />
         </div>
       </template>
     </Draggable>

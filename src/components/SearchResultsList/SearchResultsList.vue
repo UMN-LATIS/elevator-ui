@@ -1,18 +1,16 @@
 <template>
-  <div>
+  <div class="search-results-list">
     <div class="flex flex-col gap-1">
       <SearchResultRow
         v-for="match in matches"
         :id="`object-${match.objectId}`"
         :key="match.objectId"
         :searchMatch="match"
-        :showDetails="false"
-      />
+        :showDetails="false" />
       <SkeletonResultRow
         v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
         v-show="status === 'fetching'"
-        :key="i"
-      />
+        :key="i" />
     </div>
   </div>
 </template>

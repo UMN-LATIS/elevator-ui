@@ -2,9 +2,8 @@
   <span v-if="props.widget.clickToSearch">
     <a
       :href="clickToSearchUrl"
-      class="text-blue-600 hover:text-blue-700 hover:underline"
-      @click.prevent="handleClick"
-    >
+      class="click-to-search-link text-blue-600 hover:text-blue-700 hover:underline"
+      @click.prevent="handleClick">
       <slot :isClickable="true" />
     </a>
   </span>

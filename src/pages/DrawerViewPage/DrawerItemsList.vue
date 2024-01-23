@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="drawer-view-page__drawer-items-list">
     <Draggable
       v-model="clonedMatches"
       class="flex flex-col gap-2"
@@ -8,14 +8,12 @@
       ghostClass="draggable-ghost"
       dragClass="is-dragging"
       :disabled="!isDraggable"
-      @end="emits('dragEnd', clonedMatches)"
-    >
+      @end="emits('dragEnd', clonedMatches)">
       <template #item="{ element }">
         <div class="item-container relative rounded flex group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors bg-white"
-          >
+            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors bg-white">
             <DragIcon />
           </div>
           <SearchResultRow
@@ -26,8 +24,7 @@
             class="search-result-row flex-1"
             :class="{
               'rounded-l-none border-l-none': isDraggable,
-            }"
-          />
+            }" />
         </div>
       </template>
     </Draggable>

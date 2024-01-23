@@ -1,5 +1,5 @@
 <template>
-  <header class="my-8">
+  <header class="search-results-page__browse-drawer-header my-8">
     <Link :to="`/drawers/listDrawers`" class="flex items-center gap-1 mb-4">
       <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
       Back to Drawers

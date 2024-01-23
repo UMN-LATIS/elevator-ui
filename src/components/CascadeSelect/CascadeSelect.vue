@@ -1,13 +1,11 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="cascade-select flex flex-col gap-4">
     <div
       v-for="(selected, segmentLevel) in listOfSelected"
       :key="segmentLevel"
-      class="flex flex-col gap-1"
-    >
+      class="flex flex-col gap-1">
       <label
-        :class="['uppercase text-xs font-medium tracking-wider', labelClass]"
-      >
+        :class="['uppercase text-xs font-medium tracking-wider', labelClass]">
         {{ selected.label }}
       </label>
       <select
@@ -19,8 +17,7 @@
             segmentLevel,
             ($event.target as HTMLSelectElement).value
           )
-        "
-      >
+        ">
         <option v-if="!selected.options.includes('')" value="" disabled>
           Select a {{ selected.label }}
         </option>

@@ -1,25 +1,21 @@
 <template>
-  <div class="object-toolbar">
+  <div class="active-file-view-toolbar">
     <div class="flex justify-between items-center w-full px-4 py-2">
       <div class="flex gap-1 items-center leading-none">
         <MoreFileInfoButton
           v-if="fileHandlerId"
-          :fileObjectId="fileHandlerId"
-        />
+          :fileObjectId="fileHandlerId" />
         <DownloadFileButton
           v-if="assetId && fileHandlerId"
           :assetId="assetId"
-          :fileObjectId="fileHandlerId"
-        />
+          :fileObjectId="fileHandlerId" />
         <ShareFileButton v-if="fileHandlerId" :fileObjectId="fileHandlerId" />
         <AddToDrawerButton
           v-if="instanceStore.currentUser?.canManageDrawers && assetId"
-          :assetId="assetId"
-        />
+          :assetId="assetId" />
         <AddToEmbeddedPluginButton
           v-if="isInEmbedMode"
-          :fileHandlerId="fileHandlerId"
-        />
+          :fileHandlerId="fileHandlerId" />
       </div>
     </div>
   </div>

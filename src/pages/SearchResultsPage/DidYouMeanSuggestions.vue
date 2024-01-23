@@ -1,10 +1,11 @@
 <template>
-  <div v-if="hasSuggestions">
+  <div
+    v-if="hasSuggestions"
+    class="search-results-page__did-you-mean-suggestions">
     <p>Did you mean?</p>
     <button
       class="text-blue-500 hover:underline italic"
-      @click="handleSearchSuggestionClick"
-    >
+      @click="handleSearchSuggestionClick">
       {{ suggestedSearch }}
     </button>
   </div>

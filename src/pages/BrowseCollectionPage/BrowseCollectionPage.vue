@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="browse-collection-page">
     <!-- redirect to search results page -->
   </DefaultLayout>
 </template>

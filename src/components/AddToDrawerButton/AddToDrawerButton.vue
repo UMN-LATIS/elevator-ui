@@ -1,5 +1,9 @@
 <template>
-  <IconButton title="Add to Drawer" v-bind="$attrs" @click="isModalOpen = true">
+  <IconButton
+    class="add-to-drawer-button"
+    title="Add to Drawer"
+    v-bind="$attrs"
+    @click="isModalOpen = true">
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
     <span class="sr-only">Add to Drawer</span>
@@ -9,8 +13,7 @@
     label="Add to Drawer"
     :isOpen="isModalOpen"
     class="max-w-xl"
-    @close="isModalOpen = false"
-  >
+    @close="isModalOpen = false">
     <div>
       <fieldset class="flex items-start justify-between gap-2 flex-1">
         <legend class="sr-only">Choose a drawer</legend>
@@ -23,22 +26,19 @@
               ' !border-red-500 text-red-700':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             }"
-            @update:modelValue="isSelectDrawerTouched = true"
-          >
+            @update:modelValue="isSelectDrawerTouched = true">
             <option value="">-</option>
             <option
               v-for="drawer in drawerStore.drawers"
               :key="drawer.id"
-              :value="drawer.id"
-            >
+              :value="drawer.id">
               {{ drawer.title }}
             </option>
           </select>
         </div>
 
         <p
-          class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center text-sm"
-        >
+          class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center text-sm">
           <span class="bg-neutral-50 relative z-10 px-2">or</span>
         </p>
 
@@ -53,13 +53,11 @@
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             },
           ]"
-          @update:modelValue="isSelectDrawerTouched = true"
-        />
+          @update:modelValue="isSelectDrawerTouched = true" />
       </fieldset>
       <p
         v-if="!exactlyOneDrawerIsChosen && isSelectDrawerTouched"
-        class="text-xs italic text-red-500 my-2"
-      >
+        class="text-xs italic text-red-500 my-2">
         Please select a drawer or enter a new drawer name.
       </p>
       <AddExcerptToDrawerSection
@@ -69,21 +67,19 @@
         v-model:excerptName="excerpt.name"
         v-model:is-adding-excerpt="isAddingExcerpt"
         :fileObjectId="assetStore.activeFileObjectId"
-        class="mt-4"
-      />
+        class="mt-4" />
     </div>
     <template #footer>
       <footer class="p-4 bg-neutral-200">
         <div class="flex justify-end gap-4">
-          <Button variant="tertiary" @click="isModalOpen = false"
-            >Cancel</Button
-          >
+          <Button variant="tertiary" @click="isModalOpen = false">
+            Cancel
+          </Button>
           <Button
             class="text-sm"
             :disabled="!isFormValid"
             variant="primary"
-            @click="handleAddToDrawer"
-          >
+            @click="handleAddToDrawer">
             Add to Drawer
           </Button>
         </div>

@@ -1,26 +1,24 @@
 <template>
   <IconButton
+    class="search-results-page__add-search-results-to-drawer-button"
     title="Add Search Results to Drawer"
     v-bind="$attrs"
     :disabled="searchStore.matches.length === 0"
-    @click="isModalOpen = true"
-  >
+    @click="isModalOpen = true">
     <SpinnerIcon v-if="fetchStatus === 'fetching'" />
     <AddToDrawerIcon v-else />
-    <span class="sr-only"> Add Search Results </span>
+    <span class="sr-only">Add Search Results</span>
   </IconButton>
   <Modal
     type="info"
     label="Add Search Results to Drawer"
     :isOpen="isModalOpen"
     class="max-w-lg"
-    @close="isModalOpen = false"
-  >
+    @close="isModalOpen = false">
     <div>
       <form
         class="flex items-center justify-between gap-2"
-        @submit.prevent="handleAddToDrawer(selectedDrawer)"
-      >
+        @submit.prevent="handleAddToDrawer(selectedDrawer)">
         <div class="flex-1 flex gap-4 items-center">
           <label class="sr-only">Add to Drawer</label>
           <select
@@ -28,14 +26,12 @@
             class="border border-neutral-200 rounded w-full text-sm"
             :class="{
               'text-neutral-400': !selectedDrawer,
-            }"
-          >
+            }">
             <option disabled value="">-- Select a Drawer --</option>
             <option
               v-for="drawer in drawerStore.drawers"
               :key="drawer.id"
-              :value="drawer.id"
-            >
+              :value="drawer.id">
               {{ drawer.title }}
             </option>
           </select>
@@ -46,21 +42,18 @@
       </form>
 
       <p
-        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center"
-      >
+        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center">
         <span class="bg-neutral-50 relative z-10 px-2">or</span>
       </p>
 
       <form
         class="flex items-center justify-between gap-2"
-        @submit.prevent="handleCreateNewDrawerThenAdd"
-      >
+        @submit.prevent="handleCreateNewDrawerThenAdd">
         <DrawerTitleInput
           v-model="newDrawerName"
           class="flex-1 border border-neutral-200 rounded"
           inputClass="bg-white placeholder-neutral-400"
-          :labelHidden="true"
-        />
+          :labelHidden="true" />
 
         <Button type="submit" class="text-sm" :disabled="!isDrawerNameValid">
           Create Drawer

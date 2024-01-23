@@ -1,5 +1,6 @@
 <template>
   <InputGroup
+    class="search-bar__search-text-input-group"
     id="search"
     ref="inputGroup"
     v-model="searchStore.query"
@@ -10,16 +11,14 @@
     placeholder="Search"
     inputClass="!rounded-full"
     @focus="searchInputHasFocus = true"
-    @blur="searchInputHasFocus = false"
-  >
+    @blur="searchInputHasFocus = false">
     <template #append>
       <div class="flex gap-1 items-center">
         <button
           v-if="searchStore.query.length"
           type="button"
           class="text-transparent-black-500 hover:text-neutral-900"
-          @click="searchStore.query = ''"
-        >
+          @click="searchStore.query = ''">
           <span class="sr-only">Clear Search</span>
           <CircleXIcon />
         </button>
@@ -27,8 +26,7 @@
           v-if="!searchStore.hasFiltersApplied"
           type="button"
           class="w-8 h-8 inline-flex items-center justify-center rounded-full"
-          @click="$emit('moreOptionClick')"
-        >
+          @click="$emit('moreOptionClick')">
           <span class="sr-only">Advanced Search</span>
           <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
         </button>
@@ -36,29 +34,25 @@
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-l-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2 border-r border-neutral-600"
-            @click="$emit('moreOptionClick')"
-          >
+            @click="$emit('moreOptionClick')">
             {{ searchStore.filteredByCount }}
             {{ pluralize(searchStore.filteredByCount, "filter") }}
           </button>
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-r-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
-            @click="handleClearAllFiltersClick"
-          >
+            @click="handleClearAllFiltersClick">
             <span class="sr-only">Clear All Filters</span>
             <XIcon class="!h-3 !w-3" aria-hidden="true" />
           </button>
         </div>
         <button
           class="inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
-          type="submit"
-        >
+          type="submit">
           <SpinnerIcon
             v-if="searchStore.status === 'fetching'"
             class="h-4 w-4"
-            aria-hidden="true"
-          />
+            aria-hidden="true" />
           <SearchIcon v-else class="h-4 w-4" aria-hidden="true" />
           <span class="sr-only">Search</span>
         </button>

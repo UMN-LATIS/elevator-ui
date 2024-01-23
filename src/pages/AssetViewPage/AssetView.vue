@@ -1,5 +1,5 @@
 <template>
-  <div class="asset-view h-full relative">
+  <div class="asset-view-page__asset-view h-full relative">
     <ObjectViewer
       class="asset-view__object-viewer h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
       :class="{
@@ -13,8 +13,7 @@
         'md:top-0 md:bottom-16 md:left-0 md:right-0':
           !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
       }"
-      :fileHandlerId="assetStore.activeFileObjectId"
-    />
+      :fileHandlerId="assetStore.activeFileObjectId" />
     <AssetDetailsPanel
       class="asset-view__asset-panel md:absolute"
       :class="{
@@ -28,8 +27,7 @@
       :showToggle="permitPanelToggle"
       :assetId="assetStore.activeAssetId"
       :isOpen="permitPanelToggle ? isAssetDetailsOpen : true"
-      @toggle="isAssetDetailsOpen = !isAssetDetailsOpen"
-    />
+      @toggle="isAssetDetailsOpen = !isAssetDetailsOpen" />
     <ObjectDetailsPanel
       class="asset-view__details-panel md:absolute"
       :class="{
@@ -49,8 +47,7 @@
       :objectId="assetStore.activeObjectId"
       :fileHandlerId="assetStore.activeFileObjectId"
       :isOpen="permitPanelToggle ? isObjectDetailsOpen : true"
-      @toggle="isObjectDetailsOpen = !isObjectDetailsOpen"
-    />
+      @toggle="isObjectDetailsOpen = !isObjectDetailsOpen" />
   </div>
 </template>
 <script setup lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex flex-col">
+  <div class="no-scroll-layout h-screen flex flex-col">
     <AppHeader class="top-0 w-full z-20 backdrop-blur-sm">
       <slot name="secondaryAppHeader" />
     </AppHeader>

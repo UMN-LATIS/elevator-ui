@@ -1,5 +1,5 @@
 <template>
-  <ShareButton :url="url" />
+  <ShareButton class="share-file-button" :url="url" />
 </template>
 <script setup lang="ts">
 import ShareButton from "@/components/ShareButton/ShareButton.vue";

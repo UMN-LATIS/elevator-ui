@@ -1,20 +1,18 @@
 <template>
-  <div class="relative search-result-card rounded-lg">
+  <div class="search-result-card relative rounded-lg">
     <RemoveFromDrawerButton
       v-if="drawerId && instanceStore.currentUser?.canManageDrawers"
       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 remove-from-drawer-btn"
       :drawerId="drawerId"
       :objectId="searchMatch.objectId"
-      :excerptId="searchMatch.excerptId ?? undefined"
-    />
+      :excerptId="searchMatch.excerptId ?? undefined" />
 
     <Link :to="excerptUrl ?? assetUrl" class="rounded-md hover:no-underline">
       <MediaCard
         :imgSrc="thumbnailImgSrc"
         :imgAlt="title"
-        class="search-result-card flex w-full h-full relative transition-colors"
-        :class="mediaCardClass"
-      >
+        class="search-result-card__media-card flex w-full h-full relative transition-colors"
+        :class="mediaCardClass">
         <div class="absolute top-1 right-1 z-10 flex gap-1">
           <Chip
             v-if="
@@ -22,14 +20,12 @@
               searchMatch.fileAssets &&
               searchMatch.fileAssets > 1
             "
-            class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900"
-          >
+            class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900">
             {{ searchMatch.fileAssets }} files
           </Chip>
           <Chip
             v-if="searchMatch.excerpt"
-            class="!bg-neutral-50 !text-neutral-900 border !border-neutral-50"
-          >
+            class="!bg-neutral-50 !text-neutral-900 border !border-neutral-50">
             Excerpt
           </Chip>
         </div>
@@ -38,14 +34,12 @@
         </h1>
         <div
           v-if="props.searchMatch?.entries"
-          class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden"
-        >
+          class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden">
           <dl class="text-sm">
             <div
               v-for="(entry, index) in props.searchMatch.entries"
               :key="index"
-              class="mb-2"
-            >
+              class="mb-2">
               <dt class="font-bold text-xs uppercase">
                 {{ entry?.label ?? "Item" }}
               </dt>

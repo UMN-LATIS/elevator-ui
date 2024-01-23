@@ -1,5 +1,5 @@
 <template>
-  <IconButton title="Share" @click="isOpen = !isOpen">
+  <IconButton class="share-button" title="Share" @click="isOpen = !isOpen">
     <ShareIcon />
     <span class="sr-only">Share</span>
     <Modal

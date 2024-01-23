@@ -1,17 +1,15 @@
 <template>
   <form
     ref="advancedSearchForm"
-    class="bg-white rounded-3xl shadow-md"
-    @submit.prevent="handleSubmit"
-  >
+    class="advanced-search-form bg-white rounded-3xl shadow-md"
+    @submit.prevent="handleSubmit">
     <div class="p-2">
       <h1 class="sr-only">Advanced Search</h1>
 
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
       <div class="px-2">
         <h2
-          class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200"
-        >
+          class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200">
           Filter By
         </h2>
         <div class="max-h-[60vh] overflow-y-auto px-2">
@@ -21,8 +19,7 @@
       </div>
     </div>
     <div
-      class="flex bg-transparent-black-100 p-2 justify-between items-center gap-4"
-    >
+      class="flex bg-transparent-black-100 p-2 justify-between items-center gap-4">
       <div>
         <Toggle
           v-if="instanceStore.currentUser?.isAdmin"
@@ -30,23 +27,20 @@
           class="ml-4"
           settingLabel="Include Hidden Assets"
           onLabel="Include Hidden"
-          onLabelClass="text-sm"
-        >
-        </Toggle>
+          onLabelClass="text-sm"></Toggle>
       </div>
       <div>
         <Button
           variant="tertiary"
           type="button"
-          @click="searchStore.clearAllFilters"
-          >Clear All</Button
-        >
+          @click="searchStore.clearAllFilters">
+          Clear All
+        </Button>
         <Button
           variant="primary"
           type="submit"
           class="!rounded-full"
-          :disabled="!searchStore.isValidSearch"
-        >
+          :disabled="!searchStore.isValidSearch">
           Search
         </Button>
       </div>
