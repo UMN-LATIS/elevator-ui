@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="home-page">
     <template #custom-header>
       <CustomAppHeader v-if="instanceStore.customHeader" />
     </template>

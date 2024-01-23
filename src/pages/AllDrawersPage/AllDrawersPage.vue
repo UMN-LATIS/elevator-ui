@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="all-drawers-page">
     <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Drawers</h1>
       <nav v-if="currentUser?.canManageDrawers" class="mb-4">
@@ -13,17 +13,14 @@
           <article
             v-for="drawer in drawers"
             :key="drawer.id"
-            class="relative drawer-list-item rounded group transition-colors duration-150"
-          >
+            class="relative drawer-list-item rounded group transition-colors duration-150">
             <DeleteDrawerButton
               v-if="currentUser?.canManageDrawers"
               :drawer="drawer"
-              class="float-right"
-            />
+              class="float-right" />
             <Link
               class="p-4 block hover:no-underline w-full h-full"
-              :to="`/drawers/viewDrawer/${drawer.id}`"
-            >
+              :to="`/drawers/viewDrawer/${drawer.id}`">
               <h2 class="transition-colors duration-150">
                 {{ drawer.title }}
               </h2>

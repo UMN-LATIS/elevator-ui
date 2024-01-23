@@ -1,27 +1,24 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="create-asset-page">
     <div class="max-w-lg mx-auto mt-12">
       <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
 
       <form
         :action="`${BASE_URL}/assetManager/addAsset`"
         method="POST"
-        class="flex flex-col gap-4"
-      >
-        <label for="templateId">Choose a template </label>
+        class="flex flex-col gap-4">
+        <label for="templateId">Choose a template</label>
         <select
           id="templateId"
           v-model="selectedTemplate"
           name="templateId"
           class="rounded-md"
-          required
-        >
+          required>
           <option value="" disabled selected>--</option>
           <option
             v-for="template in instanceStore.instance.templates"
             :key="template.id"
-            :value="template.id"
-          >
+            :value="template.id">
             {{ template.name }}
           </option>
         </select>
@@ -29,9 +26,9 @@
           type="submit"
           variant="primary"
           class="block my-4 w-full"
-          :disabled="!selectedTemplate"
-          >Add Asset</Button
-        >
+          :disabled="!selectedTemplate">
+          Add Asset
+        </Button>
       </form>
     </div>
   </DefaultLayout>

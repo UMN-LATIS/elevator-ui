@@ -1,5 +1,8 @@
 <template>
-  <Notification type="danger" title="Error">
+  <Notification
+    type="danger"
+    title="Error"
+    class="search-results-page__search-error-notification">
     <p class="mb-2">Something went wrong loading these search results.</p>
 
     <div>
@@ -13,7 +16,8 @@
 
     <p class="mt-2">
       Try reloading, and if the problem persists, please contact
-      <a href="mailto:latistecharch@umn.edu">latistecharch@umn.edu</a> for help.
+      <a href="mailto:latistecharch@umn.edu">latistecharch@umn.edu</a>
+      for help.
     </p>
   </Notification>
 </template>

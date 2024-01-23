@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div class="search-results-embed-page p-4">
     <Transition name="fade" mode="out-in">
       <div
         v-if="!isReady"

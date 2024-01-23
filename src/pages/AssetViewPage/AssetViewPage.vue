@@ -1,18 +1,16 @@
 <template>
-  <NoScrollLayout class="overflow-x-hidden">
+  <NoScrollLayout class="overflow-x-hidden asset-view-page">
     <template #secondaryAppHeader>
       <PrevNextSearchResultNav />
     </template>
     <template v-if="isPageLoaded">
       <MetaDataOnlyView
         v-if="isMetaDataOnly"
-        :assetId="assetStore.activeAssetId"
-      />
+        :assetId="assetStore.activeAssetId" />
       <AssetView
         v-else
         :assetId="assetStore.activeAssetId"
-        :objectId="assetStore.activeObjectId"
-      />
+        :objectId="assetStore.activeObjectId" />
     </template>
   </NoScrollLayout>
 </template>

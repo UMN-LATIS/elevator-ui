@@ -1,11 +1,11 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="static-content-page">
     <template #custom-header>
       <CustomAppHeader v-if="instanceStore.customHeader" />
     </template>
     <div
       v-if="page"
-      class="static-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">
+      class="static-content-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">
       <a
         v-if="canCurrentUserEdit"
         :href="`${BASE_URL}/instances/editPage/${pageId}`"
@@ -61,7 +61,7 @@ watch(
 );
 </script>
 <style scoped>
-.static-page__content {
+.static-content-page__content {
   background: var(--app-backgroundColor);
   color: var(--app-textColor);
 }

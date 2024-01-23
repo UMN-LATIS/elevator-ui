@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="error-page">
     <div class="p-8">
       <h1 class="text-8xl font-bold text-neutral-200">{{ errorCode }}</h1>
       <h2 class="text-4xl mb-8">{{ getMessage(errorCode) }}</h2>

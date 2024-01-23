@@ -1,12 +1,10 @@
 <template>
-  <div class="h-full relative">
-    <div class="meta-data-only-view h-full sm:p-8">
+  <div class="asset-view-page__meta-data-only-view h-full relative">
+    <div class="meta-data-only-view__inner h-full sm:p-8">
       <article
-        class="meta-data-only-view__article m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-12"
-      >
+        class="meta-data-only-view__article m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow sm:px-12">
         <h2
-          class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0"
-        >
+          class="text-3xl mb-12 sm:text-5xl font-bold py-8 after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0">
           {{ assetTitle || "(No Title)" }}
         </h2>
 
@@ -14,8 +12,7 @@
         <MoreLikeThis
           v-if="assetId"
           :items="moreLikeThisItems"
-          listContainerClass="sm:!grid sm:!grid-cols-2"
-        />
+          listContainerClass="sm:!grid sm:!grid-cols-2" />
       </article>
     </div>
   </div>
@@ -49,7 +46,7 @@ watch(
 );
 </script>
 <style scoped>
-.meta-data-only-view {
+.meta-data-only-view__inner {
   background: var(--app-metaDataOnlyView-backgroundColor);
 }
 .meta-data-only-view__article {
