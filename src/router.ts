@@ -26,21 +26,37 @@ function parseIntFromParam(
   return null;
 }
 
-// creates a home route based on the config
-// if a redirect is set, it will create a redirect route
-// instead of the normal homepage route
+/**
+ * creates a home route based on the config
+ * use a custom redirect if one is set
+ */
 const createHomeRoute = (): RouteRecordRaw => {
-  if (config.routes.home.redirect) {
-    return {
-      name: "home",
-      path: "/",
-      redirect: config.routes.home.redirect,
-    };
-  }
-  return {
+  const defaultHomeRoute = {
     name: "home",
     path: "/",
     component: HomePage,
+  };
+
+  if (!config.routes.home.redirect) {
+    return defaultHomeRoute;
+  }
+
+  // if the redirect is a full URL, remove the base url
+  const redirect = config.routes.home.redirect.replace(
+    config.instance.base.url,
+    ""
+  );
+
+  // if the redirect is the root url, don't create a redirect route
+  // instead just use the default home route to avoid loops
+  if (redirect === "/") {
+    return defaultHomeRoute;
+  }
+
+  return {
+    name: "home",
+    path: "/",
+    redirect,
   };
 };
 
