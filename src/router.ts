@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import config from "@/config";
 import HomePage from "@/pages/HomePage/HomePage.vue";
 import AssetViewPage from "@/pages/AssetViewPage/AssetViewPage.vue";
@@ -25,6 +25,40 @@ function parseIntFromParam(
   }
   return null;
 }
+
+/**
+ * creates a home route based on the config
+ * use a custom redirect if one is set
+ */
+const createHomeRoute = (): RouteRecordRaw => {
+  const defaultHomeRoute = {
+    name: "home",
+    path: "/",
+    component: HomePage,
+  };
+
+  if (!config.routes.home.redirect) {
+    return defaultHomeRoute;
+  }
+
+  // if the redirect is a full URL, remove the base url
+  const redirect = config.routes.home.redirect.replace(
+    config.instance.base.url,
+    ""
+  );
+
+  // if the redirect is the root url, don't create a redirect route
+  // instead just use the default home route to avoid loops
+  if (redirect === "/") {
+    return defaultHomeRoute;
+  }
+
+  return {
+    name: "home",
+    path: "/",
+    redirect,
+  };
+};
 
 const router = createRouter({
   history: createWebHistory(config.instance.base.path),
@@ -55,12 +89,7 @@ const router = createRouter({
     };
   },
   routes: [
-    {
-      name: "home",
-      path: "/",
-      component: HomePage,
-      // component: () => import("@/pages/HomePage/HomePage.vue"),
-    },
+    createHomeRoute(),
     {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
