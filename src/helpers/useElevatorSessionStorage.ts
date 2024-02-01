@@ -24,6 +24,7 @@ export function useElevatorSessionStorage() {
     null
   );
 
+  const userId = useSessionStorage<ElevatorUserID | null>("userId", null);
 
   function clear() {
     returnUrl.value = null;
@@ -38,6 +39,7 @@ export function useElevatorSessionStorage() {
     elevatorCallbackType,
     elevatorLTIVersion,
     elevatorLaunchId,
+    userId,
     clear,
   };
 }

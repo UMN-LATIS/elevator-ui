@@ -53,6 +53,7 @@ const {
   returnUrl,
   elevatorLTIVersion,
   elevatorLaunchId,
+  userId,
   clear: clearElevatorSessionStorage,
 } = useElevatorSessionStorage();
 
@@ -121,6 +122,7 @@ async function onConfirmedToAdd() {
         excerptId: "",
         returnUrl: returnUrl.value ?? "",
         launchId: elevatorLaunchId.value ?? "",
+        userId: userId.value ?? "",
       });
 
       document.body.innerHTML += data;
