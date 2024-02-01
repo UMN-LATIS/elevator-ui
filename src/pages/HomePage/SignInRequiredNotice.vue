@@ -1,19 +1,20 @@
 <template>
-  <Notification type="warning" title="Sign In Required" class="my-4">
+  <Notification
+    type="warning"
+    title="Sign In Required"
+    class="ome-page__sign-in-required-notice my-4">
     <p>This site requires you to sign in to search or access assets.</p>
 
     <div class="flex gap-2 mt-2">
       <Button
         :to="`/loginManager/localLogin/?redirect=${$route.path}`"
-        variant="tertiary"
-      >
+        variant="tertiary">
         {{ instance.useCentralAuth ? "Guest" : "" }} Login
       </Button>
       <Button
         v-if="instance.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
-        variant="tertiary"
-      >
+        variant="tertiary">
         {{ instance.centralAuthLabel }} Login
       </Button>
     </div>

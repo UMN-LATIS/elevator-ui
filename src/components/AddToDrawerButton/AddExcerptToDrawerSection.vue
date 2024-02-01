@@ -1,5 +1,6 @@
 <template>
-  <div class="text-sm rounded-md">
+  <div
+    class="add-to-drawer-button__add-excerpt-to-drawer-section text-sm rounded-md">
     <label class="inline-flex gap-1 items-center">
       <input
         :checked="isAddingExcerpt"
@@ -11,15 +12,13 @@
             'update:isAddingExcerpt',
             ($event.target as HTMLInputElement).checked
           )
-        "
-      />
+        " />
       Add as Excerpt
     </label>
 
     <div
       v-if="isAddingExcerpt"
-      class="excerpt-details flex flex-col gap-4 mt-2 border border-neutral-300 bg-neutral-100 p-4 rounded-md"
-    >
+      class="excerpt-details flex flex-col gap-4 mt-2 border border-neutral-300 bg-neutral-100 p-4 rounded-md">
       <InputGroup
         id="excerpt-name"
         :modelValue="excerptName"
@@ -38,8 +37,7 @@
             $emit('update:excerptName', val);
           }
         "
-        @blur="isNameTouched = true"
-      />
+        @blur="isNameTouched = true" />
       <div class="flex gap-4">
         <InputGroup
           id="excerpt__start-time"
@@ -65,16 +63,14 @@
               isStartTimeTouched = true;
               startTimeString = secondsToTimeString(startTime ?? 0);
             }
-          "
-        >
+          ">
           <template #append>
             <Button
               variant="tertiary"
               class="text-sm"
-              @click="handleSetStartTimeClick"
-            >
-              Set</Button
-            >
+              @click="handleSetStartTimeClick">
+              Set
+            </Button>
           </template>
         </InputGroup>
         <InputGroup
@@ -101,14 +97,12 @@
               isEndTimeTouched = true;
               endTimeString = secondsToTimeString(endTime ?? 0);
             }
-          "
-        >
+          ">
           <template #append>
             <Button
               variant="tertiary"
               class="text-sm"
-              @click="handleSetEndTimeClick"
-            >
+              @click="handleSetEndTimeClick">
               Set
             </Button>
           </template>
@@ -119,8 +113,7 @@
         class="aspect-video rounded"
         @update:currentScrubberPosition="
           (val) => (currentScrubberPosition = val)
-        "
-      />
+        " />
     </div>
   </div>
 </template>

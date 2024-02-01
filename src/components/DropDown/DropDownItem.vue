@@ -1,5 +1,5 @@
 <template>
-  <MenuItem v-slot="{ active }" class="dropdown-item">
+  <MenuItem v-slot="{ active }" class="dropdown__dropdown-item">
     <component
       :is="$attrs.disabled ? 'span' : Link"
       class="block px-4 py-2 text-sm !no-underline"
@@ -10,8 +10,7 @@
           current,
       }"
       :href="href"
-      :to="to"
-    >
+      :to="to">
       <slot />
     </component>
   </MenuItem>

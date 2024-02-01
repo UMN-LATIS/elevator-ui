@@ -32,7 +32,9 @@ const defaultConfig: AppConfig = {
       import.meta.env.VITE_ARCGIS_API_KEY ?? "PLEASE_SET_MAPBOX_ACCESS_TOKEN",
   },
   routes: {
-    test: import.meta.env.VITE_TEST_ROUTE ?? null,
+    home: {
+      redirect: import.meta.env.VITE_ROUTES_HOME_REDIRECT ?? null,
+    },
   },
   mode: import.meta.env.MODE ?? null,
 };

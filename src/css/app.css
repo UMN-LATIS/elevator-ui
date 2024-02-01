@@ -96,6 +96,22 @@ a:hover {
   color: var(--app-textColor);
 }
 
+.prose img,
+.prose iframe {
+  border: 1px solid #ccc;
+  background: #eee;
+  border-radius: 0.5rem;
+}
+
+.prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.prose a {
+  font-weight: inherit;
+}
+
 h1,
 h2,
 h3,
@@ -149,3 +165,93 @@ h6 {
     transform: translate3d(4px, 0, 0);
   }
 }
+
+/**
+* CLASSES THAT CAN BE USED ON STATIC PAGES
+* (all prefixed with `el-` to avoid conflicts)
+**/
+
+.el-btn {
+  display: inline-block;
+  border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
+  background: var(--app-button-primary-backgroundColor);
+  color: var(--app-button-primary-textColor);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--app-button-primary-hover-borderColor);
+    background: var(--app-button-primary-hover-backgroundColor);
+    color: var(--app-button-primary-hover-textColor);
+    text-decoration: none;
+  }
+
+  &:active {
+    border-color: var(--app-button-primary-active-borderColor);
+    background: var(--app-button-primary-active-backgroundColor);
+    color: var(--app-button-primary-active-textColor);
+    text-decoration: none;
+  }
+
+  &:disabled {
+    border-color: var(--app-button-primary-disabled-borderColor);
+    background: var(--app-button-primary-disabled-backgroundColor);
+    color: var(--app-button-primary-disabled-textColor);
+    cursor: not-allowed;
+  }
+}
+
+.el-text-center {
+  @apply text-center;
+}
+
+.el-alert {
+  @apply p-4 text-neutral-900 rounded-2xl border border-solid border-neutral-100 bg-neutral-100 text-sm;
+  background-image: url("/img/warning-icon.svg");
+  background-position: 1rem 1.25rem;
+  background-repeat: no-repeat;
+  background-size: 1.5rem;
+  padding-left: 3.5rem;
+
+  & p {
+    margin-bottom: 0;
+    margin-top: 0.5em;
+  }
+}
+
+.el-alert-warning {
+  @apply bg-amber-300;
+  background-image: url("/img/warning-icon.svg");
+}
+
+.el-grid {
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .el-grid--2-cols,
+  .el-grid--1\/2-1\/2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .el-grid--3-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .el-grid--2\/3-1\/3 {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .el-grid--1\/3-2\/3 {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+  .el-grid--1\/4-1\/4-1\/2 {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr);
+  }
+  .el-grid--1\/2-1\/4-1\/4 {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/** END CLASSES THAT CAN BE USED ON STATIC PAGES **/

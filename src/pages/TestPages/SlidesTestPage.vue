@@ -1,5 +1,5 @@
 <template>
-  <div class="search-results-gallery mb-8">
+  <div class="slides-test-page mb-8">
     <h1>Slides Test Page</h1>
     <div v-if="mainSwiper" class="flex items-center justify-between mb-1">
       <Button variant="tertiary" @click="mainSwiper.slidePrev()">
@@ -28,8 +28,7 @@
       :scrollbar="{ draggable: true }"
       :thumbs="{ swiper: thumbsSwiper }"
       @swiper="setMainSwiper"
-      @slideChange="onMainSlideChange"
-    >
+      @slideChange="onMainSlideChange">
       <SwiperSlide v-for="(slide, i) in slides" :key="i">
         <div class="w-full h-full border">
           <h2 class="text-xl font-bold">{{ slide.title }}</h2>
@@ -47,18 +46,15 @@
       :slidesPerView="10"
       :centeredSlides="true"
       :spaceBetween="4"
-      @swiper="setThumbsSwiper"
-    >
+      @swiper="setThumbsSwiper">
       <SwiperSlide v-for="(slide, i) in slides" :key="i">
         <div
-          class="border border-neutral-400 aspect-video flex items-center justify-center w-full"
-        >
+          class="border border-neutral-400 aspect-video flex items-center justify-center w-full">
           <LazyLoadImage
             v-if="slide.thumb.src"
             :src="slide.thumb.src"
             :alt="slide.thumb.alt ?? 'Loading...'"
-            class="swiper-lazy object-cover w-full h-full"
-          />
+            class="swiper-lazy object-cover w-full h-full" />
           <DocumentIcon v-else />
         </div>
       </SwiperSlide>

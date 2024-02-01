@@ -1,5 +1,5 @@
 <template>
-  <Button @click="isCreateDrawerModalOpen = true">Create Drawer</Button>
+  <Button class="all-drawers-page__create-drawer-button" @click="isCreateDrawerModalOpen = true">Create Drawer</Button>
   <Modal
     :isOpen="isCreateDrawerModalOpen"
     label="Create Drawer"

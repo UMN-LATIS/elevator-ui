@@ -1,8 +1,8 @@
 <template>
   <IconButton
+    class="add-to-embedded-plugin-button"
     :title="`Add to ${elevatorPlugin || 'Elevator Plugin'}`"
-    @click="handleAddButtonClick"
-  >
+    @click="handleAddButtonClick">
     <SpinnerIcon v-if="addingToPluginStatus === 'loading'" />
     <template v-else>
       <AddToCanvasIcon v-if="elevatorPlugin === 'Canvas'" />
@@ -14,20 +14,17 @@
     :isOpen="isInterstitialOpen"
     :title="`Add to ${elevatorPlugin}`"
     @close="handleCloseInterstitial"
-    @confirm="handleInterstitialConfirm"
-  >
+    @confirm="handleInterstitialConfirm">
     <div
       v-if="interstitial?.interstitialText"
-      v-html="interstitial?.interstitialText"
-    />
+      v-html="interstitial?.interstitialText" />
     <p v-else>Are you sure you want to add this to {{ elevatorPlugin }}?</p>
   </ConfirmModal>
   <form
     v-if="elevatorCallbackType == 'lti' && elevatorLTIVersion == '1.1'"
     ref="returnForm"
     :action="returnUrl ?? ''"
-    method="POST"
-  >
+    method="POST">
     <input type="hidden" name="lti_version" value="LTI-1p0" />
     <input type="hidden" name="lti_message_type" value="ContentItemSelection" />
     <input type="hidden" name="content_items" :value="ltiContentItems" />

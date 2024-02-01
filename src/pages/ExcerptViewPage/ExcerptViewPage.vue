@@ -1,24 +1,24 @@
 <template>
-  <NoScrollLayout>
+  <NoScrollLayout class="excerpt-view-page">
     <Transition name="fade">
       <div
         v-if="excerpt"
-        class="p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl"
-      >
+        class="p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">
         <header class="flex justify-between items-baseline my-4 flex-wrap">
           <h1 class="text-4xl font-bold flex-1">
             {{ excerpt.label || `Excerpt ${excerpt.id}` }}
           </h1>
-          <Button variant="tertiary" :to="`/asset/viewAsset/${excerpt.assetId}`"
-            >View Asset</Button
-          >
+          <Button
+            variant="tertiary"
+            :to="`/asset/viewAsset/${excerpt.assetId}`">
+            View Asset
+          </Button>
         </header>
 
         <ExcerptableIframe
           :fileObjectId="excerpt.fileObjectId"
           :startTime="excerpt.startTime"
-          :endTime="excerpt.endTime"
-        />
+          :endTime="excerpt.endTime" />
         <div class="flex justify-between p-1 items-center flex-wrap">
           <div class="inline-flex gap-2 items-center">
             <span class="font-bold text-xs uppercase">Time</span>
@@ -31,8 +31,7 @@
             <MoreFileInfoButton :fileObjectId="excerpt.fileObjectId" />
             <DownloadFileButton
               :assetId="excerpt.assetId"
-              :fileObjectId="excerpt.fileObjectId"
-            />
+              :fileObjectId="excerpt.fileObjectId" />
             <ShareFileButton :fileObjectId="excerpt.fileObjectId" />
           </div>
         </div>

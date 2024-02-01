@@ -1,14 +1,12 @@
 <template>
   <nav
     v-if="currentAssetIndex !== null"
-    class="justify-between items-center gap-4 grid grid-cols-3 px-4 py-1"
-  >
+    class="prev-next-search-result-nav justify-between items-center gap-4 grid grid-cols-3 px-4 py-1">
     <div class="flex justify-start">
       <Button
         v-if="previousAssetId"
         variant="tertiary"
-        :to="getAssetUrl(previousAssetId)"
-      >
+        :to="getAssetUrl(previousAssetId)">
         <ChevronLeftIcon class="h-3 w-3" />
         Prev
       </Button>
@@ -24,8 +22,7 @@
             resultsView: searchStore.resultsView,
           },
         }"
-        variant="tertiary"
-      >
+        variant="tertiary">
         {{ currentAssetIndex + 1 }} of {{ searchStore.totalResults }}
       </Button>
     </div>
@@ -35,8 +32,7 @@
         v-if="nextAssetId"
         variant="tertiary"
         :to="getAssetUrl(nextAssetId)"
-        class="!ml-0"
-      >
+        class="!ml-0">
         Next
         <ChevronRightIcon class="h-3 w-3" />
       </Button>

@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="download-drawer-page">
     <div class="max-w-md mx-auto py-8 px-4 text-center">
       <template v-if="!isPageReady">
         <SpinnerIcon class="!w-5 !h-5 animate-spin" />
@@ -14,8 +14,7 @@
           <Button
             variant="tertiary"
             :to="`/drawers/viewDrawer/${drawerId}`"
-            class="my-6"
-          >
+            class="my-6">
             &larr; Back to Drawer
           </Button>
         </p>

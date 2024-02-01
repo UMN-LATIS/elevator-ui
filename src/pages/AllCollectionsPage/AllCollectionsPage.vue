@@ -1,6 +1,6 @@
 <template>
-  <DefaultLayout>
-    <div class="collections-page p-8 px-4">
+  <DefaultLayout class="all-collections-page">
+    <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Collections</h1>
       <SanitizedHTML
         v-if="collectionPageContent?.content"

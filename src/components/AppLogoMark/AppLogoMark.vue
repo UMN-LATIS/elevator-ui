@@ -1,11 +1,10 @@
 <template>
-  <div class="flex gap-2 items-center">
+  <div class="app-logo-mark flex gap-2 items-center">
     <img
       v-if="instanceStore.instance.logoImg"
       :src="instanceStore.instance.logoImg.src"
       :alt="instanceStore.instance.logoImg.alt"
-      class="app-header__logo-img h-8"
-    />
+      class="app-header__logo-img h-8" />
     <ElevatorIcon v-else class="h-full app-header__icon" />
     <h1 class="app-header__wordmark font-bold text-lg hidden md:block">
       {{ instanceStore.instance.name }}

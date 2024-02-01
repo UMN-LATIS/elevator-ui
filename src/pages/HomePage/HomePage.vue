@@ -1,27 +1,24 @@
 <template>
-  <DefaultLayout>
+  <DefaultLayout class="home-page">
     <template #custom-header>
       <CustomAppHeader v-if="instanceStore.customHeader" />
     </template>
     <SignInRequiredNotice
       v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"
-      class="my-8 mx-4"
-    />
+      class="my-8 mx-4" />
     <div
       v-if="isReady && canSearchAndBrowse"
       class="home-page-content flex-1 md:grid max-w-screen-xl w-full mx-auto"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
         'md:grid-cols-3': featuredAssetId,
-      }"
-    >
+      }">
       <article class="page-content-block col-span-2 p-4 lg:p-8">
         <Transition v-if="page" name="fade">
           <SanitizedHTML
             v-if="page.content"
             :html="page.content"
-            class="prose prose-neutral"
-          />
+            class="prose prose-neutral" />
           <section v-else class="bg-white p-8 my-8 shadow-sm">
             <h1 class="text-4xl text-center font-bold">
               {{ instanceStore.instance?.name ?? "Elevator" }}
@@ -31,8 +28,7 @@
       </article>
       <aside
         v-if="featuredAssetId"
-        class="featured-asset-block col-span-1 p-4 lg:p-8"
-      >
+        class="featured-asset-block col-span-1 p-4 lg:p-8">
         <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
         <div class="mb-4">
           <SanitizedHTML :html="featuredAssetText" />
@@ -43,8 +39,7 @@
     <Notification
       v-else-if="isReady && !canSearchAndBrowse && instanceStore.isLoggedIn"
       title="Nothing to See Here"
-      class="my-8 mx-4"
-    >
+      class="my-8 mx-4">
       <p>
         Your account does not have permission to search and browse assets.
         Please contact your administrator if you believe this is an error.

@@ -3,7 +3,7 @@
     v-show="isThemingEnabled && availableThemes.length > 1"
     label="Select Theme"
     :showChevron="false"
-  >
+    class="theme-selector">
     <template #label>
       <ThemeIcon />
     </template>
@@ -11,8 +11,7 @@
       v-for="theme in availableThemes"
       :key="theme"
       :current="activeTheme === theme"
-      @click="setTheme(theme)"
-    >
+      @click="setTheme(theme)">
       {{ capitalize(theme) }}
     </DropDownItem>
   </DropDown>

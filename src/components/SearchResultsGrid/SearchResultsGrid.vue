@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="search-results-grid">
     <div class="grid grid-cols-auto-md gap-4">
       <SearchResultCard
         v-for="match in matches"
@@ -7,13 +7,11 @@
         :key="match.objectId"
         :searchMatch="match"
         :showDetails="false"
-        :drawerId="drawerId"
-      />
+        :drawerId="drawerId" />
       <SkeletonCard
         v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
         v-show="status === 'fetching'"
-        :key="i"
-      />
+        :key="i" />
     </div>
   </div>
 </template>

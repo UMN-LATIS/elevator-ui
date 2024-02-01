@@ -37,7 +37,9 @@ export interface AppConfig {
     apiKey: string;
   };
   routes: {
-    test: string | null;
+    home: {
+      redirect?: string;
+    };
   };
   mode: "development" | "production" | string | null;
 }

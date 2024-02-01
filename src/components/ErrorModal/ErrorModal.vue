@@ -1,10 +1,9 @@
 <template>
-  <div>
+  <div class="error-modal">
     <Transition name="fade">
       <div
         v-if="error"
-        class="fixed inset-0 z-40 bg-transparent-black-700 flex items-center justify-center"
-      >
+        class="fixed inset-0 z-40 bg-transparent-black-700 flex items-center justify-center">
         <SignInRequiredNotice v-if="isCurrentUserUnauthorized" />
 
         <Notification
@@ -14,13 +13,12 @@
           type="danger"
           :isDismissable="true"
           class="w-full max-w-md border-none max-h-[80vh] !overflow-auto"
-          @dismiss="errorStore.clearError()"
-        >
+          @dismiss="errorStore.clearError()">
           <p>{{ message }}</p>
 
           <div class="mt-1">
             <!-- using href for force app reload -->
-            <Button :href="BASE_URL" variant="tertiary"> Go Home </Button>
+            <Button :href="BASE_URL" variant="tertiary">Go Home</Button>
           </div>
         </Notification>
       </div>
