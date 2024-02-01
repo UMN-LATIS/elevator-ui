@@ -428,6 +428,7 @@ const api = {
   getEmbedPluginInterstitial,
   getExcerpt,
   postLtiPayload: fetchers.postLtiPayload,
+  postLtiPayload13: fetchers.postLtiPayload13,
   fetchInstanceNav: fetchers.fetchInstanceNav,
   getSearchId: fetchers.fetchSearchId,
   getSearchIdForCollection,

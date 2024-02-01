@@ -15,6 +15,17 @@ export function useElevatorSessionStorage() {
     null
   );
 
+  const elevatorLTIVersion = useSessionStorage<ElevatorLTIVersion | null>(
+    "ltiVersion",
+    null
+  );
+  const elevatorLaunchId = useSessionStorage<ElevatorLTIId | null>(
+    "launchId",
+    null
+  );
+
+  const userId = useSessionStorage<ElevatorUserID | null>("userId", null);
+
   function clear() {
     returnUrl.value = null;
     elevatorPlugin.value = null;
@@ -26,6 +37,9 @@ export function useElevatorSessionStorage() {
     isInEmbedMode,
     elevatorPlugin,
     elevatorCallbackType,
+    elevatorLTIVersion,
+    elevatorLaunchId,
+    userId,
     clear,
   };
 }

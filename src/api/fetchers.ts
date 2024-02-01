@@ -197,6 +197,7 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
+  launchId
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -210,6 +211,30 @@ export async function postLtiPayload({
 
   return res.data;
 }
+
+export async function postLtiPayload13({
+  fileObjectId,
+  excerptId,
+  launchId,
+  userId
+}: {
+  fileObjectId: string;
+  returnUrl: string;
+  excerptId: string;
+  launchId: string;
+  userId: string;
+}) {
+  const formdata = new FormData();
+  formdata.append("object", fileObjectId);
+  formdata.append("excerptId", excerptId);
+  formdata.append("launchId", launchId);
+  formdata.append("userId", userId);
+
+  const res = await axios.post(`${BASE_URL}/api/v1/lti13/ltiPayload`, formdata);
+
+  return res.data;
+}
+
 
 export async function fetchSearchId(
   query: string,
