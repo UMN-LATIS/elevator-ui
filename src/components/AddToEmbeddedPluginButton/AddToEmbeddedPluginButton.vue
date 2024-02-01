@@ -126,6 +126,7 @@ async function onConfirmedToAdd() {
       });
 
       document.body.innerHTML += data;
+      // autosubmit name comes from he packbackbooks package we use, create a deeplink payload to post back to canvas
       (document.getElementById('auto_submit') as HTMLFormElement)?.submit();
     }
     else {
