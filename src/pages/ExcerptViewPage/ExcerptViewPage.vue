@@ -32,7 +32,7 @@
             <DownloadFileButton
               :assetId="excerpt.assetId"
               :fileObjectId="excerpt.fileObjectId" />
-            <ShareFileButton :fileObjectId="excerpt.fileObjectId" />
+            <ShareButton class="share-file-button" :url="shareUrl" />
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@
   </NoScrollLayout>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import api from "@/api";
 import { ApiGetExcerptResponse } from "@/types";
 import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
@@ -50,12 +50,18 @@ import DownloadFileButton from "@/components/DownloadFileButton/DownloadFileButt
 import Button from "@/components/Button/Button.vue";
 import ShareFileButton from "@/components/ShareFileButton/ShareFileButton.vue";
 import ExcerptableIframe from "@/components/ExcerptableIframe/ExcerptableIframe.vue";
+import ShareButton from "@/components/ShareButton/ShareButton.vue";
+import config from "@/config";
 
 const props = defineProps<{
   excerptId: number;
 }>();
 
 const excerpt = ref<ApiGetExcerptResponse | null>(null);
+
+const shareUrl = computed(
+  () => `${config.instance.base.url}/asset/viewExcerpt/${props.excerptId}/true`
+);
 
 onMounted(async () => {
   excerpt.value = await api.getExcerpt(props.excerptId);
