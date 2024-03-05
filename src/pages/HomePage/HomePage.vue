@@ -45,7 +45,9 @@
         Please contact your administrator if you believe this is an error.
       </p>
     </Notification>
-    <AppFooter />
+    <template #footer>
+      <AppFooter />
+    </template>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
