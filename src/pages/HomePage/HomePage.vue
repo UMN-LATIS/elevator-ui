@@ -8,7 +8,7 @@
       class="my-8 mx-4" />
     <div
       v-if="isReady && canSearchAndBrowse"
-      class="home-page-content flex-1 md:grid max-w-screen-xl w-full mx-auto"
+      class="home-page-content flex-1 md:grid max-w-screen-xl w-full mx-auto md:grid-rows-1"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
         'md:grid-cols-3': featuredAssetId,
@@ -45,7 +45,9 @@
         Please contact your administrator if you believe this is an error.
       </p>
     </Notification>
-    <AppFooter />
+    <template #footer>
+      <AppFooter />
+    </template>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
