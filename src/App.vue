@@ -1,33 +1,21 @@
-<template>
-  <div>
-    <Teleport to="body">
-      <ErrorModal />
-      <ToastRoot />
-    </Teleport>
-    <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
-  </div>
-</template>
-<script setup lang="ts">
-import { onMounted } from "vue";
-import { useInstanceStore } from "./stores/instanceStore";
-import { useDrawerStore } from "./stores/drawerStore";
-import { useTheming } from "./helpers/useTheming";
-import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
-import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
-
-// load instance store before mounting app
-// this prevents a race conditiion where the search store
-// tries to add search field filters before the instance store
-// has returned specifics about the available search fields
-const instanceStore = useInstanceStore();
-const drawerStore = useDrawerStore();
-
-onMounted(() => {
-  console.log("app mounted");
-  instanceStore.init();
-  drawerStore.init();
-
-  useTheming();
-});
+<script setup>
+// This starter template is using Vue 3 <script setup> SFCs
+// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
+import HelloWorld from './components/HelloWorld.vue'
 </script>
-<style scoped></style>
+
+<template>
+  <img alt="Vue logo" src="./assets/logo.png" />
+  <HelloWorld msg="Hello Vue 3 + Vite" />
+</template>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
