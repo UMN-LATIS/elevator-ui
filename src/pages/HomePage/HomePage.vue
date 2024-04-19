@@ -18,7 +18,10 @@
           <SanitizedHTML
             v-if="page.content"
             :html="page.content"
-            class="prose prose-neutral" />
+            class="prose prose-neutral"
+            :class="{
+              'mx-auto': !featuredAssetId,
+            }" />
           <section v-else class="bg-white p-8 my-8 shadow-sm">
             <h1 class="text-4xl text-center font-bold">
               {{ instanceStore.instance?.name ?? "Elevator" }}

@@ -92,7 +92,7 @@ a:hover {
 .prose {
   --tw-prose-headings: var(--app-headingColor);
   --tw-prose-links: var(--app-link-textColor);
-  max-width: 70ch;
+  max-width: 90ch;
   color: var(--app-textColor);
 }
 
