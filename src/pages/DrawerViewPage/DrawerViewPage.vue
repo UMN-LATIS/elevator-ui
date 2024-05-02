@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout class="drawer-view-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 2" />
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
     </template>
     <div class="px-4">
       <Link

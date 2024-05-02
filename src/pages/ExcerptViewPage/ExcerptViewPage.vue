@@ -1,5 +1,8 @@
 <template>
   <NoScrollLayout class="excerpt-view-page">
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+    </template>
     <Transition name="fade">
       <div
         v-if="excerpt"
@@ -52,7 +55,10 @@ import ShareFileButton from "@/components/ShareFileButton/ShareFileButton.vue";
 import ExcerptableIframe from "@/components/ExcerptableIframe/ExcerptableIframe.vue";
 import ShareButton from "@/components/ShareButton/ShareButton.vue";
 import config from "@/config";
+import { useInstanceStore } from "@/stores/instanceStore";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 
+const instanceStore = useInstanceStore();
 const props = defineProps<{
   excerptId: number;
 }>();
