@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout class="home-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeader" />
+      <CustomAppHeader v-if="instanceStore.customHeaderMode > 0" />
     </template>
     <SignInRequiredNotice
       v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"

@@ -1,5 +1,8 @@
 <template>
   <DefaultLayout class="search-results-page">
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+    </template>
     <div class="px-4">
       <SearchErrorNotification v-if="searchStore.status === 'error'" />
       <template v-else>
@@ -128,6 +131,7 @@ import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResu
 import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
 import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import type {
   SearchResultsView,
   SearchSortOptions,

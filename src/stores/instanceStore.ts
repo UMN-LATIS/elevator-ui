@@ -35,6 +35,7 @@ const createState = () => ({
     userCanSearchAndBrowse: false,
     templates: [],
   }),
+  customHeaderMode: ref<number>(0),
   customHeader: ref<string | null>(null),
   customFooter: ref<string | null>(null),
 });
@@ -90,6 +91,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.collections.value = normalizeAssetCollections(
         apiResponse.collections
       );
+      state.customHeaderMode.value = apiResponse.customHeaderMode;
       state.customHeader.value = apiResponse.customHeader;
       state.customFooter.value = apiResponse.customFooter;
 

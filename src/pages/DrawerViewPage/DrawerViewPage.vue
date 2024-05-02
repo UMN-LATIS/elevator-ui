@@ -1,5 +1,8 @@
 <template>
   <DefaultLayout class="drawer-view-page">
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+    </template>
     <div class="px-4">
       <Link
         :to="`/drawers/listDrawers`"
@@ -172,6 +175,7 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import DrawerItemsGrid from "./DrawerItemsGrid.vue";
 import DrawerItemsList from "./DrawerItemsList.vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import config from "@/config";
 

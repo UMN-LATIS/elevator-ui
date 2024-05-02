@@ -1,5 +1,8 @@
 <template>
   <DefaultLayout class="local-login-page">
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+    </template>
     <div class="px-4">
       <section
         class="max-w-md border border-neutral-900 rounded-lg mx-auto my-12 p-8"
@@ -92,6 +95,7 @@
 import Button from "@/components/Button/Button.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useRouter } from "vue-router";

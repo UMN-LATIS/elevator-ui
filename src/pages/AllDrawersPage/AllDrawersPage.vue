@@ -1,5 +1,8 @@
 <template>
   <DefaultLayout class="all-drawers-page">
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+    </template>
     <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Drawers</h1>
       <nav v-if="currentUser?.canManageDrawers" class="mb-4">
@@ -34,6 +37,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
 import DeleteDrawerButton from "./DeleteDrawerButton.vue";
