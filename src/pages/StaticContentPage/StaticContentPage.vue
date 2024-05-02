@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout class="static-content-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeader" />
+      <CustomAppHeader v-if="instanceStore.customHeaderMode > 0" />
     </template>
     <div
       v-if="page"

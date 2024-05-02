@@ -1,5 +1,8 @@
 <template>
   <DefaultLayout class="all-collections-page">
+    <template #custom-header>
+      <CustomAppHeader v-if="instanceStore.customHeaderMode == 2" />
+    </template>
     <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Collections</h1>
       <SanitizedHTML
@@ -20,6 +23,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import CollectionItem from "./CollectionItem.vue";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useResizeObserver } from "@vueuse/core";
