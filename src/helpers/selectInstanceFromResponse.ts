@@ -8,6 +8,8 @@ export function selectInstanceFromResponse(
     instanceName,
     instanceId,
     instanceHasLogo,
+    instanceShowCollectionInSearchResults,
+    instanceShowTemplateInSearchResults,
     contact,
     useCentralAuth,
     centralAuthLabel,
@@ -48,5 +50,7 @@ export function selectInstanceFromResponse(
     featuredAssetText,
     userCanSearchAndBrowse,
     templates: templatesArray,
+    showCollectionInSearchResults: instanceShowCollectionInSearchResults,
+    showTemplateInSearchResults: instanceShowTemplateInSearchResults,
   };
 }

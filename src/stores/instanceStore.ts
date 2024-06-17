@@ -34,6 +34,8 @@ const createState = () => ({
     featuredAssetText: null,
     userCanSearchAndBrowse: false,
     templates: [],
+    showCollectionInSearchResults: true,
+    showTemplateInSearchResults: true,
   }),
   customHeaderMode: ref<number>(0),
   customHeader: ref<string | null>(null),

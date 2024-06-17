@@ -1,5 +1,9 @@
 import type { Ref } from "vue";
-import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
+import {
+  SEARCH_RESULTS_VIEWS,
+  SORT_KEYS,
+  TEMPLATE_SHOW_PROPERTY_POSITIONS,
+} from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
 
 export * from "./TimelineJSTypes";
@@ -464,9 +468,17 @@ export interface Asset {
   title?: string[];
   [key: string]: unknown;
 }
+
+type TemplateShowPropertyPosition =
+  (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
+
 export interface Template {
   templateId: string;
   templateName: string;
+  showCollection: boolean;
+  showCollectionPosition: TemplateShowPropertyPosition;
+  showTemplate: boolean;
+  showTemplatePosition: TemplateShowPropertyPosition;
   widgetArray: WidgetProps[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
@@ -517,6 +529,8 @@ export interface ApiInstanceNavResponse {
   instanceId: number;
   instanceHasLogo: boolean;
   instanceLogo: number;
+  instanceShowCollectionInSearchResults: true;
+  instanceShowTemplateInSearchResults: true;
   contact: string;
   useCentralAuth: boolean;
   centralAuthLabel: string;
@@ -559,6 +573,8 @@ export interface ElevatorInstance {
   // may be true even if user is not logged in
   userCanSearchAndBrowse: boolean;
   templates: { id: number; name: string }[];
+  showCollectionInSearchResults;
+  showTemplateInSearchResults;
 }
 
 export interface RawAssetCollection {

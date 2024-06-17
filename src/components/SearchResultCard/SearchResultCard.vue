@@ -33,17 +33,22 @@
           {{ excerptLabel ?? title }}
         </h1>
         <div
-          v-if="props.searchMatch?.entries"
           class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden">
-          <dl class="text-sm">
+          <dl class="text-sm flex flex-col gap-2">
             <div
               v-for="(entry, index) in props.searchMatch.entries"
-              :key="index"
-              class="mb-2">
+              :key="index">
               <dt class="font-bold text-xs uppercase">
                 {{ entry?.label ?? "Item" }}
               </dt>
               <dd>{{ entry.entries?.join(", ") }}</dd>
+            </div>
+            <CollectionHeirarchy
+              v-if="instanceStore.instance.showCollectionInSearchResults"
+              :collectionHierarchy="props.searchMatch.collectionHierarchy" />
+            <div v-if="instanceStore.instance.showTemplateInSearchResults">
+              <dt class="font-bold text-xs uppercase">Template</dt>
+              <dd>{{ searchMatch.template.name }}</dd>
             </div>
           </dl>
         </div>
@@ -65,6 +70,7 @@ import Link from "@/components/Link/Link.vue";
 import Chip from "@/components/Chip/Chip.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import RemoveFromDrawerButton from "@/components/RemoveFromDrawerButton/RemoveFromDrawerButton.vue";
+import CollectionHeirarchy from "./CollectionHeirarchy.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
