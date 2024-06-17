@@ -13,23 +13,22 @@
             'text-2xl': isOpen,
           }" />
       </template>
-      <template v-if="assetId && asset">
-        <WidgetList :assetId="assetId" class="py-4 md:py-0" />
-        <Tuple
-          v-if="template?.showCollection && collectionPath?.length"
-          label="Collection">
-          <template
-            v-for="(collection, index) in collectionPath"
-            :key="collection.id">
-            <Link
-              :to="`/collections/${collection.id}`"
-              :class="{ 'mr-1': index < collectionPath.length - 1 }">
-              {{ collection.title }}
-            </Link>
-            <span v-if="index < collectionPath.length - 1" class="mr-1">/</span>
-          </template>
+      <template v-if="assetId && asset && template">
+        <CollectionTuple
+          v-if="showCollectionTop"
+          :collectionId="asset.collectionId"
+          label="Collection" />
+
+        <Tuple v-if="showTemplateTop" label="Template">
+          {{ template.templateName }}
         </Tuple>
-        <Tuple v-if="template?.showTemplate" label="Template">
+        <WidgetList :assetId="assetId" class="py-4 md:py-0" />
+        <CollectionTuple
+          v-if="showCollectionBottom"
+          :collectionId="asset.collectionId"
+          label="Collection" />
+
+        <Tuple v-if="showTemplateBottom" label="Template">
           {{ template.templateName }}
         </Tuple>
 
@@ -43,14 +42,14 @@ import { computed, ref, watch } from "vue";
 import Panel from "@/components/Panel/Panel.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
-import Link from "@/components/Link/Link.vue";
+import CollectionTuple from "./CollectionTuple.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
 import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import PanelLabel from "../Panel/PanelLabel.vue";
 import api from "@/api";
 import { SearchResultMatch } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { TEMPLATE_SHOW_PROPERTY_POSITIONS } from "@/constants/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -71,28 +70,33 @@ defineEmits<{
 const assetIdRef = computed(() => props.assetId);
 const { asset, template } = useAsset(assetIdRef);
 const moreLikeThisItems = ref<SearchResultMatch[]>([]);
-const instanceStore = useInstanceStore();
+const showCollectionBottom = computed(
+  () =>
+    template.value?.showCollection &&
+    template.value?.showCollectionPosition ===
+      TEMPLATE_SHOW_PROPERTY_POSITIONS.BOTTOM
+);
 
-const collectionPath = computed(() => {
-  const collectionId = asset.value?.collectionId;
-  if (!collectionId) return null;
+const showCollectionTop = computed(
+  () =>
+    template.value?.showCollection &&
+    template.value?.showCollectionPosition ===
+      TEMPLATE_SHOW_PROPERTY_POSITIONS.TOP
+);
 
-  const collection = instanceStore.collectionIndex[collectionId];
+const showTemplateBottom = computed(
+  () =>
+    template.value?.showTemplate &&
+    template.value?.showTemplatePosition ===
+      TEMPLATE_SHOW_PROPERTY_POSITIONS.BOTTOM
+);
 
-  if (!collection) {
-    throw new Error(`Collection ${collectionId} not found in instanceStore`);
-  }
-
-  // construct a path to this collection
-  const path = [collection];
-  let child = collection;
-  while (child.parentId) {
-    child = instanceStore.collectionIndex[child.parentId];
-    path.unshift(child);
-  }
-
-  return path;
-});
+const showTemplateTop = computed(
+  () =>
+    template.value?.showTemplate &&
+    template.value?.showTemplatePosition ===
+      TEMPLATE_SHOW_PROPERTY_POSITIONS.TOP
+);
 
 watch(
   assetIdRef,
