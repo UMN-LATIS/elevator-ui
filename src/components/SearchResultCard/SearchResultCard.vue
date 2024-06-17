@@ -34,26 +34,21 @@
         </h1>
         <div
           class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden">
-          <dl class="text-sm">
+          <dl class="text-sm flex flex-col gap-2">
             <div
               v-for="(entry, index) in props.searchMatch.entries"
-              :key="index"
-              class="mb-2">
+              :key="index">
               <dt class="font-bold text-xs uppercase">
                 {{ entry?.label ?? "Item" }}
               </dt>
               <dd>{{ entry.entries?.join(", ") }}</dd>
             </div>
-            <div v-if="instanceStore.instance.showCollectionInSearchResults">
-              <dt class="font-bold text-xs uppercase">Collection</dt>
-              <dd>
-                <span
-                  v-for="collection in props.searchMatch.collectionHierarchy"
-                  :key="collection.id"
-                  class="after:content-['/'] after:mr-1 after:ml-1 after:text-neutral-400 after:last:content-none">
-                  {{ collection.title }}
-                </span>
-              </dd>
+            <CollectionHeirarchy
+              v-if="instanceStore.instance.showCollectionInSearchResults"
+              :collectionHierarchy="props.searchMatch.collectionHierarchy" />
+            <div v-if="instanceStore.instance.showTemplateInSearchResults">
+              <dt class="font-bold text-xs uppercase">Template</dt>
+              <dd>{{ searchMatch.template.name }}</dd>
             </div>
           </dl>
         </div>
@@ -75,6 +70,7 @@ import Link from "@/components/Link/Link.vue";
 import Chip from "@/components/Chip/Chip.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import RemoveFromDrawerButton from "@/components/RemoveFromDrawerButton/RemoveFromDrawerButton.vue";
+import CollectionHeirarchy from "./CollectionHeirarchy.vue";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
