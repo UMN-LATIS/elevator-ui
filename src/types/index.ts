@@ -517,6 +517,8 @@ export interface ApiInstanceNavResponse {
   instanceId: number;
   instanceHasLogo: boolean;
   instanceLogo: number;
+  instanceShowCollectionInSearchResults: true;
+  instanceShowTemplateInSearchResults: true;
   contact: string;
   useCentralAuth: boolean;
   centralAuthLabel: string;
@@ -559,6 +561,8 @@ export interface ElevatorInstance {
   // may be true even if user is not logged in
   userCanSearchAndBrowse: boolean;
   templates: { id: number; name: string }[];
+  showCollectionInSearchResults;
+  showTemplateInSearchResults;
 }
 
 export interface RawAssetCollection {

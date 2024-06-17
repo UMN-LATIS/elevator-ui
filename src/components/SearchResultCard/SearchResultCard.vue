@@ -33,7 +33,6 @@
           {{ excerptLabel ?? title }}
         </h1>
         <div
-          v-if="props.searchMatch?.entries"
           class="search-result-card__contents max-h-[15rem] overflow-y-auto overflow-x-hidden">
           <dl class="text-sm">
             <div
@@ -44,6 +43,17 @@
                 {{ entry?.label ?? "Item" }}
               </dt>
               <dd>{{ entry.entries?.join(", ") }}</dd>
+            </div>
+            <div v-if="instanceStore.instance.showCollectionInSearchResults">
+              <dt class="font-bold text-xs uppercase">Collection</dt>
+              <dd>
+                <span
+                  v-for="collection in props.searchMatch.collectionHierarchy"
+                  :key="collection.id"
+                  class="after:content-['/'] after:mr-1 after:ml-1 after:text-neutral-400 after:last:content-none">
+                  {{ collection.title }}
+                </span>
+              </dd>
             </div>
           </dl>
         </div>
