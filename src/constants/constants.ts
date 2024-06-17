@@ -35,3 +35,8 @@ export const GLOBAL_FIELD_IDS = {
   LOCATION: "GLOBAL_LOCATION",
   FILE_TYPE: "GLOBAL_FILE_TYPE",
 } as const;
+
+export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
+  BOTTOM: 0,
+  TOP: 1,
+} as const;
