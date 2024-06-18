@@ -65,6 +65,7 @@ module.exports = {
     "md:grid-cols-1",
     "md:grid-cols-2",
     "md:grid-cols-3",
+    "not-prose",
   ],
   plugins: [
     require("@tailwindcss/typography"),
