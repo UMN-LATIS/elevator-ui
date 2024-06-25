@@ -290,6 +290,7 @@ const getters = (state: SearchStoreState) => ({
     "tag list",
     "text area",
     "multiselect",
+    "related asset",
   ]),
 
   currentSearchTerm: computed((): string => {
