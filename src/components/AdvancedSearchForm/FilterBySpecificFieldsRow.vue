@@ -17,7 +17,7 @@
     </template>
 
     <InputGroup
-      v-if="['text', 'date', 'text area'].includes(currentField.type)"
+      v-if="['text', 'date', 'text area', 'related asset'].includes(currentField.type)"
       :id="filter.id"
       class="text-sm"
       inputClass="!bg-white !border !border-neutral-200 placeholder:capitalize"
