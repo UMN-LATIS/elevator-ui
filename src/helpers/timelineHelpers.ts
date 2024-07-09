@@ -3,6 +3,7 @@ import type {
   TimelineJSSlide,
   SearchResultMatchEntry,
 } from "@/types";
+import config from "@/config";
 
 export type DateObject = {
   display_date?: string;
@@ -70,7 +71,7 @@ export function toTimelineJSSlide(
     ? convertTimestampToDateObject(dateAsset.end.numeric)
     : undefined;
 
-  const headline = `<a href="/defaultinstance/asset/viewAsset/${match.objectId}">${match.title}</a>`;
+  const headline = `<a href="${config.instance.base.path}/asset/viewAsset/${match.objectId}">${match.title}</a>`;
 
   const text = match.entries ? renderMatchEntries(match.entries) : "";
 
