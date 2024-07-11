@@ -27,7 +27,7 @@ const props = defineProps<Props>();
 const dateString = computed(() => {
   let outputString = "";
   outputString += props.dateContent.start.text;
-  if (props.dateContent.range) {
+  if (props.dateContent.end.text !== null && props.dateContent.end.text !== "") {
     outputString += " - " + props.dateContent.end.text;
   }
   return outputString;
