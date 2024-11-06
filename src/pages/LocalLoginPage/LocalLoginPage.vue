@@ -96,7 +96,8 @@ import Button from "@/components/Button/Button.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-import { ref, reactive, computed, onMounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
+import Cookies from "js-cookie";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useRouter } from "vue-router";
 import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/icons";
@@ -174,6 +175,19 @@ const login = async () => {
     // reset the cache and reinitialize stores
     api.clearCache();
     resetAllStores();
+
+    // set a cookie that we have an active session
+    // see: https://github.com/UMN-LATIS/elevator-ui/issues/277
+    Cookies.set(
+      "_check_is_passive",
+      window.location.origin + config.instance.base.path,
+      {
+        sameSite: "strict",
+        path: "/",
+        secure: true,
+      }
+    );
+
     await instanceStore.init();
     await drawerStore.init();
     router.push(props.redirectURL);
