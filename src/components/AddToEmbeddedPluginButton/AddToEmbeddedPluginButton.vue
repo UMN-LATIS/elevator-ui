@@ -155,16 +155,15 @@ async function onConfirmedToAdd() {
     window.opener.postMessage(
       {
         pluginResponse: true,
-        // NOTE: current WP plugin expects non-camelcase
-        fileobjectid: assetStore.activeAssetId,
-        objectid: assetStore.activeAssetId,
+        fileObjectId: assetStore.activeAssetId,
+        objectId: assetStore.activeAssetId,
         currentLink: window.location.href,
       },
       "*"
     );
     addingToPluginStatus.value = "success";
     toastStore.addToast({ message: "Added to WordPress" });
-    window.close();
+    // window.close();
   }
 }
 
