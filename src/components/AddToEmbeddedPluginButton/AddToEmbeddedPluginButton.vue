@@ -148,7 +148,6 @@ async function onConfirmedToAdd() {
   }
 
   if (elevatorCallbackType.value === "JS") {
-    console.log("post to JS callback");
     // WordPress integration works by opening a new window with Elevator
     // and then passing a message back to the original WordPress window
     // by using `window.opener.postMessage`

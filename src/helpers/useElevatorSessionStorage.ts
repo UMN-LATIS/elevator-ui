@@ -45,8 +45,6 @@ export function useElevatorSessionStorage() {
       return;
     }
 
-    console.log("running plugin init", event.data);
-
     elevatorPlugin.value = event.data.elevatorPlugin;
     elevatorCallbackType.value = event.data.elevatorCallbackType;
     elevatorLTIVersion.value = event.data.ltiVersion;
