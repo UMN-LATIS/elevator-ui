@@ -155,7 +155,7 @@ async function onConfirmedToAdd() {
     window.opener.postMessage(
       {
         pluginResponse: true,
-        fileObjectId: assetStore.activeAssetId,
+        fileObjectId: assetStore.activeFileObjectId,
         objectId: assetStore.activeAssetId,
         currentLink: window.location.href,
       },
