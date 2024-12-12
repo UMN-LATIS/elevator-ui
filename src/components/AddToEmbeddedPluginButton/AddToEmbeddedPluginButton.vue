@@ -163,7 +163,7 @@ async function onConfirmedToAdd() {
     );
     addingToPluginStatus.value = "success";
     toastStore.addToast({ message: "Added to WordPress" });
-    // window.close();
+    nextTick(() => window.close());
   }
 }
 
