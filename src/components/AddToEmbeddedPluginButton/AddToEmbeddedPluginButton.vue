@@ -114,8 +114,6 @@ async function onConfirmedToAdd() {
   }
 
   if (elevatorCallbackType.value === "lti") {
-
-
     if (elevatorLTIVersion.value == "1.3") {
       const data = await api.postLtiPayload13({
         fileObjectId: props.fileHandlerId,
@@ -127,13 +125,12 @@ async function onConfirmedToAdd() {
 
       document.body.innerHTML += data;
       // autosubmit name comes from he packbackbooks package we use, create a deeplink payload to post back to canvas
-      (document.getElementById('auto_submit') as HTMLFormElement)?.submit();
-    }
-    else {
+      (document.getElementById("auto_submit") as HTMLFormElement)?.submit();
+    } else {
       const data = await api.postLtiPayload({
         fileObjectId: props.fileHandlerId,
         excerptId: "",
-        returnUrl: returnUrl.value ?? ""
+        returnUrl: returnUrl.value ?? "",
       });
       ltiContentItems.value = JSON.stringify(data);
 
@@ -157,15 +154,15 @@ async function onConfirmedToAdd() {
     window.opener.postMessage(
       {
         pluginResponse: true,
-        fileObjectId: assetStore.activeFileObjectId,
-        objectId: assetStore.activeObjectId,
+        fileObjectId: props.fileHandlerId,
+        objectId: assetStore.activeAssetId,
         currentLink: window.location.href,
       },
       "*"
     );
     addingToPluginStatus.value = "success";
     toastStore.addToast({ message: "Added to WordPress" });
-    window.close();
+    nextTick(() => window.close());
   }
 }
 

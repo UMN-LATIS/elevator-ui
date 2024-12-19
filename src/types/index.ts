@@ -508,6 +508,21 @@ export type ElevatorPluginType = "Canvas" | "Wordpress" | string;
 export type ElevatorCallbackType = "lti" | "JS";
 export type ElevatorLTIVersion = "1.1" | "1.3";
 export type ElevatorLTIId = string;
+export type ElevatorUserID = string;
+
+export interface ElevatorPluginInitMessageData {
+  pluginSetup: boolean;
+  elevatorPlugin: ElevatorPluginType;
+  elevatorCallbackType: ElevatorCallbackType;
+  apiKey: string;
+  timeStamp: string;
+  entangledSecret: string;
+  includeMetadata: boolean;
+  ltiVersion?: ElevatorLTIVersion;
+  launchId?: ElevatorLTIId;
+  userId?: ElevatorUserID;
+  returnUrl?: string;
+}
 
 export interface RawSortableField {
   label: string;

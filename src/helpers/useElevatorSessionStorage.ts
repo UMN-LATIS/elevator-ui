@@ -1,6 +1,13 @@
 import { computed } from "vue";
 import { useSessionStorage } from "@vueuse/core";
-import { ElevatorPluginType, ElevatorCallbackType } from "@/types";
+import {
+  ElevatorPluginType,
+  ElevatorCallbackType,
+  ElevatorLTIId,
+  ElevatorUserID,
+  ElevatorLTIVersion,
+  ElevatorPluginInitMessageData,
+} from "@/types";
 
 export function useElevatorSessionStorage() {
   const returnUrl = useSessionStorage<string | null>("returnURL", null);
@@ -32,6 +39,19 @@ export function useElevatorSessionStorage() {
     elevatorCallbackType.value = null;
   }
 
+  function init(event: MessageEvent<ElevatorPluginInitMessageData>) {
+    // if we're already setup, ignore
+    if (elevatorPlugin.value) {
+      return;
+    }
+
+    elevatorPlugin.value = event.data.elevatorPlugin;
+    elevatorCallbackType.value = event.data.elevatorCallbackType;
+    elevatorLTIVersion.value = event.data.ltiVersion;
+    elevatorLaunchId.value = event.data.launchId;
+    userId.value = event.data.userId;
+  }
+
   return {
     returnUrl,
     isInEmbedMode,
@@ -41,5 +61,6 @@ export function useElevatorSessionStorage() {
     elevatorLaunchId,
     userId,
     clear,
+    init,
   };
 }
