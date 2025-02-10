@@ -7,22 +7,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue()],
-    // this added so that dynamic components load properly on
-    // production
     base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
       },
     },
-    // config options
     css: {
       preprocessorOptions: {
         less: {
-          // this is needed for timelineJS
-          // without it vite will have problems resolving the icon
-          // urls in the less files
-          // see: https://github.com/vitejs/vite/issues/11382
           rewriteUrls: "all",
         },
       },
@@ -32,7 +25,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         input: "/src/main.ts",
       },
-      sourcemap: true,
+      sourcemap: mode !== "production",
     },
     server: {
       proxy: {
