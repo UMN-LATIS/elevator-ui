@@ -17,7 +17,7 @@
       <AdvancedSearchForm
         v-if="isAdvancedSearchModalOpen"
         :isOpen="isAdvancedSearchModalOpen"
-        class="fixed top-1 right-1 left-1 m-auto z-40 sm:absolute sm:!-top-2 sm:!-right-2 sm:!-left-2 advanced-search-form"
+        class="advanced-search-form fixed left-4 right-4 top-1/2 mx-auto -translate-y-1/2 w-[100dvw-2rem] z-40 advanced-search-form max-w-screen-sm sm:absolute sm:-top-2 sm:translate-y-0 sm:-right-2 sm:left-auto sm:min-w-[30rem] sm:w-full"
         @submit="handleSubmit"
         @close="isAdvancedSearchModalOpen = false" />
     </TransitionFade>
@@ -26,7 +26,7 @@
     <TransitionFade>
       <div
         v-if="isAdvancedSearchModalOpen"
-        class="fixed inset-0 bg-transparent-black-700 z-30" />
+        class="fixed inset-0 bg-black/75 z-30" />
     </TransitionFade>
   </div>
 </template>
@@ -99,10 +99,4 @@ watch(
   { immediate: true }
 );
 </script>
-<style scoped>
-@media (min-width: 640px) {
-  .advanced-search-form {
-    width: calc(100% + 1rem);
-  }
-}
-</style>
+<style scoped></style>
