@@ -806,6 +806,7 @@ const mockSearch: SearchResultsResponse = {
   success: true,
   searchEntry: {
     showHidden: "0",
+    useBoolean: "0",
     fuzzySearch: "0",
     searchText: "",
     sort: "lastModified.desc",
