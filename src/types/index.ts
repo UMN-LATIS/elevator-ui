@@ -363,6 +363,7 @@ export interface SearchEntry {
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
   showHidden?: boolean | "0" | "1";
+  useBoolean?: boolean | "0" | "1";
   fuzzySearch?: "0" | "1";
   sort?: string;
   specificFieldSearch?: SpecificFieldSearchItem[];
@@ -409,6 +410,7 @@ export interface SearchRequestOptions {
   endDateText?: string;
   endDate?: string;
   showHidden?: "on" | undefined;
+  useBoolean?: "on" | undefined;
 }
 
 export interface SearchResultsResponse {

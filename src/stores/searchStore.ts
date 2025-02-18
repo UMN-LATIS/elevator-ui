@@ -50,6 +50,7 @@ export interface SearchStoreState {
       createdAt: string;
     };
     includeHiddenAssets: boolean; // only available for admins
+    useBooleanOperators: boolean; // only available for admins
   };
 
   matches: Ref<SearchResultMatch[]>;
@@ -85,6 +86,7 @@ const createState = (): SearchStoreState => ({
     globalLocation: null,
     globalFileType: null,
     includeHiddenAssets: false,
+    useBooleanOperators: false,
   }),
   matches: ref([]),
   totalResults: ref(undefined),
@@ -135,6 +137,7 @@ const getters = (state: SearchStoreState) => ({
       (state.filterBy.globalDateRange ? 1 : 0) +
       (state.filterBy.globalLocation ? 1 : 0) +
       (state.filterBy.includeHiddenAssets ? 1 : 0) +
+      (state.filterBy.useBooleanOperators ? 1 : 0) +
       (state.filterBy.globalFileType ? 1 : 0)
     );
   }),
@@ -252,6 +255,7 @@ const getters = (state: SearchStoreState) => ({
       distance: state.filterBy.globalLocation?.radius ?? "",
       fileTypesSearch: state.filterBy.globalFileType?.fileType,
       showHidden: state.filterBy.includeHiddenAssets ? "on" : undefined,
+      useBoolean: state.filterBy.useBooleanOperators ? "on" : undefined,
     };
   }),
 
@@ -549,6 +553,7 @@ const actions = (state: SearchStoreState) => ({
     this.clearSearchableFieldsFilters();
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.includeHiddenAssets = false;
+    state.filterBy.useBooleanOperators = false;
   },
 
   reset() {
@@ -647,6 +652,7 @@ const actions = (state: SearchStoreState) => ({
 
     // set the include hidden assets filter if included
     state.filterBy.includeHiddenAssets = !!res.searchEntry.showHidden;
+    state.filterBy.useBooleanOperators = !!res.searchEntry.useBoolean;
 
     // set query to the search text if it's not already set
     // to something. This handles the case when a user enters

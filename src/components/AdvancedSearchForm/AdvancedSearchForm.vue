@@ -7,6 +7,12 @@
       <h1 class="sr-only">Advanced Search</h1>
 
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
+      <Toggle
+        v-model="searchStore.filterBy.useBooleanOperators"
+        class="mb-2"
+        settingLabel="Use Boolean Operators"
+        onLabel="Use Boolean Operators"
+        onLabelClass="text-sm"></Toggle>
       <div class="px-2">
         <h2
           class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200">
