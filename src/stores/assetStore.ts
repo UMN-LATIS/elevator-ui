@@ -3,7 +3,6 @@ import { defineStore } from "pinia";
 import api from "@/api";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAnalytics } from "@/helpers/useAnalytics";
-import invariant from "tiny-invariant";
 
 export interface AssetStoreState {
   activeAssetId: string | null;
@@ -29,7 +28,7 @@ export const useAssetStore = defineStore("asset2", {
     ): Promise<Asset | null> {
       const { asset } = await api.getAssetWithTemplate(assetId);
 
-      if (!asset) {
+      if (!asset || !assetId) {
         this.activeAssetId = null;
         this.activeObjectId = null;
         this.activeFileObjectId = null;
@@ -37,16 +36,8 @@ export const useAssetStore = defineStore("asset2", {
       }
 
       this.activeAssetId = assetId;
-      invariant(assetId, "asset id should be defined");
 
-      // track this asset view
-      const { trackEvent } = useAnalytics();
-      trackEvent("asset_view", {
-        collection_id: asset.collectionId,
-        collection_name: asset.collectionName,
-        asset_title: getAssetTitle(asset),
-        asset_id: assetId,
-      });
+      useAnalytics().trackViewAssetEvent(assetId);
 
       // if an objectId is provided, use it to set
       // the active object
