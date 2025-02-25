@@ -17,6 +17,7 @@ import {
 import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
 import { parseDateString } from "@/helpers/parseDateString";
+import { useGoogleTagManager } from "@/helpers/useGoogleTagManager";
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -562,8 +563,12 @@ const actions = (state: SearchStoreState) => ({
   },
 
   async getSearchId(): Promise<string> {
+    const query = state.query.value;
+    const gtm = useGoogleTagManager();
+    gtm.sendEvent("search", { query, filters: state.filterBy });
+
     return api
-      .getSearchId(state.query.value, getters(state).searchRequestOptions.value)
+      .getSearchId(query, getters(state).searchRequestOptions.value)
       .catch((err) => {
         throw new Error(`Cannot getSearchId for query: ${state.query}: ${err}`);
       });
