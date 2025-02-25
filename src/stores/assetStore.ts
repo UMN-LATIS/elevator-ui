@@ -2,6 +2,8 @@ import { Asset } from "@/types";
 import { defineStore } from "pinia";
 import api from "@/api";
 import { getAssetTitle } from "@/helpers/displayUtils";
+import { useAnalytics } from "@/helpers/useAnalytics";
+import invariant from "tiny-invariant";
 
 export interface AssetStoreState {
   activeAssetId: string | null;
@@ -35,6 +37,19 @@ export const useAssetStore = defineStore("asset2", {
       }
 
       this.activeAssetId = assetId;
+      invariant(assetId, "asset id should be defined");
+
+      // track this asset view
+      const { trackEvent } = useAnalytics();
+      trackEvent("asset_view", {
+        // QUESTION
+        // there's a cap on number of custom dimensions. Should we use built in dimensions like `contet_group` instead?
+        // see: https://support.google.com/analytics/table/13948007?visit_id=638761100108506149-1634441230&rd=2
+        key_event: true,
+        collection_id: asset.collectionId,
+        asset_title: getAssetTitle(asset),
+        asset_id: assetId,
+      });
 
       // if an objectId is provided, use it to set
       // the active object
