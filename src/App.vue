@@ -15,6 +15,7 @@ import { useTheming } from "./helpers/useTheming";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
 import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
+import { useGoogleTagManager } from "./helpers/useGoogleTagManager";
 
 // load instance store before mounting app
 // this prevents a race conditiion where the search store
@@ -23,6 +24,7 @@ import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
 const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
 const elevatorSessionStorage = useElevatorSessionStorage();
+const gtm = useGoogleTagManager();
 
 onMounted(() => {
   console.log("app mounted");
@@ -33,6 +35,10 @@ onMounted(() => {
     window.addEventListener("message", elevatorSessionStorage.init);
     window.opener.postMessage("parentLoaded", "*");
   }
+
+  gtm.sendEvent("app_mounted", {
+    hello: "world",
+  });
 
   useTheming();
 });

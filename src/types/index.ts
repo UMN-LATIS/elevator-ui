@@ -58,6 +58,7 @@ declare global {
       config?: Partial<AppConfig>;
     };
     location: Location;
+    dataLayer?: unknown[]; // Google Tag Manager
   }
 }
 
