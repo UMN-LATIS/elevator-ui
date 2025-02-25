@@ -42,10 +42,6 @@ export const useAssetStore = defineStore("asset2", {
       // track this asset view
       const { trackEvent } = useAnalytics();
       trackEvent("asset_view", {
-        // QUESTION
-        // there's a cap on number of custom dimensions. Should we use built in dimensions like `contet_group` instead?
-        // see: https://support.google.com/analytics/table/13948007?visit_id=638761100108506149-1634441230&rd=2
-        key_event: true,
         collection_id: asset.collectionId,
         collection_name: asset.collectionName,
         asset_title: getAssetTitle(asset),
