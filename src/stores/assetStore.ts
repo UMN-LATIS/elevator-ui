@@ -2,6 +2,7 @@ import { Asset } from "@/types";
 import { defineStore } from "pinia";
 import api from "@/api";
 import { getAssetTitle } from "@/helpers/displayUtils";
+import { useAnalytics } from "@/helpers/useAnalytics";
 
 export interface AssetStoreState {
   activeAssetId: string | null;
@@ -27,7 +28,7 @@ export const useAssetStore = defineStore("asset2", {
     ): Promise<Asset | null> {
       const { asset } = await api.getAssetWithTemplate(assetId);
 
-      if (!asset) {
+      if (!asset || !assetId) {
         this.activeAssetId = null;
         this.activeObjectId = null;
         this.activeFileObjectId = null;
@@ -35,6 +36,8 @@ export const useAssetStore = defineStore("asset2", {
       }
 
       this.activeAssetId = assetId;
+
+      useAnalytics().trackViewAssetEvent(assetId);
 
       // if an objectId is provided, use it to set
       // the active object

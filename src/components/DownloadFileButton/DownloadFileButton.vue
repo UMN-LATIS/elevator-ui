@@ -18,7 +18,14 @@
           <a
             v-if="download.isReady || download.filetype === 'original'"
             :href="download.url"
-            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group">
+            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
+            @click="
+              analytics.trackDownloadEvent({
+                fileObjectId: props.fileObjectId,
+                assetId: props.assetId,
+                fileType: download.filetype,
+              })
+            ">
             <li class="flex justify-between">
               <span class="group-hover:underline">{{ download.filetype }}</span>
               <Chip class="group-hover:bg-blue-100 group-hover:text-blue-600">
@@ -39,12 +46,14 @@ import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/api";
 import Modal from "@/components/Modal/Modal.vue";
 import Chip from "@/components/Chip/Chip.vue";
+import { useAnalytics } from "@/helpers/useAnalytics";
 
 const props = defineProps<{
   fileObjectId: string;
   assetId: string;
 }>();
 
+const analytics = useAnalytics();
 const isOpen = ref(false);
 const downloadFileInfo = ref<FileDownloadNormalized[] | null | undefined>(
   undefined

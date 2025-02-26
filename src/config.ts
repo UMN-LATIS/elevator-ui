@@ -14,8 +14,7 @@ const defaultConfig: AppConfig = {
       availableThemes: import.meta.env.VITE_AVAILABLE_THEMES?.split(",") ?? [
         "light",
       ],
-      enabled:
-        import.meta.env.VITE_THEME_ENABLED?.toLowerCase() === "true" ?? true,
+      enabled: import.meta.env.VITE_THEME_ENABLED?.toLowerCase() === "true",
       defaultTheme: import.meta.env.VITE_DEFAULT_THEME ?? "light",
     },
     moreLikeThis: {
@@ -26,6 +25,7 @@ const defaultConfig: AppConfig = {
       // ex. for 3 lines: 16px * 1.5 line-height * 3 lines = 72px
       defaultTextTruncationHeight: 72,
     },
+    googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID ?? null,
   },
   arcgis: {
     apiKey:
