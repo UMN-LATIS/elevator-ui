@@ -7,9 +7,12 @@ const VIEW_ASSET_EVENT = "view_asset";
 const DOWNLOAD_EVENT = "download";
 
 async function getAssetDetails(assetId: string): Promise<{
-  assetName: string;
-  collectionId: AssetCollection["id"];
-  collectionName: string;
+  asset_id: string;
+  asset_name: string;
+  collection_id: AssetCollection["id"];
+  collection_name: string;
+  instance_id: number;
+  instance_name: string;
 }> {
   const assetStore = useAssetStore();
   const instanceStore = useInstanceStore();
@@ -21,9 +24,12 @@ async function getAssetDetails(assetId: string): Promise<{
   const collection = await instanceStore.getCollectionById(asset.collectionId);
 
   return {
-    assetName: assetName ?? "Unknown",
-    collectionId: asset.collectionId,
-    collectionName: collection?.title ?? "Unknown",
+    asset_id: assetId,
+    asset_name: assetName ?? "Unknown",
+    collection_id: asset.collectionId,
+    collection_name: collection?.title ?? "Unknown",
+    instance_id: instanceStore.instance.id ?? -1,
+    instance_name: instanceStore.instance.name ?? "Unknown",
   };
 }
 
@@ -35,16 +41,8 @@ export function useAnalytics() {
   );
 
   async function trackViewAssetEvent(assetId: string) {
-    const { assetName, collectionId, collectionName } = await getAssetDetails(
-      assetId
-    );
-
-    gtag("event", VIEW_ASSET_EVENT, {
-      asset_id: assetId,
-      asset_name: assetName,
-      collection_id: collectionId,
-      collection_name: collectionName,
-    });
+    const assetDetails = await getAssetDetails(assetId);
+    gtag("event", VIEW_ASSET_EVENT, assetDetails);
   }
 
   async function trackDownloadEvent({
@@ -56,15 +54,10 @@ export function useAnalytics() {
     assetId: string;
     fileType: string;
   }) {
-    const { assetName, collectionId, collectionName } = await getAssetDetails(
-      assetId
-    );
+    const assetDetails = await getAssetDetails(assetId);
     gtag("event", DOWNLOAD_EVENT, {
-      collection_id: collectionId,
-      asset_id: assetId,
+      ...assetDetails,
       file_object_id: fileObjectId,
-      asset_name: assetName,
-      collection_name: collectionName,
       file_type: fileType,
     });
   }
