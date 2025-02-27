@@ -12,7 +12,7 @@
       :key="theme"
       :current="activeTheme === theme"
       @click="setTheme(theme)">
-      {{ capitalize(theme) }}
+      {{ prettyThemeName(theme) }}
     </DropDownItem>
   </DropDown>
 </template>
@@ -31,6 +31,13 @@ const {
 } = useTheming();
 
 function capitalize(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str
+    .split(" ")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(" ");
+}
+
+function prettyThemeName(theme: string) {
+  return capitalize(theme.replace(/-/g, " "));
 }
 </script>
