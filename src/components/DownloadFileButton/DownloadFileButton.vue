@@ -2,7 +2,7 @@
   <IconButton
     class="download-file-button"
     title="Download File"
-    @click="handleDownloadFileClick">
+    @click="onOpenDownloadModal">
     <DownloadIcon />
     <span class="sr-only">Download File</span>
   </IconButton>
@@ -15,24 +15,19 @@
       <span v-if="!downloadFileInfo">No Downloads available</span>
       <ul v-else class="max-w-sm">
         <template v-for="download in downloadFileInfo" :key="download.filetype">
-          <a
-            v-if="download.isReady || download.filetype === 'original'"
-            :href="download.url"
-            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
-            @click="
-              analytics.trackDownloadEvent({
-                fileObjectId: props.fileObjectId,
-                assetId: props.assetId,
-                fileType: download.filetype,
-              })
-            ">
-            <li class="flex justify-between">
-              <span class="group-hover:underline">{{ download.filetype }}</span>
+          <li>
+            <button
+              v-if="download.isReady || download.filetype === 'original'"
+              :href="download.url"
+              class="p-2 hover:bg-blue-600/5 border-t hover:no-underline group flex justify-between w-full hover:text-blue-800"
+              type="button"
+              @click="onDownloadClick(download)">
+              <span>{{ download.filetype }}</span>
               <Chip class="group-hover:bg-blue-100 group-hover:text-blue-600">
                 {{ download.extension }}
               </Chip>
-            </li>
-          </a>
+            </button>
+          </li>
         </template>
       </ul>
     </div>
@@ -47,6 +42,7 @@ import api from "@/api";
 import Modal from "@/components/Modal/Modal.vue";
 import Chip from "@/components/Chip/Chip.vue";
 import { useAnalytics } from "@/helpers/useAnalytics";
+import { useDownloadStore } from "@/stores/downloadStore";
 
 const props = defineProps<{
   fileObjectId: string;
@@ -62,13 +58,25 @@ const isDownloadFileInfoReady = computed(
   () => downloadFileInfo.value !== undefined
 );
 
-async function handleDownloadFileClick() {
+async function onOpenDownloadModal() {
   isOpen.value = true;
   downloadFileInfo.value = undefined; // undef means we're fetching
   downloadFileInfo.value = await api.getFileDownloadInfo(
     props.fileObjectId,
     props.assetId
   );
+}
+
+const downloadStore = useDownloadStore();
+function onDownloadClick(download: FileDownloadNormalized) {
+  analytics.trackDownloadEvent({
+    fileObjectId: props.fileObjectId,
+    assetId: props.assetId,
+    fileType: download.filetype,
+  });
+
+  console.log("Download clicked", download);
+  downloadStore.addToQueue([download]);
 }
 </script>
 <style scoped></style>

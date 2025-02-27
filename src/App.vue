@@ -3,6 +3,7 @@
     <Teleport to="body">
       <ErrorModal />
       <ToastRoot />
+      <DownloadManager class="fixed left-0 bottom-0 max-w-sm" />
     </Teleport>
     <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
   </div>
@@ -15,6 +16,7 @@ import { useTheming } from "./helpers/useTheming";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
 import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
+import DownloadManager from "@/components/DownloadManager/DownloadManager.vue";
 
 // load instance store before mounting app
 // this prevents a race conditiion where the search store
