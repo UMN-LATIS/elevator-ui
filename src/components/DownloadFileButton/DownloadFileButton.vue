@@ -15,24 +15,17 @@
       <span v-if="!downloadFileInfo">No Downloads available</span>
       <ul v-else class="max-w-sm">
         <template v-for="download in downloadFileInfo" :key="download.filetype">
-          <a
-            v-if="download.isReady || download.filetype === 'original'"
-            :href="download.url"
-            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
-            @click="
-              analytics.trackDownloadEvent({
-                fileObjectId: props.fileObjectId,
-                assetId: props.assetId,
-                fileType: download.filetype,
-              })
-            ">
-            <li class="flex justify-between">
-              <span class="group-hover:underline">{{ download.filetype }}</span>
+          <li class="border-t last:border-b">
+            <button
+              v-if="download.isReady || download.filetype === 'original'"
+              class="p-2 hover:bg-blue-50 hover:no-underline group flex justify-between items-center w-full hover:text-blue-600"
+              @click="startDownload(download)">
+              <span>{{ download.filetype }}</span>
               <Chip class="group-hover:bg-blue-100 group-hover:text-blue-600">
                 {{ download.extension }}
               </Chip>
-            </li>
-          </a>
+            </button>
+          </li>
         </template>
       </ul>
     </div>
@@ -69,6 +62,31 @@ async function handleDownloadFileClick() {
     props.fileObjectId,
     props.assetId
   );
+}
+
+async function startDownload(download: FileDownloadNormalized) {
+  analytics.trackDownloadEvent({
+    fileObjectId: props.fileObjectId,
+    assetId: props.assetId,
+    fileType: download.filetype,
+  });
+
+  try {
+    const link = document.createElement("a");
+    link.href = download.url;
+    link.download = `${props.fileObjectId}-${props.assetId}-${download.filetype}.${download.extension}`;
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+  } catch (error) {
+    console.error("Download failed:", error);
+    // Fallback to window.open if download fails
+    window.open(download.url, "_blank");
+  }
 }
 </script>
 <style scoped></style>
