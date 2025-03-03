@@ -19,6 +19,7 @@
             v-if="download.isReady || download.filetype === 'original'"
             :href="download.url"
             class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
+            :download="`${download.originalFilename}-${download.filetype}.${download.extension}`"
             @click="
               analytics.trackDownloadEvent({
                 fileObjectId: props.fileObjectId,
