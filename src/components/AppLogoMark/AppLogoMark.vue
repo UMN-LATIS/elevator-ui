@@ -18,4 +18,8 @@ import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 
 const instanceStore = useInstanceStore();
 </script>
-<style scoped></style>
+<style scoped>
+.app-header__wordmark {
+  color: var(--app-appHeader-wordmark-textColor);
+}
+</style>
