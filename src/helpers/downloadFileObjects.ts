@@ -1,4 +1,3 @@
-import { FileDownloadNormalized } from "@/types";
 import api from "@/api";
 import { computed, ref } from "vue";
 import { downloadZip } from "client-zip";
@@ -9,8 +8,6 @@ export interface DownloadTask {
   id: string;
   filename: string;
   url: string;
-  status: DownloadStatus;
-  error?: Error;
 }
 
 export type DownloadableStream = {
@@ -19,79 +16,54 @@ export type DownloadableStream = {
   input: Response;
 };
 
-// function getPendingTasks(tasks: DownloadTask[]) {
-//   return tasks.filter((task) => task.status === "pending");
-// }
-
-// function getDownloadingTasks(tasks: DownloadTask[]) {
-//   return tasks.filter((task) => task.status === "downloading");
-// }
-
-// function getCompletedTasks(tasks: DownloadTask[]) {
-//   return tasks.filter((task) => task.status === "completed");
-// }
-
-// function getErroredTasks(tasks: DownloadTask[]) {
-//   return tasks.filter((task) => task.status === "errored");
-// }
-
-// function areAllSettled(tasks: DownloadTask[]) {
-//   return tasks.every(
-//     (task) => task.status === "completed" || task.status === "errored"
-//   );
-// }
-
 export interface FileDownloadInfo {
   filename: string;
   url: string;
 }
 
-async function getDownloadTask(object: { fileId: string; assetId: string }) {
-  const downloadInfo = await api.getFileDownloadInfo(
-    object.fileId,
-    object.assetId
-  );
+async function getDownloadTask(object: {
+  fileId: string;
+  assetId: string;
+}): Promise<DownloadTask | null> {
+  try {
+    const downloadInfo = await api.getFileDownloadInfo(
+      object.fileId,
+      object.assetId
+    );
 
-  if (!downloadInfo?.length) {
-    // we can mark this task as errored
+    if (!downloadInfo?.length) {
+      // we can mark this task as errored
+      return null;
+    }
+
+    const preferredDownload = downloadInfo[0];
+
     return {
       id: object.fileId,
-      filename: "",
-      url: "",
-      status: "error",
-      error: new Error("No download info retrieved from api"),
+      status: "pending",
+      filename: `${object.fileId}-${preferredDownload.filetype}.${preferredDownload.extension}`,
+      url: preferredDownload.url,
     } as DownloadTask;
+  } catch (error) {
+    console.error(
+      `Error getting download info for fileId ${object.fileId}`,
+      error
+    );
+    return null;
   }
-
-  const preferredDownload = downloadInfo[0];
-
-  return {
-    id: object.fileId,
-    status: "pending",
-    filename: `${object.fileId}-${preferredDownload.filetype}.${preferredDownload.extension}`,
-    url: preferredDownload.url,
-  } as DownloadTask;
 }
 
 async function getDownloadTasks(
   objects: Array<{ fileId: string; assetId: string }>
 ) {
-  const tasks: DownloadTask[] = [];
-
-  for (const object of objects) {
-    const task = await getDownloadTask(object);
-    tasks.push(task);
-  }
-
-  return tasks;
+  const tasks = await Promise.all(objects.map(getDownloadTask));
+  // remove any errored tasks
+  return tasks.filter((task) => task !== null) as DownloadTask[];
 }
 
 export function useFileDownloader() {
   const tasks = ref<DownloadTask[]>([]);
   const isDownloading = ref(false);
-  const pending = computed(() =>
-    tasks.value.filter((task) => task.status === "pending")
-  );
 
   async function downloadFiles(
     objects: Array<{ fileId: string; assetId: string }>
@@ -100,8 +72,7 @@ export function useFileDownloader() {
 
     const assetId = objects[0].assetId;
     console.log("Getting download info for each file");
-    const downloadTasks = await getDownloadTasks(objects);
-    tasks.value = downloadTasks;
+    tasks.value = await getDownloadTasks(objects);
 
     // collect fetch responses downloadZip
     // will use these as input streams
@@ -140,7 +111,6 @@ export function useFileDownloader() {
   return {
     tasks,
     isDownloading,
-    pending,
     downloadFiles,
   };
 }
