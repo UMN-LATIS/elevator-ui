@@ -5299,6 +5299,11 @@ cli-table3@^0.6.1:
   optionalDependencies:
     "@colors/colors" "1.5.0"
 
+client-zip@^2.4.6:
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/client-zip/-/client-zip-2.4.6.tgz#c797c29d9463b17eca4b623339ccf06e620b2794"
+  integrity sha512-e7t1u14h/yT0A12qBwFsaus8UZZ8+MCaNAEn/z53mrukLq/LFcKX7TkbntAppGu8he2p8pz9vc5NEGE/h4ohlw==
+
 cliui@^7.0.2:
   version "7.0.4"
   resolved "https://registry.yarnpkg.com/cliui/-/cliui-7.0.4.tgz#a0265ee655476fc807aea9df3df8df7783808b4f"

@@ -2,6 +2,7 @@
   <div>
     <Button variant="tertiary" class="-ml-2" @click="handleDownloadAllFiles">
       Download All Files
+      <SpinnerIcon v-if="isDownloading" class="ml-2" />
     </Button>
     <div class="upload-widget flex gap-2 flex-wrap mt-2">
       <button
@@ -40,6 +41,8 @@ import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { computed, onMounted, onBeforeUnmount } from "vue";
 import Button from "@/components/Button/Button.vue";
 import api from "@/api";
+import { DownloadTask, useFileDownloader } from "@/helpers/downloadFileObjects";
+import { SpinnerIcon } from "@/icons";
 
 const props = defineProps<{
   widget: UploadWidgetProps;
@@ -82,40 +85,46 @@ function handleNextPrevArrowPresses(event: KeyboardEvent) {
   }
 }
 
-async function downloadFile(fileObjectId, assetId) {
-  console.log("Download file", fileObjectId);
-  const downloadInfo = await api.getFileDownloadInfo(fileObjectId, assetId);
+// async function downloadFile(fileObjectId, assetId) {
+//   console.log("Download file", fileObjectId);
+//   const downloadInfo = await api.getFileDownloadInfo(fileObjectId, assetId);
 
-  // the first one in downloadInfo is the preferred download.
-  const preferredDownload = downloadInfo?.[0] ?? null;
+//   // the first one in downloadInfo is the preferred download.
+//   const preferredDownload = downloadInfo?.[0] ?? null;
 
-  if (!preferredDownload) {
-    console.error("No download info found for file", fileObjectId);
-    return;
-  }
+//   if (!preferredDownload) {
+//     console.error("No download info found for file", fileObjectId);
+//     return;
+//   }
 
-  try {
-    const link = document.createElement("a");
-    link.href = preferredDownload.url;
-    link.download = `${preferredDownload.originalFilename}-${assetId}-${fileObjectId}-${preferredDownload.filetype}.${preferredDownload.extension}`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (error) {
-    console.error("Error downloading file", error);
-    throw error;
-  }
-}
+//   try {
+//     const link = document.createElement("a");
+//     link.href = preferredDownload.url;
+//     link.download = `${preferredDownload.originalFilename}-${assetId}-${fileObjectId}-${preferredDownload.filetype}.${preferredDownload.extension}`;
+//     document.body.appendChild(link);
+//     link.click();
+//     link.remove();
+//   } catch (error) {
+//     console.error("Error downloading file", error);
+//     throw error;
+//   }
+// }
+
+const { isDownloading, downloadFiles } = useFileDownloader();
 
 async function handleDownloadAllFiles() {
   // snapshot the assetId in case it changes during the download process
   const assetId = assetStore.activeAssetId;
 
-  const promisedDownloads = props.contents.map((content) =>
-    downloadFile(content.fileId, assetId)
-  );
+  if (!assetId) {
+    throw new Error("Cannot download all: No assetId found");
+  }
 
-  return Promise.allSettled(promisedDownloads);
+  const fileAndAssetIds = props.contents.map((c) => ({
+    fileId: c.fileId,
+    assetId,
+  }));
+  downloadFiles(fileAndAssetIds);
 }
 
 onMounted(() => {
