@@ -40,8 +40,7 @@ import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { computed, onMounted, onBeforeUnmount } from "vue";
 import Button from "@/components/Button/Button.vue";
-import api from "@/api";
-import { DownloadTask, useFileDownloader } from "@/helpers/downloadFileObjects";
+import { useFileDownloader } from "@/helpers/downloadFileObjects";
 import { SpinnerIcon } from "@/icons";
 
 const props = defineProps<{
@@ -85,46 +84,19 @@ function handleNextPrevArrowPresses(event: KeyboardEvent) {
   }
 }
 
-// async function downloadFile(fileObjectId, assetId) {
-//   console.log("Download file", fileObjectId);
-//   const downloadInfo = await api.getFileDownloadInfo(fileObjectId, assetId);
-
-//   // the first one in downloadInfo is the preferred download.
-//   const preferredDownload = downloadInfo?.[0] ?? null;
-
-//   if (!preferredDownload) {
-//     console.error("No download info found for file", fileObjectId);
-//     return;
-//   }
-
-//   try {
-//     const link = document.createElement("a");
-//     link.href = preferredDownload.url;
-//     link.download = `${preferredDownload.originalFilename}-${assetId}-${fileObjectId}-${preferredDownload.filetype}.${preferredDownload.extension}`;
-//     document.body.appendChild(link);
-//     link.click();
-//     link.remove();
-//   } catch (error) {
-//     console.error("Error downloading file", error);
-//     throw error;
-//   }
-// }
-
-const { isDownloading, downloadFiles } = useFileDownloader();
+const { isDownloading, downloadAssetFiles } = useFileDownloader();
 
 async function handleDownloadAllFiles() {
-  // snapshot the assetId in case it changes during the download process
   const assetId = assetStore.activeAssetId;
 
   if (!assetId) {
     throw new Error("Cannot download all: No assetId found");
   }
 
-  const fileAndAssetIds = props.contents.map((c) => ({
-    fileId: c.fileId,
+  downloadAssetFiles(
     assetId,
-  }));
-  downloadFiles(fileAndAssetIds);
+    props.contents.map((c) => c.fileId)
+  );
 }
 
 onMounted(() => {

@@ -1,35 +1,28 @@
 import api from "@/api";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { downloadZip } from "client-zip";
 
 export type DownloadStatus = "pending" | "downloading" | "completed" | "error";
 
-export interface DownloadTask {
+interface DownloadTask {
   id: string;
   filename: string;
   url: string;
 }
 
-export type DownloadableStream = {
+// see `client-zip` docs for more info
+interface DownloadableStream {
   name: string; // filename
   lastModified: Date;
   input: Response;
-};
-
-export interface FileDownloadInfo {
-  filename: string;
-  url: string;
 }
 
-async function getDownloadTask(object: {
-  fileId: string;
-  assetId: string;
-}): Promise<DownloadTask | null> {
+async function getDownloadTask(
+  assetId: string,
+  fileId: string
+): Promise<DownloadTask | null> {
   try {
-    const downloadInfo = await api.getFileDownloadInfo(
-      object.fileId,
-      object.assetId
-    );
+    const downloadInfo = await api.getFileDownloadInfo(fileId, assetId);
 
     if (!downloadInfo?.length) {
       // we can mark this task as errored
@@ -39,24 +32,20 @@ async function getDownloadTask(object: {
     const preferredDownload = downloadInfo[0];
 
     return {
-      id: object.fileId,
-      status: "pending",
-      filename: `${object.fileId}-${preferredDownload.filetype}.${preferredDownload.extension}`,
+      id: fileId,
+      filename: `${fileId}-${preferredDownload.filetype}.${preferredDownload.extension}`,
       url: preferredDownload.url,
     } as DownloadTask;
   } catch (error) {
-    console.error(
-      `Error getting download info for fileId ${object.fileId}`,
-      error
-    );
+    console.error(`Error getting download info for fileId ${fileId}`, error);
     return null;
   }
 }
 
-async function getDownloadTasks(
-  objects: Array<{ fileId: string; assetId: string }>
-) {
-  const tasks = await Promise.all(objects.map(getDownloadTask));
+async function getDownloadTasks(assetId: string, fileIds: string[]) {
+  const tasks = await Promise.all(
+    fileIds.map((fileId) => getDownloadTask(assetId, fileId))
+  );
   // remove any errored tasks
   return tasks.filter((task) => task !== null) as DownloadTask[];
 }
@@ -65,19 +54,13 @@ export function useFileDownloader() {
   const tasks = ref<DownloadTask[]>([]);
   const isDownloading = ref(false);
 
-  async function downloadFiles(
-    objects: Array<{ fileId: string; assetId: string }>
-  ) {
+  async function downloadAssetFiles(assetId: string, fileIds: string[]) {
     isDownloading.value = true;
-
-    const assetId = objects[0].assetId;
-    console.log("Getting download info for each file");
-    tasks.value = await getDownloadTasks(objects);
+    tasks.value = await getDownloadTasks(assetId, fileIds);
 
     // collect fetch responses downloadZip
     // will use these as input streams
     const streams = [] as DownloadableStream[];
-    console.log("Getting download streams for each file");
     for (const task of tasks.value) {
       console.log(`Fetching ${task.url}`);
       const response = await fetch(task.url);
@@ -88,8 +71,6 @@ export function useFileDownloader() {
       });
     }
 
-    // get the ZIP stream in a Blob
-    console.log("Getting the blob");
     const blob = await downloadZip(streams).blob();
 
     // make and click a temporary link to download the Blob
@@ -100,8 +81,6 @@ export function useFileDownloader() {
     link.click();
     link.remove();
 
-    console.log("Revoking the Blob URL");
-
     // revoke the Blob URL
     URL.revokeObjectURL(link.href);
 
@@ -111,6 +90,6 @@ export function useFileDownloader() {
   return {
     tasks,
     isDownloading,
-    downloadFiles,
+    downloadAssetFiles,
   };
 }
