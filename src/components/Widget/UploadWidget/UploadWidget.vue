@@ -1,9 +1,15 @@
 <template>
   <div>
-    <Button variant="tertiary" class="-ml-2" @click="handleDownloadAllFiles">
+    <Button
+      v-if="props.contents.length > 1"
+      variant="tertiary"
+      class="-ml-2"
+      :disabled="isDownloading"
+      @click="handleDownloadAllFiles">
       Download All Files
       <SpinnerIcon v-if="isDownloading" class="ml-2" />
     </Button>
+
     <div class="upload-widget flex gap-2 flex-wrap mt-2">
       <button
         v-for="(content, key) in contents"

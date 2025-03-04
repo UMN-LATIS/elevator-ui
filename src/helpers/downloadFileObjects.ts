@@ -25,7 +25,7 @@ async function getDownloadTask(
     const downloadInfo = await api.getFileDownloadInfo(fileId, assetId);
 
     if (!downloadInfo?.length) {
-      // we can mark this task as errored
+      console.warn(`No download info for fileId ${fileId}`);
       return null;
     }
 
