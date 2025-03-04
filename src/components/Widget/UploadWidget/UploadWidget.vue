@@ -46,7 +46,7 @@ import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { computed, onMounted, onBeforeUnmount } from "vue";
 import Button from "@/components/Button/Button.vue";
-import { useFileDownloader } from "@/helpers/downloadFileObjects";
+import { useFileDownloader } from "@/helpers/useFileDownloader";
 import { SpinnerIcon } from "@/icons";
 
 const props = defineProps<{

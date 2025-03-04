@@ -1,6 +1,7 @@
 import api from "@/api";
 import { ref } from "vue";
 import { downloadZip } from "client-zip";
+import streamSaver from "streamsaver";
 
 export type DownloadStatus = "pending" | "downloading" | "completed" | "error";
 
@@ -71,20 +72,15 @@ export function useFileDownloader() {
       });
     }
 
-    const blob = await downloadZip(streams).blob();
+    const zipStream = downloadZip(streams);
+    const isoDate = new Date().toISOString().split("T")[0];
+    const filename = `asset-${assetId}-${isoDate}.zip`;
 
-    // make and click a temporary link to download the Blob
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    const isoDate = new Date().toISOString().replace(/T.*/g, "");
-    link.download = `asset-${assetId}-${isoDate}.zip`;
-    link.click();
-    link.remove();
+    const fileStream = streamSaver.createWriteStream(filename);
 
-    // revoke the Blob URL
-    URL.revokeObjectURL(link.href);
-
-    isDownloading.value = false;
+    zipStream.body?.pipeTo(fileStream).then(() => {
+      isDownloading.value = false;
+    });
   }
 
   return {
