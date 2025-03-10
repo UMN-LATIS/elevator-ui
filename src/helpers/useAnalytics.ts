@@ -33,8 +33,12 @@ async function getAssetDetails(assetId: string): Promise<{
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
+
 export function useAnalytics() {
-  const { gtag } = window;
+  const gtag = window.gtag || noop;
+
   invariant(
     gtag,
     "Google Analytics is not loaded. Make sure to load the script in the head of your document."
