@@ -35,12 +35,10 @@ async function getAssetDetails(assetId: string): Promise<{
 
 export function useAnalytics() {
   const { gtag } = window;
-  invariant(
-    gtag,
-    "Google Analytics is not loaded. Make sure to load the script in the head of your document."
-  );
 
   async function trackViewAssetEvent(assetId: string) {
+    if (!gtag) return;
+
     const assetDetails = await getAssetDetails(assetId);
     gtag("event", VIEW_ASSET_EVENT, assetDetails);
   }
@@ -54,6 +52,8 @@ export function useAnalytics() {
     assetId: string;
     fileType: string;
   }) {
+    if (!gtag) return;
+
     const assetDetails = await getAssetDetails(assetId);
     gtag("event", DOWNLOAD_EVENT, {
       ...assetDetails,
