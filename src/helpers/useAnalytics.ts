@@ -33,18 +33,12 @@ async function getAssetDetails(assetId: string): Promise<{
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
-
 export function useAnalytics() {
-  const gtag = window.gtag || noop;
-
-  invariant(
-    gtag,
-    "Google Analytics is not loaded. Make sure to load the script in the head of your document."
-  );
+  const { gtag } = window;
 
   async function trackViewAssetEvent(assetId: string) {
+    if (!gtag) return;
+
     const assetDetails = await getAssetDetails(assetId);
     gtag("event", VIEW_ASSET_EVENT, assetDetails);
   }
@@ -58,6 +52,8 @@ export function useAnalytics() {
     assetId: string;
     fileType: string;
   }) {
+    if (!gtag) return;
+
     const assetDetails = await getAssetDetails(assetId);
     gtag("event", DOWNLOAD_EVENT, {
       ...assetDetails,
