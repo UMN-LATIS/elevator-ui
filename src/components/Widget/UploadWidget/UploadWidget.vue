@@ -4,19 +4,42 @@
       <DropDown
         label="More actions"
         labelClass="inline-flex items-center !p-1 bg-black/5 rounded-md"
-        :showChevron="false">
-        <template #label>
+        :showChevron="false"
+        @trigger:click="checkIfCanDownloadOriginals">
+        <template v-if="isDownloadingAll" #label>
+          <SpinnerIcon />
+          <span class="sr-only">Download in progress</span>
+        </template>
+
+        <template v-else #label>
           <VerticalDotsIcon />
           <span class="sr-only">More actions</span>
         </template>
-        <DropDownItem>
-          <button class="block w-full" @click="handleDownloadAllDerivatives">
+
+        <div
+          v-if="canDownloadOriginals === undefined"
+          class="p-2 flex justify-center items-center text-sm gap-2">
+          <SpinnerIcon />
+          Checking permissions...
+        </div>
+
+        <div
+          v-else-if="isDownloadingAll"
+          class="p-2 flex justify-center items-center gap-2 text-sm">
+          <SpinnerIcon />
+          Downloading all...
+        </div>
+
+        <template v-else>
+          <DropDownItem @click="handleDownloadAll">
             Download All Derivatives
-          </button>
-        </DropDownItem>
-        <!-- <DropDownItem>
-          <button>Download All Originals</button>
-        </DropDownItem> -->
+          </DropDownItem>
+          <DropDownItem
+            v-if="canDownloadOriginals"
+            @click="handleDownloadAll({ preferOriginals: true })">
+            Download All Originals
+          </DropDownItem>
+        </template>
       </DropDown>
     </template>
     <div class="upload-widget flex gap-2 flex-wrap mt-2">
@@ -57,9 +80,9 @@ import config from "@/config";
 import { useAssetStore } from "@/stores/assetStore";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
-import { computed, onMounted, onBeforeUnmount } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
-import { VerticalDotsIcon } from "@/icons";
+import { SpinnerIcon, VerticalDotsIcon } from "@/icons";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import api from "@/api";
@@ -73,6 +96,7 @@ const assetStore = useAssetStore();
 
 const isFileActive = (fileId: string) =>
   assetStore.activeFileObjectId === fileId;
+const isDownloadingAll = ref(false);
 
 const activeIndex = computed(() =>
   props.contents.findIndex((content) => isFileActive(content.fileId))
@@ -133,7 +157,8 @@ async function downloadFile(url: string, filename: string): Promise<void> {
 }
 
 function getPreferredDownloadInfo(
-  downloadInfo: FileDownloadNormalized[]
+  downloadInfo: FileDownloadNormalized[],
+  { preferOriginals = false } = {}
 ): FileDownloadNormalized {
   if (!downloadInfo?.length) {
     throw new Error(`No download info found: ${downloadInfo}`);
@@ -152,11 +177,22 @@ function getPreferredDownloadInfo(
     throw new Error(`No downloadable derivatives found: ${downloadables}`);
   }
 
+  // if we prefer originals, return the first original
+  if (preferOriginals) {
+    const original = downloadables.find(
+      (derivative) => derivative.filetype === "original"
+    );
+    if (original) return original;
+  }
+
   // return the first deriv
   return downloadables[0];
 }
 
-async function handleDownloadAllDerivatives() {
+async function handleDownloadAll({ preferOriginals = false } = {}) {
+  if (isDownloadingAll.value) return;
+
+  isDownloadingAll.value = true;
   console.log("Downloading all derivatives");
   // snapshot the assetId in case it changes during the download process
   const assetId = assetStore.activeAssetId;
@@ -175,8 +211,10 @@ async function handleDownloadAllDerivatives() {
         console.warn(`No download info found for ${fileId}`);
         continue;
       }
-      const { url, filetype, extension } =
-        getPreferredDownloadInfo(downloadInfo);
+      const { url, filetype, extension } = getPreferredDownloadInfo(
+        downloadInfo,
+        { preferOriginals }
+      );
 
       const filename = `${fileId}-${filetype}.${extension}`;
       console.log(`${fileId} - Downloading ${filename} start`);
@@ -188,6 +226,43 @@ async function handleDownloadAllDerivatives() {
       continue;
     }
   }
+
+  isDownloadingAll.value = false;
+}
+
+const canDownloadOriginals = ref<boolean | undefined>();
+
+// we're doing a check on menu trigger since it's very rare
+// that someone will want to download all files
+async function checkIfCanDownloadOriginals() {
+  // if we already have a defined value, don't bother
+  if (canDownloadOriginals.value !== undefined) return;
+
+  // otherwise
+  // get the first content's download info
+  // and see if it has an original
+  if (!props.contents.length) {
+    canDownloadOriginals.value = false;
+    return;
+  }
+
+  const firstContent = props.contents[0];
+
+  const downloadInfo = await api.getFileDownloadInfo(
+    firstContent.fileId,
+    assetStore.activeAssetId
+  );
+
+  if (!downloadInfo || downloadInfo.length < 1) {
+    canDownloadOriginals.value = false;
+    return;
+  }
+
+  const original = downloadInfo.find(
+    (derivative) => derivative.filetype === "original"
+  );
+
+  canDownloadOriginals.value = !!original;
 }
 
 onMounted(() => {
