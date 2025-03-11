@@ -1,5 +1,11 @@
 <template>
-  <Tuple :label="widget.label" class="widget">
+  <component
+    :is="getWidgetComponentByType(widget.type)"
+    v-if="['upload'].includes(widget.type)"
+    :widget="widget"
+    :contents="widgetContents"
+    :asset="asset"></component>
+  <Tuple v-else :label="widget.label" class="widget">
     <component
       :is="getWidgetComponentByType(widget.type)"
       v-if="getWidgetComponentByType(widget.type)"
