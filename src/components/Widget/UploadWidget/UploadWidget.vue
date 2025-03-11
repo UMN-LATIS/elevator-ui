@@ -120,10 +120,11 @@ async function downloadFile(url: string, filename: string): Promise<void> {
       // and start the download. Note: This doesn't need to be long
       // enough to COMPLETE the whole download, just long enough to start.
       // ~2s seems to be a good balance.
+      const WAIT_TIME_FOR_DOWNLOAD_RESPONSE = 2000;
       setTimeout(() => {
         link.remove();
         resolve();
-      }, 2000);
+      }, WAIT_TIME_FOR_DOWNLOAD_RESPONSE);
     } catch (error) {
       console.error(`Error downloading file: ${url}`, error);
       reject(error);
