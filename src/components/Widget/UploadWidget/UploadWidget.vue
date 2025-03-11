@@ -115,9 +115,11 @@ async function downloadFile(url: string, filename: string): Promise<void> {
       document.body.appendChild(link);
       link.click();
 
-      // timeout needs to be long enough for server to response to download
-      // request otherwise there will be a network error
-      // ~2s seems to be a good balance
+      // To address an Network Error issue with Safari, we need to make
+      // the timeout long enough to receive the 200 response from the server
+      // and start the download. Note: This doesn't need to be long
+      // enough to COMPLETE the whole download, just long enough to start.
+      // ~2s seems to be a good balance.
       setTimeout(() => {
         link.remove();
         resolve();
