@@ -4,22 +4,22 @@
     :class="{
       'w-full': variant === 'stacked',
       'inline-flex items-baseline gap-2': variant === 'inline',
-    }"
-  >
-    <div class="tuple__label">
+    }">
+    <div class="tuple__label flex justify-between items-center">
       <slot name="label">
         <span
           class="text-xs block uppercase leading-none mb-1 tracking-wide"
           :class="{
             'font-bold': variant === 'stacked',
             'sr-only': variant === 'value-only',
-          }"
-          >{{ label }}</span
-        >
+          }">
+          {{ label }}
+        </span>
+        <slot name="label-extra"></slot>
       </slot>
     </div>
     <span class="tuple__value block" v-bind="$attrs">
-      <slot> - </slot>
+      <slot>-</slot>
     </span>
   </div>
 </template>
