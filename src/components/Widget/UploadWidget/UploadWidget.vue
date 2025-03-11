@@ -193,22 +193,18 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
   if (isDownloadingAll.value) return;
 
   isDownloadingAll.value = true;
-  console.log("Downloading all derivatives");
   // snapshot the assetId in case it changes during the download process
   const assetId = assetStore.activeAssetId;
 
   for (const content of props.contents) {
     try {
       const fileId = content.fileId;
-      console.log(`${fileId} - api.getFileDownloadInfo start`);
       const downloadInfo = await api.getFileDownloadInfo(
         content.fileId,
         assetId
       );
-      console.log(`${fileId} - api.getFileDownloadInfo end`);
 
       if (!downloadInfo || downloadInfo.length < 1) {
-        console.warn(`No download info found for ${fileId}`);
         continue;
       }
       const { url, filetype, extension } = getPreferredDownloadInfo(
@@ -217,12 +213,12 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
       );
 
       const filename = `${fileId}-${filetype}.${extension}`;
-      console.log(`${fileId} - Downloading ${filename} start`);
       await downloadFile(url, filename);
-      console.log(`${fileId} - Downloading ${filename} end`);
     } catch (error) {
-      console.error(`Error downloading file ${content.fileId}. Skipping.`);
-      console.error(error);
+      console.error(
+        `Error downloading file ${content.fileId}. Skipping.`,
+        error
+      );
       continue;
     }
   }
