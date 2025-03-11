@@ -1,7 +1,7 @@
 <template>
   <MenuItem v-slot="{ active }" class="dropdown__dropdown-item">
     <component
-      :is="$attrs.disabled ? 'span' : Link"
+      :is="$attrs.disabled ? 'div' : Link"
       class="block px-4 py-2 text-sm !no-underline"
       :class="{
         'bg-blue-50 !text-blue-900': active,
