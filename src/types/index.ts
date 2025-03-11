@@ -59,7 +59,7 @@ declare global {
       config?: Partial<AppConfig>;
     };
     location: Location;
-    gtag: (command: string, ...args: unknown[]) => void;
+    gtag?: (command: string, ...args: unknown[]) => void;
     dataLayer?: unknown[];
   }
 }

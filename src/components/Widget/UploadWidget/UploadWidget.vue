@@ -105,20 +105,28 @@ function handleNextPrevArrowPresses(event: KeyboardEvent) {
   }
 }
 
-async function downloadFile(url: string, filename: string) {
-  try {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.style.display = "none";
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (error) {
-    console.error("Error downloading file", error);
-    throw error;
-  }
+async function downloadFile(url: string, filename: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+
+      // timeout needs to be long enough for server to response to download
+      // request otherwise there will be a network error
+      // ~2s seems to be a good balance
+      setTimeout(() => {
+        link.remove();
+        resolve();
+      }, 2000);
+    } catch (error) {
+      console.error(`Error downloading file: ${url}`, error);
+      reject(error);
+    }
+  });
 }
 
 function getPreferredDownloadInfo(
@@ -153,10 +161,12 @@ async function handleDownloadAllDerivatives() {
   for (const content of props.contents) {
     try {
       const fileId = content.fileId;
+      console.log(`${fileId} - api.getFileDownloadInfo start`);
       const downloadInfo = await api.getFileDownloadInfo(
         content.fileId,
         assetId
       );
+      console.log(`${fileId} - api.getFileDownloadInfo end`);
 
       if (!downloadInfo || downloadInfo.length < 1) {
         console.warn(`No download info found for ${fileId}`);
@@ -166,9 +176,12 @@ async function handleDownloadAllDerivatives() {
         getPreferredDownloadInfo(downloadInfo);
 
       const filename = `${fileId}-${filetype}.${extension}`;
+      console.log(`${fileId} - Downloading ${filename} start`);
       await downloadFile(url, filename);
+      console.log(`${fileId} - Downloading ${filename} end`);
     } catch (error) {
-      console.error("Error downloading file. Skipping.", error);
+      console.error(`Error downloading file ${content.fileId}. Skipping.`);
+      console.error(error);
       continue;
     }
   }
