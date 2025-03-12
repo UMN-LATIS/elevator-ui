@@ -1,6 +1,6 @@
 <template>
   <Tuple :label="widget.label" class="widget">
-    <template #label-extra>
+    <template v-if="contents.length > 1" #label-extra>
       <DropDown
         label="More actions"
         labelClass="inline-flex items-center !p-1 bg-black/5 rounded-md"
