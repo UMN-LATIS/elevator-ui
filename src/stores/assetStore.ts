@@ -45,10 +45,28 @@ export const useAssetStore = defineStore("asset2", {
         return this.setActiveObject(objectId);
       }
 
-      // if no objectId is provided, use the asset's
-      // firstObjectId and firstFileHandler
-      this.activeObjectId = asset?.firstObjectId ?? null;
-      this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
+      // this is a workaround for an issue where the backend
+      // sometimes we expect `firstObjectId` to be null but instead it matches
+      // `firstFileHandlerId`
+
+      const shouldIgnoreFirstObjectId =
+        !!asset.firstObjectId &&
+        !!asset.firstFileHandlerId &&
+        asset.firstObjectId === asset.firstFileHandlerId;
+
+      console.log("shouldIgnoreFirstObjectId", {
+        shouldIgnoreFirstObjectId,
+        assetId,
+        firstObjectId: asset.firstObjectId,
+        firstFileHandlerId: asset.firstFileHandlerId,
+      });
+
+      // Set the active IDs based on our logic
+      this.activeObjectId = shouldIgnoreFirstObjectId
+        ? null
+        : asset.firstObjectId ?? null;
+      this.activeFileObjectId = asset.firstFileHandlerId ?? null;
+
       return asset;
     },
 
