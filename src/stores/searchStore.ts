@@ -584,6 +584,7 @@ const actions = (state: SearchStoreState) => ({
     state.matches.value = res.matches;
     state.status.value = "success";
     state.sortOptions.value = res.sortableWidgets;
+    state.sort.value = res.searchEntry.sort ?? SORT_KEYS.BEST_MATCH;
 
     // update the boolean operator
     state.filterBy.searchableFieldsOperator =
