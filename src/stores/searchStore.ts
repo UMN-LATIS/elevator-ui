@@ -602,15 +602,6 @@ const actions = (state: SearchStoreState) => ({
     state.sortOptions.value = res.sortableWidgets;
     state.sort.value = res.searchEntry.sort ?? SORT_KEYS.BEST_MATCH;
 
-    // if currentSearchTerm is empty, then "Best Match"
-    // doesn't make sense, so set it to "Default Title"
-    if (
-      res.searchEntry.searchText === "" &&
-      state.sort.value === SORT_KEYS.BEST_MATCH
-    ) {
-      state.sort.value = SORT_KEYS.TITLE;
-    }
-
     // update the boolean operator
     state.filterBy.searchableFieldsOperator =
       res.searchEntry.combineSpecificSearches;
