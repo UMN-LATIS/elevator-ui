@@ -562,6 +562,22 @@ const actions = (state: SearchStoreState) => ({
   },
 
   async getSearchId(): Promise<string> {
+    // normally, search sort is "sticky", but if we're transitioning
+    // from an empty search to a non-empty search, should reset sort to
+    // BEST_MATCH instead of by TITLE (which is the default for an
+    // empty search)
+    const previousSearchWasEmpty = state.searchEntry.value?.searchText === "";
+    const currentSearchIsNOTEmpty = state.query.value !== "";
+    const currentSortIsTitle = state.sort.value === SORT_KEYS.TITLE;
+
+    if (
+      previousSearchWasEmpty &&
+      currentSearchIsNOTEmpty &&
+      currentSortIsTitle
+    ) {
+      state.sort.value = SORT_KEYS.BEST_MATCH;
+    }
+
     return api
       .getSearchId(state.query.value, getters(state).searchRequestOptions.value)
       .catch((err) => {
