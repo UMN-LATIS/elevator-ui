@@ -198,7 +198,7 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
-  launchId,
+  launchId
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -217,7 +217,7 @@ export async function postLtiPayload13({
   fileObjectId,
   excerptId,
   launchId,
-  userId,
+  userId
 }: {
   fileObjectId: string;
   returnUrl: string;
