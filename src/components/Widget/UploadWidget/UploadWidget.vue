@@ -191,8 +191,6 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
         assetId
       );
 
-      console.log({ downloadInfo });
-
       if (!downloadInfo) {
         console.warn(
           `No download info found for file ${content.fileId}. Skipping.`
