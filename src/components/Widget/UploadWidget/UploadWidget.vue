@@ -160,10 +160,6 @@ function getPreferredDownloadInfo(
   downloadables: FileDownloadNormalized[],
   { preferOriginals = false } = {}
 ): FileDownloadNormalized {
-  if (!downloadables?.length) {
-    throw new Error(`No download info found: ${downloadables}`);
-  }
-
   if (downloadables.length < 1) {
     throw new Error(`No downloadable derivatives found: ${downloadables}`);
   }
@@ -194,6 +190,8 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
         content.fileId,
         assetId
       );
+
+      console.log({ downloadInfo });
 
       if (!downloadInfo) {
         console.warn(
