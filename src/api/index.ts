@@ -146,9 +146,10 @@ async function getFileDownloadInfo(
   if (cachedResponse) {
     // this is a workaround for "Download All" issue in Safari.
     // Safari will not download the first file in the list if
-    // the download info is cached. This may be related to a user gesture
-    // requirement for downloads in Safari, but I'm unsure.
-    // The workaround is to delay the response until the next event loop.
+    // the cached download info is returned right away. The workaround
+    // is to wait until next tick before returning the response.
+    // I'm not entirely sure why safari behaves this way: bug?
+    // security feature? but this workaround seems to do the trick.
     return _waitThenResolve(cachedResponse);
   }
 
