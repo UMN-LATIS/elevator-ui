@@ -12,4 +12,5 @@ export interface FileDownloadDetails {
   forcedMimeType: null;
   localAsset: null;
   storageKey: string;
+  downloadable: boolean;
 }
