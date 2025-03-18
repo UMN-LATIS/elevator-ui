@@ -642,6 +642,7 @@ export interface FileDownloadNormalized {
   url: string;
   originalFilename: string;
   extension: string;
+  isDownloadable: boolean;
 }
 
 export interface Tab {

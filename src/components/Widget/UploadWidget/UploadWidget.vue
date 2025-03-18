@@ -157,22 +157,9 @@ async function downloadFile(url: string, filename: string): Promise<void> {
 }
 
 function getPreferredDownloadInfo(
-  downloadInfo: FileDownloadNormalized[],
+  downloadables: FileDownloadNormalized[],
   { preferOriginals = false } = {}
 ): FileDownloadNormalized {
-  if (!downloadInfo?.length) {
-    throw new Error(`No download info found: ${downloadInfo}`);
-  }
-
-  // ignore any derivatives that aren't downloadable as files
-  // mostly doing this for testing. In prod, this case should
-  // rarely happen
-  const nonDownloadableTypes = ["dicom", "tiled"];
-
-  const downloadables = downloadInfo.filter(
-    (derivative) => !nonDownloadableTypes.includes(derivative.filetype)
-  );
-
   if (downloadables.length < 1) {
     throw new Error(`No downloadable derivatives found: ${downloadables}`);
   }
@@ -204,11 +191,26 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
         assetId
       );
 
-      if (!downloadInfo || downloadInfo.length < 1) {
+      if (!downloadInfo) {
+        console.warn(
+          `No download info found for file ${content.fileId}. Skipping.`
+        );
         continue;
       }
+
+      const downloadables = downloadInfo.filter(
+        (derivative) => derivative.isDownloadable && derivative.isReady
+      );
+
+      if (!downloadables.length) {
+        console.warn(
+          `No downloadable derivatives found for file ${content.fileId}. Skipping.`
+        );
+        continue;
+      }
+
       const { url, filetype, extension } = getPreferredDownloadInfo(
-        downloadInfo,
+        downloadables,
         { preferOriginals }
       );
 

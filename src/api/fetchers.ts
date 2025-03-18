@@ -144,6 +144,7 @@ export async function fetchFileDownloadInfo(
         : `${BASE_URL}/fileManager/getDerivativeById/${fileId}/${filetype}`,
     originalFilename: downloadDetails.originalFilename,
     extension: getExtensionFromFilename(downloadDetails.originalFilename),
+    isDownloadable: downloadDetails.downloadable,
   }));
 }
 
