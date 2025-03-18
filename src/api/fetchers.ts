@@ -144,6 +144,7 @@ export async function fetchFileDownloadInfo(
         : `${BASE_URL}/fileManager/getDerivativeById/${fileId}/${filetype}`,
     originalFilename: downloadDetails.originalFilename,
     extension: getExtensionFromFilename(downloadDetails.originalFilename),
+    isDownloadable: downloadDetails.downloadable,
   }));
 }
 
@@ -197,7 +198,7 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
-  launchId
+  launchId,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -216,7 +217,7 @@ export async function postLtiPayload13({
   fileObjectId,
   excerptId,
   launchId,
-  userId
+  userId,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -234,7 +235,6 @@ export async function postLtiPayload13({
 
   return res.data;
 }
-
 
 export async function fetchSearchId(
   query: string,
