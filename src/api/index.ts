@@ -128,6 +128,11 @@ async function getFileMetaData(
   return metadata;
 }
 
+// helper to delay when resolving with a promise
+async function _waitThenResolve<T>(value: T, ms = 0): Promise<T> {
+  return new Promise((resolve) => setTimeout(() => resolve(value), ms));
+}
+
 async function getFileDownloadInfo(
   fileId: string | null,
   parentObjectId?: string | null
@@ -135,9 +140,22 @@ async function getFileDownloadInfo(
   if (!fileId) return null;
 
   const key = `${fileId}.${parentObjectId}`;
-  const fileDownloadInfo =
-    cache.fileDownloadResponses.get(key) ||
-    (await fetchers.fetchFileDownloadInfo(fileId, parentObjectId));
+
+  // check the cache first
+  const cachedResponse = cache.fileDownloadResponses.get(key);
+  if (cachedResponse) {
+    // this is a workaround for "Download All" issue in Safari.
+    // Safari will not download the first file in the list if
+    // the download info is cached. This may be related to a user gesture
+    // requirement for downloads in Safari, but I'm unsure.
+    // The workaround is to delay the response until the next event loop.
+    return _waitThenResolve(cachedResponse);
+  }
+
+  const fileDownloadInfo = await fetchers.fetchFileDownloadInfo(
+    fileId,
+    parentObjectId
+  );
 
   cache.fileDownloadResponses.set(key, fileDownloadInfo);
 
