@@ -527,8 +527,10 @@ export async function fetchDidYouMeanSuggestions(searchTerm: string) {
 }
 
 export async function fetchAllUserAssets() {
+  const offset = 0;
+  const returnJson = true;
   const res = await axios.get<Asset[]>(
-    `${BASE_URL}/assetManager/userAssets/true`
+    `${BASE_URL}/assetManager/userAssets/${offset}/${returnJson}`
   );
   return res.data;
 }
