@@ -1,27 +1,51 @@
-import { h } from "vue";
-import { ColumnDef } from "@tanstack/vue-table";
-import type { Asset } from "@/types";
+import { createColumnHelper } from "@tanstack/vue-table";
+import type { AssetSummary } from "@/types";
+import { CircleCheck } from "lucide-vue-next";
+import { RouterLink } from "vue-router";
 
-export const columns: ColumnDef<Asset>[] = [
-  // {
-  //   accessorKey: "amount",
-  //   header: () => h("div", { class: "text-right" }, "Amount"),
-  //   cell: ({ row }) => {
-  //     const amount = Number.parseFloat(row.getValue("amount"));
-  //     const formatted = new Intl.NumberFormat("en-US", {
-  //       style: "currency",
-  //       currency: "USD",
-  //     }).format(amount);
+const columnHelper = createColumnHelper<AssetSummary>();
 
-  //     return h("div", { class: "text-right font-medium" }, formatted);
-  //   },
-  // },
-  {
-    accessorKey: "objectId",
-    // header: () => h("div", { class: "text-right" }, "ID"),
-    header: () => <div>ID</div>,
-    cell: ({ row }) => (
-      <div class="font-medium">{row.getValue("objectId")}</div>
-    ),
-  },
+export const ColHeader = ({ text }: { text: string }) => (
+  <div class="font-medium">{text}</div>
+);
+export const ColCell = ({ text }: { text: string }) => <div>{text}</div>;
+
+export const columns = [
+  columnHelper.accessor("readyForDisplay", {
+    header: () => <ColHeader text="Ready" />,
+    cell: (ctx) => {
+      const value = ctx.getValue() as boolean;
+      return (
+        <CircleCheck
+          class="text-green-500"
+          size={20}
+          strokeWidth={3}
+          style={{ display: value ? "block" : "none" }}
+        />
+      );
+    },
+  }),
+  columnHelper.accessor("objectId", {
+    header: () => <ColHeader text="ID" />,
+    cell: (ctx) => {
+      const objectId = ctx.getValue() as string;
+      return (
+        <RouterLink to={`/assetManager/editAsset/${objectId}`}>
+          {objectId}
+        </RouterLink>
+      );
+    },
+  }),
+  columnHelper.accessor("title", {
+    header: () => <ColHeader text="Title" />,
+    cell: (ctx) => <div>{ctx.getValue()}</div>,
+  }),
+
+  columnHelper.accessor("modifiedDate.date", {
+    header: () => <ColHeader text="Modified At" />,
+    cell: (ctx) => {
+      const date = new Date(ctx.getValue() as string);
+      return <div>{date.toLocaleString()}</div>;
+    },
+  }),
 ];
