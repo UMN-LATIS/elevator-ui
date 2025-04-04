@@ -474,6 +474,18 @@ export interface Asset {
   [key: string]: unknown;
 }
 
+export interface AssetSummary {
+  objectId: Asset["objectId"];
+  title: string;
+  readyForDisplay: boolean;
+  templateId: number;
+  modifiedDate: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
+}
+
 type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
 

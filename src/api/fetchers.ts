@@ -30,6 +30,7 @@ import type {
   AssetExcerpt,
   ApiGetExcerptResponse,
   ApiSuccessResponse,
+  AssetSummary,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -529,7 +530,7 @@ export async function fetchDidYouMeanSuggestions(searchTerm: string) {
 export async function fetchAllUserAssets() {
   const offset = 0;
   const returnJson = true;
-  const res = await axios.get<Asset[]>(
+  const res = await axios.get<AssetSummary[]>(
     `${BASE_URL}/assetManager/userAssets/${offset}/${returnJson}`
   );
   return res.data;
