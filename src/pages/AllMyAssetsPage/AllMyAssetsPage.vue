@@ -13,6 +13,10 @@
         </div>
         <div v-else>
           {{ allUserAssets }}
+          <!-- <UserAssetsTable :assets="allUserAssets" /> -->
+          <div class="container py-10 mx-auto">
+            <DataTable :columns="columns" :data="allUserAssets" />
+          </div>
         </div>
       </div>
     </div>
@@ -21,7 +25,8 @@
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAllUserAssets } from "@/queries/useAllUserAssets";
-
+import { columns } from "./columns";
+import DataTable from "./DataTable.vue";
 const { data: allUserAssets, isLoading } = useAllUserAssets();
 </script>
 <style scoped></style>
