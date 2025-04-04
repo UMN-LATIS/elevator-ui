@@ -1,12 +1,14 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx"; // for tanstack table
+
 import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
-    plugins: [vue()],
+    plugins: [vue(), vueJsx()],
     base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
     resolve: {
       alias: {
