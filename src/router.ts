@@ -181,6 +181,14 @@ const router = createRouter({
       component: AllMyAssetsPage,
     },
     {
+      name: "editAssets",
+      path: "/assetManager/editAsset/:assetId",
+      component: () => import("@/pages/EditAssetPage/EditAssetPage.vue"),
+      props: (route) => ({
+        assetId: route.params.assetId,
+      }),
+    },
+    {
       name: "localLogin",
       path: "/loginManager/localLogin",
       component: LocalLoginPage,

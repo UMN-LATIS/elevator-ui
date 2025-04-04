@@ -199,10 +199,8 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
-  launchId,
 }: {
   fileObjectId: string;
-  returnUrl: string;
   excerptId: string;
 }) {
   const formdata = new FormData();
