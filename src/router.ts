@@ -16,6 +16,7 @@ import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
 import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
+import AllMyAssetsPage from "./pages/AllMyAssetsPage/AllMyAssetsPage.vue";
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -173,6 +174,11 @@ const router = createRouter({
       path: "/search/:embedType/:searchId",
       component: SearchResultsEmbedPage,
       props: true,
+    },
+    {
+      name: "allMyAssets",
+      path: "/assetManager/userAssets",
+      component: AllMyAssetsPage,
     },
     {
       name: "localLogin",

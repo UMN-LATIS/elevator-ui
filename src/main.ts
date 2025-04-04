@@ -9,6 +9,7 @@ import "@fontsource/work-sans/500.css";
 import "@fontsource/work-sans/500-italic.css";
 import "@fontsource/work-sans/600.css";
 import "@fontsource/work-sans/600-italic.css";
+import { VueQueryPlugin } from "@tanstack/vue-query";
 
 import "./css/app.css";
 
@@ -16,4 +17,4 @@ const app = createApp(App);
 const pinia = createPinia();
 pinia.use(resetStorePlugin);
 
-app.use(router).use(pinia).mount("#app");
+app.use(router).use(pinia).use(VueQueryPlugin).mount("#app");
