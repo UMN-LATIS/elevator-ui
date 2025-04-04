@@ -1,14 +1,12 @@
 <template>
   <AppMenuGroup v-if="currentUser?.canManageAssets" label="Manage Assets">
-    <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
-      All My Assets
-    </AppMenuItem>
+    <AppMenuItem to="/assetManager/userAssets">All My Assets</AppMenuItem>
     <AppMenuItem to="/asset/create">Add Asset</AppMenuItem>
     <template v-if="assetId">
       <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
         Edit Asset
       </AppMenuItem>
-      <AppMenuItem @click="handleDeleteAssetClick"> Delete Asset </AppMenuItem>
+      <AppMenuItem @click="handleDeleteAssetClick">Delete Asset</AppMenuItem>
       <AppMenuItem :href="`${BASE_URL}/assetManager/restoreAsset/${assetId}`">
         Restore Asset
       </AppMenuItem>
