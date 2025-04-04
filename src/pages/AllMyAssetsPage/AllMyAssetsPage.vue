@@ -1,32 +1,17 @@
 <template>
   <DefaultLayout class="all-collections-page">
-    <div class="p-8 px-4">
+    <div class="container py-10 mx-auto">
       <h1 class="text-4xl font-bold my-8">All My Assets</h1>
-      {{ isLoading }}
-      <div v-if="isLoading" class="text-center">
-        <p class="text-lg">Loading...</p>
-      </div>
-      <div v-else>
-        <p class="text-lg">All My Assets</p>
-        <div v-if="allUserAssets?.length === 0" class="text-center">
-          <p class="text-lg">No assets found.</p>
-        </div>
-        <div v-else>
-          {{ allUserAssets }}
-          <!-- <UserAssetsTable :assets="allUserAssets" /> -->
-          <div class="container py-10 mx-auto">
-            <DataTable :columns="columns" :data="allUserAssets" />
-          </div>
-        </div>
-      </div>
+      <p v-if="!allUserAssets.length" class="text-lg">No assets found.</p>
+      <UserAssetsTable v-else :columns="columns" :data="allUserAssets" />
     </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAllUserAssets } from "@/queries/useAllUserAssets";
-import { columns } from "./columns";
-import DataTable from "./DataTable.vue";
-const { data: allUserAssets, isLoading } = useAllUserAssets();
+import { columns } from "./UserAssetsTableColumns";
+import UserAssetsTable from "./UserAssetsTable.vue";
+const { data: allUserAssets } = useAllUserAssets();
 </script>
 <style scoped></style>

@@ -37,7 +37,7 @@
     </Table>
   </div>
 </template>
-<script setup lang="ts" generic="TData, TValue">
+<script setup lang="ts" generic="TData">
 import type { ColumnDef } from "@tanstack/vue-table";
 import {
   Table,
@@ -51,7 +51,7 @@ import {
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 
 const props = defineProps<{
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<TData, any>[];
   data: TData[];
 }>();
 
