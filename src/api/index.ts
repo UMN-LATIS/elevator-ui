@@ -31,7 +31,7 @@ import * as fetchers from "@/api/fetchers";
 function createCache() {
   return {
     assets: new Map<string, Asset | null>(),
-    templates: new Map<string, Template | null>(),
+    templates: new Map<Template["templateId"], Template | null>(),
     excerpts: new Map<number, ApiGetExcerptResponse | null>(),
     moreLikeThisMatches: new Map<string, SearchResultMatch[]>(),
     fileMetaData: new Map<string, FileMetaData>(),
@@ -81,11 +81,10 @@ async function getAssetWithTemplate(
   if (!asset) return { asset: null, template: null };
 
   // load template and cache it in the store
-  const templateId = String(asset.templateId);
   const template =
-    cache.templates.get(templateId) ||
-    (await fetchers.fetchTemplate(templateId));
-  cache.templates.set(templateId, template);
+    cache.templates.get(asset.templateId) ||
+    (await fetchers.fetchTemplate(asset.templateId));
+  cache.templates.set(asset.templateId, template);
 
   return { asset, template };
 }

@@ -83,7 +83,7 @@ export async function fetchAsset(assetId: string): Promise<Asset | null> {
 }
 
 export async function fetchTemplate(
-  templateId: string
+  templateId: Template["templateId"]
 ): Promise<Template | null> {
   const res = await axios.get<Template>(
     `${BASE_URL}/assetManager/getTemplate/${templateId}`
