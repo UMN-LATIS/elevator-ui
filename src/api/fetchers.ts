@@ -74,12 +74,15 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
   return Promise.reject(apiError);
 });
 
-export async function fetchAsset(assetId: string): Promise<Asset | null> {
-  const res = await axios.get<Asset>(
-    `${BASE_URL}/asset/viewAsset/${assetId}/true`
-  );
+export async function fetchAsset(assetId: Asset["id"]): Promise<Asset | null> {
+  const res = await axios.get(`${BASE_URL}/asset/viewAsset/${assetId}/true`);
+  if (!res.data) return null;
 
-  return res.data ?? null;
+  // the API returns the asset without an id
+  return {
+    ...res.data,
+    id: assetId,
+  } as Asset;
 }
 
 export async function fetchTemplate(
@@ -199,13 +202,16 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
+  returnUrl,
 }: {
   fileObjectId: string;
   excerptId: string;
+  returnUrl: string;
 }) {
   const formdata = new FormData();
   formdata.append("object", fileObjectId);
   formdata.append("excerptId", excerptId);
+  formdata.append("returnUrl", returnUrl);
 
   const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
 
@@ -217,6 +223,7 @@ export async function postLtiPayload13({
   excerptId,
   launchId,
   userId,
+  returnUrl,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -229,6 +236,7 @@ export async function postLtiPayload13({
   formdata.append("excerptId", excerptId);
   formdata.append("launchId", launchId);
   formdata.append("userId", userId);
+  formdata.append("returnUrl", returnUrl);
 
   const res = await axios.post(`${BASE_URL}/api/v1/lti13/ltiPayload`, formdata);
 
