@@ -1,10 +1,11 @@
 <template>
   <DefaultLayout>
-    <div class="container py-10 mx-auto">
-      <h1 class="text-2xl font-bold">Edit Asset</h1>
+    <div
+      class="p-8 mx-auto w-full max-w-3xl bg-white shadow-sm rounded-lg my-10">
+      <h1 class="text-2xl font-bold mb-4">Edit Asset</h1>
 
       <Transition name="fade">
-        <div v-if="asset && template" class="widget-list flex flex-col">
+        <div v-if="asset && template" class="widget-list flex flex-col gap-4">
           <EditWidgetForm
             v-for="widget in template.widgetArray"
             :key="widget.widgetId"
