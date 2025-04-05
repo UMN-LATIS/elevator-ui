@@ -4,8 +4,12 @@
     :class="{
       'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
       'gap-2': widgetType !== LinkedRelatedAssetWidgetItem,
-    }"
-  >
+    }">
+    <p
+      v-if="!contentsWithAssetId.length"
+      class="text-sm text-neutral-400 italic">
+      None
+    </p>
     <component
       :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"
@@ -13,8 +17,7 @@
       :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
       :assetId="relatedAsset.targetAssetId"
       :assetCacheItem="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
-      :label="relatedAsset.label ?? ''"
-    >
+      :label="relatedAsset.label ?? ''">
       <div class="flex items-center justify-end gap-2">
         <ArrowButton :to="`/asset/viewAsset/${relatedAsset.targetAssetId}`" />
       </div>
@@ -34,10 +37,11 @@ import ThumbnailRelatedAssetWidgetItem from "./ThumbnailRelatedAssetWidgetItem.v
 import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
 import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
+import { prop } from "ramda";
 
 const props = defineProps<{
   widget: RelatedAssetWidgetProps;
-  contents: RelatedAssetWidgetContent[];
+  contents: RelatedAssetWidgetContent[] | null; // could be null if not defined in template
   asset: Asset;
 }>();
 
@@ -61,11 +65,14 @@ const widgetType = computed((): Component => {
   return AccordionRelatedAssetWidgetItem;
 });
 
-const contentsWithAssetId = computed(() =>
-  props.contents.filter(
-    (item): item is WithTargetAssetId<RelatedAssetWidgetContent> =>
-      !!item.targetAssetId
-  )
+const contentsWithAssetId = computed(
+  () =>
+    // contents may not be defined in template, so fall back to empty array
+    // to prevent undefined error
+    props.contents?.filter(
+      (item): item is WithTargetAssetId<RelatedAssetWidgetContent> =>
+        !!item.targetAssetId
+    ) ?? []
 );
 
 const activeIndex = computed(() =>
@@ -77,6 +84,9 @@ const activeIndex = computed(() =>
 const hasActiveObjectWithin = computed(() => activeIndex.value !== -1);
 
 function setPrevObjectAsActive() {
+  if (!props.contents) {
+    throw new Error("Cannot setPrevObjectAsActive: contents are not defined");
+  }
   const prevIndex =
     (activeIndex.value - 1 + props.contents.length) % props.contents.length;
   const prevObjectId = contentsWithAssetId.value[prevIndex].targetAssetId;
@@ -84,6 +94,9 @@ function setPrevObjectAsActive() {
 }
 
 function setNextObjectAsActive() {
+  if (!props.contents) {
+    throw new Error("Cannot setNextObjectAsActive: contents are not defined");
+  }
   const nextIndex = (activeIndex.value + 1) % props.contents.length;
   const nextObjectId = contentsWithAssetId.value[nextIndex].targetAssetId;
   assetStore.setActiveObject(nextObjectId);
