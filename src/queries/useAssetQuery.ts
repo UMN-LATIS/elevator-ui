@@ -3,16 +3,19 @@ import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import { ASSETS_QUERY_KEY } from "./queryKeys";
 
-export function useAssetByIdQuery(assetId: MaybeRefOrGetter<string | null>) {
+export function useAssetQuery(
+  assetId: MaybeRefOrGetter<string | null>,
+  options = {}
+) {
   return useQuery({
     queryKey: [ASSETS_QUERY_KEY, assetId],
-    queryFn: () => {
+    enabled: !!toValue(assetId),
+    initialData: () => null,
+    queryFn: async () => {
       const id = toValue(assetId);
-      if (!id) {
-        return Promise.resolve(null);
-      }
-      return fetchers.fetchAsset(id);
+      return id ? await fetchers.fetchAsset(id) : null;
     },
     refetchOnWindowFocus: false,
+    ...options,
   });
 }
