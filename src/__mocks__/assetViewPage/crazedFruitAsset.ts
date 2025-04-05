@@ -4,6 +4,7 @@
 import { Asset } from "@/types";
 
 const mockAsset: Asset = {
+  id: "56a3bb007d58ae8a488b4657",
   workid_7: [
     {
       fieldContents: "WK1109683",
