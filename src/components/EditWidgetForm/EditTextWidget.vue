@@ -1,27 +1,31 @@
 <template>
-  <div class="">
-    <Tuple v-if="widget.label" :label="widget.label" class="widget">
-      <component
-        :is="getWidgetComponentByType(widget.type)"
-        v-if="getWidgetComponentByType(widget.type)"
-        :widget="widget"
-        :contents="widgetContents"
-        :asset="asset"></component>
-    </Tuple>
-    <component
-      :is="getWidgetComponentByType(widget.type)"
-      v-else
-      :widget="widget"
-      :contents="widgetContents"
-      :asset="asset"></component>
-  </div>
+  <Tuple :label="widget.label" class="widget">
+    <div v-for="(contentRow, index) in localWidgetContents" :key="index">
+      {{ contentRow }}
+    </div>
+  </Tuple>
 </template>
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import * as Type from "@/types";
-defineProps<{
+import { getWidgetContents } from "@/helpers/displayUtils";
+
+const props = defineProps<{
   widget: Type.TextTemplateWidgetProps;
   asset: Type.Asset;
-  contents: Type.TextWidgetContent[];
 }>();
+
+const localWidgetContents = ref([] as Type.TextWidgetContent[]);
+
+onMounted(() => {
+  localWidgetContents.value = getWidgetContents({
+    asset: props.asset,
+    widget: props.widget,
+  }) as Type.TextWidgetContent[];
+});
+
+// should each widget row have a specific id?
+// or should we just use the index as the key?
+// with index, will be have problems with reordering?
 </script>
 <style scoped></style>

@@ -1,25 +1,15 @@
 <template>
   <component
     :is="getWidgetComponentByType(widget.type)"
-    v-if="['upload'].includes(widget.type)"
     :widget="widget"
     :contents="widgetContents"
-    :asset="asset"></component>
-  <Tuple v-else :label="widget.label" class="widget">
-    <component
-      :is="getWidgetComponentByType(widget.type)"
-      v-if="getWidgetComponentByType(widget.type)"
-      :widget="widget"
-      :contents="widgetContents"
-      :asset="asset"></component>
-  </Tuple>
+    :asset="asset" />
 </template>
 <script setup lang="ts">
 import { type Component, computed } from "vue";
 import type { Asset, TemplateWidgetProps } from "@/types";
 import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
-import TextWidget from "@/components/Widget/TextWidget/TextWidget.vue";
 import SelectWidget from "@/components/Widget/SelectWidget/SelectWidget.vue";
 import CheckBoxWidget from "@/components/Widget/CheckBoxWidget/CheckBoxWidget.vue";
 import TextAreaWidget from "@/components/Widget/TextAreaWidget/TextAreaWidget.vue";
@@ -30,7 +20,7 @@ import UploadWidget from "@/components/Widget/UploadWidget/UploadWidget.vue";
 import TagWidget from "@/components/Widget/TagWidget/TagWidget.vue";
 import RelatedAssetWidget from "@/components/Widget/RelatedAssetWidget/RelatedAssetWidget.vue";
 import { getWidgetContents } from "@/helpers/displayUtils";
-import Widget from "../Widget/Widget.vue";
+import EditTextWidget from "./EditTextWidget.vue";
 
 const props = defineProps<{
   widget: TemplateWidgetProps;
@@ -43,7 +33,7 @@ const widgetContents = computed(() =>
 
 // map widgetTypeToComponent
 const widgetMap: Record<WidgetType, Component> = {
-  text: TextWidget,
+  text: EditTextWidget,
   select: SelectWidget,
   checkbox: CheckBoxWidget,
   "text area": TextAreaWidget,
