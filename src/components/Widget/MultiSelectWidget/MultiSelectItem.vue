@@ -15,11 +15,11 @@
 <script setup lang="ts">
 import { recursiveSort, uniqueValues } from "./MultiSelectWidget";
 import { computed } from "vue";
-import { MultiSelectWidgetContent, MultiSelectWidgetProps } from "@/types";
+import { MultiSelectWidgetContent, MultiSelectTemplateWidgetProps } from "@/types";
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 
 interface Props {
-  widget: MultiSelectWidgetProps;
+  widget: MultiSelectTemplateWidgetProps;
   content: MultiSelectWidgetContent;
 }
 

@@ -8,12 +8,12 @@
 </template>
 
 <script setup lang="ts">
-import { WidgetProps, WidgetContent } from "@/types";
+import { TemplateWidgetProps, WidgetContent } from "@/types";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import CircleIcon from "@/icons/CircleIcon.vue";
 
 defineProps<{
-  widget: WidgetProps;
+  widget: TemplateWidgetProps;
   contents: WidgetContent[];
 }>();
 </script>

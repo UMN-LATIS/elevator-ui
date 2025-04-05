@@ -24,12 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { TagListWidgetProps, TagListWidgetContent } from "@/types";
+import { TagListTemplateWidgetProps, TagListWidgetContent } from "@/types";
 import Chip from "@/components/Chip/Chip.vue";
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 
 defineProps<{
-  widget: TagListWidgetProps;
+  widget: TagListTemplateWidgetProps;
   contents: TagListWidgetContent[];
 }>();
 </script>

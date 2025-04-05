@@ -15,14 +15,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { WidgetProps } from "@/types";
+import { TemplateWidgetProps } from "@/types";
 import { useSearchStore } from "@/stores/searchStore";
 import api from "@/api";
 import { toClickToSearchUrl } from "@/helpers/displayUtils";
 
 interface Props {
   linkText: string;
-  widget: WidgetProps;
+  widget: TemplateWidgetProps;
 }
 
 const props = defineProps<Props>();

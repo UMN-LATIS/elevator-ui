@@ -80,7 +80,8 @@ export type WidgetType =
   | "upload"
   | "text area";
 
-export interface WidgetProps {
+export interface TemplateWidgetProps {
+  id: number; // same as widgetId
   widgetId: number;
   type: WidgetType;
   allowMultiple: boolean;
@@ -100,37 +101,37 @@ export interface WidgetProps {
   templateOrder: number;
 }
 
-export interface TextWidgetProps extends WidgetProps {
+export interface TextTemplateWidgetProps extends TemplateWidgetProps {
   type: "text";
   fieldData: [] | null;
 }
-export interface CheckboxWidgetProps extends WidgetProps {
+export interface CheckboxTemplateWidgetProps extends TemplateWidgetProps {
   type: "checkbox";
   fieldData: [] | null;
 }
-export interface DateWidgetProps extends WidgetProps {
+export interface DateTemplateWidgetProps extends TemplateWidgetProps {
   type: "date";
   fieldData: [] | null;
 }
-export interface LocationWidgetProps extends WidgetProps {
+export interface LocationTemplateWidgetProps extends TemplateWidgetProps {
   type: "location";
   fieldData: [] | null;
 }
-export interface TagListWidgetProps extends WidgetProps {
+export interface TagListTemplateWidgetProps extends TemplateWidgetProps {
   type: "tag list";
   fieldData: [] | null;
 }
-export interface TextAreaWidgetProps extends WidgetProps {
+export interface TextAreaTemplateWidgetProps extends TemplateWidgetProps {
   type: "text area";
   fieldData: [] | null;
 }
 
-export interface MultiSelectWidgetProps extends WidgetProps {
+export interface MultiSelectTemplateWidgetProps extends TemplateWidgetProps {
   type: "multiselect";
   fieldData: Record<string, unknown>;
 }
 
-export interface RelatedAssetWidgetProps extends WidgetProps {
+export interface RelatedAssetTemplateWidgetProps extends TemplateWidgetProps {
   type: "related asset";
   fieldData: {
     nestData?: boolean;
@@ -146,14 +147,14 @@ export interface RelatedAssetWidgetProps extends WidgetProps {
   };
 }
 
-export interface SelectWidgetProps extends WidgetProps {
+export interface SelectTemplateWidgetProps extends TemplateWidgetProps {
   type: "select";
   fieldData: {
     multiSelect?: boolean;
     selectGroup?: string[] | Record<string | number, string | undefined>;
   };
 }
-export interface UploadWidgetProps extends WidgetProps {
+export interface UploadTemplateWidgetProps extends TemplateWidgetProps {
   type: "upload";
   fieldData: {
     extractDate?: boolean;
@@ -491,13 +492,14 @@ type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
 
 export interface Template {
+  id: number; // same as templateId
   templateId: number;
   templateName: string;
   showCollection: boolean;
   showCollectionPosition: TemplateShowPropertyPosition;
   showTemplate: boolean;
   showTemplatePosition: TemplateShowPropertyPosition;
-  widgetArray: WidgetProps[];
+  widgetArray: TemplateWidgetProps[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
     | Record<string | number, string | undefined | unknown>

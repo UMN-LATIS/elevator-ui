@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { LocationWidgetProps, LocationWidgetContent, LngLat } from "@/types";
+import { LocationTemplateWidgetProps, LocationWidgetContent, LngLat } from "@/types";
 import { computed, ref, defineAsyncComponent } from "vue";
 import Modal from "@/components/Modal/Modal.vue";
 import config from "@/config";
@@ -58,7 +58,7 @@ const MapMarker = defineAsyncComponent(
 
 interface Props {
   locationContent: LocationWidgetContent;
-  widget: LocationWidgetProps;
+  widget: LocationTemplateWidgetProps;
 }
 
 const props = defineProps<Props>();

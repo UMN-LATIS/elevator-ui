@@ -28,7 +28,7 @@
 import { type Component, computed, onMounted, onBeforeUnmount } from "vue";
 import {
   Asset,
-  RelatedAssetWidgetProps,
+  RelatedAssetTemplateWidgetProps,
   RelatedAssetWidgetContent,
 } from "@/types";
 import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.vue";
@@ -40,7 +40,7 @@ import { useAssetStore } from "@/stores/assetStore";
 import { prop } from "ramda";
 
 const props = defineProps<{
-  widget: RelatedAssetWidgetProps;
+  widget: RelatedAssetTemplateWidgetProps;
   contents: RelatedAssetWidgetContent[] | null; // could be null if not defined in template
   asset: Asset;
 }>();

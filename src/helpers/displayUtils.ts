@@ -1,8 +1,8 @@
 import { partition } from "ramda";
-import { Asset, WidgetProps, WidgetContent, Template } from "@/types";
+import { Asset, TemplateWidgetProps, WidgetContent, Template } from "@/types";
 import config from "@/config";
 
-export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
+export function getWidgetPropsByFieldTitle<T extends TemplateWidgetProps>(
   template: Template,
   fieldTitle: string
 ): T | null {
@@ -27,7 +27,7 @@ export const getAssetUrl = (assetId: string): string =>
  * sorts so that primary is first
  */
 export function getWidgetContents<
-  T extends WidgetProps,
+  T extends TemplateWidgetProps,
   U extends WidgetContent
 >({ asset, widget }: { asset: Asset; widget: T }): U[] | null {
   const widgetContents = asset[widget.fieldTitle] as U[] | undefined;
@@ -57,7 +57,7 @@ export function widgetMatchesTitleWidget({
   template,
   asset,
 }: {
-  widget: WidgetProps;
+  widget: TemplateWidgetProps;
   template: Template | null;
   asset: Asset | null;
 }): boolean {
@@ -80,7 +80,7 @@ export function assetHasWidgetContents({
   widget,
 }: {
   asset: Asset;
-  widget: WidgetProps;
+  widget: TemplateWidgetProps;
 }) {
   const contents = getWidgetContents({ asset, widget });
   return contents !== null && contents !== undefined;
@@ -92,7 +92,7 @@ export function getWidgetsForDisplay({
 }: {
   asset: Asset | null;
   template: Template | null;
-}): WidgetProps[] {
+}): TemplateWidgetProps[] {
   if (!(template && asset)) return [];
 
   const filteredWidgets = template.widgetArray
@@ -124,7 +124,7 @@ export function convertHtmlToText(html: string): string {
 
 export function toClickToSearchUrl(
   linkText: string,
-  widgetProps: WidgetProps
+  widgetProps: TemplateWidgetProps
 ): string {
   const cleanedLinkText = linkText.trim().replace("?", "").replace("...", "");
 

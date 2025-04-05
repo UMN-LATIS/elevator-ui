@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import {
-  UploadWidgetProps,
+  UploadTemplateWidgetProps,
   UploadWidgetContent,
   FileDownloadNormalized,
 } from "@/types";
@@ -88,7 +88,7 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import api from "@/api";
 
 const props = defineProps<{
-  widget: UploadWidgetProps;
+  widget: UploadTemplateWidgetProps;
   contents: UploadWidgetContent[];
 }>();
 

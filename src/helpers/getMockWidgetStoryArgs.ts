@@ -2,10 +2,15 @@ import {
   getWidgetContents,
   getWidgetPropsByFieldTitle,
 } from "@/helpers/displayUtils";
-import type { Template, Asset, WidgetProps, WidgetContent } from "@/types";
+import type {
+  Template,
+  Asset,
+  TemplateWidgetProps,
+  WidgetContent,
+} from "@/types";
 
 export function getMockWidgetStoryArgs<
-  T extends WidgetProps = WidgetProps,
+  T extends TemplateWidgetProps = TemplateWidgetProps,
   U extends WidgetContent = WidgetContent
 >({
   fieldTitle,

@@ -7,11 +7,11 @@
 </template>
 
 <script setup lang="ts">
-import { MultiSelectWidgetProps, MultiSelectWidgetContent } from "@/types";
+import { MultiSelectTemplateWidgetProps, MultiSelectWidgetContent } from "@/types";
 import MultiSelectItem from "./MultiSelectItem.vue";
 
 interface Props {
-  widget: MultiSelectWidgetProps;
+  widget: MultiSelectTemplateWidgetProps;
   contents: MultiSelectWidgetContent[];
 }
 
