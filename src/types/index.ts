@@ -81,7 +81,6 @@ export type WidgetType =
   | "text area";
 
 export interface TemplateWidgetProps {
-  id: number; // same as widgetId
   widgetId: number;
   type: WidgetType;
   allowMultiple: boolean;
@@ -492,7 +491,6 @@ type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
 
 export interface Template {
-  id: number; // same as templateId
   templateId: number;
   templateName: string;
   showCollection: boolean;
