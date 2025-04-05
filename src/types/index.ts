@@ -458,6 +458,7 @@ export type RelatedAssetCache = Record<
 >;
 
 export interface Asset {
+  id: string;
   templateId: number;
   readyForDisplay: boolean;
   collectionId: number;
