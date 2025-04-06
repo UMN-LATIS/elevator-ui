@@ -1,5 +1,17 @@
 <template>
   <Tuple :label="widget.label" class="widget">
+    <DragDropContainer :groupId="widget.widgetId">
+      <DragDropList :listId="widget.widgetId" v-model="localWidgetContents">
+        <template #item="{ item }">
+          <div class="list-item">
+            <div class="text-content">
+              {{ item.content.fieldContents }}
+            </div>
+          </div>
+        </template>
+
+      </DragDropList>
+    </DragDropContainer>
     <div v-for="(contentRow, index) in localWidgetContents" :key="index">
       {{ contentRow }}
     </div>
@@ -9,19 +21,30 @@
 import { onMounted, ref } from "vue";
 import * as Type from "@/types";
 import { getWidgetContents } from "@/helpers/displayUtils";
+import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 
 const props = defineProps<{
   widget: Type.TextTemplateWidgetProps;
   asset: Type.Asset;
 }>();
 
-const localWidgetContents = ref([] as Type.TextWidgetContent[]);
+type WidgetContentWithId = {
+  id: string;
+  content: Type.TextWidgetContent;
+};
+
+const localWidgetContents = ref<WidgetContentWithId[]>([]);
 
 onMounted(() => {
-  localWidgetContents.value = getWidgetContents({
+  const contents = getWidgetContents({
     asset: props.asset,
     widget: props.widget,
   }) as Type.TextWidgetContent[];
+
+  localWidgetContents.value = contents.map((content) => ({
+    id: crypto.randomUUID(),
+    content,
+  }));
 });
 
 // should each widget row have a specific id?
