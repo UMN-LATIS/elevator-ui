@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <div
-      class="p-8 mx-auto w-full max-w-3xl bg-white shadow-sm rounded-lg my-10">
+      class="p-8 mx-auto w-full max-w-screen-lg bg-white shadow-sm rounded-lg my-10">
       <h1 class="text-2xl font-bold mb-4">Edit Asset</h1>
 
       <Transition name="fade">

@@ -1,6 +1,9 @@
 <template>
   <div class="drag-drop-list">
-    <EmptyList v-if="!items.length" :listId="listId" />
+    <slot name="header" />
+    <slot v-if="!items.length" name="empty">
+      <EmptyList :listId="listId" />
+    </slot>
     <ol v-else class="">
       <DragDropListItem
         v-for="(item, index) in items"
@@ -9,11 +12,11 @@
         :listId="listId"
         :nextListId="nextListId"
         :prevListId="prevListId"
-        :index="index"
-      >
+        :index="index">
         <slot name="item" :item="item" />
       </DragDropListItem>
     </ol>
+    <slot name="footer" />
   </div>
 </template>
 <script setup lang="ts" generic="ItemType extends HasId">
@@ -42,7 +45,7 @@ const emit = defineEmits<{
 const dragDropStore = useDragDropStore(groupId);
 
 const items = computed(
-  () => (dragDropStore.getList(props.listId)?.items ?? []) as ItemType[],
+  () => (dragDropStore.getList(props.listId)?.items ?? []) as ItemType[]
 );
 
 // watch for changes in the listId or modelValue and update the store
@@ -51,7 +54,7 @@ watch(
   ([listId, items]) => {
     dragDropStore.setList(listId, items);
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 // watch for changes in the store and emit the new items
