@@ -1,7 +1,7 @@
 <template>
   <EditWidgetLayout :label="widget.label" class="edit-text-widget">
     <div class="flex items-center justify-end mb-2">
-      <Button variant="tertiary">
+      <Button variant="tertiary" @click="addWidgetItem">
         <PlusIcon class="w-4 h-4" />
         <span class="ml-2">Add {{ widget.label }}</span>
       </Button>
@@ -50,7 +50,9 @@
             </div>
             <div class="table-cell table-cell--sm">
               <button
-                class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm">
+                class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm"
+                type="button"
+                @click="deleteWidgetItem(item.id)">
                 <XIcon class="w-4 h-4" />
                 <span class="sr-only">Delete</span>
               </button>
@@ -119,6 +121,26 @@ onMounted(() => {
 
   localWidgetContents.push(...contentsWithId);
 });
+
+function addWidgetItem() {
+  const newContent: Type.TextWidgetContent = {
+    fieldContents: "",
+    isPrimary: false,
+  };
+  const newContentWithId = {
+    id: crypto.randomUUID(),
+    content: newContent,
+  };
+  localWidgetContents.push(newContentWithId);
+}
+
+function deleteWidgetItem(id: string) {
+  const index = localWidgetContents.findIndex((item) => item.id === id);
+  if (index === -1) {
+    throw new Error("Cannot deleteWidgetItem: item not found");
+  }
+  localWidgetContents.splice(index, 1);
+}
 </script>
 <style scoped>
 .table-row {
