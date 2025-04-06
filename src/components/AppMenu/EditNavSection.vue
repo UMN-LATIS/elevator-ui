@@ -3,7 +3,7 @@
     <AppMenuItem to="/assetManager/userAssets">All My Assets</AppMenuItem>
     <AppMenuItem to="/asset/create">Add Asset</AppMenuItem>
     <template v-if="assetId">
-      <AppMenuItem :href="`${BASE_URL}/assetManager/editAsset/${assetId}`">
+      <AppMenuItem :to="`/assetManager/editAsset/${assetId}`">
         Edit Asset
       </AppMenuItem>
       <AppMenuItem @click="handleDeleteAssetClick">Delete Asset</AppMenuItem>
