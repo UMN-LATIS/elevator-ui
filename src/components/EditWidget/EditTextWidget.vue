@@ -49,10 +49,25 @@
                 class="bg-black/5 border-none" />
             </div>
             <div class="table-cell table-cell--sm">
-              <Button variant="tertiary" size="sm">
-                <VerticalDotsIcon class="w-4 h-4" />
-                <span class="sr-only">More</span>
-              </Button>
+              <button
+                class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm">
+                <XIcon class="w-4 h-4" />
+                <span class="sr-only">Delete</span>
+              </button>
+              <!-- <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="tertiary" size="sm">
+                    <VerticalDotsIcon class="w-4 h-4" />
+                    <span class="sr-only">More</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Delete</DropdownMenuItem>
+                  <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Team</DropdownMenuItem>
+                  <DropdownMenuItem>Subscription</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu> -->
             </div>
           </div>
         </template>
@@ -67,10 +82,17 @@ import { getWidgetContents } from "@/helpers/displayUtils";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import { Input } from "../ui/input";
 import Button from "../Button/Button.vue";
-import { PlusIcon, StarIcon } from "lucide-vue-next";
+import { PlusIcon, StarIcon, TrashIcon } from "lucide-vue-next";
 import { VerticalDotsIcon } from "@/icons";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "../ui/dropdown-menu";
+import XIcon from "@/icons/XIcon.vue";
 
 const props = defineProps<{
   widget: Type.TextTemplateWidgetProps;
