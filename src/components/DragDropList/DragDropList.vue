@@ -12,7 +12,8 @@
         :listId="listId"
         :nextListId="nextListId"
         :prevListId="prevListId"
-        :index="index">
+        :index="index"
+        :handleClass="handleClass">
         <slot name="item" :item="item" />
       </DragDropListItem>
     </ol>
@@ -20,7 +21,7 @@
   </div>
 </template>
 <script setup lang="ts" generic="ItemType extends HasId">
-import type { HasId } from "./dndTypes";
+import type { CSSClass, HasId } from "./dndTypes";
 import DragDropListItem from "./DragDropListItem.vue";
 import { useDragDropStore } from "./useDragDropStore";
 import { watch, inject, computed } from "vue";
@@ -32,6 +33,7 @@ const props = defineProps<{
   nextListId?: string;
   prevListId?: string;
   modelValue: ItemType[];
+  handleClass?: CSSClass;
 }>();
 
 // if no groupId is provided, generate a random one

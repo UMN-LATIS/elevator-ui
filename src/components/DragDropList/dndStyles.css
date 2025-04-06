@@ -22,7 +22,7 @@
   --dnd-indicator-strokeWidth: 0.125rem;
   --dnd-indicator-terminalSize: 0.25rem;
   --dnd-indicator-color: var(--dnd-color-blue-600);
-  --dnd-list-border: 1px solid transparent;
+  --dnd-list-border: 0;
   --dnd-dragHandle-bg: var(--dnd-color-neutral-200);
   --dnd-dragHandle-bg-focus: var(--dnd-color-blue-100);
   --dnd-dragHandle-shadow-focus: 0 0 0 0.125rem var(--dnd-color-blue-600);

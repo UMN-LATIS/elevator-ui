@@ -6,7 +6,7 @@
 
       <Transition name="fade">
         <div v-if="asset && template" class="widget-list flex flex-col gap-4">
-          <EditWidgetForm
+          <EditWidget
             v-for="widget in template.widgetArray"
             :key="widget.widgetId"
             :widget="widget"
@@ -21,7 +21,7 @@ import { computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
-import EditWidgetForm from "@/components/EditWidgetForm/EditWidgetForm.vue";
+import EditWidget from "@/components/EditWidget/EditWidget.vue";
 
 const props = defineProps<{
   assetId: string;

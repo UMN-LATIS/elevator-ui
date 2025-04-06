@@ -7,11 +7,12 @@
       :openDelay="openDelay"
       :closeDelay="closeDelay"
       :arrow="arrow"
-      :offsetDistance="String(offsetDistance)"
-    >
+      :offsetDistance="String(offsetDistance)">
       <slot />
       <template #content="props">
-        <slot name="content" v-bind="props" />
+        <slot name="content" v-bind="props">
+          {{ tooltip }}
+        </slot>
       </template>
     </Popper>
   </div>
@@ -27,6 +28,7 @@ withDefaults(
     openDelay?: number;
     closeDelay?: number;
     offsetDistance?: number;
+    tooltip: string;
   }>(),
   {
     theme: "light",
@@ -35,6 +37,7 @@ withDefaults(
     openDelay: 100,
     closeDelay: 100,
     offsetDistance: 0,
+    tooltip: "",
   }
 );
 </script>

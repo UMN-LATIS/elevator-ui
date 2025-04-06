@@ -19,7 +19,7 @@ defineExpose({ buttonRef });
   cursor: grab;
   background: var(--dnd-dragHandle-bg);
   padding: 0.5rem;
-  align-items: start;
+  align-items: center;
   justify-content: center;
   border: none;
   color: var(--dnd-dragHandle-color);

@@ -11,6 +11,7 @@
     ">
     <DragHandle
       ref="dragHandleRef"
+      :class="handleClass"
       @keydown.up="handleMoveUp"
       @keydown.down="handleMoveDown"
       @keydown.left="handleMoveLeft"
@@ -22,7 +23,7 @@
   </li>
 </template>
 <script setup lang="ts" generic="ItemType extends HasId">
-import type { HasId } from "./dndTypes";
+import type { CSSClass, HasId } from "./dndTypes";
 import DragHandle from "./DragHandle.vue";
 import {
   inject,
@@ -50,6 +51,7 @@ const props = defineProps<{
   listId: string | number;
   nextListId?: string;
   prevListId?: string;
+  handleClass?: CSSClass;
 }>();
 
 const groupId = inject(GROUP_ID_PROVIDE_KEY);
