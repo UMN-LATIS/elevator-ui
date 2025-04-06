@@ -9,7 +9,6 @@
 import { type Component, computed } from "vue";
 import type { Asset, TemplateWidgetProps } from "@/types";
 import { WidgetType } from "@/types";
-import Tuple from "@/components/Tuple/Tuple.vue";
 import SelectWidget from "@/components/Widget/SelectWidget/SelectWidget.vue";
 import CheckBoxWidget from "@/components/Widget/CheckBoxWidget/CheckBoxWidget.vue";
 import TextAreaWidget from "@/components/Widget/TextAreaWidget/TextAreaWidget.vue";

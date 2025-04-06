@@ -21,6 +21,7 @@ import { onMounted, ref } from "vue";
 import * as Type from "@/types";
 import { getWidgetContents } from "@/helpers/displayUtils";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
+import Tuple from "@/components/Tuple/Tuple.vue";
 
 const props = defineProps<{
   widget: Type.TextTemplateWidgetProps;
