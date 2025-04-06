@@ -33,7 +33,7 @@
     "@tanstack/vue-table": "^8.21.2",
     "@turf/circle": "^6.5.0",
     "@vueuse/components": "^10.1.2",
-    "@vueuse/core": "^10.1.2",
+    "@vueuse/core": "^13.0.0",
     "@vueuse/integrations": "^10.1.2",
     "autolink-js": "^1.0.2",
     "axios": "^1.4.0",
