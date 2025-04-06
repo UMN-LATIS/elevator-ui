@@ -1,7 +1,7 @@
 <template>
   <Tuple :label="widget.label" class="widget">
     <DragDropContainer :groupId="widget.widgetId">
-      <DragDropList :listId="widget.widgetId" v-model="localWidgetContents">
+      <DragDropList v-model="localWidgetContents" :listId="widget.widgetId">
         <template #item="{ item }">
           <div class="list-item">
             <div class="text-content">
@@ -9,7 +9,6 @@
             </div>
           </div>
         </template>
-
       </DragDropList>
     </DragDropContainer>
     <div v-for="(contentRow, index) in localWidgetContents" :key="index">
