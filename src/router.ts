@@ -112,7 +112,7 @@ const router = createRouter({
     },
     {
       name: "addAsset",
-      path: "/asset/create",
+      path: "/assetManager/addAsset",
       component: CreateAssetPage,
     },
     {
