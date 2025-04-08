@@ -1,0 +1,71 @@
+:root {
+  --dnd-color-neutral-100: #f5f5f5;
+  --dnd-color-neutral-200: #e5e5e5;
+  --dnd-color-neutral-300: #d4d4d4;
+  --dnd-color-neutral-400: #a3a3a3;
+  --dnd-color-neutral-500: #737373;
+  --dnd-color-neutral-600: #525252;
+  --dnd-color-neutral-700: #404040;
+  --dnd-color-neutral-800: #262626;
+  --dnd-color-neutral-900: #171717;
+
+  --dnd-color-blue-100: #dbeafe;
+  --dnd-color-blue-200: #bfdbfe;
+  --dnd-color-blue-300: #93c5fd;
+  --dnd-color-blue-400: #60a5fa;
+  --dnd-color-blue-500: #3b82f6;
+  --dnd-color-blue-600: #2563eb;
+  --dnd-color-blue-700: #1d4ed8;
+  --dnd-color-blue-800: #1e40af;
+  --dnd-color-blue-900: #1e3a8a;
+
+  --dnd-indicator-strokeWidth: 0.125rem;
+  --dnd-indicator-terminalSize: 0.25rem;
+  --dnd-indicator-color: var(--dnd-color-blue-600);
+  --dnd-list-border: 0;
+  --dnd-dragHandle-bg: var(--dnd-color-neutral-200);
+  --dnd-dragHandle-bg-focus: var(--dnd-color-blue-100);
+  --dnd-dragHandle-shadow-focus: 0 0 0 0.125rem var(--dnd-color-blue-600);
+  --dnd-dragHandle-color: var(--dnd-color-neutral-600);
+  --dnd-dragHandle-color-focus: var(--dnd-color-blue-600);
+  --dnd-listItem-border: 1px solid var(--dnd-color-neutral-200);
+  --dnd-emptyList-bg: var(--dnd-color-neutral-100);
+  --dnd-emptyList-border: 1px dashed var(--dnd-color-neutral-300);
+  --dnd-emptyList-text: var(--dnd-color-neutral-400);
+  --dnd-emptyList-bg-draggingOver: var(--dnd-color-blue-100);
+  --dnd-emptyList-border-draggingOver: 1px dashed var(--dnd-color-blue-600);
+  --dnd-emptyList-text-draggingOver: var(--dnd-color-blue-600);
+}
+
+.dnd-drag-drop-container {
+  box-sizing: border-box;
+}
+
+.dnd-drag-drop-container :is(*, *:before, *:after) {
+  box-sizing: inherit;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.drag-drop-list-item.drag-drop-list-item--flash {
+  animation: post-move-flash 1s;
+}
+
+@keyframes post-move-flash {
+  0% {
+    background: var(--dnd-color-blue-100);
+  }
+  100% {
+    background: inherit;
+  }
+}
