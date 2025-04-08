@@ -845,3 +845,5 @@ export interface ApiGetExcerptResponse {
   embedUrl: string;
   assetId: string;
 }
+
+export type WithId<T> = T & { id: string };
