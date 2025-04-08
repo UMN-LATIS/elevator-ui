@@ -68,17 +68,22 @@ export type CSSClass = string | Record<string, boolean> | CSSClass[];
 
 export type FetchStatus = "idle" | "fetching" | "success" | "error";
 
-export type WidgetType =
-  | "checkbox"
-  | "date"
-  | "location"
-  | "multiselect"
-  | "related asset"
-  | "select"
-  | "tag list"
-  | "text"
-  | "upload"
-  | "text area";
+export const WIDGET_TYPES = {
+  TEXT: "text",
+  TEXT_AREA: "text area",
+  SELECT: "select",
+  CHECKBOX: "checkbox",
+  DATE: "date",
+  TAG_LIST: "tag list",
+  MULTISELECT: "multiselect",
+  LOCATION: "location",
+  UPLOAD: "upload",
+  RELATED_ASSET: "related asset",
+} as const;
+
+// union of all values of the WIDGET_TYPES object
+// e.g. "text" | "text area" | "select" | ...
+export type WidgetType = (typeof WIDGET_TYPES)[keyof typeof WIDGET_TYPES];
 
 export interface WidgetProps {
   widgetId: number;
