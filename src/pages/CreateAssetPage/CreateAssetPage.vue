@@ -4,8 +4,9 @@
       <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
 
       <form
+        v-if="!isAssetReadyForEdits"
         class="flex flex-col gap-4"
-        @submit.prevent="console.log('init new asset')">
+        @submit.prevent="handleAddAssetClick">
         <label for="templateId">Choose a template</label>
         <select
           id="templateId"
@@ -40,9 +41,12 @@
           variant="primary"
           class="block my-4 w-full"
           :disabled="!selectedTemplateId || !selectedCollectionId">
-          Add Asset
+          Continue
         </Button>
       </form>
+      <div v-else>
+        <p>Let the edits begin.</p>
+      </div>
     </div>
   </DefaultLayout>
 </template>
@@ -56,6 +60,19 @@ const instanceStore = useInstanceStore();
 
 const selectedTemplateId = ref<string | null>("");
 const selectedCollectionId = ref<string | null>("");
+const isAssetReadyForEdits = ref(false);
+
+function handleAddAssetClick() {
+  if (!selectedTemplateId.value || !selectedCollectionId.value) {
+    return;
+  }
+
+  // fetch template
+
+  // init asset store with asset based on template
+
+  isAssetReadyForEdits.value = true;
+}
 </script>
 <style scoped>
 .static-page__content {
