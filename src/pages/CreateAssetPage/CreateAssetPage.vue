@@ -34,7 +34,7 @@
       </Button>
     </form>
     <div v-else class="flex-1 flex h-full">
-      <div class="flex-1 bg-white">
+      <div class="flex-1 bg-white relative">
         <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
 
         <EditAssetForm
@@ -47,27 +47,30 @@
           </pre>
         </code>
       </div>
-      <div class="md:w-xs flex flex-col gap-4 p-4">
-        <SelectGroup
-          v-model="selectedTemplateId"
-          :options="
-            instanceStore.instance.templates?.map((template) => ({
-              label: template.name,
-              id: template.id.toString(),
-            })) ?? []
-          "
-          label="Template"
-          required />
-        <SelectGroup
-          v-model="selectedCollectionId"
-          :options="
-            instanceStore.collections?.map((collection) => ({
-              label: collection.title,
-              id: collection.id.toString(),
-            })) ?? []
-          "
-          label="Collection"
-          required />
+      <div class="md:w-xs relative">
+        <div class="sticky top-20 w-full z-10 flex flex-col gap-4 p-4">
+          <Button variant="primary">Save</Button>
+          <SelectGroup
+            v-model="selectedTemplateId"
+            :options="
+              instanceStore.instance.templates?.map((template) => ({
+                label: template.name,
+                id: template.id.toString(),
+              })) ?? []
+            "
+            label="Template"
+            required />
+          <SelectGroup
+            v-model="selectedCollectionId"
+            :options="
+              instanceStore.collections?.map((collection) => ({
+                label: collection.title,
+                id: collection.id.toString(),
+              })) ?? []
+            "
+            label="Collection"
+            required />
+        </div>
       </div>
     </div>
   </DefaultLayout>
