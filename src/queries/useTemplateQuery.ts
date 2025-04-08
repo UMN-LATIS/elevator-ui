@@ -5,7 +5,7 @@ import { TEMPLATES_QUERY_KEY } from "./queryKeys";
 import type { Template } from "@/types";
 
 export function useTemplateQuery(
-  templateId: MaybeRefOrGetter<Template["templateId"] | null>,
+  templateId: MaybeRefOrGetter<string | number | null>,
   options = {}
 ) {
   return useQuery({
@@ -14,8 +14,10 @@ export function useTemplateQuery(
     enabled: () => !!toValue(templateId),
     initialData: () => null,
     queryFn: async () => {
+      console.log("running template query");
       const id = toValue(templateId);
-      return id ? await fetchers.fetchTemplate(id) : null;
+      const idInt = Number.parseInt(id as string);
+      return id ? await fetchers.fetchTemplate(idInt) : null;
     },
     refetchOnWindowFocus: false,
     ...options,

@@ -478,7 +478,7 @@ type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
 
 export interface Template {
-  templateId: string;
+  templateId: number;
   templateName: string;
   showCollection: boolean;
   showCollectionPosition: TemplateShowPropertyPosition;

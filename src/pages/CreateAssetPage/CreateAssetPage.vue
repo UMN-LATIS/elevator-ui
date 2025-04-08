@@ -46,6 +46,9 @@
       </form>
       <div v-else>
         <p>Let the edits begin.</p>
+        {{ selectedTemplateId }}
+        {{ selectedCollectionId }}
+        {{ selectedTemplate }}
       </div>
     </div>
   </DefaultLayout>
@@ -55,6 +58,7 @@ import { ref } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
+import { useTemplateQuery } from "@/queries/useTemplateQuery";
 
 const instanceStore = useInstanceStore();
 
@@ -62,14 +66,12 @@ const selectedTemplateId = ref<string | null>("");
 const selectedCollectionId = ref<string | null>("");
 const isAssetReadyForEdits = ref(false);
 
+const { data: selectedTemplate } = useTemplateQuery(selectedTemplateId);
+
 function handleAddAssetClick() {
   if (!selectedTemplateId.value || !selectedCollectionId.value) {
     return;
   }
-
-  // fetch template
-
-  // init asset store with asset based on template
 
   isAssetReadyForEdits.value = true;
 }

@@ -82,7 +82,7 @@ export async function fetchAsset(assetId: string): Promise<Asset | null> {
 }
 
 export async function fetchTemplate(
-  templateId: string
+  templateId: Template["templateId"]
 ): Promise<Template | null> {
   const res = await axios.get<Template>(
     `${BASE_URL}/assetManager/getTemplate/${templateId}`
@@ -198,7 +198,7 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
-  launchId
+  launchId,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -217,7 +217,7 @@ export async function postLtiPayload13({
   fileObjectId,
   excerptId,
   launchId,
-  userId
+  userId,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -235,7 +235,6 @@ export async function postLtiPayload13({
 
   return res.data;
 }
-
 
 export async function fetchSearchId(
   query: string,
