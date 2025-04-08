@@ -4,13 +4,12 @@
       <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
 
       <form
-        :action="`${BASE_URL}/assetManager/addAsset`"
-        method="POST"
-        class="flex flex-col gap-4">
+        class="flex flex-col gap-4"
+        @submit.prevent="console.log('init new asset')">
         <label for="templateId">Choose a template</label>
         <select
           id="templateId"
-          v-model="selectedTemplate"
+          v-model="selectedTemplateId"
           name="templateId"
           class="rounded-md"
           required>
@@ -22,11 +21,25 @@
             {{ template.name }}
           </option>
         </select>
+        <label for="collectionId">Collection</label>
+        <select
+          id="collectionId"
+          v-model="selectedCollectionId"
+          class="rounded-md"
+          required>
+          <option value="" disabled selected>--</option>
+          <option
+            v-for="collection in instanceStore.collections"
+            :key="collection.id"
+            :value="collection.id">
+            {{ collection.title }}
+          </option>
+        </select>
         <Button
           type="submit"
           variant="primary"
           class="block my-4 w-full"
-          :disabled="!selectedTemplate">
+          :disabled="!selectedTemplateId || !selectedCollectionId">
           Add Asset
         </Button>
       </form>
@@ -38,12 +51,11 @@ import { ref } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
-import config from "@/config";
 
-const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
 
-const selectedTemplate = ref<string | null>("");
+const selectedTemplateId = ref<string | null>("");
+const selectedCollectionId = ref<string | null>("");
 </script>
 <style scoped>
 .static-page__content {
