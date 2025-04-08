@@ -10,7 +10,7 @@ import type { WidgetProps, WidgetContent } from "@/types";
 import { WidgetType } from "@/types";
 import EditSelectWidget from "./EditSelectWidget.vue";
 import EditCheckboxWidget from "./EditCheckboxWidget.vue";
-import EditTextAreaWidget from "./EditTextAreaWidget.vue";
+import EditTextAreaWidget from "./EditTextWidget.vue";
 import EditDateWidget from "./EditDateWidget.vue";
 import EditMultiSelectWidget from "./EditMultiSelectWidget.vue";
 import EditLocationWidget from "./EditLocationWidget.vue";

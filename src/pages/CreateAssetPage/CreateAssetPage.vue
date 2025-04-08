@@ -37,6 +37,10 @@
       <div class="flex-1 bg-white">
         <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
 
+        <EditAssetForm
+          v-if="editAssetStore.asset && editAssetStore.template"
+          :template="editAssetStore.template"
+          :asset="editAssetStore.asset" />
         <code>
           <pre class="text-sm">
             {{ JSON.stringify(editAssetStore.asset, null, 2) }}
@@ -78,6 +82,7 @@ import { useTemplateQuery } from "@/queries/useTemplateQuery";
 import invariant from "tiny-invariant";
 import { Template } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
+import EditAssetForm from "@/components/EditAssetForm/EditAssetForm.vue";
 
 const instanceStore = useInstanceStore();
 const selectedTemplateId = ref("");
