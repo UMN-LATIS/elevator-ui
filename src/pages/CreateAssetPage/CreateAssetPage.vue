@@ -1,79 +1,136 @@
 <template>
   <DefaultLayout class="create-asset-page">
-    <div class="max-w-lg mx-auto mt-12">
-      <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
+    <form
+      v-if="!editAssetStore.asset"
+      class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
+      @submit.prevent="initializeAsset">
+      <SelectGroup
+        v-model="selectedTemplateId"
+        :options="
+          instanceStore.instance.templates?.map((template) => ({
+            label: template.name,
+            id: template.id.toString(),
+          })) ?? []
+        "
+        label="Template"
+        required />
+      <SelectGroup
+        v-model="selectedCollectionId"
+        :options="
+          instanceStore.collections?.map((collection) => ({
+            label: collection.title,
+            id: collection.id.toString(),
+          })) ?? []
+        "
+        label="Collection"
+        required />
 
-      <form
-        v-if="!isAssetReadyForEdits"
-        class="flex flex-col gap-4"
-        @submit.prevent="handleAddAssetClick">
-        <label for="templateId">Choose a template</label>
-        <select
-          id="templateId"
+      <Button
+        type="submit"
+        variant="primary"
+        class="block my-4 w-full"
+        :disabled="!selectedTemplateId || !selectedCollectionId">
+        Add Asset
+      </Button>
+    </form>
+    <div v-else class="flex-1 flex h-full">
+      <div class="flex-1 bg-white">
+        <h1 class="text-4xl font-bold mb-8">Add Asset</h1>
+
+        <code>
+          <pre class="text-sm">
+            {{ JSON.stringify(editAssetStore.asset, null, 2) }}
+          </pre>
+        </code>
+      </div>
+      <div class="md:w-xs flex flex-col gap-4 p-4">
+        <SelectGroup
           v-model="selectedTemplateId"
-          name="templateId"
-          class="rounded-md"
-          required>
-          <option value="" disabled selected>--</option>
-          <option
-            v-for="template in instanceStore.instance.templates"
-            :key="template.id"
-            :value="template.id">
-            {{ template.name }}
-          </option>
-        </select>
-        <label for="collectionId">Collection</label>
-        <select
-          id="collectionId"
+          :options="
+            instanceStore.instance.templates?.map((template) => ({
+              label: template.name,
+              id: template.id.toString(),
+            })) ?? []
+          "
+          label="Template"
+          required />
+        <SelectGroup
           v-model="selectedCollectionId"
-          class="rounded-md"
-          required>
-          <option value="" disabled selected>--</option>
-          <option
-            v-for="collection in instanceStore.collections"
-            :key="collection.id"
-            :value="collection.id">
-            {{ collection.title }}
-          </option>
-        </select>
-        <Button
-          type="submit"
-          variant="primary"
-          class="block my-4 w-full"
-          :disabled="!selectedTemplateId || !selectedCollectionId">
-          Continue
-        </Button>
-      </form>
-      <div v-else>
-        <p>Let the edits begin.</p>
-        {{ selectedTemplateId }}
-        {{ selectedCollectionId }}
-        {{ selectedTemplate }}
+          :options="
+            instanceStore.collections?.map((collection) => ({
+              label: collection.title,
+              id: collection.id.toString(),
+            })) ?? []
+          "
+          label="Collection"
+          required />
       </div>
     </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
+import { useEditAssetStore } from "@/stores/useEditAssetStore";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
+import invariant from "tiny-invariant";
+import { Template } from "@/types";
+import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 
 const instanceStore = useInstanceStore();
+const selectedTemplateId = ref("");
+const selectedCollectionId = ref("");
+const editAssetStore = useEditAssetStore();
 
-const selectedTemplateId = ref<string | null>("");
-const selectedCollectionId = ref<string | null>("");
-const isAssetReadyForEdits = ref(false);
+const { data: selectedTemplate } = useTemplateQuery(() =>
+  Number.parseInt(selectedTemplateId.value || "")
+);
 
-const { data: selectedTemplate } = useTemplateQuery(selectedTemplateId);
+function initializeAsset() {
+  invariant(selectedTemplate.value, "No template selected");
+  invariant(selectedCollectionId.value, "No collection selected");
 
-function handleAddAssetClick() {
-  if (!selectedTemplateId.value || !selectedCollectionId.value) {
+  editAssetStore.initAsset({
+    template: selectedTemplate.value,
+    collectionId: Number.parseInt(selectedCollectionId.value),
+  });
+}
+
+watch(selectedTemplate, handleTemplateChange);
+
+// users can lose data if they change the template
+// while editing an asset, so we need to warn them
+async function handleTemplateChange(
+  newTemplate: Template | null,
+  oldTemplate: Template | null
+) {
+  if (
+    // we don't have an asset yet
+    !editAssetStore.asset ||
+    // we don't have a template yet
+    !oldTemplate ||
+    // the user is not changing the template
+    newTemplate === oldTemplate
+  ) {
     return;
   }
 
-  isAssetReadyForEdits.value = true;
+  // if the user is changing the template, warn before doing so
+  const confirmed = confirm(
+    "Changing the template will reset the asset. Are you sure you want to do this?"
+  );
+  if (!confirmed) {
+    // reset the template id
+    selectedTemplateId.value = oldTemplate.templateId.toString();
+    return;
+  }
+
+  invariant(newTemplate);
+
+  // TODO: do something smarter than just resetting the asset
+  editAssetStore.initAsset({ template: newTemplate });
 }
 </script>
 <style scoped>
