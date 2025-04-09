@@ -30,7 +30,7 @@
         variant="primary"
         class="block my-4 w-full"
         :disabled="!selectedTemplateId || !selectedCollectionId">
-        Add Asset
+        Continue
       </Button>
     </form>
     <div v-else class="flex-1 flex h-full">
@@ -49,7 +49,10 @@
       </div>
       <div class="md:w-xs relative">
         <div class="sticky top-20 w-full z-10 flex flex-col gap-4 p-4">
-          <Button variant="primary">Save</Button>
+          <Button variant="secondary" @click="console.log('cancel')">
+            Cancel
+          </Button>
+          <Button variant="primary" @click="handleSaveAsset">Save</Button>
           <SelectGroup
             v-model="selectedTemplateId"
             :options="
@@ -86,6 +89,9 @@ import invariant from "tiny-invariant";
 import { Template } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import EditAssetForm from "@/components/EditAssetForm/EditAssetForm.vue";
+import { useCreateAssetMutation } from "@/queries/useCreateAssetMutation";
+import { useErrorStore } from "@/stores/errorStore";
+import { useRouter } from "vue-router";
 
 const instanceStore = useInstanceStore();
 const selectedTemplateId = ref("");
@@ -139,6 +145,33 @@ async function handleTemplateChange(
 
   // TODO: do something smarter than just resetting the asset
   editAssetStore.initAsset({ template: newTemplate });
+}
+
+const { mutate: saveAsset } = useCreateAssetMutation();
+const errorStore = useErrorStore();
+const router = useRouter();
+
+function handleSaveAsset() {
+  invariant(editAssetStore.asset, "No asset to save");
+  invariant(editAssetStore.template, "No template to save");
+
+  saveAsset(editAssetStore.asset, {
+    // TODO: handle errors
+    onError: (error) => {
+      errorStore.setError(new Error(`Error saving asset: ${error.message}`));
+    },
+    onSuccess: ({ objectId }) => {
+      console.log("Asset saved", objectId);
+
+      // redirect to asset page
+      router.push({
+        name: "asset",
+        params: {
+          assetId: objectId,
+        },
+      });
+    },
+  });
 }
 </script>
 <style scoped>

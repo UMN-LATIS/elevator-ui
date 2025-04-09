@@ -525,3 +525,18 @@ export async function fetchDidYouMeanSuggestions(searchTerm: string) {
 
   return res.data;
 }
+
+export async function updateAsset(asset: Asset) {
+  console.log("update asset", asset);
+  const formdata = new FormData();
+  formdata.append("formData", JSON.stringify(asset));
+
+  const res = await axios.post<{
+    objectId: string;
+    success?: boolean;
+  }>(`${BASE_URL}/assetManager/submission`, formdata);
+
+  return res.data;
+}
+
+export const createAsset = updateAsset;
