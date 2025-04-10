@@ -213,12 +213,15 @@ function moveToIndex(targetIndex: number) {
   if (targetIndex === props.index) {
     return;
   }
+  invariant(groupId, "groupId is not defined");
   dragDropStore.moveItem(
     {
+      groupId: groupId,
       sourceIndex: props.index,
       listId: props.listId,
     },
     {
+      groupId: groupId,
       targetIndex,
       listId: props.listId,
     },
@@ -268,12 +271,15 @@ function handleMoveRight() {
 }
 
 function moveList(targetListId: HasId["id"]) {
+  invariant(groupId, "groupId is not defined");
   dragDropStore.moveItem(
     {
+      groupId: groupId,
       sourceIndex: props.index,
       listId: props.listId,
     },
     {
+      groupId: groupId,
       targetIndex: 0,
       listId: targetListId,
     },
