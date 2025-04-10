@@ -10,11 +10,10 @@
         <div v-for="listId in listIds" :key="listId">
           <h2 class="uppercase">{{ listId.split("-").join(" ") }}</h2>
           <DragDropList
+            v-model="todos.lists[listId]"
             :listId="listId"
             :nextListId="getNextList(listId)"
-            :prevListId="getPrevList(listId)"
-            v-model="todos.lists[listId]"
-          >
+            :prevListId="getPrevList(listId)">
             <template #item="{ item }">
               <div class="list-item">{{ item.name }}</div>
             </template>
@@ -27,8 +26,9 @@
 <script setup lang="ts">
 import { computed, reactive } from "vue";
 import { DragDropContainer, DragDropList } from ".";
+import { HasId } from "./dndTypes";
 
-interface TodoItem {
+interface TodoItem extends HasId {
   id: number;
   name: string;
 }
@@ -53,10 +53,10 @@ const todos = reactive<TodoState>({
       { id: 6, name: "Item 6" },
       { id: 7, name: "Item 7" },
       { id: 8, name: "Item 8" },
-    ],
-    "list-2": [],
-    "list-3": [],
-    "list-4": [],
+    ] as TodoItem[],
+    "list-2": [] as TodoItem[],
+    "list-3": [] as TodoItem[],
+    "list-4": [] as TodoItem[],
   },
 });
 
