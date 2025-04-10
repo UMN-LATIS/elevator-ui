@@ -45,7 +45,7 @@
               </label>
               <Input
                 :id="`${item.id}-input`"
-                :modelValue="item.fieldContents as string"
+                v-model="item.fieldContents"
                 :placeholder="widgetDef.label"
                 class="bg-black/5 border-none" />
             </div>
@@ -90,12 +90,16 @@ function setPrimaryItem(id: string) {
 }
 
 const editAssetStore = useEditAssetStore();
-watch(localWidgetContents, (newWidgetContents) => {
-  editAssetStore.updateWidgetContents(
-    props.widgetDef.fieldTitle,
-    newWidgetContents
-  );
-});
+watch(
+  localWidgetContents,
+  (newWidgetContents) => {
+    editAssetStore.updateWidgetContents(
+      props.widgetDef.fieldTitle,
+      newWidgetContents
+    );
+  },
+  { deep: true }
+);
 
 function handleAddWidgetContent() {
   const newItem = createDefaultWidgetContent(
