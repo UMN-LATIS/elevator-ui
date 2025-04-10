@@ -4,8 +4,12 @@
 import { Template } from "@/types";
 
 const mockTemplate: Template = {
-  templateId: "26",
+  templateId: 26,
   templateName: "Old DCL Works",
+  showCollection: true,
+  showCollectionPosition: 0,
+  showTemplate: true,
+  showTemplatePosition: 0,
   widgetArray: [
     {
       widgetId: 2247,
