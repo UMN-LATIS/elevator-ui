@@ -30,6 +30,7 @@ import type {
   AssetExcerpt,
   ApiGetExcerptResponse,
   ApiSuccessResponse,
+  CreateAssetRequestFormData,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -82,7 +83,7 @@ export async function fetchAsset(assetId: string): Promise<Asset | null> {
 }
 
 export async function fetchTemplate(
-  templateId: Template["templateId"]
+  templateId: string | number
 ): Promise<Template | null> {
   const res = await axios.get<Template>(
     `${BASE_URL}/assetManager/getTemplate/${templateId}`
@@ -198,7 +199,7 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
-  launchId,
+  returnUrl,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -207,6 +208,7 @@ export async function postLtiPayload({
   const formdata = new FormData();
   formdata.append("object", fileObjectId);
   formdata.append("excerptId", excerptId);
+  formdata.append("returnUrl", returnUrl);
 
   const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
 
@@ -526,17 +528,14 @@ export async function fetchDidYouMeanSuggestions(searchTerm: string) {
   return res.data;
 }
 
-export async function updateAsset(asset: Asset) {
-  console.log("update asset", asset);
+export async function createAsset(assetFormData: CreateAssetRequestFormData) {
   const formdata = new FormData();
-  formdata.append("formData", JSON.stringify(asset));
+  formdata.append("formData", JSON.stringify(assetFormData));
 
   const res = await axios.post<{
     objectId: string;
     success?: boolean;
-  }>(`${BASE_URL}/assetManager/submission`, formdata);
+  }>(`${BASE_URL}/assetManager/submission/true`, formdata);
 
   return res.data;
 }
-
-export const createAsset = updateAsset;

@@ -34,7 +34,12 @@ export function createDefaultWidgetContent(widgetProps: WidgetProps) {
         ...base,
         locationLabel: null,
         address: null,
-        loc: null,
+        loc: {
+          label: "",
+          entries: [],
+          type: "",
+          coordinates: [0, 0],
+        },
       };
     case WIDGET_TYPES.TAG_LIST:
       return {

@@ -52,7 +52,9 @@
           <Button variant="secondary" @click="console.log('cancel')">
             Cancel
           </Button>
-          <Button variant="primary" @click="handleSaveAsset">Save</Button>
+          <Button variant="primary" type="button" @click="handleSaveAsset">
+            Save
+          </Button>
           <SelectGroup
             v-model="selectedTemplateId"
             :options="
@@ -86,7 +88,7 @@ import Button from "@/components/Button/Button.vue";
 import { useEditAssetStore } from "@/stores/useEditAssetStore";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
 import invariant from "tiny-invariant";
-import { Template } from "@/types";
+import { CreateAssetRequestFormData, Template } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import EditAssetForm from "@/components/EditAssetForm/EditAssetForm.vue";
 import { useCreateAssetMutation } from "@/queries/useCreateAssetMutation";
@@ -155,7 +157,20 @@ function handleSaveAsset() {
   invariant(editAssetStore.asset, "No asset to save");
   invariant(editAssetStore.template, "No template to save");
 
-  saveAsset(editAssetStore.asset, {
+  const allWidgetContents = editAssetStore.getWidgetContentLookup();
+
+  const formData: CreateAssetRequestFormData = {
+    objectId: "",
+    templateId: String(editAssetStore.template.templateId),
+    newTemplateId: String(editAssetStore.asset.templateId),
+    collectionId: String(editAssetStore.asset.collectionId),
+    newCollectionId: String(editAssetStore.asset.collectionId),
+    readyForDisplay: editAssetStore.asset.readyForDisplay ? "on" : "off",
+    availableAfter: "", // TODO: add date picker
+    ...allWidgetContents,
+  };
+
+  saveAsset(formData, {
     // TODO: handle errors
     onError: (error) => {
       errorStore.setError(new Error(`Error saving asset: ${error.message}`));

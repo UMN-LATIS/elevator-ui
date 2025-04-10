@@ -847,3 +847,22 @@ export interface ApiGetExcerptResponse {
 }
 
 export type WithId<T> = T & { id: string };
+
+export interface CreateAssetRequestFormData {
+  objectId: "";
+  templateId: string; // "3"
+  newTemplateId: string; // matches templateId
+  collectionId: string; // "1"
+  newCollectionId: string; // matches collectionId
+  readyForDisplay: "on" | "off"; // can we use bools here?
+  availableAfter: ""; // not sure what to do here
+  // widget_id: "30"; // I don't think this is used because
+  // it's not actually within the widget
+  [widgetFieldName: string]:
+    | string
+    | Array<{
+        fieldContents: string;
+        isPrimary?: "0" | "1";
+      }>;
+  // text_1: { "0": { fieldContents: "3:17" }; isPrimary: "0" };
+}

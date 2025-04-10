@@ -124,6 +124,28 @@ export const useEditAssetStore = defineStore("editAssetForm", () => {
     asset.value[fieldTitle] = contents;
   }
 
+  function getWidgetContentLookup(): Record<string, WidgetContent[]> {
+    invariant(asset.value);
+    invariant(template.value);
+
+    const widgetContents: Record<string, WidgetContent[]> = {};
+
+    for (const widgetDef of template.value.widgetArray) {
+      const contents = asset.value[widgetDef.fieldTitle] as WidgetContent[];
+      if (contents) {
+        widgetContents[widgetDef.fieldTitle] = contents;
+      }
+      // if contents is empty, create a default widget content
+      else {
+        widgetContents[widgetDef.fieldTitle] = [
+          createDefaultWidgetContents(widgetDef),
+        ];
+      }
+    }
+
+    return widgetContents;
+  }
+
   return {
     // state
     asset,
@@ -135,5 +157,6 @@ export const useEditAssetStore = defineStore("editAssetForm", () => {
     // actions
     initAsset,
     updateWidgetContents,
+    getWidgetContentLookup,
   };
 });
