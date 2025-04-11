@@ -41,11 +41,6 @@
           v-if="editAssetStore.asset && editAssetStore.template"
           :template="editAssetStore.template"
           :asset="editAssetStore.asset" />
-        <code>
-          <pre class="text-sm">
-            {{ JSON.stringify(editAssetStore.asset, null, 2) }}
-          </pre>
-        </code>
       </div>
       <div class="md:w-xs relative">
         <div class="sticky top-20 w-full z-10 flex flex-col gap-4 p-4">
