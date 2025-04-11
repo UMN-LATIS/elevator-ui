@@ -15,7 +15,7 @@ export function createDefaultWidgetContent(widgetProps: WidgetProps) {
     case WIDGET_TYPES.TEXT_AREA:
       return {
         ...base,
-        fieldContents: null,
+        fieldContents: "", // HTML
       };
     case WIDGET_TYPES.CHECKBOX:
       return {
