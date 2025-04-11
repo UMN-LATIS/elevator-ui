@@ -6,7 +6,7 @@
       :options="options"
       class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-blue-600"
       data-cy="text-block-input"
-      @update:modelValue="$emit('update:modelValue', $event)" />
+      @update:modelValue="handleUpdate" />
   </div>
 </template>
 <script setup lang="ts">
@@ -17,7 +17,7 @@ import "quill-paste-smart";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     modelValue: string;
     id?: string;
@@ -27,12 +27,23 @@ const props = withDefaults(
   }
 );
 
-defineEmits<{
+const emit = defineEmits<{
   (event: "update:modelValue", value: string): void;
 }>();
 
 const editor = ref<InstanceType<typeof QuillyEditor>>();
 let quill: Quill | null = null;
+
+// Handle update event with semantic HTML conversion
+function handleUpdate(quillHTML: string) {
+  if (!quill) {
+    return;
+  }
+
+  console.log("quillHTML", quillHTML);
+  console.log("quill.getSemanticHTML()", quill.getSemanticHTML());
+  emit("update:modelValue", quillHTML);
+}
 
 const options = computed(() => ({
   theme: "snow",
@@ -74,6 +85,12 @@ const options = computed(() => ({
   placeholder: "Write something...",
   readOnly: false,
 }));
+
+// expose the quill instance so that parent can use
+// quill.getSemanticHTML() to get the semantic HTML
+defineExpose({
+  quill,
+});
 
 onMounted(() => {
   if (!editor.value) {

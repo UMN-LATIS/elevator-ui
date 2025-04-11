@@ -69,7 +69,7 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { reactive, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import * as Type from "@/types";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
@@ -97,6 +97,20 @@ const editAssetStore = useEditAssetStore();
 watch(
   localWidgetContents,
   (newWidgetContents) => {
+    // TODO: we'll need some way for parent to get the
+    // semantic html from the quill editor.
+    // quill's HTML is non-semantic (e.g. everthing is a <ol>)
+    // to keep their Parchment state and changes deterministic.
+    // But, it's a bad idea to save this HTML in the database
+    // since you get formatting quirks.
+    // Doing a direct conversion with every update causes
+    // the cursor to jump to the beginning of the text (plus
+    // it may be slow with lots of fields)
+    // A better option is prob to store the quill HTML in some
+    // internal variable in the store, and then have the store
+    // transform with `quill.getSemanaticHTML()`
+    // when saving the asset. We may need other transformers
+    // with other widgets, so for now I'm leaving as-is.
     editAssetStore.updateWidgetContents(
       props.widgetDef.fieldTitle,
       newWidgetContents
