@@ -7,9 +7,12 @@
       :closeDelay="closeDelay"
       :arrow="arrow"
       :offsetDistance="String(offsetDistance)">
-      <slot />
-      <template #content="props">
-        <slot name="content" v-bind="props">
+      <template #default="defaultSlotProps">
+        <slot v-bind="defaultSlotProps" />
+      </template>
+
+      <template #content="contentSlotProps">
+        <slot name="content" v-bind="contentSlotProps">
           {{ tip }}
         </slot>
       </template>
@@ -21,7 +24,7 @@ import Popper from "vue3-popper";
 
 withDefaults(
   defineProps<{
-    theme: "light" | "dark";
+    theme?: "light" | "dark";
     arrow?: boolean;
     hover?: boolean;
     openDelay?: number;
@@ -30,7 +33,7 @@ withDefaults(
     tip?: string;
   }>(),
   {
-    theme: "light",
+    theme: "dark",
     arrow: true,
     hover: false,
     openDelay: 100,

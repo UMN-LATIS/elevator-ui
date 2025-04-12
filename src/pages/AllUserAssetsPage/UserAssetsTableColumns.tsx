@@ -1,10 +1,16 @@
-import { createColumnHelper, Row, RowModel } from "@tanstack/vue-table";
-import type { Asset, AssetSummary } from "@/types";
-import { CircleCheck, Pen, PencilIcon } from "lucide-vue-next";
+import { createColumnHelper, Row } from "@tanstack/vue-table";
+import type { AssetSummary } from "@/types";
+import { CircleCheck, PencilIcon } from "lucide-vue-next";
 import { RouterLink } from "vue-router";
 import Button from "@/components/Button/Button.vue";
 import { TrashIcon } from "lucide-vue-next";
-import Tooltip from "@/components/Tooltip/Tooltip.vue";
+
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const columnHelper = createColumnHelper<AssetSummary>();
 
@@ -41,12 +47,16 @@ export const columns = [
     cell: (ctx) => {
       const objectId = ctx.getValue() as string;
       return (
-        <Tooltip tip={objectId} placement="top" hover={true}>
-          <RouterLink to={`/assetManager/editAsset/${objectId}`}>
-            {/* last 8 chars of objectId */}
-            ...{objectId.slice(objectId.length - 8)}
-          </RouterLink>
-        </Tooltip>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger>
+              <RouterLink to={`/assetManager/editAsset/${objectId}`}>
+                &hellip;{objectId.slice(objectId.length - 8)}
+              </RouterLink>
+            </TooltipTrigger>
+            <TooltipContent>{objectId}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   }),
@@ -78,7 +88,10 @@ export const columns = [
           </RouterLink>
           <Button
             variant="tertiary"
-            class="hover:!bg-red-50 !text-red-400 hover:!text-red-500">
+            class="hover:!bg-red-50 !text-red-400 hover:!text-red-500"
+            onClick={() => {
+              console.log("delete");
+            }}>
             <TrashIcon class="size-4" />
             <span class="sr-only">Delete</span>
           </Button>
