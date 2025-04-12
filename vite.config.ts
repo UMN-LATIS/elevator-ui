@@ -1,12 +1,13 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
-    plugins: [vue()],
+    plugins: [vue(), vueJsx()],
     base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
     resolve: {
       alias: {
@@ -23,7 +24,7 @@ export default defineConfig(({ mode }) => {
     build: {
       manifest: true,
       rollupOptions: {
-        input: "/src/main.ts",
+        input: "src/main.ts",
       },
       sourcemap: mode !== "production",
     },

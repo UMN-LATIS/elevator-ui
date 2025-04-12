@@ -1,17 +1,17 @@
 <template>
   <div class="tooltip" :class="`tooltip--${theme}`">
-    <!-- Hardcoded "hover", "openDelay" and "closeDelay" -->
     <Popper
       v-bind="$attrs"
       :hover="hover"
       :openDelay="openDelay"
       :closeDelay="closeDelay"
       :arrow="arrow"
-      :offsetDistance="String(offsetDistance)"
-    >
+      :offsetDistance="String(offsetDistance)">
       <slot />
       <template #content="props">
-        <slot name="content" v-bind="props" />
+        <slot name="content" v-bind="props">
+          {{ tip }}
+        </slot>
       </template>
     </Popper>
   </div>
@@ -27,6 +27,7 @@ withDefaults(
     openDelay?: number;
     closeDelay?: number;
     offsetDistance?: number;
+    tip?: string;
   }>(),
   {
     theme: "light",
@@ -35,6 +36,7 @@ withDefaults(
     openDelay: 100,
     closeDelay: 100,
     offsetDistance: 0,
+    tip: "",
   }
 );
 </script>
@@ -52,6 +54,8 @@ withDefaults(
 }
 
 :deep(.popper) {
+  --color-tooltip-bg: var(--color-neutral-900);
+  --color-tooltip-text: var(--color-neutral-100);
   background: var(--color-tooltip-bg);
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;

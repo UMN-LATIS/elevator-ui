@@ -111,6 +111,11 @@ const router = createRouter({
       }),
     },
     {
+      name: "allMyAssets",
+      path: "/assetManager/userAssets",
+      component: () => import("@/pages/AllAssetsPage/AllAssetsPage.vue"),
+    },
+    {
       name: "addAsset",
       path: "/assetManager/addAsset",
       component: CreateAssetPage,

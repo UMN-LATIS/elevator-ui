@@ -1,8 +1,6 @@
 <template>
   <AppMenuGroup v-if="currentUser?.canManageAssets" label="Manage Assets">
-    <AppMenuItem :href="`${BASE_URL}/assetManager/userAssets/`">
-      All My Assets
-    </AppMenuItem>
+    <AppMenuItem to="/assetManager/userAssets/">All My Assets</AppMenuItem>
     <AppMenuItem to="/assetManager/addAsset">Add Asset</AppMenuItem>
     <template v-if="assetId">
       <AppMenuItem :to="`/assetManager/editAsset/${assetId}`">

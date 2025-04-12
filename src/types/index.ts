@@ -866,3 +866,15 @@ export interface CreateAssetRequestFormData {
       }>;
   // text_1: { "0": { fieldContents: "3:17" }; isPrimary: "0" };
 }
+
+export interface AssetSummary {
+  objectId: Asset["objectId"];
+  title: string;
+  readyForDisplay: boolean;
+  templateId: number;
+  modifiedDate: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
+}

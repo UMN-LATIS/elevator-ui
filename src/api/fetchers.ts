@@ -31,6 +31,7 @@ import type {
   ApiGetExcerptResponse,
   ApiSuccessResponse,
   CreateAssetRequestFormData,
+  AssetSummary,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -537,5 +538,14 @@ export async function createAsset(assetFormData: CreateAssetRequestFormData) {
     success?: boolean;
   }>(`${BASE_URL}/assetManager/submission/true`, formdata);
 
+  return res.data;
+}
+
+export async function fetchAllUserAssets() {
+  const offset = 0;
+  const returnJson = true;
+  const res = await axios.get<AssetSummary[]>(
+    `${BASE_URL}/assetManager/userAssets/${offset}/${returnJson}`
+  );
   return res.data;
 }

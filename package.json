@@ -32,6 +32,7 @@
     "@tanstack/vue-query": "^5.72.1",
     "@tanstack/vue-table": "^8.21.2",
     "@turf/circle": "^6.5.0",
+    "@vitejs/plugin-vue-jsx": "^4.1.2",
     "@vueuse/components": "^10.1.2",
     "@vueuse/core": "^13.1.0",
     "@vueuse/integrations": "^10.1.2",
