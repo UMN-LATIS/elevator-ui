@@ -298,8 +298,8 @@ export async function fetchSearchResultsById(
 }
 
 export async function deleteAsset(assetId: string) {
-  const res = await axios.get(
-    `${BASE_URL}/assetManager/deleteAsset/${assetId}`
+  const res = await axios.delete(
+    `${BASE_URL}/assetManager/deleteAsset/${assetId}/true`
   );
   return res.data;
 }
