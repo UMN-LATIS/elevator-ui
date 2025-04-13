@@ -36,13 +36,20 @@ export const useEditAssetStore = defineStore("editAssetForm", () => {
   });
 
   // actions
+  function reset() {
+    asset.value = null;
+    template.value = null;
+    savedAsset.value = null;
+    errors.value = {};
+  }
+
   function initAsset(opts: {
     template: Template;
     asset?: Asset;
     collectionId?: AssetCollection["id"];
   }) {
     // clear any errors
-    errors.value = {};
+    reset();
 
     const rawTemplate = toRaw(opts.template);
     // if the template is not a template, throw an error
@@ -155,6 +162,7 @@ export const useEditAssetStore = defineStore("editAssetForm", () => {
     collection,
 
     // actions
+    reset,
     initAsset,
     updateWidgetContents,
     getWidgetContentLookup,

@@ -173,6 +173,9 @@ function handleSaveAsset() {
     onSuccess: ({ objectId }) => {
       console.log("Asset saved", objectId);
 
+      // reset edit asset store
+      editAssetStore.reset();
+
       // redirect to asset page
       router.push({
         name: "asset",
