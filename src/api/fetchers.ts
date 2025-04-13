@@ -541,6 +541,9 @@ export async function createAsset(assetFormData: CreateAssetRequestFormData) {
   return res.data;
 }
 
+// update and create asset are the same endpoint
+export const updateAsset = createAsset;
+
 export async function fetchAllUserAssets() {
   const offset = 0;
   const returnJson = true;
