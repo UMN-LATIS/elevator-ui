@@ -20,7 +20,9 @@ import AppMenuItem from "./AppMenuItem.vue";
 import Divider from "./Divider.vue";
 import config from "@/config";
 import { ElevatorInstance, User } from "@/types";
-import api from "@/api";
+import { useRouter } from "vue-router";
+import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
+import { useErrorStore } from "@/stores/errorStore";
 
 const BASE_URL = config.instance.base.url;
 
@@ -29,6 +31,10 @@ const props = defineProps<{
   instance: ElevatorInstance;
   assetId: string | null;
 }>();
+
+const router = useRouter();
+const { mutate: deleteAsset } = useDeleteAssetMutation();
+const errorStore = useErrorStore();
 
 async function handleDeleteAssetClick() {
   if (!props.assetId) {
@@ -41,13 +47,15 @@ async function handleDeleteAssetClick() {
     return;
   }
 
-  try {
-    await api.deleteAsset(props.assetId);
-    window.location.href = `${BASE_URL}/assetManager/userAssets`;
-  } catch (error) {
-    console.error(error);
-    alert("Error deleting asset.");
-  }
+  deleteAsset(props.assetId, {
+    onSuccess: () => {
+      router.push("/assetManager/userAssets");
+    },
+    onError: (error) => {
+      console.error("Error deleting asset:", error);
+      errorStore.setError(new Error(`Error deleting asset: ${error.message}`));
+    },
+  });
 }
 </script>
 <style>
