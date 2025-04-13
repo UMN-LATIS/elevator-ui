@@ -12,12 +12,19 @@
       <div class="table-row table-row--header">
         <div class="edit-text-widget-handle"></div>
         <div class="table-cell table-cell--sm">
-          <Tooltip :hover="true" theme="dark" tooltip="Set as Primary">
-            <div class="transform translate-y-[1px]">
-              <StarIcon class="size-3 fill-neutral-900" />
-              <span class="sr-only">Primary</span>
-            </div>
-          </Tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <div class="transform translate-y-[1px]">
+                  <StarIcon class="size-3 fill-neutral-900" />
+                  <span class="sr-only">Primary</span>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div class="text-sm">Set as Primary</div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div class="table-cell">{{ widgetDef.label }}</div>
         <div class="table-cell table-cell--sm"></div>
@@ -69,17 +76,22 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { reactive, watch } from "vue";
 import * as Type from "@/types";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
 import { PlusIcon, StarIcon } from "lucide-vue-next";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import XIcon from "@/icons/XIcon.vue";
 import { useEditAssetStore } from "@/stores/useEditAssetStore";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const props = defineProps<{
   widgetDef: Type.TextWidgetProps;
