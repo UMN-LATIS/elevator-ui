@@ -66,7 +66,6 @@ defineEmits<{
   (e: "update:asset", asset: Asset): void;
 }>();
 
-const localTemplateId = ref("");
 const instanceStore = useInstanceStore();
 
 const templateOptions = computed(() => {
@@ -94,10 +93,8 @@ const widgetDefAndContents = computed(
   }> =>
     props.template.widgetArray.map((widgetDef) => ({
       widgetDef,
-      widgetContents: getWidgetContents({
-        asset: props.asset,
-        widget: widgetDef,
-      }) as WidgetContent[],
+      widgetContents: (props.asset[widgetDef.fieldTitle] ??
+        []) as WidgetContent[],
     }))
 );
 </script>
