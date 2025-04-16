@@ -1,15 +1,15 @@
 <template>
   <EditWidgetLayout :label="widgetDef.label" class="edit-textarea-widget">
-    <div class="flex items-center justify-end mb-2">
+    <template #header-right>
       <Button variant="tertiary" @click="handleAddWidgetContent">
         <PlusIcon class="w-4 h-4" />
         <span class="ml-2">Add {{ widgetDef.label }}</span>
       </Button>
-    </div>
+    </template>
 
     <DragDropContainer :groupId="widgetDef.widgetId">
       <!-- header -->
-      <div class="table-row table-row--header">
+      <!-- <div class="table-row table-row--header">
         <div class="edit-text-widget-handle"></div>
         <div class="table-cell table-cell--sm">
           <TooltipProvider>
@@ -28,7 +28,7 @@
         </div>
         <div class="table-cell">{{ widgetDef.label }}</div>
         <div class="table-cell table-cell--sm"></div>
-      </div>
+      </div> -->
       <!-- items -->
       <DragDropList
         v-model="localWidgetContents"

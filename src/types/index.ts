@@ -848,8 +848,8 @@ export interface ApiGetExcerptResponse {
 
 export type WithId<T> = T & { id: string };
 
-export interface CreateAssetRequestFormData {
-  objectId: "";
+export interface UpdateAssetRequestFormData {
+  objectId: string;
   templateId: string; // "3"
   newTemplateId: string; // matches templateId
   collectionId: string; // "1"
@@ -864,9 +864,11 @@ export interface CreateAssetRequestFormData {
         fieldContents: string;
         isPrimary?: "0" | "1";
       }>;
-  // text_1: { "0": { fieldContents: "3:17" }; isPrimary: "0" };
 }
 
+export interface CreateAssetRequestFormData extends UpdateAssetRequestFormData {
+  objectId: ""; // must be blank for creating a new asset
+}
 export interface AssetSummary {
   objectId: Asset["objectId"];
   title: string;

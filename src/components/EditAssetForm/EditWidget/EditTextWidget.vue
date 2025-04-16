@@ -1,15 +1,15 @@
 <template>
   <EditWidgetLayout :label="widgetDef.label" class="edit-text-widget">
-    <div class="flex items-center justify-end mb-2">
+    <template #header-right>
       <Button variant="tertiary" @click="handleAddWidgetContent">
         <PlusIcon class="w-4 h-4" />
         <span class="ml-2">Add {{ widgetDef.label }}</span>
       </Button>
-    </div>
+    </template>
 
     <DragDropContainer :groupId="widgetDef.widgetId">
       <!-- header -->
-      <div class="table-row table-row--header">
+      <!-- <div class="table-row table-row--header">
         <div class="edit-text-widget-handle"></div>
         <div class="table-cell table-cell--sm">
           <TooltipProvider>
@@ -28,10 +28,10 @@
         </div>
         <div class="table-cell">{{ widgetDef.label }}</div>
         <div class="table-cell table-cell--sm"></div>
-      </div>
+      </div> -->
       <!-- items -->
       <DragDropList
-        v-model="localWidgetContents"
+        :modelValue="widgetContents"
         :listId="widgetDef.widgetId"
         handleClass="edit-text-widget-handle">
         <template #item="{ item }">
@@ -52,9 +52,12 @@
               </label>
               <Input
                 :id="`${item.id}-input`"
-                v-model="item.fieldContents"
+                :modelValue="item.fieldContents"
                 :placeholder="widgetDef.label"
-                class="bg-black/5 border-none" />
+                class="bg-black/5 border-none"
+                @update:modelValue="
+                  handleUpdateWidgetContentItem(item.id, $event)
+                " />
             </div>
             <div class="table-cell table-cell--sm">
               <button
@@ -94,30 +97,39 @@ const props = defineProps<{
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
 }>();
 
-const localWidgetContents = reactive(props.widgetContents);
-function setPrimaryItem(id: string) {
-  localWidgetContents.forEach((item) => {
-    item.isPrimary = item.id === id;
-  });
-}
+const emit = defineEmits<{
+  (
+    e: "update:widgetContents",
+    widgetContents: Type.WithId<Type.TextWidgetContent>[]
+  ): void;
+}>();
 
-const editAssetStore = useEditAssetStore();
-watch(
-  localWidgetContents,
-  (newWidgetContents) => {
-    editAssetStore.updateWidgetContents(
-      props.widgetDef.fieldTitle,
-      newWidgetContents
-    );
-  },
-  { deep: true }
-);
+function setPrimaryItem(id: string) {
+  const updatedWidgetContents = props.widgetContents.map((item) => {
+    return {
+      ...item,
+      isPrimary: item.id === id,
+    };
+  });
+  emit("update:widgetContents", updatedWidgetContents);
+}
 
 function handleAddWidgetContent() {
   const newItem = createDefaultWidgetContent(
     props.widgetDef
   ) as Type.WithId<Type.TextWidgetContent>;
-  localWidgetContents.push(newItem);
+  emit("update:widgetContents", [...props.widgetContents, newItem]);
+}
+
+function handleUpdateWidgetContentItem(id: string, fieldContents: string) {
+  const updatedWidgetContents = props.widgetContents.map((item) => {
+    if (item.id !== id) return item;
+    return {
+      ...item,
+      fieldContents,
+    };
+  });
+  emit("update:widgetContents", updatedWidgetContents);
 }
 </script>
 <style scoped>

@@ -32,6 +32,7 @@ import type {
   ApiSuccessResponse,
   CreateAssetRequestFormData,
   AssetSummary,
+  UpdateAssetRequestFormData,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -39,6 +40,7 @@ import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 import { ApiError } from "./ApiError";
 import { useErrorStore } from "@/stores/errorStore";
 import { toClickToSearchUrl } from "@/helpers/displayUtils";
+import invariant from "tiny-invariant";
 
 const BASE_URL = config.instance.base.url;
 
@@ -89,7 +91,15 @@ export async function fetchTemplate(
   const res = await axios.get<Template>(
     `${BASE_URL}/assetManager/getTemplate/${templateId}`
   );
-  return res.data ?? null;
+  if (!res.data) {
+    return null;
+  }
+
+  // if api returns templateId as a string, parse it to an int
+  return {
+    ...res.data,
+    templateId: Number.parseInt(String(res.data.templateId)),
+  };
 }
 
 export async function fetchMoreLikeThis(
@@ -542,7 +552,17 @@ export async function createAsset(assetFormData: CreateAssetRequestFormData) {
 }
 
 // update and create asset are the same endpoint
-export const updateAsset = createAsset;
+export async function updateAsset(assetFormData: UpdateAssetRequestFormData) {
+  const formdata = new FormData();
+  formdata.append("formData", JSON.stringify(assetFormData));
+
+  const res = await axios.post<{
+    objectId: string;
+    success?: boolean;
+  }>(`${BASE_URL}/assetManager/submission/true`, formdata);
+
+  return res.data;
+}
 
 export async function fetchAllUserAssets() {
   const offset = 0;

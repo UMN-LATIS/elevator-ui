@@ -2,7 +2,8 @@
   <component
     :is="getWidgetComponentByType(widgetDef.type)"
     :widgetDef="widgetDef"
-    :widgetContents="widgetContents" />
+    :widgetContents="widgetContents"
+    @update:widgetContents="$emit('update:widgetContents', $event)" />
 </template>
 <script setup lang="ts">
 import { type Component } from "vue";
@@ -22,6 +23,10 @@ import EditTextWidget from "./EditTextWidget.vue";
 defineProps<{
   widgetDef: WidgetProps;
   widgetContents: WidgetContent[];
+}>();
+
+defineEmits<{
+  (e: "update:widgetContents", widgetContents: WidgetContent[]): void;
 }>();
 
 // map widgetTypeToComponent
