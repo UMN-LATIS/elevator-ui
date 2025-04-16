@@ -5,7 +5,7 @@
         v-if="state.localAsset && savedTemplate"
         :template="savedTemplate"
         :asset="state.localAsset"
-        :title="`Edit Asset: ${state.localAsset.title}`"
+        :title="`Edit Asset: ${state.localAsset.title?.[0] ?? ''}`"
         class="flex-1"
         @update:templateId="() => console.log('TODO: handle templateId change')"
         @save="handleSaveAsset"
