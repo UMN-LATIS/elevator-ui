@@ -33,10 +33,11 @@
       <DragDropList
         :modelValue="widgetContents"
         :listId="widgetDef.widgetId"
-        handleClass="edit-text-widget-handle">
+        handleClass="edit-text-widget-handle"
+        listItemClass="m-2">
         <template #item="{ item }">
-          <div class="table-row">
-            <div class="table-cell table-cell--sm">
+          <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center">
+            <div>
               <label>
                 <input
                   :checked="item.isPrimary"
@@ -46,7 +47,7 @@
                 <span class="sr-only">Primary</span>
               </label>
             </div>
-            <div class="table-cell">
+            <div>
               <label :for="`${item.id}-input`" class="sr-only">
                 {{ widgetDef.label }}
               </label>
@@ -59,7 +60,7 @@
                   handleUpdateWidgetContentItem(item.id, $event)
                 " />
             </div>
-            <div class="table-cell table-cell--sm">
+            <div>
               <button
                 class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm"
                 type="button"

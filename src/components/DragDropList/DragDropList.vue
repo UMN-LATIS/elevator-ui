@@ -4,7 +4,7 @@
     <slot v-if="!items.length" name="empty">
       <EmptyList :listId="listId" />
     </slot>
-    <ol v-else class="">
+    <ol v-else :class="listClass">
       <DragDropListItem
         v-for="(item, index) in items"
         :key="item.id"
@@ -13,7 +13,8 @@
         :nextListId="nextListId"
         :prevListId="prevListId"
         :index="index"
-        :handleClass="handleClass">
+        :handleClass="handleClass"
+        :class="listItemClass">
         <slot name="item" :item="item" />
       </DragDropListItem>
     </ol>
@@ -34,6 +35,8 @@ const props = defineProps<{
   prevListId?: string;
   modelValue: ItemType[];
   handleClass?: CSSClass;
+  listClass?: CSSClass;
+  listItemClass?: CSSClass;
 }>();
 
 // if no groupId is provided, generate a random one
