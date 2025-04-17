@@ -7,6 +7,7 @@
         :asset="state.localAsset"
         :title="`Edit Asset: ${state.localAsset.title?.[0] ?? ''}`"
         :saveStatus="saveAssetStatus"
+        :isDirty="hasAssetChanged"
         class="flex-1"
         @update:templateId="() => console.log('TODO: handle templateId change')"
         @save="handleSaveAsset"
@@ -29,6 +30,7 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import { Asset, UpdateAssetRequestFormData, WidgetContent } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
+import { equals } from "ramda";
 
 const props = withDefaults(
   defineProps<{
@@ -47,6 +49,32 @@ const state = reactive({
 
 const { data: savedAsset } = useAssetQuery(toRef(props.assetId), {
   enabled: () => !!props.assetId,
+});
+
+const localAssetWithoutIds = computed(() => {
+  if (!savedTemplate.value || !state.localAsset) return null;
+  if (!state.localAsset) return null;
+
+  const clonedLocalAsset = JSON.parse(
+    JSON.stringify(state.localAsset)
+  ) as Asset;
+
+  invariant(clonedLocalAsset, "Cannot clone local asset");
+
+  for (const widgetDef of savedTemplate.value.widgetArray) {
+    const fieldTitle = widgetDef.fieldTitle;
+    const contents = clonedLocalAsset[fieldTitle] as WidgetContent[];
+    if (!contents) continue;
+    for (const content of contents) {
+      delete content.id;
+    }
+  }
+  return clonedLocalAsset;
+});
+
+const hasAssetChanged = computed(() => {
+  if (!savedAsset.value || !state.localAsset) return false;
+  return !equals(savedAsset.value, localAssetWithoutIds.value);
 });
 
 const savedTemplateId = computed(() => {

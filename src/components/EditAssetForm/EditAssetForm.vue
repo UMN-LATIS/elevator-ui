@@ -16,7 +16,7 @@
     <aside
       class="bg-neutral-200 p-4 border-l-2 border-neutral-900 sticky top-20 flex flex-col gap-6">
       <div class="grid grid-cols-2 gap-4">
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" :disabled="!isDirty">
           Save
           <SpinnerIcon
             v-if="saveStatus === 'pending'"
@@ -65,6 +65,7 @@ const props = withDefaults(
     asset: Asset;
     title?: string;
     saveStatus: MutationStatus;
+    isDirty: boolean;
   }>(),
   {
     title: "Edit Asset",
