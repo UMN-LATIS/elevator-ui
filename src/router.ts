@@ -10,7 +10,6 @@ import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
 import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
-import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
 import DownloadDrawerPage from "./pages/DownloadDrawerPage/DownloadDrawerPage.vue";
 import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
@@ -119,12 +118,14 @@ const router = createRouter({
     {
       name: "addAsset",
       path: "/assetManager/addAsset",
-      component: CreateAssetPage,
+      component: () =>
+        import("@/pages/CreateOrEditAssetPage/CreateOrEditAssetPage.vue"),
     },
     {
       name: "editAsset",
       path: "/assetManager/editAsset/:assetId",
-      component: () => import("@/pages/EditAssetPage/EditAssetPage.vue"),
+      component: () =>
+        import("@/pages/CreateOrEditAssetPage/CreateOrEditAssetPage.vue"),
       props: (route) => ({
         assetId: route.params.assetId,
       }),

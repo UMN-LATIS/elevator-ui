@@ -1,11 +1,48 @@
 <template>
   <DefaultLayout>
-    <Transition name="fade">
+    <form
+      v-if="!assetId && !state.localAsset"
+      class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
+      @submit.prevent="initAsset">
+      <SelectGroup
+        v-model="state.initialTemplateId"
+        :options="
+          instanceStore.instance.templates?.map((template) => ({
+            label: template.name,
+            id: template.id.toString(),
+          })) ?? []
+        "
+        label="Template"
+        required />
+      <SelectGroup
+        v-model="state.initialCollectionId"
+        :options="
+          instanceStore.collections?.map((collection) => ({
+            label: collection.title,
+            id: collection.id.toString(),
+          })) ?? []
+        "
+        label="Collection"
+        required />
+
+      <Button
+        type="submit"
+        variant="primary"
+        class="block my-4 w-full"
+        :disabled="!state.initialTemplateId || !state.initialCollectionId">
+        Continue
+      </Button>
+    </form>
+    <Transition v-else name="fade">
       <EditAssetForm
         v-if="state.localAsset && savedTemplate"
         :template="savedTemplate"
         :asset="state.localAsset"
-        :title="`Edit Asset: ${state.localAsset.title?.[0] ?? ''}`"
+        :title="
+          assetId
+            ? `Edit Asset: ${state.localAsset.title?.[0] ?? ''}`
+            : 'Create Asset'
+        "
         :saveStatus="saveAssetStatus"
         :isDirty="hasAssetChanged"
         class="flex-1"
@@ -30,11 +67,13 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import { Asset, UpdateAssetRequestFormData, WidgetContent } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { equals } from "ramda";
+import { equals, init } from "ramda";
+import Button from "@/components/Button/Button.vue";
+import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 
 const props = withDefaults(
   defineProps<{
-    assetId: string | null;
+    assetId?: string | null;
     title?: string;
   }>(),
   {
@@ -45,6 +84,8 @@ const props = withDefaults(
 
 const state = reactive({
   localAsset: null as Asset | null,
+  initialTemplateId: "",
+  initialCollectionId: "",
 });
 
 const { data: savedAsset } = useAssetQuery(toRef(props.assetId), {
@@ -78,7 +119,7 @@ const hasAssetChanged = computed(() => {
 });
 
 const savedTemplateId = computed(() => {
-  return savedAsset.value?.templateId ?? null;
+  return savedAsset.value?.templateId ?? state.initialTemplateId;
 });
 
 const { data: savedTemplate } = useTemplateQuery(savedTemplateId, {
@@ -93,7 +134,7 @@ const {
 const instanceStore = useInstanceStore();
 
 function initAsset() {
-  if (!savedAsset.value || !savedTemplate.value) return;
+  if (!savedTemplate.value) return;
 
   // if we have an asset, set it
   if (savedAsset.value) {
