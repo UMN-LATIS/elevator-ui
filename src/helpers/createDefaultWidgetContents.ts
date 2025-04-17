@@ -1,6 +1,8 @@
-import { WIDGET_TYPES, WidgetProps } from "@/types";
+import { WIDGET_TYPES, WidgetContent, WidgetProps } from "@/types";
 
-export function createDefaultWidgetContent(widgetProps: WidgetProps) {
+export function createDefaultWidgetContent(
+  widgetProps: WidgetProps
+): WidgetContent {
   const base = {
     isPrimary: false,
     id: crypto.randomUUID(),

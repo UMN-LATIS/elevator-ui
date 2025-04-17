@@ -3,8 +3,28 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-textarea-widget"
-    @add="handleAddWidgetContent"
-    @setPrimary="setPrimaryItem">
+    @add="
+      $emit(
+        'update:widgetContents',
+        ops.addWidgetContent(widgetContents, widgetDef)
+      )
+    "
+    @setPrimary="
+      (id) =>
+        $emit('update:widgetContents', ops.setPrimaryItem(widgetContents, id))
+    "
+    @delete="
+      (id) =>
+        $emit(
+          'update:widgetContents',
+          ops.deleteWidgetContent(widgetContents, id)
+        )
+    "
+    @update:widgetContents="
+      (widgetContents) => {
+        $emit('update:widgetContents', widgetContents);
+      }
+    ">
     <template #fieldContents="{ item }">
       <div>
         <label :for="`${item.id}-input`" class="sr-only">
@@ -19,7 +39,13 @@
             role: 'textbox',
             'aria-multiline': 'true',
           }"
-          @update:modelValue="handleUpdateWidgetContentItem(item.id, $event)" />
+          @update:modelValue="
+            (html) =>
+              $emit(
+                'update:widgetContents',
+                ops.updateWidgetContentItem(widgetContents, item.id, html)
+              )
+          " />
       </div>
     </template>
   </EditWidgetLayout>
@@ -28,47 +54,19 @@
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
-import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
+import * as ops from "../editWidgetOps";
 
-const props = defineProps<{
+defineProps<{
   widgetDef: Type.TextWidgetProps;
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.TextWidgetContent>[]
   ): void;
 }>();
-
-function handleUpdateWidgetContentItem(id: string, fieldContents: string) {
-  const updatedWidgetContents = props.widgetContents.map((item) => {
-    if (item.id !== id) return item;
-    return {
-      ...item,
-      fieldContents,
-    };
-  });
-  emit("update:widgetContents", updatedWidgetContents);
-}
-
-function setPrimaryItem(id: string) {
-  const updatedWidgetContents = props.widgetContents.map((item) => {
-    return {
-      ...item,
-      isPrimary: item.id === id,
-    };
-  });
-  emit("update:widgetContents", updatedWidgetContents);
-}
-
-function handleAddWidgetContent() {
-  const newItem = createDefaultWidgetContent(
-    props.widgetDef
-  ) as Type.WithId<Type.TextWidgetContent>;
-  emit("update:widgetContents", [...props.widgetContents, newItem]);
-}
 </script>
 <style scoped></style>
 <style></style>

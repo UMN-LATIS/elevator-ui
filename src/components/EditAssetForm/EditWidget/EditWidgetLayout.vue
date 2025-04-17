@@ -21,8 +21,14 @@
       <DragDropList
         :modelValue="widgetContents"
         :listId="widgetDef.widgetId"
+        :showEmptyList="false"
         handleClass="edit-text-widget-handle"
-        listItemClass="my-2">
+        listItemClass="my-2"
+        @update:modelValue="
+          (widgetContents) => {
+            $emit('update:widgetContents', widgetContents);
+          }
+        ">
         <template #item="{ item }">
           <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center pl-2">
             <div>
@@ -98,6 +104,7 @@ defineEmits<{
   (e: "add"): void;
   (e: "setPrimary", id: string): void;
   (e: "delete", id: string): void;
+  (e: "update:widgetContents", widgetContents: T[]): void;
 }>();
 
 const isExpanded = ref(false);

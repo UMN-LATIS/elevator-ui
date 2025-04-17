@@ -1,7 +1,7 @@
 <template>
   <div class="drag-drop-list">
     <slot name="header" />
-    <slot v-if="!items.length" name="empty">
+    <slot v-if="!items.length && showEmptyList" name="empty">
       <EmptyList :listId="listId" />
     </slot>
     <ol v-else :class="listClass">
@@ -29,15 +29,27 @@ import { watch, inject, computed } from "vue";
 import { GROUP_ID_PROVIDE_KEY } from "./constants";
 import EmptyList from "./EmptyList.vue";
 
-const props = defineProps<{
-  listId: string | number;
-  nextListId?: string;
-  prevListId?: string;
-  modelValue: ItemType[];
-  handleClass?: CSSClass;
-  listClass?: CSSClass;
-  listItemClass?: CSSClass;
-}>();
+const props = withDefaults(
+  defineProps<{
+    listId: string | number;
+    nextListId?: string;
+    prevListId?: string;
+    modelValue: ItemType[];
+    handleClass?: CSSClass;
+    listClass?: CSSClass;
+    listItemClass?: CSSClass;
+    showEmptyList?: boolean;
+  }>(),
+  {
+    showEmptyList: true,
+    listClass: () => "drag-drop-list",
+    listItemClass: () => "drag-drop-list-item",
+    handleClass: () => "drag-drop-list-item-handle",
+    listId: () => "",
+    nextListId: () => "",
+    prevListId: () => "",
+  }
+);
 
 // if no groupId is provided, generate a random one
 // so that there's no movement between different lists
