@@ -6,6 +6,7 @@
         :template="savedTemplate"
         :asset="state.localAsset"
         :title="`Edit Asset: ${state.localAsset.title?.[0] ?? ''}`"
+        :saveStatus="saveAssetStatus"
         class="flex-1"
         @update:templateId="() => console.log('TODO: handle templateId change')"
         @save="handleSaveAsset"
@@ -55,7 +56,11 @@ const savedTemplateId = computed(() => {
 const { data: savedTemplate } = useTemplateQuery(savedTemplateId, {
   enabled: () => !!savedTemplateId.value,
 });
-const { mutate: saveAsset } = useUpdateAssetMutation();
+const {
+  mutate: saveAsset,
+  status: saveAssetStatus,
+  reset: resetSaveAssetStatus,
+} = useUpdateAssetMutation();
 
 const instanceStore = useInstanceStore();
 
@@ -169,8 +174,12 @@ function handleSaveAsset() {
     availableAfter: "", // TODO: add date picker
     ...widgetContents,
   };
-
-  saveAsset(formData);
+  saveAsset(formData, {
+    onSuccess: () =>
+      setTimeout(() => {
+        resetSaveAssetStatus();
+      }, 3000),
+  });
 }
 </script>
 <style scoped></style>

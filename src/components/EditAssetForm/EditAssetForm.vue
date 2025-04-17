@@ -16,7 +16,16 @@
     <aside
       class="bg-neutral-200 p-4 border-l-2 border-neutral-900 sticky top-20 flex flex-col gap-6">
       <div class="grid grid-cols-2 gap-4">
-        <Button variant="primary" type="submit">Save</Button>
+        <Button variant="primary" type="submit">
+          Save
+          <SpinnerIcon
+            v-if="saveStatus === 'pending'"
+            class="size-4 animate-spin" />
+          <TriangleAlert v-else-if="saveStatus === 'error'" class="size-4" />
+          <CheckCircle2Icon
+            v-else-if="saveStatus === 'success'"
+            class="size-4" />
+        </Button>
         <Button variant="secondary" @click="$emit('cancel')">Cancel</Button>
       </div>
       <SelectGroup
@@ -45,14 +54,17 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import { Asset, Template, WidgetContent, WidgetProps } from "@/types";
-import { getWidgetContents } from "@/helpers/displayUtils";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
+import { MutationStatus } from "@tanstack/vue-query";
+import { SpinnerIcon } from "@/icons";
+import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 
 const props = withDefaults(
   defineProps<{
     template: Template;
     asset: Asset;
     title?: string;
+    saveStatus: MutationStatus;
   }>(),
   {
     title: "Edit Asset",
