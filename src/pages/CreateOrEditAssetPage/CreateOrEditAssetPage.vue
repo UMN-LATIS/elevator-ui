@@ -67,9 +67,10 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import { Asset, UpdateAssetRequestFormData, WidgetContent } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { equals, init } from "ramda";
+import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
+import { useRouter } from "vue-router";
 
 const props = withDefaults(
   defineProps<{
@@ -90,6 +91,10 @@ const state = reactive({
 
 const { data: savedAsset } = useAssetQuery(toRef(props.assetId), {
   enabled: () => !!props.assetId,
+});
+
+const isCreateMode = computed(() => {
+  return !props.assetId;
 });
 
 const localAssetWithoutIds = computed(() => {
@@ -114,7 +119,6 @@ const localAssetWithoutIds = computed(() => {
 });
 
 const hasAssetChanged = computed(() => {
-  if (!savedAsset.value || !state.localAsset) return false;
   return !equals(savedAsset.value, localAssetWithoutIds.value);
 });
 
@@ -208,8 +212,9 @@ watch(
   { immediate: true }
 );
 
+const router = useRouter();
+
 function handleSaveAsset() {
-  invariant(!!props.assetId, "Cannot save: no assetId.");
   invariant(state.localAsset, "Cannot save: no asset.");
   invariant(savedTemplate.value, "Cannot save: no template.");
   console.log({ localAsset: state.localAsset, savedTemplate, savedAsset });
@@ -234,7 +239,7 @@ function handleSaveAsset() {
   );
 
   const formData: UpdateAssetRequestFormData = {
-    objectId: props.assetId,
+    objectId: props.assetId ?? "",
     templateId: String(state.localAsset.templateId),
     newTemplateId: String(state.localAsset.templateId),
     collectionId: String(state.localAsset.collectionId),
@@ -244,10 +249,20 @@ function handleSaveAsset() {
     ...widgetContents,
   };
   saveAsset(formData, {
-    onSuccess: () =>
+    onSuccess: (data) => {
+      if (isCreateMode.value) {
+        // redirect to the new asset page
+        router.push({
+          name: "asset",
+          params: {
+            assetId: data.objectId,
+          },
+        });
+      }
       setTimeout(() => {
         resetSaveAssetStatus();
-      }, 3000),
+      }, 3000);
+    },
   });
 }
 </script>
