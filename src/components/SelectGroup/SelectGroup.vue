@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col gap-1">
-    <label :for="id" class="text-xs uppercase font-semibold">
+    <label
+      :for="id"
+      class="text-xs uppercase font-semibold"
+      :class="{
+        'sr-only': !showLabel,
+      }">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
@@ -32,11 +37,13 @@ withDefaults(
     required?: boolean;
     id?: string;
     placeholder?: string;
+    showLabel?: boolean;
   }>(),
   {
     id: () => `select-${crypto.randomUUID()}`,
     placeholder: "--",
     required: false,
+    showLabel: true,
   }
 );
 

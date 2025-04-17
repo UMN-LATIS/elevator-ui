@@ -880,3 +880,8 @@ export interface AssetSummary {
     timezone: string;
   };
 }
+
+export interface SelectOption {
+  id: string;
+  label: string;
+}
