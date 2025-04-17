@@ -176,7 +176,8 @@ function initAsset() {
     id: `TEMP_ASSET_ID-${Date.now()}`,
     templateId: savedTemplate.value.templateId,
     readyForDisplay: false,
-    collectionId: firstCollection.id,
+    collectionId:
+      Number.parseInt(state.initialCollectionId) ?? firstCollection.id,
     availableAfter: null,
     modified: {
       date: new Date().toISOString(),
