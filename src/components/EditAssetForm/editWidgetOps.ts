@@ -22,7 +22,7 @@ export function addWidgetContent<T extends Type.WithId<Type.WidgetContent>>(
 
 export function updateWidgetContentItem<
   T extends Type.WithId<Type.WidgetContent>
->(widgetContents: readonly T[], id: string, fieldContents: string): T[] {
+>(widgetContents: readonly T[], id: string, fieldContents: any): T[] {
   return widgetContents.map((item) => {
     if (item.id !== id) return item;
     return {
