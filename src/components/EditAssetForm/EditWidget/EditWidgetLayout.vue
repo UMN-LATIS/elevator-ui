@@ -1,12 +1,22 @@
 <template>
-  <section class="edit-widget-layout py-4">
-    <header class="flex justify-between items-center gap-4">
+  <section
+    class="edit-widget-layout lg:grid lg:grid-cols-[1fr,3fr] lg:gap-4 items-start border-b border-neutral-300"
+    :class="{
+      'max-h-10 overflow-hidden': !isExpanded,
+      'cursor-pointer': !isExpanded,
+    }"
+    @click="handleSectionClick">
+    <button
+      type="button"
+      class="flex items-center gap-4"
+      @click.stop="toggleExpand">
+      <ChevronDownIcon v-if="isExpanded" />
+      <ChevronRightIcon v-else />
+      <span class="sr-only">
+        {{ isExpanded ? "Collapse" : "Expand" }}
+      </span>
       <h2 class="text-lg font-bold">{{ widgetDef.label }}</h2>
-      <Button variant="tertiary" @click="$emit('add')">
-        <PlusIcon class="w-4 h-4" />
-        <span class="ml-2">Add</span>
-      </Button>
-    </header>
+    </button>
     <DragDropContainer :groupId="widgetDef.widgetId">
       <DragDropList
         :modelValue="widgetContents"
@@ -53,13 +63,20 @@
             </div>
           </div>
         </template>
+        <template #footer>
+          <div class="flex justify-center">
+            <Button variant="tertiary" @click="$emit('add')">
+              <PlusIcon class="w-4 h-4" />
+              {{ widgetDef.label }}
+            </Button>
+          </div>
+        </template>
       </DragDropList>
     </DragDropContainer>
   </section>
 </template>
 <script setup lang="ts" generic="T extends WithId<WidgetContent>">
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
-import XIcon from "@/icons/XIcon.vue";
 import Button from "@/components/Button/Button.vue";
 import { PlusIcon, StarIcon } from "lucide-vue-next";
 import { WidgetContent, WidgetProps, WithId } from "@/types";
@@ -69,6 +86,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
+import { ref } from "vue";
 
 defineProps<{
   widgetContents: T[];
@@ -80,6 +99,23 @@ defineEmits<{
   (e: "setPrimary", id: string): void;
   (e: "delete", id: string): void;
 }>();
+
+const isExpanded = ref(false);
+
+// Only expand the component if it's not already expanded
+const handleSectionClick = () => {
+  if (!isExpanded.value) {
+    isExpanded.value = true;
+  }
+};
+
+const toggleExpand = (event: Event) => {
+  // prevent the click of the collapse button from bubbling up
+  // and triggering the handleSectionClick function
+  // which would expand the component again
+  event.stopPropagation();
+  isExpanded.value = !isExpanded.value;
+};
 </script>
 <style>
 .edit-widget-layout .drag-drop-list {
