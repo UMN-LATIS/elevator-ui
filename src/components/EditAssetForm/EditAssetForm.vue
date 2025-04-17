@@ -2,7 +2,7 @@
   <form class="grid grid-cols-[1fr,auto]" @submit.prevent="$emit('save')">
     <section class="p-4">
       <h1 class="text-2xl font-bold mb-8">{{ title }}</h1>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col">
         <EditWidget
           v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
           :key="widgetDef.widgetId"

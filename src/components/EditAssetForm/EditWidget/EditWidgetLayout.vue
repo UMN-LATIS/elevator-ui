@@ -1,8 +1,8 @@
 <template>
   <section
-    class="edit-widget-layout lg:grid lg:grid-cols-[1fr,3fr] lg:gap-4 items-start border-b border-neutral-300"
+    class="edit-widget-layout lg:grid lg:grid-cols-[1fr,3fr] lg:gap-4 items-start border-b border-neutral-300 pt-2"
     :class="{
-      'max-h-10 overflow-hidden': !isExpanded,
+      'max-h-11 overflow-hidden': !isExpanded,
       'cursor-pointer': !isExpanded,
     }"
     @click="handleSectionClick">

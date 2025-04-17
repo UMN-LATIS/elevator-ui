@@ -25,12 +25,7 @@ import { useTemplateQuery } from "@/queries/useTemplateQuery";
 import { useInstanceStore } from "@/stores/instanceStore";
 import EditAssetForm from "@/components/EditAssetForm/EditAssetForm.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
-import {
-  Asset,
-  CreateAssetRequestFormData,
-  UpdateAssetRequestFormData,
-  WidgetContent,
-} from "@/types";
+import { Asset, UpdateAssetRequestFormData, WidgetContent } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 
