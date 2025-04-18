@@ -3,46 +3,29 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-multiselect-widget"
-    @add="
-      $emit(
-        'update:widgetContents',
-        ops.addWidgetContent(widgetContents, widgetDef)
-      )
-    "
-    @setPrimary="
-      (id) =>
-        $emit('update:widgetContents', ops.setPrimaryItem(widgetContents, id))
-    "
-    @delete="
-      (id) =>
-        $emit(
-          'update:widgetContents',
-          ops.deleteWidgetContent(widgetContents, id)
-        )
-    "
-    @update:widgetContents="
-      (widgetContents) => $emit('update:widgetContents', widgetContents)
-    ">
+    @add="handleAdd"
+    @setPrimary="handleSetPrimary"
+    @delete="handleDelete"
+    @update:widgetContents="updateWidgetContents">
     <template #fieldContents="{ item }">
-      <div>
-        <CascadeSelect
-          :id="`${item.id}-select`"
-          class="cascade-select"
-          :options="widgetDef.fieldData"
-          :initialSelectedValues="toCascadeSelectPath(item.fieldContents ?? {})"
-          :showLabel="false"
-          @change="
-            (updatedPath) => updateFieldContents(item.id, updatedPath)
-          " />
-      </div>
+      <CascadeSelect
+        :id="`${item.id}-select`"
+        :options="widgetDef.fieldData"
+        :initialSelectedValues="
+          toCascadeSelectPath(widgetDef.fieldData, item.fieldContents)
+        "
+        :showLabel="false"
+        @change="(path) => handleFieldUpdate(item.id, path)" />
     </template>
   </EditWidgetLayout>
 </template>
+
 <script setup lang="ts">
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
 import CascadeSelect from "@/components/CascadeSelect/CascadeSelect.vue";
+import { findDeepestPath } from "./helpers/findDeepestPath";
 
 const props = defineProps<{
   widgetDef: Type.MultiSelectWidgetProps;
@@ -57,83 +40,142 @@ const emit = defineEmits<{
 }>();
 
 /**
- * Gets the hierarchy of field types from the fieldData
+ * Event handler functions for managing widget contents
+ */
+
+/**
+ * Updates widget contents and emits the change
+ * @param contents - The new widget contents
+ */
+const updateWidgetContents = (
+  contents: Type.WithId<Type.MultiSelectWidgetContent>[]
+) => emit("update:widgetContents", contents);
+
+/**
+ * Handles the add event by creating a new widget content
+ * @example Called when user clicks add button
+ */
+const handleAdd = () =>
+  updateWidgetContents(
+    ops.addWidgetContent(props.widgetContents, props.widgetDef)
+  );
+
+/**
+ * Sets the primary item in the widget contents
+ * @param id - ID of the item to make primary
+ */
+const handleSetPrimary = (id: string) =>
+  updateWidgetContents(ops.setPrimaryItem(props.widgetContents, id));
+
+/**
+ * Deletes an item from the widget contents
+ * @param id - ID of the item to delete
+ */
+const handleDelete = (id: string) =>
+  updateWidgetContents(ops.deleteWidgetContent(props.widgetContents, id));
+
+/**
+ * Updates a specific field's content when selection changes
+ * @example When user selects "USA" > "California" > "Los Angeles"
+ * @param itemId - ID of the item being updated
+ * @param path - Array of selected values from the cascade
+ */
+const handleFieldUpdate = (itemId: string, path: string[]) => {
+  const hierarchy = getFieldHierarchy(props.widgetDef.fieldData);
+  const contents = toFieldContents(hierarchy, path);
+  updateWidgetContents(
+    ops.updateWidgetContentItem(props.widgetContents, itemId, contents)
+  );
+};
+
+/**
+ * Extracts the field hierarchy from the fieldData structure.
+ * Finds the deepest possible path through the nested structure.
+ *
+ * @example
+ * // For fieldData:
+ * {
+ *   country: {
+ *     usa: {
+ *       state: {
+ *         california: { city: ["los angeles", "san francisco"] }
+ *       }
+ *     },
+ *     canada: {
+ *       province: {
+ *         ontario: {} // Less deep branch
+ *       }
+ *     }
+ *   }
+ * }
+ * // Returns: ["country", "state", "city"]
+ *
+ * @param fieldData - The nested field data structure
+ * @returns Array of field type names in hierarchical order
  */
 function getFieldHierarchy(fieldData: Type.MultiSelectFieldData): string[] {
-  const hierarchy: string[] = [];
-  let current: any = fieldData;
-
-  while (current && typeof current === "object") {
-    const key = Object.keys(current)[0];
-    if (!key) break;
-
-    hierarchy.push(key);
-    const nextVal = current[key];
-
-    // If we've hit an array, we're at the end
-    if (Array.isArray(nextVal)) break;
-
-    // Get a sample value to traverse deeper
-    const sampleKey = Object.keys(nextVal)[0];
-    if (!sampleKey) break;
-
-    current = nextVal[sampleKey];
-  }
-
-  return hierarchy;
+  const deepestPath = findDeepestPath(fieldData);
+  // odd path keys are field types, even path keys are values
+  return deepestPath.filter((_, index) => index % 2 === 0);
 }
 
 /**
- * Converts the field contents to a path of values for CascadeSelect
+ * Converts fieldContents object to a path array for CascadeSelect.
+ *
+ * @example
+ * // For fieldData structure that yields hierarchy ["country", "state", "city"]
+ * // and fieldContents:
+ * {
+ *   country: "usa",
+ *   state: "minnesota",
+ *   city: "minneapolis"
+ * }
+ * // Returns: ["usa", "minnesota", "minneapolis"]
  */
-function toCascadeSelectPath(fieldContents: object): string[] {
+function toCascadeSelectPath(
+  fieldData: Type.MultiSelectFieldData,
+  fieldContents: Type.MultiSelectWidgetContent["fieldContents"]
+): string[] {
   if (!fieldContents || Object.keys(fieldContents).length === 0) {
-    return [];
+    return [] as string[];
   }
 
-  const hierarchy = getFieldHierarchy(props.widgetDef.fieldData);
-  const path: string[] = [];
+  const hierarchy = getFieldHierarchy(fieldData);
 
-  // Build path following the hierarchy order
-  for (const level of hierarchy) {
-    if (!fieldContents[level]) break;
-    path.push(fieldContents[level] as string);
-  }
-
-  return path;
+  return hierarchy
+    .map((level) => fieldContents[level])
+    .filter(Boolean) as string[];
 }
 
 /**
- * Transforms a path of values into a field contents object
+ * Converts a path array to a field contents object.
+ *
+ * @example
+ * // For hierarchy: ["country", "state", "city"]
+ * // and valuePath: ["usa", "california", "los angeles"]
+ * // Returns:
+ * {
+ *   country: "usa",
+ *   state: "california",
+ *   city: "los angeles"
+ * }
  */
-function toMultiSelectFieldContents(valuePath: string[]): object {
-  const result = {};
+function toFieldContents(
+  hierarchy: string[],
+  valuePath: string[]
+): Record<string, string> {
+  if (!valuePath.length) return {};
 
-  if (!valuePath.length) return result;
-
-  const hierarchy = getFieldHierarchy(props.widgetDef.fieldData);
-
-  // Build the result object following the hierarchy
-  for (let i = 0; i < Math.min(valuePath.length, hierarchy.length); i++) {
-    result[hierarchy[i]] = valuePath[i];
-  }
-
-  return result;
-}
-
-/**
- * Updates the field contents when the cascade selection changes
- */
-function updateFieldContents(itemId: string, updatedPath: string[]): void {
-  const updatedContents = toMultiSelectFieldContents(updatedPath);
-
-  emit(
-    "update:widgetContents",
-    ops.updateWidgetContentItem(props.widgetContents, itemId, updatedContents)
+  return hierarchy.slice(0, valuePath.length).reduce(
+    (result, key, index) => ({
+      ...result,
+      [key]: valuePath[index],
+    }),
+    {}
   );
 }
 </script>
-<style scoped></style>
+
 <style>
 .edit-multiselect-widget .cascade-select select {
   @apply bg-black/5 border-none;

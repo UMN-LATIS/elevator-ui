@@ -33,7 +33,7 @@
 </template>
 <script setup lang="ts">
 import { path } from "ramda";
-import { reactive, watch, onMounted } from "vue";
+import { reactive, watch } from "vue";
 
 export interface CascaderSelectOptions {
   [label: string]:
