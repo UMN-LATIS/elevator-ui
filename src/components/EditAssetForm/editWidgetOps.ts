@@ -19,12 +19,17 @@ export function makeAddContentPayload<
 
 export function makeUpdateContentPayload<
   T extends Type.WithId<Type.WidgetContent>
->(widgetContents: readonly T[], id: string, fieldContents: any): T[] {
+>(
+  widgetContents: readonly T[],
+  id: string,
+  updatedContentItem: any,
+  propToUpdate = "fieldContents"
+): T[] {
   return widgetContents.map((item) => {
     if (item.id !== id) return item;
     return {
       ...item,
-      fieldContents,
+      [propToUpdate]: updatedContentItem,
     };
   }) as T[];
 }

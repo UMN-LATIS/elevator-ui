@@ -6,14 +6,12 @@
     @add="handleAdd"
     @setPrimary="handleSetPrimary"
     @delete="handleDelete"
-    @update:widgetContents="updateWidgetContents">
+    @update:widgetContents="$emit('update:widgetContents', $event)">
     <template #fieldContents="{ item }">
-      {{ item }}
-      {{ widgetContents }}
       <TagsInput
-        :modelValue="item.tags ?? []"
+        :modelValue="item.tags"
         class="tags-input"
-        @update:modelValue="(updated) => handleUpdateTags(item.id, updated as string[])">
+        @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
         <TagsInputItem v-for="tag in item.tags" :key="tag" :value="tag">
           <TagsInputItemText />
           <TagsInputItemDelete />
@@ -36,8 +34,6 @@ import {
   TagsInputItemDelete,
   TagsInputInput,
 } from "@/components/ui/tags-input";
-
-// TODO: allow multiple, probably just means multiple TAGS, not multiple fields?
 
 const props = defineProps<{
   widgetDef: Type.TagListWidgetProps;
@@ -75,7 +71,7 @@ const handleUpdateTags = (
 ) => {
   emit(
     "update:widgetContents",
-    ops.makeUpdateContentPayload(props.widgetContents, itemId, tags)
+    ops.makeUpdateContentPayload(props.widgetContents, itemId, tags, "tags")
   );
 };
 </script>
