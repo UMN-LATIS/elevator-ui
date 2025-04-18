@@ -41,14 +41,14 @@ import {
 
 export interface Option {
   label: string;
-  value: string | number;
-  type?: string;
+  value: string;
+  type: string;
   children?: Option[];
 }
 
 interface Props {
   options: Option[];
-  modelValue: (string | number)[];
+  modelValue: string[];
   typeLabels?: Record<string, string>;
   typePlaceholders?: Record<string, string>;
 }

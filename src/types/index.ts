@@ -130,9 +130,17 @@ export interface TextAreaWidgetProps extends WidgetProps {
   fieldData: [] | null;
 }
 
+export interface MultiSelectFieldData {
+  [key: string]:
+    | string[]
+    | {
+        [key: string]: MultiSelectFieldData;
+      };
+}
+
 export interface MultiSelectWidgetProps extends WidgetProps {
   type: "multiselect";
-  fieldData: Record<string, unknown>;
+  fieldData: MultiSelectFieldData;
 }
 
 export interface RelatedAssetWidgetProps extends WidgetProps {

@@ -21,7 +21,10 @@
         <option v-if="!selected.options.includes('')" value="" disabled>
           Select a {{ selected.label }}
         </option>
-        <option v-for="opt in selected.options.sort()" :key="opt" :value="opt">
+        <option
+          v-for="opt in selected.options.toSorted()"
+          :key="opt"
+          :value="opt">
           {{ opt === "" ? "-" : opt }}
         </option>
       </select>
@@ -32,8 +35,12 @@
 import { path } from "ramda";
 import { reactive, watch } from "vue";
 
-interface CascaderSelectOptions {
-  [label: string]: string[] | CascaderSelectOptions;
+export interface CascaderSelectOptions {
+  [label: string]:
+    | string[]
+    | {
+        [label: string]: CascaderSelectOptions;
+      };
 }
 
 const props = defineProps<{
@@ -151,6 +158,12 @@ function handleSelectChange(segmentLevel: number, value: string): void {
 
   // if the value is empty, then we're done
   if (!value) {
+    // let the parent know that the selected values have changed
+    // and we're done
+    emit(
+      "change",
+      listOfSelected.map((segment) => segment.value)
+    );
     return;
   }
 
