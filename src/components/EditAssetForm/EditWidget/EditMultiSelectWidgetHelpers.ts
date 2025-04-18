@@ -1,10 +1,11 @@
 import type { MultiSelectFieldData, MultiSelectWidgetContent } from "@/types";
 import { isEmpty } from "ramda";
 
-interface OptionWithType {
+export interface NormalizedCascadeOption {
   type: string;
+  label?: string;
   value: string;
-  children?: OptionWithType[];
+  children?: NormalizedCascadeOption[];
 }
 
 /**
@@ -12,7 +13,7 @@ interface OptionWithType {
  */
 export function toCascadeSelectOptions(
   fieldData: MultiSelectFieldData
-): OptionWithType[] {
+): NormalizedCascadeOption[] {
   if (isEmpty(fieldData)) {
     return [];
   }
@@ -42,10 +43,10 @@ export function toCascadeSelectOptions(
  * Creates a path of select options based on field contents
  */
 function buildOptionPath(
-  availableOptions: OptionWithType[],
+  availableOptions: NormalizedCascadeOption[],
   fieldContents: MultiSelectWidgetContent["fieldContents"],
-  accumulatedPath: OptionWithType[] = []
-): OptionWithType[] {
+  accumulatedPath: NormalizedCascadeOption[] = []
+): NormalizedCascadeOption[] {
   if (isEmpty(availableOptions)) {
     return accumulatedPath;
   }
@@ -84,7 +85,7 @@ export function toCascadeSelectPath(
 export function toMultiSelectFieldContents(
   fieldData: MultiSelectFieldData,
   valuePath: (string | number)[],
-  availableOptions?: OptionWithType[],
+  availableOptions?: NormalizedCascadeOption[],
   resultContents: MultiSelectWidgetContent["fieldContents"] = {}
 ): MultiSelectWidgetContent["fieldContents"] {
   // Base case: if no more path segments to process, return the accumulated field contents

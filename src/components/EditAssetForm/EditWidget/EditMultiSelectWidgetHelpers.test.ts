@@ -1,4 +1,4 @@
-import { Option } from "@/components/CascadeSelect2/CascadeSelect.vue";
+import { NormalizedCascadeOption } from "@/components/EditAssetForm/EditWidget/EditMultiSelectWidgetHelpers";
 import {
   toCascadeSelectOptions,
   toCascadeSelectPath,
@@ -90,7 +90,7 @@ describe("toCascadeSelectOptions", () => {
       },
     };
 
-    const expectedOptions: Option[] = [
+    const expectedOptions: NormalizedCascadeOption[] = [
       {
         type: "country",
         label: "usa",
