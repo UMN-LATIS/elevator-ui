@@ -24,7 +24,7 @@
           :listId="widgetDef.widgetId"
           :showEmptyList="false"
           handleClass="edit-text-widget-handle"
-          listItemClass="my-2"
+          listItemClass=""
           @update:modelValue="
             (widgetContents) => {
               $emit('update:widgetContents', widgetContents);
@@ -56,7 +56,7 @@
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <div>
+              <div class="py-2">
                 <slot name="fieldContents" :item="item" />
               </div>
               <div>
@@ -128,7 +128,6 @@ const toggleExpand = (event: Event) => {
 </script>
 <style>
 .edit-widget-layout .drag-drop-list {
-  --dnd-listItem-border: 0;
   --dnd-dragHandle-bg: transparent;
 }
 </style>

@@ -33,7 +33,7 @@
 </template>
 <script setup lang="ts">
 import { path } from "ramda";
-import { reactive, watch } from "vue";
+import { reactive, watch, onMounted } from "vue";
 
 export interface CascaderSelectOptions {
   [label: string]:
@@ -76,12 +76,21 @@ function createInitialListOfSelected(): SelectedSegment[] {
   }
 
   const selected: SelectedSegment[] = [];
-  props.initialSelectedValues.forEach((value) => {
+  props.initialSelectedValues.forEach((value, index) => {
     const nextSelected = createNextSelectedSegment(selected, value);
     if (nextSelected) {
       selected.push(nextSelected);
     }
   });
+
+  // If we haven't reached the end of the options hierarchy, add the next segment
+  if (props.initialSelectedValues.length > 0) {
+    const finalNextSelected = createNextSelectedSegment(selected, "");
+    if (finalNextSelected) {
+      selected.push(finalNextSelected);
+    }
+  }
+
   return selected;
 }
 
@@ -190,6 +199,7 @@ function handleSelectChange(segmentLevel: number, value: string): void {
   );
 }
 
+// Watch for changes to options and reset the list of selected
 watch(
   () => props.options,
   () => {
