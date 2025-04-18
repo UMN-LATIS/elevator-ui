@@ -129,5 +129,6 @@ const toggleExpand = (event: Event) => {
 <style>
 .edit-widget-layout .drag-drop-list {
   --dnd-dragHandle-bg: transparent;
+  --dnd-listItem-border: 1px solid transparent;
 }
 </style>
