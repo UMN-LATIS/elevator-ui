@@ -8,14 +8,17 @@
     @delete="handleDelete"
     @update:widgetContents="updateWidgetContents">
     <template #fieldContents="{ item }">
-      <CascadeSelect
-        :id="`${item.id}-select`"
-        :options="widgetDef.fieldData"
-        :initialSelectedValues="
-          toCascadeSelectPath(widgetDef.fieldData, item.fieldContents)
-        "
-        :showLabel="false"
-        @change="(path) => handleFieldUpdate(item.id, path)" />
+      <div class="bg-transparent-black-50 p-2 rounded-md">
+        <CascadeSelect
+          :id="`${item.id}-select`"
+          :options="widgetDef.fieldData"
+          :initialSelectedValues="
+            toCascadeSelectPath(widgetDef.fieldData, item.fieldContents)
+          "
+          labelClass="font-semibold text-neutral-400"
+          :showLabel="false"
+          @change="(path) => handleFieldUpdate(item.id, path)" />
+      </div>
     </template>
   </EditWidgetLayout>
 </template>
@@ -49,7 +52,9 @@ const handleAdd = () =>
   );
 
 const handleSetPrimary = (id: string) =>
-  updateWidgetContents(ops.makeSetPrimaryContentPayload(props.widgetContents, id));
+  updateWidgetContents(
+    ops.makeSetPrimaryContentPayload(props.widgetContents, id)
+  );
 
 const handleDelete = (id: string) =>
   updateWidgetContents(ops.deleteWidgetContent(props.widgetContents, id));
