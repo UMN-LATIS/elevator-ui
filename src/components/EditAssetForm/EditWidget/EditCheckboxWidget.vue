@@ -16,7 +16,7 @@
             @update:modelValue="
               $emit(
                 'update:widgetContents',
-                ops.updateWidgetContentItem(widgetContents, item.id, $event)
+                ops.makeUpdateContentPayload(widgetContents, item.id, $event)
               )
             " />
           <Label :for="`${item.id}-checkbox`">{{ widgetDef.label }}</Label>

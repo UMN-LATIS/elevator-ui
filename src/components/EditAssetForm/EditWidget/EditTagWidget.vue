@@ -8,10 +8,12 @@
     @delete="handleDelete"
     @update:widgetContents="updateWidgetContents">
     <template #fieldContents="{ item }">
+      {{ item }}
+      {{ widgetContents }}
       <TagsInput
         :modelValue="item.tags ?? []"
         class="tags-input"
-        @update:modelValue="console.log">
+        @update:modelValue="(updated) => handleUpdateTags(item.id, updated as string[])">
         <TagsInputItem v-for="tag in item.tags" :key="tag" :value="tag">
           <TagsInputItemText />
           <TagsInputItemDelete />
@@ -49,27 +51,31 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-const updateWidgetContents = (
-  contents: Type.WithId<Type.TagListWidgetContent>[]
-) => emit("update:widgetContents", contents);
-
 const handleAdd = () =>
-  updateWidgetContents(
-    ops.addWidgetContent(props.widgetContents, props.widgetDef)
+  emit(
+    "update:widgetContents",
+    ops.makeAddContentPayload(props.widgetContents, props.widgetDef)
   );
 
 const handleSetPrimary = (id: string) =>
-  updateWidgetContents(ops.setPrimaryItem(props.widgetContents, id));
+  emit(
+    "update:widgetContents",
+    ops.makeSetPrimaryContentPayload(props.widgetContents, id)
+  );
 
 const handleDelete = (id: string) =>
-  updateWidgetContents(ops.deleteWidgetContent(props.widgetContents, id));
+  emit(
+    "update:widgetContents",
+    ops.deleteWidgetContent(props.widgetContents, id)
+  );
 
-const handleFieldUpdate = (
+const handleUpdateTags = (
   itemId: string,
-  fieldContents: Type.WithId<Type.TagListWidgetContent["tags"]>
+  tags: Type.TagListWidgetContent["tags"]
 ) => {
-  updateWidgetContents(
-    ops.updateWidgetContentItem(props.widgetContents, itemId, fieldContents)
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(props.widgetContents, itemId, tags)
   );
 };
 </script>

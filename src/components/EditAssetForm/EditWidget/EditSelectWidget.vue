@@ -6,12 +6,15 @@
     @add="
       $emit(
         'update:widgetContents',
-        ops.addWidgetContent(widgetContents, widgetDef)
+        ops.makeAddContentPayload(widgetContents, widgetDef)
       )
     "
     @setPrimary="
       (id) =>
-        $emit('update:widgetContents', ops.setPrimaryItem(widgetContents, id))
+        $emit(
+          'update:widgetContents',
+          ops.makeSetPrimaryContentPayload(widgetContents, id)
+        )
     "
     @delete="
       (id) =>
@@ -37,7 +40,7 @@
             (value) =>
               $emit(
                 'update:widgetContents',
-                ops.updateWidgetContentItem(widgetContents, item.id, value)
+                ops.makeUpdateContentPayload(widgetContents, item.id, value)
               )
           " />
       </div>

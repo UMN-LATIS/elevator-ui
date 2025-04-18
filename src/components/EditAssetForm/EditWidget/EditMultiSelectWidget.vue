@@ -45,11 +45,11 @@ const updateWidgetContents = (
 
 const handleAdd = () =>
   updateWidgetContents(
-    ops.addWidgetContent(props.widgetContents, props.widgetDef)
+    ops.makeAddContentPayload(props.widgetContents, props.widgetDef)
   );
 
 const handleSetPrimary = (id: string) =>
-  updateWidgetContents(ops.setPrimaryItem(props.widgetContents, id));
+  updateWidgetContents(ops.makeSetPrimaryContentPayload(props.widgetContents, id));
 
 const handleDelete = (id: string) =>
   updateWidgetContents(ops.deleteWidgetContent(props.widgetContents, id));
@@ -58,7 +58,7 @@ const handleFieldUpdate = (itemId: string, path: string[]) => {
   const hierarchy = getFieldHierarchy(props.widgetDef.fieldData);
   const contents = toFieldContents(hierarchy, path);
   updateWidgetContents(
-    ops.updateWidgetContentItem(props.widgetContents, itemId, contents)
+    ops.makeUpdateContentPayload(props.widgetContents, itemId, contents)
   );
 };
 

@@ -1,26 +1,23 @@
-// These functions are common to all widget
 import * as Type from "@/types";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 
-export function setPrimaryItem<T extends Type.WithId<Type.WidgetContent>>(
-  widgetContents: readonly T[],
-  id: string
-): T[] {
+export function makeSetPrimaryContentPayload<
+  T extends Type.WithId<Type.WidgetContent>
+>(widgetContents: readonly T[], id: string): T[] {
   return widgetContents.map((item) => ({
     ...item,
     isPrimary: item.id === id,
   })) as T[];
 }
 
-export function addWidgetContent<T extends Type.WithId<Type.WidgetContent>>(
-  widgetContents: readonly T[],
-  widgetDef: Type.WidgetProps
-): T[] {
+export function makeAddContentPayload<
+  T extends Type.WithId<Type.WidgetContent>
+>(widgetContents: readonly T[], widgetDef: Type.WidgetProps): T[] {
   const newItem = createDefaultWidgetContent(widgetDef) as T;
   return [...widgetContents, newItem];
 }
 
-export function updateWidgetContentItem<
+export function makeUpdateContentPayload<
   T extends Type.WithId<Type.WidgetContent>
 >(widgetContents: readonly T[], id: string, fieldContents: any): T[] {
   return widgetContents.map((item) => {
