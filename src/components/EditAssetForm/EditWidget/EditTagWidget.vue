@@ -12,7 +12,11 @@
         :modelValue="item.tags"
         class="tags-input"
         @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
-        <TagsInputItem v-for="tag in item.tags" :key="tag" :value="tag">
+        <TagsInputItem
+          v-for="tag in item.tags"
+          :key="tag"
+          :value="tag"
+          class="bg-neutral-900 text-neutral-100">
           <TagsInputItemText />
           <TagsInputItemDelete />
         </TagsInputItem>
