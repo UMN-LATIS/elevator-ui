@@ -2,17 +2,22 @@
   <div class="flex flex-col gap-1">
     <label
       :for="id"
-      class="text-xs uppercase font-semibold"
-      :class="{
-        'sr-only': !showLabel,
-      }">
+      :class="
+        cn([
+          'text-xs uppercase font-medium text-neutral-700',
+          {
+            'sr-only': !showLabel,
+          },
+          labelClass,
+        ])
+      ">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
     <select
       :id="id"
       :value="modelValue"
-      class="rounded-md border-none bg-black/5"
+      :class="cn(['rounded-md border-none bg-black/5 text-sm', selectClass])"
       readonly
       required
       @change="
@@ -26,6 +31,9 @@
   </div>
 </template>
 <script setup lang="ts">
+import { cn } from "@/lib/utils";
+import { ClassValue } from "clsx";
+
 withDefaults(
   defineProps<{
     modelValue: string;
@@ -38,12 +46,16 @@ withDefaults(
     id?: string;
     placeholder?: string;
     showLabel?: boolean;
+    labelClass?: ClassValue;
+    selectClass?: ClassValue;
   }>(),
   {
     id: () => `select-${crypto.randomUUID()}`,
     placeholder: "--",
     required: false,
     showLabel: true,
+    labelClass: "",
+    selectClass: "",
   }
 );
 

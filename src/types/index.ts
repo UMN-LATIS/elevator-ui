@@ -231,7 +231,7 @@ export interface CheckboxWidgetContent extends WidgetContent {
 
 export interface DateMoment {
   text: string | null;
-  numeric: number | null;
+  numeric: string | null; // unix timestamp, actually a string
 }
 export interface DateWidgetContent extends WidgetContent {
   label: string;

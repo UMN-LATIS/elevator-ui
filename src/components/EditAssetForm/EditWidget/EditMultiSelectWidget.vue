@@ -15,7 +15,7 @@
           :initialSelectedValues="
             toCascadeSelectPath(widgetDef.fieldData, item.fieldContents)
           "
-          labelClass="font-semibold text-neutral-400"
+          labelClass="font-medium"
           :showLabel="false"
           @change="(path) => handleFieldUpdate(item.id, path)" />
       </div>

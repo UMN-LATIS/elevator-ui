@@ -5,11 +5,14 @@
       :key="segmentLevel"
       class="flex flex-col gap-1">
       <label
-        :class="['uppercase text-xs font-medium tracking-wider', labelClass]">
+        :class="[
+          'uppercase text-xs font-medium tracking-wider text-neutral-700',
+          labelClass,
+        ]">
         {{ selected.label }}
       </label>
       <select
-        :class="['rounded-md', selectClass]"
+        :class="['rounded-md text-sm', selectClass]"
         :style="{ width: '100%' }"
         :value="selected.value"
         @change="

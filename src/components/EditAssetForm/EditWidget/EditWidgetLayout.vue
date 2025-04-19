@@ -17,70 +17,76 @@
       </span>
       <h2 class="text-lg font-bold">{{ widgetDef.label }}</h2>
     </button>
-    <slot name="widgetContents">
-      <DragDropContainer :groupId="widgetDef.widgetId">
-        <DragDropList
-          :modelValue="widgetContents"
-          :listId="widgetDef.widgetId"
-          :showEmptyList="false"
-          handleClass="edit-text-widget-handle"
-          listItemClass=""
-          @update:modelValue="
-            (widgetContents) => {
-              $emit('update:widgetContents', widgetContents);
-            }
-          ">
-          <template #item="{ item }">
-            <div class="grid grid-cols-[auto,1fr,auto] gap-2 items-center pl-2">
-              <div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        class="flex items-center justify-center p-1.5 rounded-sm hover:bg-neutral-100"
-                        @click="$emit('setPrimary', item.id)">
-                        <StarIcon
-                          class="w-4 h-4"
-                          :class="
-                            item.isPrimary
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-neutral-400'
-                          " />
-                        <span class="sr-only">Set as Primary</span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Set as Primary</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+    <div
+      :class="{
+        'opacity-50': !isExpanded,
+      }">
+      <slot name="widgetContents">
+        <DragDropContainer :groupId="widgetDef.widgetId">
+          <DragDropList
+            :modelValue="widgetContents"
+            :listId="widgetDef.widgetId"
+            :showEmptyList="false"
+            handleClass="edit-text-widget-handle"
+            listItemClass=""
+            @update:modelValue="
+              (widgetContents) => {
+                $emit('update:widgetContents', widgetContents);
+              }
+            ">
+            <template #item="{ item }">
+              <div
+                class="grid grid-cols-[auto,1fr,auto] gap-2 items-center pl-2">
+                <div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          class="flex items-center justify-center p-1.5 rounded-sm hover:bg-neutral-100"
+                          @click="$emit('setPrimary', item.id)">
+                          <StarIcon
+                            class="w-4 h-4"
+                            :class="
+                              item.isPrimary
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-neutral-400'
+                            " />
+                          <span class="sr-only">Set as Primary</span>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Set as Primary</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div class="py-2">
+                  <slot name="fieldContents" :item="item" />
+                </div>
+                <div>
+                  <button
+                    class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm"
+                    type="button"
+                    @click="$emit('delete', item.id)">
+                    <XIcon class="w-4 h-4" />
+                    <span class="sr-only">Delete</span>
+                  </button>
+                </div>
               </div>
-              <div class="py-2">
-                <slot name="fieldContents" :item="item" />
+            </template>
+            <template #footer>
+              <div class="flex justify-center">
+                <Button variant="tertiary" @click="$emit('add')">
+                  <PlusIcon class="w-4 h-4" />
+                  {{ widgetDef.label }}
+                </Button>
               </div>
-              <div>
-                <button
-                  class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm"
-                  type="button"
-                  @click="$emit('delete', item.id)">
-                  <XIcon class="w-4 h-4" />
-                  <span class="sr-only">Delete</span>
-                </button>
-              </div>
-            </div>
-          </template>
-          <template #footer>
-            <div class="flex justify-center">
-              <Button variant="tertiary" @click="$emit('add')">
-                <PlusIcon class="w-4 h-4" />
-                {{ widgetDef.label }}
-              </Button>
-            </div>
-          </template>
-        </DragDropList>
-      </DragDropContainer>
-    </slot>
+            </template>
+          </DragDropList>
+        </DragDropContainer>
+      </slot>
+    </div>
   </section>
 </template>
 <script setup lang="ts" generic="T extends WithId<WidgetContent>">
