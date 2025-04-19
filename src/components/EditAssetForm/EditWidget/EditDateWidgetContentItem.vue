@@ -24,14 +24,16 @@
           'border-red-500 !bg-red-100/50': hasStartDateError,
         }"
         @update:modelValue="handleUpdateStartDate" />
-      <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
-        Invalid date.
-      </p>
-      <p
-        v-else-if="modelValue.start.text"
-        class="text-neutral-500 text-xs my-1">
-        {{ parsedStartDate }}
-      </p>
+      <div class="pl-4">
+        <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
+          Invalid date.
+        </p>
+        <p
+          v-else-if="modelValue.start.text"
+          class="text-neutral-500 text-xs my-1">
+          {{ parsedStartDate }}
+        </p>
+      </div>
     </div>
 
     <div v-if="modelValue.range">
@@ -40,12 +42,16 @@
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
         @update:modelValue="handleUpdateEndDate" />
-      <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
-        Invalid date.
-      </p>
-      <p v-else-if="modelValue.end.text" class="text-neutral-500 text-xs my-1">
-        {{ parsedEndDate }}
-      </p>
+      <div class="pl-4">
+        <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
+          Invalid date.
+        </p>
+        <p
+          v-else-if="modelValue.end.text"
+          class="text-neutral-500 text-xs my-1">
+          {{ parsedEndDate }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
