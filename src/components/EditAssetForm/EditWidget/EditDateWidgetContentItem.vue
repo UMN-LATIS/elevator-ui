@@ -25,7 +25,7 @@
         }"
         @update:modelValue="handleUpdateStartDate" />
       <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
-        We couldn't figure out a way to parse this date.
+        Invalid date.
       </p>
       <p
         v-else-if="modelValue.start.text"
@@ -41,7 +41,7 @@
         :modelValue="modelValue.end.text ?? ''"
         @update:modelValue="handleUpdateEndDate" />
       <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
-        We couldn't figure out a way to parse this date.
+        Invalid date.
       </p>
       <p v-else-if="modelValue.end.text" class="text-neutral-500 text-xs my-1">
         {{ parsedEndDate }}
