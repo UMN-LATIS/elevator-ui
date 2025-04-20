@@ -12,10 +12,10 @@
     <DragHandle
       ref="dragHandleRef"
       :class="handleClass"
-      @keydown.up="handleMoveUp"
-      @keydown.down="handleMoveDown"
-      @keydown.left="handleMoveLeft"
-      @keydown.right="handleMoveRight" />
+      @keydown.up.prevent="handleMoveUp"
+      @keydown.down.prevent="handleMoveDown"
+      @keydown.left.prevent="handleMoveLeft"
+      @keydown.right.prevent="handleMoveRight" />
     <div class="drag-drop-list-item__content">
       <slot />
     </div>
