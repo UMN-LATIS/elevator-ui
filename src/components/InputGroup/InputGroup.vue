@@ -15,9 +15,9 @@
       </div>
       <input
         :id="id"
+        v-model="model"
         :type="type"
         :name="id"
-        :value="modelValue"
         class="block w-full rounded-md border border-transparent focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4"
         :required="required"
         :class="[
@@ -29,10 +29,7 @@
         ]"
         v-bind="$attrs"
         @focus="$emit('focus', $event)"
-        @blur="$emit('blur', $event)"
-        @input="
-          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-        " />
+        @blur="$emit('blur', $event)" />
       <div
         v-if="$slots.append"
         class="absolute inset-y-0 right-0 flex items-center pr-1">
@@ -49,7 +46,6 @@ withDefaults(
     id: string;
     label: string;
     labelHidden?: boolean;
-    modelValue: string;
     type?: string;
     inputClass?: CSSClass;
     labelClass?: CSSClass;
@@ -67,7 +63,10 @@ withDefaults(
 defineEmits<{
   (eventName: "focus", event: FocusEvent): void;
   (eventName: "blur", event: FocusEvent): void;
-  (eventName: "update:modelValue", value: string): void;
 }>();
+
+const model = defineModel<string | number, "number">({
+  required: true,
+});
 </script>
 <style scoped></style>
