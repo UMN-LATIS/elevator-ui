@@ -18,6 +18,20 @@
       <div ref="mapContainer" class="map h-md rounded-sm"></div>
     </div>
 
+    <InputGroup
+      :id="`${id}-title`"
+      :modelValue="props.modelValue.locationLabel ?? ''"
+      label="Location Label"
+      placeholder="Label"
+      @update:modelValue="
+        (value) => {
+          $emit('update:modelValue', {
+            ...props.modelValue,
+            locationLabel: value.toString(),
+          });
+        }
+      " />
+
     <div class="grid grid-cols-2 gap-4">
       <InputGroup
         :id="`${id}-longitude`"
@@ -55,7 +69,7 @@ const props = withDefaults(
     initialZoom?: number;
   }>(),
   {
-    initialZoom: 1,
+    initialZoom: 12,
   }
 );
 
