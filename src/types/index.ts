@@ -893,3 +893,9 @@ export interface SelectOption {
   id: string;
   label: string;
 }
+
+export interface GeocoderResult {
+  lat: number;
+  lng: number;
+  address: string;
+}
