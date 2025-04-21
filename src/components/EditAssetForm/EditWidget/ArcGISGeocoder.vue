@@ -57,7 +57,7 @@ const props = withDefaults(
     initialValue?: string;
   }>(),
   {
-    id: useId(),
+    id: () => useId(),
     placeholder: "Search for an address",
     initialValue: "",
   }

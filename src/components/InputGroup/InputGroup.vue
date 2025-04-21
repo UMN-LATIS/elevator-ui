@@ -53,7 +53,7 @@ withDefaults(
     required?: boolean;
   }>(),
   {
-    id: useId(),
+    id: () => useId(),
     labelHidden: false,
     type: "text",
     required: false,
