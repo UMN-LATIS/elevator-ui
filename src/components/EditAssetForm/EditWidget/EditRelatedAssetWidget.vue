@@ -30,13 +30,19 @@
     ">
     <template #fieldContents="{ item }">
       <div class="flex flex-col gap-4">
-        <!-- <p>{{ item }}</p> -->
-        {{ autocompleteOptions }}
         <Combobox
           by="label"
           :modelValue="item.targetAssetId"
-          @update:modelValue="console.log('update:modelValue', $event)">
-          <ComboboxAnchor>
+          @update:modelValue="handleUpdateTargetAsset(item, $event as string)">
+          <ComboboxAnchor asChild>
+            <ComboboxTrigger asChild>
+              <Button>
+                {{ item.targetAssetId ?? "Select an asset" }}
+              </Button>
+            </ComboboxTrigger>
+          </ComboboxAnchor>
+
+          <ComboboxList>
             <div class="relative w-full items-center">
               <ComboboxInput
                 v-model="searchInput"
@@ -47,20 +53,21 @@
                 class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
                 <Search class="size-4 text-muted-foreground" />
               </span>
-              <span
-                class="absolute end-0 inset-y-0 flex items-center justify-center px-3">
-                <SpinnerIcon v-if="isLoading" class="size-4" />
-              </span>
             </div>
-          </ComboboxAnchor>
 
-          <ComboboxList>
             <ComboboxEmpty>
-              <div v-if="isLoading" class="flex items-center gap-2">
-                <SpinnerIcon class="size-4" />
-                <span>Loading...</span>
+              <div v-if="isLoading || debouncedSearchInput !== searchInput">
+                <div class="flex items-center justify-center gap-2">
+                  <SpinnerIcon class="size-4" />
+                  <span>Loading...</span>
+                </div>
               </div>
-              <div v-else>None found.</div>
+              <div v-else-if="searchInput.length < 2">
+                Type at least 2 characters to search
+              </div>
+              <div v-else-if="isSuccess && autocompleteOptions.length === 0">
+                None found.
+              </div>
             </ComboboxEmpty>
 
             <ComboboxGroup>
@@ -97,38 +104,58 @@ import {
   ComboboxItem,
   ComboboxItemIndicator,
   ComboboxList,
+  ComboboxTrigger,
 } from "@/components/ui/combobox";
 import { Check, Search } from "lucide-vue-next";
 import { SpinnerIcon } from "@/icons";
 import { useDebounce } from "@vueuse/core";
+import Button from "@/components/Button/Button.vue";
 
-defineProps<{
+const props = defineProps<{
   widgetDef: Type.RelatedAssetWidgetProps;
   widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]
   ): void;
 }>();
+
 const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
 
-const { data: matches, isLoading } = useSearchAssetsQuery(debouncedSearchInput);
+const {
+  data: matches,
+  isLoading,
+  isSuccess,
+} = useSearchAssetsQuery(debouncedSearchInput);
 
 const autocompleteOptions = computed(() => {
   return (
-    matches.value?.map((match) => {
-      console.log(match);
-      return {
-        value: match.objectId,
-        label: match.title,
-      };
-    }) ?? null
+    matches.value?.map((match) => ({
+      value: match.objectId,
+      label: match.title,
+    })) ?? []
   );
 });
+
+const handleUpdateTargetAsset = (item, updatedTargetAssetId: string) => {
+  if (typeof updatedTargetAssetId !== "string") {
+    throw new Error(
+      `Updated target asset ID must be a string: ${updatedTargetAssetId}`
+    );
+  }
+
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(props.widgetContents, item.id, {
+      ...item,
+      targetAssetId: updatedTargetAssetId,
+    })
+  );
+};
 </script>
 <style scoped></style>
 <style></style>

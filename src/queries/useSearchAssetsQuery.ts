@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toRef, toValue, type MaybeRefOrGetter } from "vue";
-import { useDebounce } from "@vueuse/core";
 import { SEARCH_QUERY_ID } from "./queryKeys";
 import { SearchResultMatch } from "@/types";
 
