@@ -23,7 +23,9 @@ export const ColHeader = ({
 }) => <div className={className}>{text}</div>;
 export const ColCell = ({ text }: { text: string }) => <div>{text}</div>;
 
-export const columns = [
+export const createColumns = (handlers: {
+  onDelete: (objectId: string) => void;
+}) => [
   columnHelper.accessor("readyForDisplay", {
     header: () => (
       <div class="flex items-center justify-center font-medium">Ready</div>
@@ -89,9 +91,7 @@ export const columns = [
           <Button
             variant="tertiary"
             class="hover:!bg-red-50 !text-red-400 hover:!text-red-500"
-            onClick={() => {
-              console.log("delete");
-            }}>
+            onClick={() => handlers.onDelete(row.original.objectId as string)}>
             <TrashIcon class="size-4" />
             <span class="sr-only">Delete</span>
           </Button>

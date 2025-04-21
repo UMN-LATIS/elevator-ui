@@ -8,7 +8,11 @@
         </RouterLink>
       </div>
       <p v-if="!allUserAssets.length" class="text-lg">No assets found.</p>
-      <UserAssetsTable v-else :columns="columns" :data="allUserAssets" />
+      <UserAssetsTable
+        v-else
+        :columns="columns"
+        :data="allUserAssets"
+        @deleteAsset="deleteAsset" />
     </div>
   </DefaultLayout>
 </template>
@@ -16,8 +20,33 @@
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAllUserAssets } from "@/queries/useAllUserAssets";
 import Button from "@/components/Button/Button.vue";
-import { columns } from "./UserAssetsTableColumns";
+import { createColumns } from "./UserAssetsTableColumns";
 import UserAssetsTable from "./UserAssetsTable.vue";
+import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
+import { useErrorStore } from "@/stores/errorStore";
+
 const { data: allUserAssets } = useAllUserAssets();
+
+const { mutate: deleteAsset } = useDeleteAssetMutation();
+const errorStore = useErrorStore();
+
+const handleDeleteAsset = (assetId: string) => {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this asset? This action cannot be undone."
+  );
+  if (!confirmDelete) return;
+  deleteAsset(assetId, {
+    onSuccess: () => {
+      // TODO: toast success
+    },
+    onError: (error) => {
+      errorStore.setError(
+        new Error(`Failed to delete asset: ${error.message}`)
+      );
+    },
+  });
+};
+
+const columns = createColumns({ onDelete: handleDeleteAsset });
 </script>
 <style scoped></style>
