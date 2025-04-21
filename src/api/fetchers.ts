@@ -249,10 +249,13 @@ export async function postLtiPayload13({
   return res.data;
 }
 
-export async function fetchSearchId(
+export async function fetchSearchResults(
   query: string,
-  opts: Omit<SearchRequestOptions, "searchText"> = {}
-): Promise<string> {
+  opts: Omit<
+    SearchRequestOptions & { onlySearchId?: boolean },
+    "searchText"
+  > = {}
+): Promise<SearchResultsResponse> {
   const { collection, ...rest } = opts;
   const searchQuery: SearchRequestOptions = {
     searchText: query,
@@ -272,14 +275,29 @@ export async function fetchSearchId(
   const params = new URLSearchParams();
   params.append("searchQuery", JSON.stringify(searchQuery));
 
-  // this param gets searchID without all the results
-  params.append("storeOnly", "true");
+  if (opts.onlySearchId) {
+    // this param gets searchID without all the results
+    params.append("storeOnly", "true");
+  }
+
   const res = await axios.post<SearchResultsResponse>(
     `${BASE_URL}/search/searchResults`,
     params
   );
 
-  return res.data.searchId;
+  return res.data;
+}
+
+export async function fetchSearchId(
+  query: string,
+  opts: Omit<SearchRequestOptions, "searchText"> = {}
+): Promise<string> {
+  const results = await fetchSearchResults(query, {
+    ...opts,
+    onlySearchId: true,
+  });
+
+  return results.searchId;
 }
 
 export async function fetchSearchResultsById(
