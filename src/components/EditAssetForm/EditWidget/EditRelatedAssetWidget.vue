@@ -30,10 +30,9 @@
     ">
     <template #fieldContents="{ item }">
       <div class="flex flex-col gap-4">
-        <p>{{ item }}</p>
         <Combobox
           by="label"
-          :modelValue="item.targetAssetId"
+          :modelValue="item.targetAssetId ?? ''"
           @update:modelValue="
             handleUpdateTargetAsset(item, $event as string | null)
           ">
@@ -78,8 +77,10 @@
                 v-for="option in autocompleteOptions"
                 :key="option.value"
                 :value="option.value">
-                {{ option.label }}
-
+                <div class="flex flex-col">
+                  <p>{{ option.label }}</p>
+                  <small class="text-neutral-400">{{ option.value }}</small>
+                </div>
                 <ComboboxItemIndicator>
                   <Check :class="cn('ml-auto h-4 w-4')" />
                 </ComboboxItemIndicator>
