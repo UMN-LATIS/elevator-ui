@@ -30,10 +30,13 @@
     ">
     <template #fieldContents="{ item }">
       <div class="flex flex-col gap-4">
+        <p>{{ item }}</p>
         <Combobox
           by="label"
           :modelValue="item.targetAssetId"
-          @update:modelValue="handleUpdateTargetAsset(item, $event as string)">
+          @update:modelValue="
+            handleUpdateTargetAsset(item, $event as string | null)
+          ">
           <ComboboxAnchor asChild>
             <ComboboxTrigger asChild>
               <Button>
@@ -141,19 +144,15 @@ const autocompleteOptions = computed(() => {
   );
 });
 
-const handleUpdateTargetAsset = (item, updatedTargetAssetId: string) => {
-  if (typeof updatedTargetAssetId !== "string") {
-    throw new Error(
-      `Updated target asset ID must be a string: ${updatedTargetAssetId}`
-    );
-  }
-
+const handleUpdateTargetAsset = (item, updatedTargetAssetId: string | null) => {
   emit(
     "update:widgetContents",
-    ops.makeUpdateContentPayload(props.widgetContents, item.id, {
-      ...item,
-      targetAssetId: updatedTargetAssetId,
-    })
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      item.id,
+      updatedTargetAssetId,
+      "targetAssetId"
+    )
   );
 };
 </script>
