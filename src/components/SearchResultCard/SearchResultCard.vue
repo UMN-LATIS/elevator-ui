@@ -113,10 +113,21 @@ const title = computed(() => {
 });
 
 const thumbnailImgSrc = computed(() => {
-  const { excerptAsset: excerptFileObjectId, primaryHandlerThumbnail2x } =
-    props.searchMatch;
-  if (excerptFileObjectId) return getThumbURL(excerptFileObjectId);
-  return primaryHandlerThumbnail2x ?? null;
+  const {
+    excerptAsset: excerptFileObjectId,
+    primaryHandlerThumbnail2x,
+    primaryHandlerId,
+  } = props.searchMatch;
+
+  if (excerptFileObjectId) {
+    return getThumbURL(excerptFileObjectId);
+  }
+
+  if (primaryHandlerThumbnail2x) {
+    return primaryHandlerThumbnail2x;
+  }
+
+  return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
 });
 </script>
 <style scoped>
