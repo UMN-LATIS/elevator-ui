@@ -1,0 +1,59 @@
+<template>
+  <div class="related-asset-preview grid grid-cols-[auto,1fr] gap-2 w-full">
+    <LazyLoadImage
+      v-if="imgSrc"
+      :src="imgSrc"
+      :alt="title"
+      class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-sm overflow-hidden" />
+    <div v-else class="h-8 w-8 sm:h-16 sm:w-16" />
+    <div>
+      <h1 class="font-bold text-md sm:text-lg leading-tight">
+        {{ title }}
+      </h1>
+
+      <dl
+        v-if="props.assetPreview?.entries"
+        class="inline-flex items-baseline gap-x-4 sm:gap-y-2 flex-wrap m-0">
+        <div
+          v-for="(entry, index) in props.assetPreview.entries"
+          :key="index"
+          class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400">
+          <dt class="text-xs uppercase">
+            {{ entry?.label || "Item" }}
+          </dt>
+          <dd class="text-sm">
+            {{ entry.entries?.join(", ") }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</template>
+<script setup lang="ts">
+import { AssetPreview } from "@/types";
+import { getThumbURL, convertHtmlToText } from "@/helpers/displayUtils";
+import { computed } from "vue";
+import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
+
+const props = defineProps<{
+  assetPreview: AssetPreview;
+}>();
+
+const title = computed(() => {
+  if (Array.isArray(props.assetPreview.title)) {
+    return props.assetPreview.title.map(convertHtmlToText).join(",");
+  }
+
+  if (props.assetPreview.title && props.assetPreview.title.length > 0) {
+    return convertHtmlToText(props.assetPreview.title);
+  }
+
+  return "(no title)";
+});
+
+const imgSrc = computed(() => {
+  const { primaryHandlerId } = props.assetPreview;
+  return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
+});
+</script>
+<style scoped></style>

@@ -373,6 +373,8 @@ export interface SearchResultMatch {
   excerptLabel?: string;
 }
 
+export type AssetPreview = SearchResultMatch;
+
 export interface SearchEntry {
   collection?: string[]; // collection ids as strings
   searchDate?: DateTime;
@@ -484,7 +486,7 @@ export interface Asset {
   firstObjectId?: string | null;
   titleObject?: string | null;
   title?: string[];
-  [key: string]: unknown;
+  [key: string]: unknown; // widget content
 }
 
 type TemplateShowPropertyPosition =

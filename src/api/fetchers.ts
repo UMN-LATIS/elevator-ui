@@ -6,33 +6,33 @@
 import axios, { AxiosError } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
-import type {
-  Asset,
-  SearchResultMatch,
-  Template,
-  SearchResultsResponse,
-  ApiStaticPageResponse,
-  FileDownloadNormalized,
-  ApiInstanceNavResponse,
-  SearchRequestOptions,
-  LocalLoginResponse,
-  ApiGetFieldInfoResponse,
-  SearchableSpecificField,
-  ApiListDrawersResponse,
-  ApiGetDrawerResponse,
-  WidgetProps,
-  ApiCreateDrawerResponse,
-  ApiAddAssetToDrawerResponse,
-  ApiRemoveAssetFromDrawerResponse,
-  CustomAxiosRequestConfig,
-  DrawerSortOptions,
-  ApiStartDrawerDownloadResponse,
-  AssetExcerpt,
-  ApiGetExcerptResponse,
-  ApiSuccessResponse,
-  CreateAssetRequestFormData,
-  AssetSummary,
-  UpdateAssetRequestFormData,
+import {
+  type Asset,
+  type SearchResultMatch,
+  type Template,
+  type SearchResultsResponse,
+  type ApiStaticPageResponse,
+  type FileDownloadNormalized,
+  type ApiInstanceNavResponse,
+  type SearchRequestOptions,
+  type LocalLoginResponse,
+  type ApiGetFieldInfoResponse,
+  type SearchableSpecificField,
+  type ApiListDrawersResponse,
+  type ApiGetDrawerResponse,
+  type WidgetProps,
+  type ApiCreateDrawerResponse,
+  type ApiAddAssetToDrawerResponse,
+  type ApiRemoveAssetFromDrawerResponse,
+  type CustomAxiosRequestConfig,
+  type DrawerSortOptions,
+  type ApiStartDrawerDownloadResponse,
+  type AssetExcerpt,
+  type ApiGetExcerptResponse,
+  type ApiSuccessResponse,
+  type CreateAssetRequestFormData,
+  type AssetSummary,
+  type UpdateAssetRequestFormData,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -40,7 +40,6 @@ import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 import { ApiError } from "./ApiError";
 import { useErrorStore } from "@/stores/errorStore";
 import { toClickToSearchUrl } from "@/helpers/displayUtils";
-import invariant from "tiny-invariant";
 
 const BASE_URL = config.instance.base.url;
 
@@ -83,6 +82,14 @@ export async function fetchAsset(assetId: string): Promise<Asset | null> {
   );
 
   return res.data ?? null;
+}
+
+export async function fetchAssetPreview(assetId: string) {
+  const res = await axios.get<SearchResultMatch>(
+    `${BASE_URL}/asset/getAssetPreview/${assetId}`
+  );
+
+  return res.data;
 }
 
 export async function fetchTemplate(

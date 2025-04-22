@@ -29,91 +29,18 @@
       }
     ">
     <template #fieldContents="{ item }">
-      <div class="flex flex-col gap-4">
-        <Combobox
-          by="label"
-          :modelValue="item.targetAssetId ?? ''"
-          @update:modelValue="
-            handleUpdateTargetAsset(item, $event as string | null)
-          ">
-          <ComboboxAnchor asChild>
-            <ComboboxTrigger asChild>
-              <Button>
-                {{ item.targetAssetId ?? "Select an asset" }}
-              </Button>
-            </ComboboxTrigger>
-          </ComboboxAnchor>
-
-          <ComboboxList>
-            <div class="relative w-full items-center">
-              <ComboboxInput
-                v-model="searchInput"
-                class="pl-9"
-                :displayValue="(val) => val?.label ?? ''"
-                :placeholder="`Select ${widgetDef.label}...`" />
-              <span
-                class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
-                <Search class="size-4 text-muted-foreground" />
-              </span>
-            </div>
-
-            <ComboboxEmpty>
-              <div v-if="isLoading || debouncedSearchInput !== searchInput">
-                <div class="flex items-center justify-center gap-2">
-                  <SpinnerIcon class="size-4" />
-                  <span>Loading...</span>
-                </div>
-              </div>
-              <div v-else-if="searchInput.length < 2">
-                Type at least 2 characters to search
-              </div>
-              <div v-else-if="isSuccess && autocompleteOptions.length === 0">
-                None found.
-              </div>
-            </ComboboxEmpty>
-
-            <ComboboxGroup>
-              <ComboboxItem
-                v-for="option in autocompleteOptions"
-                :key="option.value"
-                :value="option.value">
-                <div class="flex flex-col">
-                  <p>{{ option.label }}</p>
-                  <small class="text-neutral-400">{{ option.value }}</small>
-                </div>
-                <ComboboxItemIndicator>
-                  <Check :class="cn('ml-auto h-4 w-4')" />
-                </ComboboxItemIndicator>
-              </ComboboxItem>
-            </ComboboxGroup>
-          </ComboboxList>
-        </Combobox>
-      </div>
+      <EditRelatedAssetWidgetContentItem
+        :widgetDef="widgetDef"
+        :modelValue="item"
+        @update:modelValue="handleUpdate" />
     </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
+import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetWidgetContentItem.vue";
 import * as ops from "../editWidgetOps";
-import { useSearchAssetsQuery } from "@/queries/useSearchAssetsQuery";
-import { computed, ref } from "vue";
-import { cn } from "@/lib/utils";
-import {
-  Combobox,
-  ComboboxAnchor,
-  ComboboxEmpty,
-  ComboboxGroup,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxItemIndicator,
-  ComboboxList,
-  ComboboxTrigger,
-} from "@/components/ui/combobox";
-import { Check, Search } from "lucide-vue-next";
-import { SpinnerIcon } from "@/icons";
-import { useDebounce } from "@vueuse/core";
-import Button from "@/components/Button/Button.vue";
 
 const props = defineProps<{
   widgetDef: Type.RelatedAssetWidgetProps;
@@ -127,34 +54,15 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-const searchInput = ref("");
-const debouncedSearchInput = useDebounce(searchInput, 300);
-
-const {
-  data: matches,
-  isLoading,
-  isSuccess,
-} = useSearchAssetsQuery(debouncedSearchInput);
-
-const autocompleteOptions = computed(() => {
-  return (
-    matches.value?.map((match) => ({
-      value: match.objectId,
-      label: match.title,
-    })) ?? []
+const handleUpdate = (updatedItem) => {
+  const index = props.widgetContents.findIndex(
+    (item) => item.id === updatedItem.id
   );
-});
-
-const handleUpdateTargetAsset = (item, updatedTargetAssetId: string | null) => {
-  emit(
-    "update:widgetContents",
-    ops.makeUpdateContentPayload(
-      props.widgetContents,
-      item.id,
-      updatedTargetAssetId,
-      "targetAssetId"
-    )
-  );
+  emit("update:widgetContents", [
+    ...props.widgetContents.slice(0, index),
+    updatedItem,
+    ...props.widgetContents.slice(index + 1),
+  ]);
 };
 </script>
 <style scoped></style>
