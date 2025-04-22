@@ -27,8 +27,8 @@
             :modelValue="widgetContents"
             :listId="widgetDef.widgetId"
             :showEmptyList="false"
-            handleClass="edit-text-widget-handle"
-            listItemClass=""
+            handleClass="flex flex-col items-start py-2 px-1"
+            listItemClass="bg-black/5 rounded-md my-1 pr-1"
             @update:modelValue="
               (widgetContents) => {
                 $emit('update:widgetContents', widgetContents);
@@ -36,14 +36,14 @@
             ">
             <template #item="{ item }">
               <div
-                class="grid grid-cols-[auto,1fr,auto] gap-2 items-center pl-2">
+                class="grid grid-cols-[auto,1fr,auto] gap-2 py-2 items-start">
                 <div>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
                           type="button"
-                          class="flex items-center justify-center p-1.5 rounded-sm hover:bg-neutral-100"
+                          class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
                           @click="$emit('setPrimary', item.id)">
                           <StarIcon
                             class="w-4 h-4"
@@ -61,7 +61,7 @@
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                <div class="py-2">
+                <div class="py-1">
                   <slot name="fieldContents" :item="item" />
                 </div>
                 <div>
@@ -136,5 +136,12 @@ const toggleExpand = (event: Event) => {
 .edit-widget-layout .drag-drop-list {
   --dnd-dragHandle-bg: transparent;
   --dnd-listItem-border: 1px solid transparent;
+
+  & .drop-indicator.drop-indicator--top {
+    top: -4px;
+  }
+  & .drop-indicator.drop-indicator--bottom {
+    bottom: -3px;
+  }
 }
 </style>

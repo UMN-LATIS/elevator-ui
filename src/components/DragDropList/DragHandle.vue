@@ -15,14 +15,7 @@ defineExpose({ buttonRef });
 </script>
 <style scoped>
 .drag-handle {
-  display: flex;
   cursor: grab;
-  background: var(--dnd-dragHandle-bg);
-  padding: 0.5rem;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  color: var(--dnd-dragHandle-color);
 }
 
 .drag-handle:active {

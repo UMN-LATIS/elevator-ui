@@ -23,11 +23,11 @@ defineProps<{
 }
 
 .drop-indicator.drop-indicator--top {
-  top: -1px;
+  top: 0;
 }
 
 .drop-indicator.drop-indicator--bottom {
-  bottom: -2px;
+  bottom: 0;
 }
 
 .drop-indicator::before,

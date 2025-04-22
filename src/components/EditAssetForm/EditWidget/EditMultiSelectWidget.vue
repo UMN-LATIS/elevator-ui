@@ -8,17 +8,15 @@
     @delete="handleDelete"
     @update:widgetContents="updateWidgetContents">
     <template #fieldContents="{ item }">
-      <div class="bg-transparent-black-50 p-2 rounded-md">
-        <CascadeSelect
-          :id="`${item.id}-select`"
-          :options="widgetDef.fieldData"
-          :initialSelectedValues="
-            toCascadeSelectPath(widgetDef.fieldData, item.fieldContents)
-          "
-          labelClass="font-medium"
-          :showLabel="false"
-          @change="(path) => handleFieldUpdate(item.id, path)" />
-      </div>
+      <CascadeSelect
+        :id="`${item.id}-select`"
+        :options="widgetDef.fieldData"
+        :initialSelectedValues="
+          toCascadeSelectPath(widgetDef.fieldData, item.fieldContents)
+        "
+        labelClass="font-medium"
+        :showLabel="false"
+        @change="(path) => handleFieldUpdate(item.id, path)" />
     </template>
   </EditWidgetLayout>
 </template>
