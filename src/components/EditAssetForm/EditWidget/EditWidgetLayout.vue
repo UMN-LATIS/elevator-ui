@@ -8,7 +8,7 @@
     @click="handleSectionClick">
     <button
       type="button"
-      class="flex items-center gap-4 lg:w-xs"
+      class="flex items-center gap-4 lg:w-48 xl:w-xs"
       @click.stop="toggleExpand">
       <ChevronDownIcon v-if="isOpen" />
       <ChevronRightIcon v-else />

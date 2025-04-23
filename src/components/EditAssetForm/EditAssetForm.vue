@@ -1,5 +1,7 @@
 <template>
-  <form class="md:grid md:grid-cols-[1fr,auto]" @submit.prevent="$emit('save')">
+  <form
+    class="md:grid md:grid-cols-[minmax(0,1fr),auto] relative min-h-screen"
+    @submit.prevent="$emit('save')">
     <section class="p-4 max-w-screen-xl w-full mx-auto">
       <AssetSummary :asset="asset" :template="template" class="mb-4" />
       <div class="flex flex-col">
@@ -32,7 +34,7 @@
       </div>
     </section>
     <aside
-      class="md:bg-neutral-200 p-4 md:border-l-2 border-neutral-900 flex flex-col gap-6 relative">
+      class="md:bg-neutral-200 p-4 md:border-l-2 border-neutral-900 flex flex-col gap-6 sticky top-0 h-full">
       <div class="grid grid-cols-2 gap-4 order-last md:order-1 mb-16 md:mb-0">
         <!-- <Button variant="secondary" @click="$emit('cancel')">Cancel</Button> -->
         <Button :to="`/asset/viewAsset/${asset.assetId}`" target="_blank">

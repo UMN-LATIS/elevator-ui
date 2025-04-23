@@ -1,16 +1,20 @@
 <template>
-  <div class="related-asset-preview grid grid-cols-[auto,1fr] gap-2 w-full">
+  <div
+    class="related-asset-preview grid grid-cols-[auto,minmax(0,1fr)] gap-2 w-full overflow-hidden">
     <LazyLoadImage
       v-if="imgSrc"
       :src="imgSrc"
       :alt="title"
       class="size-16 object-cover rounded-sm overflow-hidden" />
-    <div v-else class="h-8 w-8 sm:h-16 sm:w-16" />
-    <div>
+    <div
+      v-else
+      class="h-8 w-8 sm:h-16 sm:w-16 border border-neutral-400 bg-black/5 rounded-sm" />
+    <div class="border border-blue-500">
       <h1 class="font-bold text-md sm:text-lg leading-tight">
         {{ title }}
       </h1>
-      <p class="text-xs text-neutral-400 font-mono">
+      <p
+        class="text-xs text-neutral-400 font-mono max-w-full border border-red-500 overflow-hidden text-ellipsis whitespace-nowrap">
         {{ assetPreview.objectId }}
       </p>
 

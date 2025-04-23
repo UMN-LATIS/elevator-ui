@@ -2,7 +2,7 @@
   <div
     class="grid grid-cols-[1fr,auto] md:grid-cols-[auto,1fr] items-center md:items-start gap-4">
     <div
-      class="size-16 md:size-24 lg:size-xs bg-black/10 rounded-lg overflow-hidden order-2 md:order-1">
+      class="size-16 md:size-24 lg:size-48 xl:size-xs bg-black/10 rounded-lg overflow-hidden order-2 md:order-1">
       <img
         v-if="previewImgSrc"
         :src="previewImgSrc"
