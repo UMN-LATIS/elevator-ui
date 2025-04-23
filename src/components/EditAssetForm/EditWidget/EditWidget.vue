@@ -3,6 +3,7 @@
     :is="getWidgetComponentByType(widgetDef.type)"
     :widgetDef="widgetDef"
     :widgetContents="widgetContents"
+    :assetId="assetId"
     @update:widgetContents="$emit('update:widgetContents', $event)" />
 </template>
 <script setup lang="ts">
@@ -23,6 +24,7 @@ import EditTextWidget from "./EditTextWidget.vue";
 defineProps<{
   widgetDef: WidgetProps;
   widgetContents: WidgetContent[];
+  assetId: string | null; // new assets may have a null id
 }>();
 
 defineEmits<{

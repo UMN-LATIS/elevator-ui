@@ -8,6 +8,7 @@
           :key="widgetDef.widgetId"
           :widgetDef="widgetDef"
           :widgetContents="widgetContents"
+          :assetId="asset.id"
           @update:widgetContents="
             $emit('update:asset', { ...asset, [widgetDef.fieldTitle]: $event })
           " />
@@ -53,7 +54,13 @@ import { ref, computed } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
-import { Asset, Template, WidgetContent, WidgetProps } from "@/types";
+import {
+  Asset,
+  Template,
+  WidgetContent,
+  WidgetProps,
+  WithNullableId,
+} from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
@@ -62,7 +69,7 @@ import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 const props = withDefaults(
   defineProps<{
     template: Template;
-    asset: Asset;
+    asset: WithNullableId<Asset>; // new asset may have a null id
     title?: string;
     saveStatus: MutationStatus;
     isDirty: boolean;
@@ -76,7 +83,7 @@ defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: string): void;
-  (e: "update:asset", asset: Asset): void;
+  (e: "update:asset", asset: WithNullableId<Asset>): void;
 }>();
 
 const instanceStore = useInstanceStore();

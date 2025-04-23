@@ -1,31 +1,31 @@
 <template>
-  <div class="flex items-center flex-wrap gap-4 bg-black/5 p-2 rounded-md">
+  <div class="flex items-center flex-wrap gap-4">
     <Combobox
       by="label"
       class="flex-1"
       :modelValue="modelValue.targetAssetId ?? ''"
-      @update:modelValue="
-        $emit('update:modelValue', {
-          ...modelValue,
-          targetAssetId: $event as string | null,
-        })
-      ">
+      @update:modelValue="handleSelectItem($event as string | null)">
       <ComboboxAnchor asChild>
-        <ComboboxTrigger asChild>
-          <button type="button" class="w-full text-left">
+        <ComboboxTrigger class="w-full">
+          <button
+            type="button"
+            class="w-full text-left flex items-center gap-4 justify-between pr-2 bg-black/5 p-2 hover:bg-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
             <EditRelatedAssetPreview
               v-if="targetAssetPreview"
               :assetPreview="targetAssetPreview"
               class="flex-1" />
+            <span v-else-if="isTargetAssetPreviewLoading">
+              <SpinnerIcon class="size-4 ml-2" />
+              Loading...
+            </span>
+            <span v-else>Select an asset...</span>
+            <ChevronDownIcon />
           </button>
-          <!-- <Button class="border-non">
-              <span v-if="targetAssetId">Edit</span>
-              <span v-else>Search for an asset...</span>
-            </Button> -->
         </ComboboxTrigger>
       </ComboboxAnchor>
 
-      <ComboboxList>
+      <ComboboxList
+        class="focus-within:shadow-md focus-within:border-2 focus-within:border-blue-500 rounded-md overflow-hidden">
         <div class="relative w-full items-center">
           <ComboboxInput
             v-model="searchInput"
@@ -45,38 +45,24 @@
               <span>Loading...</span>
             </div>
           </div>
-          <div v-else-if="searchInput.length < 2">
-            Type at least 2 characters to search
-          </div>
           <div v-else-if="isSuccess && autocompleteOptions.length === 0">
             None found.
           </div>
         </ComboboxEmpty>
 
-        <ComboboxGroup>
-          <ComboboxItem
-            v-for="option in autocompleteOptions"
-            :key="option.value"
-            :value="option.value">
-            <div class="flex flex-col">
-              <p>{{ option.label }}</p>
-              <small class="text-neutral-400">{{ option.value }}</small>
-            </div>
-            <ComboboxItemIndicator>
-              <Check :class="cn('ml-auto h-4 w-4')" />
-            </ComboboxItemIndicator>
-          </ComboboxItem>
-        </ComboboxGroup>
+        <ComboboxItem
+          v-for="option in autocompleteOptions"
+          :key="option.value"
+          :value="option.value">
+          <EditRelatedAssetPreview
+            :assetPreview="option.preview"
+            class="flex-1" />
+          <ComboboxItemIndicator>
+            <Check :class="cn('ml-auto h-4 w-4')" />
+          </ComboboxItemIndicator>
+        </ComboboxItem>
       </ComboboxList>
     </Combobox>
-    <Button
-      v-if="targetAssetId"
-      variant="tertiary"
-      :to="getAssetUrl(targetAssetId)"
-      target="_blank">
-      View
-      <ExternalLinkIcon class="size-4" />
-    </Button>
   </div>
 </template>
 <script setup lang="ts">
@@ -88,31 +74,26 @@ import {
   Combobox,
   ComboboxAnchor,
   ComboboxEmpty,
-  ComboboxGroup,
   ComboboxInput,
   ComboboxItem,
   ComboboxItemIndicator,
   ComboboxList,
   ComboboxTrigger,
 } from "@/components/ui/combobox";
-import { Check, ExternalLink, ExternalLinkIcon, Search } from "lucide-vue-next";
+import { Check, ChevronDownIcon, Search } from "lucide-vue-next";
 import { SpinnerIcon } from "@/icons";
 import { useDebounce } from "@vueuse/core";
-import Button from "@/components/Button/Button.vue";
 import { useAssetPreviewQuery } from "@/queries/useAssetPreviewQuery";
-import {
-  getThumbURL,
-  convertHtmlToText,
-  getAssetUrl,
-} from "@/helpers/displayUtils";
 import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 
 const props = defineProps<{
-  widgetDef: Type.RelatedAssetWidgetProps;
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
+  assetId: string | null; // need current assetId to prevent circular dependencies
+  widgetDef: Type.RelatedAssetWidgetProps;
+  widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]; // need all widget content to prevent multiple lines to the same asset within the widget
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (
     e: "update:modelValue",
     widgetContentItem: Type.WithId<Type.RelatedAssetWidgetContent>
@@ -133,45 +114,37 @@ const targetAssetId = computed(() => props.modelValue.targetAssetId);
 const { data: targetAssetPreview, isLoading: isTargetAssetPreviewLoading } =
   useAssetPreviewQuery(targetAssetId);
 
+const otherSelectedAssetIds = computed(() =>
+  props.widgetContents.map((item) => item.targetAssetId)
+);
+
 const autocompleteOptions = computed(() => {
+  if (!matches.value) {
+    return [];
+  }
+  const ignoredAssetIds = [
+    props.assetId,
+    ...otherSelectedAssetIds.value,
+    targetAssetId.value,
+  ].filter(Boolean);
+
   return (
-    matches.value?.map((match) => ({
-      value: match.objectId,
-      label: match.title,
-    })) ?? []
+    matches.value
+      .filter((match) => !ignoredAssetIds.includes(match.objectId))
+      .map((match) => ({
+        value: match.objectId,
+        label: match.title,
+        preview: match,
+      })) ?? []
   );
 });
 
-const title = computed(() => {
-  if (isTargetAssetPreviewLoading.value) {
-    return "";
-  }
-
-  if (!targetAssetPreview.value) {
-    return props.modelValue.targetAssetId;
-  }
-
-  if (Array.isArray(targetAssetPreview.value.title)) {
-    return targetAssetPreview.value.title.map(convertHtmlToText).join(",");
-  }
-
-  if (
-    targetAssetPreview.value.title &&
-    targetAssetPreview.value.title.length > 0
-  ) {
-    return convertHtmlToText(targetAssetPreview.value.title);
-  }
-
-  return props.modelValue.targetAssetId;
-});
-
-const imgSrc = computed(() => {
-  if (!targetAssetPreview.value) {
-    return null;
-  }
-  const { primaryHandlerId } = targetAssetPreview.value;
-  return primaryHandlerId ? getThumbURL(primaryHandlerId) : null;
-});
+function handleSelectItem(targetAssetId: string | null) {
+  emit("update:modelValue", {
+    ...props.modelValue,
+    targetAssetId,
+  });
+}
 </script>
 <style scoped></style>
 <style></style>

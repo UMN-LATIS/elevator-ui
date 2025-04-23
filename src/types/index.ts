@@ -473,6 +473,7 @@ export type RelatedAssetCache = Record<
 >;
 
 export interface Asset {
+  id: string;
   templateId: number;
   readyForDisplay: boolean;
   collectionId: number;
@@ -901,3 +902,5 @@ export interface GeocoderResult {
   lng: number;
   address: string;
 }
+
+export type WithNullableId<T> = Omit<T, "id"> & { id: string | null };

@@ -10,7 +10,7 @@
     <template #fieldContents="{ item }">
       <TagsInput
         :modelValue="item.tags"
-        class="tags-input"
+        class="tags-input !py-0"
         @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
         <TagsInputItem
           v-for="tag in item.tags"

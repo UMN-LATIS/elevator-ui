@@ -31,6 +31,8 @@
     <template #fieldContents="{ item }">
       <EditRelatedAssetWidgetContentItem
         :widgetDef="widgetDef"
+        :widgetContents="widgetContents"
+        :assetId="assetId"
         :modelValue="item"
         @update:modelValue="handleUpdate" />
     </template>
@@ -41,10 +43,12 @@ import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetWidgetContentItem.vue";
 import * as ops from "../editWidgetOps";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.RelatedAssetWidgetProps;
   widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
+  assetId: string | null; // current assetId. could be null for new assets
 }>();
 
 const emit = defineEmits<{
@@ -58,11 +62,19 @@ const handleUpdate = (updatedItem) => {
   const index = props.widgetContents.findIndex(
     (item) => item.id === updatedItem.id
   );
-  emit("update:widgetContents", [
+
+  invariant(
+    index !== -1,
+    `Item with id ${updatedItem.id} not found in widgetContents`
+  );
+
+  const updatedContents = [
     ...props.widgetContents.slice(0, index),
     updatedItem,
     ...props.widgetContents.slice(index + 1),
-  ]);
+  ];
+
+  emit("update:widgetContents", updatedContents);
 };
 </script>
 <style scoped></style>

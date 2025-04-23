@@ -77,11 +77,18 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
 });
 
 export async function fetchAsset(assetId: string): Promise<Asset | null> {
-  const res = await axios.get<Asset>(
+  // id is not included in the response, so we need to add it manually
+  const res = await axios.get<Omit<Asset, "id">>(
     `${BASE_URL}/asset/viewAsset/${assetId}/true`
   );
+  if (!res.data) {
+    return null;
+  }
 
-  return res.data ?? null;
+  return {
+    ...res.data,
+    id: assetId,
+  } as Asset;
 }
 
 export async function fetchAssetPreview(assetId: string) {

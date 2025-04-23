@@ -4,16 +4,19 @@
       v-if="imgSrc"
       :src="imgSrc"
       :alt="title"
-      class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-sm overflow-hidden" />
+      class="size-16 object-cover rounded-sm overflow-hidden" />
     <div v-else class="h-8 w-8 sm:h-16 sm:w-16" />
     <div>
       <h1 class="font-bold text-md sm:text-lg leading-tight">
         {{ title }}
       </h1>
+      <p class="text-xs text-neutral-400 font-mono">
+        {{ assetPreview.objectId }}
+      </p>
 
       <dl
         v-if="props.assetPreview?.entries"
-        class="inline-flex items-baseline gap-x-4 sm:gap-y-2 flex-wrap m-0">
+        class="max-h-16 overflow-hidden flex gap-x-2 items-baseline flex-wrap leading-none">
         <div
           v-for="(entry, index) in props.assetPreview.entries"
           :key="index"
@@ -35,9 +38,15 @@ import { getThumbURL, convertHtmlToText } from "@/helpers/displayUtils";
 import { computed } from "vue";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
 
-const props = defineProps<{
-  assetPreview: AssetPreview;
-}>();
+const props = withDefaults(
+  defineProps<{
+    assetPreview: AssetPreview;
+    includeDetails?: boolean;
+  }>(),
+  {
+    includeDetails: false,
+  }
+);
 
 const title = computed(() => {
   if (Array.isArray(props.assetPreview.title)) {
