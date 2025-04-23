@@ -9,7 +9,7 @@ export function useAssetPreviewQuery(
 ) {
   return useQuery({
     queryKey: [ASSETS_QUERY_KEY, assetId, "preview"],
-    enabled: !!toValue(assetId),
+    enabled: () => !!toValue(assetId),
     initialData: () => null,
     queryFn: async () => {
       const id = toValue(assetId);
