@@ -39,7 +39,8 @@
         :template="savedTemplate"
         :asset="state.localAsset"
         :saveStatus="saveAssetStatus"
-        :isDirty="hasAssetChanged"
+        :hasUnsavedChanges="hasAssetChanged"
+        :isValid="isFormValid"
         class="flex-1"
         @update:templateId="() => console.log('TODO: handle templateId change')"
         @save="handleSaveAsset"
@@ -67,11 +68,12 @@ import {
 } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { equals } from "ramda";
+import { difference, equals, isEmpty } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
+import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 const props = withDefaults(
   defineProps<{
@@ -120,7 +122,37 @@ const localAssetWithoutIds = computed(() => {
 });
 
 const hasAssetChanged = computed(() => {
-  return !equals(savedAsset.value, localAssetWithoutIds.value);
+  if (!savedAsset.value) return true;
+
+  const rawAsset = toRaw(savedAsset.value);
+  const rawLocalAsset = toRaw(localAssetWithoutIds.value);
+  return !equals(rawAsset, rawLocalAsset);
+});
+
+const isFormValid = computed(() => {
+  if (!savedTemplate.value || !state.localAsset) return false;
+  const requiredWidgetContents = savedTemplate.value.widgetArray.filter(
+    (widgetDef) => widgetDef.required
+  );
+
+  // if nothing is required, return true
+  if (!requiredWidgetContents.length) return true;
+
+  // check if all required widget contents are filled
+  for (const widgetDef of requiredWidgetContents) {
+    const fieldTitle = widgetDef.fieldTitle;
+    const contents = state.localAsset[fieldTitle] as WidgetContent[];
+
+    // if the field is empty, return false
+    if (!contents || !contents.length) return false;
+
+    // check if all contents are filled
+    for (const content of contents) {
+      if (!content || isEmpty(content)) return false;
+    }
+  }
+
+  return true;
 });
 
 const savedTemplateId = computed(() => {
