@@ -8,6 +8,7 @@
       <Button
         variant="primary"
         type="submit"
+        class="disabled:!border-black/10 disabled:cursor-not-allowed"
         :disabled="!canSave"
         @click="$emit('save')">
         Save

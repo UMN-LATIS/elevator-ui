@@ -11,7 +11,7 @@
     </div>
     <div class="order-1 md:order-2">
       <header class="md:mb-4">
-        <h1 class="text-xs md:text-base font-bold uppercase text-neutral-400">
+        <h1 class="text-xs md:text-base font-bold uppercase text-black/25">
           {{ asset.assetId ? "Edit Asset" : "Create Asset" }}
         </h1>
         <h2 class="text-xl md:text-2xl font-bold">
