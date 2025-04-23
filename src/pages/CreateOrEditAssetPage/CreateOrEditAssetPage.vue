@@ -65,15 +65,15 @@ import {
   UpdateAssetRequestFormData,
   WidgetContent,
   UnsavedAsset,
+  PHPDateTime,
 } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { difference, equals, isEmpty } from "ramda";
+import { equals, isEmpty } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
-import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 const props = withDefaults(
   defineProps<{
@@ -280,8 +280,8 @@ function handleSaveAsset() {
     newTemplateId: String(state.localAsset.templateId),
     collectionId: String(state.localAsset.collectionId),
     newCollectionId: String(state.localAsset.collectionId),
-    readyForDisplay: state.localAsset.readyForDisplay ? "on" : "off",
-    availableAfter: "", // TODO: add date picker
+    readyForDisplay: state.localAsset.readyForDisplay as boolean,
+    availableAfter: (state.localAsset.availableAfter as PHPDateTime)?.date,
     ...widgetContents,
   };
   saveAsset(formData, {

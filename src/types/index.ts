@@ -473,12 +473,18 @@ export type RelatedAssetCache = Record<
   RelatedAssetCacheItem | null | undefined
 >;
 
+export interface PHPDateTime {
+  date: string; // `2025-04-22 00:00:00.000000`
+  timezone: string; // 'UTC'
+  timezone_type: number; // 3 usually
+}
+
 export interface Asset {
   assetId: string;
   templateId: number;
   readyForDisplay: boolean;
   collectionId: number;
-  availableAfter: unknown | null;
+  availableAfter: PHPDateTime | null;
   modified: DateTime;
   modifiedBy: number | string;
   createdBy: number | string;
@@ -868,12 +874,11 @@ export interface UpdateAssetRequestFormData {
   newTemplateId: string; // matches templateId
   collectionId: string; // "1"
   newCollectionId: string; // matches collectionId
-  readyForDisplay: "on" | "off"; // can we use bools here?
-  availableAfter: ""; // not sure what to do here
-  // widget_id: "30"; // I don't think this is used because
-  // it's not actually within the widget
+  readyForDisplay: boolean; // legacy app submits `on` for true, and unset for false
+  availableAfter: string | ""; // no scheduled date === ''
   [widgetFieldName: string]:
     | string
+    | boolean
     | Array<{
         fieldContents: string;
         isPrimary?: "0" | "1";

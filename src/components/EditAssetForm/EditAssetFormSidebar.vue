@@ -21,11 +21,36 @@
     </div>
     <div class="flex flex-col gap-6 order-1 md:order-2">
       <SelectGroup
+        :selectClass="{
+          '!bg-green-600 !text-green-50 select-picker-light':
+            asset.readyForDisplay,
+          'bg-yellow-200': !asset.readyForDisplay,
+        }"
+        :modelValue="asset.readyForDisplay ? 'ready' : 'draft'"
+        :options="[
+          {
+            id: 'ready',
+            label: 'Ready',
+          },
+          {
+            id: 'draft',
+            label: 'Not Ready',
+          },
+        ]"
+        label="Status"
+        required
+        @update:modelValue="
+          $emit('update:asset', {
+            ...asset,
+            readyForDisplay: $event === 'ready',
+          })
+        " />
+      <SelectGroup
         :modelValue="String(template.templateId)"
         :options="templateOptions"
         label="Template"
         required
-        @update:templateId="$emit('update:templateId', $event)" />
+        @update:modelValue="$emit('update:templateId', $event)" />
       <SelectGroup
         :modelValue="String(asset.collectionId)"
         :options="collectionOptions"
@@ -41,10 +66,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
-import { Asset, UnsavedAsset, Template } from "@/types";
+import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
@@ -58,7 +83,7 @@ const props = defineProps<{
   isValid: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: string): void;
@@ -90,4 +115,8 @@ const collectionOptions = computed(() => {
   );
 });
 </script>
-<style scoped></style>
+<style>
+.select-picker-light {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+</style>
