@@ -108,8 +108,7 @@
       <Button
         v-if="!modelValue.targetAssetId"
         class="text-sm px-3 py-2"
-        :to="createNewAssetUrl"
-        target="_blank">
+        @click="openCreateNewAssetWindow()">
         Create New
       </Button>
     </div>
@@ -118,7 +117,7 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import { useSearchAssetsQuery } from "@/queries/useSearchAssetsQuery";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { cn } from "@/lib/utils";
 import {
   Combobox,
@@ -145,6 +144,7 @@ import { useAssetPreviewQuery } from "@/queries/useAssetPreviewQuery";
 import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
+import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -171,12 +171,19 @@ const {
 
 const targetAssetId = computed(() => props.modelValue.targetAssetId);
 const createNewAssetUrl = computed(() => {
-  const param = new URLSearchParams({
-    parentAssetId: props.assetId ?? "",
-    relatedAssetContentId: props.modelValue.id,
+  const channelName = getChannelName(props.assetId, props.modelValue.id);
+  const params = new URLSearchParams({
+    // parentAssetId: props.assetId ?? "",
+    // relatedAssetContentId: props.modelValue.id,
+    channelName,
   });
-  return `/assetManager/addAsset?${param.toString()}`;
+  return `/assetManager/addAsset?${params.toString()}`;
 });
+
+// use window.open for opening new related asset so that
+// the new tab has window.opener set to the current window
+const openCreateNewAssetWindow = () =>
+  window.open(createNewAssetUrl.value, "_blank");
 
 const { data: targetAssetPreview, isLoading: isTargetAssetPreviewLoading } =
   useAssetPreviewQuery(targetAssetId);
@@ -212,6 +219,17 @@ function handleSelectItem(targetAssetId: string | null) {
     targetAssetId,
   });
 }
+
+//  set up a listener if the user decides to create a new asset
+const { getChannelName, listenForRelatedAsset } = useRelatedAssetChannel();
+onMounted(() => {
+  listenForRelatedAsset(props.assetId, props.modelValue.id, (newAssetId) => {
+    emit("update:modelValue", {
+      ...props.modelValue,
+      targetAssetId: newAssetId,
+    });
+  });
+});
 </script>
 <style scoped></style>
 <style></style>

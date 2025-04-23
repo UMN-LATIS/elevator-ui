@@ -75,7 +75,8 @@ import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
 
 const props = withDefaults(
   defineProps<{
@@ -219,6 +220,9 @@ watch(
 );
 
 const router = useRouter();
+const route = useRoute();
+const { notifyNewRelatedAsset } = useRelatedAssetChannel();
+const channelName = computed(() => route.query.channelName as string);
 
 function handleSaveAsset() {
   invariant(state.localAsset, "Cannot save: no asset.");
@@ -255,18 +259,37 @@ function handleSaveAsset() {
   };
   saveAsset(formData, {
     onSuccess: (data) => {
-      if (isCreateMode.value) {
-        // redirect to the new asset page
-        router.push({
-          name: "asset",
-          params: {
-            assetId: data.objectId,
-          },
-        });
+      if (!isCreateMode.value) {
+        setTimeout(() => {
+          resetSaveAssetStatus();
+        }, 3000);
+        return;
       }
-      setTimeout(() => {
-        resetSaveAssetStatus();
-      }, 3000);
+
+      if (channelName.value) {
+        // Notify the parent window about the new asset
+        notifyNewRelatedAsset(channelName.value, data.objectId);
+
+        // Add a small delay to ensure the message is sent before closing
+        setTimeout(() => {
+          // If this window was opened for related asset creation, close it and focus the parent
+          if (window.opener) {
+            window.opener.focus();
+            window.close();
+          }
+        }, 500);
+
+        // No need to redirect in this case
+        return;
+      }
+
+      // redirect to the new asset page
+      router.push({
+        name: "asset",
+        params: {
+          assetId: data.objectId,
+        },
+      });
     },
   });
 }
