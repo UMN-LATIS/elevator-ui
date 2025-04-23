@@ -1,6 +1,6 @@
 <template>
   <form class="grid grid-cols-[1fr,auto]" @submit.prevent="$emit('save')">
-    <section class="p-4">
+    <section class="p-4 max-w-screen-xl w-full mx-auto">
       <h1 class="text-2xl font-bold mb-8">{{ title }}</h1>
       <div class="flex flex-col">
         <div class="flex items-center justify-end gap-2">
