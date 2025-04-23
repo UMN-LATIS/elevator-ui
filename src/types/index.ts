@@ -5,6 +5,7 @@ import {
   TEMPLATE_SHOW_PROPERTY_POSITIONS,
 } from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
+import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
 
 export * from "./TimelineJSTypes";
 
@@ -732,7 +733,7 @@ export interface TreeNode {
 export interface ApiGetMultiSelectFieldInfoResponse
   extends ApiGetFieldInfoResponse {
   type: "multiselect";
-  rawContent: TreeNode; // recursive tree of options
+  rawContent: CascaderSelectOptions; // recursive tree of options
 }
 
 export interface SearchableSpecificField extends RawSortableField {

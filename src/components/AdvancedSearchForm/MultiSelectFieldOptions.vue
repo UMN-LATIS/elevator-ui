@@ -7,8 +7,7 @@
       class="!gap-1"
       labelClass="sr-only"
       selectClass="text-sm border-neutral-200"
-      @change="handleCascadeSelectChange"
-    />
+      @change="handleCascadeSelectChange" />
   </div>
 </template>
 <script setup lang="ts">
@@ -16,12 +15,13 @@ import api from "@/api";
 import {
   SearchableSpecificFieldFilter,
   SearchableMultiSelectField,
-  TreeNode,
 } from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useInstanceStore } from "@/stores/instanceStore";
-import CascadeSelect from "@/components/CascadeSelect/CascadeSelect.vue";
+import CascadeSelect, {
+  CascaderSelectOptions,
+} from "@/components/CascadeSelect/CascadeSelect.vue";
 
 const props = defineProps<{
   filter: SearchableSpecificFieldFilter;
@@ -36,7 +36,7 @@ const field = computed(() => {
   );
 });
 
-const optionTree = ref<TreeNode | null>(null);
+const optionTree = ref<CascaderSelectOptions | null>(null);
 
 function handleCascadeSelectChange(selectedValues: string[]) {
   searchStore.updateSearchableFieldFilterValue(

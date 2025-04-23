@@ -27,6 +27,7 @@ import {
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import * as fetchers from "@/api/fetchers";
+import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
 
 function createCache() {
   return {
@@ -276,7 +277,7 @@ async function getSearchableCheckboxFieldValues(
 
 async function getSearchableMultiSelectFieldValues(
   field: SearchableMultiSelectField
-): Promise<TreeNode> {
+): Promise<CascaderSelectOptions> {
   const data = await getSearchableFieldInfo<ApiGetMultiSelectFieldInfoResponse>(
     field
   );
