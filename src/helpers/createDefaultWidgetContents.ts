@@ -46,12 +46,12 @@ export function createDefaultWidgetContent(
     case WIDGET_TYPES.TAG_LIST:
       return {
         ...base,
-        tags: null,
+        tags: [],
       };
     case WIDGET_TYPES.SELECT:
       return {
         ...base,
-        fieldContents: {},
+        fieldContents: "",
       };
     case WIDGET_TYPES.MULTISELECT:
       return {
