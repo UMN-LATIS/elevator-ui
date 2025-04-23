@@ -1,8 +1,10 @@
 <template>
   <EditWidgetLayout
+    :isOpen="isOpen"
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-select-widget"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -57,6 +59,7 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 const props = defineProps<{
   widgetDef: Type.SelectWidgetProps;
   widgetContents: Type.WithId<Type.SelectWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 defineEmits<{
@@ -64,6 +67,7 @@ defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.SelectWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const selectOptions = computed((): Type.SelectOption[] => {

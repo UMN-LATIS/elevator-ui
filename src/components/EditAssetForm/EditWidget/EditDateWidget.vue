@@ -3,6 +3,8 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-date-widget"
+    :isOpen="isOpen"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -44,6 +46,7 @@ import EditDateWidgetContentItem from "./EditDateWidgetContentItem.vue";
 const props = defineProps<{
   widgetDef: Type.DateWidgetProps;
   widgetContents: Type.WithId<Type.DateWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -51,6 +54,7 @@ const emit = defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.DateWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 function handleItemUpdate(updatedItem: Type.WithId<Type.DateWidgetContent>) {

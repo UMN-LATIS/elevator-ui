@@ -2,24 +2,24 @@
   <section
     class="edit-widget-layout lg:grid lg:grid-cols-[1fr,3fr] lg:gap-4 items-start border-b border-neutral-300 pt-2"
     :class="{
-      'max-h-11 overflow-hidden': !isExpanded,
-      'cursor-pointer': !isExpanded,
+      'max-h-11 overflow-hidden': !isOpen,
+      'cursor-pointer': !isOpen,
     }"
     @click="handleSectionClick">
     <button
       type="button"
       class="flex items-center gap-4"
       @click.stop="toggleExpand">
-      <ChevronDownIcon v-if="isExpanded" />
+      <ChevronDownIcon v-if="isOpen" />
       <ChevronRightIcon v-else />
       <span class="sr-only">
-        {{ isExpanded ? "Collapse" : "Expand" }}
+        {{ isOpen ? "Collapse" : "Expand" }}
       </span>
       <h2 class="text-lg font-bold">{{ widgetDef.label }}</h2>
     </button>
     <div
       :class="{
-        'opacity-50': !isExpanded,
+        'opacity-50': !isOpen,
       }">
       <slot name="widgetContents">
         <DragDropContainer :groupId="widgetDef.widgetId">
@@ -30,7 +30,7 @@
             :handleClass="[
               'flex flex-col items-start py-2 px-1',
               {
-                'opacity-0': !isExpanded,
+                'opacity-0': !isOpen,
               },
             ]"
             listItemClass="bg-black/5 rounded-md my-1 pr-1 shadow"
@@ -67,7 +67,7 @@
                     :class="[
                       'text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
-                        'sr-only': !isExpanded,
+                        'sr-only': !isOpen,
                       },
                     ]"
                     type="button"
@@ -99,26 +99,25 @@ import { PlusIcon, StarIcon } from "lucide-vue-next";
 import { WidgetContent, WidgetProps, WithId } from "@/types";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
-import { ref } from "vue";
 
-defineProps<{
+const props = defineProps<{
   widgetContents: T[];
   widgetDef: WidgetProps;
+  isOpen: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: "add"): void;
   (e: "setPrimary", id: string): void;
   (e: "delete", id: string): void;
   (e: "update:widgetContents", widgetContents: T[]): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
-
-const isExpanded = ref(false);
 
 // Only expand the component if it's not already expanded
 const handleSectionClick = () => {
-  if (!isExpanded.value) {
-    isExpanded.value = true;
+  if (!props.isOpen) {
+    emit("update:isOpen", true);
   }
 };
 
@@ -127,7 +126,7 @@ const toggleExpand = (event: Event) => {
   // and triggering the handleSectionClick function
   // which would expand the component again
   event.stopPropagation();
-  isExpanded.value = !isExpanded.value;
+  emit("update:isOpen", !props.isOpen);
 };
 </script>
 <style>

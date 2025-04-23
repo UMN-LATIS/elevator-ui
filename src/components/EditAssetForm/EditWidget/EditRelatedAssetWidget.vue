@@ -3,6 +3,8 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-relatedasset-widget"
+    :isOpen="isOpen"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -49,6 +51,7 @@ const props = defineProps<{
   widgetDef: Type.RelatedAssetWidgetProps;
   widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
   assetId: string | null; // current assetId. could be null for new assets
+  isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -56,6 +59,7 @@ const emit = defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const handleUpdate = (updatedItem) => {

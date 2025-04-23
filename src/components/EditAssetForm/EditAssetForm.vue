@@ -3,12 +3,28 @@
     <section class="p-4">
       <h1 class="text-2xl font-bold mb-8">{{ title }}</h1>
       <div class="flex flex-col">
+        <div class="flex items-center justify-end gap-2">
+          <Button variant="tertiary" @click="handleExpandAll">
+            Expand All
+          </Button>
+          <Button variant="tertiary" @click="handleCollapseAll">
+            Collapse All
+          </Button>
+        </div>
         <EditWidget
           v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
           :key="widgetDef.widgetId"
           :widgetDef="widgetDef"
           :widgetContents="widgetContents"
           :assetId="asset.assetId"
+          :isOpen="openWidgets.has(widgetDef.widgetId)"
+          @update:isOpen="
+            (open) => {
+              open
+                ? openWidgets.add(widgetDef.widgetId)
+                : openWidgets.delete(widgetDef.widgetId);
+            }
+          "
           @update:widgetContents="
             $emit('update:asset', { ...asset, [widgetDef.fieldTitle]: $event })
           " />
@@ -50,7 +66,7 @@
   </form>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, reactive } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
@@ -86,6 +102,8 @@ defineEmits<{
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
 }>();
 
+const openWidgets = reactive(new Set<WidgetProps["widgetId"]>());
+
 const instanceStore = useInstanceStore();
 
 const templateOptions = computed(() => {
@@ -117,5 +135,17 @@ const widgetDefAndContents = computed(
         []) as WidgetContent[],
     }))
 );
+
+const allWidgetIds = computed(() =>
+  widgetDefAndContents.value.map(({ widgetDef }) => widgetDef.widgetId)
+);
+
+function handleExpandAll() {
+  allWidgetIds.value.forEach((widgetId) => openWidgets.add(widgetId));
+}
+
+function handleCollapseAll() {
+  openWidgets.clear();
+}
 </script>
 <style scoped></style>

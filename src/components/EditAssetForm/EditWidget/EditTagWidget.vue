@@ -3,6 +3,8 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-tag-widget"
+    :isOpen="isOpen"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="handleAdd"
     @setPrimary="handleSetPrimary"
     @delete="handleDelete"
@@ -42,6 +44,7 @@ import {
 const props = defineProps<{
   widgetDef: Type.TagListWidgetProps;
   widgetContents: Type.WithId<Type.TagListWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -49,6 +52,7 @@ const emit = defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.TagListWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const handleAdd = () =>

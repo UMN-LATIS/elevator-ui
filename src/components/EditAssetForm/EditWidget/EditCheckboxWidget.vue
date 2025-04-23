@@ -2,7 +2,9 @@
   <EditWidgetLayout
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
+    :isOpen="isOpen"
     class="edit-checkbox-widget"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -57,6 +59,7 @@ import { Label } from "@/components/ui/label";
 defineProps<{
   widgetDef: Type.TextWidgetProps;
   widgetContents: Type.WithId<Type.CheckboxWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 defineEmits<{
@@ -64,6 +67,7 @@ defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.CheckboxWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 </script>
 <style scoped></style>

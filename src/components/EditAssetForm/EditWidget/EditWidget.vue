@@ -4,6 +4,8 @@
     :widgetDef="widgetDef"
     :widgetContents="widgetContents"
     :assetId="assetId"
+    :isOpen="isOpen"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @update:widgetContents="$emit('update:widgetContents', $event)" />
 </template>
 <script setup lang="ts">
@@ -25,10 +27,12 @@ defineProps<{
   widgetDef: WidgetProps;
   widgetContents: WidgetContent[];
   assetId: string | null; // new assets may have a null id
+  isOpen: boolean;
 }>();
 
 defineEmits<{
   (e: "update:widgetContents", widgetContents: WidgetContent[]): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 // map widgetTypeToComponent

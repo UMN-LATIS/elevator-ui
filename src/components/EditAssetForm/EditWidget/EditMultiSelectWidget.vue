@@ -2,7 +2,9 @@
   <EditWidgetLayout
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
+    :isOpen="isOpen"
     class="edit-multiselect-widget"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="handleAdd"
     @setPrimary="handleSetPrimary"
     @delete="handleDelete"
@@ -31,6 +33,7 @@ import { findDeepestPath } from "./helpers/findDeepestPath";
 const props = defineProps<{
   widgetDef: Type.MultiSelectWidgetProps;
   widgetContents: Type.WithId<Type.MultiSelectWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -38,6 +41,7 @@ const emit = defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.MultiSelectWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const updateWidgetContents = (

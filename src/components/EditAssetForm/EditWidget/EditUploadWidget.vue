@@ -3,6 +3,8 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-upload-widget"
+    :isOpen="isOpen"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -57,13 +59,15 @@ import * as ops from "../editWidgetOps";
 defineProps<{
   widgetDef: Type.UploadWidgetProps;
   widgetContents: Type.WithId<Type.UploadWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 defineEmits<{
   (
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.UploadWidgetContent>[]
-  ): void;
+  );
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 </script>
 <style scoped></style>

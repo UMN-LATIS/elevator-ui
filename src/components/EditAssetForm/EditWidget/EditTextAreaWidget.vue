@@ -2,7 +2,9 @@
   <EditWidgetLayout
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
+    :isOpen="isOpen"
     class="edit-textarea-widget"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -11,7 +13,10 @@
     "
     @setPrimary="
       (id) =>
-        $emit('update:widgetContents', ops.makeSetPrimaryContentPayload(widgetContents, id))
+        $emit(
+          'update:widgetContents',
+          ops.makeSetPrimaryContentPayload(widgetContents, id)
+        )
     "
     @delete="
       (id) =>
@@ -59,6 +64,7 @@ import * as ops from "../editWidgetOps";
 defineProps<{
   widgetDef: Type.TextWidgetProps;
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 defineEmits<{
@@ -66,6 +72,7 @@ defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.TextWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 </script>
 <style scoped></style>

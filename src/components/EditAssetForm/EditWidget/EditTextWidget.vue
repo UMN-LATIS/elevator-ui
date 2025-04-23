@@ -3,6 +3,8 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     class="edit-text-widget"
+    :isOpen="isOpen"
+    @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
         'update:widgetContents',
@@ -58,6 +60,7 @@ import * as ops from "../editWidgetOps";
 defineProps<{
   widgetDef: Type.TextWidgetProps;
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
+  isOpen: boolean;
 }>();
 
 defineEmits<{
@@ -65,6 +68,7 @@ defineEmits<{
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.TextWidgetContent>[]
   ): void;
+  (e: "update:isOpen", isOpen: boolean): void;
 }>();
 </script>
 <style scoped></style>
