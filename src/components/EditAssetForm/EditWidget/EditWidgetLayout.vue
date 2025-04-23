@@ -1,6 +1,6 @@
 <template>
   <section
-    class="edit-widget-layout lg:grid lg:grid-cols-[1fr,3fr] lg:gap-4 items-start border-b border-neutral-300 pt-2"
+    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-2"
     :class="{
       'max-h-11 overflow-hidden': !isOpen,
       'cursor-pointer': !isOpen,
@@ -8,7 +8,7 @@
     @click="handleSectionClick">
     <button
       type="button"
-      class="flex items-center gap-4"
+      class="flex items-center gap-4 lg:w-xs"
       @click.stop="toggleExpand">
       <ChevronDownIcon v-if="isOpen" />
       <ChevronRightIcon v-else />
