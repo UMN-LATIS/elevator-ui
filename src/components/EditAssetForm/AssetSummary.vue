@@ -25,7 +25,8 @@
           v-for="widget in previewWidgets"
           :key="widget.widgetDef.widgetId"
           :widget="widget.widgetDef"
-          :asset="asset" />
+          :asset="asset"
+          class="text-sm" />
       </div>
     </div>
   </div>
