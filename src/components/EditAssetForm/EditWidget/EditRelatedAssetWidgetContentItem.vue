@@ -12,13 +12,7 @@
             label: label ? label.toString() : null,
           })
       " />
-    <div
-      :class="[
-        'grid',
-        {
-          'grid-cols-[1fr,auto] gap-2': modelValue.targetAssetId,
-        },
-      ]">
+    <div :class="['grid grid-cols-[1fr,auto] gap-2']">
       <Combobox
         by="label"
         :modelValue="modelValue.targetAssetId ?? ''"
@@ -83,7 +77,10 @@
           <Button
             variant="tertiary"
             @click="
-              $emit('update:modelValue', { ...modelValue, targetAssetId: null })
+              $emit('update:modelValue', {
+                ...modelValue,
+                targetAssetId: null,
+              })
             ">
             <span class="sr-only">Clear</span>
             <CircleXIcon class="size-4" />
@@ -108,6 +105,13 @@
           </Button>
         </Tooltip>
       </div>
+      <Button
+        v-if="!modelValue.targetAssetId"
+        class="text-sm px-3 py-2"
+        :to="createNewAssetUrl"
+        target="_blank">
+        Create New
+      </Button>
     </div>
   </div>
 </template>
@@ -141,7 +145,6 @@ import { useAssetPreviewQuery } from "@/queries/useAssetPreviewQuery";
 import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-import { getAssetUrl } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -157,12 +160,6 @@ const emit = defineEmits<{
   ): void;
 }>();
 
-const viewAssetUrl = computed(() => {
-  if (!props.modelValue.targetAssetId) {
-    return null;
-  }
-  return getAssetUrl(props.modelValue.targetAssetId);
-});
 const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
 
@@ -173,6 +170,13 @@ const {
 } = useSearchAssetsQuery(debouncedSearchInput);
 
 const targetAssetId = computed(() => props.modelValue.targetAssetId);
+const createNewAssetUrl = computed(() => {
+  const param = new URLSearchParams({
+    parentAssetId: props.assetId ?? "",
+    relatedAssetContentId: props.modelValue.id,
+  });
+  return `/assetManager/addAsset?${param.toString()}`;
+});
 
 const { data: targetAssetPreview, isLoading: isTargetAssetPreviewLoading } =
   useAssetPreviewQuery(targetAssetId);
