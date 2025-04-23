@@ -34,6 +34,11 @@
     <aside
       class="md:bg-neutral-200 p-4 md:border-l-2 border-neutral-900 flex flex-col gap-6 relative">
       <div class="grid grid-cols-2 gap-4 order-last md:order-1 mb-16 md:mb-0">
+        <!-- <Button variant="secondary" @click="$emit('cancel')">Cancel</Button> -->
+        <Button :to="`/asset/viewAsset/${asset.assetId}`" target="_blank">
+          View
+        </Button>
+
         <Button variant="primary" type="submit" :disabled="!isDirty">
           Save
           <SpinnerIcon
@@ -44,25 +49,26 @@
             v-else-if="saveStatus === 'success'"
             class="size-4" />
         </Button>
-        <Button variant="secondary" @click="$emit('cancel')">Cancel</Button>
       </div>
-      <SelectGroup
-        :modelValue="String(template.templateId)"
-        :options="templateOptions"
-        label="Template"
-        required
-        @update:templateId="$emit('update:templateId', $event)" />
-      <SelectGroup
-        :modelValue="String(asset.collectionId)"
-        :options="collectionOptions"
-        label="Collection"
-        required
-        @update:modelValue="
-          $emit('update:asset', {
-            ...asset,
-            collectionId: Number.parseInt($event),
-          })
-        " />
+      <div class="flex flex-col gap-6 order-1 md:order-2">
+        <SelectGroup
+          :modelValue="String(template.templateId)"
+          :options="templateOptions"
+          label="Template"
+          required
+          @update:templateId="$emit('update:templateId', $event)" />
+        <SelectGroup
+          :modelValue="String(asset.collectionId)"
+          :options="collectionOptions"
+          label="Collection"
+          required
+          @update:modelValue="
+            $emit('update:asset', {
+              ...asset,
+              collectionId: Number.parseInt($event),
+            })
+          " />
+      </div>
     </aside>
   </form>
 </template>
