@@ -1,5 +1,17 @@
 <template>
-  <div class="flex items-center flex-wrap gap-4">
+  <div class="flex flex-col gap-2">
+    <InputGroup
+      label="Label"
+      :modelValue="modelValue.label ?? ''"
+      placeholder="Label"
+      :labelHidden="true"
+      @update:modelValue="
+        (label) =>
+          $emit('update:modelValue', {
+            ...modelValue,
+            label: label ? label.toString() : null,
+          })
+      " />
     <Combobox
       by="label"
       class="flex-1"
@@ -80,6 +92,7 @@ import {
   ComboboxList,
   ComboboxTrigger,
 } from "@/components/ui/combobox";
+import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { Check, ChevronDownIcon, Search } from "lucide-vue-next";
 import { SpinnerIcon } from "@/icons";
 import { useDebounce } from "@vueuse/core";
