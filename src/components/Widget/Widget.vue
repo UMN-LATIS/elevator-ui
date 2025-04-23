@@ -16,7 +16,7 @@
 </template>
 <script setup lang="ts">
 import { type Component, computed } from "vue";
-import type { Asset, WidgetProps } from "@/types";
+import type { Asset, UnsavedAsset, WidgetProps } from "@/types";
 import { WidgetType } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import TextWidget from "@/components/Widget/TextWidget/TextWidget.vue";
@@ -33,7 +33,7 @@ import { getWidgetContents } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   widget: WidgetProps;
-  asset: Asset;
+  asset: Asset | UnsavedAsset;
 }>();
 
 const widgetContents = computed(() =>

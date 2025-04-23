@@ -1,29 +1,31 @@
 <template>
-  <div class="grid grid-cols-[auto,1fr] gap-4">
-    <div class="w-xs h-xs bg-black/10 rounded-lg overflow-hidden">
+  <div
+    class="grid grid-cols-[1fr,auto] md:grid-cols-[auto,1fr] items-center md:items-start gap-4">
+    <div
+      class="size-16 md:size-24 lg:size-xs bg-black/10 rounded-lg overflow-hidden order-2 md:order-1">
       <img
         v-if="previewImgSrc"
         :src="previewImgSrc"
         class="w-full h-full object-cover" />
       <p v-else>Placeholder</p>
     </div>
-    <div>
-      <header class="mb-4">
-        <h1 class="font-bold uppercase text-neutral-400">
+    <div class="order-1 md:order-2">
+      <header class="md:mb-4">
+        <h1 class="text-xs md:text-base font-bold uppercase text-neutral-400">
           {{ asset.assetId ? "Edit Asset" : "Create Asset" }}
         </h1>
-        <h2 class="text-2xl font-bold">
+        <h2 class="text-xl md:text-2xl font-bold">
           {{ asset.title?.[0] ?? asset.assetId ?? "New Asset" }}
         </h2>
       </header>
       <div
         v-if="asset && template"
-        class="widget-list grid gap-4 max-h-60 overflow-y-auto">
+        class="widget-list gap-4 max-h-lg overflow-y-auto hidden lg:grid xl:grid-cols-2">
         <Widget
           v-for="widget in previewWidgets"
           :key="widget.widgetDef.widgetId"
           :widget="widget.widgetDef"
-          :asset="asset as Types.Asset" />
+          :asset="asset" />
       </div>
     </div>
   </div>

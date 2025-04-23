@@ -1,5 +1,11 @@
 import { partition } from "ramda";
-import { Asset, WidgetProps, WidgetContent, Template } from "@/types";
+import {
+  Asset,
+  WidgetProps,
+  WidgetContent,
+  Template,
+  UnsavedAsset,
+} from "@/types";
 import config from "@/config";
 
 export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
@@ -29,7 +35,7 @@ export const getAssetUrl = (assetId: string): string =>
 export function getWidgetContents<
   T extends WidgetProps,
   U extends WidgetContent
->({ asset, widget }: { asset: Asset; widget: T }): U[] | null {
+>({ asset, widget }: { asset: Asset | UnsavedAsset; widget: T }): U[] | null {
   const widgetContents = asset[widget.fieldTitle] as U[] | undefined;
 
   if (!widgetContents) return null;

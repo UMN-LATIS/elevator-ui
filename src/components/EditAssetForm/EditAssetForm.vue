@@ -1,5 +1,5 @@
 <template>
-  <form class="grid grid-cols-[1fr,auto]" @submit.prevent="$emit('save')">
+  <form class="md:grid md:grid-cols-[1fr,auto]" @submit.prevent="$emit('save')">
     <section class="p-4 max-w-screen-xl w-full mx-auto">
       <AssetSummary :asset="asset" :template="template" class="mb-4" />
       <div class="flex flex-col">
@@ -32,8 +32,8 @@
       </div>
     </section>
     <aside
-      class="bg-neutral-200 p-4 border-l-2 border-neutral-900 sticky top-20 flex flex-col gap-6">
-      <div class="grid grid-cols-2 gap-4">
+      class="md:bg-neutral-200 p-4 md:border-l-2 border-neutral-900 flex flex-col gap-6 relative">
+      <div class="grid grid-cols-2 gap-4 order-last md:order-1 mb-16 md:mb-0">
         <Button variant="primary" type="submit" :disabled="!isDirty">
           Save
           <SpinnerIcon
