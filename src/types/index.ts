@@ -473,7 +473,7 @@ export type RelatedAssetCache = Record<
 >;
 
 export interface Asset {
-  id: string;
+  assetId: string;
   templateId: number;
   readyForDisplay: boolean;
   collectionId: number;
@@ -489,6 +489,8 @@ export interface Asset {
   title?: string[];
   [key: string]: unknown; // widget content
 }
+
+export type UnsavedAsset = Omit<Asset, "assetId"> & { assetId: null };
 
 type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
@@ -902,5 +904,3 @@ export interface GeocoderResult {
   lng: number;
   address: string;
 }
-
-export type WithNullableId<T> = Omit<T, "id"> & { id: string | null };

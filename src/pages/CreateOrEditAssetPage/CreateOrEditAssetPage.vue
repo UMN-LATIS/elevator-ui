@@ -68,7 +68,7 @@ import {
   Asset,
   UpdateAssetRequestFormData,
   WidgetContent,
-  WithNullableId,
+  UnsavedAsset,
 } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
@@ -89,7 +89,7 @@ const props = withDefaults(
 );
 
 const state = reactive({
-  localAsset: null as WithNullableId<Asset> | null,
+  localAsset: null as Asset | UnsavedAsset | null,
   initialTemplateId: "",
   initialCollectionId: "",
 });
@@ -177,8 +177,8 @@ function initAsset() {
   invariant(firstCollection, "Cannot initialize asset without a collection");
 
   // create the asset
-  const initialAsset: Asset = {
-    id: `TEMP_ASSET_ID-${Date.now()}`,
+  const initialAsset: Asset | UnsavedAsset = {
+    assetId: null,
     templateId: savedTemplate.value.templateId,
     readyForDisplay: false,
     collectionId:
@@ -223,7 +223,6 @@ const router = useRouter();
 function handleSaveAsset() {
   invariant(state.localAsset, "Cannot save: no asset.");
   invariant(savedTemplate.value, "Cannot save: no template.");
-  console.log({ localAsset: state.localAsset, savedTemplate, savedAsset });
   // TODO: handle template changes
   invariant(
     state.localAsset.templateId === savedTemplate.value.templateId,

@@ -93,7 +93,7 @@ export const useEditAssetStore = defineStore("editAssetForm", () => {
 
     // create the asset
     const initialAsset: Asset = {
-      id: `TEMP_ASSET_ID-${Date.now()}`,
+      assetId: `TEMP_ASSET_ID-${Date.now()}`,
       templateId: template.value.templateId,
       readyForDisplay: false,
       collectionId: opts.collectionId,
