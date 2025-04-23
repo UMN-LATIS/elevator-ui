@@ -11,7 +11,10 @@
     "
     @setPrimary="
       (id) =>
-        $emit('update:widgetContents', ops.makeSetPrimaryContentPayload(widgetContents, id))
+        $emit(
+          'update:widgetContents',
+          ops.makeSetPrimaryContentPayload(widgetContents, id)
+        )
     "
     @delete="
       (id) =>

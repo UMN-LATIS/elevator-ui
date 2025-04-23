@@ -27,8 +27,13 @@
             :modelValue="widgetContents"
             :listId="widgetDef.widgetId"
             :showEmptyList="false"
-            handleClass="flex flex-col items-start py-2 px-1"
-            listItemClass="bg-black/5 rounded-md my-1 pr-1"
+            :handleClass="[
+              'flex flex-col items-start py-2 px-1',
+              {
+                'opacity-0': !isExpanded,
+              },
+            ]"
+            listItemClass="bg-black/5 rounded-md my-1 pr-1 shadow"
             @update:modelValue="
               (widgetContents) => {
                 $emit('update:widgetContents', widgetContents);
@@ -59,7 +64,12 @@
                 </div>
                 <div>
                   <button
-                    class="text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm"
+                    :class="[
+                      'text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
+                      {
+                        'sr-only': !isExpanded,
+                      },
+                    ]"
                     type="button"
                     @click="$emit('delete', item.id)">
                     <XIcon class="w-4 h-4" />
