@@ -1,5 +1,10 @@
 <template>
-  <div class="flex flex-col gap-2 bg-black/5 p-2 rounded-md">
+  <div class="grid md:grid-cols-2 gap-2 rounded-md">
+    <InputGroup
+      :id="`${modelValue.id}-label`"
+      :modelValue="modelValue.label"
+      label="Label"
+      @update:modelValue="handleUpdateLabel($event as string)" />
     <SelectGroup
       :id="`${modelValue.id}-select`"
       :modelValue="modelValue.range ? 'range' : 'moment'"
@@ -9,21 +14,20 @@
         { id: 'range', label: 'Range' },
       ]"
       @update:modelValue="handleUpdateDateType" />
-    <InputGroup
-      :id="`${modelValue.id}-label`"
-      :modelValue="modelValue.label"
-      label="Label"
-      @update:modelValue="handleUpdateLabel" />
 
-    <div>
+    <div
+      :class="{
+        'col-span-2': !modelValue.range,
+      }">
       <InputGroup
         :id="`${modelValue.id}-start-date`"
         :label="modelValue.range ? 'Start Date' : 'Date'"
         :modelValue="modelValue.start.text ?? ''"
         :inputClass="{
-          'border-red-500 !bg-red-100/50': hasStartDateError,
+          'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
+            hasStartDateError,
         }"
-        @update:modelValue="handleUpdateStartDate" />
+        @update:modelValue="handleUpdateStartDate($event as string)" />
       <div class="pl-4">
         <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
           Invalid date.
@@ -41,7 +45,7 @@
         :id="`${modelValue.id}-end-date`"
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
-        @update:modelValue="handleUpdateEndDate" />
+        @update:modelValue="handleUpdateEndDate($event as string)" />
       <div class="pl-4">
         <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
           Invalid date.
@@ -86,7 +90,7 @@ const handleUpdateDateType = (value: string) => {
 const handleUpdateLabel = (value: string) => {
   emit("update:modelValue", {
     ...props.modelValue,
-    label: value,
+    label: value as string,
   });
 };
 

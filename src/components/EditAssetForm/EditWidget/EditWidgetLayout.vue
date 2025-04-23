@@ -38,28 +38,21 @@
               <div
                 class="grid grid-cols-[auto,1fr,auto] gap-2 py-2 items-start">
                 <div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          type="button"
-                          class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
-                          @click="$emit('setPrimary', item.id)">
-                          <StarIcon
-                            class="w-4 h-4"
-                            :class="
-                              item.isPrimary
-                                ? 'fill-amber-400 text-amber-400'
-                                : 'text-neutral-400'
-                            " />
-                          <span class="sr-only">Set as Primary</span>
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Set as Primary</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Tooltip tip="Set as Primary">
+                    <button
+                      type="button"
+                      class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
+                      @click="$emit('setPrimary', item.id)">
+                      <StarIcon
+                        class="w-4 h-4"
+                        :class="
+                          item.isPrimary
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-neutral-400'
+                        " />
+                      <span class="sr-only">Set as Primary</span>
+                    </button>
+                  </Tooltip>
                 </div>
                 <div class="py-1">
                   <slot name="fieldContents" :item="item" />
@@ -94,12 +87,7 @@ import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
 import { PlusIcon, StarIcon } from "lucide-vue-next";
 import { WidgetContent, WidgetProps, WithId } from "@/types";
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
 import { ref } from "vue";
 

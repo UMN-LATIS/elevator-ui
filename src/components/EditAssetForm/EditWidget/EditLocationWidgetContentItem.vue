@@ -1,21 +1,22 @@
 <template>
-  <div class="location-picker bg-black/5 p-2 rounded-md flex flex-col gap-2">
-    <div class="flex gap-4 sm:justify-end items-center">
-      <button
-        v-for="(style, key) in mapStyles"
-        :key="key"
-        class="text-sm"
-        type="button"
-        :class="{
-          'font-bold': key === activeMapStyleKey,
-          'text-neutral-400': key !== activeMapStyleKey,
-        }"
-        @click="handleActiveStyleChange(key)">
-        {{ style.label }}
-      </button>
-    </div>
-    <div class="map-container">
-      <div ref="mapContainer" class="map h-md rounded-sm"></div>
+  <div class="location-picker rounded-md flex flex-col gap-2">
+    <div class="map-container relative">
+      <div
+        class="flex gap-4 sm:justify-end items-center flex-wrap absolute top-2 right-2 z-10 bg-white/80 rounded-md px-2 py-1 shadow-sm">
+        <button
+          v-for="(style, key) in mapStyles"
+          :key="key"
+          class="text-sm"
+          type="button"
+          :class="{
+            'font-bold': key === activeMapStyleKey,
+            'text-neutral-500': key !== activeMapStyleKey,
+          }"
+          @click="handleActiveStyleChange(key)">
+          {{ style.label }}
+        </button>
+      </div>
+      <div ref="mapContainer" class="w-full h-md rounded-sm"></div>
     </div>
 
     <InputGroup
@@ -89,7 +90,7 @@ const props = withDefaults(
     initialZoom?: number;
   }>(),
   {
-    initialZoom: 12,
+    initialZoom: 1,
   }
 );
 
@@ -349,13 +350,4 @@ watch(
 );
 </script>
 
-<style scoped>
-.map {
-  width: 100%;
-  height: 300px;
-}
-
-.h-md {
-  height: 300px;
-}
-</style>
+<style scoped></style>

@@ -1,47 +1,42 @@
 <template>
-  <div class="tooltip" :class="`tooltip--${theme}`">
-    <Popper
-      v-bind="$attrs"
-      :hover="hover"
-      :openDelay="openDelay"
-      :closeDelay="closeDelay"
-      :arrow="arrow"
-      :offsetDistance="String(offsetDistance)">
-      <template #default="defaultSlotProps">
-        <slot v-bind="defaultSlotProps" />
-      </template>
-
-      <template #content="contentSlotProps">
-        <slot name="content" v-bind="contentSlotProps">
+  <TooltipProvider :delayDuration="delayDurationComputed">
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <slot />
+      </TooltipTrigger>
+      <TooltipContent>
+        <slot name="content">
           {{ tip }}
         </slot>
-      </template>
-    </Popper>
-  </div>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
 </template>
 <script setup lang="ts">
-import Popper from "vue3-popper";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { computed } from "vue";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    theme?: "light" | "dark";
-    arrow?: boolean;
-    hover?: boolean;
     openDelay?: number;
-    closeDelay?: number;
-    offsetDistance?: number;
+    delayDuration?: number;
     tip?: string;
   }>(),
   {
-    theme: "dark",
-    arrow: true,
-    hover: false,
-    openDelay: 100,
-    closeDelay: 100,
-    offsetDistance: 0,
+    openDelay: undefined, // previous api
+    delayDuration: 300, // current api
     tip: "",
   }
 );
+
+const delayDurationComputed = computed(() => {
+  return props.openDelay ?? props.delayDuration;
+});
 </script>
 <style scoped>
 .tooltip {

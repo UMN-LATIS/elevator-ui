@@ -12,16 +12,20 @@
             label: label ? label.toString() : null,
           })
       " />
-    <Combobox
-      by="label"
-      class="flex-1"
-      :modelValue="modelValue.targetAssetId ?? ''"
-      @update:modelValue="handleSelectItem($event as string | null)">
-      <ComboboxAnchor asChild>
-        <ComboboxTrigger class="w-full">
-          <button
-            type="button"
-            class="w-full text-left flex items-center gap-4 justify-between pr-2 bg-black/5 p-2 hover:bg-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+    <div
+      :class="[
+        'grid',
+        {
+          'grid-cols-[1fr,auto] gap-2': modelValue.targetAssetId,
+        },
+      ]">
+      <Combobox
+        by="label"
+        :modelValue="modelValue.targetAssetId ?? ''"
+        @update:modelValue="handleSelectItem($event as string | null)">
+        <ComboboxAnchor asChild>
+          <ComboboxTrigger
+            class="w-full bg-black/5 h-full text-left flex items-center gap-4 justify-between pr-2 p-2 hover:bg-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
             <EditRelatedAssetPreview
               v-if="targetAssetPreview"
               :assetPreview="targetAssetPreview"
@@ -32,49 +36,79 @@
             </span>
             <span v-else>Select an asset...</span>
             <ChevronDownIcon />
-          </button>
-        </ComboboxTrigger>
-      </ComboboxAnchor>
+          </ComboboxTrigger>
+        </ComboboxAnchor>
 
-      <ComboboxList
-        class="focus-within:shadow-md focus-within:border-2 focus-within:border-blue-500 rounded-md overflow-hidden">
-        <div class="relative w-full items-center">
-          <ComboboxInput
-            v-model="searchInput"
-            class="pl-9"
-            :displayValue="(val) => val?.label ?? ''"
-            :placeholder="`Select ${widgetDef.label}...`" />
-          <span
-            class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
-            <Search class="size-4 text-muted-foreground" />
-          </span>
-        </div>
+        <ComboboxList
+          class="focus-within:shadow-md focus-within:border-2 focus-within:border-blue-500 rounded-md overflow-hidden">
+          <div class="relative w-full items-center">
+            <ComboboxInput
+              v-model="searchInput"
+              class="pl-9"
+              :displayValue="(val) => val?.label ?? ''"
+              :placeholder="`Select ${widgetDef.label}...`" />
+            <span
+              class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
+              <Search class="size-4 text-muted-foreground" />
+            </span>
+          </div>
 
-        <ComboboxEmpty>
-          <div v-if="isLoading || debouncedSearchInput !== searchInput">
-            <div class="flex items-center justify-center gap-2">
-              <SpinnerIcon class="size-4" />
-              <span>Loading...</span>
+          <ComboboxEmpty>
+            <div v-if="isLoading || debouncedSearchInput !== searchInput">
+              <div class="flex items-center justify-center gap-2">
+                <SpinnerIcon class="size-4" />
+                <span>Loading...</span>
+              </div>
             </div>
-          </div>
-          <div v-else-if="isSuccess && autocompleteOptions.length === 0">
-            None found.
-          </div>
-        </ComboboxEmpty>
+            <div v-else-if="isSuccess && autocompleteOptions.length === 0">
+              None found.
+            </div>
+          </ComboboxEmpty>
 
-        <ComboboxItem
-          v-for="option in autocompleteOptions"
-          :key="option.value"
-          :value="option.value">
-          <EditRelatedAssetPreview
-            :assetPreview="option.preview"
-            class="flex-1" />
-          <ComboboxItemIndicator>
-            <Check :class="cn('ml-auto h-4 w-4')" />
-          </ComboboxItemIndicator>
-        </ComboboxItem>
-      </ComboboxList>
-    </Combobox>
+          <ComboboxItem
+            v-for="option in autocompleteOptions"
+            :key="option.value"
+            :value="option.value">
+            <EditRelatedAssetPreview
+              :assetPreview="option.preview"
+              class="flex-1" />
+            <ComboboxItemIndicator>
+              <Check :class="cn('ml-auto h-4 w-4')" />
+            </ComboboxItemIndicator>
+          </ComboboxItem>
+        </ComboboxList>
+      </Combobox>
+      <div v-if="modelValue.targetAssetId" class="flex flex-col gap-1">
+        <Tooltip tip="Clear related asset">
+          <Button
+            variant="tertiary"
+            @click="
+              $emit('update:modelValue', { ...modelValue, targetAssetId: null })
+            ">
+            <span class="sr-only">Clear</span>
+            <CircleXIcon class="size-4" />
+          </Button>
+        </Tooltip>
+        <Tooltip tip="View related asset">
+          <Button
+            variant="tertiary"
+            :to="`/asset/viewAsset/${modelValue.targetAssetId}`"
+            target="_blank">
+            <span class="sr-only">View</span>
+            <ArrowRightIcon class="size-4" />
+          </Button>
+        </Tooltip>
+        <Tooltip tip="Edit related asset">
+          <Button
+            variant="tertiary"
+            :to="`/assetManager/editAsset/${modelValue.targetAssetId}`"
+            target="_blank">
+            <span class="sr-only">Edit</span>
+            <PencilIcon class="size-4" />
+          </Button>
+        </Tooltip>
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -93,11 +127,21 @@ import {
   ComboboxTrigger,
 } from "@/components/ui/combobox";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import { Check, ChevronDownIcon, Search } from "lucide-vue-next";
+import {
+  ArrowRightIcon,
+  Check,
+  ChevronDownIcon,
+  CircleXIcon,
+  PencilIcon,
+  Search,
+} from "lucide-vue-next";
 import { SpinnerIcon } from "@/icons";
 import { useDebounce } from "@vueuse/core";
 import { useAssetPreviewQuery } from "@/queries/useAssetPreviewQuery";
 import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
+import Button from "@/components/Button/Button.vue";
+import Tooltip from "@/components/Tooltip/Tooltip.vue";
+import { getAssetUrl } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -113,6 +157,12 @@ const emit = defineEmits<{
   ): void;
 }>();
 
+const viewAssetUrl = computed(() => {
+  if (!props.modelValue.targetAssetId) {
+    return null;
+  }
+  return getAssetUrl(props.modelValue.targetAssetId);
+});
 const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
 

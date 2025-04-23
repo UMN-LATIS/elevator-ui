@@ -18,15 +18,17 @@
         v-model="model"
         :type="type"
         :name="id"
-        class="block w-full rounded-md border-none focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4"
         :required="required"
-        :class="[
-          {
-            'pl-10': $slots.prepend,
-            'pr-10': $slots.append,
-          },
-          inputClass,
-        ]"
+        :class="
+          cn([
+            'block w-full rounded-md border-none focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4',
+            {
+              'pl-10': $slots.prepend,
+              'pr-10': $slots.append,
+            },
+            inputClass,
+          ])
+        "
         v-bind="$attrs"
         @focus="$emit('focus', $event)"
         @blur="$emit('blur', $event)" />
@@ -41,6 +43,7 @@
 <script setup lang="ts">
 import { CSSClass } from "@/types";
 import { useId } from "vue";
+import { cn } from "@/lib/utils";
 
 withDefaults(
   defineProps<{
