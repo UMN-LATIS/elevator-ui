@@ -1,9 +1,10 @@
 <template>
   <form class="grid grid-cols-[1fr,auto]" @submit.prevent="$emit('save')">
     <section class="p-4 max-w-screen-xl w-full mx-auto">
-      <h1 class="text-2xl font-bold mb-8">{{ title }}</h1>
+      <AssetSummary :asset="asset" :template="template" class="mb-4" />
       <div class="flex flex-col">
-        <div class="flex items-center justify-end gap-2">
+        <div
+          class="flex items-center justify-start gap-2 border-b border-neutral-300 pb-2 mb-4">
           <Button variant="tertiary" @click="handleExpandAll">
             Expand All
           </Button>
@@ -70,6 +71,7 @@ import { computed, reactive } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
+import AssetSummary from "./AssetSummary.vue";
 import {
   Asset,
   UnsavedAsset,
@@ -82,18 +84,12 @@ import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 
-const props = withDefaults(
-  defineProps<{
-    template: Template;
-    asset: Asset | UnsavedAsset;
-    title?: string;
-    saveStatus: MutationStatus;
-    isDirty: boolean;
-  }>(),
-  {
-    title: "Edit Asset",
-  }
-);
+const props = defineProps<{
+  template: Template;
+  asset: Asset | UnsavedAsset;
+  saveStatus: MutationStatus;
+  isDirty: boolean;
+}>();
 
 defineEmits<{
   (e: "save"): void;

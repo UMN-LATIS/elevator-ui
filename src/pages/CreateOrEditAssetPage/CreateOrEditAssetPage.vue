@@ -38,11 +38,6 @@
         v-if="state.localAsset && savedTemplate"
         :template="savedTemplate"
         :asset="state.localAsset"
-        :title="
-          assetId
-            ? `Edit Asset: ${state.localAsset.title?.[0] ?? ''}`
-            : 'Create Asset'
-        "
         :saveStatus="saveAssetStatus"
         :isDirty="hasAssetChanged"
         class="flex-1"

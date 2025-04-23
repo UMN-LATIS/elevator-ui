@@ -1,0 +1,93 @@
+<template>
+  <div class="grid grid-cols-[auto,1fr] gap-4">
+    <div class="w-xs h-xs bg-black/10 rounded-lg overflow-hidden">
+      <img
+        v-if="previewImgSrc"
+        :src="previewImgSrc"
+        class="w-full h-full object-cover" />
+      <p v-else>Placeholder</p>
+    </div>
+    <div>
+      <header class="mb-4">
+        <h1 class="font-bold uppercase text-neutral-400">
+          {{ asset.assetId ? "Edit Asset" : "Create Asset" }}
+        </h1>
+        <h2 class="text-2xl font-bold">
+          {{ asset.title?.[0] ?? asset.assetId ?? "New Asset" }}
+        </h2>
+      </header>
+      <div
+        v-if="asset && template"
+        class="widget-list grid gap-4 max-h-60 overflow-y-auto">
+        <Widget
+          v-for="widget in previewWidgets"
+          :key="widget.widgetDef.widgetId"
+          :widget="widget.widgetDef"
+          :asset="asset as Types.Asset" />
+      </div>
+    </div>
+  </div>
+</template>
+<script setup lang="ts">
+import { getThumbURL } from "@/helpers/displayUtils";
+import * as Types from "@/types";
+import { computed } from "vue";
+import Widget from "@/components/Widget/Widget.vue";
+
+const props = defineProps<{
+  asset: Types.Asset | Types.UnsavedAsset;
+  template: Types.Template;
+}>();
+
+const previewImgSrc = computed(() => {
+  const fileHandlerId = props.asset.firstFileHandlerId as
+    | string
+    | undefined
+    | null;
+  return fileHandlerId ? getThumbURL(fileHandlerId) : null;
+});
+
+const sortedPreviewableWidgetDefs = computed(() => {
+  return (
+    props.template.widgetArray
+      // only previewable widgets
+      .filter((widgetDef) => {
+        return widgetDef.displayInPreview;
+      })
+      // sort by `viewOrder`
+      .sort((a, b) => {
+        return a.viewOrder - b.viewOrder;
+      })
+  );
+});
+
+const widgetLookupByFieldTitle = computed(
+  (): Record<string, Types.WithId<Types.WidgetContent>[]> => {
+    const fieldTitles = sortedPreviewableWidgetDefs.value.map(
+      (widgetDef) => widgetDef.fieldTitle
+    );
+
+    const lookup = Object.fromEntries(
+      fieldTitles.map((fieldTitle) => {
+        const widgetContents = (props.asset[fieldTitle] ??
+          []) as Types.WithId<Types.WidgetContent>[];
+        return [fieldTitle, widgetContents];
+      })
+    );
+
+    return lookup;
+  }
+);
+
+const previewWidgets = computed(() => {
+  return sortedPreviewableWidgetDefs.value.map((widgetDef) => {
+    const fieldTitle = widgetDef.fieldTitle;
+    const widgetContents = widgetLookupByFieldTitle.value[fieldTitle];
+    return {
+      widgetDef,
+      widgetContents,
+    };
+  });
+});
+</script>
+<style scoped></style>
