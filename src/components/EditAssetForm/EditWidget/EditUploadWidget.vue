@@ -37,16 +37,10 @@
         </label>
         <textarea
           :id="`${item.id}-input`"
-          :modelValue="item.fieldContents"
+          :value="JSON.stringify(item)"
           :placeholder="widgetDef.label"
-          class="bg-black/5 border-none rounded-md w-full text-sm"
-          @update:modelValue="
-            (value) =>
-              $emit(
-                'update:widgetContents',
-                ops.makeUpdateContentPayload(widgetContents, item.id, value)
-              )
-          " />
+          class="bg-black/5 border-none rounded-md w-full text-sm font-mono h-32"
+          @input="(event) => handleUpdateContent(item.id, (event.target as HTMLTextAreaElement).value)" />
       </div>
     </template>
   </EditWidgetLayout>
@@ -55,20 +49,44 @@
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
+import invariant from "tiny-invariant";
 
-defineProps<{
+const props = defineProps<{
   widgetDef: Type.UploadWidgetProps;
   widgetContents: Type.WithId<Type.UploadWidgetContent>[];
   isOpen: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.UploadWidgetContent>[]
   );
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+function handleUpdateContent(id: string, value: string) {
+  const parsedValue = JSON.parse(
+    value
+  ) as Type.WithId<Type.UploadWidgetContent>;
+  invariant(
+    parsedValue,
+    `Parsed value is not a valid UploadWidgetContent: ${value}`
+  );
+
+  const index = props.widgetContents.findIndex((content) => content.id === id);
+  invariant(
+    index !== -1,
+    `Widget content with id ${id} not found in widget contents`
+  );
+  const updatedContents = [
+    ...props.widgetContents.slice(0, index),
+    parsedValue,
+    ...props.widgetContents.slice(index + 1),
+  ];
+
+  emit("update:widgetContents", updatedContents);
+}
 </script>
 <style scoped></style>
 <style></style>
