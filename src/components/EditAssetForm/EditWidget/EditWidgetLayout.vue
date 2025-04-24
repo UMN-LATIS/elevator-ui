@@ -8,14 +8,32 @@
     @click="handleSectionClick">
     <button
       type="button"
-      class="flex items-center gap-4 lg:w-48 xl:w-xs"
+      class="flex gap-2 items-center justify-between lg:w-48 xl:w-xs text-left"
       @click.stop="toggleExpand">
-      <ChevronDownIcon v-if="isOpen" />
-      <ChevronRightIcon v-else />
-      <span class="sr-only">
-        {{ isOpen ? "Collapse" : "Expand" }}
-      </span>
-      <h2 class="text-lg font-bold">{{ widgetDef.label }}</h2>
+      <div class="flex gap-2 items-center">
+        <ChevronDownIcon v-if="isOpen" class="!size-5" />
+        <ChevronRightIcon v-else class="!size-5" />
+        <span class="sr-only">
+          {{ isOpen ? "Collapse" : "Expand" }}
+        </span>
+        <h2 class="text-base font-bold leading-none">
+          {{ widgetDef.label }}
+          <span v-if="widgetDef.required" class="text-red-500">*</span>
+        </h2>
+      </div>
+      <div class="justify-self-end">
+        <Tooltip v-if="hasContents" tip="Content added">
+          <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
+        </Tooltip>
+        <Tooltip
+          v-else-if="!hasContents && widgetDef.required"
+          tip="Required content missing">
+          <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+        </Tooltip>
+        <Tooltip v-else tip="No contents yet">
+          <CircleIcon class="size-4 text-neutral-300" />
+        </Tooltip>
+      </div>
     </button>
     <div
       :class="{
@@ -92,17 +110,25 @@
     </div>
   </section>
 </template>
-<script setup lang="ts" generic="T extends WithId<WidgetContent>">
+<script setup lang="ts">
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
-import { PlusIcon, StarIcon } from "lucide-vue-next";
-import { WidgetContent, WidgetProps, WithId } from "@/types";
+import {
+  CircleIcon,
+  PlusIcon,
+  StarIcon,
+  TriangleAlertIcon,
+} from "lucide-vue-next";
+import * as Types from "@/types";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
+import { computed } from "vue";
+import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 
 const props = defineProps<{
-  widgetContents: T[];
-  widgetDef: WidgetProps;
+  widgetContents: Types.WithId<Types.WidgetContent>[];
+  widgetDef: Types.WidgetProps;
   isOpen: boolean;
 }>();
 
@@ -110,7 +136,10 @@ const emit = defineEmits<{
   (e: "add"): void;
   (e: "setPrimary", id: string): void;
   (e: "delete", id: string): void;
-  (e: "update:widgetContents", widgetContents: T[]): void;
+  (
+    e: "update:widgetContents",
+    widgetContents: Types.WithId<Types.WidgetContent>[]
+  ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
@@ -128,6 +157,10 @@ const toggleExpand = (event: Event) => {
   event.stopPropagation();
   emit("update:isOpen", !props.isOpen);
 };
+
+const hasContents = computed(() =>
+  hasWidgetContent(props.widgetContents, props.widgetDef.type)
+);
 </script>
 <style>
 .edit-widget-layout .drag-drop-list {
