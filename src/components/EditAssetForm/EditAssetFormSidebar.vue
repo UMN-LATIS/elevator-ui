@@ -8,7 +8,7 @@
       <Button
         variant="primary"
         type="submit"
-        class="disabled:!border-black/10 disabled:cursor-not-allowed"
+        class="disabled:!border-black/10 border-groove disabled:cursor-not-allowed"
         :disabled="!canSave"
         @click="$emit('save')">
         Save
@@ -22,9 +22,10 @@
     <div class="flex flex-col gap-6 order-1 md:order-2">
       <SelectGroup
         :selectClass="{
-          '!bg-green-600 !text-green-50 select-picker-light':
+          '!bg-green-600 !text-white select-picker-light':
             asset.readyForDisplay,
-          'bg-yellow-200': !asset.readyForDisplay,
+          'bg-transparent border border-solid border-neutral-900':
+            !asset.readyForDisplay,
         }"
         :modelValue="asset.readyForDisplay ? 'ready' : 'draft'"
         :options="[
@@ -45,6 +46,10 @@
             readyForDisplay: $event === 'ready',
           })
         " />
+      <!-- <InputGroup
+        :modelValue="String(asset.availableAfter?.date ?? '')"
+        label="Available After"
+        type="datetime-local" /> -->
       <SelectGroup
         :modelValue="String(template.templateId)"
         :options="templateOptions"
@@ -74,6 +79,7 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
+import InputGroup from "../InputGroup/InputGroup.vue";
 
 const props = defineProps<{
   template: Template;
