@@ -46,10 +46,11 @@
             readyForDisplay: $event === 'ready',
           })
         " />
-      <!-- <InputGroup
-        :modelValue="String(asset.availableAfter?.date ?? '')"
+      <InputGroup
+        v-model="localAvailableAfterDate"
         label="Available After"
-        type="datetime-local" /> -->
+        type="date"
+        @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="String(template.templateId)"
         :options="templateOptions"
@@ -120,6 +121,59 @@ const collectionOptions = computed(() => {
     })) ?? []
   );
 });
+
+const phpDateToString = (phpDateTime: PHPDateTime | null): string => {
+  if (!phpDateTime?.date) {
+    return "";
+  }
+  return new Date(phpDateTime.date).toISOString().split("T")[0];
+};
+
+const localAvailableAfterDate = ref("");
+
+function handleUpdateAvailableAfter(value: string | number) {
+  if (!value) {
+    emit("update:asset", {
+      ...props.asset,
+      availableAfter: null,
+    });
+    return;
+  }
+
+  emit("update:asset", {
+    ...props.asset,
+    availableAfter: {
+      date: value.toString(),
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  });
+}
+
+watch(
+  () => props.asset.availableAfter,
+  (newValue) => {
+    // cast to PHPDateTime to help TS
+    const availableAfter = newValue as PHPDateTime | null;
+
+    // if both are falsy, we're done (e.g. null and "" are equivalent)
+    if (!availableAfter && !localAvailableAfterDate.value) {
+      return;
+    }
+
+    // if dates match, we're done
+    if (availableAfter?.date === localAvailableAfterDate.value) {
+      return;
+    }
+
+    // if we're out of sync with the parent, reconcile
+    localAvailableAfterDate.value = phpDateToString(availableAfter);
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 </script>
 <style>
 .select-picker-light {
