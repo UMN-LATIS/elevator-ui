@@ -1,18 +1,18 @@
 <template>
   <section
-    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-2"
+    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-3 pb-1"
     :class="{
-      'max-h-11 overflow-hidden': !isOpen,
+      'max-h-10 overflow-hidden': !isOpen,
       'cursor-pointer': !isOpen,
     }"
     @click="handleSectionClick">
     <button
       type="button"
-      class="flex gap-2 items-center justify-between lg:w-48 xl:w-xs text-left"
+      class="flex gap-2 justify-between lg:w-48 xl:w-xs text-left"
       @click.stop="toggleExpand">
-      <div class="flex gap-2 items-center">
-        <ChevronDownIcon v-if="isOpen" class="!size-5" />
-        <ChevronRightIcon v-else class="!size-5" />
+      <div class="flex gap-2">
+        <ChevronDownIcon v-if="isOpen" class="!size-4" />
+        <ChevronRightIcon v-else class="!size-4" />
         <span class="sr-only">
           {{ isOpen ? "Collapse" : "Expand" }}
         </span>
@@ -46,12 +46,12 @@
             :listId="widgetDef.widgetId"
             :showEmptyList="false"
             :handleClass="[
-              'flex flex-col items-start py-2 px-1',
+              'flex flex-col items-start px-1',
               {
                 'opacity-0': !isOpen,
               },
             ]"
-            listItemClass="bg-black/5 rounded-md my-1 pr-1 shadow"
+            listItemClass="bg-black/5 rounded-md mb-1 pr-1 shadow"
             @update:modelValue="
               (widgetContents) => {
                 $emit('update:widgetContents', widgetContents);
