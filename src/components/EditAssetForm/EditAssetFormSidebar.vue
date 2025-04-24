@@ -69,6 +69,8 @@
             collectionId: Number.parseInt($event),
           })
         " />
+
+      <TableOfContents :items="tocItems" />
     </div>
   </div>
 </template>
@@ -76,12 +78,21 @@
 import { computed, ref, watch } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
-import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
+import {
+  Asset,
+  UnsavedAsset,
+  Template,
+  PHPDateTime,
+  WidgetProps,
+} from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 import InputGroup from "../InputGroup/InputGroup.vue";
+import TableOfContents, {
+  TocItem,
+} from "../TableOfContents/TableOfContents.vue";
 
 const props = defineProps<{
   template: Template;
@@ -175,6 +186,16 @@ watch(
     deep: true,
   }
 );
+
+const tocItems = computed((): TocItem[] => {
+  return props.template.widgetArray.map((widgetDef: WidgetProps) => {
+    const tocItem: TocItem = {
+      id: `widget-${widgetDef.widgetId}`,
+      label: widgetDef.label,
+    };
+    return tocItem;
+  });
+});
 </script>
 <style>
 .select-picker-light {

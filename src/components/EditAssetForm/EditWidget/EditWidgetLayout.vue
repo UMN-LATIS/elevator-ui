@@ -1,5 +1,6 @@
 <template>
   <section
+    :id="`widget-${widgetDef.widgetId}`"
     class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
