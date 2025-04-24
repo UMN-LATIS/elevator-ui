@@ -50,6 +50,7 @@
         v-model="localAvailableAfterDate"
         label="Available After"
         type="date"
+        inputClass="text-sm pl-3"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="String(template.templateId)"
