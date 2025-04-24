@@ -46,9 +46,9 @@
             :listId="widgetDef.widgetId"
             :showEmptyList="false"
             :handleClass="[
-              'flex flex-col items-start px-1',
+              'flex flex-col items-start px-1 transition-opacity',
               {
-                'opacity-0': !isOpen,
+                invisible: !(isOpen && widgetContents.length > 1),
               },
             ]"
             listItemClass="bg-black/5 rounded-md mb-1 pr-1 shadow"
@@ -82,6 +82,7 @@
                 </div>
                 <div>
                   <button
+                    v-if="widgetDef.allowMultiple"
                     :class="[
                       'text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
@@ -96,7 +97,7 @@
                 </div>
               </div>
             </template>
-            <template #footer>
+            <template v-if="widgetDef.allowMultiple" #footer>
               <div class="flex justify-center">
                 <Button variant="tertiary" @click="$emit('add')">
                   <PlusIcon class="w-4 h-4" />
