@@ -2,12 +2,12 @@
   <div
     class="grid grid-cols-[1fr,auto] md:grid-cols-[auto,1fr] items-center md:items-start gap-4">
     <div
-      class="size-16 md:size-24 lg:size-48 xl:size-xs bg-black/10 rounded-lg overflow-hidden order-2 md:order-1">
+      class="size-16 md:size-24 lg:size-48 xl:size-xs bg-black/10 rounded-lg overflow-hidden order-2 md:order-1 flex items-center justify-center">
       <img
         v-if="previewImgSrc"
         :src="previewImgSrc"
         class="w-full h-full object-cover" />
-      <p v-else>Placeholder</p>
+      <p v-else class="text-xs">No image yet</p>
     </div>
     <div class="order-1 md:order-2">
       <header class="md:mb-4">
