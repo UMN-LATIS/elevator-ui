@@ -910,3 +910,10 @@ export interface GeocoderResult {
   lng: number;
   address: string;
 }
+
+export interface TemplateComparison {
+  [widgetFieldTitle: WidgetProps["fieldTitle"]]: {
+    type: string; // error like "missing"
+    label: WidgetProps["label"];
+  };
+}

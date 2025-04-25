@@ -33,6 +33,7 @@ import {
   type CreateAssetRequestFormData,
   type AssetSummary,
   type UpdateAssetRequestFormData,
+  TemplateComparison,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -601,5 +602,16 @@ export async function fetchAllUserAssets() {
   const res = await axios.get<AssetSummary[]>(
     `${BASE_URL}/assetManager/userAssets/${offset}/${returnJson}`
   );
+  return res.data;
+}
+
+export async function fetchTemplateComparison(
+  templateId: number,
+  newTemplateId: number
+) {
+  const res = await axios.get<TemplateComparison | []>(
+    `${BASE_URL}/assetManager/compareTemplates/${templateId}/${newTemplateId}`
+  );
+
   return res.data;
 }
