@@ -69,11 +69,12 @@ import {
 } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { equals, isEmpty } from "ramda";
+import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
+import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 const props = withDefaults(
   defineProps<{
@@ -124,35 +125,48 @@ const localAssetWithoutIds = computed(() => {
 const hasAssetChanged = computed(() => {
   if (!savedAsset.value) return true;
 
-  const rawAsset = toRaw(savedAsset.value);
+  const rawSavedAsset = toRaw(savedAsset.value);
   const rawLocalAsset = toRaw(localAssetWithoutIds.value);
-  return !equals(rawAsset, rawLocalAsset);
+  invariant(rawLocalAsset, "Cannot check asset changes");
+
+  // console.log(explainObjectDifferences(rawAsset, rawLocalAsset));
+
+  // saved asset only has props for widgets that are not empty
+  // so to check if an asset has changed, first check that every prop in the
+  // save asset matches the local asset
+  const someSavedContentDiffers = Object.entries(rawSavedAsset).some(
+    ([key, savedValue]) => {
+      const localValue = rawLocalAsset[key];
+      return !equals(savedValue, localValue);
+    }
+  );
+
+  // also we need to handle the case where the local asset has fields that
+  // aren't yet in the saved asset
+  const hasNewLocalPropWithContent = Object.entries(rawLocalAsset)
+    // only check props that are not in the saved asset
+    .filter(([key]) => !(key in rawSavedAsset))
+    // if the prop has some content, the asset has changed
+    .some(([, localValue]) =>
+      hasWidgetContent(localValue as WidgetContent[], "any")
+    );
+
+  return someSavedContentDiffers || hasNewLocalPropWithContent;
 });
 
 const isFormValid = computed(() => {
   if (!savedTemplate.value || !state.localAsset) return false;
-  const requiredWidgetContents = savedTemplate.value.widgetArray.filter(
+
+  const requiredWidgetDefs = savedTemplate.value.widgetArray.filter(
     (widgetDef) => widgetDef.required
   );
 
-  // if nothing is required, return true
-  if (!requiredWidgetContents.length) return true;
-
-  // check if all required widget contents are filled
-  for (const widgetDef of requiredWidgetContents) {
+  return requiredWidgetDefs.every((widgetDef) => {
+    invariant(state.localAsset);
     const fieldTitle = widgetDef.fieldTitle;
     const contents = state.localAsset[fieldTitle] as WidgetContent[];
-
-    // if the field is empty, return false
-    if (!contents || !contents.length) return false;
-
-    // check if all contents are filled
-    for (const content of contents) {
-      if (!content || isEmpty(content)) return false;
-    }
-  }
-
-  return true;
+    return hasWidgetContent(contents, widgetDef.type);
+  });
 });
 
 const savedTemplateId = computed(() => {

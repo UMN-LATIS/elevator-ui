@@ -165,7 +165,7 @@ export function hasMultiSelectContent(contents: unknown[]): boolean {
  */
 export function hasWidgetContent(
   contents: unknown[],
-  widgetType: WidgetProps["type"]
+  widgetType: WidgetProps["type"] | "any"
 ): boolean {
   switch (widgetType) {
     case "text":
@@ -188,6 +188,19 @@ export function hasWidgetContent(
       return hasUploadContent(contents);
     case "multiselect":
       return hasMultiSelectContent(contents);
+    case "any":
+      return (
+        hasTextContent(contents) ||
+        hasCheckboxContent(contents) ||
+        hasDateContent(contents) ||
+        hasLocationContent(contents) ||
+        hasRelatedAssetContent(contents) ||
+        hasSelectContent(contents) ||
+        hasTagListContent(contents) ||
+        hasTextAreaContent(contents) ||
+        hasUploadContent(contents) ||
+        hasMultiSelectContent(contents)
+      );
     default:
       return false;
   }
