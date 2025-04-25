@@ -22,7 +22,7 @@
           <span v-if="widgetDef.required" class="text-red-500">*</span>
         </h2>
       </div>
-      <div class="justify-self-end">
+      <div>
         <Tooltip v-if="hasContents" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
         </Tooltip>

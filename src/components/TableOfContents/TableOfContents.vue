@@ -8,14 +8,30 @@
       <li v-for="item in items" :key="item.id">
         <a
           :href="`#${item.id}`"
-          class="block transition-colors duration-200 no-underline hover:no-underline hover:bg-transparent py-1 px-2"
+          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 px-2"
           :class="{
-            'text-blue-700 font-medium border-blue-700 bg-white/50 rounded-sm':
+            'text-blue-700 font-medium border-blue-700 bg-white/50 hover:bg-white/75 rounded-sm':
               activeId === item.id,
-            'text-black/50': activeId !== item.id,
+            'text-black/50 hover:bg-transparent': activeId !== item.id,
           }"
           @click.prevent="scrollToSection(item.id)">
-          {{ item.label }}
+          <div>
+            {{ item.label }}
+            <span v-if="item.isRequired" class="text-red-500">*</span>
+          </div>
+          <div>
+            <Tooltip v-if="item.hasContent" tip="Content added">
+              <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
+            </Tooltip>
+            <Tooltip
+              v-else-if="!item.hasContent && item.isRequired"
+              tip="Required content missing">
+              <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+            </Tooltip>
+            <Tooltip v-else tip="No contents yet">
+              <CircleIcon class="size-4 text-neutral-300" />
+            </Tooltip>
+          </div>
         </a>
       </li>
     </ol>
@@ -23,11 +39,15 @@
 </template>
 
 <script setup lang="ts">
+import { CircleFilledCheckIcon } from "@/icons";
+import { CircleIcon, TriangleAlertIcon } from "lucide-vue-next";
 import { onMounted, onUnmounted, reactive, computed } from "vue";
 
 export interface TocItem {
   id: string;
   label: string;
+  isRequired?: boolean;
+  hasContent?: boolean;
 }
 
 const props = withDefaults(

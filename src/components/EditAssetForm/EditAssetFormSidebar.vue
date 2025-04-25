@@ -84,6 +84,7 @@ import {
   Template,
   PHPDateTime,
   WidgetProps,
+  WidgetContent,
 } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
@@ -93,6 +94,7 @@ import InputGroup from "../InputGroup/InputGroup.vue";
 import TableOfContents, {
   TocItem,
 } from "../TableOfContents/TableOfContents.vue";
+import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 const props = defineProps<{
   template: Template;
@@ -191,10 +193,16 @@ const tocItems = computed((): TocItem[] => {
   return props.template.widgetArray
     .toSorted((a, b) => a.viewOrder - b.viewOrder)
     .map((widgetDef: WidgetProps) => {
+      const fieldTitle = widgetDef.fieldTitle;
+      const widgetContents = props.asset[fieldTitle] as WidgetContent[];
+
       const tocItem: TocItem = {
         id: `widget-${widgetDef.widgetId}`,
         label: widgetDef.label,
+        hasContent: hasWidgetContent(widgetContents, widgetDef.type),
+        isRequired: widgetDef.required,
       };
+
       return tocItem;
     });
 });
