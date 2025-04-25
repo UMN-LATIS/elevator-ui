@@ -20,7 +20,7 @@
             <span v-if="item.isRequired" class="text-red-500">*</span>
           </div>
           <div>
-            <Tooltip v-if="item.hasContent" tip="Content added">
+            <Tooltip v-if="item.hasContent" tip="has content">
               <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
             </Tooltip>
             <Tooltip
@@ -28,7 +28,7 @@
               tip="Required content missing">
               <TriangleAlertIcon class="w-4 h-4 text-red-500" />
             </Tooltip>
-            <Tooltip v-else tip="No contents yet">
+            <Tooltip v-else tip="empty">
               <CircleIcon class="size-4 text-neutral-300" />
             </Tooltip>
           </div>
@@ -42,6 +42,7 @@
 import { CircleFilledCheckIcon } from "@/icons";
 import { CircleIcon, TriangleAlertIcon } from "lucide-vue-next";
 import { onMounted, onUnmounted, reactive, computed } from "vue";
+import Tooltip from "@/components/Tooltip/Tooltip.vue";
 
 export interface TocItem {
   id: string;
