@@ -188,13 +188,15 @@ watch(
 );
 
 const tocItems = computed((): TocItem[] => {
-  return props.template.widgetArray.map((widgetDef: WidgetProps) => {
-    const tocItem: TocItem = {
-      id: `widget-${widgetDef.widgetId}`,
-      label: widgetDef.label,
-    };
-    return tocItem;
-  });
+  return props.template.widgetArray
+    .toSorted((a, b) => a.viewOrder - b.viewOrder)
+    .map((widgetDef: WidgetProps) => {
+      const tocItem: TocItem = {
+        id: `widget-${widgetDef.widgetId}`,
+        label: widgetDef.label,
+      };
+      return tocItem;
+    });
 });
 </script>
 <style>

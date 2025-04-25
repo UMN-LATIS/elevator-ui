@@ -1,26 +1,29 @@
 <template>
-  <div class="toc-container">
-    <h2 class="text-xl font-bold mb-4">{{ title }}</h2>
-    <ul class="space-y-2">
+  <nav class="toc-container">
+    <h2
+      class="text-xs tracking-wide font-medium text-neutral-700 uppercase mb-2">
+      {{ title }}
+    </h2>
+    <ol class="text-sm">
       <li v-for="item in items" :key="item.id">
         <a
           :href="`#${item.id}`"
-          class="block py-1 px-2 transition-colors duration-200 rounded hover:bg-gray-100"
+          class="block transition-colors duration-200 no-underline hover:no-underline hover:bg-transparent py-1 px-2"
           :class="{
-            'bg-blue-100 text-blue-700 font-medium border-l-4 border-blue-500 pl-3':
+            'text-blue-700 font-medium border-blue-700 bg-white/50 rounded-sm':
               activeId === item.id,
-            'text-gray-700': activeId !== item.id,
+            'text-black/50': activeId !== item.id,
           }"
           @click.prevent="scrollToSection(item.id)">
           {{ item.label }}
         </a>
       </li>
-    </ul>
-  </div>
+    </ol>
+  </nav>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, reactive, computed } from "vue";
 
 export interface TocItem {
   id: string;
@@ -34,51 +37,59 @@ const props = withDefaults(
     offset?: number;
   }>(),
   {
-    title: "Table of Contents",
+    title: "Contents",
     offset: 100,
   }
 );
 
-const activeId = ref<string>("");
 let observer: IntersectionObserver | null = null;
 
 const scrollToSection = (id: string) => {
   const element = document.getElementById(id);
   if (element) {
     window.scrollTo({
-      top: element.offsetTop - props.offset,
+      top: element.offsetTop,
       behavior: "smooth",
     });
   }
 };
 
+const visibleItems = reactive<Set<string>>(new Set());
+const activeId = computed(() => {
+  for (const item of props.items) {
+    if (visibleItems.has(item.id)) {
+      return item.id;
+    }
+  }
+  return null;
+});
+
 onMounted(() => {
-  // Set up Intersection Observer
+  // watch for item visibility to update the activeId
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        // When a section enters the viewport and is intersecting
-        if (entry.isIntersecting) {
-          activeId.value = entry.target.id;
-        }
+        // add or remove from the visibleItems set
+        entry.isIntersecting
+          ? visibleItems.add(entry.target.id)
+          : visibleItems.delete(entry.target.id);
       });
     },
     {
-      rootMargin: `-${props.offset}px 0px -70% 0px`,
-      threshold: 0,
+      rootMargin: `-${props.offset}px 0px 0px 0px`,
+      threshold: 0.2,
     }
   );
 
-  // Observe all sections
+  // Observe all items
   props.items.forEach((item) => {
     const element = document.getElementById(item.id);
-    if (element && observer) {
-      observer.observe(element);
+    if (!element || !observer) {
+      return;
     }
-  });
 
-  // Set initial active section
-  updateActiveSection();
+    observer.observe(element);
+  });
 });
 
 onUnmounted(() => {
@@ -87,25 +98,4 @@ onUnmounted(() => {
     observer.disconnect();
   }
 });
-
-// Fallback method using scroll position
-const updateActiveSection = () => {
-  const scrollPosition = window.scrollY;
-
-  for (const item of props.items) {
-    const element = document.getElementById(item.id);
-    if (element) {
-      const sectionTop = element.offsetTop;
-      const sectionHeight = element.offsetHeight;
-
-      if (
-        scrollPosition >= sectionTop - props.offset - 50 &&
-        scrollPosition < sectionTop + sectionHeight - props.offset
-      ) {
-        activeId.value = item.id;
-        break;
-      }
-    }
-  }
-};
 </script>
