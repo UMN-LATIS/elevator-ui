@@ -7,14 +7,13 @@
       'button--secondary px-4 py-3': variant === 'secondary',
       'button--tertiary text-xs uppercase font-medium p-2':
         variant === 'tertiary',
-      'button--primary px-4 py-3 !bg-red-500 !border-red-500 text-red-100 hover:!bg-red-600 hover:!border-red-600':
+      'button--primary px-4 py-3 !bg-red-700 !border-red-700 text-red-50 hover:!bg-red-600 hover:!border-red-600':
         variant === 'danger',
     }"
     v-bind="$attrs"
     :to="componentType === RouterLink ? to : undefined"
     :href="resolvedHref"
-    :type="componentType === 'button' ? type : undefined"
-  >
+    :type="componentType === 'button' ? type : undefined">
     <slot />
   </component>
 </template>
