@@ -1,5 +1,6 @@
 <template>
-  <div class="md:grid md:grid-cols-[minmax(0,1fr),auto] relative min-h-screen">
+  <div
+    class="md:grid md:grid-cols-[minmax(0,1fr),minmax(auto,20rem)] relative min-h-screen">
     <section class="p-4 max-w-screen-xl w-full mx-auto">
       <AssetSummary :asset="asset" :template="template" class="mb-4" />
       <div class="flex flex-col">
