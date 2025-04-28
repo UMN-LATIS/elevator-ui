@@ -27,7 +27,7 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.CheckboxWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
