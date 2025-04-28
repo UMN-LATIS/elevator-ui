@@ -37,6 +37,7 @@
       </div>
     </button>
     <div
+      ref="editLayoutContents"
       :class="{
         'opacity-50': !isOpen,
       }">
@@ -124,9 +125,10 @@ import {
 import * as Types from "@/types";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
-import { computed } from "vue";
+import { computed, useTemplateRef, watch } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
+import { useFocusWithin } from "@vueuse/core";
 
 const props = defineProps<{
   widgetContents: Types.WithId<Types.WidgetContent>[];
@@ -144,6 +146,16 @@ const emit = defineEmits<{
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+const editLayoutContentsRef = useTemplateRef("editLayoutContents");
+
+const { focused: isFocusedWithin } = useFocusWithin(editLayoutContentsRef);
+
+watch(isFocusedWithin, (isFocused) => {
+  if (isFocused) {
+    emit("update:isOpen", true);
+  }
+});
 
 // Only expand the component if it's not already expanded
 const handleSectionClick = () => {
