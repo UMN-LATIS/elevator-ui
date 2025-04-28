@@ -47,7 +47,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
@@ -57,12 +57,9 @@ import {
   Template,
   WidgetContent,
   WidgetProps,
-  TemplateComparison,
 } from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
-import ConfirmModal from "../ConfirmModal/ConfirmModal.vue";
-import invariant from "tiny-invariant";
 
 const props = defineProps<{
   template: Template;
@@ -72,18 +69,13 @@ const props = defineProps<{
   isValid: boolean;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
 }>();
 
-const maybeNewTemplateId = ref<number | null>();
-const templateComparison = ref<TemplateComparison | null>(null);
-const isConfirmingTemplateChange = computed(() => {
-  return !!templateComparison.value;
-});
 const openWidgets = reactive(new Set<WidgetProps["widgetId"]>());
 
 const widgetDefAndContents = computed(
@@ -108,21 +100,6 @@ function handleExpandAll() {
 
 function handleCollapseAll() {
   openWidgets.clear();
-}
-
-function handleConfirmTemplateChange() {
-  invariant(
-    maybeNewTemplateId.value,
-    "maybeNewTemplateId should be set when confirming template change"
-  );
-  emit("update:templateId", maybeNewTemplateId.value);
-  templateComparison.value = null;
-  maybeNewTemplateId.value = null;
-}
-
-function handleCancelTemplateChange() {
-  templateComparison.value = null;
-  maybeNewTemplateId.value = null;
 }
 </script>
 <style scoped></style>
