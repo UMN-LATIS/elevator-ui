@@ -9,7 +9,7 @@
     @click="handleSectionClick">
     <button
       type="button"
-      class="flex gap-2 justify-between lg:w-48 xl:w-xs text-left"
+      class="flex gap-2 justify-between lg:w-48 xl:w-xs text-left mb-3 lg:mb-0"
       @click.stop="toggleExpand">
       <div class="flex gap-2">
         <ChevronDownIcon v-if="isOpen" class="!size-4" />
