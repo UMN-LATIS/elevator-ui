@@ -4,46 +4,44 @@
       v-for="(selected, segmentLevel) in listOfSelected"
       :key="segmentLevel"
       class="flex flex-col gap-1">
-      <label
-        :class="[
-          'uppercase text-xs font-medium tracking-wider text-neutral-700',
-          labelClass,
-        ]">
-        {{ selected.label }}
-      </label>
-      <select
-        :class="['rounded-md text-sm', selectClass]"
-        :style="{ width: '100%' }"
-        :value="selected.value"
-        @change="
-          handleSelectChange(
-            segmentLevel,
-            ($event.target as HTMLSelectElement).value
-          )
-        ">
-        <option v-if="!selected.options.includes('')" value="" disabled>
-          Select a {{ selected.label }}
-        </option>
-        <option
-          v-for="opt in selected.options.toSorted()"
-          :key="opt"
-          :value="opt">
-          {{ opt === "" ? "-" : opt }}
-        </option>
-      </select>
+      <div v-if="selected.options.length">
+        <label
+          :class="[
+            'uppercase text-xs font-medium tracking-wider text-neutral-700',
+            labelClass,
+          ]">
+          {{ selected.label }}
+        </label>
+        <select
+          :class="['rounded-md text-sm', selectClass]"
+          :style="{ width: '100%' }"
+          :value="selected.value"
+          @change="
+            handleSelectChange(
+              segmentLevel,
+              ($event.target as HTMLSelectElement).value
+            )
+          ">
+          <option v-if="!selected.options.includes('')" value="" disabled>
+            Select a {{ selected.label }}
+          </option>
+          <option
+            v-for="opt in selected.options.toSorted()"
+            :key="opt"
+            :value="opt">
+            {{ opt === "" ? "-" : opt }}
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { path } from "ramda";
-import { reactive, watch } from "vue";
+import { reactive, toRaw, watch } from "vue";
 
 export interface CascaderSelectOptions {
-  [label: string]:
-    | string[]
-    | {
-        [label: string]: CascaderSelectOptions;
-      };
+  [label: string]: string[] | CascaderSelectOptions;
 }
 
 const props = defineProps<{
@@ -71,8 +69,8 @@ function createInitialListOfSelected(): SelectedSegment[] {
   if (!props.initialSelectedValues?.length) {
     return [
       {
-        label: getFirstKey(props.options),
-        options: getFirstOptions(props.options),
+        label: getFirstKey(props.options) ?? "",
+        options: getFirstOptions(props.options) ?? [],
         value: "",
       },
     ];
@@ -97,13 +95,21 @@ function createInitialListOfSelected(): SelectedSegment[] {
   return selected;
 }
 
-function getFirstKey(options: CascaderSelectOptions): string {
-  return Object.keys(options)[0];
+function getFirstKey(options: CascaderSelectOptions): string | null {
+  return Object.keys(options)?.[0] ?? null;
 }
 
 function getFirstOptions(options: CascaderSelectOptions): string[] {
-  const values: Record<string, unknown> | string[] =
-    options[getFirstKey(options)];
+  if (!options) {
+    return [];
+  }
+
+  const firstKey = getFirstKey(options);
+  if (!firstKey) {
+    return [];
+  }
+
+  const values: Record<string, unknown> | string[] = options[firstKey];
 
   // if the first value is an array, then
   // values looks like: ['minneapolis', 'st. paul']
@@ -143,7 +149,7 @@ function createNextSelectedSegment(
     return null;
   }
 
-  const label = getFirstKey(nextSegmentOptions);
+  const label = getFirstKey(nextSegmentOptions) ?? "";
   const options = getFirstOptions(nextSegmentOptions);
 
   // check if the initial value is in the options
