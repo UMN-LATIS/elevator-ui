@@ -1,9 +1,13 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <ClickToSearchLink :widget="widget" :linkText="content.fieldContents">
+      <ClickToSearchLink
+        v-if="content.fieldContents"
+        :widget="widget"
+        :linkText="content.fieldContents">
         <span v-html="autolinkText(content.fieldContents)"></span>
       </ClickToSearchLink>
+      <span>-</span>
     </li>
   </ul>
 </template>
