@@ -33,10 +33,8 @@ import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
 import CascadeSelect from "@/components/CascadeSelect/CascadeSelect.vue";
 import { findDeepestPath } from "./helpers/findDeepestPath";
-import { toRaw, toValue } from "vue";
 
 const props = defineProps<{
-  assetId: string;
   widgetDef: Type.MultiSelectWidgetProps;
   widgetContents: Type.WithId<Type.MultiSelectWidgetContent>[];
   isOpen: boolean;
@@ -123,10 +121,6 @@ function toCascadeSelectPath(
   fieldData: Type.MultiSelectFieldData,
   fieldContents: Type.MultiSelectWidgetContent["fieldContents"]
 ): string[] {
-  console.log({
-    fieldData: toRaw(fieldData),
-    fieldContents: toRaw(fieldContents),
-  });
   if (!fieldContents || Object.keys(fieldContents).length === 0) {
     return [] as string[];
   }
