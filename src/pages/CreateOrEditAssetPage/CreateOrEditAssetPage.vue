@@ -43,6 +43,7 @@
         :isValid="isFormValid"
         class="flex-1"
         @update:templateId="handleConfirmedTemplateIdUpdate($event)"
+        @migrateCollection="handleMigrateCollection($event)"
         @save="handleSaveAsset"
         @update:asset="
           (updatedAsset) => {
@@ -271,7 +272,7 @@ const route = useRoute();
 const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
-function handleSaveAsset() {
+function getAssetAsSaveableFormData() {
   invariant(state.localAsset, "Cannot save: no asset.");
   invariant(savedTemplate.value, "Cannot save: no template.");
 
@@ -299,6 +300,16 @@ function handleSaveAsset() {
     availableAfter: (state.localAsset.availableAfter as PHPDateTime)?.date,
     ...widgetContents,
   };
+
+  return formData;
+}
+
+function handleSaveAsset() {
+  invariant(state.localAsset, "Cannot save: no asset.");
+  invariant(savedTemplate.value, "Cannot save: no template.");
+
+  const formData = getAssetAsSaveableFormData();
+
   saveAsset(formData, {
     onSuccess: (data) => {
       if (!isCreateMode.value) {
@@ -331,6 +342,24 @@ function handleSaveAsset() {
         params: {
           assetId: newAssetId,
         },
+      });
+    },
+  });
+}
+
+function handleMigrateCollection(newCollectionId: number) {
+  invariant(state.localAsset, "Cannot change collection: no asset.");
+
+  state.localAsset.collectionId = newCollectionId;
+  const formData = getAssetAsSaveableFormData();
+
+  saveAsset(formData, {
+    onSuccess: () => {
+      // migrating the collection can take a bit of time, so redirect
+      // the user to the all my assets page after saving to prevent
+      // more editing during the migration
+      router.push({
+        name: "allMyAssets",
       });
     },
   });

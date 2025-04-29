@@ -42,6 +42,7 @@
         @save="$emit('save')"
         @cancel="$emit('cancel')"
         @update:templateId="$emit('update:templateId', Number.parseInt($event))"
+        @migrateCollection="$emit('migrateCollection', $event)"
         @update:asset="$emit('update:asset', $event)" />
     </aside>
   </div>
@@ -73,6 +74,7 @@ defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
+  (e: "migrateCollection", collectionId: number): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
 }>();
 

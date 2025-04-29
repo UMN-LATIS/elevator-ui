@@ -98,10 +98,10 @@
 
       <ConfirmModal
         type="danger"
-        :isOpen="state.isConfirmingCollectionChange"
+        :isOpen="state.isConfirmingMigrateCollection"
         title="Are you sure?"
-        @confirm="handleConfirmCollectionChange"
-        @close="handleCancelCollectionChange">
+        @confirm="handleConfirmMigrateCollection"
+        @close="handleCancelMigrateCollection">
         <p>
           Switching collections will prevent this asset from being accessed
           while the migration is taking place. It may also make assets
@@ -117,7 +117,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
 import {
@@ -160,6 +160,7 @@ const emit = defineEmits<{
   (e: "cancel"): void;
   (e: "update:templateId", templateId: string): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
+  (e: "migrateCollection", collectionId: number): void;
 }>();
 
 const state = reactive({
@@ -168,7 +169,7 @@ const state = reactive({
   isConfirmingTemplateChange: false,
   localCollectionId: String(props.asset.collectionId ?? ""),
   collectionComparison: null as { migration: boolean } | null,
-  isConfirmingCollectionChange: false,
+  isConfirmingMigrateCollection: false,
 });
 
 const canSave = computed(
@@ -322,44 +323,25 @@ async function compareCollectionsAndConfirm(value: string) {
       ...props.asset,
       collectionId: newCollectionId,
     });
-    state.isConfirmingCollectionChange = false;
+    state.isConfirmingMigrateCollection = false;
     state.collectionComparison = null;
     return;
   }
 
-  state.isConfirmingCollectionChange = true;
+  state.isConfirmingMigrateCollection = true;
 }
 
-const router = useRouter();
-
-function handleConfirmCollectionChange() {
+function handleConfirmMigrateCollection() {
   const newCollectionId = Number.parseInt(state.localCollectionId);
-  emit("update:asset", {
-    ...props.asset,
-    collectionId: newCollectionId,
-  });
-  state.isConfirmingCollectionChange = false;
+  emit("migrateCollection", newCollectionId);
+  state.isConfirmingMigrateCollection = false;
   state.collectionComparison = null;
-
-  // because the collection change will involve a migration
-  // we no longer want the asset to be edited,
-
-  // so, on next tick:
-  // 1. save the current state
-  // 2. and navigate to the list of assets
-  nextTick(() => {
-    emit("save");
-    // do we need to wait for save to fire?
-    router.push({
-      name: "allMyAssets",
-    });
-  });
 }
 
-function handleCancelCollectionChange() {
+function handleCancelMigrateCollection() {
   // reset the local collectionId to the original value
   state.localCollectionId = String(props.asset.collectionId ?? "");
-  state.isConfirmingCollectionChange = false;
+  state.isConfirmingMigrateCollection = false;
   state.collectionComparison = null;
 }
 </script>
