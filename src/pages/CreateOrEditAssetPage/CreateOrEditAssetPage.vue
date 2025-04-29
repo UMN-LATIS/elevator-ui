@@ -73,7 +73,7 @@ import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 
@@ -268,6 +268,7 @@ async function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
   handleSaveAsset();
 }
 const route = useRoute();
+const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
 function handleSaveAsset() {
@@ -307,20 +308,30 @@ function handleSaveAsset() {
         return;
       }
 
-      if (!channelName.value) {
-        return;
+      const newAssetId = data.objectId;
+
+      // if we're creating a related asset, notify the parent
+      if (channelName.value) {
+        // notify parent asset page about the new related asset
+        const channel = new BroadcastChannel(channelName.value);
+        const message: RelatedAssetSaveMessage = {
+          type: SAVE_RELATED_ASSET_TYPE,
+          payload: {
+            relatedAssetId: newAssetId,
+          },
+        };
+        channel.postMessage(message);
+        channel.close();
       }
 
-      // notify parent asset page about the new related asset
-      const channel = new BroadcastChannel(channelName.value);
-      const message: RelatedAssetSaveMessage = {
-        type: SAVE_RELATED_ASSET_TYPE,
-        payload: {
-          relatedAssetId: data.objectId,
+      // redirect to the edit asset page (so that we don't keep recreating
+      // new assets on each save!)
+      router.push({
+        name: "editAsset",
+        params: {
+          assetId: newAssetId,
         },
-      };
-      channel.postMessage(message);
-      channel.close();
+      });
     },
   });
 }
