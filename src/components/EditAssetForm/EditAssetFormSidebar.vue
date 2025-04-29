@@ -1,7 +1,15 @@
 <template>
   <div class="flex flex-col gap-6 sticky top-20 p-4">
-    <div class="grid grid-cols-2 gap-4 order-last md:order-1 mb-16 md:mb-0">
-      <Button :to="`/asset/viewAsset/${asset.assetId}`" target="_blank">
+    <div
+      class="grid gap-4 order-last md:order-1 mb-16 md:mb-0"
+      :class="{
+        'grid-cols-2': asset.assetId,
+        'grid-cols-1': !asset.assetId,
+      }">
+      <Button
+        v-if="asset.assetId"
+        :to="`/asset/viewAsset/${asset.assetId}`"
+        target="_blank">
         View
       </Button>
 
