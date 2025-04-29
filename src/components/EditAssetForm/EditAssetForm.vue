@@ -47,7 +47,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, onMounted, reactive } from "vue";
 import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
@@ -77,6 +77,9 @@ defineEmits<{
 }>();
 
 const openWidgets = reactive(new Set<WidgetProps["widgetId"]>());
+
+// start with all widgets open
+onMounted(() => handleExpandAll());
 
 const widgetDefAndContents = computed(
   (): Array<{
