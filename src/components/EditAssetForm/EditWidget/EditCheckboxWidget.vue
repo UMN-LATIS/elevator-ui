@@ -35,12 +35,17 @@
         <input
           :id="`${item.id}-checkbox`"
           type="checkbox"
-          :modelValue="item.fieldContents"
+          :checked="(item as Type.WithId<Type.CheckboxWidgetContent>).fieldContents"
           class="rounded-sm bg-black/5 border-black/25 checked:bg-blue-700"
-          @update:modelValue="
+          @change="
+            (event) =>
             $emit(
               'update:widgetContents',
-              ops.makeUpdateContentPayload(widgetContents, item.id, $event)
+              ops.makeUpdateContentPayload(
+                widgetContents,
+                item.id,
+                (event.target as HTMLInputElement).checked
+              )
             )
           " />
         <Label :for="`${item.id}-checkbox`">
