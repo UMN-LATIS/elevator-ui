@@ -151,7 +151,7 @@ function emitCoordinateUpdate(lngLat: LngLat | null) {
       ...props.modelValue.loc,
       coordinates: lngLat
         ? [roundFloat(lngLat.lng, 6), roundFloat(lngLat.lat, 6)]
-        : null,
+        : undefined,
     },
   });
 }
@@ -217,7 +217,6 @@ watch(
     // fly to the new coordinates
     map.value.flyTo({
       center: coordinates,
-      zoom: clamp(1, 20, props.initialZoom),
       animate: true,
     });
   },
