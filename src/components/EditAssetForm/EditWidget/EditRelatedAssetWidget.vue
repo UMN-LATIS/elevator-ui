@@ -27,7 +27,7 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.RelatedAssetWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
@@ -35,7 +35,7 @@
         :widgetDef="widgetDef"
         :widgetContents="widgetContents"
         :assetId="assetId"
-        :modelValue="item"
+        :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
         @update:modelValue="handleUpdate" />
     </template>
   </EditWidgetLayout>
