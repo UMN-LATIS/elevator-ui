@@ -11,7 +11,11 @@ import type {
   UploadWidgetContent,
   MultiSelectWidgetContent,
   DateMoment,
+  BroadcastMessage,
+  RelatedAssetSaveMessage,
 } from "@/types";
+
+import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 
 /**
  * Base type guard for checking if a value is a WidgetContent
@@ -181,3 +185,9 @@ export function isMultiSelectWidgetContent(
     (value as MultiSelectWidgetContent).fieldContents !== null
   );
 }
+
+export const isSaveRelatedAssetMessage = (
+  message: BroadcastMessage
+): message is RelatedAssetSaveMessage => {
+  return message.type === SAVE_RELATED_ASSET_TYPE;
+};

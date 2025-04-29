@@ -3,6 +3,7 @@ import {
   SEARCH_RESULTS_VIEWS,
   SORT_KEYS,
   TEMPLATE_SHOW_PROPERTY_POSITIONS,
+  SAVE_RELATED_ASSET_TYPE,
 } from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
 import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
@@ -915,5 +916,16 @@ export interface TemplateComparison {
   [widgetFieldTitle: WidgetProps["fieldTitle"]]: {
     type: string; // error like "missing"
     label: WidgetProps["label"];
+  };
+}
+
+export interface BroadcastMessage {
+  type: string;
+  payload: unknown;
+}
+export interface RelatedAssetSaveMessage extends BroadcastMessage {
+  type: typeof SAVE_RELATED_ASSET_TYPE;
+  payload: {
+    relatedAssetId: string;
   };
 }

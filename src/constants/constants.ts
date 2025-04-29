@@ -40,3 +40,5 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   BOTTOM: 0,
   TOP: 1,
 } as const;
+
+export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;

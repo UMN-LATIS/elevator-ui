@@ -144,11 +144,7 @@ import { useAssetPreviewQuery } from "@/queries/useAssetPreviewQuery";
 import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-import {
-  BroadcastMessage,
-  useBroadcastChannel,
-  isSaveRelatedAssetMessage,
-} from "@/composables/useBroadcastChannel";
+import { isSaveRelatedAssetMessage } from "@/types/guards";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;

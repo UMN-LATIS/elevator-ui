@@ -66,6 +66,7 @@ import {
   WidgetContent,
   UnsavedAsset,
   PHPDateTime,
+  RelatedAssetSaveMessage,
 } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
@@ -74,11 +75,7 @@ import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { useRoute } from "vue-router";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import {
-  RelatedAssetSaveMessage,
-  SAVE_RELATED_ASSET_TYPE,
-  useBroadcastChannel,
-} from "@/composables/useBroadcastChannel";
+import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 
 const props = withDefaults(
   defineProps<{
