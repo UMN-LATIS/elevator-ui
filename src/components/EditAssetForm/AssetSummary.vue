@@ -37,6 +37,7 @@ import * as Types from "@/types";
 import { computed } from "vue";
 import Widget from "@/components/Widget/Widget.vue";
 import { isEmpty } from "ramda";
+import { isDateWidgetContent } from "@/types/guards";
 
 const props = defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
@@ -103,7 +104,12 @@ const previewWidgets = computed(() => {
         widget.widgetContents.filter((content) => content.isPrimary)[0] ||
         widget.widgetContents[0];
 
-      // primary content item must have a value in some key
+      // if this is a date widget, just need to check that a start date is set
+      if (isDateWidgetContent(primaryContentItem)) {
+        return !!primaryContentItem.start.text;
+      }
+
+      // otherwise primary content item must have a value in some key
       // that's not `isPrimary` or `id`
       const hasValue = Object.keys(primaryContentItem).some((key) => {
         return (
@@ -112,6 +118,7 @@ const previewWidgets = computed(() => {
           primaryContentItem[key] !== undefined &&
           primaryContentItem[key] !== null &&
           primaryContentItem[key] !== "" &&
+          // tags can't be empty
           !isEmpty(primaryContentItem[key])
         );
       });
