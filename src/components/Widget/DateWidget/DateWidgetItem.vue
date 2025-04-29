@@ -1,8 +1,8 @@
 <template>
   <ClickToSearchLink :widget="widget" :linkText="dateString">
     <template v-if="dateContent.label">
-      <Tuple :label="dateContent.label" variant="inline"
-        >{{ dateString }}
+      <Tuple :label="dateContent.label" variant="inline">
+        {{ dateString }}
       </Tuple>
     </template>
     <template v-else>
@@ -25,11 +25,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const dateString = computed(() => {
-  let outputString = "";
-  outputString += props.dateContent.start.text;
-  if (props.dateContent.end.text !== null && props.dateContent.end.text !== "") {
-    outputString += " - " + props.dateContent.end.text;
-  }
-  return outputString;
+  return props.dateContent.range
+    ? `${props.dateContent.start.text} - ${props.dateContent.end.text}`
+    : props.dateContent.start.text ?? "-";
 });
 </script>
