@@ -312,15 +312,6 @@ function handleSaveAsset() {
       }
       // Notify the parent window about the new asset
       notifyNewRelatedAsset(channelName.value, data.objectId);
-
-      // Add a small delay to ensure the message is sent before closing
-      setTimeout(() => {
-        // If this window was opened for related asset creation, close it and focus the parent
-        if (window.opener) {
-          window.opener.focus();
-          window.close();
-        }
-      }, 500);
     },
   });
 }
