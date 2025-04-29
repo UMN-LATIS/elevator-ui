@@ -147,9 +147,11 @@ const emit = defineEmits<{
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-const editLayoutContentsRef = useTemplateRef("editLayoutContents");
+const editLayoutContentsRef = useTemplateRef<HTMLElement>("editLayoutContents");
 
-const { focused: isFocusedWithin } = useFocusWithin(editLayoutContentsRef);
+const { focused: isFocusedWithin } = useFocusWithin(
+  editLayoutContentsRef.value
+);
 
 watch(isFocusedWithin, (isFocused) => {
   if (isFocused) {

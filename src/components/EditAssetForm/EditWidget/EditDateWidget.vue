@@ -27,12 +27,12 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.DateWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <EditDateWidgetContentItem
-        :modelValue="item"
+        :modelValue="(item as Type.WithId<Type.DateWidgetContent>)"
         @update:modelValue="handleItemUpdate" />
     </template>
   </EditWidgetLayout>

@@ -27,7 +27,7 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.TextWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
@@ -37,7 +37,7 @@
         </label>
         <TextEditor
           :id="`${item.id}-input`"
-          :modelValue="item.fieldContents"
+          :modelValue="(item as Type.WithId<Type.TextAreaWidgetContent>).fieldContents ?? ''"
           :placeholder="widgetDef.label"
           class="bg-black/5 border-none rounded-lg"
           :contentEditableAttrs="{

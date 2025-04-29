@@ -73,8 +73,12 @@ import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { useRoute } from "vue-router";
-import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import {
+  RelatedAssetSaveMessage,
+  SAVE_RELATED_ASSET_TYPE,
+  useBroadcastChannel,
+} from "@/composables/useBroadcastChannel";
 
 const props = withDefaults(
   defineProps<{
@@ -267,7 +271,6 @@ async function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
   handleSaveAsset();
 }
 const route = useRoute();
-const { notifyNewRelatedAsset } = useRelatedAssetChannel();
 const channelName = computed(() => route.query.channelName as string);
 
 function handleSaveAsset() {
@@ -310,8 +313,17 @@ function handleSaveAsset() {
       if (!channelName.value) {
         return;
       }
-      // Notify the parent window about the new asset
-      notifyNewRelatedAsset(channelName.value, data.objectId);
+
+      // notify parent asset page about the new related asset
+      const channel = new BroadcastChannel(channelName.value);
+      const message: RelatedAssetSaveMessage = {
+        type: SAVE_RELATED_ASSET_TYPE,
+        payload: {
+          relatedAssetId: data.objectId,
+        },
+      };
+      channel.postMessage(message);
+      channel.close();
     },
   });
 }

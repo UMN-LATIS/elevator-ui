@@ -90,8 +90,7 @@ import config from "@/config";
 import invariant from "tiny-invariant";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
-import { LocationWidgetContent, WithId, LngLat } from "@/types";
-import { clamp } from "ramda";
+import { LocationWidgetContent, WithId, LngLat, Coordinates } from "@/types";
 
 const props = withDefaults(
   defineProps<{
@@ -112,7 +111,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", widgetContent: WithId<LocationWidgetContent>): void;
 }>();
 
-const mapContainerRef = useTemplateRef("mapContainer");
+const mapContainerRef = useTemplateRef<HTMLElement>("mapContainer");
 
 const mapStyles = {
   light: {
@@ -145,14 +144,19 @@ const map = shallowRef<maplibregl.Map | null>(null);
 const marker = shallowRef<maplibregl.Marker | null>(null);
 
 function emitCoordinateUpdate(lngLat: LngLat | null) {
+  const loc = lngLat
+    ? {
+        ...props.modelValue.loc,
+        coordinates: [
+          roundFloat(lngLat.lng, 6),
+          roundFloat(lngLat.lat, 6),
+        ] as Coordinates,
+      }
+    : undefined;
+
   emit("update:modelValue", {
     ...props.modelValue,
-    loc: {
-      ...props.modelValue.loc,
-      coordinates: lngLat
-        ? [roundFloat(lngLat.lng, 6), roundFloat(lngLat.lat, 6)]
-        : undefined,
-    },
+    loc,
   });
 }
 

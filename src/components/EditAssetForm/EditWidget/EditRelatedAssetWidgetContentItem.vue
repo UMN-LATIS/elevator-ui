@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import { useSearchAssetsQuery } from "@/queries/useSearchAssetsQuery";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { cn } from "@/lib/utils";
 import {
   Combobox,
@@ -144,7 +144,11 @@ import { useAssetPreviewQuery } from "@/queries/useAssetPreviewQuery";
 import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
+import {
+  BroadcastMessage,
+  useBroadcastChannel,
+  isSaveRelatedAssetMessage,
+} from "@/composables/useBroadcastChannel";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -170,12 +174,11 @@ const {
 } = useSearchAssetsQuery(debouncedSearchInput);
 
 const targetAssetId = computed(() => props.modelValue.targetAssetId);
+
+const channelName = computed(() => `relatedAssetWidget-${props.modelValue.id}`);
 const createNewAssetUrl = computed(() => {
-  const channelName = getChannelName(props.assetId, props.modelValue.id);
   const params = new URLSearchParams({
-    // parentAssetId: props.assetId ?? "",
-    // relatedAssetContentId: props.modelValue.id,
-    channelName,
+    channelName: channelName.value,
   });
   return `/assetManager/addAsset?${params.toString()}`;
 });
@@ -219,16 +222,36 @@ function handleSelectItem(targetAssetId: string | null) {
     targetAssetId,
   });
 }
+const broadcastChannel = new BroadcastChannel(channelName.value);
+function handleMessageEvent(event: MessageEvent) {
+  console.log("Received message from broadcast channel", event);
+  const message = event.data;
+  if (!isSaveRelatedAssetMessage(message)) {
+    return;
+  }
 
-//  set up a listener if the user decides to create a new asset
-const { getChannelName, listenForRelatedAsset } = useRelatedAssetChannel();
-onMounted(() => {
-  listenForRelatedAsset(props.assetId, props.modelValue.id, (newAssetId) => {
-    emit("update:modelValue", {
-      ...props.modelValue,
-      targetAssetId: newAssetId,
-    });
+  // if the target asset is already selected, ignore the message
+  if (message.payload.relatedAssetId === props.modelValue.targetAssetId) {
+    console.log(
+      "Received message for already selected asset, ignoring",
+      message.payload.relatedAssetId
+    );
+    return;
+  }
+
+  emit("update:modelValue", {
+    ...props.modelValue,
+    targetAssetId: message.payload.relatedAssetId,
   });
+}
+
+onMounted(() => {
+  broadcastChannel.addEventListener("message", handleMessageEvent);
+});
+
+onUnmounted(() => {
+  broadcastChannel.removeEventListener("message", handleMessageEvent);
+  broadcastChannel.close();
 });
 </script>
 <style scoped></style>

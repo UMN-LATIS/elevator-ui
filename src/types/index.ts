@@ -264,7 +264,7 @@ export interface LocationObject {
 export interface LocationWidgetContent extends WidgetContent {
   locationLabel: string | null;
   address: string | null;
-  loc: LocationObject | null;
+  loc?: LocationObject;
 }
 
 export interface RelatedAssetWidgetContent extends WidgetContent {

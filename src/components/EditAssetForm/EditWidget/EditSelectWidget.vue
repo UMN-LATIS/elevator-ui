@@ -27,14 +27,14 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.SelectWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <div>
         <SelectGroup
           :id="`${item.id}-select`"
-          :modelValue="item.fieldContents ?? ''"
+          :modelValue="(item as Type.WithId<Type.SelectWidgetContent>).fieldContents ?? ''"
           :label="widgetDef.label"
           :options="selectOptions"
           :showLabel="false"
