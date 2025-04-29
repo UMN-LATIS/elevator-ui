@@ -31,9 +31,6 @@
           tip="Required content missing">
           <TriangleAlertIcon class="w-4 h-4 text-red-500" />
         </Tooltip>
-        <Tooltip v-else tip="No contents yet">
-          <CircleIcon class="size-4 text-neutral-300" />
-        </Tooltip>
       </div>
     </button>
     <div
