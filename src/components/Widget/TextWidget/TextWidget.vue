@@ -7,7 +7,7 @@
         :linkText="content.fieldContents">
         <span v-html="autolinkText(content.fieldContents)"></span>
       </ClickToSearchLink>
-      <span>-</span>
+      <span v-else>-</span>
     </li>
   </ul>
 </template>
