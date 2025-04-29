@@ -36,6 +36,7 @@ import { getThumbURL } from "@/helpers/displayUtils";
 import * as Types from "@/types";
 import { computed } from "vue";
 import Widget from "@/components/Widget/Widget.vue";
+import { isEmpty } from "ramda";
 
 const props = defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
@@ -83,14 +84,40 @@ const widgetLookupByFieldTitle = computed(
 );
 
 const previewWidgets = computed(() => {
-  return sortedPreviewableWidgetDefs.value.map((widgetDef) => {
-    const fieldTitle = widgetDef.fieldTitle;
-    const widgetContents = widgetLookupByFieldTitle.value[fieldTitle];
-    return {
-      widgetDef,
-      widgetContents,
-    };
-  });
+  return sortedPreviewableWidgetDefs.value
+    .map((widgetDef) => {
+      const fieldTitle = widgetDef.fieldTitle;
+      const widgetContents = widgetLookupByFieldTitle.value[fieldTitle];
+      return {
+        widgetDef,
+        widgetContents,
+      };
+    })
+    .filter((widget) => {
+      if (!widget.widgetContents.length) {
+        return false;
+      }
+
+      // must have some content in the primary (or first) item
+      const primaryContentItem =
+        widget.widgetContents.filter((content) => content.isPrimary)[0] ||
+        widget.widgetContents[0];
+
+      // primary content item must have a value in some key
+      // that's not `isPrimary` or `id`
+      const hasValue = Object.keys(primaryContentItem).some((key) => {
+        return (
+          key !== "isPrimary" &&
+          key !== "id" &&
+          primaryContentItem[key] !== undefined &&
+          primaryContentItem[key] !== null &&
+          primaryContentItem[key] !== "" &&
+          !isEmpty(primaryContentItem[key])
+        );
+      });
+
+      return hasValue;
+    });
 });
 </script>
 <style scoped></style>
