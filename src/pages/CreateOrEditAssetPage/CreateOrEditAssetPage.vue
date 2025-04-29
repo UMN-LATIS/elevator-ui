@@ -42,7 +42,7 @@
         :hasUnsavedChanges="hasAssetChanged"
         :isValid="isFormValid"
         class="flex-1"
-        @update:templateId="handleChangeTemplateId($event)"
+        @update:templateId="handleConfirmedTemplateIdUpdate($event)"
         @save="handleSaveAsset"
         @update:asset="
           (updatedAsset) => {
@@ -50,25 +50,6 @@
           }
         " />
     </Transition>
-    <Teleport to="body">
-      <ConfirmModal
-        type="danger"
-        :isOpen="state.isConfirmingTemplateChange"
-        title="Are you sure?"
-        @confirm="handleConfirmTemplateChange"
-        @close="state.isConfirmingTemplateChange = false">
-        <p>
-          Switching templates may result in the loss of data. The following
-          fields are not present in the new template:
-        </p>
-
-        <ul class="list-disc list-inside">
-          <li v-for="(value, key) in state.templateComparison" :key="key">
-            {{ value.label }} ({{ value.type }})
-          </li>
-        </ul>
-      </ConfirmModal>
-    </Teleport>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -85,18 +66,15 @@ import {
   WidgetContent,
   UnsavedAsset,
   PHPDateTime,
-  TemplateComparison,
 } from "@/types";
 import invariant from "tiny-invariant";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { equals, isEmpty } from "ramda";
+import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { useRouter, useRoute } from "vue-router";
 import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { fetchTemplateComparison } from "@/api/fetchers";
-import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -113,9 +91,6 @@ const state = reactive({
   localAsset: null as Asset | UnsavedAsset | null,
   initialTemplateId: "",
   initialCollectionId: "",
-  newTemplateId: null as number | null,
-  templateComparison: null as TemplateComparison | null,
-  isConfirmingTemplateChange: false,
 });
 
 const { data: savedAsset } = useAssetQuery(toRef(props.assetId), {
@@ -285,37 +260,11 @@ watch(
   { immediate: true }
 );
 
-async function handleChangeTemplateId(newTemplateId: number) {
+async function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
   invariant(state.localAsset, "Cannot change template: no asset.");
-  invariant(savedTemplate.value, "Cannot change template: no template.");
 
-  // current and new template
-  const currentTemplateId = state.localAsset.templateId as number;
-
-  const templateComparison = await fetchTemplateComparison(
-    currentTemplateId,
-    newTemplateId
-  );
-
-  if (!templateComparison || isEmpty(templateComparison)) {
-    // if the template comparison is empty, it means the templates are the same
-    // so we can just set the new template id
-    state.localAsset.templateId = newTemplateId;
-
-    // reset the new template id
-    handleSaveAsset({ redirectToAssetPage: false });
-
-    // reset the state
-    state.newTemplateId = null;
-    state.templateComparison = null;
-
-    return;
-  }
-
-  // otherwise we need to show the user the difference and confirm
-  state.newTemplateId = newTemplateId;
-  state.templateComparison = templateComparison as TemplateComparison;
-  state.isConfirmingTemplateChange = true;
+  state.localAsset.templateId = newTemplateId;
+  handleSaveAsset({ redirectToAssetPage: false });
 }
 
 const router = useRouter();
@@ -388,21 +337,6 @@ function handleSaveAsset({ redirectToAssetPage = true } = {}) {
       });
     },
   });
-}
-
-function handleConfirmTemplateChange() {
-  invariant(state.localAsset, "Cannot confirm template change: no asset.");
-  invariant(
-    state.newTemplateId,
-    "Cannot confirm template change: no template."
-  );
-
-  state.localAsset.templateId = state.newTemplateId;
-  state.newTemplateId = null;
-  state.templateComparison = null;
-
-  // save asset, but don't redirect
-  handleSaveAsset({ redirectToAssetPage: false });
 }
 </script>
 <style scoped></style>

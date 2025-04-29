@@ -53,11 +53,11 @@
         inputClass="text-sm pl-3"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
-        :modelValue="String(template.templateId)"
+        v-model="state.localTemplateId"
         :options="templateOptions"
         label="Template"
         required
-        @update:modelValue="$emit('update:templateId', $event)" />
+        @update:modelValue="compareTemplatesAndConfirm" />
       <SelectGroup
         :modelValue="String(asset.collectionId)"
         :options="collectionOptions"
@@ -72,10 +72,31 @@
 
       <TableOfContents :items="tocItems" />
     </div>
+    <Teleport to="body">
+      <ConfirmModal
+        type="danger"
+        :isOpen="state.isConfirmingTemplateChange"
+        title="Are you sure?"
+        @confirm="handleConfirmTemplateChange"
+        @close="handleCancelTemplateChange">
+        <p>
+          Switching templates may result in the loss of data. The following
+          fields are not present in the new template:
+        </p>
+
+        <ul v-if="state.templateComparison" class="list-disc list-inside">
+          <li
+            v-for="(value, key) in (state.templateComparison as TemplateComparison)"
+            :key="key">
+            {{ value.label }} ({{ value.type }})
+          </li>
+        </ul>
+      </ConfirmModal>
+    </Teleport>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
 import {
@@ -85,6 +106,7 @@ import {
   PHPDateTime,
   WidgetProps,
   WidgetContent,
+  TemplateComparison,
 } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
@@ -95,6 +117,10 @@ import TableOfContents, {
   TocItem,
 } from "../TableOfContents/TableOfContents.vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import invariant from "tiny-invariant";
+import { fetchTemplateComparison } from "@/api/fetchers";
+import { isEmpty } from "ramda";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
 const props = defineProps<{
   template: Template;
@@ -110,6 +136,12 @@ const emit = defineEmits<{
   (e: "update:templateId", templateId: string): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
 }>();
+
+const state = reactive({
+  localTemplateId: String(props.asset.templateId ?? ""),
+  templateComparison: null as TemplateComparison | [] | null,
+  isConfirmingTemplateChange: false,
+});
 
 const canSave = computed(
   () =>
@@ -206,6 +238,42 @@ const tocItems = computed((): TocItem[] => {
       return tocItem;
     });
 });
+
+// the use has selected a new template Id, we need to fetch
+// a template comparison and then confirm
+// if they cancel, reset the templateId to the
+async function compareTemplatesAndConfirm(value: string) {
+  const valueInt = Number.parseInt(value);
+  invariant(!Number.isNaN(valueInt), "newTemplateId should be a number");
+
+  state.templateComparison = await fetchTemplateComparison(
+    props.asset.templateId as number,
+    valueInt
+  );
+
+  // if the template comparison is empty, it means the
+  // we can change template without issue, so don't bother
+  // confirming
+  if (!state.templateComparison || isEmpty(state.templateComparison)) {
+    handleConfirmTemplateChange();
+    return;
+  }
+
+  state.isConfirmingTemplateChange = true;
+}
+
+function handleConfirmTemplateChange() {
+  emit("update:templateId", state.localTemplateId);
+  state.isConfirmingTemplateChange = false;
+  state.templateComparison = null;
+}
+
+function handleCancelTemplateChange() {
+  // reset the local templateId to the original value
+  state.localTemplateId = String(props.asset.templateId ?? "");
+  state.isConfirmingTemplateChange = false;
+  state.templateComparison = null;
+}
 </script>
 <style>
 .select-picker-light {
