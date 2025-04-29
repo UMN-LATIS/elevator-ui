@@ -67,16 +67,11 @@
         required
         @update:modelValue="compareTemplatesAndConfirm" />
       <SelectGroup
-        :modelValue="String(asset.collectionId)"
+        v-model="state.localCollectionId"
         :options="collectionOptions"
         label="Collection"
         required
-        @update:modelValue="
-          $emit('update:asset', {
-            ...asset,
-            collectionId: Number.parseInt($event),
-          })
-        " />
+        @update:modelValue="compareCollectionsAndConfirm" />
 
       <TableOfContents :items="tocItems" />
     </div>
@@ -100,11 +95,29 @@
           </li>
         </ul>
       </ConfirmModal>
+
+      <ConfirmModal
+        type="danger"
+        :isOpen="state.isConfirmingCollectionChange"
+        title="Are you sure?"
+        @confirm="handleConfirmCollectionChange"
+        @close="handleCancelCollectionChange">
+        <p>
+          Switching collections will prevent this asset from being accessed
+          while the migration is taking place. It may also make assets
+          temporarily unavilable.
+        </p>
+
+        <p>
+          Upon confirmation, your asset will be saved and you will be redirected
+          to your list of assets.
+        </p>
+      </ConfirmModal>
     </Teleport>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
 import {
@@ -126,9 +139,13 @@ import TableOfContents, {
 } from "../TableOfContents/TableOfContents.vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import invariant from "tiny-invariant";
-import { fetchTemplateComparison } from "@/api/fetchers";
+import {
+  fetchCollectionComparison,
+  fetchTemplateComparison,
+} from "@/api/fetchers";
 import { isEmpty } from "ramda";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps<{
   template: Template;
@@ -149,6 +166,9 @@ const state = reactive({
   localTemplateId: String(props.asset.templateId ?? ""),
   templateComparison: null as TemplateComparison | [] | null,
   isConfirmingTemplateChange: false,
+  localCollectionId: String(props.asset.collectionId ?? ""),
+  collectionComparison: null as { migration: boolean } | null,
+  isConfirmingCollectionChange: false,
 });
 
 const canSave = computed(
@@ -281,6 +301,66 @@ function handleCancelTemplateChange() {
   state.localTemplateId = String(props.asset.templateId ?? "");
   state.isConfirmingTemplateChange = false;
   state.templateComparison = null;
+}
+
+async function compareCollectionsAndConfirm(value: string) {
+  const newCollectionId = Number.parseInt(value);
+  invariant(
+    !Number.isNaN(newCollectionId),
+    "newCollectionId should be a number"
+  );
+
+  state.collectionComparison = await fetchCollectionComparison(
+    props.asset.collectionId as number,
+    newCollectionId
+  );
+
+  // if migration is false, it means that we can change collection without
+  // issue
+  if (!state.collectionComparison.migration) {
+    emit("update:asset", {
+      ...props.asset,
+      collectionId: newCollectionId,
+    });
+    state.isConfirmingCollectionChange = false;
+    state.collectionComparison = null;
+    return;
+  }
+
+  state.isConfirmingCollectionChange = true;
+}
+
+const router = useRouter();
+
+function handleConfirmCollectionChange() {
+  const newCollectionId = Number.parseInt(state.localCollectionId);
+  emit("update:asset", {
+    ...props.asset,
+    collectionId: newCollectionId,
+  });
+  state.isConfirmingCollectionChange = false;
+  state.collectionComparison = null;
+
+  // because the collection change will involve a migration
+  // we no longer want the asset to be edited,
+
+  // so, on next tick:
+  // 1. save the current state
+  // 2. and navigate to the list of assets
+  nextTick(() => {
+    emit("save");
+    // do we need to wait for save to fire?
+    router.push({
+      name: "allMyAssets",
+    });
+  });
+}
+
+function handleCancelCollectionChange() {
+  // reset the local collectionId to the original value
+  state.localCollectionId = String(props.asset.collectionId ?? "");
+  state.isConfirmingCollectionChange = false;
+  state.collectionComparison = null;
 }
 </script>
 <style>

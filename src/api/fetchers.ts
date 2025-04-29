@@ -615,3 +615,14 @@ export async function fetchTemplateComparison(
 
   return res.data;
 }
+
+export async function fetchCollectionComparison(
+  collectionId: number,
+  newCollectionId: number
+) {
+  const res = await axios.get<{ migration: boolean }>(
+    `${BASE_URL}/assetManager/compareCollections/${collectionId}/${newCollectionId}`
+  );
+
+  return res.data;
+}
