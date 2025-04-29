@@ -27,12 +27,12 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.LocationWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <EditLocationWidgetContentItem
-        :modelValue="item"
+        :modelValue="(item as Type.WithId<Type.LocationWidgetContent>)"
         @update:modelValue="handleItemUpdate" />
     </template>
   </EditWidgetLayout>
@@ -60,8 +60,6 @@ const emit = defineEmits<{
 function handleItemUpdate(
   updatedItem: Type.WithId<Type.LocationWidgetContent>
 ) {
-  console.log("handleItemUpdate", updatedItem);
-
   const index = props.widgetContents.findIndex((i) => i.id === updatedItem.id);
   if (index === -1) {
     throw Error(

@@ -9,8 +9,8 @@
           class="text-sm"
           type="button"
           :class="{
-            'font-bold': key === activeMapStyleKey,
-            'text-neutral-500': key !== activeMapStyleKey,
+            'font-bold': key === state.activeMapStyleKey,
+            'text-neutral-500': key !== state.activeMapStyleKey,
           }"
           @click="handleActiveStyleChange(key)">
           {{ style.label }}
@@ -36,16 +36,14 @@
     <div class="grid grid-cols-2 gap-4">
       <InputGroup
         :id="`${id}-longitude`"
-        v-model.number="inputLng"
+        v-model="state.lngInput"
         label="Longitude"
-        placeholder="Enter longitude"
-        @change="updateMarkerFromInput" />
+        placeholder="Enter longitude" />
       <InputGroup
         :id="`${id}-latitude`"
-        v-model.number="inputLat"
+        v-model="state.latInput"
         label="Latitude"
-        placeholder="Enter latitude"
-        @change="updateMarkerFromInput" />
+        placeholder="Enter latitude" />
     </div>
     <div>
       <label
@@ -58,31 +56,42 @@
         :initialValue="props.modelValue.address ?? ''"
         :apiKey="config.arcgis.apiKey"
         placeholder="Search for an address"
-        @select="handleAddressSelect" />
+        @select="
+          (geocoderResult) =>
+            $emit('update:modelValue', {
+              ...props.modelValue,
+              address: geocoderResult.address,
+              loc: {
+                ...props.modelValue.loc,
+                coordinates: [
+                  roundFloat(geocoderResult.lng, 6),
+                  roundFloat(geocoderResult.lat, 6),
+                ],
+              },
+            })
+        " />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, shallowRef, useId, computed } from "vue";
+import {
+  useId,
+  computed,
+  reactive,
+  useTemplateRef,
+  onMounted,
+  watch,
+  shallowRef,
+} from "vue";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import config from "@/config";
 import invariant from "tiny-invariant";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
-import { LocationWidgetContent, WithId } from "@/types";
-
-interface LatLng {
-  lat: number;
-  lng: number;
-}
-
-interface GeocoderResult {
-  lat: number;
-  lng: number;
-  address: string;
-}
+import { LocationWidgetContent, WithId, LngLat } from "@/types";
+import { clamp } from "ramda";
 
 const props = withDefaults(
   defineProps<{
@@ -96,25 +105,14 @@ const props = withDefaults(
 
 const id = computed(() => props.modelValue.id || useId());
 
-const location = computed(
-  (): LatLng => ({
-    lng: Number(props.modelValue.loc?.coordinates?.[0].toFixed(6)) ?? 0,
-    lat: Number(props.modelValue.loc?.coordinates?.[1].toFixed(6)) ?? 0,
-  })
-);
+const roundFloat = (value: number, decimalPlaces: number): number =>
+  Number(value.toFixed(decimalPlaces));
 
 const emit = defineEmits<{
   (e: "update:modelValue", widgetContent: WithId<LocationWidgetContent>): void;
 }>();
 
-const mapContainer = ref<HTMLElement | null>(null);
-const map = shallowRef<maplibregl.Map | null>(null);
-const marker = shallowRef<maplibregl.Marker | null>(null);
-const markerPosition = ref<LatLng>(location.value);
-
-// Input fields for manual coordinate entry
-const inputLat = ref<number>(location.value.lat);
-const inputLng = ref<number>(location.value.lng);
+const mapContainerRef = useTemplateRef("mapContainer");
 
 const mapStyles = {
   light: {
@@ -135,219 +133,123 @@ const mapStyles = {
   },
 };
 
-const activeMapStyleKey = ref<keyof typeof mapStyles>("light");
+// Input fields for manual coordinate entry
+const state = reactive({
+  lngInput: props.modelValue.loc?.coordinates?.[0].toString() ?? "", // local state for text input
+  latInput: props.modelValue.loc?.coordinates?.[1].toString() ?? "",
+  locationLabel: props.modelValue.locationLabel,
+  activeMapStyleKey: "light" as keyof typeof mapStyles,
+});
 
-const getArcGISUrl = (styleKey: string) => {
-  const baseUrl = `https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2`;
-  const { name, url } = mapStyles[styleKey];
-  return url || `${baseUrl}${name}?token=${config.arcgis.apiKey}`;
-};
+const map = shallowRef<maplibregl.Map | null>(null);
+const marker = shallowRef<maplibregl.Marker | null>(null);
 
-const emitUpdateLocation = (location: LatLng, label?: string) => {
+function emitCoordinateUpdate(lngLat: LngLat | null) {
   emit("update:modelValue", {
     ...props.modelValue,
-    locationLabel: label !== undefined ? label : props.modelValue.locationLabel,
     loc: {
       ...props.modelValue.loc,
-      coordinates: [location.lng, location.lat],
+      coordinates: lngLat
+        ? [roundFloat(lngLat.lng, 6), roundFloat(lngLat.lat, 6)]
+        : null,
     },
   });
-};
-
-// Function to set up marker
-const setupMarker = (position: LatLng) => {
-  if (!map.value) return;
-
-  // Create a draggable marker
-  marker.value = new maplibregl.Marker({
-    draggable: true,
-    color: "#FF0000",
-  })
-    .setLngLat([position.lng, position.lat])
-    .addTo(map.value);
-
-  // Update coordinates when marker is dragged
-  marker.value.on("dragend", () => {
-    if (!marker.value) return;
-
-    const lngLat = marker.value.getLngLat();
-    const roundedLngLat = {
-      lat: Number(lngLat.lat.toFixed(6)),
-      lng: Number(lngLat.lng.toFixed(6)),
-    };
-    markerPosition.value = lngLat;
-
-    // Update input fields to match marker position
-    inputLat.value = roundedLngLat.lat;
-    inputLng.value = roundedLngLat.lng;
-
-    emitUpdateLocation(roundedLngLat);
-  });
-};
-
-// Function to set up map event listeners
-const setupMapEvents = () => {
-  if (!map.value) return;
-
-  // Allow clicking on the map to move the marker
-  map.value.on("click", (e: maplibregl.MapMouseEvent) => {
-    if (!marker.value) return;
-    const roundedLngLat = {
-      lat: Number(e.lngLat.lat.toFixed(6)),
-      lng: Number(e.lngLat.lng.toFixed(6)),
-    };
-
-    marker.value.setLngLat(roundedLngLat);
-    markerPosition.value = roundedLngLat;
-
-    // Update input fields to match marker position
-    inputLat.value = roundedLngLat.lat;
-    inputLng.value = roundedLngLat.lng;
-
-    emitUpdateLocation(roundedLngLat);
-  });
-};
-
-function handleActiveStyleChange(key: keyof typeof mapStyles): void {
-  if (!map.value) throw new Error("Cannot update style: no map");
-
-  activeMapStyleKey.value = key;
-  map.value.setStyle(getArcGISUrl(key));
 }
 
-const initializeMap = (): void => {
-  console.log("Initializing map...");
-  if (!mapContainer.value) return;
+// update modelValue when input fields change
+watch([() => state.lngInput, () => state.latInput], () => {
+  const lng = parseFloat(state.lngInput);
+  const lat = parseFloat(state.latInput);
 
-  map.value = new maplibregl.Map({
-    container: mapContainer.value,
-    style: getArcGISUrl(activeMapStyleKey.value),
-    center: [location.value.lng, location.value.lat],
-    zoom: props.initialZoom,
-  });
-
-  map.value.on("load", () => {
-    invariant(map.value, "Map should be initialized");
-    setupMarker(location.value);
-    setupMapEvents();
-  });
-};
-
-// Function to update marker position from input fields
-const updateMarkerFromInput = (): void => {
-  // Validate inputs
-  if (
-    inputLat.value === undefined ||
-    inputLng.value === undefined ||
-    isNaN(inputLat.value) ||
-    isNaN(inputLng.value)
-  ) {
+  // if it's not a number, ignore it
+  // the user may be typing
+  if (isNaN(lng) || isNaN(lat)) {
     return;
   }
 
-  // Clamp latitude values to valid range
-  const validLat = Math.max(-90, Math.min(90, inputLat.value));
-  if (validLat !== inputLat.value) {
-    inputLat.value = validLat;
-  }
+  // Update the modelValue with the new coordinates
+  emitCoordinateUpdate({
+    lng,
+    lat,
+  });
 
-  // Clamp longitude values to valid range
-  const validLng = Math.max(-180, Math.min(180, inputLng.value));
-  if (validLng !== inputLng.value) {
-    inputLng.value = validLng;
-  }
-
-  if (map.value && marker.value) {
-    const newPosition = {
-      lat: inputLat.value,
-      lng: inputLng.value,
-    };
-
-    // Update marker on map
-    marker.value.setLngLat([newPosition.lng, newPosition.lat]);
-
-    // Center map on new position
-    map.value.flyTo({
-      center: [newPosition.lng, newPosition.lat],
-      duration: 1000, // ms
-    });
-
-    // Update marker position state
-    markerPosition.value = newPosition;
-
-    // Emit update event
-    emitUpdateLocation(newPosition);
-  }
-};
-
-// New function to handle address selection from geocoder
-const handleAddressSelect = (result: GeocoderResult): void => {
-  if (map.value && marker.value) {
-    const newPosition = {
-      lat: result.lat,
-      lng: result.lng,
-    };
-
-    // Update marker on map
-    marker.value.setLngLat([newPosition.lng, newPosition.lat]);
-
-    // Center map on new position with animation
-    map.value.flyTo({
-      center: [newPosition.lng, newPosition.lat],
-      zoom: 15, // Zoom in closer to the selected location
-      duration: 1000, // ms
-    });
-
-    // Update marker position state
-    markerPosition.value = newPosition;
-
-    // Update input fields
-    inputLat.value = newPosition.lat;
-    inputLng.value = newPosition.lng;
-
-    // If no location label is set, use the address as the label
-    const currentLabel = props.modelValue.locationLabel;
-    const newLabel =
-      !currentLabel || currentLabel.trim() === ""
-        ? result.address
-        : currentLabel;
-
-    emit("update:modelValue", {
-      ...props.modelValue,
-      locationLabel: newLabel,
-      address: result.address,
-      loc: {
-        ...props.modelValue.loc,
-        coordinates: [newPosition.lng, newPosition.lat],
-      },
-    });
-  }
-};
-
-onMounted(() => {
-  initializeMap();
+  // fly to the new coordinates
+  invariant(map.value, "Map is not initialized");
+  map.value.flyTo({
+    center: [lng, lat],
+    animate: true,
+  });
 });
 
-// Watch for changes to initialCenter prop
 watch(
-  () => props.modelValue,
-  (newContentItem) => {
-    const newLngLat = {
-      lng: newContentItem.loc?.coordinates?.[0] ?? 0,
-      lat: newContentItem.loc?.coordinates?.[1] ?? 0,
-    };
-    if (map.value && marker.value) {
-      map.value.setCenter([newLngLat.lng, newLngLat.lat]);
-      marker.value.setLngLat([newLngLat.lng, newLngLat.lat]);
-      markerPosition.value = newLngLat;
+  [() => props.modelValue.loc?.coordinates, map],
+  () => {
+    if (!map.value) return;
 
-      // Update input fields
-      inputLat.value = newLngLat.lat;
-      inputLng.value = newLngLat.lng;
+    const coordinates = props.modelValue.loc?.coordinates ?? null;
+
+    // sync local inputs
+    state.lngInput = coordinates?.[0].toString() ?? "";
+    state.latInput = coordinates?.[1].toString() ?? "";
+
+    // if no coordinates, remove marker
+    if (!coordinates) {
+      marker.value?.remove();
+      marker.value = null;
+      return;
     }
+
+    // if there's a marker, update its position
+    if (marker.value) {
+      marker.value.setLngLat(coordinates);
+      return;
+    }
+
+    // if no marker, create one
+    marker.value = new maplibregl.Marker({ draggable: true })
+      .setLngLat(coordinates)
+      .addTo(map.value)
+      .on("dragend", () => {
+        const lngLat = marker.value?.getLngLat() ?? null;
+        emitCoordinateUpdate(lngLat);
+      });
+
+    // fly to the new coordinates
+    map.value.flyTo({
+      center: coordinates,
+      zoom: clamp(1, 20, props.initialZoom),
+      animate: true,
+    });
   },
-  { deep: true }
+  {
+    immediate: true,
+  }
 );
+
+function getArcGISUrl(styleKey: string) {
+  const baseUrl = `https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2`;
+  const { name, url } = mapStyles[styleKey];
+  return url || `${baseUrl}${name}?token=${config.arcgis.apiKey}`;
+}
+
+function handleActiveStyleChange(styleKey: keyof typeof mapStyles) {
+  invariant(map, "Map is not initialized");
+  state.activeMapStyleKey = styleKey;
+}
+
+onMounted(() => {
+  invariant(mapContainerRef.value, "Map container is not defined");
+
+  map.value = new maplibregl.Map({
+    container: mapContainerRef.value,
+    style: getArcGISUrl(state.activeMapStyleKey),
+    center: [0, 0],
+    zoom: props.initialZoom,
+  }).on("click", (e) => {
+    const lngLat = e.lngLat;
+    emitCoordinateUpdate(lngLat);
+  });
+});
 </script>
 
 <style scoped></style>

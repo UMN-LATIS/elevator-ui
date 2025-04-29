@@ -40,7 +40,7 @@ export function createDefaultWidgetContent(
           label: "",
           entries: [],
           type: "",
-          coordinates: [0, 0],
+          coordinates: null,
         },
       };
     case WIDGET_TYPES.TAG_LIST:
