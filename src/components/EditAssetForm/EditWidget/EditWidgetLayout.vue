@@ -67,11 +67,14 @@
                       @click="$emit('setPrimary', item.id)">
                       <StarIcon
                         class="w-4 h-4"
-                        :class="
+                        :class="[
                           item.isPrimary
                             ? 'fill-amber-400 text-amber-400'
-                            : 'text-neutral-400'
-                        " />
+                            : 'text-neutral-400',
+                          {
+                            invisible: !isOpen || widgetContents.length < 2,
+                          },
+                        ]" />
                       <span class="sr-only">Set as Primary</span>
                     </button>
                   </Tooltip>
