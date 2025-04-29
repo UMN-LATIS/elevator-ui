@@ -72,7 +72,7 @@ import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import { useRelatedAssetChannel } from "@/composables/useRelatedAssetChannel";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
@@ -264,15 +264,13 @@ async function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
   invariant(state.localAsset, "Cannot change template: no asset.");
 
   state.localAsset.templateId = newTemplateId;
-  handleSaveAsset({ redirectToAssetPage: false });
+  handleSaveAsset();
 }
-
-const router = useRouter();
 const route = useRoute();
 const { notifyNewRelatedAsset } = useRelatedAssetChannel();
 const channelName = computed(() => route.query.channelName as string);
 
-function handleSaveAsset({ redirectToAssetPage = true } = {}) {
+function handleSaveAsset() {
   invariant(state.localAsset, "Cannot save: no asset.");
   invariant(savedTemplate.value, "Cannot save: no template.");
 
@@ -309,32 +307,20 @@ function handleSaveAsset({ redirectToAssetPage = true } = {}) {
         return;
       }
 
-      if (channelName.value) {
-        // Notify the parent window about the new asset
-        notifyNewRelatedAsset(channelName.value, data.objectId);
-
-        // Add a small delay to ensure the message is sent before closing
-        setTimeout(() => {
-          // If this window was opened for related asset creation, close it and focus the parent
-          if (window.opener) {
-            window.opener.focus();
-            window.close();
-          }
-        }, 500);
-
-        // No need to redirect in this case
+      if (!channelName.value) {
         return;
       }
+      // Notify the parent window about the new asset
+      notifyNewRelatedAsset(channelName.value, data.objectId);
 
-      if (!redirectToAssetPage) return;
-
-      // redirect to the new asset page
-      router.push({
-        name: "asset",
-        params: {
-          assetId: data.objectId,
-        },
-      });
+      // Add a small delay to ensure the message is sent before closing
+      setTimeout(() => {
+        // If this window was opened for related asset creation, close it and focus the parent
+        if (window.opener) {
+          window.opener.focus();
+          window.close();
+        }
+      }, 500);
     },
   });
 }
