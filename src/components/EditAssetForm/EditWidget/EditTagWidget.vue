@@ -8,10 +8,16 @@
     @add="handleAdd"
     @setPrimary="handleSetPrimary"
     @delete="handleDelete"
-    @update:widgetContents="$emit('update:widgetContents', $event)">
+    @update:widgetContents="
+      $emit(
+        'update:widgetContents',
+        $event as Type.WithId<Type.TagListWidgetContent>[]
+      )
+    ">
     <template #fieldContents="{ item }">
       <TagsInput
-        :modelValue="item.tags"
+        :modelValue="(item.tags as string[])"
+        :addOnBlur="true"
         class="tags-input !py-0"
         @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
         <TagsInputItem
