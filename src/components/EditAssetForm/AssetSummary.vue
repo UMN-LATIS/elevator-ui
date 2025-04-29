@@ -15,7 +15,7 @@
           {{ asset.assetId ? "Edit Asset" : "Create Asset" }}
         </h1>
         <h2 class="text-xl md:text-2xl font-bold">
-          {{ asset.title?.[0] ?? asset.assetId ?? "New Asset" }}
+          {{ asset.title?.[0] || asset.assetId || "New Asset" }}
         </h2>
       </header>
       <div
