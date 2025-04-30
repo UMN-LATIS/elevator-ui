@@ -99,19 +99,21 @@
       <ConfirmModal
         type="danger"
         :isOpen="state.isConfirmingMigrateCollection"
-        title="Are you sure?"
+        title="Move Asset to New Collection?"
         @confirm="handleConfirmMigrateCollection"
         @close="handleCancelMigrateCollection">
-        <p>
-          Switching collections will prevent this asset from being accessed
-          while the migration is taking place. It may also make assets
-          temporarily unavilable.
-        </p>
+        <div class="flex flex-col gap-4">
+          <p>
+            Changing collections will make this asset
+            <b>temporarily unavailable</b>
+            while the migration is taking place.
+          </p>
 
-        <p>
-          Upon confirmation, your asset will be saved and you will be redirected
-          to your list of assets.
-        </p>
+          <p>
+            Your current changes will be
+            <b>saved.</b>
+          </p>
+        </div>
       </ConfirmModal>
     </Teleport>
   </div>

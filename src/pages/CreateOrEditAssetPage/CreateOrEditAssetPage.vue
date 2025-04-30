@@ -355,6 +355,8 @@ function handleMigrateCollection(newCollectionId: number) {
 
   saveAsset(formData, {
     onSuccess: () => {
+      // TODO: maybe show a toast or something?
+
       // migrating the collection can take a bit of time, so redirect
       // the user to the all my assets page after saving to prevent
       // more editing during the migration
