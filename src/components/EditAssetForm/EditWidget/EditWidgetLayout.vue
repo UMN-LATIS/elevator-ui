@@ -50,7 +50,7 @@
                 invisible: !(isOpen && widgetContents.length > 1),
               },
             ]"
-            listItemClass="bg-black/5 rounded-md mb-1 pr-1 shadow"
+            listItemClass="bg-black/5 rounded-md mb-1 pr-1"
             @update:modelValue="
               (widgetContents) => {
                 $emit('update:widgetContents', widgetContents);
