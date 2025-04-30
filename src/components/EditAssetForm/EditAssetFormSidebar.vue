@@ -147,7 +147,6 @@ import {
 } from "@/api/fetchers";
 import { isEmpty } from "ramda";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import { useRouter } from "vue-router";
 
 const props = defineProps<{
   template: Template;
@@ -254,7 +253,7 @@ watch(
 
 const tocItems = computed((): TocItem[] => {
   return props.template.widgetArray
-    .toSorted((a, b) => a.viewOrder - b.viewOrder)
+    .toSorted((a, b) => a.templateOrder - b.templateOrder)
     .map((widgetDef: WidgetProps) => {
       const fieldTitle = widgetDef.fieldTitle;
       const widgetContents = props.asset[fieldTitle] as WidgetContent[];
