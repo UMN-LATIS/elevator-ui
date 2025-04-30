@@ -32,7 +32,7 @@
           " />
       </div>
     </section>
-    <aside class="md:bg-neutral-200 md:border-l-2 border-neutral-900">
+    <aside class="sidebar-container">
       <EditAssetFormSidebar
         :template="template"
         :asset="asset"
@@ -107,4 +107,12 @@ function handleCollapseAll() {
   openWidgets.clear();
 }
 </script>
-<style scoped></style>
+<style scoped>
+@media (min-width: 768px) {
+  .sidebar-container {
+    border-left: var(--app-borderWidth) solid var(--app-borderColor);
+    background: var(--app-sidebar-backgroundColor);
+    color: var(--app-sidebar-textColor);
+  }
+}
+</style>

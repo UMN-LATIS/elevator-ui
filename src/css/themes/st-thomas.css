@@ -1,10 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
 [data-theme="st-thomas"] {
-  --brand-purple-bright: #9E28B5;
+  --brand-purple-bright: #9e28b5;
   --brand-purple: #510c76;
-  --brand-purple-light: #E9D9FF;
+  --brand-purple-light: #e9d9ff;
 
   --app-fontFamily: Lato, sans-serif;
   --app-textColor: var(--color-gray-600);
@@ -31,13 +30,9 @@
     border-top: 0.5rem solid var(--brand-purple);
   }
 
-  & .app-logo-mark {
-    display: flex;
-    align-items: flex-end !important;
-    & h1 {
-      line-height: 1;
-      font-weight: 400;
-    }
+  & .app-logo-mark h1 {
+    line-height: 1;
+    font-weight: 400;
   }
 
   & .custom-app-header {
@@ -45,7 +40,7 @@
     color: var(--color-purple-100);
   }
 
-  & .app-menu__items :where(button, a):where(:hover,:focus) {
+  & .app-menu__items :where(button, a):where(:hover, :focus) {
     background: var(--color-purple-50);
     border-radius: 0.25rem;
   }
@@ -144,10 +139,16 @@
   --app-button-tertiary-hover-backgroundColor: var(--color-purple-50);
   --app-button-tertiary-hover-textColor: var(--color-purple-700);
 
-
+  /* sidebar on create/edit page */
+  --app-sidebar-backgroundColor: var(--color-purple-100);
+  --app-sidebar-textColor: var(--color-neutral-900);
+  --app-sidebar-link-textColor: var(--color-neutral-900);
 
   & .prose {
-    & :where(h1,h2,h3,h4,h5):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+    &
+      :where(h1, h2, h3, h4, h5):not(
+        :where([class~="not-prose"], [class~="not-prose"] *)
+      ) {
       color: var(--brand-purple);
     }
   }
