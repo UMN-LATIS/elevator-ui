@@ -44,12 +44,7 @@
             :modelValue="widgetContents"
             :listId="widgetDef.widgetId"
             :showEmptyList="false"
-            :handleClass="[
-              'flex flex-col items-start px-1 transition-opacity',
-              {
-                invisible: !(isOpen && widgetContents.length > 1),
-              },
-            ]"
+            :handleClass="['flex flex-col items-start px-1']"
             listItemClass="bg-black/5 rounded-md mb-1 pr-1"
             @update:modelValue="
               (widgetContents) => {
@@ -86,14 +81,14 @@
                   <button
                     v-if="widgetDef.allowMultiple"
                     :class="[
-                      'text-neutral-900 hover:bg-red-50 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
+                      'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
                         'sr-only': !isOpen,
                       },
                     ]"
                     type="button"
                     @click="$emit('delete', item.id)">
-                    <XIcon class="w-4 h-4" />
+                    <XIcon class="!size-4" />
                     <span class="sr-only">Delete</span>
                   </button>
                 </div>
