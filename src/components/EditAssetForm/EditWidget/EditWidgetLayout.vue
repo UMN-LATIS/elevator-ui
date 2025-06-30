@@ -7,21 +7,20 @@
       'cursor-pointer': !isOpen,
     }"
     @click="handleSectionClick">
-    <button
-      type="button"
-      class="flex gap-2 justify-between lg:w-48 xl:w-xs text-left mb-3 lg:mb-0"
-      @click.stop="toggleExpand">
-      <div class="flex gap-2">
-        <ChevronDownIcon v-if="isOpen" class="!size-4" />
-        <ChevronRightIcon v-else class="!size-4" />
-        <span class="sr-only">
-          {{ isOpen ? "Collapse" : "Expand" }}
-        </span>
-        <h2 class="text-base font-bold leading-none">
-          {{ widgetDef.label }}
-          <span v-if="widgetDef.required" class="text-red-500">*</span>
-        </h2>
-      </div>
+    <div class="flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0">
+      <button type="button" class="text-left" @click.stop="toggleExpand">
+        <div class="flex gap-2">
+          <ChevronDownIcon v-if="isOpen" class="!size-4" />
+          <ChevronRightIcon v-else class="!size-4" />
+          <span class="sr-only">
+            {{ isOpen ? "Collapse" : "Expand" }}
+          </span>
+          <h2 class="text-base font-bold leading-none">
+            {{ widgetDef.label }}
+            <span v-if="widgetDef.required" class="text-red-500">*</span>
+          </h2>
+        </div>
+      </button>
       <div>
         <Tooltip v-if="hasContents" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
@@ -32,7 +31,7 @@
           <TriangleAlertIcon class="w-4 h-4 text-red-500" />
         </Tooltip>
       </div>
-    </button>
+    </div>
     <div
       ref="editLayoutContents"
       :class="{
