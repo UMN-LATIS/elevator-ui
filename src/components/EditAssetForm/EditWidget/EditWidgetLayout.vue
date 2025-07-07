@@ -94,12 +94,14 @@
               </div>
             </template>
             <template v-if="widgetDef.allowMultiple" #footer>
-              <div class="flex justify-center">
-                <Button variant="tertiary" @click="$emit('add')">
-                  <PlusIcon class="w-4 h-4" />
-                  {{ widgetDef.label }}
-                </Button>
-              </div>
+              <slot name="footer">
+                <div class="flex justify-center">
+                  <Button variant="tertiary" @click="$emit('add')">
+                    <PlusIcon class="w-4 h-4" />
+                    {{ widgetDef.label }}
+                  </Button>
+                </div>
+              </slot>
             </template>
           </DragDropList>
         </DragDropContainer>

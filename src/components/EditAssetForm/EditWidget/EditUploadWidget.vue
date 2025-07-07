@@ -31,7 +31,15 @@
       }
     ">
     <template #fieldContents="{ item }">
+      <ThumbnailImage
+        v-if="item.fileId"
+        :src="`${config.instance.base.url}/fileManager/tinyImageByFileId/${item.fileId}/true`"
+        :alt="item.fileDescription"
+        :fileType="item.fileType"
+        :showHoverIcon="false"
+        class="thumbnail-related-asset-widget__image max-w-full" />
       <FileUploader
+        v-else
         :widgetContent="item"
         :widgetDef="widgetDef"
         :collectionId="collectionId" />
@@ -55,6 +63,8 @@ import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
 import invariant from "tiny-invariant";
 import FileUploader from "./FileUploader.vue";
+import config from "@/config";
+import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 
 const props = defineProps<{
   collectionId: number;
