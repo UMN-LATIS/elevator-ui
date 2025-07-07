@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
     build: {
       manifest: true,
       rollupOptions: {
-        input: "src/main.ts",
+        input: path.resolve(__dirname, "src/main.ts"),
       },
       sourcemap: mode !== "production",
     },
