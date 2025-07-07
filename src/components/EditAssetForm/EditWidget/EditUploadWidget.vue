@@ -31,6 +31,10 @@
       }
     ">
     <template #fieldContents="{ item }">
+      <FileUploader
+        :widgetContent="item"
+        :widgetDef="widgetDef"
+        :collectionId="collectionId" />
       <div>
         <label :for="`${item.id}-input`" class="sr-only">
           {{ widgetDef.label }}
@@ -50,8 +54,10 @@ import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
 import invariant from "tiny-invariant";
+import FileUploader from "./FileUploader.vue";
 
 const props = defineProps<{
+  collectionId: number;
   widgetDef: Type.UploadWidgetProps;
   widgetContents: Type.WithId<Type.UploadWidgetContent>[];
   isOpen: boolean;
