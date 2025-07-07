@@ -50,7 +50,7 @@
                 $emit('update:widgetContents', widgetContents);
               }
             ">
-            <template #item="{ item }">
+            <template #item="{ item }: { item: T }">
               <div
                 class="grid grid-cols-[auto,1fr,auto] gap-2 py-2 items-start">
                 <div>
@@ -107,15 +107,10 @@
     </div>
   </section>
 </template>
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Types.WithId<Types.WidgetContent>">
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
-import {
-  CircleIcon,
-  PlusIcon,
-  StarIcon,
-  TriangleAlertIcon,
-} from "lucide-vue-next";
+import { PlusIcon, StarIcon, TriangleAlertIcon } from "lucide-vue-next";
 import * as Types from "@/types";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
@@ -125,7 +120,7 @@ import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 import { useFocusWithin } from "@vueuse/core";
 
 const props = defineProps<{
-  widgetContents: Types.WithId<Types.WidgetContent>[];
+  widgetContents: T[];
   widgetDef: Types.WidgetProps;
   isOpen: boolean;
 }>();
