@@ -19,6 +19,7 @@
           :widgetDef="widgetDef"
           :widgetContents="widgetContents"
           :assetId="asset.assetId"
+          :collectionId="(asset.collectionId as number)"
           :isOpen="openWidgets.has(widgetDef.widgetId)"
           @update:isOpen="
             (open) => {

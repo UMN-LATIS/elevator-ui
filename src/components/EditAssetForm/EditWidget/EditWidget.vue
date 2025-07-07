@@ -3,6 +3,7 @@
     :is="getWidgetComponentByType(widgetDef.type)"
     :widgetDef="widgetDef"
     :widgetContents="widgetContents"
+    :collectionId="collectionId"
     :assetId="assetId"
     :isOpen="isOpen"
     @update:isOpen="$emit('update:isOpen', $event)"
@@ -27,6 +28,7 @@ defineProps<{
   widgetDef: WidgetProps;
   widgetContents: WidgetContent[];
   assetId: string | null; // new assets may have a null id
+  collectionId: number;
   isOpen: boolean;
 }>();
 
