@@ -29,6 +29,10 @@ export default defineConfig(({ mode }) => {
       sourcemap: mode !== "production",
     },
     server: {
+      https: {
+        cert: "./.cert/cert.pem",
+        key: "./.cert/key.pem",
+      },
       proxy: {
         "/assets": env.VITE_API_PROXY_TARGET,
         "/api": {

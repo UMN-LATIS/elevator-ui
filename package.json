@@ -14,7 +14,8 @@
     "vue-tsc": "vue-tsc --noEmit --skipLibCheck",
     "vue-tsc:watch": "vue-tsc --noEmit --skipLibCheck --watch",
     "lint": "eslint --ext .js,.ts,.vue .",
-    "test": "vitest"
+    "test": "vitest",
+    "cert": "rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost' 127.0.0.1 0.0.0.0 '::1' '::' `ipconfig getifaddr en0`"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
