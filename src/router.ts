@@ -92,7 +92,7 @@ const router = createRouter({
     {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
-      name: "asset",
+      name: "viewAsset",
       path: "/asset/viewAsset/:assetId",
       component: AssetViewPage,
       // component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),

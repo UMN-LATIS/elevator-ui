@@ -74,7 +74,14 @@ watch([() => props.objectId, () => route.hash], async () => {
   await assetStore.setActiveObject(objectId.value);
 });
 
-onBeforeRouteLeave(() => {
+onBeforeRouteLeave((to) => {
+  // don't clear the active asset if we're going to edit it
+  // this will prevent the metadata-only view from flashing up
+  // when navigating to the edit page
+  if (to.name === "editAsset") {
+    return;
+  }
+
   // clear the active asset so that the next page (e.g. Home Page)
   // doesn't show editing controls for this asset
   assetStore.setActiveAsset(null);
