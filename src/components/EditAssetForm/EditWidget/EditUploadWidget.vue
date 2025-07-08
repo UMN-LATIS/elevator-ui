@@ -1,6 +1,6 @@
 <template>
   <EditWidgetLayout
-    :widgetContents="widgetContents"
+    :widgetContents="uploadedContents"
     :widgetDef="widgetDef"
     class="edit-upload-widget"
     :isOpen="isOpen"
@@ -31,12 +31,7 @@
       }
     ">
     <template #fieldContents="{ item }">
-      <FileUploader
-        v-if="!item.fileId"
-        :widgetContent="item"
-        :widgetDef="widgetDef"
-        :collectionId="collectionId" />
-      <div v-else>
+      <div>
         <div class="grid grid-cols-3 gap-4 mb-2">
           <div class="w-full aspect-square rounded-md overflow-hidden relative">
             <img
@@ -103,10 +98,13 @@
         </button>
       </div>
     </template>
+    <template #footer>
+      <FileUploader :collectionId="props.collectionId" />
+    </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
@@ -133,6 +131,12 @@ const emit = defineEmits<{
 }>();
 
 const isShowingDetails = ref(false);
+
+const uploadedContents = computed(() => {
+  return props.widgetContents.filter(
+    (content) => content.fileId && content.fileId !== ""
+  );
+});
 
 function handleUpdateContent(id: string, value: string) {
   const parsedValue = JSON.parse(
