@@ -474,6 +474,10 @@ const api = {
   startDrawerDownload: fetchers.startDrawerDownload,
   clearCache,
   getDidYouMeanSuggestions: fetchers.fetchDidYouMeanSuggestions,
+  getFileContainer: fetchers.getFileContainer,
+  startS3MultipartUpload: fetchers.startS3MultipartUpload,
+  signS3UploadPart: fetchers.signS3UploadPart,
+  completeS3MultipartUpload: fetchers.completeS3MultipartUpload,
 };
 
 export default api;

@@ -929,3 +929,13 @@ export interface RelatedAssetSaveMessage extends BroadcastMessage {
     relatedAssetId: string;
   };
 }
+export interface FileContainer {
+  bucket: string; // "elevatorbucket"
+  bucketKey: string; // "AKIA..."
+  fileObjectId: string; // "686eea..."
+  collectionId: string; // "1"
+  index: number; // 0
+  path: string; // "original"
+}
+
+export type GetFileContainerApiResponse = FileContainer[];

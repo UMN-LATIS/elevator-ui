@@ -34,6 +34,7 @@ import {
   type AssetSummary,
   type UpdateAssetRequestFormData,
   TemplateComparison,
+  type GetFileContainerApiResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -623,6 +624,111 @@ export async function fetchCollectionComparison(
   const res = await axios.get<{ migration: boolean }>(
     `${BASE_URL}/assetManager/compareCollections/${collectionId}/${newCollectionId}`
   );
+
+  return res.data;
+}
+
+export async function getFileContainer({
+  filename,
+  collectionId,
+}: {
+  filename: string;
+  collectionId: number;
+}) {
+  const formData = new FormData();
+  formData.append(
+    "containers",
+    JSON.stringify([
+      {
+        index: 0,
+        collectionId: String(collectionId),
+        fileObjectId: "",
+        file: {},
+        filename,
+      },
+    ])
+  );
+
+  const res = await axios.post<GetFileContainerApiResponse>(
+    `${BASE_URL}/assetManager/getFileContainer`,
+    formData
+  );
+
+  return res.data;
+}
+
+export async function startS3MultipartUpload({
+  collectionId,
+  fileObjectId,
+  contentType,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  contentType: string;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    message: string;
+    uploadId: string;
+    key: string;
+  }>(`${BASE_URL}/s3/multipart`, formData);
+
+  return res.data;
+}
+
+export async function signS3UploadPart({
+  collectionId,
+  fileObjectId,
+  contentType,
+  uploadId,
+  partNumber,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  contentType: string;
+  uploadId: string;
+  partNumber: number;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    message: string;
+    url: string;
+    method: string;
+    partNumber: number;
+    uploadId: string;
+  }>(`${BASE_URL}/s3/multipart/${uploadId}/${partNumber}`, formData);
+
+  return res.data;
+}
+
+export async function completeS3MultipartUpload({
+  collectionId,
+  fileObjectId,
+  uploadId,
+  contentType,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  uploadId: string;
+  contentType: string;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    location: string; // S3 URL of the uploaded file
+    message: string;
+  }>(`${BASE_URL}/s3/multipart/${uploadId}/complete`, formData);
 
   return res.data;
 }
