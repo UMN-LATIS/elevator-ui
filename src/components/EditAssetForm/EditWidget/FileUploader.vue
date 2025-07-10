@@ -205,7 +205,7 @@ uppy.on("error", (error) => {
     padding: 0;
   }
   & .uppy-Dashboard-AddFiles {
-    @apply border border-black/10 bg-black/5 rounded-lg flex flex-col items-center justify-center p-4;
+    @apply border-2 border-blue-200 bg-blue-50 hover:border-blue-400 rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-blue-500;
   }
 
   & .uppy-Dashboard-AddFiles-list {
