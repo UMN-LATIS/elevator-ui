@@ -732,3 +732,26 @@ export async function completeS3MultipartUpload({
 
   return res.data;
 }
+
+export async function abortS3MultipartUpload({
+  collectionId,
+  fileObjectId,
+  uploadId,
+  contentType,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  uploadId: string;
+  contentType: string;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    message: string;
+  }>(`${BASE_URL}/s3/multipart/${uploadId}/abort`, formData);
+
+  return res.data;
+}

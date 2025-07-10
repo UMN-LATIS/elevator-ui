@@ -478,6 +478,7 @@ const api = {
   startS3MultipartUpload: fetchers.startS3MultipartUpload,
   signS3UploadPart: fetchers.signS3UploadPart,
   completeS3MultipartUpload: fetchers.completeS3MultipartUpload,
+  abortS3MultipartUpload: fetchers.abortS3MultipartUpload,
 };
 
 export default api;
