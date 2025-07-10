@@ -248,9 +248,10 @@ function initAsset() {
 
   // add fields for each widget in the template
   savedTemplate.value.widgetArray.forEach((widgetDef) => {
-    initialAsset[widgetDef.fieldTitle] = [
-      createDefaultWidgetContent(widgetDef),
-    ];
+    initialAsset[widgetDef.fieldTitle] =
+      widgetDef.type === "upload"
+        ? [] // don't add any upload item by default. we'll do that once we have an upload.
+        : [createDefaultWidgetContent(widgetDef)];
   });
 
   state.localAsset = initialAsset;
