@@ -21,6 +21,7 @@
           :assetId="asset.assetId"
           :collectionId="(asset.collectionId as number)"
           :isOpen="openWidgets.has(widgetDef.widgetId)"
+          @save="$emit('save')"
           @update:isOpen="
             (open) => {
               open

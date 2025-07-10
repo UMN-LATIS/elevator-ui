@@ -199,9 +199,12 @@ function initAsset() {
     for (const widgetDef of savedTemplate.value.widgetArray) {
       // if the asset doesn't have the field, create it
       if (!state.localAsset[widgetDef.fieldTitle]) {
-        state.localAsset[widgetDef.fieldTitle] = [
-          createDefaultWidgetContent(widgetDef),
-        ];
+        // if this is an upload widget, default to an empty array
+        // otherwise, create a default widget content
+        state.localAsset[widgetDef.fieldTitle] =
+          widgetDef.type === "upload"
+            ? []
+            : [createDefaultWidgetContent(widgetDef)];
       }
 
       const widgetContents = state.localAsset[

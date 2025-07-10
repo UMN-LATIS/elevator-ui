@@ -7,7 +7,8 @@
     :assetId="assetId"
     :isOpen="isOpen"
     @update:isOpen="$emit('update:isOpen', $event)"
-    @update:widgetContents="$emit('update:widgetContents', $event)" />
+    @update:widgetContents="$emit('update:widgetContents', $event)"
+    @save="$emit('save')" />
 </template>
 <script setup lang="ts">
 import { type Component } from "vue";
@@ -32,9 +33,10 @@ defineProps<{
   isOpen: boolean;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "update:widgetContents", widgetContents: WidgetContent[]): void;
   (e: "update:isOpen", isOpen: boolean): void;
+  (e: "save"): void;
 }>();
 
 // map widgetTypeToComponent

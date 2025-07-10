@@ -755,3 +755,26 @@ export async function abortS3MultipartUpload({
 
   return res.data;
 }
+
+// run after the s3 multipart upload is complete
+// to finalize the source file in the system
+export async function completeSourceFile(fileObjectId: string) {
+  const res = await axios.get<{
+    message: string;
+    fileObjectId: string;
+  }>(`${BASE_URL}/assetManager/completeSourceFile/${fileObjectId}`);
+
+  return res.data;
+}
+
+// remove a file object and all it's derivatives from the system
+export async function deleteFileObject(fileObjectId: string) {
+  const formData = new FormData();
+  formData.append("fileObjectId", fileObjectId);
+
+  const res = await axios.post<{
+    message: string;
+  }>(`${BASE_URL}/fileManager/deleteFileObject`, formData);
+
+  return res.data;
+}

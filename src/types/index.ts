@@ -292,6 +292,7 @@ export interface UploadWidgetContent extends WidgetContent {
   searchData: string | null;
   loc: unknown | null;
   sidecars: unknown; // object
+  regenerate?: "On" | undefined; // regenerate derivatives
 }
 
 export interface MultiSelectWidgetContent extends WidgetContent {
@@ -939,3 +940,13 @@ export interface FileContainer {
 }
 
 export type GetFileContainerApiResponse = FileContainer[];
+
+export interface FileUploadRecord {
+  filename: string;
+  fileObjectId: string;
+  contentType: string;
+  uploadId: string;
+  key: string; // s3 "key" aka path to the file in S3
+  uploadStatus: "in-progress" | "completed" | "failed";
+  location?: string; // S3 URL of the uploaded file
+}

@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import * as Type from "@/types";
 import { Dashboard } from "@uppy/vue";
 import Uppy from "@uppy/core";
 import umnAwsS3 from "@umn-cla/uppy-aws-s3";
@@ -27,24 +28,14 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "start", fileRecord: FileUploadRecord): void;
-  (e: "complete", fileRecord: FileUploadRecord): void;
+  (e: "start", fileRecord: Type.FileUploadRecord): void;
+  (e: "complete", fileRecord: Type.FileUploadRecord): void;
   (e: "error", error: Error): void;
 }>();
 
-interface FileUploadRecord {
-  filename: string;
-  fileObjectId: string;
-  contentType: string;
-  uploadId: string;
-  key: string; // s3 "key" aka path to the file in S3
-  uploadStatus: "in-progress" | "completed" | "failed";
-  location?: string; // S3 URL of the uploaded file
-}
-
 const filenameToObjectIdMap = new Map<
   string, // filename
-  FileUploadRecord
+  Type.FileUploadRecord
 >();
 
 const uppy = new Uppy().use(umnAwsS3, {
@@ -86,7 +77,7 @@ const uppy = new Uppy().use(umnAwsS3, {
       contentType: file.type,
     });
 
-    const fileRecord: FileUploadRecord = {
+    const fileRecord: Type.FileUploadRecord = {
       filename: file.name,
       fileObjectId,
       contentType: file.type,
@@ -156,7 +147,10 @@ const uppy = new Uppy().use(umnAwsS3, {
       contentType: fileRecord.contentType,
     });
 
-    const updatedFileRecord: FileUploadRecord = {
+    // notify elevator backend that the upload is complete
+    await api.completeSourceFile(fileRecord.fileObjectId);
+
+    const updatedFileRecord: Type.FileUploadRecord = {
       ...fileRecord,
       uploadStatus: "completed",
       location, // store the S3 URL of the uploaded file
@@ -187,6 +181,7 @@ const uppy = new Uppy().use(umnAwsS3, {
       collectionId: props.collectionId,
       fileObjectId: fileRecord.fileObjectId,
       uploadId: fileRecord.uploadId,
+      contentType: fileRecord.contentType,
     });
 
     // remove the file record from the map

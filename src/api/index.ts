@@ -478,7 +478,9 @@ const api = {
   startS3MultipartUpload: fetchers.startS3MultipartUpload,
   signS3UploadPart: fetchers.signS3UploadPart,
   completeS3MultipartUpload: fetchers.completeS3MultipartUpload,
+  completeSourceFile: fetchers.completeSourceFile,
   abortS3MultipartUpload: fetchers.abortS3MultipartUpload,
+  deleteFileObject: fetchers.deleteFileObject,
 };
 
 export default api;
