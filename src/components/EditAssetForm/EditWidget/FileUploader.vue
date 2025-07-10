@@ -26,15 +26,25 @@ const props = defineProps<{
   collectionId: number;
 }>();
 
+const emit = defineEmits<{
+  (e: "start", fileRecord: FileUploadRecord): void;
+  (e: "complete", fileRecord: FileUploadRecord): void;
+  (e: "error", error: Error): void;
+}>();
+
+interface FileUploadRecord {
+  filename: string;
+  fileObjectId: string;
+  contentType: string;
+  uploadId: string;
+  key: string; // s3 "key" aka path to the file in S3
+  uploadStatus: "in-progress" | "completed" | "failed";
+  location?: string; // S3 URL of the uploaded file
+}
+
 const filenameToObjectIdMap = new Map<
   string, // filename
-  {
-    filename: string;
-    fileObjectId: string;
-    contentType: string;
-    uploadId: string;
-    key: string; // s3 "key" aka path to the file in S3
-  }
+  FileUploadRecord
 >();
 
 const uppy = new Uppy().use(umnAwsS3, {
@@ -69,9 +79,6 @@ const uppy = new Uppy().use(umnAwsS3, {
 
     const { fileObjectId } = fileContainers[0];
 
-    // store the fileObjectId on the file meta data for later use
-    file.meta.fileObjectId = fileObjectId;
-
     // then we can start the multipart upload
     const { uploadId, key } = await api.startS3MultipartUpload({
       fileObjectId,
@@ -79,13 +86,18 @@ const uppy = new Uppy().use(umnAwsS3, {
       contentType: file.type,
     });
 
-    filenameToObjectIdMap.set(file.name, {
+    const fileRecord: FileUploadRecord = {
       filename: file.name,
       fileObjectId,
       contentType: file.type,
       uploadId,
       key,
-    });
+      uploadStatus: "in-progress",
+    };
+
+    filenameToObjectIdMap.set(file.name, fileRecord);
+
+    emit("start", fileRecord);
 
     return {
       uploadId,
@@ -102,13 +114,6 @@ const uppy = new Uppy().use(umnAwsS3, {
     if (!file.name) {
       throw new Error("File name is required to sign a part.");
     }
-
-    console.log({
-      file,
-      partData,
-      fileObjectId: file.meta.fileObjectId,
-      filenameToObjectIdMap,
-    });
 
     const fileRecord = filenameToObjectIdMap.get(file.name);
 
@@ -151,8 +156,48 @@ const uppy = new Uppy().use(umnAwsS3, {
       contentType: fileRecord.contentType,
     });
 
+    const updatedFileRecord: FileUploadRecord = {
+      ...fileRecord,
+      uploadStatus: "completed",
+      location, // store the S3 URL of the uploaded file
+    };
+    // update the file record status
+    filenameToObjectIdMap.set(file.name, updatedFileRecord);
+
+    // emit the complete event with the updated file record
+    emit("complete", updatedFileRecord);
+
     return { location };
   },
+
+  async abortMultipartUpload(file): Promise<void> {
+    if (!file.name) {
+      throw new Error("File name is required to abort a multipart upload.");
+    }
+
+    const fileRecord = filenameToObjectIdMap.get(file.name);
+
+    if (!fileRecord) {
+      throw new Error(
+        `No file record found for file: ${file.name}. Please ensure the file upload has been started.`
+      );
+    }
+
+    await api.abortS3MultipartUpload({
+      collectionId: props.collectionId,
+      fileObjectId: fileRecord.fileObjectId,
+      uploadId: fileRecord.uploadId,
+    });
+
+    // remove the file record from the map
+    filenameToObjectIdMap.delete(file.name);
+  },
+});
+
+uppy.on("error", (error) => {
+  // todo handle error
+  console.error("Uppy error:", error);
+  emit("error", error);
 });
 </script>
 
