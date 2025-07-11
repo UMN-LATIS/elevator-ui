@@ -227,7 +227,7 @@ function initAsset() {
   const initialAsset: Asset | UnsavedAsset = {
     assetId: null,
     templateId: savedTemplate.value.templateId,
-    readyForDisplay: false,
+    readyForDisplay: true,
     collectionId:
       Number.parseInt(state.initialCollectionId) ?? firstCollection.id,
     availableAfter: null,
@@ -341,7 +341,7 @@ function handleSaveAsset() {
 
       // redirect to the edit asset page (so that we don't keep recreating
       // new assets on each save!)
-      router.push({
+      router.replace({
         name: "editAsset",
         params: {
           assetId: newAssetId,
