@@ -191,6 +191,11 @@ const uppy = new Uppy({
   },
 });
 
+// clear upload state on success
+uppy.on("complete", ({ successful, failed }) => {
+  successful?.forEach((file) => uppy.removeFile(file.id));
+});
+
 uppy.on("error", (error) => {
   // todo handle error
   console.error("Uppy error:", error);
