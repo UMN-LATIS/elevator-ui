@@ -62,7 +62,7 @@ import TextEditor from "@/components/TextEditor/TextEditor.vue";
 import * as ops from "../editWidgetOps";
 
 defineProps<{
-  widgetDef: Type.TextWidgetProps;
+  widgetDef: Type.TextWidgetDef;
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
   isOpen: boolean;
 }>();

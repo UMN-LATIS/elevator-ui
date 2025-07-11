@@ -44,7 +44,7 @@ import * as ops from "../editWidgetOps";
 import EditDateWidgetContentItem from "./EditDateWidgetContentItem.vue";
 
 const props = defineProps<{
-  widgetDef: Type.DateWidgetProps;
+  widgetDef: Type.DateWidgetDef;
   widgetContents: Type.WithId<Type.DateWidgetContent>[];
   isOpen: boolean;
 }>();

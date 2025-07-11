@@ -15,9 +15,9 @@
       v-if="hasLocation"
       icon="map"
       iconPosition="start"
-      @click="isOpen = true"
-      >Show Location</Button
-    >
+      @click="isOpen = true">
+      Show Location
+    </Button>
   </Accordion>
 
   <Modal :isOpen="isOpen" :label="locationLabel" @close="isOpen = false">
@@ -27,13 +27,11 @@
       mapStyle="streets"
       :apiKey="config.arcgis.apiKey"
       class="p-1 rounded"
-      mapContainerClass="!h-[50vh]"
-    >
+      mapContainerClass="!h-[50vh]">
       <MapMarker
         :id="`locationItem-${locationLabel}`"
         :lng="mapCenter.lng"
-        :lat="mapCenter.lat"
-      />
+        :lat="mapCenter.lat" />
     </Map>
     <div class="w-min flex gap-4 my-4">
       <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
@@ -43,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { LocationWidgetProps, LocationWidgetContent, LngLat } from "@/types";
+import { LocationWidgetDef, LocationWidgetContent, LngLat } from "@/types";
 import { computed, ref, defineAsyncComponent } from "vue";
 import Modal from "@/components/Modal/Modal.vue";
 import config from "@/config";
@@ -58,7 +56,7 @@ const MapMarker = defineAsyncComponent(
 
 interface Props {
   locationContent: LocationWidgetContent;
-  widget: LocationWidgetProps;
+  widget: LocationWidgetDef;
 }
 
 const props = defineProps<Props>();

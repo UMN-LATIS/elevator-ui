@@ -35,7 +35,7 @@ import CascadeSelect from "@/components/CascadeSelect/CascadeSelect.vue";
 import { findDeepestPath } from "./helpers/findDeepestPath";
 
 const props = defineProps<{
-  widgetDef: Type.MultiSelectWidgetProps;
+  widgetDef: Type.MultiSelectWidgetDef;
   widgetContents: Type.WithId<Type.MultiSelectWidgetContent>[];
   isOpen: boolean;
 }>();

@@ -8,11 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { WidgetProps, WidgetContent } from "@/types";
+import { WidgetDef, WidgetContent } from "@/types";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 
 defineProps<{
-  widget: WidgetProps;
+  widget: WidgetDef;
   contents: WidgetContent[];
 }>();
 </script>

@@ -62,7 +62,7 @@ import * as ops from "../editWidgetOps";
 import { Label } from "@/components/ui/label";
 
 defineProps<{
-  widgetDef: Type.TextWidgetProps;
+  widgetDef: Type.TextWidgetDef;
   widgetContents: Type.WithId<Type.CheckboxWidgetContent>[];
   isOpen: boolean;
 }>();

@@ -57,7 +57,7 @@ import { computed } from "vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 
 const props = defineProps<{
-  widgetDef: Type.SelectWidgetProps;
+  widgetDef: Type.SelectWidgetDef;
   widgetContents: Type.WithId<Type.SelectWidgetContent>[];
   isOpen: boolean;
 }>();

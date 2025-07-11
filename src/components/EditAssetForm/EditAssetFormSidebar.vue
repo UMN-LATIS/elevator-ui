@@ -127,7 +127,7 @@ import {
   UnsavedAsset,
   Template,
   PHPDateTime,
-  WidgetProps,
+  WidgetDef,
   WidgetContent,
   TemplateComparison,
 } from "@/types";
@@ -254,7 +254,7 @@ watch(
 const tocItems = computed((): TocItem[] => {
   return props.template.widgetArray
     .toSorted((a, b) => a.templateOrder - b.templateOrder)
-    .map((widgetDef: WidgetProps) => {
+    .map((widgetDef: WidgetDef) => {
       const fieldTitle = widgetDef.fieldTitle;
       const widgetContents = props.asset[fieldTitle] as WidgetContent[];
 

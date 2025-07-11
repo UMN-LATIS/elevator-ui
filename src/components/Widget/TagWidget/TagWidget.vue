@@ -6,14 +6,12 @@
           <ClickToSearchLink
             v-slot="{ isClickable }"
             :linkText="tag"
-            :widget="widget"
-          >
+            :widget="widget">
             <Chip
               :class="{
                 'chip--is-clickable border border-blue-700  bg-blue-100 text-blue-700 cursor-pointer hover:bg-blue-700 hover:text-white transition-colors ease-in-out':
                   isClickable,
-              }"
-            >
+              }">
               {{ tag }}
             </Chip>
           </ClickToSearchLink>
@@ -24,12 +22,12 @@
 </template>
 
 <script setup lang="ts">
-import { TagListWidgetProps, TagListWidgetContent } from "@/types";
+import { TagListWidgetDef, TagListWidgetContent } from "@/types";
 import Chip from "@/components/Chip/Chip.vue";
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 
 defineProps<{
-  widget: TagListWidgetProps;
+  widget: TagListWidgetDef;
   contents: TagListWidgetContent[];
 }>();
 </script>

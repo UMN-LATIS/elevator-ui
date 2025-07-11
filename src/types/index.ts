@@ -87,7 +87,7 @@ export const WIDGET_TYPES = {
 // e.g. "text" | "text area" | "select" | ...
 export type WidgetType = (typeof WIDGET_TYPES)[keyof typeof WIDGET_TYPES];
 
-export interface WidgetProps {
+export interface WidgetDef {
   widgetId: number;
   type: WidgetType;
   allowMultiple: boolean;
@@ -107,27 +107,27 @@ export interface WidgetProps {
   templateOrder: number;
 }
 
-export interface TextWidgetProps extends WidgetProps {
+export interface TextWidgetDef extends WidgetDef {
   type: "text";
   fieldData: [] | null;
 }
-export interface CheckboxWidgetProps extends WidgetProps {
+export interface CheckboxWidgetDef extends WidgetDef {
   type: "checkbox";
   fieldData: [] | null;
 }
-export interface DateWidgetProps extends WidgetProps {
+export interface DateWidgetDef extends WidgetDef {
   type: "date";
   fieldData: [] | null;
 }
-export interface LocationWidgetProps extends WidgetProps {
+export interface LocationWidgetDef extends WidgetDef {
   type: "location";
   fieldData: [] | null;
 }
-export interface TagListWidgetProps extends WidgetProps {
+export interface TagListWidgetDef extends WidgetDef {
   type: "tag list";
   fieldData: [] | null;
 }
-export interface TextAreaWidgetProps extends WidgetProps {
+export interface TextAreaWidgetDef extends WidgetDef {
   type: "text area";
   fieldData: [] | null;
 }
@@ -140,12 +140,12 @@ export interface MultiSelectFieldData {
       };
 }
 
-export interface MultiSelectWidgetProps extends WidgetProps {
+export interface MultiSelectWidgetDef extends WidgetDef {
   type: "multiselect";
   fieldData: MultiSelectFieldData;
 }
 
-export interface RelatedAssetWidgetProps extends WidgetProps {
+export interface RelatedAssetWidgetDef extends WidgetDef {
   type: "related asset";
   fieldData: {
     nestData?: boolean;
@@ -161,14 +161,14 @@ export interface RelatedAssetWidgetProps extends WidgetProps {
   };
 }
 
-export interface SelectWidgetProps extends WidgetProps {
+export interface SelectWidgetDef extends WidgetDef {
   type: "select";
   fieldData: {
     multiSelect?: boolean;
     selectGroup?: string[] | Record<string | number, string | undefined>;
   };
 }
-export interface UploadWidgetProps extends WidgetProps {
+export interface UploadWidgetDef extends WidgetDef {
   type: "upload";
   fieldData: {
     extractDate?: boolean;
@@ -511,7 +511,7 @@ export interface Template {
   showCollectionPosition: TemplateShowPropertyPosition;
   showTemplate: boolean;
   showTemplatePosition: TemplateShowPropertyPosition;
-  widgetArray: WidgetProps[];
+  widgetArray: WidgetDef[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
     | Record<string | number, string | undefined | unknown>
@@ -914,9 +914,9 @@ export interface GeocoderResult {
 }
 
 export interface TemplateComparison {
-  [widgetFieldTitle: WidgetProps["fieldTitle"]]: {
+  [widgetFieldTitle: WidgetDef["fieldTitle"]]: {
     type: string; // error like "missing"
-    label: WidgetProps["label"];
+    label: WidgetDef["label"];
   };
 }
 

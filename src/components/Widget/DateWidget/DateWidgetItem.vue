@@ -14,12 +14,12 @@
 <script setup lang="ts">
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 import { computed } from "vue";
-import { DateWidgetProps, DateWidgetContent } from "@/types";
+import { DateWidgetDef, DateWidgetContent } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
 
 interface Props {
   dateContent: DateWidgetContent;
-  widget: DateWidgetProps;
+  widget: DateWidgetDef;
 }
 
 const props = defineProps<Props>();

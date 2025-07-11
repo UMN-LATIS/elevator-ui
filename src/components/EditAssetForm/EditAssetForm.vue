@@ -59,7 +59,7 @@ import {
   UnsavedAsset,
   Template,
   WidgetContent,
-  WidgetProps,
+  WidgetDef,
 } from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
@@ -80,14 +80,14 @@ defineEmits<{
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
 }>();
 
-const openWidgets = reactive(new Set<WidgetProps["widgetId"]>());
+const openWidgets = reactive(new Set<WidgetDef["widgetId"]>());
 
 // start with all widgets open
 onMounted(() => handleExpandAll());
 
 const widgetDefAndContents = computed(
   (): Array<{
-    widgetDef: WidgetProps;
+    widgetDef: WidgetDef;
     widgetContents: WidgetContent[];
   }> =>
     props.template.widgetArray.map((widgetDef) => ({

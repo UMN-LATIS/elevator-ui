@@ -48,7 +48,7 @@ import * as ops from "../editWidgetOps";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
-  widgetDef: Type.RelatedAssetWidgetProps;
+  widgetDef: Type.RelatedAssetWidgetDef;
   widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
   assetId: string | null; // current assetId. could be null for new assets
   isOpen: boolean;

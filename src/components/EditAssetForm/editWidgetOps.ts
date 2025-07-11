@@ -12,7 +12,7 @@ export function makeSetPrimaryContentPayload<
 
 export function makeAddContentPayload<
   T extends Type.WithId<Type.WidgetContent>
->(widgetContents: readonly T[], widgetDef: Type.WidgetProps): T[] {
+>(widgetContents: readonly T[], widgetDef: Type.WidgetDef): T[] {
   const newItem = createDefaultWidgetContent(widgetDef) as T;
   return [...widgetContents, newItem];
 }

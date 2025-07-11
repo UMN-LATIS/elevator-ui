@@ -23,7 +23,7 @@
 import { type Component, computed, onMounted, onBeforeUnmount } from "vue";
 import {
   Asset,
-  RelatedAssetWidgetProps,
+  RelatedAssetWidgetDef,
   RelatedAssetWidgetContent,
 } from "@/types";
 import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.vue";
@@ -34,7 +34,7 @@ import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 
 const props = defineProps<{
-  widget: RelatedAssetWidgetProps;
+  widget: RelatedAssetWidgetDef;
   contents: RelatedAssetWidgetContent[];
   asset: Asset;
 }>();

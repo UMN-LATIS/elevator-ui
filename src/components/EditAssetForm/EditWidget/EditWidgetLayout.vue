@@ -123,7 +123,7 @@ import { useFocusWithin } from "@vueuse/core";
 
 const props = defineProps<{
   widgetContents: T[];
-  widgetDef: Types.WidgetProps;
+  widgetDef: Types.WidgetDef;
   isOpen: boolean;
 }>();
 

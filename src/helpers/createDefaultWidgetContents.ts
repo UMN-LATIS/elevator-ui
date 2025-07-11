@@ -1,7 +1,7 @@
-import { WIDGET_TYPES, WidgetContent, WidgetProps, WithId } from "@/types";
+import { WIDGET_TYPES, WidgetContent, WidgetDef, WithId } from "@/types";
 
 export function createDefaultWidgetContent(
-  widgetProps: WidgetProps
+  widgetProps: WidgetDef
 ): WithId<WidgetContent> {
   const base = {
     isPrimary: false,

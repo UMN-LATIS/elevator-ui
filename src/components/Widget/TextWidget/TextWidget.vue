@@ -14,10 +14,10 @@
 
 <script setup lang="ts">
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
-import { TextWidgetProps, TextWidgetContent } from "@/types";
+import { TextWidgetDef, TextWidgetContent } from "@/types";
 
 defineProps<{
-  widget: TextWidgetProps;
+  widget: TextWidgetDef;
   contents: TextWidgetContent[];
 }>();
 

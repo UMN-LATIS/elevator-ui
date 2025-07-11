@@ -48,7 +48,7 @@ import {
 } from "@/components/ui/tags-input";
 
 const props = defineProps<{
-  widgetDef: Type.TagListWidgetProps;
+  widgetDef: Type.TagListWidgetDef;
   widgetContents: Type.WithId<Type.TagListWidgetContent>[];
   isOpen: boolean;
 }>();

@@ -152,7 +152,7 @@ import { isSaveRelatedAssetMessage } from "@/types/guards";
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
   assetId: string | null; // need current assetId to prevent circular dependencies
-  widgetDef: Type.RelatedAssetWidgetProps;
+  widgetDef: Type.RelatedAssetWidgetDef;
   widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]; // need all widget content to prevent multiple lines to the same asset within the widget
 }>();
 

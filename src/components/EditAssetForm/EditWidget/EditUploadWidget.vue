@@ -142,7 +142,7 @@ import Button from "@/components/Button/Button.vue";
 
 const props = defineProps<{
   collectionId: number;
-  widgetDef: Type.UploadWidgetProps;
+  widgetDef: Type.UploadWidgetDef;
   widgetContents: Type.WithId<Type.UploadWidgetContent>[];
   isOpen: boolean;
 }>();

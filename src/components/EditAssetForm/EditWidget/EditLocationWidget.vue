@@ -44,7 +44,7 @@ import * as ops from "../editWidgetOps";
 import EditLocationWidgetContentItem from "./EditLocationWidgetContentItem.vue";
 
 const props = defineProps<{
-  widgetDef: Type.LocationWidgetProps;
+  widgetDef: Type.LocationWidgetDef;
   widgetContents: Type.WithId<Type.LocationWidgetContent>[];
   isOpen: boolean;
 }>();

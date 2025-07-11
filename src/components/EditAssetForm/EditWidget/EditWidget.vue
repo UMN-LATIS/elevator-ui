@@ -12,7 +12,7 @@
 </template>
 <script setup lang="ts">
 import { type Component } from "vue";
-import type { WidgetProps, WidgetContent } from "@/types";
+import type { WidgetDef, WidgetContent } from "@/types";
 import { WidgetType } from "@/types";
 import EditSelectWidget from "./EditSelectWidget.vue";
 import EditCheckboxWidget from "./EditCheckboxWidget.vue";
@@ -26,7 +26,7 @@ import EditRelatedAssetWidget from "./EditRelatedAssetWidget.vue";
 import EditTextWidget from "./EditTextWidget.vue";
 
 defineProps<{
-  widgetDef: WidgetProps;
+  widgetDef: WidgetDef;
   widgetContents: WidgetContent[];
   assetId: string | null; // new assets may have a null id
   collectionId: number;

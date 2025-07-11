@@ -4,8 +4,8 @@
       <li v-if="content.fieldContents[category]">
         <ClickToSearchLink
           :widget="widget"
-          :linkText="contentsUpToCategory(category)"
-          >{{ content.fieldContents[category] }}
+          :linkText="contentsUpToCategory(category)">
+          {{ content.fieldContents[category] }}
         </ClickToSearchLink>
       </li>
     </template>
@@ -15,11 +15,11 @@
 <script setup lang="ts">
 import { recursiveSort, uniqueValues } from "./MultiSelectWidget";
 import { computed } from "vue";
-import { MultiSelectWidgetContent, MultiSelectWidgetProps } from "@/types";
+import { MultiSelectWidgetContent, MultiSelectWidgetDef } from "@/types";
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 
 interface Props {
-  widget: MultiSelectWidgetProps;
+  widget: MultiSelectWidgetDef;
   content: MultiSelectWidgetContent;
 }
 

@@ -1,4 +1,4 @@
-import { WidgetProps } from "@/types";
+import { WidgetDef } from "@/types";
 import {
   isTextWidgetContent,
   isCheckboxWidgetContent,
@@ -165,7 +165,7 @@ export function hasMultiSelectContent(contents: unknown[]): boolean {
  */
 export function hasWidgetContent(
   contents: unknown[],
-  widgetType: WidgetProps["type"] | "any"
+  widgetType: WidgetDef["type"] | "any"
 ): boolean {
   switch (widgetType) {
     case "text":

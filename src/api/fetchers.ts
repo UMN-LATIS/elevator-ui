@@ -20,7 +20,7 @@ import {
   type SearchableSpecificField,
   type ApiListDrawersResponse,
   type ApiGetDrawerResponse,
-  type WidgetProps,
+  type WidgetDef,
   type ApiCreateDrawerResponse,
   type ApiAddAssetToDrawerResponse,
   type ApiRemoveAssetFromDrawerResponse,
@@ -198,7 +198,7 @@ export async function fetchSearchIdForCollection(
 
 export async function fetchSearchIdForClickToSearch(
   linkText: string,
-  widgetProps: WidgetProps
+  widgetProps: WidgetDef
 ): Promise<string> {
   const url = toClickToSearchUrl(linkText, widgetProps);
 
