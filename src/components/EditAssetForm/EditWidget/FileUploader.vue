@@ -38,7 +38,9 @@ const filenameToObjectIdMap = new Map<
   Type.FileUploadRecord
 >();
 
-const uppy = new Uppy().use(umnAwsS3, {
+const uppy = new Uppy({
+  autoProceed: true,
+}).use(umnAwsS3, {
   endpoint: config.instance.base.url,
   shouldUseMultipart: true,
   async createMultipartUpload(file): Promise<{
