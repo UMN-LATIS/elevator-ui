@@ -36,7 +36,7 @@
           :id="`${item.id}-checkbox`"
           type="checkbox"
           :checked="(item as Type.WithId<Type.CheckboxWidgetContent>).fieldContents"
-          class="rounded-sm bg-black/5 border-black/25 checked:bg-blue-700"
+          class="rounded-sm checked:bg-blue-700"
           @change="
             (event) =>
             $emit(
