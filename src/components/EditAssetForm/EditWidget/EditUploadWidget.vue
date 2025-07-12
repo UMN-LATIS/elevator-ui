@@ -136,7 +136,15 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { nextTick, ref, reactive, computed, onMounted, onUnmounted } from "vue";
+import {
+  nextTick,
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+} from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
@@ -167,10 +175,6 @@ const emit = defineEmits<{
 }>();
 
 onMounted(() => {
-  // Initialize the map with the current widget contents
-  props.widgetContents.forEach((item) => {
-    isPreviewImageReadyMap.set(item.fileId, false);
-  });
   // set up polling for preview images
   pollForPreviewImage();
 });
@@ -203,10 +207,37 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
 const isPreviewImageReadyMap = reactive<Map<string, boolean>>(
   new Map<Type.UploadWidgetContent["fileId"], boolean>()
 );
+
+const fileIdSet = computed(() => {
+  const fileIds = props.widgetContents.map((item) => item.fileId);
+  return new Set(fileIds);
+});
+
+watch(
+  fileIdSet,
+  () => {
+    // reconcile the map with the current widget fileIds
+    fileIdSet.value.forEach((fileId) => {
+      // add missing fileIds to the map
+      if (!isPreviewImageReadyMap.has(fileId)) {
+        isPreviewImageReadyMap.set(fileId, false);
+      }
+
+      // if the fileId exists in map but not in widget contents, remove it
+      if (!fileIdSet.value.has(fileId)) {
+        isPreviewImageReadyMap.delete(fileId);
+      }
+    });
+  },
+  { immediate: true }
+);
+
 const fileIdsToCheck = computed(() => {
-  return Array.from(isPreviewImageReadyMap.entries())
-    .filter(([, isReady]) => !isReady)
-    .map(([fileId]) => fileId);
+  return fileIdSet.value.size
+    ? Array.from(fileIdSet.value).filter(
+        (fileId) => isPreviewImageReadyMap.get(fileId) === false
+      )
+    : [];
 });
 
 let timeoutId: ReturnType<typeof setTimeout> | null = null;
