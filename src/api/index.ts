@@ -481,6 +481,7 @@ const api = {
   completeSourceFile: fetchers.completeSourceFile,
   abortS3MultipartUpload: fetchers.abortS3MultipartUpload,
   deleteFileObject: fetchers.deleteFileObject,
+  checkPreviewImages: fetchers.checkPreviewImages,
 };
 
 export default api;

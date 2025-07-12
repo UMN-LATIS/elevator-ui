@@ -778,3 +778,17 @@ export async function deleteFileObject(fileObjectId: string) {
 
   return res.data;
 }
+
+export async function checkPreviewImages(fileIds: string[]) {
+  const formData = new FormData();
+  formData.append("checkArray", JSON.stringify(fileIds));
+
+  const res = await axios.post<
+    Array<{
+      fileId: string;
+      status: "icon" | "true";
+    }>
+  >(`${BASE_URL}/fileManager/previewImageAvailable`, formData);
+
+  return res.data;
+}
