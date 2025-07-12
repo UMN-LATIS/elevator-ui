@@ -27,9 +27,18 @@
         <div class="grid grid-cols-3 gap-4 mb-2">
           <div class="w-full aspect-square rounded-md overflow-hidden relative">
             <img
+              v-if="isNewFilePreviewImageReadyMap.get(item.fileId)"
               :src="`${config.instance.base.url}/fileManager/previewImageByFileId/${item.fileId}/true`"
               :alt="`thumbnail for item: ${item.fileDescription}`"
               class="w-full h-full object-cover" />
+            <div
+              v-else
+              class="w-full h-full flex items-center justify-center bg-black/5 text-neutral-400">
+              <SpinnerIcon class="size-5 animate-spin" />
+              <span class="sr-only">
+                Loading preview image for {{ item.fileDescription }}
+              </span>
+            </div>
           </div>
 
           <div class="col-span-2 flex flex-col gap-1">
@@ -127,7 +136,7 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { nextTick, ref } from "vue";
+import { nextTick, ref, reactive, computed, onMounted } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
@@ -139,6 +148,7 @@ import Tuple from "@/components/Tuple/Tuple.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import Button from "@/components/Button/Button.vue";
+import { SpinnerIcon } from "@/icons";
 
 const props = defineProps<{
   collectionId: number;
@@ -156,6 +166,14 @@ const emit = defineEmits<{
   (e: "save"): void;
 }>();
 
+onMounted(() => {
+  // Initialize the map with the current widget contents
+  props.widgetContents.forEach((item) => {
+    isNewFilePreviewImageReadyMap.set(item.fileId, false);
+  });
+  pollForPreviewImage();
+});
+
 const isShowingDetails = ref<Set<string>>(new Set());
 
 function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
@@ -172,10 +190,39 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
 
   emit("update:widgetContents", [...props.widgetContents, completedUploadItem]);
 
+  // add the new fileId to the map to track its preview image status
+  isNewFilePreviewImageReadyMap.set(fileRecord.fileObjectId, false);
+
   nextTick(() => {
     // Try to trigger save event after the widget contents are updated
     emit("save");
   });
+}
+
+const isNewFilePreviewImageReadyMap = reactive<Map<string, boolean>>(
+  new Map<Type.UploadWidgetContent["fileId"], boolean>()
+);
+const fileIdsToCheck = computed(() => {
+  return Array.from(isNewFilePreviewImageReadyMap.entries())
+    .filter(([, isReady]) => !isReady)
+    .map(([fileId]) => fileId);
+});
+
+async function pollForPreviewImage() {
+  if (fileIdsToCheck.value.length) {
+    // If a specific fileObjectId is provided, add it to the list of fileIds to check
+    const results = await api.checkPreviewImages(fileIdsToCheck.value);
+
+    // for each fileId, update that status in the map
+    results.forEach(({ fileId, status }) => {
+      if (fileId && status === "true") {
+        isNewFilePreviewImageReadyMap.set(fileId, true);
+      }
+    });
+  }
+
+  // queue up the next poll
+  setTimeout(pollForPreviewImage, 4000);
 }
 
 async function handleDeleteContent(id: string) {
