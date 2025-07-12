@@ -136,7 +136,7 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { nextTick, ref, reactive, computed, onMounted, watch } from "vue";
+import { nextTick, ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
@@ -171,6 +171,8 @@ onMounted(() => {
   props.widgetContents.forEach((item) => {
     isPreviewImageReadyMap.set(item.fileId, false);
   });
+  // set up polling for preview images
+  pollForPreviewImage();
 });
 
 const isShowingDetails = ref<Set<string>>(new Set());
@@ -207,19 +209,7 @@ const fileIdsToCheck = computed(() => {
     .map(([fileId]) => fileId);
 });
 
-watch(fileIdsToCheck, (newFileIds) => {
-  if (newFileIds.length > 0) {
-    // If there are fileIds to check, start polling for preview images
-    pollForPreviewImage();
-  } else if (timeoutId) {
-    // If there are no fileIds to check, clear the timeout
-    clearTimeout(timeoutId);
-    timeoutId = null;
-  }
-});
-
 let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
 async function pollForPreviewImage() {
   if (fileIdsToCheck.value.length) {
     // If a specific fileObjectId is provided, add it to the list of fileIds to check
@@ -236,6 +226,12 @@ async function pollForPreviewImage() {
   // queue up the next poll
   timeoutId = setTimeout(pollForPreviewImage, 4000);
 }
+
+onUnmounted(() => {
+  if (!timeoutId) return;
+  clearTimeout(timeoutId);
+  timeoutId = null;
+});
 
 async function handleDeleteContent(id: string) {
   if (
