@@ -27,7 +27,7 @@
         <div class="grid grid-cols-3 gap-4 mb-2">
           <div class="w-full aspect-square rounded-md overflow-hidden relative">
             <img
-              v-if="isNewFilePreviewImageReadyMap.get(item.fileId)"
+              v-if="isPreviewImageReadyMap.get(item.fileId)"
               :src="`${config.instance.base.url}/fileManager/previewImageByFileId/${item.fileId}/true`"
               :alt="`thumbnail for item: ${item.fileDescription}`"
               class="w-full h-full object-cover" />
@@ -136,7 +136,7 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { nextTick, ref, reactive, computed, onMounted } from "vue";
+import { nextTick, ref, reactive, computed, onMounted, watch } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import * as ops from "../editWidgetOps";
@@ -169,9 +169,8 @@ const emit = defineEmits<{
 onMounted(() => {
   // Initialize the map with the current widget contents
   props.widgetContents.forEach((item) => {
-    isNewFilePreviewImageReadyMap.set(item.fileId, false);
+    isPreviewImageReadyMap.set(item.fileId, false);
   });
-  pollForPreviewImage();
 });
 
 const isShowingDetails = ref<Set<string>>(new Set());
@@ -191,7 +190,7 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   emit("update:widgetContents", [...props.widgetContents, completedUploadItem]);
 
   // add the new fileId to the map to track its preview image status
-  isNewFilePreviewImageReadyMap.set(fileRecord.fileObjectId, false);
+  isPreviewImageReadyMap.set(fileRecord.fileObjectId, false);
 
   nextTick(() => {
     // Try to trigger save event after the widget contents are updated
@@ -199,14 +198,27 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   });
 }
 
-const isNewFilePreviewImageReadyMap = reactive<Map<string, boolean>>(
+const isPreviewImageReadyMap = reactive<Map<string, boolean>>(
   new Map<Type.UploadWidgetContent["fileId"], boolean>()
 );
 const fileIdsToCheck = computed(() => {
-  return Array.from(isNewFilePreviewImageReadyMap.entries())
+  return Array.from(isPreviewImageReadyMap.entries())
     .filter(([, isReady]) => !isReady)
     .map(([fileId]) => fileId);
 });
+
+watch(fileIdsToCheck, (newFileIds) => {
+  if (newFileIds.length > 0) {
+    // If there are fileIds to check, start polling for preview images
+    pollForPreviewImage();
+  } else if (timeoutId) {
+    // If there are no fileIds to check, clear the timeout
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+});
+
+let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 async function pollForPreviewImage() {
   if (fileIdsToCheck.value.length) {
@@ -216,13 +228,13 @@ async function pollForPreviewImage() {
     // for each fileId, update that status in the map
     results.forEach(({ fileId, status }) => {
       if (fileId && status === "true") {
-        isNewFilePreviewImageReadyMap.set(fileId, true);
+        isPreviewImageReadyMap.set(fileId, true);
       }
     });
   }
 
   // queue up the next poll
-  setTimeout(pollForPreviewImage, 4000);
+  timeoutId = setTimeout(pollForPreviewImage, 4000);
 }
 
 async function handleDeleteContent(id: string) {
