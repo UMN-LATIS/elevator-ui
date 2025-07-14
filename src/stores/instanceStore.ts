@@ -17,6 +17,12 @@ import {
   flattenCollections,
 } from "@/helpers/collectionHelpers";
 
+export enum ShowCustomHeaderMode {
+  NEVER = 0,
+  ALWAYS = 1,
+  HOME_PAGE_ONLY = 2,
+}
+
 const createState = () => ({
   fetchStatus: ref<FetchStatus>("idle"),
   currentUser: ref<User | null>(null),
@@ -37,7 +43,7 @@ const createState = () => ({
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: true,
   }),
-  customHeaderMode: ref<number>(0),
+  customHeaderMode: ref<ShowCustomHeaderMode>(ShowCustomHeaderMode.NEVER),
   customHeader: ref<string | null>(null),
   customFooter: ref<string | null>(null),
 });

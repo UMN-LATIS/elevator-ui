@@ -1,7 +1,8 @@
 <template>
   <DefaultLayout class="static-content-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode > 0" />
+      <CustomAppHeader
+        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div
       v-if="page"
@@ -21,7 +22,8 @@
       </div>
     </div>
     <template #footer>
-      <AppFooter v-if="instanceStore.customFooter" />
+      <AppFooter
+        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
   </DefaultLayout>
 </template>
@@ -32,7 +34,7 @@ import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import { computed, ref, watch } from "vue";
 import { ApiStaticPageResponse } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
 import api from "@/api";
 import config from "@/config";
 
