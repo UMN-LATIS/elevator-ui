@@ -1,7 +1,8 @@
 <template>
   <DefaultLayout class="all-collections-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+      <CustomAppHeader
+        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="p-8 px-4">
       <h1 class="text-4xl font-bold my-8">Collections</h1>
