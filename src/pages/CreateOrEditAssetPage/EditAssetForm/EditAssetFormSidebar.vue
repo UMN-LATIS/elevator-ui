@@ -135,7 +135,7 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
-import InputGroup from "../InputGroup/InputGroup.vue";
+import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents, {
   TocItem,
 } from "../TableOfContents/TableOfContents.vue";

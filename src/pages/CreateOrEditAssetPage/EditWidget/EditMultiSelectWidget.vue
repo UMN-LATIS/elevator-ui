@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import * as ops from "../editWidgetOps";
+import * as ops from "./helpers/editWidgetOps";
 import CascadeSelect from "@/components/CascadeSelect/CascadeSelect.vue";
 import { findDeepestPath } from "./helpers/findDeepestPath";
 

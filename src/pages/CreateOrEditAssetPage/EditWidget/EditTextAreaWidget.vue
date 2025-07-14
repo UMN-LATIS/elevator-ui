@@ -59,7 +59,7 @@
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
-import * as ops from "../editWidgetOps";
+import * as ops from "./helpers/editWidgetOps";
 
 defineProps<{
   widgetDef: Type.TextWidgetDef;

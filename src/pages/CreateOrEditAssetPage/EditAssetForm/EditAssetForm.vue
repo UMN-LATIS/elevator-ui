@@ -51,7 +51,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onMounted, reactive } from "vue";
-import EditWidget from "@/components/EditAssetForm/EditWidget/EditWidget.vue";
+import EditWidget from "../EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
 import {

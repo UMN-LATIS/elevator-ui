@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import * as ops from "../editWidgetOps";
+import * as ops from "./helpers/editWidgetOps";
 import { Label } from "@/components/ui/label";
 
 defineProps<{

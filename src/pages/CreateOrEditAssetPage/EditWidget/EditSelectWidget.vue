@@ -1,9 +1,9 @@
 <template>
   <EditWidgetLayout
+    :isOpen="isOpen"
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
-    class="edit-text-widget"
-    :isOpen="isOpen"
+    class="edit-select-widget"
     @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
@@ -27,19 +27,17 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.TextWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.SelectWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <div>
-        <label :for="`${item.id}-input`" class="sr-only">
-          {{ widgetDef.label }}
-        </label>
-        <Input
-          :id="`${item.id}-input`"
-          :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
-          :placeholder="widgetDef.label"
-          class="bg-black/5 border-none"
+        <SelectGroup
+          :id="`${item.id}-select`"
+          :modelValue="(item as Type.WithId<Type.SelectWidgetContent>).fieldContents ?? ''"
+          :label="widgetDef.label"
+          :options="selectOptions"
+          :showLabel="false"
           @update:modelValue="
             (value) =>
               $emit(
@@ -53,23 +51,43 @@
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
-import { Input } from "@/components/ui/input";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import * as ops from "../editWidgetOps";
+import * as ops from "./helpers/editWidgetOps";
+import { computed } from "vue";
+import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 
-defineProps<{
-  widgetDef: Type.TextWidgetDef;
-  widgetContents: Type.WithId<Type.TextWidgetContent>[];
+const props = defineProps<{
+  widgetDef: Type.SelectWidgetDef;
+  widgetContents: Type.WithId<Type.SelectWidgetContent>[];
   isOpen: boolean;
 }>();
 
 defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.TextWidgetContent>[]
+    widgetContents: Type.WithId<Type.SelectWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+const selectOptions = computed((): Type.SelectOption[] => {
+  const options = props.widgetDef.fieldData.selectGroup;
+  if (!options) {
+    return [];
+  }
+
+  if (Array.isArray(options)) {
+    return options.map((option) => ({
+      id: option,
+      label: option,
+    }));
+  }
+
+  return Object.entries(options).map(([key, value]) => ({
+    id: key.toString(),
+    label: value?.toString() ?? key.toString(),
+  }));
+});
 </script>
 <style scoped></style>
 <style></style>

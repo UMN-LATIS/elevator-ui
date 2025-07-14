@@ -2,7 +2,7 @@
   <EditWidgetLayout
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
-    class="edit-date-widget"
+    class="edit-relatedasset-widget"
     :isOpen="isOpen"
     @update:isOpen="$emit('update:isOpen', $event)"
     @add="
@@ -27,51 +27,59 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.DateWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.RelatedAssetWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
-      <EditDateWidgetContentItem
-        :modelValue="(item as Type.WithId<Type.DateWidgetContent>)"
-        @update:modelValue="handleItemUpdate" />
+      <EditRelatedAssetWidgetContentItem
+        :widgetDef="widgetDef"
+        :widgetContents="widgetContents"
+        :assetId="assetId"
+        :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
+        @update:modelValue="handleUpdate" />
     </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import * as ops from "../editWidgetOps";
-import EditDateWidgetContentItem from "./EditDateWidgetContentItem.vue";
+import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetWidgetContentItem.vue";
+import * as ops from "./helpers/editWidgetOps";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
-  widgetDef: Type.DateWidgetDef;
-  widgetContents: Type.WithId<Type.DateWidgetContent>[];
+  widgetDef: Type.RelatedAssetWidgetDef;
+  widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
+  assetId: string | null; // current assetId. could be null for new assets
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.DateWidgetContent>[]
+    widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-function handleItemUpdate(updatedItem: Type.WithId<Type.DateWidgetContent>) {
-  const index = props.widgetContents.findIndex((i) => i.id === updatedItem.id);
-  if (index === -1) {
-    throw Error(
-      `Cannot update date widget: item with id "${updatedItem.id}" not found`
-    );
-  }
+const handleUpdate = (updatedItem) => {
+  const index = props.widgetContents.findIndex(
+    (item) => item.id === updatedItem.id
+  );
 
-  const updatedWidgetContents = [
+  invariant(
+    index !== -1,
+    `Item with id ${updatedItem.id} not found in widgetContents`
+  );
+
+  const updatedContents = [
     ...props.widgetContents.slice(0, index),
     updatedItem,
     ...props.widgetContents.slice(index + 1),
   ];
-  emit("update:widgetContents", updatedWidgetContents);
-}
+
+  emit("update:widgetContents", updatedContents);
+};
 </script>
 <style scoped></style>
 <style></style>

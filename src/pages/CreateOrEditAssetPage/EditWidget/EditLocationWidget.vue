@@ -2,7 +2,7 @@
   <EditWidgetLayout
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
-    class="edit-relatedasset-widget"
+    class="edit-date-widget"
     :isOpen="isOpen"
     @update:isOpen="$emit('update:isOpen', $event)"
     @add="
@@ -27,50 +27,45 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.RelatedAssetWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithId<Type.LocationWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
-      <EditRelatedAssetWidgetContentItem
-        :widgetDef="widgetDef"
-        :widgetContents="widgetContents"
-        :assetId="assetId"
-        :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
-        @update:modelValue="handleUpdate" />
+      <EditLocationWidgetContentItem
+        :modelValue="(item as Type.WithId<Type.LocationWidgetContent>)"
+        @update:modelValue="handleItemUpdate" />
     </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetWidgetContentItem.vue";
-import * as ops from "../editWidgetOps";
-import invariant from "tiny-invariant";
+import * as ops from "./helpers/editWidgetOps";
+import EditLocationWidgetContentItem from "./EditLocationWidgetContentItem.vue";
 
 const props = defineProps<{
-  widgetDef: Type.RelatedAssetWidgetDef;
-  widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
-  assetId: string | null; // current assetId. could be null for new assets
+  widgetDef: Type.LocationWidgetDef;
+  widgetContents: Type.WithId<Type.LocationWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]
+    widgetContents: Type.WithId<Type.LocationWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-const handleUpdate = (updatedItem) => {
-  const index = props.widgetContents.findIndex(
-    (item) => item.id === updatedItem.id
-  );
-
-  invariant(
-    index !== -1,
-    `Item with id ${updatedItem.id} not found in widgetContents`
-  );
+function handleItemUpdate(
+  updatedItem: Type.WithId<Type.LocationWidgetContent>
+) {
+  const index = props.widgetContents.findIndex((i) => i.id === updatedItem.id);
+  if (index === -1) {
+    throw Error(
+      `Cannot update location widget: item with id "${updatedItem.id}" not found`
+    );
+  }
 
   const updatedContents = [
     ...props.widgetContents.slice(0, index),
@@ -79,7 +74,7 @@ const handleUpdate = (updatedItem) => {
   ];
 
   emit("update:widgetContents", updatedContents);
-};
+}
 </script>
 <style scoped></style>
 <style></style>

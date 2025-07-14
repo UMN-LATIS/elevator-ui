@@ -147,7 +147,7 @@ import {
 } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import * as ops from "../editWidgetOps";
+import * as ops from "./helpers/editWidgetOps";
 import FileUploader from "./FileUploader.vue";
 import config from "@/config";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";

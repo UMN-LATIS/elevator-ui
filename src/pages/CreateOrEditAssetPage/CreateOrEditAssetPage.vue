@@ -59,7 +59,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
 import { useInstanceStore } from "@/stores/instanceStore";
-import EditAssetForm from "@/components/EditAssetForm/EditAssetForm.vue";
+import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import {
   Asset,
