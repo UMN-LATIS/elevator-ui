@@ -32,18 +32,23 @@
         </TransitionGroup>
       </div>
     </div>
+    <template #footer>
+      <AppFooter
+        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+    </template>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
+import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import Link from "@/components/Link/Link.vue";
 import { useResizeObserver } from "@vueuse/core";
 import DeleteDrawerButton from "./DeleteDrawerButton.vue";
 import CreateDrawerButton from "./CreateDrawerButton.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
 
 const gridContainer = ref<HTMLElement | null>(null);
 const numCols = ref(1);

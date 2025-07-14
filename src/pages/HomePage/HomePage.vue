@@ -49,7 +49,8 @@
       </p>
     </Notification>
     <template #footer>
-      <AppFooter />
+      <AppFooter
+        v-if="instanceStore.customHeaderMode !== ShowCustomHeaderMode.NEVER" />
     </template>
   </DefaultLayout>
 </template>
@@ -58,7 +59,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { ref, watch, computed } from "vue";
 import { StaticContentPage, Asset } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
 import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
