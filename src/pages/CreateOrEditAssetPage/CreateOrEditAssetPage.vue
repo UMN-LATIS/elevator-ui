@@ -6,22 +6,12 @@
       @submit.prevent="initAsset">
       <SelectGroup
         v-model="state.initialTemplateId"
-        :options="
-          instanceStore.instance.templates?.map((template) => ({
-            label: template.name,
-            id: template.id.toString(),
-          })) ?? []
-        "
+        :options="templateOptions"
         label="Template"
         required />
       <SelectGroup
         v-model="state.initialCollectionId"
-        :options="
-          instanceStore.collections?.map((collection) => ({
-            label: collection.title,
-            id: collection.id.toString(),
-          })) ?? []
-        "
+        :options="collectionOptions"
         label="Collection"
         required />
 
@@ -54,7 +44,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, watch, toRaw, reactive, toRef } from "vue";
+import { computed, watch, toRaw, reactive, toRef, onMounted } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
@@ -185,6 +175,42 @@ const {
 } = useUpdateAssetMutation();
 
 const instanceStore = useInstanceStore();
+const templateOptions = computed(() => {
+  const templates = instanceStore.instance.templates ?? [];
+  return templates.map((template) => ({
+    label: template.name,
+    id: template.id.toString(),
+  }));
+});
+
+const defaultTemplateId = computed(() => {
+  // if there's only one option, select it
+  return templateOptions.value.length === 1 ? templateOptions.value[0].id : "";
+});
+
+const collectionOptions = computed(() => {
+  const collections = instanceStore.collections ?? [];
+  return collections.map((collection) => ({
+    label: collection.title,
+    id: collection.id.toString(),
+  }));
+});
+
+const defaultCollectionId = computed(() => {
+  // if there's only one option, select it
+  return collectionOptions.value.length === 1
+    ? collectionOptions.value[0].id
+    : "";
+});
+
+onMounted(() => {
+  if (!state.initialTemplateId) {
+    state.initialTemplateId = defaultTemplateId.value;
+  }
+  if (!state.initialCollectionId) {
+    state.initialCollectionId = defaultCollectionId.value;
+  }
+});
 
 function initAsset() {
   if (!savedTemplate.value) return;
