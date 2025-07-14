@@ -4,9 +4,7 @@
       <ErrorModal />
       <ToastRoot />
     </Teleport>
-    <RouterView
-      v-if="instanceStore.isReady && drawerStore.isReady"
-      :key="$route.fullPath" />
+    <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
   </div>
 </template>
 <script setup lang="ts">

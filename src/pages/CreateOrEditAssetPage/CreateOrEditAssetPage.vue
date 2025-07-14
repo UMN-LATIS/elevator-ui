@@ -44,7 +44,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, watch, toRaw, reactive, toRef, onMounted } from "vue";
+import { computed, watch, toRaw, reactive, onMounted } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
@@ -64,9 +64,10 @@ import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
+import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 const props = withDefaults(
   defineProps<{
@@ -85,7 +86,7 @@ const state = reactive({
   initialCollectionId: "",
 });
 
-const { data: savedAsset } = useAssetQuery(toRef(props.assetId), {
+const { data: savedAsset } = useAssetQuery(() => props.assetId, {
   enabled: () => !!props.assetId,
 });
 
@@ -121,7 +122,7 @@ const hasAssetChanged = computed(() => {
   const rawLocalAsset = toRaw(localAssetWithoutIds.value);
   invariant(rawLocalAsset, "Cannot check asset changes");
 
-  // console.log(explainObjectDifferences(rawAsset, rawLocalAsset));
+  // console.log(explainObjectDifferences(rawSavedAsset, rawLocalAsset));
 
   // saved asset only has props for widgets that are not empty
   // so to check if an asset has changed, first check that every prop in the
@@ -342,10 +343,11 @@ function handleSaveAsset() {
 
   saveAsset(formData, {
     onSuccess: (data) => {
+      setTimeout(() => {
+        resetSaveAssetStatus();
+      }, 3000);
+
       if (!isCreateMode.value) {
-        setTimeout(() => {
-          resetSaveAssetStatus();
-        }, 3000);
         return;
       }
 
@@ -396,5 +398,29 @@ function handleMigrateCollection(newCollectionId: number) {
     },
   });
 }
+
+onBeforeRouteUpdate((to, from, next) => {
+  // if navigating from edit to create mode, check for unsaved changes
+  if (to.fullPath === "/assetManager/addAsset") {
+    if (hasAssetChanged.value) {
+      // if there are unsaved changes, confirm with the user
+      const confirmLeave = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?"
+      );
+      if (!confirmLeave) {
+        return next(false); // cancel navigation
+      }
+    }
+
+    // otherwise, reset the asset state
+    state.localAsset = null;
+    state.initialTemplateId = defaultTemplateId.value;
+    state.initialCollectionId = defaultCollectionId.value;
+    savedAsset.value = null;
+    resetSaveAssetStatus();
+  }
+
+  next();
+});
 </script>
 <style scoped></style>
