@@ -41,6 +41,17 @@
           }
         " />
     </Transition>
+    <ConfirmModal
+      v-if="isConfirmLeaveModalOpen"
+      :isOpen="isConfirmLeaveModalOpen"
+      title="Unsaved Changes"
+      type="warning"
+      confirmLabel="Leave"
+      cancelLabel="Stay"
+      @close="onCancelLeave"
+      @confirm="onConfirmLeave">
+      <p>You have unsaved changes. Are you sure you want to leave?</p>
+    </ConfirmModal>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -64,10 +75,16 @@ import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+import {
+  onBeforeRouteUpdate,
+  useRoute,
+  useRouter,
+  onBeforeRouteLeave,
+} from "vue-router";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
-import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import { useConfirmation } from "./useConfirmation";
 
 const props = withDefaults(
   defineProps<{
@@ -399,26 +416,41 @@ function handleMigrateCollection(newCollectionId: number) {
   });
 }
 
-onBeforeRouteUpdate((to, from, next) => {
-  // if navigating from edit to create mode, check for unsaved changes
-  if (to.fullPath === "/assetManager/addAsset") {
-    if (hasAssetChanged.value) {
-      // if there are unsaved changes, confirm with the user
-      const confirmLeave = window.confirm(
-        "You have unsaved changes. Are you sure you want to leave?"
-      );
-      if (!confirmLeave) {
-        return next(false); // cancel navigation
-      }
-    }
+const {
+  showModal: isConfirmLeaveModalOpen,
+  confirm: confirmLeave,
+  onConfirm: onConfirmLeave,
+  onCancel: onCancelLeave,
+} = useConfirmation();
 
-    // otherwise, reset the asset state
-    state.localAsset = null;
-    state.initialTemplateId = defaultTemplateId.value;
-    state.initialCollectionId = defaultCollectionId.value;
-    savedAsset.value = null;
-    resetSaveAssetStatus();
+onBeforeRouteLeave(async (to, from, next) => {
+  // no unsaved changes, proceed with navigation
+  if (!hasAssetChanged.value) return next();
+
+  // otherwise confirm
+  const isConfirmed = await confirmLeave();
+  return next(isConfirmed);
+});
+
+onBeforeRouteUpdate(async (to, from, next) => {
+  if (to.fullPath !== "/assetManager/addAsset") {
+    // if not navigating to create asset, just proceed
+    return next();
   }
+
+  // confirm if there are unsaved changes
+  if (hasAssetChanged.value) {
+    const isConfirmed = await confirmLeave();
+    if (!isConfirmed) {
+      return next(false);
+    }
+  }
+
+  // reset the asset state
+  state.localAsset = null;
+  state.initialTemplateId = defaultTemplateId.value;
+  state.initialCollectionId = defaultCollectionId.value;
+  resetSaveAssetStatus();
 
   next();
 });
