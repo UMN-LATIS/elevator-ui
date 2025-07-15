@@ -295,6 +295,7 @@ export interface UploadWidgetContent extends WidgetContent {
     ppm?: number | null; // pixels per millimeter
     iframe?: string | null; // iframe url
     svs?: Record<string, unknown> | string | null; // SVS data
+    svx?: Record<string, unknown> | string | null; // SVX data for OBJ
     dendro?: Record<string, unknown> | string | null; // dendro data (JSON string)
     captions?: string | null; // captions data
     chapters?: string | null; // chapters data
@@ -597,6 +598,7 @@ export interface ApiInstanceNavResponse {
   customHeaderMode: number;
   customHeader: string | null; // html
   customFooter: string | null; // html
+  useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
 }
 
 export interface StaticContentPage {
@@ -628,8 +630,9 @@ export interface ElevatorInstance {
   // may be true even if user is not logged in
   userCanSearchAndBrowse: boolean;
   templates: { id: number; name: string }[];
-  showCollectionInSearchResults;
-  showTemplateInSearchResults;
+  showCollectionInSearchResults: boolean; // whether or not to show collection in search results
+  showTemplateInSearchResults: boolean; // whether or not to show template in search results
+  useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
 }
 
 export interface RawAssetCollection {
