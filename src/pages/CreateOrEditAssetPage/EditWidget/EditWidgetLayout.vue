@@ -7,7 +7,11 @@
       'cursor-pointer': !isOpen,
     }"
     @click="handleSectionClick">
-    <div class="flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0">
+    <div
+      class="flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
+      :class="{
+        'sticky top-[5rem] z-10': isOpen,
+      }">
       <button type="button" class="text-left" @click.stop="toggleExpand">
         <div class="flex gap-2">
           <ChevronDownIcon v-if="isOpen" class="!size-4" />
