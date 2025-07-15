@@ -294,11 +294,11 @@ export interface UploadWidgetContent extends WidgetContent {
   sidecars: {
     ppm?: number | null; // pixels per millimeter
     iframe?: string | null; // iframe url
-    svs?: unknown | null; // SVS data
-    dendro?: unknown | null; // dendro data
-    captions?: unknown | null; // captions data
-    chapters?: unknown | null; // chapters data
-    "3dpoints"?: unknown | null; // 3D data
+    svs?: Record<string, unknown> | string | null; // SVS data
+    dendro?: Record<string, unknown> | string | null; // dendro data (JSON string)
+    captions?: string | null; // captions data
+    chapters?: string | null; // chapters data
+    "3dpoints"?: string | null; // 3D data
   };
   regenerate?: "On" | undefined; // regenerate derivatives
 }
