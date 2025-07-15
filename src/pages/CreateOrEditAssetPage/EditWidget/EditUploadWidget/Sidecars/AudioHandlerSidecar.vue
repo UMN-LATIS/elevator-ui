@@ -2,7 +2,7 @@
   <div class="audio-handler-sidecar flex flex-col gap-4">
     <UploadableTextArea
       :modelValue="sidecars.captions ?? ''"
-      label="Captions (WebVTT or SRT format)"
+      label="Captions | WebVTT, SRT"
       placeholder="No captions"
       @update:modelValue="
         (value) =>
@@ -12,23 +12,21 @@
           })
       " />
 
-    <TextAreaGroup
-      label="Chapter Markers"
+    <UploadableTextArea
       :modelValue="sidecars.chapters ?? ''"
-      placeholder="No chapter markers"
-      inputClass="bg-black/5 border-0"
+      label="Chapters | WebVTT"
+      placeholder="No chapters"
       @update:modelValue="
         (value) =>
           $emit('update:sidecars', {
             ...sidecars,
-            chapters: value as string,
+            chapters: value,
           })
       " />
   </div>
 </template>
 
 <script setup lang="ts">
-import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import * as Type from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import UploadableTextArea from "./UploadableTextArea.vue";
