@@ -291,7 +291,15 @@ export interface UploadWidgetContent extends WidgetContent {
   fileType: string;
   searchData: string | null;
   loc: unknown | null;
-  sidecars: unknown; // object
+  sidecars: {
+    ppm?: number | null; // pixels per millimeter
+    iframe?: string | null; // iframe url
+    svs?: unknown | null; // SVS data
+    dendro?: unknown | null; // dendro data
+    captions?: unknown | null; // captions data
+    chapters?: unknown | null; // chapters data
+    "3dpoints"?: unknown | null; // 3D data
+  };
   regenerate?: "On" | undefined; // regenerate derivatives
 }
 

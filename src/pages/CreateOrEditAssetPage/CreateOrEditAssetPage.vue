@@ -427,6 +427,13 @@ onBeforeRouteLeave(async (to, from, next) => {
   // no unsaved changes, proceed with navigation
   if (!hasAssetChanged.value) return next();
 
+  // if navigating to login/logout page, just proceed
+  if (
+    typeof to.name === "string" &&
+    ["localLogin", "logout"].includes(to.name)
+  ) {
+    return next();
+  }
   // otherwise confirm
   const isConfirmed = await confirmLeave();
   return next(isConfirmed);

@@ -60,6 +60,19 @@
               placeholder="Enter a description for this file"
               class="bg-black/5 border-none rounded-md w-full text-sm font-mono flex-1" />
           </div>
+          <EditUploadWidgetItemSidecars
+            :item="item"
+            :widgetDef="widgetDef"
+            @update:item="handleUpdateItem" />
+          <section class="col-span-3 p-4 border border-black/15 rounded-md">
+            <h2 class="text-sm font-semibold text-neutral-800 mb-2">
+              Sidecars
+            </h2>
+            <p class="text-sm text-neutral-600 mb-2">
+              Sidecars are additional metadata or files associated with the main
+              file.
+            </p>
+          </section>
 
           <section
             v-if="isShowingDetails.has(item.id)"
@@ -67,7 +80,7 @@
               'col-span-3 p-4 border border-black/15 rounded-md':
                 isShowingDetails.has(item.id),
             }">
-            <h2 class="text-sm font-semibold text-neutral-800 mb-2 text-center">
+            <h2 class="text-sm font-semibold text-neutral-800 mb-2">
               File Details
             </h2>
             <Tuple label="File ID" class="text-sm text-neutral-600 mb-2">
@@ -146,8 +159,8 @@ import {
   watch,
 } from "vue";
 import * as Type from "@/types";
-import EditWidgetLayout from "./EditWidgetLayout.vue";
-import * as ops from "./helpers/editWidgetOps";
+import EditWidgetLayout from "../EditWidgetLayout.vue";
+import * as ops from "../helpers/editWidgetOps";
 import FileUploader from "./FileUploader.vue";
 import config from "@/config";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
@@ -157,6 +170,7 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import api from "@/api";
 import Button from "@/components/Button/Button.vue";
 import { SpinnerIcon } from "@/icons";
+import EditUploadWidgetItemSidecars from "./EditUploadWidgetItemSidecars.vue";
 
 const props = defineProps<{
   collectionId: number;
@@ -306,6 +320,16 @@ function handleUpdateRegenerate(itemId: string, isChecked: boolean) {
     return item;
   });
   // Emit the updated widget contents
+  emit("update:widgetContents", updatedContents);
+}
+
+function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
+  const updatedContents = props.widgetContents.map((existingItem) => {
+    if (existingItem.id === item.id) {
+      return { ...existingItem, ...item };
+    }
+    return existingItem;
+  });
   emit("update:widgetContents", updatedContents);
 }
 </script>
