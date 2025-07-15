@@ -81,13 +81,7 @@
             <Tuple label="File Type" class="text-sm text-neutral-600 mb-2">
               {{ item.fileType }}
             </Tuple>
-            <Tuple
-              v-for="(value, key) in item.sidecars"
-              :key="key"
-              :label="`Sidecar: ${key}`"
-              class="text-sm text-neutral-600 mb-2">
-              {{ value || "-" }}
-            </Tuple>
+
             <Tuple label="Location" class="text-sm text-neutral-600 mb-2">
               <pre>{{ item.loc || "-" }}</pre>
             </Tuple>

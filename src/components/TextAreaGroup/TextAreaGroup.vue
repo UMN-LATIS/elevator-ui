@@ -17,7 +17,7 @@
         <slot name="corner" />
       </div>
     </div>
-    <div class="mt-1 flex rounded-md shadow-sm relative">
+    <div class="flex relative">
       <textarea
         :id="`textarea-${id}`"
         :name="`textarea-${id}`"

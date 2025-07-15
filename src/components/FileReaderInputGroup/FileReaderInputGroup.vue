@@ -13,7 +13,7 @@
     <input
       :id="`file-${id}`"
       type="file"
-      :class="cn('mt-1 block w-full text-sm text-neutral-500', inputClass)"
+      :class="cn('block w-full text-sm text-neutral-500', inputClass)"
       @change="handleFileChange" />
   </div>
 </template>

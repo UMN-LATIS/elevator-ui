@@ -26,55 +26,26 @@
           })
       " />
 
-    <section
+    <UploadableTextArea
       v-if="sidecars.dendro || initialSidecars.dendro"
-      class="border border-black/20 rounded-md p-4 flex flex-col gap-4">
-      <h3 class="text-sm font-bold">Dendro Data</h3>
-      <TextAreaGroup
-        v-model="localDendro"
-        label="Dendro Data"
-        placeholder="No dendro data"
-        inputClass="bg-black/5 border-0" />
-      <FileReaderInputGroup
-        label="Import"
-        @update="
-          ({ fileContents }) =>
-            $emit('update:sidecars', {
-              ...sidecars,
-              dendro: fileContents,
-            })
-        " />
-    </section>
+      v-model="localDendro"
+      label="Dendro Data"
+      placeholder="No dendro data" />
 
-    <section
+    <UploadableTextArea
       v-if="sidecars.svs || initialSidecars.svs"
-      class="border border-black/20 rounded-md p-4 flex flex-col gap-4">
-      <h3 class="text-sm font-bold">SVS Data</h3>
-      <TextAreaGroup
-        v-model="localSvs"
-        label="SVS Data"
-        placeholder="No SVS data"
-        inputClass="bg-black/5 border-0" />
-      <FileReaderInputGroup
-        label="Import"
-        @update="
-          ({ fileContents }) =>
-            $emit('update:sidecars', {
-              ...sidecars,
-              svs: fileContents,
-            })
-        " />
-    </section>
+      v-model="localSvs"
+      label="SVS Data"
+      placeholder="No SVS data" />
   </div>
 </template>
 
 <script setup lang="ts">
-import FileReaderInputGroup from "@/components/FileReaderInputGroup/FileReaderInputGroup.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import * as Type from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { ref, watch } from "vue";
+import UploadableTextArea from "./UploadableTextArea.vue";
 
 const props = defineProps<{
   sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
