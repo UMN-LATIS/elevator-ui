@@ -61,18 +61,10 @@
               class="bg-black/5 border-none rounded-md w-full text-sm font-mono flex-1" />
           </div>
           <EditUploadWidgetItemSidecars
+            class="col-span-3"
             :item="item"
             :widgetDef="widgetDef"
             @update:item="handleUpdateItem" />
-          <section class="col-span-3 p-4 border border-black/15 rounded-md">
-            <h2 class="text-sm font-semibold text-neutral-800 mb-2">
-              Sidecars
-            </h2>
-            <p class="text-sm text-neutral-600 mb-2">
-              Sidecars are additional metadata or files associated with the main
-              file.
-            </p>
-          </section>
 
           <section
             v-if="isShowingDetails.has(item.id)"
