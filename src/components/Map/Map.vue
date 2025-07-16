@@ -2,8 +2,7 @@
   <div class="maplibre-map">
     <div
       class="flex gap-4 sm:justify-end items-center mb-4"
-      :class="labelsClass"
-    >
+      :class="labelsClass">
       <button
         v-for="(style, key) in mapStyles"
         :key="key"
@@ -12,16 +11,14 @@
           'font-bold': key === activeMapStyleKey,
           'text-neutral-400': key !== activeMapStyleKey,
         }"
-        @click="activeMapStyleKey = key"
-      >
+        @click="activeMapStyleKey = key">
         {{ style.label }}
       </button>
     </div>
     <div
       ref="mapContainerRef"
       class="map-container"
-      :class="mapContainerClass"
-    />
+      :class="mapContainerClass" />
     <Skeleton v-if="!isLoaded" class="w-full h-[75vh]" />
     <div class="hidden">
       <!--
@@ -99,26 +96,23 @@ const markers = reactive(new Map<string, GeoJSON.Feature>());
 const isLoaded = ref(false);
 
 // see: https://developers.arcgis.com/documentation/mapping-apis-and-services/maps/services/basemap-layer-service/#default-styles
+
 const mapStyles = {
   light: {
     label: "Light",
-    name: "ArcGIS:LightGray",
-    type: "style",
+    name: "/styles/arcgis/light-gray",
   },
   dark: {
     label: "Dark",
-    name: "ArcGIS:DarkGray",
-    type: "style",
+    name: "/styles/arcgis/dark-gray",
   },
   satellite: {
     label: "Satellite",
-    name: "ArcGIS:Imagery",
-    type: "style",
+    name: "/styles/arcgis/imagery",
   },
   streets: {
     label: "Street",
-    name: "ArcGIS:Navigation",
-    type: "style",
+    name: "/styles/arcgis/navigation",
   },
 };
 
@@ -131,9 +125,9 @@ const CLUSTER_LAYER_ID = "clusters";
 const CLUSTER_COUNT_LAYER_ID = "cluster-count";
 
 const getArcGISUrl = (styleKey: string) => {
-  const baseUrl = `https://basemaps-api.arcgis.com/arcgis/rest/services/styles`;
+  const baseUrl = `https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2`;
   const { name, type, url } = mapStyles[styleKey];
-  return url || `${baseUrl}/${name}?type=${type}&token=${props.apiKey}`;
+  return url || `${baseUrl}${name}?token=${props.apiKey}`;
 };
 
 function updateStyle() {

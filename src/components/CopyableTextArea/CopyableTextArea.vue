@@ -1,8 +1,9 @@
 <template>
-  <TextArea
+  <TextAreaGroup
     :label="label"
-    :value="value"
+    :modelValue="value"
     :placeholder="placeholder"
+    readonly
     class="copyable-text-area">
     <template #corner>
       <Button
@@ -13,12 +14,12 @@
         {{ copied ? "Copied" : "Copy" }}
       </Button>
     </template>
-  </TextArea>
+  </TextAreaGroup>
 </template>
 <script setup lang="ts">
 import { toRef } from "vue";
 import { useClipboard } from "@vueuse/core";
-import TextArea from "../TextArea/TextArea.vue";
+import TextAreaGroup from "../TextAreaGroup/TextAreaGroup.vue";
 import Button from "../Button/Button.vue";
 
 const props = withDefaults(

@@ -1,0 +1,23 @@
+import { useQuery } from "@tanstack/vue-query";
+import * as fetchers from "@/api/fetchers";
+import { toValue, type MaybeRefOrGetter } from "vue";
+import { TEMPLATES_QUERY_KEY } from "./queryKeys";
+
+export function useTemplateQuery(
+  templateId: MaybeRefOrGetter<string | number | null>,
+  options = {}
+) {
+  return useQuery({
+    // use reactive query keys to avoid stale data
+    queryKey: [TEMPLATES_QUERY_KEY, templateId],
+    enabled: () => !!toValue(templateId),
+    initialData: () => null,
+    queryFn: async () => {
+      const id = toValue(templateId);
+      const idInt = Number.parseInt(id as string);
+      return id ? await fetchers.fetchTemplate(idInt) : null;
+    },
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+}

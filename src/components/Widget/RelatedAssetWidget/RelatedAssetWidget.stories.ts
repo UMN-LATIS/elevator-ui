@@ -3,7 +3,7 @@ import RelatedAssetWidget from "./RelatedAssetWidget.vue";
 import mockAsset from "@/__mocks__/mockAsset";
 import mockTemplate from "@/__mocks__/mockTemplate";
 import { getMockWidgetStoryArgs } from "@/helpers/getMockWidgetStoryArgs";
-import { RelatedAssetWidgetContent, RelatedAssetWidgetProps } from "@/types";
+import { RelatedAssetWidgetContent, RelatedAssetWidgetDef } from "@/types";
 
 export default {
   title: "Widgets/RelatedAssetWidget",
@@ -27,7 +27,7 @@ const Template: StoryFn<typeof RelatedAssetWidget> = (args) => ({
 });
 
 const getRelatedAssetWidgetStoryArgs = getMockWidgetStoryArgs<
-  RelatedAssetWidgetProps,
+  RelatedAssetWidgetDef,
   RelatedAssetWidgetContent
 >;
 
@@ -58,7 +58,7 @@ const noNestingArgs = getRelatedAssetWidgetStoryArgs({
   template: mockTemplate,
 });
 
-const noNestingWidget: RelatedAssetWidgetProps = {
+const noNestingWidget: RelatedAssetWidgetDef = {
   ...noNestingArgs.widget,
   fieldData: {
     ...noNestingArgs.widget.fieldData,

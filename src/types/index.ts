@@ -3,8 +3,10 @@ import {
   SEARCH_RESULTS_VIEWS,
   SORT_KEYS,
   TEMPLATE_SHOW_PROPERTY_POSITIONS,
+  SAVE_RELATED_ASSET_TYPE,
 } from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
+import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
 
 export * from "./TimelineJSTypes";
 
@@ -68,19 +70,24 @@ export type CSSClass = string | Record<string, boolean> | CSSClass[];
 
 export type FetchStatus = "idle" | "fetching" | "success" | "error";
 
-export type WidgetType =
-  | "checkbox"
-  | "date"
-  | "location"
-  | "multiselect"
-  | "related asset"
-  | "select"
-  | "tag list"
-  | "text"
-  | "upload"
-  | "text area";
+export const WIDGET_TYPES = {
+  TEXT: "text",
+  TEXT_AREA: "text area",
+  SELECT: "select",
+  CHECKBOX: "checkbox",
+  DATE: "date",
+  TAG_LIST: "tag list",
+  MULTISELECT: "multiselect",
+  LOCATION: "location",
+  UPLOAD: "upload",
+  RELATED_ASSET: "related asset",
+} as const;
 
-export interface WidgetProps {
+// union of all values of the WIDGET_TYPES object
+// e.g. "text" | "text area" | "select" | ...
+export type WidgetType = (typeof WIDGET_TYPES)[keyof typeof WIDGET_TYPES];
+
+export interface WidgetDef {
   widgetId: number;
   type: WidgetType;
   allowMultiple: boolean;
@@ -100,37 +107,45 @@ export interface WidgetProps {
   templateOrder: number;
 }
 
-export interface TextWidgetProps extends WidgetProps {
+export interface TextWidgetDef extends WidgetDef {
   type: "text";
   fieldData: [] | null;
 }
-export interface CheckboxWidgetProps extends WidgetProps {
+export interface CheckboxWidgetDef extends WidgetDef {
   type: "checkbox";
   fieldData: [] | null;
 }
-export interface DateWidgetProps extends WidgetProps {
+export interface DateWidgetDef extends WidgetDef {
   type: "date";
   fieldData: [] | null;
 }
-export interface LocationWidgetProps extends WidgetProps {
+export interface LocationWidgetDef extends WidgetDef {
   type: "location";
   fieldData: [] | null;
 }
-export interface TagListWidgetProps extends WidgetProps {
+export interface TagListWidgetDef extends WidgetDef {
   type: "tag list";
   fieldData: [] | null;
 }
-export interface TextAreaWidgetProps extends WidgetProps {
+export interface TextAreaWidgetDef extends WidgetDef {
   type: "text area";
   fieldData: [] | null;
 }
 
-export interface MultiSelectWidgetProps extends WidgetProps {
-  type: "multiselect";
-  fieldData: Record<string, unknown>;
+export interface MultiSelectFieldData {
+  [key: string]:
+    | string[]
+    | {
+        [key: string]: MultiSelectFieldData;
+      };
 }
 
-export interface RelatedAssetWidgetProps extends WidgetProps {
+export interface MultiSelectWidgetDef extends WidgetDef {
+  type: "multiselect";
+  fieldData: MultiSelectFieldData;
+}
+
+export interface RelatedAssetWidgetDef extends WidgetDef {
   type: "related asset";
   fieldData: {
     nestData?: boolean;
@@ -146,14 +161,14 @@ export interface RelatedAssetWidgetProps extends WidgetProps {
   };
 }
 
-export interface SelectWidgetProps extends WidgetProps {
+export interface SelectWidgetDef extends WidgetDef {
   type: "select";
   fieldData: {
     multiSelect?: boolean;
     selectGroup?: string[] | Record<string | number, string | undefined>;
   };
 }
-export interface UploadWidgetProps extends WidgetProps {
+export interface UploadWidgetDef extends WidgetDef {
   type: "upload";
   fieldData: {
     extractDate?: boolean;
@@ -218,7 +233,7 @@ export interface CheckboxWidgetContent extends WidgetContent {
 
 export interface DateMoment {
   text: string | null;
-  numeric: number | null;
+  numeric: string | null; // unix timestamp, actually a string
 }
 export interface DateWidgetContent extends WidgetContent {
   label: string;
@@ -250,7 +265,7 @@ export interface LocationObject {
 export interface LocationWidgetContent extends WidgetContent {
   locationLabel: string | null;
   address: string | null;
-  loc: LocationObject | null;
+  loc?: LocationObject;
 }
 
 export interface RelatedAssetWidgetContent extends WidgetContent {
@@ -276,7 +291,17 @@ export interface UploadWidgetContent extends WidgetContent {
   fileType: string;
   searchData: string | null;
   loc: unknown | null;
-  sidecars: unknown; // object
+  sidecars: {
+    ppm?: number | null; // pixels per millimeter
+    iframe?: string | null; // iframe url
+    svs?: Record<string, unknown> | string | null; // SVS data
+    svx?: Record<string, unknown> | string | null; // SVX data for OBJ
+    dendro?: Record<string, unknown> | string | null; // dendro data (JSON string)
+    captions?: string | null; // captions data
+    chapters?: string | null; // chapters data
+    "3dpoints"?: string | null; // 3D data
+  };
+  regenerate?: "On" | undefined; // regenerate derivatives
 }
 
 export interface MultiSelectWidgetContent extends WidgetContent {
@@ -359,6 +384,8 @@ export interface SearchResultMatch {
   excerptId?: number;
   excerptLabel?: string;
 }
+
+export type AssetPreview = SearchResultMatch;
 
 export interface SearchEntry {
   collection?: string[]; // collection ids as strings
@@ -457,11 +484,18 @@ export type RelatedAssetCache = Record<
   RelatedAssetCacheItem | null | undefined
 >;
 
+export interface PHPDateTime {
+  date: string; // `2025-04-22 00:00:00.000000`
+  timezone: string; // 'UTC'
+  timezone_type: number; // 3 usually
+}
+
 export interface Asset {
+  assetId: string;
   templateId: number;
   readyForDisplay: boolean;
   collectionId: number;
-  availableAfter: unknown | null;
+  availableAfter: PHPDateTime | null;
   modified: DateTime;
   modifiedBy: number | string;
   createdBy: number | string;
@@ -471,20 +505,22 @@ export interface Asset {
   firstObjectId?: string | null;
   titleObject?: string | null;
   title?: string[];
-  [key: string]: unknown;
+  [key: string]: unknown; // widget content
 }
+
+export type UnsavedAsset = Omit<Asset, "assetId"> & { assetId: null };
 
 type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
 
 export interface Template {
-  templateId: string;
+  templateId: number;
   templateName: string;
   showCollection: boolean;
   showCollectionPosition: TemplateShowPropertyPosition;
   showTemplate: boolean;
   showTemplatePosition: TemplateShowPropertyPosition;
-  widgetArray: WidgetProps[];
+  widgetArray: WidgetDef[];
   collections?: Record<string | number, string | undefined | unknown>;
   allowedCollections?:
     | Record<string | number, string | undefined | unknown>
@@ -562,6 +598,7 @@ export interface ApiInstanceNavResponse {
   customHeaderMode: number;
   customHeader: string | null; // html
   customFooter: string | null; // html
+  useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
 }
 
 export interface StaticContentPage {
@@ -593,8 +630,9 @@ export interface ElevatorInstance {
   // may be true even if user is not logged in
   userCanSearchAndBrowse: boolean;
   templates: { id: number; name: string }[];
-  showCollectionInSearchResults;
-  showTemplateInSearchResults;
+  showCollectionInSearchResults: boolean; // whether or not to show collection in search results
+  showTemplateInSearchResults: boolean; // whether or not to show template in search results
+  useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
 }
 
 export interface RawAssetCollection {
@@ -714,7 +752,7 @@ export interface TreeNode {
 export interface ApiGetMultiSelectFieldInfoResponse
   extends ApiGetFieldInfoResponse {
   type: "multiselect";
-  rawContent: TreeNode; // recursive tree of options
+  rawContent: CascaderSelectOptions; // recursive tree of options
 }
 
 export interface SearchableSpecificField extends RawSortableField {
@@ -839,4 +877,87 @@ export interface ApiGetExcerptResponse {
   isEmbedded: boolean;
   embedUrl: string;
   assetId: string;
+}
+
+export type WithId<T> = T & { id: string };
+
+export interface UpdateAssetRequestFormData {
+  objectId: string;
+  templateId: string; // "3"
+  newTemplateId: string; // matches templateId
+  collectionId: string; // "1"
+  newCollectionId: string; // matches collectionId
+  readyForDisplay: boolean; // legacy app submits `on` for true, and unset for false
+  availableAfter: string | ""; // no scheduled date === ''
+  [widgetFieldName: string]:
+    | string
+    | boolean
+    | Array<{
+        fieldContents: string;
+        isPrimary?: "0" | "1";
+      }>;
+}
+
+export interface CreateAssetRequestFormData extends UpdateAssetRequestFormData {
+  objectId: ""; // must be blank for creating a new asset
+}
+export interface AssetSummary {
+  objectId: Asset["objectId"];
+  title: string;
+  readyForDisplay: boolean;
+  templateId: number;
+  modifiedDate: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
+}
+
+export interface SelectOption {
+  id: string;
+  label: string;
+}
+
+export interface GeocoderResult {
+  lat: number;
+  lng: number;
+  address: string;
+}
+
+export interface TemplateComparison {
+  [widgetFieldTitle: WidgetDef["fieldTitle"]]: {
+    type: string; // error like "missing"
+    label: WidgetDef["label"];
+  };
+}
+
+export interface BroadcastMessage {
+  type: string;
+  payload: unknown;
+}
+export interface RelatedAssetSaveMessage extends BroadcastMessage {
+  type: typeof SAVE_RELATED_ASSET_TYPE;
+  payload: {
+    relatedAssetId: string;
+  };
+}
+export interface FileContainer {
+  bucket: string; // "elevatorbucket"
+  bucketKey: string; // "AKIA..."
+  fileObjectId: string; // "686eea..."
+  collectionId: string; // "1"
+  index: number; // 0
+  path: string; // "original"
+}
+
+export type GetFileContainerApiResponse = FileContainer[];
+
+export interface FileUploadRecord {
+  filename: string;
+  fileObjectId: string;
+  contentType: string;
+  uploadId: string;
+  key: string; // s3 "key" aka path to the file in S3
+  uploadStatus: "in-progress" | "completed" | "failed";
+  location?: string; // S3 URL of the uploaded file
 }

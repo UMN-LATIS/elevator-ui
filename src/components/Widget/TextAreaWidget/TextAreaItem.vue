@@ -5,15 +5,14 @@
   <button
     v-if="isTruncated"
     class="flex items-center uppercase text-xs text-blue-600"
-    @click="show = !show"
-  >
+    @click="show = !show">
     Show {{ show ? "Less" : "More" }}
     <ChevronUpIcon v-if="show" />
     <ChevronDownIcon v-else />
   </button>
 </template>
 <script setup lang="ts">
-import { WidgetProps } from "@/types";
+import { WidgetDef } from "@/types";
 import { ref, onMounted } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
@@ -24,7 +23,7 @@ import config from "@/config";
 const props = withDefaults(
   defineProps<{
     fieldContents: string;
-    widget: WidgetProps;
+    widget: WidgetDef;
     textTruncationHeight?: number;
   }>(),
   {

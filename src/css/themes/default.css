@@ -210,4 +210,9 @@
   --app-menu-backgroundColor: var(--color-neutral-50);
   --app-menu-textColor: var(--color-neutral-900);
   --app-menu-link-textColor: var(--color-neutral-900);
+
+  /* sidebar on create/edit page */
+  --app-sidebar-backgroundColor: var(--color-neutral-200);
+  --app-sidebar-textColor: var(--color-neutral-900);
+  --app-sidebar-link-textColor: var(--color-neutral-900);
 }

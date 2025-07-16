@@ -4,8 +4,7 @@
     :class="{
       'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
       'gap-2': widgetType !== LinkedRelatedAssetWidgetItem,
-    }"
-  >
+    }">
     <component
       :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"
@@ -13,8 +12,7 @@
       :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
       :assetId="relatedAsset.targetAssetId"
       :assetCacheItem="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
-      :label="relatedAsset.label ?? ''"
-    >
+      :label="relatedAsset.label ?? ''">
       <div class="flex items-center justify-end gap-2">
         <ArrowButton :to="`/asset/viewAsset/${relatedAsset.targetAssetId}`" />
       </div>
@@ -25,7 +23,7 @@
 import { type Component, computed, onMounted, onBeforeUnmount } from "vue";
 import {
   Asset,
-  RelatedAssetWidgetProps,
+  RelatedAssetWidgetDef,
   RelatedAssetWidgetContent,
 } from "@/types";
 import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.vue";
@@ -36,7 +34,7 @@ import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 
 const props = defineProps<{
-  widget: RelatedAssetWidgetProps;
+  widget: RelatedAssetWidgetDef;
   contents: RelatedAssetWidgetContent[];
   asset: Asset;
 }>();

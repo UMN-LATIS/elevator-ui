@@ -2,18 +2,17 @@
   <ul>
     <li v-for="(content, key) in contents" :key="key">
       <CircleCheckIcon v-if="content.fieldContents == true" />
-      <CircleIcon v-else />
+      <span v-else>-</span>
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { WidgetProps, WidgetContent } from "@/types";
+import { WidgetDef, WidgetContent } from "@/types";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
-import CircleIcon from "@/icons/CircleIcon.vue";
 
 defineProps<{
-  widget: WidgetProps;
+  widget: WidgetDef;
   contents: WidgetContent[];
 }>();
 </script>

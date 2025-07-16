@@ -28,3 +28,43 @@ export function parseDateString(dateString: string): string | null {
 
   return null;
 }
+
+export function unixTimestampToFormattedDate(
+  timestampString: string | null,
+  preferCentury = true
+): string | null {
+  if (!timestampString) return null;
+
+  const timestamp = parseInt(timestampString);
+
+  if (isNaN(timestamp)) return null;
+
+  // Constants - must match the ones used in parseDateString
+  const secondsInYear = 31556900;
+
+  // For dates after 1970 (positive unix timestamps)
+  if (timestamp >= 0) {
+    const date = new Date(timestamp * 1000);
+    return date.toISOString().slice(0, 10); // YYYY-MM-DD format
+  }
+
+  // For dates before 1970 (negative timestamps)
+  const yearsBefore1970 = Math.abs(timestamp) / secondsInYear;
+
+  if (yearsBefore1970 <= 1970) {
+    // Modern era but before 1970
+    const date = new Date(timestamp * 1000);
+    return date.toISOString().slice(0, 10); // YYYY-MM-DD format
+  } else {
+    // BCE era
+    const yearsBCE = Math.ceil(yearsBefore1970 - 1970);
+
+    // If it's divisible by 100 and we prefer century format, use century
+    if (preferCentury && yearsBCE >= 100 && yearsBCE % 100 === 0) {
+      const century = yearsBCE / 100;
+      return `${century} century BCE`;
+    } else {
+      return `${yearsBCE} BCE`;
+    }
+  }
+}

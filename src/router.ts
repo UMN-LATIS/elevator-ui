@@ -10,7 +10,6 @@ import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
 import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
 import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
-import CreateAssetPage from "./pages/CreateAssetPage/CreateAssetPage.vue";
 import DownloadDrawerPage from "./pages/DownloadDrawerPage/DownloadDrawerPage.vue";
 import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
@@ -93,7 +92,7 @@ const router = createRouter({
     {
       // this route is really `/asset/viewAsset/:assetId#:objectId?`
       // but we can't use `#` in the path
-      name: "asset",
+      name: "viewAsset",
       path: "/asset/viewAsset/:assetId",
       component: AssetViewPage,
       // component: () => import("@/pages/AssetViewPage/AssetViewPage.vue"),
@@ -111,9 +110,20 @@ const router = createRouter({
       }),
     },
     {
-      name: "addAsset",
-      path: "/asset/create",
-      component: CreateAssetPage,
+      name: "allMyAssets",
+      path: "/assetManager/userAssets",
+      component: () =>
+        import("@/pages/AllUserAssetsPage/AllUserAssetsPage.vue"),
+    },
+    {
+      name: "editAsset",
+      path: "/assetManager/editAsset/:assetId",
+      alias: "/assetManager/addAsset",
+      component: () =>
+        import("@/pages/CreateOrEditAssetPage/CreateOrEditAssetPage.vue"),
+      props: (route) => ({
+        assetId: route.params.assetId,
+      }),
     },
     {
       name: "listCollections",

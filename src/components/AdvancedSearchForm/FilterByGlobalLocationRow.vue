@@ -3,8 +3,7 @@
     v-if="searchStore.filterBy.globalLocation"
     :rowIndex="rowIndex"
     label="Any Location"
-    @remove="searchStore.removeLocationFilter"
-  >
+    @remove="searchStore.removeLocationFilter">
     <div class="flex items-baseline mt-2 text-sm gap-2">
       <span>
         {{ Math.abs(lngFloat).toFixed(4) }}°
@@ -27,14 +26,12 @@
       :mapOptions="{
         attributionControl: false,
       }"
-      @load="handleMapLoad"
-    >
+      @load="handleMapLoad">
       <MapMarker
         v-if="lngFloat && latFloat"
         id="search-by-location-map-marker"
         :lng="lngFloat"
-        :lat="latFloat"
-      />
+        :lat="latFloat" />
     </Map>
     <div>
       <InputGroup
@@ -49,38 +46,39 @@
           'bg-white !border-neutral-200': true,
           'border-red-600 text-red-700': radiusTouched && !isRadiusValid,
         }"
-        @update:modelValue="handleRadiusUpdate"
-      >
+        @update:modelValue="handleRadiusUpdate">
         <template #append>
           <span
             class="text-sm text-neutral-600 mr-2"
             :class="{
               '!text-red-700': radiusTouched && !isRadiusValid,
-            }"
-            >miles</span
-          >
+            }">
+            miles
+          </span>
         </template>
       </InputGroup>
       <p
         v-if="radiusTouched && !isRadiusValid"
-        class="text-xs text-red-700 mt-2"
-      >
+        class="text-xs text-red-700 mt-2">
         Radius must be a number greater than 0.
       </p>
     </div>
   </BaseFilterRow>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, defineAsyncComponent } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
-import Map from "@/components/Map/Map.vue";
-import MapMarker from "@/components/MapMarker/MapMarker.vue";
+
 import { LngLat } from "@/types";
 import config from "@/config";
 import { GeoJSONSource, Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import turfCircle from "@turf/circle";
 import InputGroup from "../InputGroup/InputGroup.vue";
 import BaseFilterRow from "./BaseFilterRow.vue";
+const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
+const MapMarker = defineAsyncComponent(
+  () => import("@/components/MapMarker/MapMarker.vue")
+);
 
 defineProps<{
   rowIndex: number;

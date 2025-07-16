@@ -4,18 +4,17 @@
     <li v-for="(content, key) in contents" :key="key">
       <TextAreaItem
         :widget="widget"
-        :fieldContents="content.fieldContents ?? ''"
-      />
+        :fieldContents="content.fieldContents ?? ''" />
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
-import { TextAreaWidgetProps, TextAreaWidgetContent } from "@/types";
+import { TextAreaWidgetDef, TextAreaWidgetContent } from "@/types";
 import TextAreaItem from "./TextAreaItem.vue";
 
 defineProps<{
-  widget: TextAreaWidgetProps;
+  widget: TextAreaWidgetDef;
   contents: TextAreaWidgetContent[];
 }>();
 </script>

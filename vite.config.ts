@@ -1,12 +1,13 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
-    plugins: [vue()],
+    plugins: [vue(), vueJsx()],
     base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
     resolve: {
       alias: {
@@ -21,13 +22,17 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      manifest: true,
+      manifest: "manifest.json", // put in dist/manifest.json, not dist/.vite/manifest.json
       rollupOptions: {
-        input: "/src/main.ts",
+        input: path.resolve(__dirname, "src/main.ts"),
       },
       sourcemap: mode !== "production",
     },
     server: {
+      https: {
+        cert: "./.cert/cert.pem",
+        key: "./.cert/key.pem",
+      },
       proxy: {
         "/assets": env.VITE_API_PROXY_TARGET,
         "/api": {

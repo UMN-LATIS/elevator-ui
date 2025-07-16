@@ -1,8 +1,14 @@
 import { partition } from "ramda";
-import { Asset, WidgetProps, WidgetContent, Template } from "@/types";
+import {
+  Asset,
+  WidgetDef,
+  WidgetContent,
+  Template,
+  UnsavedAsset,
+} from "@/types";
 import config from "@/config";
 
-export function getWidgetPropsByFieldTitle<T extends WidgetProps>(
+export function getWidgetPropsByFieldTitle<T extends WidgetDef>(
   template: Template,
   fieldTitle: string
 ): T | null {
@@ -27,9 +33,9 @@ export const getAssetUrl = (assetId: string): string =>
  * sorts so that primary is first
  */
 export function getWidgetContents<
-  T extends WidgetProps,
+  T extends WidgetDef,
   U extends WidgetContent
->({ asset, widget }: { asset: Asset; widget: T }): U[] | null {
+>({ asset, widget }: { asset: Asset | UnsavedAsset; widget: T }): U[] | null {
   const widgetContents = asset[widget.fieldTitle] as U[] | undefined;
 
   if (!widgetContents) return null;
@@ -57,7 +63,7 @@ export function widgetMatchesTitleWidget({
   template,
   asset,
 }: {
-  widget: WidgetProps;
+  widget: WidgetDef;
   template: Template | null;
   asset: Asset | null;
 }): boolean {
@@ -80,7 +86,7 @@ export function assetHasWidgetContents({
   widget,
 }: {
   asset: Asset;
-  widget: WidgetProps;
+  widget: WidgetDef;
 }) {
   const contents = getWidgetContents({ asset, widget });
   return contents !== null && contents !== undefined;
@@ -92,7 +98,7 @@ export function getWidgetsForDisplay({
 }: {
   asset: Asset | null;
   template: Template | null;
-}): WidgetProps[] {
+}): WidgetDef[] {
   if (!(template && asset)) return [];
 
   const filteredWidgets = template.widgetArray
@@ -124,7 +130,7 @@ export function convertHtmlToText(html: string): string {
 
 export function toClickToSearchUrl(
   linkText: string,
-  widgetProps: WidgetProps
+  widgetProps: WidgetDef
 ): string {
   const cleanedLinkText = linkText.trim().replace("?", "").replace("...", "");
 

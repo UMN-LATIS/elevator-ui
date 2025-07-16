@@ -1,19 +1,23 @@
 <template>
   <ul>
     <li v-for="(content, key) in contents" :key="key">
-      <ClickToSearchLink :widget="widget" :linkText="content.fieldContents"
-        ><span v-html="autolinkText(content.fieldContents)"></span
-      ></ClickToSearchLink>
+      <ClickToSearchLink
+        v-if="content.fieldContents"
+        :widget="widget"
+        :linkText="content.fieldContents">
+        <span v-html="autolinkText(content.fieldContents)"></span>
+      </ClickToSearchLink>
+      <span v-else>-</span>
     </li>
   </ul>
 </template>
 
 <script setup lang="ts">
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
-import { TextWidgetProps, TextWidgetContent } from "@/types";
+import { TextWidgetDef, TextWidgetContent } from "@/types";
 
 defineProps<{
-  widget: TextWidgetProps;
+  widget: TextWidgetDef;
   contents: TextWidgetContent[];
 }>();
 

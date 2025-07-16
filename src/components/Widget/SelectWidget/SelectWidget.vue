@@ -8,10 +8,10 @@
 
 <script setup lang="ts">
 import SelectItem from "./SelectItem.vue";
-import { SelectWidgetProps, SelectWidgetContent } from "@/types";
+import { SelectWidgetDef, SelectWidgetContent } from "@/types";
 
 interface Props {
-  widget: SelectWidgetProps;
+  widget: SelectWidgetDef;
   contents: SelectWidgetContent[];
 }
 

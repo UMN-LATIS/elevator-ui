@@ -3,36 +3,30 @@
     ref="buttonRef"
     class="app-menu-button p-2 rounded-full"
     tabindex="0"
-    @click="isOpen = !isOpen"
-  >
+    @click="isOpen = !isOpen">
     <MenuIcon />
   </button>
   <Teleport to="body">
-    <UseFocusTrap v-if="isOpen">
-      <div class="overflow-hidden fixed inset-0 pointer-events-none z-30">
-        <Transition name="fade">
-          <div
-            v-show="isOpen"
-            class="fixed inset-0 transition-opacity z-20 bg-black opacity-50 pointer-events-auto"
-            @click.self="handleClose"
-          />
-        </Transition>
-        <Transition name="slide-right">
-          <AppMenu
-            v-show="isOpen"
-            class="absolute right-0 top-0 bottom-0 z-30 transition-transform transform-gpu pointer-events-auto"
-            @close="handleClose"
-          />
-        </Transition>
-      </div>
-    </UseFocusTrap>
+    <div class="overflow-hidden fixed inset-0 pointer-events-none z-30">
+      <Transition name="fade">
+        <div
+          v-show="isOpen"
+          class="fixed inset-0 transition-opacity z-20 bg-black opacity-50 pointer-events-auto"
+          @click.self="handleClose" />
+      </Transition>
+      <Transition name="slide-right">
+        <AppMenu
+          v-show="isOpen"
+          class="absolute right-0 top-0 bottom-0 z-30 transition-transform transform-gpu pointer-events-auto"
+          @close="handleClose" />
+      </Transition>
+    </div>
   </Teleport>
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
 import MenuIcon from "@/icons/MenuIcon.vue";
 import AppMenu from "../AppMenu/AppMenu.vue";
-import { UseFocusTrap } from "@vueuse/integrations/useFocusTrap/component";
 
 const isOpen = ref(false);
 const buttonRef = ref<HTMLButtonElement | null>(null);

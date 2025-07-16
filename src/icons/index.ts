@@ -8,6 +8,7 @@ export { default as ChevronUpIcon } from "./ChevronUpIcon.vue";
 export { default as ChevronLeftIcon } from "./ChevronLeftIcon.vue";
 export { default as ChevronRightIcon } from "./ChevronRightIcon.vue";
 export { default as CircleCheckIcon } from "./CircleCheckIcon.vue";
+export { default as CircleFilledCheckIcon } from "./CircleFilledCheckIcon.vue";
 export { default as CircleIcon } from "./CircleIcon.vue";
 export { default as CircleXIcon } from "./CircleXIcon.vue";
 export { default as DocumentIcon } from "./DocumentIcon.vue";

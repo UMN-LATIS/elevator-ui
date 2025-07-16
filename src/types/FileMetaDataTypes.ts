@@ -7,6 +7,7 @@ export interface FileMetaData {
   coordinates?: number[];
   creationDate?: string;
   sourcefile?: string;
+  bulkMetadata?: unknown;
   handlerType?: "MovieHandler" | "AudioHandler" | string;
 }
 

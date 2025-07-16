@@ -4,7 +4,11 @@
 import { Template } from "@/types";
 
 const mockTemplate: Template = {
-  templateId: "68",
+  templateId: 68,
+  showCollection: true,
+  showCollectionPosition: 0,
+  showTemplate: true,
+  showTemplatePosition: 0,
   templateName: "All Fields Test",
   widgetArray: [
     {

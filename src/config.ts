@@ -43,7 +43,7 @@ const overwriteMerge = (destArray, sourceArray) => sourceArray;
 
 const mergedConfig: AppConfig = deepmerge(
   defaultConfig,
-  window?.Elevator?.config ?? {},
+  globalThis?.Elevator?.config ?? {},
   { arrayMerge: overwriteMerge }
 );
 

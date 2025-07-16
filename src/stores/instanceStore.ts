@@ -42,6 +42,7 @@ const createState = () => ({
     templates: [],
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: true,
+    useVoyagerViewer: false, // whether or not to use the Voyager viewer
   }),
   customHeaderMode: ref<ShowCustomHeaderMode>(ShowCustomHeaderMode.NEVER),
   customHeader: ref<string | null>(null),

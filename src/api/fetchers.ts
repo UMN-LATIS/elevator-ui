@@ -6,30 +6,35 @@
 import axios, { AxiosError } from "axios";
 import { omit } from "ramda";
 import config from "@/config";
-import type {
-  Asset,
-  SearchResultMatch,
-  Template,
-  SearchResultsResponse,
-  ApiStaticPageResponse,
-  FileDownloadNormalized,
-  ApiInstanceNavResponse,
-  SearchRequestOptions,
-  LocalLoginResponse,
-  ApiGetFieldInfoResponse,
-  SearchableSpecificField,
-  ApiListDrawersResponse,
-  ApiGetDrawerResponse,
-  WidgetProps,
-  ApiCreateDrawerResponse,
-  ApiAddAssetToDrawerResponse,
-  ApiRemoveAssetFromDrawerResponse,
-  CustomAxiosRequestConfig,
-  DrawerSortOptions,
-  ApiStartDrawerDownloadResponse,
-  AssetExcerpt,
-  ApiGetExcerptResponse,
-  ApiSuccessResponse,
+import {
+  type Asset,
+  type SearchResultMatch,
+  type Template,
+  type SearchResultsResponse,
+  type ApiStaticPageResponse,
+  type FileDownloadNormalized,
+  type ApiInstanceNavResponse,
+  type SearchRequestOptions,
+  type LocalLoginResponse,
+  type ApiGetFieldInfoResponse,
+  type SearchableSpecificField,
+  type ApiListDrawersResponse,
+  type ApiGetDrawerResponse,
+  type WidgetDef,
+  type ApiCreateDrawerResponse,
+  type ApiAddAssetToDrawerResponse,
+  type ApiRemoveAssetFromDrawerResponse,
+  type CustomAxiosRequestConfig,
+  type DrawerSortOptions,
+  type ApiStartDrawerDownloadResponse,
+  type AssetExcerpt,
+  type ApiGetExcerptResponse,
+  type ApiSuccessResponse,
+  type CreateAssetRequestFormData,
+  type AssetSummary,
+  type UpdateAssetRequestFormData,
+  TemplateComparison,
+  type GetFileContainerApiResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -77,17 +82,39 @@ export async function fetchAsset(assetId: string): Promise<Asset | null> {
   const res = await axios.get<Asset>(
     `${BASE_URL}/asset/viewAsset/${assetId}/true`
   );
+  if (!res.data) {
+    return null;
+  }
 
-  return res.data ?? null;
+  return {
+    ...res.data,
+    assetId,
+  } as Asset;
+}
+
+export async function fetchAssetPreview(assetId: string) {
+  const res = await axios.get<SearchResultMatch>(
+    `${BASE_URL}/asset/getAssetPreview/${assetId}`
+  );
+
+  return res.data;
 }
 
 export async function fetchTemplate(
-  templateId: string
+  templateId: string | number
 ): Promise<Template | null> {
   const res = await axios.get<Template>(
     `${BASE_URL}/assetManager/getTemplate/${templateId}`
   );
-  return res.data ?? null;
+  if (!res.data) {
+    return null;
+  }
+
+  // if api returns templateId as a string, parse it to an int
+  return {
+    ...res.data,
+    templateId: Number.parseInt(String(res.data.templateId)),
+  };
 }
 
 export async function fetchMoreLikeThis(
@@ -171,7 +198,7 @@ export async function fetchSearchIdForCollection(
 
 export async function fetchSearchIdForClickToSearch(
   linkText: string,
-  widgetProps: WidgetProps
+  widgetProps: WidgetDef
 ): Promise<string> {
   const url = toClickToSearchUrl(linkText, widgetProps);
 
@@ -198,7 +225,7 @@ export async function fetchInstanceNav(): Promise<ApiInstanceNavResponse> {
 export async function postLtiPayload({
   fileObjectId,
   excerptId,
-  launchId
+  returnUrl,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -207,6 +234,7 @@ export async function postLtiPayload({
   const formdata = new FormData();
   formdata.append("object", fileObjectId);
   formdata.append("excerptId", excerptId);
+  formdata.append("returnUrl", returnUrl);
 
   const res = await axios.post(`${BASE_URL}/api/v1/lti/ltiPayload`, formdata);
 
@@ -217,7 +245,7 @@ export async function postLtiPayload13({
   fileObjectId,
   excerptId,
   launchId,
-  userId
+  userId,
 }: {
   fileObjectId: string;
   returnUrl: string;
@@ -236,11 +264,13 @@ export async function postLtiPayload13({
   return res.data;
 }
 
-
-export async function fetchSearchId(
+export async function fetchSearchResults(
   query: string,
-  opts: Omit<SearchRequestOptions, "searchText"> = {}
-): Promise<string> {
+  opts: Omit<
+    SearchRequestOptions & { onlySearchId?: boolean },
+    "searchText"
+  > = {}
+): Promise<SearchResultsResponse> {
   const { collection, ...rest } = opts;
   const searchQuery: SearchRequestOptions = {
     searchText: query,
@@ -260,14 +290,29 @@ export async function fetchSearchId(
   const params = new URLSearchParams();
   params.append("searchQuery", JSON.stringify(searchQuery));
 
-  // this param gets searchID without all the results
-  params.append("storeOnly", "true");
+  if (opts.onlySearchId) {
+    // this param gets searchID without all the results
+    params.append("storeOnly", "true");
+  }
+
   const res = await axios.post<SearchResultsResponse>(
     `${BASE_URL}/search/searchResults`,
     params
   );
 
-  return res.data.searchId;
+  return res.data;
+}
+
+export async function fetchSearchId(
+  query: string,
+  opts: Omit<SearchRequestOptions, "searchText"> = {}
+): Promise<string> {
+  const results = await fetchSearchResults(query, {
+    ...opts,
+    onlySearchId: true,
+  });
+
+  return results.searchId;
 }
 
 export async function fetchSearchResultsById(
@@ -296,8 +341,8 @@ export async function fetchSearchResultsById(
 }
 
 export async function deleteAsset(assetId: string) {
-  const res = await axios.get(
-    `${BASE_URL}/assetManager/deleteAsset/${assetId}`
+  const res = await axios.delete(
+    `${BASE_URL}/assetManager/deleteAsset/${assetId}/true`
   );
   return res.data;
 }
@@ -523,6 +568,227 @@ export async function fetchDidYouMeanSuggestions(searchTerm: string) {
     `${BASE_URL}/search/getSuggestion`,
     formdata
   );
+
+  return res.data;
+}
+
+export async function createAsset(assetFormData: CreateAssetRequestFormData) {
+  const formdata = new FormData();
+  formdata.append("formData", JSON.stringify(assetFormData));
+
+  const res = await axios.post<{
+    objectId: string;
+    success?: boolean;
+  }>(`${BASE_URL}/assetManager/submission/true`, formdata);
+
+  return res.data;
+}
+
+// update and create asset are the same endpoint
+export async function updateAsset(assetFormData: UpdateAssetRequestFormData) {
+  const formdata = new FormData();
+  formdata.append("formData", JSON.stringify(assetFormData));
+
+  const res = await axios.post<{
+    objectId: string;
+    success?: boolean;
+  }>(`${BASE_URL}/assetManager/submission/true`, formdata);
+
+  return res.data;
+}
+
+export async function fetchAllUserAssets() {
+  const offset = 0;
+  const returnJson = true;
+  const res = await axios.get<AssetSummary[]>(
+    `${BASE_URL}/assetManager/userAssets/${offset}/${returnJson}`
+  );
+  return res.data;
+}
+
+export async function fetchTemplateComparison(
+  templateId: number,
+  newTemplateId: number
+) {
+  const res = await axios.get<TemplateComparison | []>(
+    `${BASE_URL}/assetManager/compareTemplates/${templateId}/${newTemplateId}`
+  );
+
+  return res.data;
+}
+
+export async function fetchCollectionComparison(
+  collectionId: number,
+  newCollectionId: number
+) {
+  const res = await axios.get<{ migration: boolean }>(
+    `${BASE_URL}/assetManager/compareCollections/${collectionId}/${newCollectionId}`
+  );
+
+  return res.data;
+}
+
+export async function getFileContainer({
+  filename,
+  collectionId,
+}: {
+  filename: string;
+  collectionId: number;
+}) {
+  const formData = new FormData();
+  formData.append(
+    "containers",
+    JSON.stringify([
+      {
+        index: 0,
+        collectionId: String(collectionId),
+        fileObjectId: "",
+        file: {},
+        filename,
+      },
+    ])
+  );
+
+  const res = await axios.post<GetFileContainerApiResponse>(
+    `${BASE_URL}/assetManager/getFileContainer`,
+    formData
+  );
+
+  return res.data;
+}
+
+export async function startS3MultipartUpload({
+  collectionId,
+  fileObjectId,
+  contentType,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  contentType: string;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    message: string;
+    uploadId: string;
+    key: string;
+  }>(`${BASE_URL}/s3/multipart`, formData);
+
+  return res.data;
+}
+
+export async function signS3UploadPart({
+  collectionId,
+  fileObjectId,
+  contentType,
+  uploadId,
+  partNumber,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  contentType: string;
+  uploadId: string;
+  partNumber: number;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    message: string;
+    url: string;
+    method: string;
+    partNumber: number;
+    uploadId: string;
+  }>(`${BASE_URL}/s3/multipart/${uploadId}/${partNumber}`, formData);
+
+  return res.data;
+}
+
+export async function completeS3MultipartUpload({
+  collectionId,
+  fileObjectId,
+  uploadId,
+  contentType,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  uploadId: string;
+  contentType: string;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    location: string; // S3 URL of the uploaded file
+    message: string;
+  }>(`${BASE_URL}/s3/multipart/${uploadId}/complete`, formData);
+
+  return res.data;
+}
+
+export async function abortS3MultipartUpload({
+  collectionId,
+  fileObjectId,
+  uploadId,
+  contentType,
+}: {
+  collectionId: number;
+  fileObjectId: string;
+  uploadId: string;
+  contentType: string;
+}) {
+  const formData = new FormData();
+  formData.append("collectionId", String(collectionId));
+  formData.append("fileObjectId", fileObjectId);
+  formData.append("contentType", contentType);
+
+  const res = await axios.post<{
+    message: string;
+  }>(`${BASE_URL}/s3/multipart/${uploadId}/abort`, formData);
+
+  return res.data;
+}
+
+// run after the s3 multipart upload is complete
+// to finalize the source file in the system
+export async function completeSourceFile(fileObjectId: string) {
+  const res = await axios.get<{
+    message: string;
+    fileObjectId: string;
+  }>(`${BASE_URL}/assetManager/completeSourceFile/${fileObjectId}`);
+
+  return res.data;
+}
+
+// remove a file object and all it's derivatives from the system
+export async function deleteFileObject(fileObjectId: string) {
+  const formData = new FormData();
+  formData.append("fileObjectId", fileObjectId);
+
+  const res = await axios.post<{
+    message: string;
+  }>(`${BASE_URL}/fileManager/deleteFileObject`, formData);
+
+  return res.data;
+}
+
+export async function checkPreviewImages(fileIds: string[]) {
+  const formData = new FormData();
+  formData.append("checkArray", JSON.stringify(fileIds));
+
+  const res = await axios.post<
+    Array<{
+      fileId: string;
+      status: "icon" | "true";
+    }>
+  >(`${BASE_URL}/fileManager/previewImageAvailable`, formData);
 
   return res.data;
 }

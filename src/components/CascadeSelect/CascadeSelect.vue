@@ -4,35 +4,43 @@
       v-for="(selected, segmentLevel) in listOfSelected"
       :key="segmentLevel"
       class="flex flex-col gap-1">
-      <label
-        :class="['uppercase text-xs font-medium tracking-wider', labelClass]">
-        {{ selected.label }}
-      </label>
-      <select
-        :class="['rounded-md', selectClass]"
-        :style="{ width: '100%' }"
-        :value="selected.value"
-        @change="
-          handleSelectChange(
-            segmentLevel,
-            ($event.target as HTMLSelectElement).value
-          )
-        ">
-        <option v-if="!selected.options.includes('')" value="" disabled>
-          Select a {{ selected.label }}
-        </option>
-        <option v-for="opt in selected.options.sort()" :key="opt" :value="opt">
-          {{ opt === "" ? "-" : opt }}
-        </option>
-      </select>
+      <div v-if="selected.options.length">
+        <label
+          :class="[
+            'uppercase text-xs font-medium tracking-wider text-neutral-700',
+            labelClass,
+          ]">
+          {{ selected.label }}
+        </label>
+        <select
+          :class="['rounded-md text-sm', selectClass]"
+          :style="{ width: '100%' }"
+          :value="selected.value"
+          @change="
+            handleSelectChange(
+              segmentLevel,
+              ($event.target as HTMLSelectElement).value
+            )
+          ">
+          <option v-if="!selected.options.includes('')" value="" disabled>
+            Select a {{ selected.label }}
+          </option>
+          <option
+            v-for="opt in selected.options.toSorted()"
+            :key="opt"
+            :value="opt">
+            {{ opt === "" ? "-" : opt }}
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { path } from "ramda";
-import { reactive, watch } from "vue";
+import { reactive, toRaw, watch } from "vue";
 
-interface CascaderSelectOptions {
+export interface CascaderSelectOptions {
   [label: string]: string[] | CascaderSelectOptions;
 }
 
@@ -61,30 +69,47 @@ function createInitialListOfSelected(): SelectedSegment[] {
   if (!props.initialSelectedValues?.length) {
     return [
       {
-        label: getFirstKey(props.options),
-        options: getFirstOptions(props.options),
+        label: getFirstKey(props.options) ?? "",
+        options: getFirstOptions(props.options) ?? [],
         value: "",
       },
     ];
   }
 
   const selected: SelectedSegment[] = [];
-  props.initialSelectedValues.forEach((value) => {
+  props.initialSelectedValues.forEach((value, index) => {
     const nextSelected = createNextSelectedSegment(selected, value);
     if (nextSelected) {
       selected.push(nextSelected);
     }
   });
+
+  // If we haven't reached the end of the options hierarchy, add the next segment
+  if (props.initialSelectedValues.length > 0) {
+    const finalNextSelected = createNextSelectedSegment(selected, "");
+    if (finalNextSelected) {
+      selected.push(finalNextSelected);
+    }
+  }
+
   return selected;
 }
 
-function getFirstKey(options: CascaderSelectOptions): string {
-  return Object.keys(options)[0];
+function getFirstKey(options: CascaderSelectOptions): string | null {
+  return Object.keys(options)?.[0] ?? null;
 }
 
 function getFirstOptions(options: CascaderSelectOptions): string[] {
-  const values: Record<string, unknown> | string[] =
-    options[getFirstKey(options)];
+  if (!options) {
+    return [];
+  }
+
+  const firstKey = getFirstKey(options);
+  if (!firstKey) {
+    return [];
+  }
+
+  const values: Record<string, unknown> | string[] = options[firstKey];
 
   // if the first value is an array, then
   // values looks like: ['minneapolis', 'st. paul']
@@ -124,7 +149,7 @@ function createNextSelectedSegment(
     return null;
   }
 
-  const label = getFirstKey(nextSegmentOptions);
+  const label = getFirstKey(nextSegmentOptions) ?? "";
   const options = getFirstOptions(nextSegmentOptions);
 
   // check if the initial value is in the options
@@ -151,6 +176,12 @@ function handleSelectChange(segmentLevel: number, value: string): void {
 
   // if the value is empty, then we're done
   if (!value) {
+    // let the parent know that the selected values have changed
+    // and we're done
+    emit(
+      "change",
+      listOfSelected.map((segment) => segment.value)
+    );
     return;
   }
 
@@ -177,6 +208,7 @@ function handleSelectChange(segmentLevel: number, value: string): void {
   );
 }
 
+// Watch for changes to options and reset the list of selected
 watch(
   () => props.options,
   () => {

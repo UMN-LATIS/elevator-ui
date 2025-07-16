@@ -4,6 +4,7 @@ import { Asset } from "@/types";
 // https://dev.elevator.umn.edu/defaultinstance/asset/viewAsset/623dee393392272653676222/true
 
 const mockAsset: Asset = {
+  assetId: "623dee393392272653676222",
   title_1: [
     {
       fieldContents: "Test Asset",

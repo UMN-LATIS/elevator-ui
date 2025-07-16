@@ -7,11 +7,11 @@
 </template>
 
 <script setup lang="ts">
-import { DateWidgetProps, DateWidgetContent } from "@/types";
+import { DateWidgetDef, DateWidgetContent } from "@/types";
 import DateWidgetItem from "./DateWidgetItem.vue";
 
 interface Props {
-  widget: DateWidgetProps;
+  widget: DateWidgetDef;
   contents: DateWidgetContent[];
 }
 

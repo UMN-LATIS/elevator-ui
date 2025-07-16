@@ -3,6 +3,8 @@ import App from "./App.vue";
 import { resetStorePlugin } from "@/stores/resetStorePlugin";
 import { createPinia } from "pinia";
 import router from "@/router";
+import { VueQueryPlugin } from "@tanstack/vue-query";
+
 import "@fontsource/work-sans/400.css";
 import "@fontsource/work-sans/400-italic.css";
 import "@fontsource/work-sans/500.css";
@@ -16,4 +18,4 @@ const app = createApp(App);
 const pinia = createPinia();
 pinia.use(resetStorePlugin);
 
-app.use(router).use(pinia).mount("#app");
+app.use(router).use(pinia).use(VueQueryPlugin).mount("#app");

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "@jest/globals";
+import { describe, it, expect } from "vitest";
 import { pluralize } from "./pluralize";
 
 describe("pluralize", () => {

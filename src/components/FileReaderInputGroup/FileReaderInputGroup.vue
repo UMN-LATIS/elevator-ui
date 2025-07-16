@@ -1,0 +1,72 @@
+<template>
+  <div class="file-read-input-group">
+    <label
+      :class="
+        cn(
+          'block text-xs font-medium text-neutral-700 uppercase mb-1',
+          labelClass
+        )
+      "
+      :for="`file-${id}`">
+      {{ label }}
+    </label>
+    <input
+      :id="`file-${id}`"
+      type="file"
+      :class="cn('block w-full text-sm text-neutral-500', inputClass)"
+      @change="handleFileChange" />
+  </div>
+</template>
+<script setup lang="ts">
+import { type StyleValue, useId } from "vue";
+import { cn } from "@/lib/utils";
+
+withDefaults(
+  defineProps<{
+    label: string;
+    placeholder?: string;
+    labelClass?: StyleValue;
+    inputClass?: StyleValue;
+  }>(),
+  {
+    placeholder: "",
+    labelClass: "",
+    inputClass: "",
+  }
+);
+
+const emit = defineEmits<{
+  (
+    e: "update",
+    { fileContents, file }: { fileContents: string; file: File }
+  ): void;
+}>();
+
+const id = useId();
+
+function readFileAsText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+    reader.readAsText(file);
+  });
+}
+
+async function handleFileChange(event: Event) {
+  console.log("File change event triggered");
+  const target = event.target as HTMLInputElement;
+  if (!target.files?.length) {
+    console.warn("No files selected");
+    return;
+  }
+  const file = target.files[0];
+
+  const content = await readFileAsText(file);
+  emit("update", {
+    fileContents: content,
+    file,
+  });
+}
+</script>
+<style scoped></style>

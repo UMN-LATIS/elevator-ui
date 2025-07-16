@@ -1,12 +1,10 @@
 <template>
   <div
-    class="notification rounded-md max-w-lg mx-auto overflow-hidden relative"
-  >
+    class="notification rounded-md max-w-lg mx-auto overflow-hidden relative">
     <button
       v-if="isDismissable"
       class="absolute top-0 right-0 p-4"
-      @click="$emit('dismiss')"
-    >
+      @click="$emit('dismiss')">
       <span class="sr-only">Close</span>
       <XIcon />
     </button>
@@ -15,10 +13,9 @@
       :class="{
         'notification--info border-l-blue-600': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
-        'notification--error border-l-red-400': type === 'danger',
+        'notification--error border-l-red-600': type === 'danger',
         'notification--success border-l-green-400': type === 'success',
-      }"
-    >
+      }">
       <div class="notification__icon rounded-full p-2 -mt-1">
         <WarningIcon v-if="type === 'warning'" />
         <InfoIcon v-if="type === 'info'" />
