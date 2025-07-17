@@ -76,10 +76,19 @@ export const usePreviewImageStore = defineStore("previewImages", {
           this.imageReadyMap.set(fileId, isReady);
         });
 
-        this.timeoutId = setTimeout(poll, this.pollPeriod);
+        if (this.isPollingForUpdates) {
+          this.timeoutId = setTimeout(poll, this.pollPeriod);
+        }
       };
 
       poll();
     },
+  },
+  beforeUnmount() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+    this.isPollingForUpdates = false;
   },
 });
