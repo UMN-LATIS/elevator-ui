@@ -117,7 +117,7 @@ const router = createRouter({
     },
     {
       name: "editAsset",
-      path: "/assetManager/editAsset/:assetId",
+      path: "/assetManager/editAsset/:assetId?",
       alias: "/assetManager/addAsset",
       component: () =>
         import("@/pages/CreateOrEditAssetPage/CreateOrEditAssetPage.vue"),
