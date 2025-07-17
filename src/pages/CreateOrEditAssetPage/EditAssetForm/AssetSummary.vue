@@ -4,8 +4,8 @@
     <div
       class="size-16 md:size-24 bg-black/10 rounded-lg overflow-hidden order-2 md:order-1 flex items-center justify-center">
       <img
-        v-if="previewImgSrc"
-        :src="previewImgSrc"
+        v-if="typeof asset.firstFileHandlerId === 'string'"
+        :src="previewImageStore.getPreviewImageUrl(asset.firstFileHandlerId)"
         class="w-full h-full object-cover" />
       <p v-else class="text-xs">No image yet</p>
     </div>
@@ -22,35 +22,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { getThumbURL } from "@/helpers/displayUtils";
 import * as Types from "@/types";
-import { computed } from "vue";
+import { usePreviewImageStore } from "@/stores/previewImageStore";
 
-const props = defineProps<{
+defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
   template: Types.Template;
 }>();
 
-const previewImgSrc = computed(() => {
-  const fileHandlerId = props.asset.firstFileHandlerId as
-    | string
-    | undefined
-    | null;
-  return fileHandlerId ? getThumbURL(fileHandlerId) : null;
-});
-
-const sortedPreviewableWidgetDefs = computed(() => {
-  return (
-    props.template.widgetArray
-      // only previewable widgets
-      .filter((widgetDef) => {
-        return widgetDef.displayInPreview;
-      })
-      // sort by `viewOrder`
-      .sort((a, b) => {
-        return a.viewOrder - b.viewOrder;
-      })
-  );
-});
+const previewImageStore = usePreviewImageStore();
 </script>
 <style scoped></style>

@@ -27,8 +27,8 @@
         <div class="grid grid-cols-3 gap-4 mb-2">
           <div class="w-full aspect-square rounded-md overflow-hidden relative">
             <img
-              v-if="isPreviewImageReadyMap.get(item.fileId)"
-              :src="`${config.instance.base.url}/fileManager/previewImageByFileId/${item.fileId}/true`"
+              v-if="item.fileId && previewImageStore.isImageReady(item.fileId)"
+              :src="previewImageStore.getPreviewImageUrl(item.fileId)"
               :alt="`thumbnail for item: ${item.fileDescription}`"
               class="w-full h-full object-cover" />
             <div
@@ -135,15 +135,7 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import {
-  nextTick,
-  ref,
-  reactive,
-  computed,
-  onMounted,
-  onUnmounted,
-  watch,
-} from "vue";
+import { nextTick, ref } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
@@ -157,6 +149,7 @@ import api from "@/api";
 import Button from "@/components/Button/Button.vue";
 import { SpinnerIcon } from "@/icons";
 import EditUploadWidgetItemSidecars from "./EditUploadWidgetItemSidecars.vue";
+import { usePreviewImageStore } from "@/stores/previewImageStore";
 
 const props = defineProps<{
   collectionId: number;
@@ -174,12 +167,8 @@ const emit = defineEmits<{
   (e: "save"): void;
 }>();
 
-onMounted(() => {
-  // set up polling for preview images
-  pollForPreviewImage();
-});
-
 const isShowingDetails = ref<Set<string>>(new Set());
+const previewImageStore = usePreviewImageStore();
 
 function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   // Create a new content item for the uploaded file
@@ -195,74 +184,11 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
 
   emit("update:widgetContents", [...props.widgetContents, completedUploadItem]);
 
-  // add the new fileId to the map to track its preview image status
-  isPreviewImageReadyMap.set(fileRecord.fileObjectId, false);
-
   nextTick(() => {
     // Try to trigger save event after the widget contents are updated
     emit("save");
   });
 }
-
-const isPreviewImageReadyMap = reactive<Map<string, boolean>>(
-  new Map<Type.UploadWidgetContent["fileId"], boolean>()
-);
-
-const fileIdSet = computed(() => {
-  const fileIds = props.widgetContents.map((item) => item.fileId);
-  return new Set(fileIds);
-});
-
-watch(
-  fileIdSet,
-  () => {
-    // reconcile the map with the current widget fileIds
-    fileIdSet.value.forEach((fileId) => {
-      // add missing fileIds to the map
-      if (!isPreviewImageReadyMap.has(fileId)) {
-        isPreviewImageReadyMap.set(fileId, false);
-      }
-
-      // if the fileId exists in map but not in widget contents, remove it
-      if (!fileIdSet.value.has(fileId)) {
-        isPreviewImageReadyMap.delete(fileId);
-      }
-    });
-  },
-  { immediate: true }
-);
-
-const fileIdsToCheck = computed(() => {
-  return fileIdSet.value.size
-    ? Array.from(fileIdSet.value).filter(
-        (fileId) => isPreviewImageReadyMap.get(fileId) === false
-      )
-    : [];
-});
-
-let timeoutId: ReturnType<typeof setTimeout> | null = null;
-async function pollForPreviewImage() {
-  if (fileIdsToCheck.value.length) {
-    // If a specific fileObjectId is provided, add it to the list of fileIds to check
-    const results = await api.checkPreviewImages(fileIdsToCheck.value);
-
-    // for each fileId, update that status in the map
-    results.forEach(({ fileId, status }) => {
-      if (fileId && status === "true") {
-        isPreviewImageReadyMap.set(fileId, true);
-      }
-    });
-  }
-
-  // queue up the next poll
-  timeoutId = setTimeout(pollForPreviewImage, 4000);
-}
-
-onUnmounted(() => {
-  if (!timeoutId) return;
-  clearTimeout(timeoutId);
-  timeoutId = null;
-});
 
 async function handleDeleteContent(id: string) {
   if (
