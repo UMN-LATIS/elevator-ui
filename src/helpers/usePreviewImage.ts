@@ -24,24 +24,30 @@ export const usePreviewImage = (
   store.init();
 
   // Watch for fileId changes and register new ones
+  const isFileIdRegistered = ref(false);
+
   watch(
     () => toValue(fileIdSource),
     (fileId) => {
-      if (!fileId) return;
+      if (!fileId) {
+        isFileIdRegistered.value = false;
+        return;
+      }
       store.registerFileId(fileId);
+      isFileIdRegistered.value = true;
     },
     { immediate: true }
   );
 
   const isReady = computed(() => {
     const fileId = toValue(fileIdSource);
-    if (!fileId) return false;
+    if (!fileId || !isFileIdRegistered.value) return false;
     return store.isImageReady(fileId);
   });
 
   const previewImageUrl = computed(() => {
     const fileId = toValue(fileIdSource);
-    if (!fileId) return null;
+    if (!fileId || !isFileIdRegistered.value) return null;
     return store.getPreviewImageUrl(fileId);
   });
 
