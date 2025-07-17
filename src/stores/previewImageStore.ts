@@ -2,93 +2,109 @@ import { defineStore } from "pinia";
 import * as Type from "@/types";
 import config from "@/config";
 import api from "@/api";
-import { watch } from "vue";
+import { watch, ref, computed } from "vue";
 import { isNotNil } from "ramda";
 import invariant from "tiny-invariant";
 
 type FileId = string;
 
-export const usePreviewImageStore = defineStore("previewImages", {
-  state: () => ({
-    imageReadyMap: new Map<FileId, boolean>(),
-    isPollingForUpdates: false,
-    pollPeriod: 4000, // milliseconds
-    timeoutId: null as ReturnType<typeof setTimeout> | null,
-    isInitialized: false,
-  }),
-  getters: {
-    isImageReady(state) {
-      return (fileId: Type.UploadWidgetContent["fileId"]): boolean => {
-        const isReady = state.imageReadyMap.get(fileId);
-        invariant(
-          isNotNil(isReady),
-          `File ID ${fileId} is not registered in the preview image store.`
-        );
-        return isReady;
-      };
-    },
-    getPreviewImageUrl() {
-      return (fileId: Type.UploadWidgetContent["fileId"]): string => {
-        const isReady = this.isImageReady(fileId);
-        // adding query param to force browser to reload the
-        // image if the state has changed.
-        // if the image isn't ready, the backend will return a
-        // placeholder image, which we don't want to cache.
-        return `${config.instance.base.url}/fileManager/previewImageByFileId/${fileId}/true?isReady=${isReady}`;
-      };
-    },
-    imagesToCheck: (state) => {
-      return Array.from(state.imageReadyMap.keys()).filter(
-        (fileId) => !state.imageReadyMap.get(fileId)
-      );
-    },
-  },
-  actions: {
-    init() {
-      if (this.isInitialized) return;
-      this.isInitialized = true;
-      watch(() => this.imagesToCheck, this.pollForUpdates, {
-        immediate: true,
+export const usePreviewImageStore = defineStore("previewImages", () => {
+  const imageReadyMap = ref(new Map<FileId, boolean>());
+  const isPollingForUpdates = ref(false);
+  const pollPeriod = ref(4000); // milliseconds
+  const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null);
+  const isInitialized = ref(false);
+
+  const isImageReady = (
+    fileId: Type.UploadWidgetContent["fileId"]
+  ): boolean => {
+    const isReady = imageReadyMap.value.get(fileId);
+    invariant(
+      isNotNil(isReady),
+      `File ID ${fileId} is not registered in the preview image store.`
+    );
+    return isReady;
+  };
+
+  const getPreviewImageUrl = (
+    fileId: Type.UploadWidgetContent["fileId"]
+  ): string => {
+    const isReady = isImageReady(fileId);
+    // adding query param to force browser to reload the
+    // image if the state has changed.
+    // if the image isn't ready, the backend will return a
+    // placeholder image, which we don't want to cache.
+    return `${config.instance.base.url}/fileManager/previewImageByFileId/${fileId}/true?isReady=${isReady}`;
+  };
+
+  const imagesToCheck = computed(() => {
+    return Array.from(imageReadyMap.value.keys()).filter(
+      (fileId) => !imageReadyMap.value.get(fileId)
+    );
+  });
+
+  const init = () => {
+    if (isInitialized.value) return;
+    isInitialized.value = true;
+    watch(() => imagesToCheck.value, pollForUpdates, {
+      immediate: true,
+    });
+  };
+
+  const registerFileId = (fileId: string) => {
+    if (imageReadyMap.value.has(fileId)) return;
+    imageReadyMap.value.set(fileId, false);
+  };
+
+  const pollForUpdates = () => {
+    if (isPollingForUpdates.value) return;
+    isPollingForUpdates.value = true;
+
+    const poll = async () => {
+      // if no files to check, stop polling
+      if (imagesToCheck.value.length === 0) {
+        isPollingForUpdates.value = false;
+        if (timeoutId.value) {
+          clearTimeout(timeoutId.value);
+          timeoutId.value = null;
+        }
+        return;
+      }
+      const results = await api.checkPreviewImages(imagesToCheck.value);
+
+      results.forEach(({ fileId, status }) => {
+        const isReady = status === "true";
+        imageReadyMap.value.set(fileId, isReady);
       });
-    },
-    registerFileId(fileId: string) {
-      if (this.imageReadyMap.has(fileId)) return;
-      this.imageReadyMap.set(fileId, false);
-    },
-    pollForUpdates() {
-      if (this.isPollingForUpdates) return;
-      this.isPollingForUpdates = true;
 
-      const poll = async () => {
-        // if no files to check, stop polling
-        if (this.imagesToCheck.length === 0) {
-          this.isPollingForUpdates = false;
-          if (this.timeoutId) {
-            clearTimeout(this.timeoutId);
-            this.timeoutId = null;
-          }
-          return;
-        }
-        const results = await api.checkPreviewImages(this.imagesToCheck);
+      if (isPollingForUpdates.value) {
+        timeoutId.value = setTimeout(poll, pollPeriod.value);
+      }
+    };
 
-        results.forEach(({ fileId, status }) => {
-          const isReady = status === "true";
-          this.imageReadyMap.set(fileId, isReady);
-        });
+    poll();
+  };
 
-        if (this.isPollingForUpdates) {
-          this.timeoutId = setTimeout(poll, this.pollPeriod);
-        }
-      };
-
-      poll();
-    },
-  },
-  beforeUnmount() {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
+  const cleanup = () => {
+    if (timeoutId.value) {
+      clearTimeout(timeoutId.value);
+      timeoutId.value = null;
     }
-    this.isPollingForUpdates = false;
-  },
+    isPollingForUpdates.value = false;
+  };
+
+  return {
+    imageReadyMap,
+    isPollingForUpdates,
+    pollPeriod,
+    timeoutId,
+    isInitialized,
+    isImageReady,
+    getPreviewImageUrl,
+    imagesToCheck,
+    init,
+    registerFileId,
+    pollForUpdates,
+    cleanup,
+  };
 });

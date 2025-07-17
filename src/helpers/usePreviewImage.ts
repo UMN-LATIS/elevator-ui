@@ -3,6 +3,7 @@ import {
   computed,
   watch,
   toValue,
+  ref,
   type MaybeRefOrGetter,
   type ComputedRef,
 } from "vue";
@@ -56,4 +57,3 @@ export const usePreviewImage = (
     previewImageUrl,
   };
 };
-
