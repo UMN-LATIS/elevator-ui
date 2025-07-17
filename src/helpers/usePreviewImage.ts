@@ -51,11 +51,3 @@ export const usePreviewImage = (
   };
 };
 
-// Type guard function to narrow the types
-export function isPreviewImageReady(
-  result: PreviewImageResult
-): result is PreviewImageResult & {
-  previewImageUrl: ComputedRef<string>;
-} {
-  return result.isReady.value;
-}
