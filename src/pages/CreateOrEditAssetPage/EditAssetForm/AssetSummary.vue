@@ -4,8 +4,8 @@
     <div
       class="size-16 md:size-24 bg-black/10 rounded-lg overflow-hidden order-2 md:order-1 flex items-center justify-center">
       <img
-        v-if="typeof asset.firstFileHandlerId === 'string'"
-        :src="previewImageStore.getPreviewImageUrl(asset.firstFileHandlerId)"
+        v-if="typeof asset.firstFileHandlerId === 'string' && previewImageUrl"
+        :src="previewImageUrl"
         class="w-full h-full object-cover" />
       <p v-else class="text-xs">No image yet</p>
     </div>
@@ -23,13 +23,18 @@
 </template>
 <script setup lang="ts">
 import * as Types from "@/types";
-import { usePreviewImageStore } from "@/stores/previewImageStore";
+import { usePreviewImage } from "@/helpers/usePreviewImage";
 
-defineProps<{
+const props = defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
   template: Types.Template;
 }>();
 
-const previewImageStore = usePreviewImageStore();
+// Use a getter function so the composable reacts to prop changes
+const { previewImageUrl } = usePreviewImage(() => 
+  typeof props.asset.firstFileHandlerId === 'string' 
+    ? props.asset.firstFileHandlerId 
+    : null
+);
 </script>
 <style scoped></style>
