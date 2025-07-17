@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import * as Type from "@/types";
 import config from "@/config";
 import api from "@/api";
-import { watch, ref, computed } from "vue";
+import { watch, ref, computed, nextTick } from "vue";
 import { isNotNil } from "ramda";
 import invariant from "tiny-invariant";
 
@@ -54,9 +54,29 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
   const registerFileId = (fileId: string) => {
     if (imageReadyMap.value.has(fileId)) return;
     imageReadyMap.value.set(fileId, false);
+
+    // Trigger polling on next tick when computed has updated
+    nextTick(() => {
+      if (!isPollingForUpdates.value && imagesToCheck.value.length > 0) {
+        pollForUpdates();
+      }
+    });
   };
 
   const pollForUpdates = () => {
+    // Stop any existing polling first
+    if (timeoutId.value) {
+      clearTimeout(timeoutId.value);
+      timeoutId.value = null;
+    }
+
+    // If no files to check, just stop polling
+    if (imagesToCheck.value.length === 0) {
+      isPollingForUpdates.value = false;
+      return;
+    }
+
+    // Start fresh polling session
     if (isPollingForUpdates.value) return;
     isPollingForUpdates.value = true;
 
@@ -70,15 +90,23 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
         }
         return;
       }
-      const results = await api.checkPreviewImages(imagesToCheck.value);
 
-      results.forEach(({ fileId, status }) => {
-        const isReady = status === "true";
-        imageReadyMap.value.set(fileId, isReady);
-      });
+      try {
+        const results = await api.checkPreviewImages(imagesToCheck.value);
 
-      if (isPollingForUpdates.value) {
+        results.forEach(({ fileId, status }) => {
+          const isReady = status === "true";
+          imageReadyMap.value.set(fileId, isReady);
+        });
+      } catch (error) {
+        console.warn("Failed to check preview images:", error);
+      }
+
+      // Schedule next poll if still polling
+      if (isPollingForUpdates.value && imagesToCheck.value.length > 0) {
         timeoutId.value = setTimeout(poll, pollPeriod.value);
+      } else {
+        isPollingForUpdates.value = false;
       }
     };
 
