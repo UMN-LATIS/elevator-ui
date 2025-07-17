@@ -3,6 +3,8 @@ import * as Type from "@/types";
 import config from "@/config";
 import api from "@/api";
 import { watch } from "vue";
+import { isNotNil } from "ramda";
+import invariant from "tiny-invariant";
 
 type FileId = string;
 
@@ -15,19 +17,19 @@ export const usePreviewImageStore = defineStore("previewImages", {
     isInitialized: false,
   }),
   getters: {
-    isImageReady: (state) => {
-      return (fileId: Type.UploadWidgetContent["fileId"]) => {
-        return state.imageReadyMap.get(fileId) ?? false;
+    isImageReady(state) {
+      return (fileId: Type.UploadWidgetContent["fileId"]): boolean => {
+        const isReady = state.imageReadyMap.get(fileId);
+        invariant(
+          isNotNil(isReady),
+          `File ID ${fileId} is not registered in the preview image store.`
+        );
+        return isReady;
       };
     },
-    getPreviewImageUrl: (state) => {
-      return (fileId: Type.UploadWidgetContent["fileId"]) => {
-        // if we don't have this id in the map, add it
-        if (!state.imageReadyMap.has(fileId)) {
-          state.imageReadyMap.set(fileId, false);
-        }
-
-        const isReady = state.imageReadyMap.get(fileId);
+    getPreviewImageUrl() {
+      return (fileId: Type.UploadWidgetContent["fileId"]): string => {
+        const isReady = this.isImageReady(fileId);
         // adding query param to force browser to reload the
         // image if the state has changed.
         // if the image isn't ready, the backend will return a
@@ -48,6 +50,10 @@ export const usePreviewImageStore = defineStore("previewImages", {
       watch(() => this.imagesToCheck, this.pollForUpdates, {
         immediate: true,
       });
+    },
+    registerFileId(fileId: string) {
+      if (this.imageReadyMap.has(fileId)) return;
+      this.imageReadyMap.set(fileId, false);
     },
     pollForUpdates() {
       if (this.isPollingForUpdates) return;
