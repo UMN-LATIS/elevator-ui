@@ -123,6 +123,7 @@ const router = createRouter({
         import("@/pages/CreateOrEditAssetPage/CreateOrEditAssetPage.vue"),
       props: (route) => ({
         assetId: route.params.assetId,
+        title: route.params.assetId ? "Edit Asset" : "Add Asset",
       }),
     },
     {
