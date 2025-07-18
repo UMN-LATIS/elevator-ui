@@ -29,5 +29,10 @@
     ]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "vendor"]
+  "exclude": [
+    "node_modules",
+    "vendor",
+    "src/components/MapMarker/MapMarker.stories.js",
+    "src/helpers/legacy-prepMap.js"
+  ]
 }

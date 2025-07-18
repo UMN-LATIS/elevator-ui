@@ -4,8 +4,8 @@
     <div
       class="size-16 md:size-24 bg-black/10 rounded-lg overflow-hidden order-2 md:order-1 flex items-center justify-center">
       <img
-        v-if="previewImgSrc"
-        :src="previewImgSrc"
+        v-if="typeof asset.firstFileHandlerId === 'string' && previewImageUrl"
+        :src="previewImageUrl"
         class="w-full h-full object-cover" />
       <p v-else class="text-xs">No image yet</p>
     </div>
@@ -22,35 +22,19 @@
   </div>
 </template>
 <script setup lang="ts">
-import { getThumbURL } from "@/helpers/displayUtils";
 import * as Types from "@/types";
-import { computed } from "vue";
+import { usePreviewImage } from "@/helpers/usePreviewImage";
 
 const props = defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
   template: Types.Template;
 }>();
 
-const previewImgSrc = computed(() => {
-  const fileHandlerId = props.asset.firstFileHandlerId as
-    | string
-    | undefined
-    | null;
-  return fileHandlerId ? getThumbURL(fileHandlerId) : null;
-});
-
-const sortedPreviewableWidgetDefs = computed(() => {
-  return (
-    props.template.widgetArray
-      // only previewable widgets
-      .filter((widgetDef) => {
-        return widgetDef.displayInPreview;
-      })
-      // sort by `viewOrder`
-      .sort((a, b) => {
-        return a.viewOrder - b.viewOrder;
-      })
-  );
-});
+// Use a getter function so the composable reacts to prop changes
+const { previewImageUrl } = usePreviewImage(() => 
+  typeof props.asset.firstFileHandlerId === 'string' 
+    ? props.asset.firstFileHandlerId 
+    : null
+);
 </script>
 <style scoped></style>
