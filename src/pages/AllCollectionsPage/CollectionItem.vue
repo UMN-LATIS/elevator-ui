@@ -1,30 +1,25 @@
 <template>
   <div
-    class="all-collections-page__collection-item p-4 rounded border transition-colors duration-150"
-  >
+    class="all-collections-page__collection-item p-4 rounded border transition-colors duration-150">
     <div class="flex items-center gap-1">
       <button
         v-if="collection.children && collection.children.length > 0"
         class="p-2 -ml-2 rounded-full inline-flex items-center justify-center hover:bg-white transition-colors duration-150"
-        @click="showMore = !showMore"
-      >
+        @click="showMore = !showMore">
         <ChevronDownIcon
           class="transform w-4 h-4"
           :class="{
             '-rotate-90': !showMore,
-          }"
-        />
+          }" />
       </button>
       <Link
         class="flex gap-2 flex-1 items-center !no-underline h-full"
-        :to="`/collections/browseCollection/${collection.id}`"
-      >
+        :to="`/collections/browseCollection/${collection.id}`">
         <LazyLoadImage
           v-if="imgSrc"
           :src="imgSrc"
           :alt="collection.title"
-          class="w-6 h-6 object-cover rounded-md"
-        />
+          class="w-6 h-6 object-cover rounded-md" />
         <h2 :class="{ 'font-bold': showMore }">{{ collection.title }}</h2>
       </Link>
     </div>
@@ -34,8 +29,7 @@
         v-show="showMore"
         :key="child.id"
         :collection="child"
-        class="!p-0 m-2 ml-8"
-      />
+        class="!p-0 m-2 ml-8" />
     </div>
   </div>
 </template>

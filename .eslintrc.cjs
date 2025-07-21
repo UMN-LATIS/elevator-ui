@@ -11,7 +11,6 @@ module.exports = {
     "plugin:vue/vue3-recommended",
     "@vue/eslint-config-typescript/recommended",
     "@vue/eslint-config-prettier",
-    "plugin:storybook/recommended",
   ],
   parserOptions: {
     ecmaVersion: "latest",

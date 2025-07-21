@@ -2,8 +2,7 @@
   <section v-if="items.length" class="more-like-this">
     <div v-if="inlineResultsList.length" class="pt-6 mt-6">
       <h3
-        class="more-like-this__title flex flex-wrap items-center gap-2 mb-4 text-xl font-bold"
-      >
+        class="more-like-this__title flex flex-wrap items-center gap-2 mb-4 text-xl font-bold">
         <span>More Like This</span>
         <CountChip>{{ items.length }}</CountChip>
       </h3>
@@ -12,16 +11,14 @@
         <SearchResultCard
           v-for="searchMatch in inlineResultsList"
           :key="searchMatch.objectId"
-          :searchMatch="searchMatch"
-        />
+          :searchMatch="searchMatch" />
       </div>
     </div>
     <ButtonWithCount
       v-if="numOfSeeMoreResults"
       :count="numOfSeeMoreResults"
       class="my-4"
-      @click="isShowingFullListOfResults = true"
-    >
+      @click="isShowingFullListOfResults = true">
       {{
         config.instance.moreLikeThis.maxInlineResults
           ? "Show More"
@@ -32,8 +29,7 @@
     <Modal
       label="More Like This"
       :isOpen="isShowingFullListOfResults"
-      @close="isShowingFullListOfResults = false"
-    >
+      @close="isShowingFullListOfResults = false">
       <template #label>
         <span>More Like This</span>
         <CountChip class="ml-2">{{ items.length }}</CountChip>
@@ -42,8 +38,7 @@
         <SearchResultCard
           v-for="searchMatch in items"
           :key="searchMatch.objectId"
-          :searchMatch="searchMatch"
-        />
+          :searchMatch="searchMatch" />
       </div>
     </Modal>
   </section>

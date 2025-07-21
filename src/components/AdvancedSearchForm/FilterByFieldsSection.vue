@@ -6,8 +6,7 @@
         <Button
           v-if="searchStore.hasFieldFiltersApplied"
           variant="tertiary"
-          @click="searchStore.clearSearchableFieldsFilters"
-        >
+          @click="searchStore.clearSearchableFieldsFilters">
           clear
         </Button>
       </header>
@@ -15,21 +14,17 @@
 
     <div
       v-if="searchStore.hasFieldFiltersApplied"
-      class="p-4 bg-transparent-black-50 rounded-md flex flex-col gap-4 sm:gap-2 mb-4"
-    >
+      class="p-4 bg-transparent-black-50 rounded-md flex flex-col gap-4 sm:gap-2 mb-4">
       <div v-for="(filter, index) in sortedFilterRows" :key="filter.id">
         <FilterByGlobalDateRow
           v-if="filter.fieldId === GLOBAL_FIELD_IDS.DATE_RANGE"
-          :rowIndex="index"
-        />
+          :rowIndex="index" />
         <FilterByGlobalLocationRow
           v-else-if="filter.fieldId === GLOBAL_FIELD_IDS.LOCATION"
-          :rowIndex="index"
-        />
+          :rowIndex="index" />
         <FilterByGlobalFileTypeRow
           v-else-if="filter.fieldId === GLOBAL_FIELD_IDS.FILE_TYPE"
-          :rowIndex="index"
-        />
+          :rowIndex="index" />
         <FilterBySpecificFieldsRow v-else :filter="filter" :rowIndex="index" />
       </div>
     </div>
@@ -42,8 +37,7 @@
               v-for="field in supportedSearchableFields"
               :key="field.id"
               class="flex items-center justify-between cursor-pointer"
-              @click="searchStore.addSearchableFieldFilter(field.id)"
-            >
+              @click="searchStore.addSearchableFieldFilter(field.id)">
               <span class="flex-1">{{ field.label }}</span>
             </AdvSearchDropDownItem>
           </div>
@@ -51,23 +45,20 @@
             <AdvSearchDropDownItem
               class="flex items-center cursor-pointer aria-disabled:opacity-25"
               :disabled="searchStore.hasDateRangeFilter"
-              @click="searchStore.addDateRangeFilter()"
-            >
+              @click="searchStore.addDateRangeFilter()">
               Any Date
             </AdvSearchDropDownItem>
 
             <AdvSearchDropDownItem
               class="flex items-center cursor-pointer aria-disabled:opacity-25"
               :disabled="searchStore.hasLocationFilter"
-              @click="searchStore.addLocationFilter()"
-            >
+              @click="searchStore.addLocationFilter()">
               Any Location
             </AdvSearchDropDownItem>
             <AdvSearchDropDownItem
               class="flex items-center cursor-pointer aria-disabled:opacity-25"
               :disabled="searchStore.hasFileTypeFilter"
-              @click="searchStore.addFileTypeFilter()"
-            >
+              @click="searchStore.addFileTypeFilter()">
               Any File Type
             </AdvSearchDropDownItem>
           </div>

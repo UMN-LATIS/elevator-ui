@@ -4,16 +4,14 @@
     class="search-results-gallery"
     :class="{
       'h-screen flex flex-col items-center justify-center': isFullscreen,
-    }"
-  >
+    }">
     <div
       v-if="mainSwiper"
       class="flex items-center justify-between w-full gap-4"
       :class="{
         'p-4': isFullscreen,
         'py-2': !isFullscreen,
-      }"
-    >
+      }">
       <h2 class="font-bold">
         <Link
           v-if="activeSlide.objectId"
@@ -22,15 +20,13 @@
           :class="{
             'text-neutral-300 text-4xl ': isFullscreen,
             'text-xl text-blue-700 ': !isFullscreen,
-          }"
-        >
+          }">
           {{ activeSlide.title }}
         </Link>
       </h2>
       <FullscreenButton
         :isFullscreen="isFullscreen"
-        @click="toggleFullscreen"
-      />
+        @click="toggleFullscreen" />
     </div>
     <Swiper
       class="main-swiper flex-1"
@@ -40,23 +36,19 @@
       :thumbs="{ swiper: thumbsSwiper }"
       :keyboard="{ enabled: true, onlyInViewport: false }"
       @swiper="setMainSwiper"
-      @slideChange="onMainSlideChange"
-    >
+      @slideChange="onMainSlideChange">
       <SwiperSlide
         v-for="slide in slides"
         :key="slide.id"
-        v-slot="{ isActive, isPrev, isNext }"
-      >
+        v-slot="{ isActive, isPrev, isNext }">
         <div class="w-full h-full border">
           <ObjectViewer
             v-if="slide.primaryHandlerId && (isActive || isPrev || isNext)"
             class="border w-full h-full"
-            :fileHandlerId="slide.primaryHandlerId"
-          />
+            :fileHandlerId="slide.primaryHandlerId" />
           <div
             v-else
-            class="w-full h-full flex items-center justify-center -mt-12"
-          >
+            class="w-full h-full flex items-center justify-center -mt-12">
             <DocumentIcon />
           </div>
         </div>
@@ -75,24 +67,20 @@
       :spaceBetween="4"
       @swiper="setThumbsSwiper"
       @touchEnd="onThumbSlideChange"
-      @scrollbarDragEnd="onThumbSlideChange"
-    >
+      @scrollbarDragEnd="onThumbSlideChange">
       <SwiperSlide v-for="(slide, i) in slides" :key="slide.id">
         <div
-          class="border border-neutral-400 aspect-video flex items-center justify-center w-full relative"
-        >
+          class="border border-neutral-400 aspect-video flex items-center justify-center w-full relative">
           <div
             v-if="i !== activeSlideIndex"
-            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-transparent-white-800 text-neutral-900"
-          >
+            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-transparent-white-800 text-neutral-900">
             {{ i + 1 }}
           </div>
           <LazyLoadImage
             v-if="slide.thumb.src"
             :src="slide.thumb.src"
             :alt="slide.thumb.alt ?? 'Loading...'"
-            class="swiper-lazy object-cover w-full h-full"
-          />
+            class="swiper-lazy object-cover w-full h-full" />
           <DocumentIcon v-else />
         </div>
       </SwiperSlide>
@@ -104,40 +92,34 @@
       :class="{
         'text-neutral-50': isFullscreen,
         'text-neutral-900': !isFullscreen,
-      }"
-    >
+      }">
       <Button
         variant="tertiary"
         class="!m-0 bg-transparent hover:!bg-transparent-white-500"
         :class="{
           'opacity-30': activeSlideIndex === 0,
         }"
-        @click="mainSwiper.slidePrev()"
-      >
+        @click="mainSwiper.slidePrev()">
         <ChevronLeftIcon
           :class="{
             'text-neutral-50': isFullscreen,
             'text-neutral-900': !isFullscreen,
-          }"
-        />
+          }" />
       </Button>
       <div
-        class="flex flex-col items-center justify-center text-xs text-center px-4 py-2"
-      >
+        class="flex flex-col items-center justify-center text-xs text-center px-4 py-2">
         {{ activeSlideIndex + 1 }}
       </div>
 
       <Button
         variant="tertiary"
         class="!m-0 bg-transparent hover:!bg-transparent-white-500"
-        @click="mainSwiper.slideNext()"
-      >
+        @click="mainSwiper.slideNext()">
         <ChevronRightIcon
           :class="{
             'text-neutral-50 ': isFullscreen,
             'text-neutral-900': !isFullscreen,
-          }"
-        />
+          }" />
       </Button>
     </div>
   </div>

@@ -4,20 +4,22 @@
       <select
         class="rounded-md text-sm filter-row__name w-full border-neutral-200 bg-transparent"
         :value="currentField.id"
-        @change="handleFieldChange"
-      >
+        @change="handleFieldChange">
         <option
           v-for="supportedField in supportedSpecificFields"
           :key="supportedField.id"
-          :value="supportedField.id"
-        >
+          :value="supportedField.id">
           {{ supportedField.label }}
         </option>
       </select>
     </template>
 
     <InputGroup
-      v-if="['text', 'date', 'text area', 'related asset'].includes(currentField.type)"
+      v-if="
+        ['text', 'date', 'text area', 'related asset'].includes(
+          currentField.type
+        )
+      "
       :id="filter.id"
       class="text-sm"
       inputClass="!bg-white !border !border-neutral-200 placeholder:capitalize"
@@ -25,40 +27,34 @@
       :modelValue="filter.value"
       :labelHidden="true"
       :placeholder="currentField.label"
-      @update:modelValue="handleFilterValueChange"
-    />
+      @update:modelValue="handleFilterValueChange" />
 
     <SelectFieldOptions
       v-if="['select', 'tag list'].includes(currentField.type)"
       class="w-full text-sm"
-      :filter="filter"
-    />
+      :filter="filter" />
 
     <CheckboxFieldOptions
       v-if="currentField.type === 'checkbox'"
       class="w-full text-sm"
-      :filter="(filter as SearchableCheckboxFieldFilter)"
-    />
+      :filter="(filter as SearchableCheckboxFieldFilter)" />
 
     <MultiSelectFieldOptions
       v-if="currentField.type === 'multiselect'"
       class="w-full text-sm"
-      :filter="filter"
-    />
+      :filter="filter" />
     <template #fuzzy>
       <label
         class="text-xs font-bold uppercase text-center cursor-pointer leading-none block"
         :class="{
           'text-blue-600': filter.isFuzzy,
           'text-neutral-300': !filter.isFuzzy,
-        }"
-      >
+        }">
         <input
           class="sr-only"
           type="checkbox"
           :checked="filter.isFuzzy"
-          @change="handleIsFuzzyChange"
-        />
+          @change="handleIsFuzzyChange" />
         <span aria-label="Fuzzy Search">Fuzzy</span>
       </label>
     </template>

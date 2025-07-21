@@ -2,8 +2,7 @@
   <Button
     class="arrow-button !rounded-full !p-2 cursor-pointer"
     variant="primary"
-    v-bind="$attrs"
-  >
+    v-bind="$attrs">
     <slot />
     <ArrowForwardIcon />
   </Button>

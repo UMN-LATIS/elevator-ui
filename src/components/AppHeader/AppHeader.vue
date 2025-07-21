@@ -8,13 +8,11 @@
       </div>
       <SearchBar
         v-if="instanceStore.instance.userCanSearchAndBrowse"
-        class="flex-1 w-full max-w-2xl"
-      />
+        class="flex-1 w-full max-w-2xl" />
       <div class="flex gap-2 items-center">
         <AuthDropDown
           :currentUser="currentUser"
-          :instance="instanceStore.instance"
-        />
+          :instance="instanceStore.instance" />
         <AppMenuButton />
       </div>
     </div>

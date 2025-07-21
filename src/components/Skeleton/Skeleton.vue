@@ -1,7 +1,6 @@
 <template>
   <div
-    :class="`skeleton skeleton--${variant} rounded-md animate-pulse bg-neutral-200 flex items-center justify-center`"
-  >
+    :class="`skeleton skeleton--${variant} rounded-md animate-pulse bg-neutral-200 flex items-center justify-center`">
     <slot />
   </div>
 </template>

@@ -1,8 +1,7 @@
 <template>
   <section
     v-if="asset"
-    class="collapsed-inline-related-asset-widget-item flex flex-col"
-  >
+    class="collapsed-inline-related-asset-widget-item flex flex-col">
     <h3>{{ title }}</h3>
     <WidgetList :assetId="assetId" />
   </section>
