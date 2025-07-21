@@ -5,8 +5,7 @@
       <Button
         v-if="selectedCollections.length"
         variant="tertiary"
-        @click="searchStore.clearCollectionIdFilters()"
-      >
+        @click="searchStore.clearCollectionIdFilters()">
         clear
       </Button>
     </header>
@@ -18,19 +17,16 @@
 
     <ul
       v-if="selectedCollections.length"
-      class="flex flex-wrap gap-2 bg-transparent-black-50 p-4 mb-4 rounded-md"
-    >
+      class="flex flex-wrap gap-2 bg-transparent-black-50 p-4 mb-4 rounded-md">
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
-        class="text-xs bg-white rounded-md border border-neutral-800 inline-flex items-center text-neutral-900 px-2 py-1"
-      >
+        class="text-xs bg-white rounded-md border border-neutral-800 inline-flex items-center text-neutral-900 px-2 py-1">
         {{ collection.title }}
 
         <button
           class="ml-2 h-full flex items-center justify-center"
-          @click="searchStore.removeCollectionIdFilter(collection.id)"
-        >
+          @click="searchStore.removeCollectionIdFilter(collection.id)">
           <XIcon class="!h-3 !w-3" />
         </button>
       </li>
@@ -38,15 +34,13 @@
 
     <AdvSearchDropDown
       v-if="unselectedCollections.length"
-      label="Add Collection"
-    >
+      label="Add Collection">
       <AdvSearchDropDownItem
         v-for="collection in unselectedCollections"
         :key="collection.id"
         class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
         :title="prefixWithHyphens(collection.title)"
-        @click="searchStore.addCollectionIdFilter(collection.id)"
-      >
+        @click="searchStore.addCollectionIdFilter(collection.id)">
         {{ prefixWithHyphens(collection.title) }}
       </AdvSearchDropDownItem>
     </AdvSearchDropDown>

@@ -6,8 +6,7 @@
     <div class="px-4">
       <Link
         :to="`/drawers/listDrawers`"
-        class="flex items-center gap-1 mb-4 hover:no-underline mt-8"
-      >
+        class="flex items-center gap-1 mb-4 hover:no-underline mt-8">
         <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
         Back to Drawers
       </Link>
@@ -17,19 +16,16 @@
         </h2>
         <div
           v-if="instanceStore.currentUser?.canManageDrawers"
-          class="flex items-center gap-2 bg-white p-1 rounded-md"
-        >
+          class="flex items-center gap-2 bg-white p-1 rounded-md">
           <IconButton
             :href="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
-            title="Edit Permissions"
-          >
+            title="Edit Permissions">
             <UsersIcon class="!w-5 !h-5" />
             <span class="sr-only">Edit Permissions</span>
           </IconButton>
           <IconButton
             title="Download Drawer"
-            :to="`/drawers/downloadDrawer/${drawerId}`"
-          >
+            :to="`/drawers/downloadDrawer/${drawerId}`">
             <DownloadIcon class="!w-5 !h-5" />
             <span class="sr-only">Download Drawer</span>
           </IconButton>
@@ -40,11 +36,9 @@
         v-if="drawer"
         labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
         :activeTabId="activeTabId"
-        @tabChange="handleTabChange"
-      >
+        @tabChange="handleTabChange">
         <div
-          class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2"
-        >
+          class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2">
           <div>
             <ResultsCount
               v-if="drawer.contents"
@@ -53,13 +47,11 @@
               :fetchStatus="fetchStatus"
               :showingCount="drawer.contents.matches.length"
               @loadMore="handleLoadMore"
-              @loadAll="handleLoadAll"
-            />
+              @loadAll="handleLoadAll" />
 
             <div
               v-else
-              class="flex items-center gap-2 text-neutral-500 text-sm"
-            >
+              class="flex items-center gap-2 text-neutral-500 text-sm">
               <SpinnerIcon class="animate-spin h-5 w-5" />
               Loading...
             </div>
@@ -71,13 +63,11 @@
               name="sort"
               class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
               :value="selectedSortOption"
-              @change="handleSortOptionChange"
-            >
+              @change="handleSortOptionChange">
               <option
                 v-for="(sortOptionLabel, sortOptionKey) in sortOptions"
                 :key="sortOptionKey"
-                :value="sortOptionKey"
-              >
+                :value="sortOptionKey">
                 {{ sortOptionLabel }}
               </option>
             </select>
@@ -95,8 +85,7 @@
                 selectedSortOption === SORT_KEYS.CUSTOM &&
                 instanceStore.currentUser?.canManageDrawers
               "
-              @dragEnd="handleDragEnd"
-            />
+              @dragEnd="handleDragEnd" />
           </Transition>
         </Tab>
         <Tab id="list" label="List">
@@ -111,8 +100,7 @@
                 selectedSortOption === SORT_KEYS.CUSTOM &&
                 instanceStore.currentUser?.canManageDrawers
               "
-              @dragEnd="handleDragEnd"
-            />
+              @dragEnd="handleDragEnd" />
           </Transition>
         </Tab>
         <Tab id="timeline" label="Timeline">
@@ -121,8 +109,7 @@
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
-              :status="fetchStatus"
-            />
+              :status="fetchStatus" />
           </Transition>
         </Tab>
         <Tab id="map" label="Map">
@@ -131,8 +118,7 @@
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
-              :status="fetchStatus"
-            />
+              :status="fetchStatus" />
           </Transition>
         </Tab>
         <Tab id="gallery" label="Gallery">
@@ -141,8 +127,7 @@
               v-if="drawer.contents"
               :totalResults="drawer.contents.totalResults"
               :matches="drawer.contents.matches"
-              :status="fetchStatus"
-            />
+              :status="fetchStatus" />
           </Transition>
         </Tab>
       </Tabs>

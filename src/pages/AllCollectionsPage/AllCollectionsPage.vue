@@ -9,14 +9,12 @@
       <SanitizedHTML
         v-if="collectionPageContent?.content"
         class="mb-8"
-        :html="collectionPageContent.content"
-      />
+        :html="collectionPageContent.content" />
       <div ref="collectionGrid" class="grid">
         <CollectionItem
           v-for="collection in collections"
           :key="collection.id"
-          :collection="collection"
-        />
+          :collection="collection" />
       </div>
     </div>
     <template #footer>

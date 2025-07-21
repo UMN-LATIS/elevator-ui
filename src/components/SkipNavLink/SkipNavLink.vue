@@ -1,5 +1,5 @@
 <template>
-  <a class="skipnav shadow-md" href="#main"> Skip to content </a>
+  <a class="skipnav shadow-md" href="#main">Skip to content</a>
 </template>
 <script setup lang="ts"></script>
 <style scoped>

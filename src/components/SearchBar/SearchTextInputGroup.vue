@@ -1,9 +1,9 @@
 <template>
   <InputGroup
-    class="search-bar__search-text-input-group"
     id="search"
     ref="inputGroup"
     v-model="searchStore.query"
+    class="search-bar__search-text-input-group"
     label="Search"
     inputmode="search"
     :labelHidden="true"

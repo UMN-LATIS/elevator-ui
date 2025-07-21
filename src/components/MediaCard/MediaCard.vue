@@ -1,18 +1,15 @@
 <template>
   <article
-    class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm"
-  >
+    class="media-card flex flex-col overflow-hidden border rounded-md shadow-sm">
     <div class="placeholder-image aspect-video overflow-hidden">
       <div
-        class="flex items-center justify-center w-full h-full media-card__image"
-      >
+        class="flex items-center justify-center w-full h-full media-card__image">
         <LazyLoadImage
           v-if="imgSrc"
           :src="imgSrc"
           :alt="imgAlt || 'Untitled'"
           loading="lazy"
-          class="object-cover w-full h-full"
-        />
+          class="object-cover w-full h-full" />
         <DocumentIcon v-else />
       </div>
     </div>

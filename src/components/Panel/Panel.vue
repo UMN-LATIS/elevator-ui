@@ -4,13 +4,11 @@
       class="panel__header flex items-center sticky top-0 left-0 justify-between z-10 backdrop-blur-[2px]"
       :class="{
         'h-full': !isOpen,
-      }"
-    >
+      }">
       <button
         :disabled="!showToggle"
         class="flex items-center p-4 leading-tight gap-4 flex-1"
-        @click="$emit('toggle')"
-      >
+        @click="$emit('toggle')">
         <span v-if="showToggle">
           <ChevronDownIcon v-if="isOpen" class="w-5 h-5" />
           <ChevronUpIcon v-if="!isOpen" class="w-5 h-5" />
@@ -27,8 +25,7 @@
 
     <div
       v-show="isOpen"
-      class="panel__body flex flex-col gap-6 px-4 md:p-8 flex-1"
-    >
+      class="panel__body flex flex-col gap-6 px-4 md:p-8 flex-1">
       <slot />
     </div>
   </section>

@@ -2,8 +2,7 @@
   <select
     :value="selectedOption"
     class="rounded-md border-neutral-200"
-    @change="handleSelectChange"
-  >
+    @change="handleSelectChange">
     <option value="boolean_true">{{ trueLabel }}</option>
     <option value="boolean_false">{{ falseLabel }}</option>
   </select>

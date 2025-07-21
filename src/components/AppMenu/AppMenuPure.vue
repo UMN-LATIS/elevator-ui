@@ -1,11 +1,9 @@
 <template>
   <nav
-    class="app-menu flex flex-col w-[90vw] sm:w-md sm:px-8 sm:py-4 p-4 h-full relative"
-  >
+    class="app-menu flex flex-col w-[90vw] sm:w-md sm:px-8 sm:py-4 p-4 h-full relative">
     <XButton class="absolute right-4 top-4" @click="$emit('close')" />
     <header
-      class="app-menu__header flex mt-4 pt-6 pb-2 justify-between items-center"
-    >
+      class="app-menu__header flex mt-4 pt-6 pb-2 justify-between items-center">
       <Link to="/">
         <h1 class="md:text-xl text-lg font-bold">
           {{ instance.name }}
@@ -16,13 +14,13 @@
       </div>
     </header>
     <div
-      class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto"
-    >
+      class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto">
       <slot />
     </div>
     <footer class="app-menu__footer pt-4 flex flex-col items-center text-sm">
       <p>
-        Powered by <a href="https://umn-latis.github.io/elevator/">Elevator</a>
+        Powered by
+        <a href="https://umn-latis.github.io/elevator/">Elevator</a>
       </p>
       <p>
         Made by

@@ -2,8 +2,7 @@
   <BaseFilterRow
     label="Any Date"
     :rowIndex="rowIndex"
-    @remove="searchStore.removeDateRangeFilter"
-  >
+    @remove="searchStore.removeDateRangeFilter">
     <div class="flex flex-col lg:flex-row gap-1">
       <InputGroup
         v-if="searchStore.filterBy.globalDateRange"
@@ -13,8 +12,7 @@
         inputClass="!bg-white !border !border-neutral-200"
         label="Start Date"
         :labelHidden="true"
-        placeholder="Start Date"
-      />
+        placeholder="Start Date" />
       <InputGroup
         v-if="searchStore.filterBy.globalDateRange"
         id="filter-by-date-range-end-date"
@@ -23,8 +21,7 @@
         inputClass="!bg-white !border !border-neutral-200"
         label="End Date"
         :labelHidden="true"
-        :placeholder="`End Date`"
-      />
+        :placeholder="`End Date`" />
     </div>
   </BaseFilterRow>
 </template>
