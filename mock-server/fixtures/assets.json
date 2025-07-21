@@ -1,0 +1,62 @@
+{
+  "sampleAsset": {
+    "assetId": "12345",
+    "templateId": 1,
+    "title": "Sample Digital Asset",
+    "description": "This is a sample asset for testing purposes",
+    "collectionId": 1,
+    "createdDate": "2024-01-15T10:30:00Z",
+    "modifiedDate": "2024-01-16T14:20:00Z",
+    "createdBy": "testuser",
+    "widgets": {
+      "title_1": "Sample Digital Asset",
+      "description_2": "This is a sample asset for testing purposes",
+      "tags_3": ["test", "sample", "digital"],
+      "date_4": "2024-01-15",
+      "location_5": "Test Location"
+    },
+    "files": [
+      {
+        "fileId": "file123",
+        "filename": "sample.pdf",
+        "originalFilename": "sample-document.pdf",
+        "mimeType": "application/pdf",
+        "filesize": 1024000
+      }
+    ]
+  },
+  "assetPreview": {
+    "objectId": "12345",
+    "title": "Sample Digital Asset",
+    "description": "This is a sample asset for testing purposes",
+    "thumbnail": "/fileManager/getDerivativeById/file123/thumbnail",
+    "collectionId": 1,
+    "templateId": 1
+  },
+  "moreLikeThisResults": [
+    {
+      "objectId": "12346",
+      "title": "Related Asset 1",
+      "description": "First related asset",
+      "thumbnail": "/fileManager/getDerivativeById/file124/thumbnail",
+      "collectionId": 1,
+      "templateId": 1
+    },
+    {
+      "objectId": "12347", 
+      "title": "Related Asset 2",
+      "description": "Second related asset",
+      "thumbnail": "/fileManager/getDerivativeById/file125/thumbnail",
+      "collectionId": 1,
+      "templateId": 1
+    }
+  ],
+  "userAssets": [
+    {
+      "objectId": "12345",
+      "title": "Sample Digital Asset",
+      "modifiedDate": "2024-01-16T14:20:00Z",
+      "collectionTitle": "Test Collection"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "searchResults": {
+    "searchResults": [
+      "687138947074c3fd4e03493a",
+      "687138941c0efc795e0bcd28"
+    ],
+    "totalResults": 2,
+    "searchId": "d6e5e032-7738-4791-86e6-1144e20b5c85",
+    "sortableWidgets": {
+      "0": "Best Match",
+      "lastModified.desc": "Modified Date (newest to oldest)",
+      "lastModified.asc": "Modified Date (oldest to newest)",
+      "title.raw": "Default Title",
+      "collection": "Collection",
+      "template": "Template"
+    },
+    "matches": [
+      {
+        "dates": [],
+        "title": "test",
+        "objectId": "687138947074c3fd4e03493a",
+        "locations": [],
+        "lastModified": "2025-07-11 16:15:16",
+        "collectionHierarchy": [
+          {
+            "id": 1,
+            "title": "Default Collection"
+          }
+        ],
+        "template": {
+          "name": "Some Fields",
+          "id": 1
+        }
+      },
+      {
+        "dates": [],
+        "title": "Another test asset",
+        "objectId": "687138941c0efc795e0bcd28",
+        "locations": [],
+        "lastModified": "2025-07-11 16:15:16",
+        "collectionHierarchy": [
+          {
+            "id": 1,
+            "title": "Default Collection"
+          }
+        ],
+        "template": {
+          "name": "Some Fields",
+          "id": 1
+        }
+      }
+    ],
+    "success": true,
+    "searchEntry": {
+      "searchText": "test",
+      "searchDate": {
+        "date": "2025-07-21 23:27:15.395049",
+        "timezone_type": 3,
+        "timezone": "UTC"
+      }
+    }
+  },
+  "fieldInfo": {
+    "fieldValues": [
+      { "value": "option1", "label": "Option 1", "count": 5 },
+      { "value": "option2", "label": "Option 2", "count": 3 },
+      { "value": "option3", "label": "Option 3", "count": 1 }
+    ]
+  },
+  "suggestions": {
+    "sample": "sample",
+    "test": "test",
+    "digital": "digital"
+  }
+}

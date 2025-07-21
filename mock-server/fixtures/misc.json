@@ -1,0 +1,217 @@
+{
+  "template": {
+    "templateId": "1",
+    "templateName": "Some Fields",
+    "showCollection": false,
+    "showTemplate": false,
+    "showCollectionPosition": 1,
+    "showTemplatePosition": 1,
+    "widgetArray": [
+      {
+        "widgetId": 19,
+        "type": "text",
+        "allowMultiple": false,
+        "attemptAutocomplete": false,
+        "fieldTitle": "title_1",
+        "label": "Title",
+        "tooltip": "",
+        "fieldData": [],
+        "display": true,
+        "displayInPreview": true,
+        "required": true,
+        "searchable": true,
+        "directSearch": false,
+        "clickToSearch": false,
+        "clickToSearchType": 1,
+        "viewOrder": 1,
+        "templateOrder": 1
+      },
+      {
+        "widgetId": 20,
+        "type": "checkbox",
+        "allowMultiple": false,
+        "attemptAutocomplete": false,
+        "fieldTitle": "checkbox_1",
+        "label": "Checkbox",
+        "tooltip": "",
+        "fieldData": [],
+        "display": true,
+        "displayInPreview": false,
+        "required": false,
+        "searchable": false,
+        "directSearch": false,
+        "clickToSearch": false,
+        "clickToSearchType": 1,
+        "viewOrder": 2,
+        "templateOrder": 2
+      },
+      {
+        "widgetId": 21,
+        "type": "upload",
+        "allowMultiple": true,
+        "attemptAutocomplete": false,
+        "fieldTitle": "upload_1",
+        "label": "Upload",
+        "tooltip": "",
+        "fieldData": {
+          "extractDate": true,
+          "forceTiling": false,
+          "enableDendro": true,
+          "enableIframe": true,
+          "enableTiling": true,
+          "extractLocation": true,
+          "enableAnnotation": false,
+          "interactiveTranscript": false
+        },
+        "display": true,
+        "displayInPreview": false,
+        "required": false,
+        "searchable": false,
+        "directSearch": false,
+        "clickToSearch": false,
+        "clickToSearchType": 1,
+        "viewOrder": 3,
+        "templateOrder": 3
+      },
+      {
+        "widgetId": 22,
+        "type": "date",
+        "allowMultiple": false,
+        "attemptAutocomplete": false,
+        "fieldTitle": "date_1",
+        "label": "Date",
+        "tooltip": "",
+        "fieldData": [],
+        "display": true,
+        "displayInPreview": false,
+        "required": false,
+        "searchable": false,
+        "directSearch": false,
+        "clickToSearch": false,
+        "clickToSearchType": 1,
+        "viewOrder": 4,
+        "templateOrder": 4
+      },
+      {
+        "widgetId": 23,
+        "type": "location",
+        "allowMultiple": true,
+        "attemptAutocomplete": false,
+        "fieldTitle": "location_1",
+        "label": "Location",
+        "tooltip": "",
+        "fieldData": [],
+        "display": true,
+        "displayInPreview": false,
+        "required": false,
+        "searchable": false,
+        "directSearch": false,
+        "clickToSearch": false,
+        "clickToSearchType": 1,
+        "viewOrder": 5,
+        "templateOrder": 5
+      }
+    ],
+    "collections": {
+      "1": "Default Collection"
+    },
+    "allowedCollections": []
+  },
+  "collectionDescription": {
+    "collectionDescription": "This is a test collection for development and testing purposes",
+    "collectionTitle": "Test Collection"
+  },
+  "instanceNav": {
+    "pages": [
+      {
+        "title": "Home Page",
+        "id": 1,
+        "includeInNav": false,
+        "children": []
+      }
+    ],
+    "userIsloggedIn": true,
+    "userCanSearchAndBrowse": true,
+    "userCanCreateDrawers": true,
+    "userCanManageAssets": true,
+    "userId": 1,
+    "userDisplayName": "",
+    "userIsAdmin": true,
+    "userIsSuperAdmin": true,
+    "instanceName": "defaultinstance",
+    "instanceId": 1,
+    "instanceHasLogo": false,
+    "instanceLogo": 1,
+    "instanceShowCollectionInSearchResults": true,
+    "instanceShowTemplateInSearchResults": true,
+    "featuredAssetId": "",
+    "featuredAssetText": "",
+    "recentDrawers": [],
+    "recentCollections": [
+      {
+        "id": 1,
+        "title": "Default Collection"
+      }
+    ],
+    "sortableFields": [],
+    "contact": "mailto:mcfa0086@umn.edu",
+    "useCentralAuth": true,
+    "centralAuthLabel": "Universty",
+    "showPreviousNext": true,
+    "collections": [
+      {
+        "id": 1,
+        "title": "Default Collection",
+        "previewImageId": ""
+      }
+    ],
+    "templates": [[], "Some Fields"],
+    "customHeaderMode": 0,
+    "useCustomCSS": false,
+    "useVoyagerViewer": false
+  },
+  "staticPage": {
+    "pageId": 1,
+    "pageTitle": "About",
+    "content": "<h1>About</h1><p>This is a test page.</p>",
+    "lastModified": "2024-01-15T10:30:00Z"
+  },
+  "interstitial": {
+    "haveInterstitial": false
+  },
+  "fileMetadata": {
+    "fileId": "file123",
+    "filename": "sample.pdf",
+    "originalFilename": "sample-document.pdf",
+    "mimeType": "application/pdf",
+    "filesize": 1024000,
+    "width": null,
+    "height": null,
+    "duration": null,
+    "metadata": {}
+  },
+  "fileDownloads": {
+    "original": {
+      "ready": true,
+      "originalFilename": "sample-document.pdf",
+      "downloadable": true
+    },
+    "thumbnail": {
+      "ready": true,
+      "originalFilename": "sample-document.pdf",
+      "downloadable": true
+    }
+  },
+  "loginResponse": {
+    "status": "success",
+    "message": "login successful"
+  },
+  "excerptResponse": {
+    "excerptId": 1,
+    "name": "Test Excerpt",
+    "startTime": 30,
+    "endTime": 60,
+    "fileHandlerId": "file123",
+    "assetId": "12345"
+  }
+}

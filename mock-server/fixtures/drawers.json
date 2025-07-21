@@ -1,0 +1,61 @@
+{
+  "drawersList": {
+    "drawers": [
+      {
+        "drawerId": 1,
+        "drawerTitle": "My First Collection",
+        "assetCount": 3,
+        "createdDate": "2024-01-15T10:30:00Z",
+        "modifiedDate": "2024-01-16T14:20:00Z"
+      },
+      {
+        "drawerId": 2,
+        "drawerTitle": "Research Materials",
+        "assetCount": 7,
+        "createdDate": "2024-01-10T09:15:00Z",
+        "modifiedDate": "2024-01-18T11:45:00Z"
+      }
+    ]
+  },
+  "drawer": {
+    "drawerId": 1,
+    "drawerTitle": "My First Collection",
+    "assets": [
+      {
+        "objectId": "12345",
+        "title": "Sample Digital Asset",
+        "description": "This is a sample asset",
+        "thumbnail": "/fileManager/getDerivativeById/file123/thumbnail",
+        "excerptId": null,
+        "sortOrder": 0
+      },
+      {
+        "objectId": "12346", 
+        "title": "Another Asset",
+        "description": "Another test asset",
+        "thumbnail": "/fileManager/getDerivativeById/file124/thumbnail",
+        "excerptId": null,
+        "sortOrder": 1
+      }
+    ],
+    "sortBy": "custom"
+  },
+  "createDrawerResponse": {
+    "drawerId": 3,
+    "drawerTitle": "New Drawer",
+    "success": true
+  },
+  "addAssetResponse": {
+    "success": true,
+    "message": "Asset added to drawer successfully"
+  },
+  "removeAssetResponse": {
+    "success": true,
+    "message": "Asset removed from drawer successfully"
+  },
+  "downloadResponse": {
+    "downloadId": "download_123456",
+    "status": "processing",
+    "message": "Download started"
+  }
+}

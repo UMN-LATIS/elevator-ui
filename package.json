@@ -16,7 +16,10 @@
     "test": "vitest",
     "e2e": "cypress run",
     "e2e:open": "cypress open",
-    "cert": "rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost' 127.0.0.1 0.0.0.0 '::1' '::' `ipconfig getifaddr en0`"
+    "cert": "rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost' 127.0.0.1 0.0.0.0 '::1' '::' `ipconfig getifaddr en0`",
+    "mock:install": "cd mock-server && npm install",
+    "mock:serve": "cd mock-server && npm run serve:watch",
+    "dev:mock": "VITE_API_PROXY_TARGET=http://localhost:3001 concurrently \"npm run mock:serve\" \"npm run dev\""
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
@@ -93,6 +96,7 @@
     "@vue/eslint-config-prettier": "^7.1.0",
     "@vue/eslint-config-typescript": "^11.0.3",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^8.2.2",
     "cypress": "^14.5.2",
     "eslint": "^8.41.0",
     "eslint-config-prettier": "^8.8.0",

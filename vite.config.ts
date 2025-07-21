@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => {
         cert: "./.cert/cert.pem",
         key: "./.cert/key.pem",
       },
+      // proxy: false,
       proxy: {
         "/assets": env.VITE_API_PROXY_TARGET,
         "/api": {
