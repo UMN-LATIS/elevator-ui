@@ -1,9 +1,11 @@
 import { Hono } from "hono";
-import { loadFixture, parseFormData, delay } from "../utils/fixtures.js";
+import { parseFormData, delay, loadFixture } from "../utils/index";
+import fileDownloads from "../fixtures/file-downloads";
+import excerpt from "../fixtures/excerpt";
+import template from "../fixtures/template";
 
 const app = new Hono();
 const assets = loadFixture("assets.json");
-const misc = loadFixture("misc.json");
 
 // GET /asset/viewAsset/:assetId/true
 app.get("/viewAsset/:assetId/true", async (c) => {
@@ -22,21 +24,21 @@ app.get("/getAssetPreview/:assetId", async (c) => {
 // POST /asset/getEmbedAsJson/:fileId/:parentObjectId?
 app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
   await delay(150);
-  return c.json(misc.fileDownloads);
+  return c.json(fileDownloads);
 });
 
 // GET /asset/viewExcerpt/:excerptId/true/true
 app.get("/viewExcerpt/:excerptId/true/true", async (c) => {
   await delay(100);
   const excerptId = c.req.param("excerptId");
-  return c.json({ ...misc.excerptResponse, excerptId: Number(excerptId) });
+  return c.json({ ...excerpt, excerptId: Number(excerptId) });
 });
 
 // GET /assetManager/getTemplate/:templateId
 app.get("/getTemplate/:templateId", async (c) => {
   await delay(100);
   const templateId = c.req.param("templateId");
-  return c.json({ ...misc.template, templateId: Number(templateId) });
+  return c.json({ ...template, templateId: Number(templateId) });
 });
 
 // POST /assetManager/submission/true (create/update asset)

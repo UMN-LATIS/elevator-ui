@@ -1,14 +1,14 @@
 import { Hono } from "hono";
-import { loadFixture, parseFormData, delay } from "../utils/fixtures.js";
+import { parseFormData, delay } from "../utils/index";
+import fileMetadata from "../fixtures/file-metadata";
 
 const app = new Hono();
-const misc = loadFixture("misc.json");
 
 // GET /fileManager/getMetadataForObject/:fileId
 app.get("/getMetadataForObject/:fileId", async (c) => {
   await delay(150);
   const fileId = c.req.param("fileId");
-  return c.json({ ...misc.fileMetadata, fileId });
+  return c.json({ ...fileMetadata, fileId });
 });
 
 // GET /fileManager/getOriginal/:fileId

@@ -1,33 +1,36 @@
 import { Hono } from "hono";
-import { loadFixture, delay } from "../utils/fixtures.js";
+import { delay } from "../utils/index";
+import collection from "../fixtures/collection";
+import instance from "../fixtures/instance";
+import interstitial from "../fixtures/interstitial";
+import page from "../fixtures/page";
 
 const app = new Hono();
-const misc = loadFixture("misc.json");
 
 // GET /collections/collectionHeader/:collectionId/true
 app.get("/collectionHeader/:collectionId/true", async (c) => {
   await delay(100);
-  return c.json(misc.collectionDescription);
+  return c.json(collection);
 });
 
 // GET /home/getInstanceNav
 app.get("/getInstanceNav", async (c) => {
   await delay(150);
   console.log("Instance nav requested for: defaultinstance");
-  return c.json(misc.instanceNav);
+  return c.json(instance);
 });
 
 // GET /home/interstitial
 app.get("/interstitial", async (c) => {
   await delay(100);
-  return c.json(misc.interstitial);
+  return c.json(interstitial);
 });
 
 // GET /page/view/:pageId/true
 app.get("/view/:pageId/true", async (c) => {
   await delay(100);
   const pageId = Number(c.req.param("pageId"));
-  return c.json({ ...misc.staticPage, pageId });
+  return c.json({ ...page, pageId });
 });
 
 // Click-to-search endpoints

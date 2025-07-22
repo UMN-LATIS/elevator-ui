@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { loadFixture, parseFormData, delay } from "../utils/fixtures.js";
+import { delay } from "../utils/index";
+import loginResponse from "../fixtures/login";
 
 const app = new Hono();
-const misc = loadFixture("misc.json");
 
 // POST /loginManager/localLoginAsync
 app.post("/localLoginAsync", async (c) => {
@@ -15,10 +15,10 @@ app.post("/localLoginAsync", async (c) => {
 
   // Simple auth logic for testing
   if (username === "testuser" && password === "password") {
-    return c.json(misc.loginResponse);
+    return c.json(loginResponse);
   } else if (username === "admin" && password === "admin") {
     return c.json({
-      ...misc.loginResponse,
+      ...loginResponse,
       user: {
         username: "admin",
         isAdmin: true,

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { loadFixture, parseFormData, delay } from "../utils/fixtures.js";
+import { loadFixture, parseFormData, delay } from "../utils/index";
 
 const app = new Hono();
 const searchData = loadFixture("search.json");

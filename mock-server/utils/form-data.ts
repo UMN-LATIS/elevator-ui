@@ -1,18 +1,3 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-
-const fixturesPath = join(process.cwd(), "fixtures");
-
-export function loadFixture(filename: string) {
-  try {
-    const content = readFileSync(join(fixturesPath, filename), "utf-8");
-    return JSON.parse(content);
-  } catch (error) {
-    console.error(`Failed to load fixture ${filename}:`, error);
-    return {};
-  }
-}
-
 export function parseFormData(formData: FormData): Record<string, unknown> {
   const data: Record<string, unknown> = {};
 
@@ -32,8 +17,4 @@ export function parseFormData(formData: FormData): Record<string, unknown> {
   }
 
   return data;
-}
-
-export function delay(ms = 100) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
