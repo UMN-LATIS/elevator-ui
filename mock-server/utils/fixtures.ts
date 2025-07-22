@@ -13,8 +13,8 @@ export function loadFixture(filename: string) {
   }
 }
 
-export function parseFormData(formData: FormData): Record<string, any> {
-  const data: Record<string, any> = {};
+export function parseFormData(formData: FormData): Record<string, unknown> {
+  const data: Record<string, unknown> = {};
 
   for (const [key, value] of formData.entries()) {
     // Handle JSON strings in form data
