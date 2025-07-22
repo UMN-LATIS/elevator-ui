@@ -3,7 +3,8 @@ import { delay } from "../utils/index";
 import collection from "../fixtures/collection";
 import instance from "../fixtures/instance";
 import interstitial from "../fixtures/interstitial";
-import page from "../fixtures/page";
+import { homePage, makeStaticContentPage } from "../fixtures/page";
+import { StaticContentPage } from "../../src/types";
 
 const app = new Hono();
 
@@ -30,7 +31,13 @@ app.get("/interstitial", async (c) => {
 app.get("/view/:pageId/true", async (c) => {
   await delay(100);
   const pageId = Number(c.req.param("pageId"));
-  return c.json({ ...page, pageId, lastModified: "2024-01-15T10:30:00Z" });
+  if (pageId === homePage.id) {
+    // If the pageId is for the home page, return the homePage fixture
+    return c.json(homePage);
+  }
+  const page = makeStaticContentPage(pageId);
+
+  return c.json<StaticContentPage>(page);
 });
 
 // Click-to-search endpoints

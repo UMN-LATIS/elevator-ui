@@ -603,6 +603,7 @@ export interface ApiInstanceNavResponse {
 }
 
 export interface StaticContentPage {
+  id?: number;
   title: string;
   content: string | null; // raw HTML
 }
