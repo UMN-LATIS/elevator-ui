@@ -49,7 +49,8 @@ import { useResizeObserver } from "@vueuse/core";
 import DeleteDrawerButton from "./DeleteDrawerButton.vue";
 import CreateDrawerButton from "./CreateDrawerButton.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
+import { useInstanceStore } from "@/stores/instanceStore";
+import { ShowCustomHeaderMode } from "@/types";
 
 const gridContainer = ref<HTMLElement | null>(null);
 const numCols = ref(1);

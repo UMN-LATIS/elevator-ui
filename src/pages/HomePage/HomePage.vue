@@ -59,8 +59,8 @@
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { ref, watch, computed } from "vue";
-import { StaticContentPage, Asset } from "@/types";
-import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
+import { StaticContentPage, Asset, ShowCustomHeaderMode } from "@/types";
+import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";

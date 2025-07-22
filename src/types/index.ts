@@ -596,10 +596,11 @@ export interface ApiInstanceNavResponse {
   templates: Record<number, string>; // { templateId: templateName }
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
-  customHeaderMode: number;
-  customHeader: string | null; // html
-  customFooter: string | null; // html
+  customHeaderMode: ShowCustomHeaderMode;
+  customHeader?: string | null; // html
+  customFooter?: string | null; // html
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
+  useCustomCSS: boolean; // whether or not to use custom CSS
 }
 
 export interface StaticContentPage {
@@ -967,4 +968,10 @@ export interface FileUploadRecord {
 export interface CollectionDescription {
   collectionDescription: string;
   collectionTitle: string;
+}
+
+export enum ShowCustomHeaderMode {
+  NEVER = 0,
+  ALWAYS = 1,
+  HOME_PAGE_ONLY = 2,
 }
