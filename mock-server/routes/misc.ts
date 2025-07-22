@@ -1,9 +1,8 @@
 import { Hono } from "hono";
 import { delay } from "../utils/index";
 import collection from "../fixtures/collection";
-import instance from "../fixtures/instance";
 import interstitial from "../fixtures/interstitial";
-import { homePage, makeStaticContentPage } from "../fixtures/page";
+import { homePage, makeStaticContentPage } from "../fixtures/pages";
 import { StaticContentPage } from "../../src/types";
 
 const app = new Hono();
@@ -12,13 +11,6 @@ const app = new Hono();
 app.get("/collectionHeader/:collectionId/true", async (c) => {
   await delay(100);
   return c.json(collection);
-});
-
-// GET /home/getInstanceNav
-app.get("/getInstanceNav", async (c) => {
-  await delay(150);
-  console.log("Instance nav requested for: defaultinstance");
-  return c.json(instance);
 });
 
 // GET /home/interstitial

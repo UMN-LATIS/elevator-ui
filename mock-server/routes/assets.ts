@@ -4,6 +4,7 @@ import fileDownloads from "../fixtures/file-downloads";
 import excerpt from "../fixtures/excerpt";
 import template from "../fixtures/template";
 import { assetData, mockAssets, getAssetById, mockAssetSummaries } from "../fixtures/assets";
+import type { AssetFormData } from "../types";
 
 const app = new Hono();
 
@@ -25,11 +26,14 @@ app.get("/getAssetPreview/:assetId", async (c) => {
   const assetId = c.req.param("assetId");
   const asset = getAssetById(assetId);
   if (asset) {
+    const widgets = asset.widgets as Record<string, { widgetContents?: string }>;
+    const fileObjectIds = (asset as { fileObjectIds?: string[] }).fileObjectIds;
+    
     return c.json({
       objectId: asset.objectId,
-      title: asset.widgets.title_1?.widgetContents || "Untitled",
-      description: asset.widgets.description_2?.widgetContents || "",
-      thumbnail: `/fileManager/getDerivativeById/${asset.fileObjectIds?.[0]}/thumbnail`,
+      title: widgets.title_1?.widgetContents || "Untitled",
+      description: widgets.description_2?.widgetContents || "",
+      thumbnail: `/fileManager/getDerivativeById/${fileObjectIds?.[0]}/thumbnail`,
       collectionId: asset.collectionId,
       templateId: asset.templateId,
     });
@@ -62,10 +66,10 @@ app.get("/getTemplate/:templateId", async (c) => {
 app.post("/submission/true", async (c) => {
   await delay(500);
   const formData = await c.req.formData();
-  const parsed = parseFormData(formData);
-
+  const parsed = parseFormData(formData) as AssetFormData;
+  
   // Simulate creation/update
-  const objectId = parsed.formData?.objectId || `asset_${Date.now()}`;
+  const objectId = parsed.objectId || `asset_${Date.now()}`;
 
   return c.json({
     objectId,

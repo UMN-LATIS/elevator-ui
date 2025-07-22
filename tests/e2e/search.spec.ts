@@ -79,7 +79,7 @@ test.describe("Search Input Functionality", () => {
       .first();
     await expect(resultsContainer).toBeVisible();
     const searchResults = page.locator(".search-result-card");
-    await expect(searchResults.count()).toBeGreaterThan(0);
+    await expect(searchResults).toHaveCount(5); // Should match our mock data
   });
 
   test("keyboard shortcuts work correctly", async ({ page }) => {

@@ -1,13 +1,14 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import { 
-  standardSearchResults, 
-  emptySearchResults, 
-  digitalSearchResults, 
+import {
+  standardSearchResults,
+  emptySearchResults,
+  digitalSearchResults,
   photoSearchResults,
   mockFieldInfo,
-  mockSuggestions 
+  mockSuggestions,
 } from "../fixtures/search";
+import type { SearchFormData } from "../types";
 
 const app = new Hono();
 
@@ -15,9 +16,9 @@ const app = new Hono();
 app.post("/searchResults", async (c) => {
   await delay(300);
   const body = await c.req.formData();
-  const parsed = parseFormData(body);
-
+  const parsed = parseFormData(body) as SearchFormData;
   const searchQuery = parsed.searchQuery || {};
+
   const storeOnly = parsed.storeOnly === "true";
 
   // Generate unique search ID
@@ -36,7 +37,7 @@ app.post("/searchResults", async (c) => {
   if (parsed.searchRelated === "true") {
     const assetId = searchQuery.searchText;
     const results = standardSearchResults.matches.filter(
-      match => match.objectId !== assetId
+      (match) => match.objectId !== assetId
     );
 
     return c.json({
@@ -44,13 +45,13 @@ app.post("/searchResults", async (c) => {
       searchId,
       matches: results.slice(0, 3), // Limit "more like this" results
       totalResults: results.length,
-      searchResults: results.slice(0, 3).map(match => match.objectId),
+      searchResults: results.slice(0, 3).map((match) => match.objectId),
     });
   }
 
   // Handle different search terms with appropriate responses
   const searchText = searchQuery.searchText?.toLowerCase() || "";
-  
+
   // Return specific result sets based on search terms
   if (searchText === "nonexistentterm" || searchText === "xyz123") {
     return c.json({
@@ -62,7 +63,7 @@ app.post("/searchResults", async (c) => {
       },
     });
   }
-  
+
   if (searchText === "digital") {
     return c.json({
       ...digitalSearchResults,
@@ -73,7 +74,7 @@ app.post("/searchResults", async (c) => {
       },
     });
   }
-  
+
   if (searchText === "photo" || searchText === "photograph") {
     return c.json({
       ...photoSearchResults,
@@ -88,18 +89,22 @@ app.post("/searchResults", async (c) => {
   // For other search terms, filter the standard results
   let filteredResults = standardSearchResults;
   if (searchText && searchText !== "test") {
-    const filteredMatches = standardSearchResults.matches.filter(match => {
-      const titleText = match.title ? match.title.toString().toLowerCase() : '';
-      return titleText.includes(searchText) ||
+    const filteredMatches = standardSearchResults.matches.filter((match) => {
+      const titleText = match.title ? match.title.toString().toLowerCase() : "";
+      return (
+        titleText.includes(searchText) ||
         match.template.name.toLowerCase().includes(searchText) ||
-        match.collectionHierarchy.some(col => col.title.toLowerCase().includes(searchText));
+        match.collectionHierarchy.some((col) =>
+          col.title.toLowerCase().includes(searchText)
+        )
+      );
     });
-    
+
     filteredResults = {
       ...standardSearchResults,
       matches: filteredMatches,
       totalResults: filteredMatches.length,
-      searchResults: filteredMatches.map(match => match.objectId),
+      searchResults: filteredMatches.map((match) => match.objectId),
     };
   }
 

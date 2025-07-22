@@ -1,21 +1,21 @@
 import type { ApiInstanceNavResponse } from "../../src/types/index";
+import pages from "./pages";
 
-export const instance: ApiInstanceNavResponse = {
-  pages: [
-    {
-      title: "Home Page",
-      id: 1,
-      children: []
-    }
-  ],
-  userIsloggedIn: true,
-  userCanSearchAndBrowse: true,
-  userCanCreateDrawers: true,
-  userCanManageAssets: true,
-  userId: 1,
-  userDisplayName: "",
-  userIsAdmin: true,
-  userIsSuperAdmin: true,
+export const instanceUnauthed: ApiInstanceNavResponse = {
+  pages: pages.map((page) => ({
+    id: page.id as number,
+    title: page.title,
+    children: [],
+  })),
+
+  userIsloggedIn: false,
+  userCanSearchAndBrowse: false,
+  userCanCreateDrawers: false,
+  userCanManageAssets: false,
+  userId: null,
+  userDisplayName: null,
+  userIsAdmin: false,
+  userIsSuperAdmin: false,
   instanceName: "defaultinstance",
   instanceId: 1,
   instanceHasLogo: false,
@@ -24,24 +24,35 @@ export const instance: ApiInstanceNavResponse = {
   instanceShowTemplateInSearchResults: true,
   featuredAssetId: "",
   featuredAssetText: "",
-  // Note: recentDrawers and recentCollections are not in the ApiInstanceNavResponse interface
-  // They're handled separately in the UI
   sortableFields: {},
-  contact: "mailto:mcfa0086@umn.edu",
+  contact: "mailto:admin@example.com",
   useCentralAuth: true,
   centralAuthLabel: "Universty",
+  collections: [],
+  templates: [],
+  customHeaderMode: 0,
+  useCustomCSS: false,
+  useVoyagerViewer: false,
+};
+
+export const instanceAuthed: ApiInstanceNavResponse = {
+  ...instanceUnauthed,
+  userIsloggedIn: true,
+  userCanSearchAndBrowse: true,
+  userCanCreateDrawers: true,
+  userCanManageAssets: true,
+  userId: 1,
+  userDisplayName: "Test User",
+  userIsAdmin: true,
+  userIsSuperAdmin: true,
+  instanceShowCollectionInSearchResults: true,
+  instanceShowTemplateInSearchResults: true,
   collections: [
     {
       id: 1,
       title: "Default Collection",
-      previewImageId: ""
-    }
+      previewImageId: "",
+    },
   ],
-  templates: { 1: "Some Fields" },
-  customHeaderMode: 0,
-  customHeader: null,
-  customFooter: null,
-  useVoyagerViewer: false
+  templates: ["Some Fields"],
 };
-
-export default instance;

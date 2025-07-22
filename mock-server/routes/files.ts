@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
+import type { FileFormData } from "../types";
 import fileMetadata from "../fixtures/file-metadata";
 
 const app = new Hono();
@@ -59,7 +60,7 @@ app.get("/getDerivativeById/:fileId/:filetype", async (c) => {
 app.post("/previewImageAvailable", async (c) => {
   await delay(100);
   const formData = await c.req.formData();
-  const parsed = parseFormData(formData);
+  const parsed = parseFormData(formData) as FileFormData;
   const fileIds = parsed.checkArray || [];
 
   // Mock all files as having previews available

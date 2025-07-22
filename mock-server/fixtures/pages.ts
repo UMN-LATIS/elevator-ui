@@ -1,10 +1,5 @@
 import type { StaticContentPage } from "../../src/types/index";
 
-export const page: StaticContentPage = {
-  title: "About",
-  content: "<h1>About</h1><p>This is a test page.</p>",
-};
-
 // when 'title' is 'Home Page', it is used as the home page
 export const homePage: StaticContentPage = {
   id: 1,
@@ -20,4 +15,6 @@ export const makeStaticContentPage = (
   content: `<h1>Page ${id}</h1><p>This is the content for page ${id}.</p>`,
 });
 
-export default page;
+const pages = [homePage, makeStaticContentPage(2), makeStaticContentPage(3)];
+
+export default pages;

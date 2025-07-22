@@ -1,4 +1,4 @@
-import type { SearchResultsResponse, SearchResultMatch, TemplateEntry, RawAssetCollection, SearchEntry } from "../../src/types/index";
+import type { SearchResultsResponse, SearchResultMatch, TemplateEntry, RawAssetCollection, SearchEntry, DateTime } from "../types";
 
 // Mock template data
 export const mockTemplates = {
@@ -87,7 +87,11 @@ export const standardSearchResults: SearchResultsResponse = {
   success: true,
   searchEntry: {
     searchText: "test",
-    searchDate: new Date("2025-07-21 23:27:15.395049"),
+    searchDate: {
+      date: "2025-07-21 23:27:15.395049",
+      timezone_type: 3,
+      timezone: "UTC",
+    } as DateTime,
     combineSpecificSearches: "OR",
   } as SearchEntry,
 };
@@ -108,8 +112,12 @@ export const emptySearchResults: SearchResultsResponse = {
   matches: [],
   success: true,
   searchEntry: {
-    searchText: "nonexistentterm",
-    searchDate: new Date("2025-07-21 23:27:15.395049"),
+    searchText: "nonexistentterm", 
+    searchDate: {
+      date: "2025-07-21 23:27:15.395049",
+      timezone_type: 3,
+      timezone: "UTC",
+    } as DateTime,
     combineSpecificSearches: "OR",
   } as SearchEntry,
 };
@@ -125,7 +133,11 @@ export const digitalSearchResults: SearchResultsResponse = {
   }),
   searchEntry: {
     searchText: "digital",
-    searchDate: new Date("2025-07-21 23:27:15.395049"),
+    searchDate: {
+      date: "2025-07-21 23:27:15.395049", 
+      timezone_type: 3,
+      timezone: "UTC",
+    } as DateTime,
     combineSpecificSearches: "OR",
   } as SearchEntry,
 };
@@ -145,7 +157,11 @@ export const photoSearchResults: SearchResultsResponse = {
   }),
   searchEntry: {
     searchText: "photo",
-    searchDate: new Date("2025-07-21 23:27:15.395049"),
+    searchDate: {
+      date: "2025-07-21 23:27:15.395049",
+      timezone_type: 3, 
+      timezone: "UTC",
+    } as DateTime,
     combineSpecificSearches: "OR",
   } as SearchEntry,
 };

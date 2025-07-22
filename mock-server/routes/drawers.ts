@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { loadFixture, parseFormData, delay } from "../utils/index";
+import type { DrawerFormData } from "../types";
 
 const app = new Hono();
 const drawersData = loadFixture("drawers.json");
@@ -76,7 +77,7 @@ app.post("/delete/:drawerId/true", async (c) => {
 app.post("/addToDrawer/true", async (c) => {
   await delay(250);
   const formData = await c.req.formData();
-  const parsed = parseFormData(formData);
+  const parsed = parseFormData(formData) as DrawerFormData;
 
   // Handle both single asset and asset array
   const objectId = parsed.objectId;
@@ -128,7 +129,7 @@ app.post("/setSortOrder/:drawerId/:sortBy", async (c) => {
 app.post("/setCustomOrder/:drawerId", async (c) => {
   await delay(200);
   const formData = await c.req.formData();
-  const parsed = parseFormData(formData);
+  const parsed = parseFormData(formData) as DrawerFormData;
   const orderArray = parsed.orderArray;
 
   console.log(
