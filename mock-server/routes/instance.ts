@@ -8,11 +8,13 @@ const app = new Hono<MockServerContext>();
 // GET /home/getInstanceNav
 app.get("/getInstanceNav", async (c) => {
   await delay(150);
-  
+
   const session = c.get("session");
-  
+
   if (session) {
-    console.log(`Instance nav requested for authenticated user: ${session.username}`);
+    console.log(
+      `Instance nav requested for authenticated user: ${session.username}`
+    );
     // Return authenticated instance with user data
     const instance = {
       ...instanceAuthed,

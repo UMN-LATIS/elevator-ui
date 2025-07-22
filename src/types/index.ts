@@ -501,7 +501,7 @@ export interface Asset {
   modifiedBy: number | string;
   createdBy: number | string;
   deletedBy: number | string | null;
-  relatedAssetCache: RelatedAssetCache | null;
+  relatedAssetCache: RelatedAssetCache | null | never[];
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
   titleObject?: string | null;

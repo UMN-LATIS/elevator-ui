@@ -8,15 +8,21 @@ import {
   mockFieldInfo,
   mockSuggestions,
 } from "../fixtures/search";
-import type { SearchFormData } from "../types";
+import type { SearchResultsResponse } from "../../src/types";
 
 const app = new Hono();
 
 // POST /search/searchResults
 app.post("/searchResults", async (c) => {
   await delay(300);
+
+  // check if authed
+  if (!c.get("isAuthenticated")) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
   const body = await c.req.formData();
-  const parsed = parseFormData(body) as SearchFormData;
+  const parsed = parseFormData(body);
   const searchQuery = parsed.searchQuery || {};
 
   const storeOnly = parsed.storeOnly === "true";
@@ -50,73 +56,23 @@ app.post("/searchResults", async (c) => {
   }
 
   // Handle different search terms with appropriate responses
-  const searchText = searchQuery.searchText?.toLowerCase() || "";
+  // const searchText = searchQuery.searchText?.toLowerCase() || "";
 
-  // Return specific result sets based on search terms
-  if (searchText === "nonexistentterm" || searchText === "xyz123") {
-    return c.json({
-      ...emptySearchResults,
-      searchId,
-      searchEntry: {
-        ...emptySearchResults.searchEntry,
-        searchText: searchQuery.searchText || "",
-      },
-    });
-  }
-
-  if (searchText === "digital") {
-    return c.json({
-      ...digitalSearchResults,
-      searchId,
-      searchEntry: {
-        ...digitalSearchResults.searchEntry,
-        searchText: searchQuery.searchText || "",
-      },
-    });
-  }
-
-  if (searchText === "photo" || searchText === "photograph") {
-    return c.json({
-      ...photoSearchResults,
-      searchId,
-      searchEntry: {
-        ...photoSearchResults.searchEntry,
-        searchText: searchQuery.searchText || "",
-      },
-    });
-  }
-
-  // For other search terms, filter the standard results
-  let filteredResults = standardSearchResults;
-  if (searchText && searchText !== "test") {
-    const filteredMatches = standardSearchResults.matches.filter((match) => {
-      const titleText = match.title ? match.title.toString().toLowerCase() : "";
-      return (
-        titleText.includes(searchText) ||
-        match.template.name.toLowerCase().includes(searchText) ||
-        match.collectionHierarchy.some((col) =>
-          col.title.toLowerCase().includes(searchText)
-        )
-      );
-    });
-
-    filteredResults = {
-      ...standardSearchResults,
-      matches: filteredMatches,
-      totalResults: filteredMatches.length,
-      searchResults: filteredMatches.map((match) => match.objectId),
-    };
-  }
-
-  // Return results with search context
   return c.json({
-    ...filteredResults,
+    ...standardSearchResults,
     searchId,
+    searchResults: standardSearchResults.matches.map((match) => match.objectId),
+    matches: standardSearchResults.matches,
+    totalResults: standardSearchResults.matches.length,
     searchEntry: {
-      ...filteredResults.searchEntry,
       searchText: searchQuery.searchText || "",
+      searchDate: {
+        date: new Date().toISOString(),
+        timezone_type: 3,
+        timezone: "UTC",
+      },
     },
-  });
+  } as SearchResultsResponse);
 });
 
 // GET /search/searchResults/:searchId/:page/:loadAll
