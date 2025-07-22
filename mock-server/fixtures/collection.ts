@@ -1,7 +1,4 @@
-export interface CollectionDescription {
-  collectionDescription: string;
-  collectionTitle: string;
-}
+import type { CollectionDescription } from "../../src/types";
 
 export const collection: CollectionDescription = {
   collectionDescription:

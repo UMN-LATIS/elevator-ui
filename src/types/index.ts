@@ -962,3 +962,8 @@ export interface FileUploadRecord {
   uploadStatus: "in-progress" | "completed" | "failed";
   location?: string; // S3 URL of the uploaded file
 }
+
+export interface CollectionDescription {
+  collectionDescription: string;
+  collectionTitle: string;
+}

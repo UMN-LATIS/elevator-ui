@@ -1,37 +1,7 @@
-export interface WidgetDef {
-  widgetId: number;
-  type: string;
-  allowMultiple: boolean;
-  attemptAutocomplete: boolean;
-  fieldTitle: string;
-  label: string;
-  tooltip: string;
-  fieldData: unknown[] | Record<string, unknown>;
-  display: boolean;
-  displayInPreview: boolean;
-  required: boolean;
-  searchable: boolean;
-  directSearch: boolean;
-  clickToSearch: boolean;
-  clickToSearchType: number;
-  viewOrder: number;
-  templateOrder: number;
-}
-
-export interface Template {
-  templateId: string;
-  templateName: string;
-  showCollection: boolean;
-  showTemplate: boolean;
-  showCollectionPosition: number;
-  showTemplatePosition: number;
-  widgetArray: WidgetDef[];
-  collections: Record<string, string>;
-  allowedCollections: unknown[];
-}
+import type { Template } from "../../src/types/index";
 
 export const template: Template = {
-  templateId: "1",
+  templateId: 1,
   templateName: "Some Fields",
   showCollection: false,
   showTemplate: false,

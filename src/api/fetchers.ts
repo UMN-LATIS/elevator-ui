@@ -35,6 +35,7 @@ import {
   type UpdateAssetRequestFormData,
   TemplateComparison,
   type GetFileContainerApiResponse,
+  CollectionDescription,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -138,10 +139,9 @@ export async function fetchMoreLikeThis(
 export async function fetchCollectionDescription(
   collectionId: number
 ): Promise<string | null> {
-  const res = await axios.get<{
-    collectionDescription: string;
-    collectionTitle: string;
-  }>(`${BASE_URL}/collections/collectionHeader/${collectionId}/true`);
+  const res = await axios.get<CollectionDescription>(
+    `${BASE_URL}/collections/collectionHeader/${collectionId}/true`
+  );
 
   return res.data.collectionDescription ?? null;
 }

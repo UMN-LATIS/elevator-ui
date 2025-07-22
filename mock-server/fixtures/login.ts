@@ -1,13 +1,6 @@
-export interface LoginResponse {
-  status: string;
-  message: string;
-  user?: {
-    username: string;
-    isAdmin?: boolean;
-  };
-}
+import type { LocalLoginResponse } from "../../src/types/index";
 
-export const loginResponse: LoginResponse = {
+export const loginResponse: LocalLoginResponse = {
   status: "success",
   message: "login successful",
 };

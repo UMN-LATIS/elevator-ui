@@ -1,9 +1,6 @@
-export interface InterstitialResponse {
-  haveInterstitial: boolean;
-  interstitialText?: string;
-}
+import type { ApiInterstitialResponse } from "../../src/types/index";
 
-export const interstitial: InterstitialResponse = {
+export const interstitial: ApiInterstitialResponse = {
   haveInterstitial: false,
 };
 

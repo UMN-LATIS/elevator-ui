@@ -1,23 +1,32 @@
-export interface FileDownloadInfo {
-  ready: boolean;
-  originalFilename: string;
-  downloadable: boolean;
-}
+import type { FileDownloadResponse } from "../../src/types/FileDownloadTypes";
 
-export interface FileDownloads {
-  original: FileDownloadInfo;
-  thumbnail: FileDownloadInfo;
-}
-
-export const fileDownloads: FileDownloads = {
+export const fileDownloads: FileDownloadResponse = {
   original: {
-    ready: true,
+    storageClass: "STANDARD",
     originalFilename: "sample-document.pdf",
+    path: "files/original/sample-document.pdf",
+    derivativeType: "original",
+    metadata: [],
+    basePath: "/files",
+    baseWebPath: "/files",
+    ready: true,
+    forcedMimeType: null,
+    localAsset: null,
+    storageKey: "file123",
     downloadable: true,
   },
   thumbnail: {
-    ready: true,
+    storageClass: "STANDARD",
     originalFilename: "sample-document.pdf",
+    path: "files/thumbnail/sample-document.pdf",
+    derivativeType: "thumbnail",
+    metadata: [],
+    basePath: "/files",
+    baseWebPath: "/files",
+    ready: true,
+    forcedMimeType: null,
+    localAsset: null,
+    storageKey: "file123_thumb",
     downloadable: true,
   },
 };

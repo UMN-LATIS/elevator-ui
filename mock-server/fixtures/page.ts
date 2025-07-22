@@ -1,15 +1,8 @@
-export interface StaticPage {
-  pageId: number;
-  pageTitle: string;
-  content: string;
-  lastModified: string;
-}
+import type { StaticContentPage } from "../../src/types/index";
 
-export const page: StaticPage = {
-  pageId: 1,
-  pageTitle: "About",
+export const page: StaticContentPage = {
+  title: "About",
   content: "<h1>About</h1><p>This is a test page.</p>",
-  lastModified: "2024-01-15T10:30:00Z",
 };
 
 export default page;

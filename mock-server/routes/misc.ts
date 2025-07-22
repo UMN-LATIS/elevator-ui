@@ -30,7 +30,7 @@ app.get("/interstitial", async (c) => {
 app.get("/view/:pageId/true", async (c) => {
   await delay(100);
   const pageId = Number(c.req.param("pageId"));
-  return c.json({ ...page, pageId });
+  return c.json({ ...page, pageId, lastModified: "2024-01-15T10:30:00Z" });
 });
 
 // Click-to-search endpoints

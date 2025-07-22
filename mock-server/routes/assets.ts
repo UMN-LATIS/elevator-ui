@@ -31,7 +31,7 @@ app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
 app.get("/viewExcerpt/:excerptId/true/true", async (c) => {
   await delay(100);
   const excerptId = c.req.param("excerptId");
-  return c.json({ ...excerpt, excerptId: Number(excerptId) });
+  return c.json({ ...excerpt, id: Number(excerptId) });
 });
 
 // GET /assetManager/getTemplate/:templateId
