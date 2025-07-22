@@ -49,6 +49,7 @@ export interface AppConfig {
     };
   };
   mode: "development" | "production" | string | null;
+  isUsingMockServer?: boolean;
 }
 
 /**

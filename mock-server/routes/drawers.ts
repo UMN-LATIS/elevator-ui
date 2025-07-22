@@ -15,8 +15,8 @@ app.get("/listDrawers/true", async (c) => {
   // Match real API - returns object with drawer IDs as keys when authenticated
   return c.json({
     "1": {
-      "title": "My Drawer!"
-    }
+      title: "My Drawer!",
+    },
   });
 });
 
