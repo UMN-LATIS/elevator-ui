@@ -1,8 +1,15 @@
 import { Hono } from "hono";
-import { loadFixture, parseFormData, delay } from "../utils/index";
+import { parseFormData, delay } from "../utils/index";
+import { 
+  standardSearchResults, 
+  emptySearchResults, 
+  digitalSearchResults, 
+  photoSearchResults,
+  mockFieldInfo,
+  mockSuggestions 
+} from "../fixtures/search";
 
 const app = new Hono();
-const searchData = loadFixture("search.json");
 
 // POST /search/searchResults
 app.post("/searchResults", async (c) => {
@@ -28,23 +35,82 @@ app.post("/searchResults", async (c) => {
   // For "more like this" requests
   if (parsed.searchRelated === "true") {
     const assetId = searchQuery.searchText;
-    const results = searchData.searchResults.matches.filter(
-      (match: any) => match.objectId !== assetId
+    const results = standardSearchResults.matches.filter(
+      match => match.objectId !== assetId
     );
 
     return c.json({
-      ...searchData.searchResults,
+      ...standardSearchResults,
       searchId,
       matches: results.slice(0, 3), // Limit "more like this" results
       totalResults: results.length,
+      searchResults: results.slice(0, 3).map(match => match.objectId),
     });
   }
 
-  // Regular search results
+  // Handle different search terms with appropriate responses
+  const searchText = searchQuery.searchText?.toLowerCase() || "";
+  
+  // Return specific result sets based on search terms
+  if (searchText === "nonexistentterm" || searchText === "xyz123") {
+    return c.json({
+      ...emptySearchResults,
+      searchId,
+      searchEntry: {
+        ...emptySearchResults.searchEntry,
+        searchText: searchQuery.searchText || "",
+      },
+    });
+  }
+  
+  if (searchText === "digital") {
+    return c.json({
+      ...digitalSearchResults,
+      searchId,
+      searchEntry: {
+        ...digitalSearchResults.searchEntry,
+        searchText: searchQuery.searchText || "",
+      },
+    });
+  }
+  
+  if (searchText === "photo" || searchText === "photograph") {
+    return c.json({
+      ...photoSearchResults,
+      searchId,
+      searchEntry: {
+        ...photoSearchResults.searchEntry,
+        searchText: searchQuery.searchText || "",
+      },
+    });
+  }
+
+  // For other search terms, filter the standard results
+  let filteredResults = standardSearchResults;
+  if (searchText && searchText !== "test") {
+    const filteredMatches = standardSearchResults.matches.filter(match => {
+      const titleText = match.title ? match.title.toString().toLowerCase() : '';
+      return titleText.includes(searchText) ||
+        match.template.name.toLowerCase().includes(searchText) ||
+        match.collectionHierarchy.some(col => col.title.toLowerCase().includes(searchText));
+    });
+    
+    filteredResults = {
+      ...standardSearchResults,
+      matches: filteredMatches,
+      totalResults: filteredMatches.length,
+      searchResults: filteredMatches.map(match => match.objectId),
+    };
+  }
+
+  // Return results with search context
   return c.json({
-    ...searchData.searchResults,
+    ...filteredResults,
     searchId,
-    searchText: searchQuery.searchText || "",
+    searchEntry: {
+      ...filteredResults.searchEntry,
+      searchText: searchQuery.searchText || "",
+    },
   });
 });
 
@@ -60,11 +126,11 @@ app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
   const startIndex = page * resultsPerPage;
   const endIndex = startIndex + resultsPerPage;
 
-  const allMatches = searchData.searchResults.matches;
+  const allMatches = standardSearchResults.matches;
   const pageMatches = allMatches.slice(startIndex, endIndex);
 
   return c.json({
-    ...searchData.searchResults,
+    ...standardSearchResults,
     searchId,
     matches: pageMatches,
     currentPage: page,
@@ -75,7 +141,7 @@ app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
 // POST /search/getFieldInfo
 app.post("/getFieldInfo", async (c) => {
   await delay(150);
-  return c.json(searchData.fieldInfo);
+  return c.json(mockFieldInfo);
 });
 
 // POST /search/getSuggestion
@@ -85,7 +151,7 @@ app.post("/getSuggestion", async (c) => {
   const searchTerm = formData.get("searchTerm") as string;
 
   // Simple suggestion logic
-  const suggestions = Object.keys(searchData.suggestions)
+  const suggestions = Object.keys(mockSuggestions)
     .filter((term) => term.includes(searchTerm?.toLowerCase() || ""))
     .reduce((acc, term) => {
       acc[term] = term;

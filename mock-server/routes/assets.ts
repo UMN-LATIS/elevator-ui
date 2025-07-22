@@ -1,24 +1,41 @@
 import { Hono } from "hono";
-import { parseFormData, delay, loadFixture } from "../utils/index";
+import { parseFormData, delay } from "../utils/index";
 import fileDownloads from "../fixtures/file-downloads";
 import excerpt from "../fixtures/excerpt";
 import template from "../fixtures/template";
+import { assetData, mockAssets, getAssetById, mockAssetSummaries } from "../fixtures/assets";
 
 const app = new Hono();
-const assets = loadFixture("assets.json");
 
 // GET /asset/viewAsset/:assetId/true
 app.get("/viewAsset/:assetId/true", async (c) => {
   await delay(200);
   const assetId = c.req.param("assetId");
-  return c.json({ ...assets.sampleAsset, assetId });
+  const asset = getAssetById(assetId);
+  if (asset) {
+    return c.json(asset);
+  }
+  // Fallback to sample asset if specific asset not found
+  return c.json({ ...assetData.sampleAsset, assetId });
 });
 
 // GET /asset/getAssetPreview/:assetId
 app.get("/getAssetPreview/:assetId", async (c) => {
   await delay(100);
   const assetId = c.req.param("assetId");
-  return c.json({ ...assets.assetPreview, objectId: assetId });
+  const asset = getAssetById(assetId);
+  if (asset) {
+    return c.json({
+      objectId: asset.objectId,
+      title: asset.widgets.title_1?.widgetContents || "Untitled",
+      description: asset.widgets.description_2?.widgetContents || "",
+      thumbnail: `/fileManager/getDerivativeById/${asset.fileObjectIds?.[0]}/thumbnail`,
+      collectionId: asset.collectionId,
+      templateId: asset.templateId,
+    });
+  }
+  // Fallback to default preview
+  return c.json({ ...assetData.assetPreview, objectId: assetId });
 });
 
 // POST /asset/getEmbedAsJson/:fileId/:parentObjectId?
@@ -65,7 +82,7 @@ app.delete("/deleteAsset/:assetId/true", async (c) => {
 // GET /assetManager/userAssets/:offset/:returnJson
 app.get("/userAssets/:offset/:returnJson", async (c) => {
   await delay(200);
-  return c.json(assets.userAssets);
+  return c.json(mockAssetSummaries);
 });
 
 // GET /assetManager/compareTemplates/:templateId/:newTemplateId
