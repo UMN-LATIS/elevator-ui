@@ -1,9 +1,22 @@
 import { test, expect } from "@playwright/test";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 
 test.describe("Search Input Functionality", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, request }) => {
+    const workerId = test.info().workerIndex.toString();
+    await setupWorkerHTTPHeader({
+      page,
+      workerId,
+    });
+
+    // refresh the database for this worker
+    await refreshDatabase({ request, workerId });
+
+    // Login user via backend
+    await loginUser({ request, page, workerId });
+
+    // Navigate to the homepage
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
   });
 
   test("displays search input with correct placeholder", async ({ page }) => {
@@ -52,9 +65,6 @@ test.describe("Search Input Functionality", () => {
     // Should navigate to search results page
     await expect(page).toHaveURL(/\/search\//);
 
-    // Wait for search results to load
-    await page.waitForLoadState("networkidle");
-
     // Should see search results
     const resultsContainer = page
       .locator(".search-results-grid, .search-results-list")
@@ -71,7 +81,6 @@ test.describe("Search Input Functionality", () => {
 
     // expect that we should be on search page with a list of results
     await expect(page).toHaveURL(/\/search\//);
-    await page.waitForLoadState("networkidle");
 
     // Should see some results displayed
     const resultsContainer = page
@@ -79,7 +88,7 @@ test.describe("Search Input Functionality", () => {
       .first();
     await expect(resultsContainer).toBeVisible();
     const searchResults = page.locator(".search-result-card");
-    await expect(searchResults).toHaveCount(5); // Should match our mock data
+    await expect(searchResults).toHaveCount(2); // Should match our mock data (2 assets)
   });
 
   test("keyboard shortcuts work correctly", async ({ page }) => {
@@ -114,30 +123,26 @@ test.describe("Search Input Functionality", () => {
       .locator("button[aria-label*='advanced'], .search-bar button")
       .first();
 
-    // Advanced search might not be visible on all instances
-    if (await advancedSearchTrigger.isVisible()) {
-      await advancedSearchTrigger.click();
+    await advancedSearchTrigger.click();
 
-      // Advanced search modal should open
-      const modal = page.locator(".advanced-search-form");
-      await expect(modal).toBeVisible();
+    // Advanced search modal should open
+    const modal = page.locator(".advanced-search-form");
+    await expect(modal).toBeVisible();
 
-      // Close modal (look for close button or backdrop)
-      const closeButton = page.locator(
-        "button:has-text('Cancel'), button:has-text('Close')"
-      );
-      if (await closeButton.first().isVisible()) {
-        await closeButton.first().click();
-      } else {
-        // Try pressing Escape or clicking backdrop
-        await page.keyboard.press("Escape");
-      }
+    // Close modal (look for close button or backdrop)
+    const closeButton = page.locator(
+      "button:has-text('Cancel'), button:has-text('Close')"
+    );
 
-      // Modal should close
-      await expect(modal).toBeHidden();
+    const closeButtonExists = await closeButton.first().isVisible();
+    if (closeButtonExists) {
+      await closeButton.first().click();
     } else {
-      // If advanced search trigger is not visible, skip this test
-      test.skip();
+      // Try pressing Escape or clicking backdrop
+      await page.keyboard.press("Escape");
     }
+
+    // Modal should close
+    await expect(modal).toBeHidden();
   });
 });

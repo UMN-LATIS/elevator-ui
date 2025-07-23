@@ -17,7 +17,6 @@ test.describe("App Rendering - Homepage", () => {
 
     // Navigate to the homepage
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
   });
 
   test("view home page when authenticated", async ({ page }) => {
@@ -66,7 +65,6 @@ test.describe("App Rendering - Homepage", () => {
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
     await expect(page.locator("#app")).toBeVisible();
 
     // Test desktop viewport
