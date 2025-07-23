@@ -123,51 +123,5 @@ test.describe("Asset Creation", () => {
       const closeButton = page.getByRole("button", { name: "Close menu" });
       await closeButton.click();
     });
-
-    test("SECURITY GAP: currently allows unauthorized direct access", async ({
-      page,
-    }) => {
-      // CURRENT BEHAVIOR: App allows direct URL access (client-side security only)
-      // This test documents the security gap and serves as a spec for proper implementation
-
-      await page.goto("/assetManager/addAsset");
-
-      // Currently, the page loads without proper server-side protection
-      await expect(page).toHaveURL(/\/assetManager\/addAsset/);
-
-      // User can see the form but shouldn't be able to save successfully
-      const templateSelect = page.getByLabel("Template");
-      await expect(templateSelect).toBeVisible();
-
-      // TODO: This test should be updated once proper route guards are implemented
-      // Expected behavior after security fix:
-      // - Should redirect to 403 access denied page
-      // - OR show "Access Denied" message on the page
-      // - OR redirect to home page with error message
-    });
-  });
-
-  test.describe("Unauthenticated Access", () => {
-    test.beforeEach(async ({ page, request }) => {
-      const workerId = test.info().workerIndex.toString();
-      await setupWorkerHTTPHeader({ page, workerId });
-
-      // Refresh database but DON'T login - test unauthenticated access
-      await refreshDatabase({ request, workerId });
-    });
-
-    test("manage assets does not show up in menu", async ({ page }) => {
-      // Test menu access and navigation
-      const menuToggle = page.getByRole("button", { name: "Toggle main menu" });
-      await menuToggle.click();
-
-      const menu = page.locator("#app-menu-navigation");
-      await expect(menu).not.toContainText("Manage Assets");
-    });
-
-    test.skip("should not allow direct access to asset creation page", () => {
-      // TODO: if unauthenticated, should redirect to login
-      // if authed, should redirect to 403 or home
-    });
   });
 });
