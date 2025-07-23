@@ -1,19 +1,4 @@
-// Mock file model for the mock server
-
-interface MockFile {
-  id: string;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-  metadata: {
-    width?: number;
-    height?: number;
-    duration?: number;
-    pages?: number;
-  };
-  uploadedAt: Date;
-  assetId?: string;
-}
+import { MockFile } from "../types";
 
 const fileSeeds: MockFile[] = [
   {
@@ -27,7 +12,7 @@ const fileSeeds: MockFile[] = [
   },
   {
     id: "687587494eb080a4880a0f46",
-    fileName: "1F37B.svg", 
+    fileName: "1F37B.svg",
     fileType: "svg",
     fileSize: 1536,
     metadata: { width: 256, height: 256 },
@@ -48,7 +33,7 @@ export const files = {
     return Array.from(fileStore.values());
   },
   getByAssetId: (assetId: string): MockFile[] => {
-    return Array.from(fileStore.values()).filter(f => f.assetId === assetId);
+    return Array.from(fileStore.values()).filter((f) => f.assetId === assetId);
   },
   create: (data: Omit<MockFile, "uploadedAt">): MockFile => {
     const file: MockFile = {
@@ -72,7 +57,7 @@ export const files = {
         metadata: {},
       };
     }
-    
+
     return {
       fileId: file.id,
       fileName: file.fileName,

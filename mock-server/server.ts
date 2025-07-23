@@ -3,15 +3,15 @@ import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { getCookie } from "hono/cookie";
-import type { MockServerContext } from "./types.js";
-import { db } from "./db/index.js";
+import type { MockServerContext } from "./types";
+import { db } from "./db/index";
 
 import assetRoutes from "./routes/assets.js";
 import searchRoutes from "./routes/search.js";
 import drawerRoutes from "./routes/drawers.js";
 import authRoutes from "./routes/auth.js";
 import fileRoutes from "./routes/files.js";
-import miscRoutes from "./routes/misc.js";
+import pageRoutes from "./routes/pages.js";
 import instanceRoutes from "./routes/instance.js";
 
 const app = new Hono<MockServerContext>();
@@ -29,25 +29,20 @@ app.use("*", logger());
 // Auth and user middleware
 app.use("*", async (c, next) => {
   const sessionId = getCookie(c, "ci_session");
-  
+
   let user = null;
   let session = null;
-  let isAuthenticated = false;
-  
+
   if (sessionId) {
     // Look up session and user from db
     session = db.sessions.get(sessionId);
     if (session) {
       user = db.users.get(session.userId);
-      isAuthenticated = !!user;
     }
   }
-  
+
   c.set("user", user || null);
-  c.set("session", session || null);
-  c.set("isAuthenticated", isAuthenticated);
-  c.set("db", db);
-  
+
   await next();
 });
 
@@ -58,10 +53,8 @@ app.route("/defaultinstance/drawers", drawerRoutes);
 app.route("/defaultinstance/loginManager", authRoutes);
 app.route("/defaultinstance/fileManager", fileRoutes);
 app.route("/defaultinstance/assetManager", assetRoutes);
-app.route("/defaultinstance/collections", miscRoutes);
 app.route("/defaultinstance/home", instanceRoutes);
-app.route("/defaultinstance/page", miscRoutes);
-app.route("/defaultinstance/api/v1", miscRoutes);
+app.route("/defaultinstance/page", pageRoutes);
 app.route("/defaultinstance/s3", fileRoutes);
 
 // Health check

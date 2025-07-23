@@ -1,15 +1,4 @@
-// Mock drawer model for the mock server
-
-interface MockDrawer {
-  id: number;
-  name: string;
-  description: string;
-  userId: number;
-  assetIds: string[];
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { MockDrawer } from "../types";
 
 const drawerSeeds: MockDrawer[] = [
   {
@@ -38,9 +27,14 @@ export const drawers = {
     return Array.from(drawerStore.values());
   },
   getByUserId: (userId: number): MockDrawer[] => {
-    return Array.from(drawerStore.values()).filter(d => d.userId === userId);
+    return Array.from(drawerStore.values()).filter((d) => d.userId === userId);
   },
-  create: (data: Pick<MockDrawer, "name" | "userId" | "description" | "assetIds" | "isPublic">): MockDrawer => {
+  create: (
+    data: Pick<
+      MockDrawer,
+      "name" | "userId" | "description" | "assetIds" | "isPublic"
+    >
+  ): MockDrawer => {
     const drawer: MockDrawer = {
       id: nextDrawerId++,
       ...data,
@@ -64,7 +58,7 @@ export const drawers = {
   removeAssets: (drawerId: number, assetIds: string[]): void => {
     const drawer = drawerStore.get(drawerId);
     if (drawer) {
-      drawer.assetIds = drawer.assetIds.filter(id => !assetIds.includes(id));
+      drawer.assetIds = drawer.assetIds.filter((id) => !assetIds.includes(id));
       drawer.updatedAt = new Date();
     }
   },

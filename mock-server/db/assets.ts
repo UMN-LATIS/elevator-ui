@@ -1,4 +1,7 @@
-import { Asset } from "../../src/types";
+import { Asset, AssetPreview } from "../../src/types";
+import { assetToSearchResultMatch } from "../utils/index";
+import { collections } from "./collections";
+import { templates } from "./templates";
 
 const assetSeeds: Asset[] = [
   {
@@ -137,18 +140,23 @@ export const assets = {
     assetStore.set(assetId, newAsset);
     return newAsset;
   },
-  search: (query: string): Asset[] => {
-    const allAssets = Array.from(assetStore.values());
-    if (!query) return allAssets;
-
-    // not a real search
-    // just stringify the assets and filter by the query
-    const lowerQuery = query.toLowerCase();
-    const matchedAssets = allAssets.filter((asset) => {
-      const assetString = JSON.stringify(asset).toLowerCase();
-      return assetString.includes(lowerQuery);
+  getPreview: (assetId: Asset["assetId"]): AssetPreview | null => {
+    const asset = assetStore.get(assetId);
+    if (!asset) {
+      return null;
+    }
+    const collection = collections.get(asset.collectionId);
+    const template = templates.get(asset.templateId);
+    if (!collection || !template) {
+      return null;
+    }
+    return assetToSearchResultMatch({
+      asset,
+      collection,
+      template,
     });
-
-    return matchedAssets;
+  },
+  getAll: (): Asset[] => {
+    return Array.from(assetStore.values());
   },
 };

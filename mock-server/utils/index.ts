@@ -1,3 +1,4 @@
 export { delay } from "./delay";
-export { parseFormData } from "./form-data";
-export { loadFixture } from "./json-loader";
+export { parseFormData } from "./parseFormData";
+export { assetToSearchResultMatch } from "./assetToSearchResultMatch";
+export { makeSimpleSVG } from "./makeSimpleSVG";

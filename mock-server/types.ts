@@ -74,3 +74,29 @@ export interface MockPage {
   content: string;
   children?: MockPage[];
 }
+
+export interface MockDrawer {
+  id: number;
+  name: string;
+  description: string;
+  userId: number;
+  assetIds: string[];
+  isPublic: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MockFile {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  metadata: {
+    width?: number;
+    height?: number;
+    duration?: number;
+    pages?: number;
+  };
+  uploadedAt: Date;
+  assetId?: string;
+}

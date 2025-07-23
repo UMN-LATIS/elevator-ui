@@ -1,127 +1,89 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import { db } from "../db/index.js";
-import type { AssetFormData } from "../types";
+import { db } from "../db/index";
+import { MockServerContext, type AssetFormData } from "../types";
+import { Asset } from "../../src/types";
 
-const app = new Hono();
+const app = new Hono<MockServerContext>();
 
 // GET /asset/viewAsset/:assetId/true
 app.get("/viewAsset/:assetId/true", async (c) => {
   await delay(200);
   const assetId = c.req.param("assetId");
   const asset = db.assets.getById(assetId);
-  if (asset) {
-    return c.json(asset);
+  if (!asset) {
+    return c.json({ error: "Asset not found" }, 404);
   }
-  // Fallback to sample asset if specific asset not found
-  return c.json({ ...db.assets.sampleAsset, assetId });
+  return c.json(asset);
 });
 
 // GET /asset/getAssetPreview/:assetId
 app.get("/getAssetPreview/:assetId", async (c) => {
   await delay(100);
   const assetId = c.req.param("assetId");
-  const asset = db.assets.getById(assetId);
-  if (asset) {
-    const widgets = asset.widgets as Record<
-      string,
-      { widgetContents?: string }
-    >;
-    const fileObjectIds = (asset as { fileObjectIds?: string[] }).fileObjectIds;
+  const assetPreview = db.assets.getPreview(assetId);
 
-    return c.json({
-      objectId: asset.objectId,
-      title: widgets.title_1?.widgetContents || "Untitled",
-      description: widgets.description_2?.widgetContents || "",
-      thumbnail: `/fileManager/getDerivativeById/${fileObjectIds?.[0]}/thumbnail`,
-      collectionId: asset.collectionId,
-      templateId: asset.templateId,
-    });
+  if (!assetPreview) {
+    return c.json({ error: "Asset not found" }, 404);
   }
-  // Fallback to default preview
-  return c.json({ ...db.assets.assetPreview, objectId: assetId });
-});
 
-// POST /asset/getEmbedAsJson/:fileId/:parentObjectId?
-app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
-  await delay(150);
-  return c.json(db.assets.fileDownloads);
-});
-
-// GET /asset/viewExcerpt/:excerptId/true/true
-app.get("/viewExcerpt/:excerptId/true/true", async (c) => {
-  await delay(100);
-  const excerptId = c.req.param("excerptId");
-  return c.json({ ...db.assets.excerpt, id: Number(excerptId) });
+  return c.json(assetPreview);
 });
 
 // GET /assetManager/getTemplate/:templateId
 app.get("/getTemplate/:templateId", async (c) => {
   await delay(100);
   const templateId = c.req.param("templateId");
-  return c.json({ ...db.templates.getById(Number(templateId)) });
+
+  const template = db.templates.get(Number(templateId));
+  if (!template) {
+    return c.json({ error: "Template not found" }, 404);
+  }
+  return c.json(template);
 });
 
 // POST /assetManager/submission/true (create/update asset)
 app.post("/submission/true", async (c) => {
   await delay(500);
+  const user = c.get("user");
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
   const formData = await c.req.formData();
   const parsed = parseFormData(formData) as AssetFormData;
 
-  // Simulate creation/update
-  const objectId = parsed.objectId || `asset_${Date.now()}`;
+  if (!parsed.templateId || !parsed.collectionId) {
+    return c.json({ error: "Template and collection are required" }, 400);
+  }
 
+  const asset: Omit<Asset, "createdBy"> = {
+    ...parsed,
+    assetId: parsed.objectId,
+    title: [parsed.title_1 as string],
+    templateId: parsed.templateId,
+    collectionId: parsed.collectionId,
+    modified: {
+      date: new Date().toISOString(),
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    modifiedBy: user.id,
+  };
+
+  const savedAsset = parsed.objectId
+    ? db.assets.update(parsed.objectId, asset)
+    : db.assets.create({
+        ...asset,
+        createdBy: user.id,
+      } as Asset);
+
+  if (!savedAsset) {
+    return c.json({ error: "Asset not found" }, 404);
+  }
   return c.json({
-    objectId,
     success: true,
-  });
-});
-
-// DELETE /assetManager/deleteAsset/:assetId/true
-app.delete("/deleteAsset/:assetId/true", async (c) => {
-  await delay(300);
-  return c.json({ success: true, message: "Asset deleted successfully" });
-});
-
-// GET /assetManager/userAssets/:offset/:returnJson
-app.get("/userAssets/:offset/:returnJson", async (c) => {
-  await delay(200);
-  return c.json(db.assets.userAssets);
-});
-
-// GET /assetManager/compareTemplates/:templateId/:newTemplateId
-app.get("/compareTemplates/:templateId/:newTemplateId", async (c) => {
-  await delay(100);
-  return c.json({ migration: true });
-});
-
-// GET /assetManager/compareCollections/:collectionId/:newCollectionId
-app.get("/compareCollections/:collectionId/:newCollectionId", async (c) => {
-  await delay(100);
-  return c.json({ migration: true });
-});
-
-// POST /assetManager/getFileContainer
-app.post("/getFileContainer", async (c) => {
-  await delay(200);
-  return c.json({
-    containers: [
-      {
-        index: 0,
-        fileObjectId: `file_${Date.now()}`,
-        success: true,
-      },
-    ],
-  });
-});
-
-// GET /assetManager/completeSourceFile/:fileObjectId
-app.get("/completeSourceFile/:fileObjectId", async (c) => {
-  await delay(300);
-  const fileObjectId = c.req.param("fileObjectId");
-  return c.json({
-    message: "Source file completed successfully",
-    fileObjectId,
+    objectId: savedAsset.assetId,
   });
 });
 
