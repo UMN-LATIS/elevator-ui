@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:test": "vite build --mode test",
     "build:watch": "vite build --watch",
     "build:remotedev": "NODE_OPTIONS=--max-old-space-size=4096 vite build --mode development --base \"/assets/elevator-ui/dist/\"",
     "build:prod": "vite build --mode production --base \"/assets/elevator-ui/dist/\"",
@@ -21,6 +22,7 @@
     "cert": "rm -rf .cert && mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost' 127.0.0.1 0.0.0.0 '::1' '::' `ipconfig getifaddr en0`",
     "mock:install": "cd mock-server && npm install",
     "mock:serve": "cd mock-server && npm run serve:watch",
+    "mock:serve:test": "yarn build:test && cd mock-server && npm run serve:watch",
     "dev:mock": "VITE_API_PROXY_TARGET=http://localhost:3001 VITE_IS_USING_MOCK_SERVER=true concurrently \"npm run mock:serve\" \"npm run dev\""
   },
   "dependencies": {

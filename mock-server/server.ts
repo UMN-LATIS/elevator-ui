@@ -3,6 +3,7 @@ import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { getCookie, setCookie } from "hono/cookie";
+import { serveStatic } from "@hono/node-server/serve-static";
 import type { MockServerContext } from "./types";
 import { db, getOrCreateWorkerDb } from "./db/index";
 
@@ -25,6 +26,10 @@ app.use(
   })
 );
 app.use("*", logger());
+
+// Static file serving for frontend build
+app.use("/assets/*", serveStatic({ root: "../dist" }));
+app.use("*", serveStatic({ root: "../dist" }));
 
 // Auth and user middleware
 app.use("*", async (c, next) => {
@@ -111,6 +116,9 @@ app.post("/_tests/auth/login", async (c) => {
 app.get("/health", (c) =>
   c.json({ status: "ok", timestamp: new Date().toISOString() })
 );
+
+// SPA fallback - serve index.html for all unmatched routes
+app.get("*", serveStatic({ path: "../dist/index.html" }));
 
 const MOCK_SERVER_PORT = 3001;
 console.log(`🚀 Mock server running on http://localhost:${MOCK_SERVER_PORT}`);
