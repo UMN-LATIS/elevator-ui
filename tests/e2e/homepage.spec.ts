@@ -1,13 +1,27 @@
 import { test, expect } from "@playwright/test";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 
 test.describe("App Rendering - Homepage", () => {
-  test.beforeEach(async ({ page }) => {
-    // Ensure the app is in a clean state before each test
+  test.beforeEach(async ({ page, request }) => {
+    const workerId = test.info().workerIndex.toString();
+    await setupWorkerHTTPHeader({
+      page,
+      workerId,
+    });
+
+    // refresh the database for this worker
+    await refreshDatabase({ request, workerId });
+
+    // Login user via backend
+    await loginUser({ request, page, workerId });
+
+    // Navigate to the homepage
     await page.goto("/");
     await page.waitForLoadState("networkidle");
   });
 
-  test("loads homepage with static page content", async ({ page }) => {
+  test("view home page when authenticated", async ({ page }) => {
+    // User is already logged in via beforeEach
     await expect(page).toHaveTitle(/Elevator/);
 
     // Look for "Home Page" static content or similar homepage indicators
@@ -20,6 +34,7 @@ test.describe("App Rendering - Homepage", () => {
   });
 
   test("displays search bar", async ({ page }) => {
+    // User is already logged in via beforeEach
     // Search bar should be visible
     const searchInput = page.getByRole("textbox", { name: "Search" }).first();
     await expect(searchInput).toBeVisible();
