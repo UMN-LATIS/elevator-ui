@@ -21,7 +21,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Install mock server dependencies
-        run: cd mock-server && npm install
+        run: cd mock-server && yarn install
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
