@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
-import { Asset } from "../../src/types";
+import { Asset, TextWidgetContent } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
@@ -53,19 +53,25 @@ app.post("/submission/true", async (c) => {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const formData = await c.req.formData();
-  const parsed = parseFormData(formData) as AssetFormData;
+  const rawFormData = await c.req.formData();
+  // all the data sits on the `formData` property
+  const { formData } = parseFormData(rawFormData) as {
+    formData: AssetFormData;
+  };
 
-  if (!parsed.templateId || !parsed.collectionId) {
+  if (!formData.templateId || !formData.collectionId) {
     return c.json({ error: "Template and collection are required" }, 400);
   }
 
+  const titleWidgets = formData.title_1 as TextWidgetContent[];
+  const titleWidget = titleWidgets?.[0];
+
   const asset: Omit<Asset, "createdBy"> = {
-    ...parsed,
-    assetId: parsed.objectId,
-    title: [parsed.title_1 as string],
-    templateId: parsed.templateId,
-    collectionId: parsed.collectionId,
+    ...formData,
+    assetId: formData.objectId,
+    title: [titleWidget?.fieldContents || "(Untitled)"],
+    templateId: formData.templateId,
+    collectionId: formData.collectionId,
     modified: {
       date: new Date().toISOString(),
       timezone_type: 3,
@@ -74,8 +80,8 @@ app.post("/submission/true", async (c) => {
     modifiedBy: user.id,
   };
 
-  const savedAsset = parsed.objectId
-    ? db.assets.update(parsed.objectId, asset)
+  const savedAsset = formData.objectId
+    ? db.assets.update(formData.objectId, asset)
     : db.assets.create({
         ...asset,
         createdBy: user.id,
