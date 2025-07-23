@@ -26,6 +26,9 @@ export default defineConfig({
     ["junit", { outputFile: "test-results/junit.xml" }],
   ],
 
+  // Global test timeout
+  timeout: 10 * 1000, // 10 seconds
+
   // Shared settings for all the projects below
   use: {
     // Base URL to use in actions like `await page.goto('/')`
@@ -63,23 +66,23 @@ export default defineConfig({
   ],
 
   // Run your local dev server before starting the tests
-  webServer: [
-    {
-      command: "yarn mock:serve",
-      url: "http://localhost:3001/health",
-      reuseExistingServer: !process.env.CI,
-      timeout: 30 * 1000,
-      stdout: "ignore",
-      stderr: "pipe",
-    },
-    {
-      command: "yarn dev:mock",
-      url: "https://localhost:5173",
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
-      stdout: "ignore",
-      stderr: "pipe",
-      ignoreHTTPSErrors: true,
-    },
-  ],
+  // webServer: [
+  // {
+  //   command: "yarn mock:serve",
+  //   url: "http://localhost:3001/health",
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 30 * 1000,
+  //   stdout: "ignore",
+  //   stderr: "pipe",
+  // },
+  // {
+  //   command: "yarn dev:mock",
+  //   url: "https://localhost:5173",
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 120 * 1000,
+  //   stdout: "ignore",
+  //   stderr: "pipe",
+  //   ignoreHTTPSErrors: true,
+  // },
+  // ],
 });
