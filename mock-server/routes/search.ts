@@ -13,8 +13,10 @@ const app = new Hono<MockServerContext>();
 app.post("/searchResults", async (c) => {
   await delay(300);
 
+  const user = c.get("user");
+
   // check if authed
-  if (!c.get("isAuthenticated")) {
+  if (!user) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
@@ -60,9 +62,6 @@ app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
 // POST /search/getSuggestion
 app.post("/getSuggestion", async (c) => {
   await delay(100);
-  // const formData = await c.req.formData();
-  // const searchTerm = formData.get("searchTerm") as string;
-
   return c.json([]);
 });
 

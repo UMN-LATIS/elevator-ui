@@ -1,4 +1,5 @@
 import { MockUser, MockSession } from "../types";
+import { createBaseTable } from "./baseTable";
 import { sessions } from "./sessions";
 
 const userSeeds = [
@@ -43,24 +44,26 @@ const userSeeds = [
   },
 ];
 
-const userStore = new Map<MockUser["id"], MockUser>(
-  userSeeds.map((user) => [user.id, user])
-);
+function createUsersTable() {
+  const baseTable = createBaseTable((user: MockUser) => user.id, userSeeds);
 
-export const users = {
-  get: (userId: MockUser["id"]): MockUser | undefined => {
-    return userStore.get(userId);
-  },
-  getByUsername: (username: string): MockUser | undefined => {
-    return Array.from(userStore.values()).find(
-      (user) => user.username === username
-    );
-  },
-  getBySessionId: (sessionId: MockSession["id"]): MockUser | undefined => {
-    const session = sessions.get(sessionId);
-    if (session) {
-      return userStore.get(session.userId);
-    }
-    return undefined;
-  },
-};
+  return {
+    ...baseTable,
+    // Table-specific methods
+    getByUsername: (username: string): MockUser | undefined => {
+      return baseTable.find((user) => user.username === username);
+    },
+    getBySessionId: (sessionId: MockSession["id"]): MockUser | undefined => {
+      const session = sessions.get(sessionId);
+      if (session) {
+        return baseTable.get(session.userId);
+      }
+      return undefined;
+    },
+  };
+}
+
+export const users = createUsersTable();
+users.seed();
+
+export { createUsersTable };

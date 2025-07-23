@@ -10,7 +10,7 @@ const app = new Hono<MockServerContext>();
 app.get("/viewAsset/:assetId/true", async (c) => {
   await delay(200);
   const assetId = c.req.param("assetId");
-  const asset = db.assets.getById(assetId);
+  const asset = db.assets.get(assetId);
   if (!asset) {
     return c.json({ error: "Asset not found" }, 404);
   }

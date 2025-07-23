@@ -1,7 +1,8 @@
 import { Asset, AssetPreview } from "../../src/types";
 import { assetToSearchResultMatch } from "../utils/index";
-import { collections } from "./collections";
-import { templates } from "./templates";
+import { createBaseTable } from "./baseTable";
+import type { CollectionsTable } from "./collections";
+import type { TemplatesTable } from "./templates";
 
 const assetSeeds: Asset[] = [
   {
@@ -109,54 +110,54 @@ const assetSeeds: Asset[] = [
   },
 ];
 
-const assetStore = new Map<Asset["assetId"], Asset>(
-  assetSeeds.map((asset) => [asset.assetId, asset])
-);
+export function createAssetsTable({
+  collections,
+  templates,
+}: {
+  collections: CollectionsTable;
+  templates: TemplatesTable;
+}) {
+  const baseTable = createBaseTable(
+    (asset: Asset) => asset.assetId,
+    assetSeeds
+  );
 
-export const assets = {
-  create: (asset: Asset): Asset => {
-    const newAsset = { ...asset, assetId: crypto.randomUUID() };
-    assetStore.set(newAsset.assetId, newAsset);
-    return newAsset;
-  },
-  get: (assetId: Asset["assetId"]): Asset | undefined => {
-    return assetStore.get(assetId);
-  },
-  getById: (assetId: string): Asset | undefined => {
-    return assetStore.get(assetId);
-  },
-  delete: (assetId: Asset["assetId"]): void => {
-    assetStore.delete(assetId);
-  },
-  update: (
-    assetId: Asset["assetId"],
-    updatedAsset: Partial<Asset>
-  ): Asset | undefined => {
-    const existingAsset = assetStore.get(assetId);
-    if (!existingAsset) {
-      throw new Error(`Asset with ID ${assetId} not found`);
-    }
-    const newAsset = { ...existingAsset, ...updatedAsset };
-    assetStore.set(assetId, newAsset);
-    return newAsset;
-  },
-  getPreview: (assetId: Asset["assetId"]): AssetPreview | null => {
-    const asset = assetStore.get(assetId);
-    if (!asset) {
-      return null;
-    }
-    const collection = collections.get(asset.collectionId);
-    const template = templates.get(asset.templateId);
-    if (!collection || !template) {
-      return null;
-    }
-    return assetToSearchResultMatch({
-      asset,
-      collection,
-      template,
-    });
-  },
-  getAll: (): Asset[] => {
-    return Array.from(assetStore.values());
-  },
-};
+  return {
+    ...baseTable,
+    create: (asset: Asset): Asset => {
+      const newAsset = { ...asset, assetId: crypto.randomUUID() };
+      baseTable.set(newAsset.assetId, newAsset);
+      return newAsset;
+    },
+    update: (
+      assetId: Asset["assetId"],
+      updatedAsset: Partial<Asset>
+    ): Asset | undefined => {
+      const existingAsset = baseTable.get(assetId);
+      if (!existingAsset) {
+        throw new Error(`Asset with ID ${assetId} not found`);
+      }
+      const newAsset = { ...existingAsset, ...updatedAsset };
+      baseTable.set(assetId, newAsset);
+      return newAsset;
+    },
+    getPreview: (assetId: Asset["assetId"]): AssetPreview | null => {
+      const asset = baseTable.get(assetId);
+      if (!asset) {
+        return null;
+      }
+      const collection = collections.get(asset.collectionId);
+      const template = templates.get(asset.templateId);
+      if (!collection || !template) {
+        return null;
+      }
+      return assetToSearchResultMatch({
+        asset,
+        collection,
+        template,
+      });
+    },
+  };
+}
+
+export type AssetsTable = ReturnType<typeof createAssetsTable>;

@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { delay } from "../utils/index";
 import { db } from "../db/index.js";
 import type { MockServerContext } from "../types";
+import { ApiGetDrawerResponse } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
@@ -28,4 +29,29 @@ app.get("/listDrawers/true", async (c) => {
   return c.json(drawersList);
 });
 
+app.get("/getDrawer/:drawerId", async (c) => {
+  await delay(200);
+  const drawerId = Number.parseInt(c.req.param("drawerId"));
+  const drawer = db.drawers.get(drawerId);
+  if (!drawer) {
+    return c.json({ error: "Drawer not found" }, 404);
+  }
+  // just return an empty drawer for now
+  const response = {
+    searchResults: ["searchId"],
+    matches: [],
+    success: true,
+    searchEntry: {
+      searchText: "",
+    },
+    totalResults: 0,
+    drawerId: drawer.id,
+    drawerTitle: drawer.name,
+    drawerDescription: drawer.description || "",
+    sortBy: "title.raw",
+  };
+  console.log(`Drawer requested: ${drawer.name} (${drawer.id})`);
+
+  return c.json(response);
+});
 export default app;

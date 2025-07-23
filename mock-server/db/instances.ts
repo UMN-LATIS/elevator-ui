@@ -1,5 +1,6 @@
 import { ShowCustomHeaderMode } from "../../src/types";
 import { MockInstance } from "../types";
+import { createBaseTable } from "./baseTable";
 
 const instanceSeeds: MockInstance[] = [
   {
@@ -23,18 +24,21 @@ const instanceSeeds: MockInstance[] = [
   },
 ];
 
-const instanceStore = new Map<MockInstance["id"], MockInstance>(
-  instanceSeeds.map((instance) => [instance.id, instance])
-);
+export function createInstancesTable() {
+  const baseTable = createBaseTable(
+    (instance: MockInstance) => instance.id,
+    instanceSeeds
+  );
 
-export const instances = {
-  get: (instanceId: MockInstance["id"]): MockInstance | undefined => {
-    return instanceStore.get(instanceId);
-  },
-  getDefault: (): MockInstance => {
-    if (instanceStore.size === 0) {
-      throw new Error("No instances available");
-    }
-    return instanceSeeds[0]; // Return the first/default instance
-  },
-};
+  return {
+    ...baseTable,
+    getDefault: (): MockInstance => {
+      if (baseTable.size() === 0) {
+        throw new Error("No instances available");
+      }
+      return instanceSeeds[0]; // Return the first/default instance
+    },
+  };
+}
+
+export type InstancesTable = ReturnType<typeof createInstancesTable>;

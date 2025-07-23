@@ -1,18 +1,24 @@
 import { MockSession, MockUser } from "../types";
+import { createBaseTable } from "./baseTable";
 
-const sessionStore = new Map<MockSession["id"], MockSession>();
+function createSessionsTable() {
+  const baseTable = createBaseTable(
+    (session: MockSession) => session.id,
+    [] // Empty seed data - sessions are created dynamically
+  );
 
-export const sessions = {
-  create: (userId: MockUser["id"]): MockSession => {
-    const sessionId = crypto.randomUUID();
-    const session: MockSession = { id: sessionId, userId };
-    sessionStore.set(sessionId, session);
-    return session;
-  },
-  delete: (sessionId: MockSession["id"]): void => {
-    sessionStore.delete(sessionId);
-  },
-  get: (sessionId: MockSession["id"]): MockSession | undefined => {
-    return sessionStore.get(sessionId);
-  },
-};
+  return {
+    ...baseTable,
+    // Table-specific methods
+    create: (userId: MockUser["id"]): MockSession => {
+      const sessionId = crypto.randomUUID();
+      const session: MockSession = { id: sessionId, userId };
+      baseTable.set(sessionId, session);
+      return session;
+    },
+  };
+}
+
+export const sessions = createSessionsTable();
+sessions.seed();
+export { createSessionsTable };

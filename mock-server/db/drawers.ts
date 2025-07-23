@@ -1,4 +1,5 @@
 import { MockDrawer } from "../types";
+import { createBaseTable } from "./baseTable";
 
 const drawerSeeds: MockDrawer[] = [
   {
@@ -13,53 +14,56 @@ const drawerSeeds: MockDrawer[] = [
   },
 ];
 
-const drawerStore = new Map<MockDrawer["id"], MockDrawer>(
-  drawerSeeds.map((drawer) => [drawer.id, drawer])
-);
+export function createDrawersTable() {
+  const baseTable = createBaseTable(
+    (drawer: MockDrawer) => drawer.id,
+    drawerSeeds
+  );
+  let nextDrawerId = 2;
 
-let nextDrawerId = 2;
+  return {
+    ...baseTable,
+    getByUserId: (userId: number): MockDrawer[] => {
+      return baseTable.filter((d) => d.userId === userId);
+    },
+    create: (
+      data: Pick<
+        MockDrawer,
+        "name" | "userId" | "description" | "assetIds" | "isPublic"
+      >
+    ): MockDrawer => {
+      const drawer: MockDrawer = {
+        id: nextDrawerId++,
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      baseTable.set(drawer.id, drawer);
+      return drawer;
+    },
+    addAssets: (drawerId: number, assetIds: string[]): void => {
+      const drawer = baseTable.get(drawerId);
+      if (drawer) {
+        const combined = drawer.assetIds.concat(assetIds);
+        drawer.assetIds = Array.from(new Set(combined));
+        drawer.updatedAt = new Date();
+      }
+    },
+    removeAssets: (drawerId: number, assetIds: string[]): void => {
+      const drawer = baseTable.get(drawerId);
+      if (drawer) {
+        drawer.assetIds = drawer.assetIds.filter(
+          (id) => !assetIds.includes(id)
+        );
+        drawer.updatedAt = new Date();
+      }
+    },
+    // Override reset to also reset the counter
+    reset: (): void => {
+      baseTable.reset();
+      nextDrawerId = 2;
+    },
+  };
+}
 
-export const drawers = {
-  get: (drawerId: number): MockDrawer | undefined => {
-    return drawerStore.get(drawerId);
-  },
-  getAll: (): MockDrawer[] => {
-    return Array.from(drawerStore.values());
-  },
-  getByUserId: (userId: number): MockDrawer[] => {
-    return Array.from(drawerStore.values()).filter((d) => d.userId === userId);
-  },
-  create: (
-    data: Pick<
-      MockDrawer,
-      "name" | "userId" | "description" | "assetIds" | "isPublic"
-    >
-  ): MockDrawer => {
-    const drawer: MockDrawer = {
-      id: nextDrawerId++,
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    drawerStore.set(drawer.id, drawer);
-    return drawer;
-  },
-  delete: (drawerId: number): void => {
-    drawerStore.delete(drawerId);
-  },
-  addAssets: (drawerId: number, assetIds: string[]): void => {
-    const drawer = drawerStore.get(drawerId);
-    if (drawer) {
-      const combined = drawer.assetIds.concat(assetIds);
-      drawer.assetIds = Array.from(new Set(combined));
-      drawer.updatedAt = new Date();
-    }
-  },
-  removeAssets: (drawerId: number, assetIds: string[]): void => {
-    const drawer = drawerStore.get(drawerId);
-    if (drawer) {
-      drawer.assetIds = drawer.assetIds.filter((id) => !assetIds.includes(id));
-      drawer.updatedAt = new Date();
-    }
-  },
-};
+export type DrawersTable = ReturnType<typeof createDrawersTable>;

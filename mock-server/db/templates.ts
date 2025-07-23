@@ -1,4 +1,5 @@
 import { Template } from "../../src/types";
+import { createBaseTable } from "./baseTable";
 
 const templateSeeds: Template[] = [
   {
@@ -123,21 +124,13 @@ const templateSeeds: Template[] = [
   },
 ];
 
-const templateStore = new Map<Template["templateId"], Template>(
-  templateSeeds.map((template) => [template.templateId, template])
-);
+export function createTemplatesTable() {
+  const baseTable = createBaseTable(
+    (template: Template) => template.templateId,
+    templateSeeds
+  );
 
-export const templates = {
-  get: (templateId: Template["templateId"]): Template | undefined => {
-    return templateStore.get(templateId);
-  },
-  getAll: (): Template[] => {
-    return Array.from(templateStore.values());
-  },
-  create: (template: Template): void => {
-    templateStore.set(template.templateId, template);
-  },
-  delete: (templateId: Template["templateId"]): void => {
-    templateStore.delete(templateId);
-  },
-};
+  return baseTable;
+}
+
+export type TemplatesTable = ReturnType<typeof createTemplatesTable>;

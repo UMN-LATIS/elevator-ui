@@ -1,4 +1,5 @@
 import { AssetCollection, RawAssetCollection } from "../../src/types";
+import { createBaseTable } from "./baseTable";
 
 const collectionSeeds: AssetCollection[] = [
   {
@@ -9,10 +10,6 @@ const collectionSeeds: AssetCollection[] = [
     parentId: null,
   },
 ];
-
-const collectionStore = new Map<AssetCollection["id"], AssetCollection>(
-  collectionSeeds.map((collection) => [collection.id, collection])
-);
 
 function toRawAssetCollection(collection: AssetCollection): RawAssetCollection {
   return {
@@ -25,14 +22,18 @@ function toRawAssetCollection(collection: AssetCollection): RawAssetCollection {
   };
 }
 
-export const collections = {
-  get: (collectionId: AssetCollection["id"]): AssetCollection | undefined => {
-    return collectionStore.get(collectionId);
-  },
-  getAll: (): AssetCollection[] => {
-    return Array.from(collectionStore.values());
-  },
-  getAllAsRawAssetCollections: (): RawAssetCollection[] => {
-    return collections.getAll().map(toRawAssetCollection);
-  },
-};
+export function createCollectionsTable() {
+  const baseTable = createBaseTable(
+    (collection: AssetCollection) => collection.id,
+    collectionSeeds
+  );
+
+  return {
+    ...baseTable,
+    getAllAsRawAssetCollections: (): RawAssetCollection[] => {
+      return baseTable.getAll().map(toRawAssetCollection);
+    },
+  };
+}
+
+export type CollectionsTable = ReturnType<typeof createCollectionsTable>;

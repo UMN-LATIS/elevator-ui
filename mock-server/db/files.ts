@@ -1,4 +1,5 @@
 import { MockFile } from "../types";
+import { createBaseTable } from "./baseTable";
 
 const fileSeeds: MockFile[] = [
   {
@@ -21,50 +22,43 @@ const fileSeeds: MockFile[] = [
   },
 ];
 
-const fileStore = new Map<MockFile["id"], MockFile>(
-  fileSeeds.map((file) => [file.id, file])
-);
+export function createFilesTable() {
+  const baseTable = createBaseTable((file: MockFile) => file.id, fileSeeds);
 
-export const files = {
-  get: (fileId: string): MockFile | undefined => {
-    return fileStore.get(fileId);
-  },
-  getAll: (): MockFile[] => {
-    return Array.from(fileStore.values());
-  },
-  getByAssetId: (assetId: string): MockFile[] => {
-    return Array.from(fileStore.values()).filter((f) => f.assetId === assetId);
-  },
-  create: (data: Omit<MockFile, "uploadedAt">): MockFile => {
-    const file: MockFile = {
-      ...data,
-      uploadedAt: new Date(),
-    };
-    fileStore.set(file.id, file);
-    return file;
-  },
-  delete: (fileId: string): void => {
-    fileStore.delete(fileId);
-  },
-  getMetadata: (fileId: string) => {
-    const file = fileStore.get(fileId);
-    if (!file) {
-      return {
-        fileId,
-        fileName: `file-${fileId}`,
-        fileType: "unknown",
-        fileSize: 0,
-        metadata: {},
+  return {
+    ...baseTable,
+    // Table-specific methods
+    getByAssetId: (assetId: string): MockFile[] => {
+      return baseTable.filter((f) => f.assetId === assetId);
+    },
+    create: (data: Omit<MockFile, "uploadedAt">): MockFile => {
+      const file: MockFile = {
+        ...data,
+        uploadedAt: new Date(),
       };
-    }
+      baseTable.set(file.id, file);
+      return file;
+    },
+    getMetadata: (fileId: string) => {
+      const file = baseTable.get(fileId);
+      if (!file) {
+        return {
+          fileId,
+          fileName: `file-${fileId}`,
+          fileType: "unknown",
+          fileSize: 0,
+          metadata: {},
+        };
+      }
 
-    return {
-      fileId: file.id,
-      fileName: file.fileName,
-      fileType: file.fileType,
-      fileSize: file.fileSize,
-      metadata: file.metadata,
-      uploadedAt: file.uploadedAt,
-    };
-  },
-};
+      return {
+        fileId: file.id,
+        fileName: file.fileName,
+        fileType: file.fileType,
+        fileSize: file.fileSize,
+        metadata: file.metadata,
+        uploadedAt: file.uploadedAt,
+      };
+    },
+  };
+}

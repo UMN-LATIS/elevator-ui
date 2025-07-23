@@ -1,14 +1,11 @@
 import { Page } from "../../src/types";
 import { MockPage } from "../types";
+import { createBaseTable } from "./baseTable";
 
 const pageSeeds: MockPage[] = [
   { id: 1, title: "Home Page", content: "<p>Welcome to the home page</p>" },
   { id: 2, title: "About", content: "<p>Learn more about us</p>" },
 ];
-
-const pageStore = new Map<MockPage["id"], MockPage>(
-  pageSeeds.map((page) => [page.id, page])
-);
 
 function toPageWithoutContent(page: MockPage): Page {
   return {
@@ -18,14 +15,16 @@ function toPageWithoutContent(page: MockPage): Page {
   };
 }
 
-export const pages = {
-  get: (pageId: MockPage["id"]): MockPage | undefined => {
-    return pageStore.get(pageId);
-  },
-  getAll: (): MockPage[] => {
-    return Array.from(pageStore.values());
-  },
-  getAllWithoutContent: (): Page[] => {
-    return Array.from(pageStore.values()).map(toPageWithoutContent);
-  },
-};
+export function createPagesTable() {
+  const baseTable = createBaseTable((page: MockPage) => page.id, pageSeeds);
+
+  return {
+    ...baseTable,
+    // Table-specific methods
+    getAllWithoutContent: (): Page[] => {
+      return baseTable.getAll().map(toPageWithoutContent);
+    },
+  };
+}
+
+export type PagesTable = ReturnType<typeof createPagesTable>;
