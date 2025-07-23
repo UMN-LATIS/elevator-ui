@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { setCookie, deleteCookie } from "hono/cookie";
 import { delay } from "../utils/index";
-import { db } from "../db/index.js";
 import type { MockServerContext } from "../types.js";
 
 const app = new Hono<MockServerContext>();
@@ -9,6 +8,7 @@ const app = new Hono<MockServerContext>();
 // POST /loginManager/localLoginAsync
 app.post("/localLoginAsync", async (c) => {
   await delay(400);
+  const db = c.get("db");
   const formData = await c.req.formData();
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
@@ -56,7 +56,7 @@ app.post("/localLoginAsync", async (c) => {
 // POST /loginManager/logout
 app.post("/logout", async (c) => {
   await delay(200);
-
+  const db = c.get("db");
   const session = c.get("session");
   const { sessions } = db;
 

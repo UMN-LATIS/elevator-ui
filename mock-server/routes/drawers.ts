@@ -1,14 +1,13 @@
 import { Hono } from "hono";
 import { delay } from "../utils/index";
-import { db } from "../db/index.js";
 import type { MockServerContext } from "../types";
-import { ApiGetDrawerResponse } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
 // GET /drawers/listDrawers/true
 app.get("/listDrawers/true", async (c) => {
   await delay(200);
+  const db = c.get("db");
   const user = c.get("user");
 
   if (!user) {
@@ -31,6 +30,7 @@ app.get("/listDrawers/true", async (c) => {
 
 app.get("/getDrawer/:drawerId", async (c) => {
   await delay(200);
+  const db = c.get("db");
   const drawerId = Number.parseInt(c.req.param("drawerId"));
   const drawer = db.drawers.get(drawerId);
   if (!drawer) {

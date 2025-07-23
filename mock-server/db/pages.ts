@@ -3,7 +3,11 @@ import { MockPage } from "../types";
 import { createBaseTable } from "./baseTable";
 
 const pageSeeds: MockPage[] = [
-  { id: 1, title: "Home Page", content: "<p>Welcome to the home page</p>" },
+  {
+    id: 1,
+    title: "Home Page",
+    content: "<h1>Elevator Home Page</h1>",
+  },
   { id: 2, title: "About", content: "<p>Learn more about us</p>" },
 ];
 

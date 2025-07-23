@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { parseFormData, delay, makeSimpleSVG } from "../utils/index";
-import { db } from "../db/index";
 import type { FileFormData, MockServerContext } from "../types";
 
 const app = new Hono<MockServerContext>();
@@ -8,6 +7,7 @@ const app = new Hono<MockServerContext>();
 // GET /fileManager/getMetadataForObject/:fileId
 app.get("/getMetadataForObject/:fileId", async (c) => {
   await delay(150);
+  const db = c.get("db");
   const fileId = c.req.param("fileId");
   const metadata = db.files.getMetadata(fileId);
   return c.json(metadata);

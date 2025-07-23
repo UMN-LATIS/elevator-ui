@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { delay } from "../utils";
-import { db } from "../db/index.js";
 import type { MockServerContext } from "../types.js";
 import { ApiInstanceNavResponse } from "../../src/types";
 
@@ -9,6 +8,7 @@ const app = new Hono<MockServerContext>();
 // GET /home/getInstanceNav
 app.get("/getInstanceNav", async (c) => {
   await delay(150);
+  const db = c.get("db");
 
   const user = c.get("user");
   const instance = db.instances.getDefault();

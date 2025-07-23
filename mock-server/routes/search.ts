@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import { db } from "../db/index.js";
 import type {
   SearchRequestOptions,
   SearchResultsResponse,
@@ -12,6 +11,7 @@ const app = new Hono<MockServerContext>();
 // POST /search/searchResults
 app.post("/searchResults", async (c) => {
   await delay(300);
+  const db = c.get("db");
 
   const user = c.get("user");
 
@@ -46,10 +46,8 @@ app.post("/searchResults", async (c) => {
 // GET /search/searchResults/:searchId/:page/:loadAll
 app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
   await delay(200);
+  const db = c.get("db");
   const searchId = c.req.param("searchId");
-  // const page = Number(c.req.param("page") || 0);
-  // const loadAll = c.req.param("loadAll") === "true";
-
   const results = db.searches.get(searchId);
 
   if (!results) {

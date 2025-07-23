@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import { db } from "../db/index";
 import { MockServerContext, type AssetFormData } from "../types";
 import { Asset } from "../../src/types";
 
@@ -9,6 +8,7 @@ const app = new Hono<MockServerContext>();
 // GET /asset/viewAsset/:assetId/true
 app.get("/viewAsset/:assetId/true", async (c) => {
   await delay(200);
+  const db = c.get("db");
   const assetId = c.req.param("assetId");
   const asset = db.assets.get(assetId);
   if (!asset) {
@@ -20,6 +20,7 @@ app.get("/viewAsset/:assetId/true", async (c) => {
 // GET /asset/getAssetPreview/:assetId
 app.get("/getAssetPreview/:assetId", async (c) => {
   await delay(100);
+  const db = c.get("db");
   const assetId = c.req.param("assetId");
   const assetPreview = db.assets.getPreview(assetId);
 
@@ -33,6 +34,7 @@ app.get("/getAssetPreview/:assetId", async (c) => {
 // GET /assetManager/getTemplate/:templateId
 app.get("/getTemplate/:templateId", async (c) => {
   await delay(100);
+  const db = c.get("db");
   const templateId = c.req.param("templateId");
 
   const template = db.templates.get(Number(templateId));
@@ -45,6 +47,7 @@ app.get("/getTemplate/:templateId", async (c) => {
 // POST /assetManager/submission/true (create/update asset)
 app.post("/submission/true", async (c) => {
   await delay(500);
+  const db = c.get("db");
   const user = c.get("user");
   if (!user) {
     return c.json({ error: "Unauthorized" }, 401);
