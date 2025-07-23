@@ -112,7 +112,7 @@ app.get("/health", (c) =>
   c.json({ status: "ok", timestamp: new Date().toISOString() })
 );
 
-export const MOCK_SERVER_PORT = 3001;
+const MOCK_SERVER_PORT = 3001;
 console.log(`🚀 Mock server running on http://localhost:${MOCK_SERVER_PORT}`);
 
 serve({

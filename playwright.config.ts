@@ -64,25 +64,4 @@ export default defineConfig({
       use: { ...devices["Desktop Safari"] },
     },
   ],
-
-  // Run your local dev server before starting the tests
-  // webServer: [
-  // {
-  //   command: "yarn mock:serve",
-  //   url: "http://localhost:3001/health",
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 30 * 1000,
-  //   stdout: "ignore",
-  //   stderr: "pipe",
-  // },
-  // {
-  //   command: "yarn dev:mock",
-  //   url: "https://localhost:5173",
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 120 * 1000,
-  //   stdout: "ignore",
-  //   stderr: "pipe",
-  //   ignoreHTTPSErrors: true,
-  // },
-  // ],
 });

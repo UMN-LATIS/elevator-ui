@@ -1,6 +1,6 @@
 import { type APIRequestContext, type Page } from "@playwright/test";
-import { MOCK_SERVER_PORT } from "../mock-server/server";
 
+const MOCK_SERVER_PORT = 3001;
 // Simple helper to set up worker-specific test environment
 export async function setupWorkerHTTPHeader({
   page,
