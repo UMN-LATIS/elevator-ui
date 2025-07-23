@@ -1,7 +1,7 @@
 import { ShowCustomHeaderMode } from "../../src/types";
 import { MockInstance } from "../types";
 
-const instanceSeeds = [
+const instanceSeeds: MockInstance[] = [
   {
     id: 1,
     name: "defaultinstance",
@@ -18,6 +18,8 @@ const instanceSeeds = [
     customFooter: null,
     useVoyagerViewer: true,
     useCustomCSS: false,
+    featuredAssetId: "",
+    featuredAssetText: "",
   },
 ];
 
@@ -28,5 +30,11 @@ const instanceStore = new Map<MockInstance["id"], MockInstance>(
 export const instances = {
   get: (instanceId: MockInstance["id"]): MockInstance | undefined => {
     return instanceStore.get(instanceId);
+  },
+  getDefault: (): MockInstance => {
+    if (instanceStore.size === 0) {
+      throw new Error("No instances available");
+    }
+    return instanceSeeds[0]; // Return the first/default instance
   },
 };

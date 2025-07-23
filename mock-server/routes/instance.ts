@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { delay } from "../utils";
-import { instanceUnauthed, instanceAuthed } from "../fixtures/instance";
+import { db } from "../db/index.js";
 import type { MockServerContext } from "../types.js";
+import { ApiInstanceNavResponse } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
@@ -9,25 +10,41 @@ const app = new Hono<MockServerContext>();
 app.get("/getInstanceNav", async (c) => {
   await delay(150);
 
-  const session = c.get("session");
+  const user = c.get("user");
+  const instance = db.instances.getDefault();
 
-  if (session) {
-    console.log(
-      `Instance nav requested for authenticated user: ${session.username}`
-    );
-    // Return authenticated instance with user data
-    const instance = {
-      ...instanceAuthed,
-      userId: session.userId,
-      userDisplayName: session.username,
-      userIsAdmin: session.isAdmin || false,
-      userIsSuperAdmin: session.isAdmin || false,
+  const templates = db.templates.getAll().reduce((acc, template) => {
+    return {
+      ...acc,
+      [template.templateId]: template.templateName,
     };
-    return c.json(instance);
-  } else {
-    console.log("Instance nav requested for unauthenticated user");
-    return c.json(instanceUnauthed);
-  }
+  }, {} as Record<number, string>);
+
+  const response: ApiInstanceNavResponse = {
+    ...instance,
+    instanceName: instance.name,
+    instanceId: instance.id,
+    instanceHasLogo: instance.hasLogo,
+    instanceLogo: instance.logo,
+    instanceShowCollectionInSearchResults:
+      instance.showCollectionInSearchResults,
+    instanceShowTemplateInSearchResults: instance.showTemplateInSearchResults,
+    userId: user?.id ?? null,
+    userDisplayName: user?.displayName ?? null,
+    userIsAdmin: user?.isInstanceAdmin ?? false,
+    userIsSuperAdmin: user?.isSuperAdmin ?? false,
+    userCanCreateDrawers: user?.permissions.canCreateDrawers ?? false,
+    userCanSearchAndBrowse: user?.permissions.canSearchAndBrowse ?? false,
+    userIsloggedIn: true,
+    userCanManageAssets: user?.permissions.canManageAssets ?? false,
+    templates,
+    pages: db.pages.getAllWithoutContent(),
+    collections: db.collections.getAllAsRawAssetCollections(),
+    featuredAssetId: instance.featuredAssetId ?? "",
+    featuredAssetText: instance.featuredAssetText ?? "",
+  };
+
+  return c.json(response);
 });
 
 export default app;

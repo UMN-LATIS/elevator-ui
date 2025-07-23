@@ -1,35 +1,46 @@
 import { Hono } from "hono";
 import { delay } from "../utils/index";
-import collection from "../fixtures/collection";
-import interstitial from "../fixtures/interstitial";
-import { homePage, makeStaticContentPage } from "../fixtures/pages";
+import { db } from "../db/index.js";
 import { StaticContentPage } from "../../src/types";
+import type { MockServerContext } from "../types.js";
 
-const app = new Hono();
+const app = new Hono<MockServerContext>();
 
 // GET /collections/collectionHeader/:collectionId/true
 app.get("/collectionHeader/:collectionId/true", async (c) => {
   await delay(100);
+  const collectionId = Number(c.req.param("collectionId"));
+  const collection = db.collections.getHeader(collectionId);
   return c.json(collection);
 });
 
 // GET /home/interstitial
 app.get("/interstitial", async (c) => {
   await delay(100);
-  return c.json(interstitial);
+  return c.json({
+    showInterstitial: false,
+    message: "Welcome to the digital repository",
+  });
 });
 
 // GET /page/view/:pageId/true
 app.get("/view/:pageId/true", async (c) => {
   await delay(100);
   const pageId = Number(c.req.param("pageId"));
-  if (pageId === homePage.id) {
-    // If the pageId is for the home page, return the homePage fixture
-    return c.json(homePage);
-  }
-  const page = makeStaticContentPage(pageId);
 
-  return c.json<StaticContentPage>(page);
+  const page = db.pages.get(pageId);
+  if (page) {
+    return c.json<StaticContentPage>(page);
+  }
+
+  // Generate a default page if not found
+  const defaultPage: StaticContentPage = {
+    id: pageId,
+    title: `Page ${pageId}`,
+    content: `<p>Content for page ${pageId}</p>`,
+  };
+
+  return c.json<StaticContentPage>(defaultPage);
 });
 
 // Click-to-search endpoints

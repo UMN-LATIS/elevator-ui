@@ -12,20 +12,11 @@ const assetSeeds: Asset[] = [
       {
         loc: null,
         fileId: "6875872f4eb080a4880a0f45",
-        fileType: "svg",
+        fileType: "txt",
         sidecars: [],
         isPrimary: false,
         searchData: null,
-        fileDescription: "1F3DF.svg",
-      },
-      {
-        loc: null,
-        fileId: "687587494eb080a4880a0f46",
-        fileType: "svg",
-        sidecars: [],
-        isPrimary: true,
-        searchData: null,
-        fileDescription: "1F37B.svg",
+        fileDescription: "file.txt",
       },
     ],
     checkbox_1: [
@@ -54,7 +45,7 @@ const assetSeeds: Asset[] = [
     assetId: "6875871d4eb080a4880a0f44",
     firstFileHandlerId: "687587494eb080a4880a0f46",
     firstObjectId: null,
-    title: ["111111"],
+    title: ["Asset 1"],
     titleObject: "title_1",
   },
   {
@@ -72,7 +63,7 @@ const assetSeeds: Asset[] = [
         sidecars: [],
         isPrimary: false,
         searchData: null,
-        fileDescription: "ChatGPT Image May 30, 2025, 12_33_30 PM.png",
+        fileDescription: "test_image.png",
       },
       {
         loc: null,
@@ -81,7 +72,7 @@ const assetSeeds: Asset[] = [
         sidecars: [],
         isPrimary: false,
         searchData: null,
-        fileDescription: "ChatGPT Image May 30, 2025, 12_31_43 PM.png",
+        fileDescription: "test_image_2.png",
       },
     ],
     checkbox_1: [
@@ -110,7 +101,7 @@ const assetSeeds: Asset[] = [
     assetId: "687969fd9c90c709c1021d00",
     firstFileHandlerId: "687969f8f53caa21660c9ee0",
     firstObjectId: null,
-    title: ["This is a title"],
+    title: ["Asset 2"],
     titleObject: "title_1",
   },
 ];
@@ -128,6 +119,9 @@ export const assets = {
   get: (assetId: Asset["assetId"]): Asset | undefined => {
     return assetStore.get(assetId);
   },
+  getById: (assetId: string): Asset | undefined => {
+    return assetStore.get(assetId);
+  },
   delete: (assetId: Asset["assetId"]): void => {
     assetStore.delete(assetId);
   },
@@ -142,5 +136,19 @@ export const assets = {
     const newAsset = { ...existingAsset, ...updatedAsset };
     assetStore.set(assetId, newAsset);
     return newAsset;
+  },
+  search: (query: string): Asset[] => {
+    const allAssets = Array.from(assetStore.values());
+    if (!query) return allAssets;
+
+    // not a real search
+    // just stringify the assets and filter by the query
+    const lowerQuery = query.toLowerCase();
+    const matchedAssets = allAssets.filter((asset) => {
+      const assetString = JSON.stringify(asset).toLowerCase();
+      return assetString.includes(lowerQuery);
+    });
+
+    return matchedAssets;
   },
 };

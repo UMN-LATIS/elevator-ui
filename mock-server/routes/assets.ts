@@ -1,9 +1,6 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import fileDownloads from "../fixtures/file-downloads";
-import excerpt from "../fixtures/excerpt";
-import template from "../fixtures/template";
-import { assetData, mockAssets, getAssetById, mockAssetSummaries } from "../fixtures/assets";
+import { db } from "../db/index.js";
 import type { AssetFormData } from "../types";
 
 const app = new Hono();
@@ -12,23 +9,26 @@ const app = new Hono();
 app.get("/viewAsset/:assetId/true", async (c) => {
   await delay(200);
   const assetId = c.req.param("assetId");
-  const asset = getAssetById(assetId);
+  const asset = db.assets.getById(assetId);
   if (asset) {
     return c.json(asset);
   }
   // Fallback to sample asset if specific asset not found
-  return c.json({ ...assetData.sampleAsset, assetId });
+  return c.json({ ...db.assets.sampleAsset, assetId });
 });
 
 // GET /asset/getAssetPreview/:assetId
 app.get("/getAssetPreview/:assetId", async (c) => {
   await delay(100);
   const assetId = c.req.param("assetId");
-  const asset = getAssetById(assetId);
+  const asset = db.assets.getById(assetId);
   if (asset) {
-    const widgets = asset.widgets as Record<string, { widgetContents?: string }>;
+    const widgets = asset.widgets as Record<
+      string,
+      { widgetContents?: string }
+    >;
     const fileObjectIds = (asset as { fileObjectIds?: string[] }).fileObjectIds;
-    
+
     return c.json({
       objectId: asset.objectId,
       title: widgets.title_1?.widgetContents || "Untitled",
@@ -39,27 +39,27 @@ app.get("/getAssetPreview/:assetId", async (c) => {
     });
   }
   // Fallback to default preview
-  return c.json({ ...assetData.assetPreview, objectId: assetId });
+  return c.json({ ...db.assets.assetPreview, objectId: assetId });
 });
 
 // POST /asset/getEmbedAsJson/:fileId/:parentObjectId?
 app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
   await delay(150);
-  return c.json(fileDownloads);
+  return c.json(db.assets.fileDownloads);
 });
 
 // GET /asset/viewExcerpt/:excerptId/true/true
 app.get("/viewExcerpt/:excerptId/true/true", async (c) => {
   await delay(100);
   const excerptId = c.req.param("excerptId");
-  return c.json({ ...excerpt, id: Number(excerptId) });
+  return c.json({ ...db.assets.excerpt, id: Number(excerptId) });
 });
 
 // GET /assetManager/getTemplate/:templateId
 app.get("/getTemplate/:templateId", async (c) => {
   await delay(100);
   const templateId = c.req.param("templateId");
-  return c.json({ ...template, templateId: Number(templateId) });
+  return c.json({ ...db.templates.getById(Number(templateId)) });
 });
 
 // POST /assetManager/submission/true (create/update asset)
@@ -67,7 +67,7 @@ app.post("/submission/true", async (c) => {
   await delay(500);
   const formData = await c.req.formData();
   const parsed = parseFormData(formData) as AssetFormData;
-  
+
   // Simulate creation/update
   const objectId = parsed.objectId || `asset_${Date.now()}`;
 
@@ -86,7 +86,7 @@ app.delete("/deleteAsset/:assetId/true", async (c) => {
 // GET /assetManager/userAssets/:offset/:returnJson
 app.get("/userAssets/:offset/:returnJson", async (c) => {
   await delay(200);
-  return c.json(mockAssetSummaries);
+  return c.json(db.assets.userAssets);
 });
 
 // GET /assetManager/compareTemplates/:templateId/:newTemplateId

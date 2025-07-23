@@ -131,6 +131,9 @@ export const templates = {
   get: (templateId: Template["templateId"]): Template | undefined => {
     return templateStore.get(templateId);
   },
+  getById: (templateId: number): Template | undefined => {
+    return templateStore.get(templateId);
+  },
   getAll: (): Template[] => {
     return Array.from(templateStore.values());
   },

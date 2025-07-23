@@ -586,8 +586,8 @@ export interface ApiInstanceNavResponse {
   instanceId: number;
   instanceHasLogo: boolean;
   instanceLogo: number;
-  instanceShowCollectionInSearchResults: true;
-  instanceShowTemplateInSearchResults: true;
+  instanceShowCollectionInSearchResults: boolean;
+  instanceShowTemplateInSearchResults: boolean;
   contact: string;
   useCentralAuth: boolean;
   centralAuthLabel: string;

@@ -1,15 +1,16 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import type { FileFormData } from "../types";
-import fileMetadata from "../fixtures/file-metadata";
+import { db } from "../db/index.js";
+import type { FileFormData, MockServerContext } from "../types";
 
-const app = new Hono();
+const app = new Hono<MockServerContext>();
 
 // GET /fileManager/getMetadataForObject/:fileId
 app.get("/getMetadataForObject/:fileId", async (c) => {
   await delay(150);
   const fileId = c.req.param("fileId");
-  return c.json({ ...fileMetadata, fileId });
+  const metadata = db.files.getMetadata(fileId);
+  return c.json(metadata);
 });
 
 // GET /fileManager/getOriginal/:fileId
@@ -64,7 +65,7 @@ app.post("/previewImageAvailable", async (c) => {
   const fileIds = parsed.checkArray || [];
 
   // Mock all files as having previews available
-  const results = fileIds.map((fileId: string) => ({
+  const results = (fileIds as string[]).map((fileId: string) => ({
     fileId,
     status: Math.random() > 0.3 ? "true" : "icon",
   }));

@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { setCookie, deleteCookie } from "hono/cookie";
 import { delay } from "../utils/index";
-import loginResponse from "../fixtures/login";
-import type { MockServerContext, SessionData } from "../types.js";
+import { db } from "../db/index.js";
+import type { MockServerContext } from "../types.js";
 
 const app = new Hono<MockServerContext>();
 
@@ -15,47 +15,10 @@ app.post("/localLoginAsync", async (c) => {
 
   console.log(`Login attempt: ${username}`);
 
-  const sessions = c.get("sessions");
+  // Find user by username
+  const user = db.users.getByUsername(username);
 
-  // Simple auth logic for testing
-  if (username === "testuser" && password === "password") {
-    // Create session
-    const sessionId = crypto.randomUUID();
-    const userData = { userId: "user_1", username: "testuser" };
-    sessions.set(sessionId, userData);
-    
-    // Set session cookie
-    setCookie(c, "ci_session", sessionId, {
-      httpOnly: true,
-      secure: false, // Allow HTTP for local development
-      sameSite: "Lax",
-      path: "/",
-    });
-
-    return c.json(loginResponse);
-  } else if (username === "admin" && password === "admin") {
-    // Create admin session
-    const sessionId = crypto.randomUUID();
-    const userData = { userId: "admin_1", username: "admin", isAdmin: true };
-    sessions.set(sessionId, userData);
-    
-    // Set session cookie
-    setCookie(c, "ci_session", sessionId, {
-      httpOnly: true,
-      secure: false, // Allow HTTP for local development
-      sameSite: "Lax",
-      path: "/",
-    });
-
-    return c.json({
-      ...loginResponse,
-      user: {
-        username: "admin",
-        isAdmin: true,
-      },
-    });
-  } else {
-    // Return 401 for bad credentials
+  if (!user) {
     return c.json(
       {
         status: "error",
@@ -64,26 +27,50 @@ app.post("/localLoginAsync", async (c) => {
       401
     );
   }
+
+  // Check password
+  if (user.password !== password) {
+    return c.json(
+      {
+        status: "error",
+        message: "Invalid username or password",
+      },
+      401
+    );
+  }
+
+  // Create session for authenticated user
+  const session = db.sessions.create(user.id);
+
+  // Set session cookie
+  setCookie(c, "ci_session", session.id, {
+    httpOnly: true,
+    secure: false, // Allow HTTP for local development
+    sameSite: "Lax",
+    path: "/",
+  });
+
+  return c.json({ status: "success", message: "login successful" });
 });
 
 // POST /loginManager/logout
 app.post("/logout", async (c) => {
   await delay(200);
-  
-  const sessionId = c.get("sessionId") as string;
-  const sessions = c.get("sessions");
-  
+
+  const session = c.get("session");
+  const { sessions } = db;
+
   // Remove session from store
-  if (sessionId) {
-    sessions.delete(sessionId);
-    console.log(`Session ${sessionId} removed on logout`);
+  if (session?.id) {
+    sessions.delete(session.id);
+    console.log(`Session ${session.id} removed on logout`);
   }
-  
+
   // Clear session cookie
   deleteCookie(c, "ci_session", {
     path: "/",
   });
-  
+
   return c.json({
     status: "success",
     message: "Logged out successfully",

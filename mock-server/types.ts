@@ -35,4 +35,42 @@ export interface MockInstance {
   customFooter: string | null; // HTML string
   useVoyagerViewer: boolean;
   useCustomCSS: boolean;
+  featuredAssetId: string | null;
+  featuredAssetText: string | null;
+}
+
+export interface AssetFormData {
+  objectId?: string;
+  templateId?: number;
+  collectionId?: number;
+  [key: string]: unknown;
+}
+
+export interface DrawerFormData {
+  drawerId?: string;
+  name?: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+export interface FileFormData {
+  fileId?: string;
+  fileName?: string;
+  [key: string]: unknown;
+}
+
+export interface MockServerContext {
+  Variables: {
+    user: MockUser | null;
+    session: MockSession | null;
+    isAuthenticated: boolean;
+    db: typeof import("./db/index.js").db;
+  };
+}
+
+export interface MockPage {
+  id: number;
+  title: string;
+  content: string;
+  children?: MockPage[];
 }

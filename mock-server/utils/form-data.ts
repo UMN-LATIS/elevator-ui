@@ -1,7 +1,7 @@
 export function parseFormData(formData: FormData): Record<string, unknown> {
   const data: Record<string, unknown> = {};
 
-  for (const [key, value] of formData.entries()) {
+  for (const [key, value] of Array.from(formData.entries())) {
     // Handle JSON strings in form data
     if (typeof value === "string") {
       try {

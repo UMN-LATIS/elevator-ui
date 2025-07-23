@@ -2,8 +2,9 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import type { MockServerContext, SessionData } from "./types.js";
+import { getCookie } from "hono/cookie";
+import type { MockServerContext } from "./types.js";
+import { db } from "./db/index.js";
 
 import assetRoutes from "./routes/assets.js";
 import searchRoutes from "./routes/search.js";
@@ -15,9 +16,6 @@ import instanceRoutes from "./routes/instance.js";
 
 const app = new Hono<MockServerContext>();
 
-// In-memory session store for testing
-const sessions = new Map<string, SessionData>();
-
 // Middleware
 app.use(
   "*",
@@ -28,13 +26,28 @@ app.use(
 );
 app.use("*", logger());
 
-// Session middleware - attach session data to context
+// Auth and user middleware
 app.use("*", async (c, next) => {
   const sessionId = getCookie(c, "ci_session");
-  const sessionData = sessionId ? sessions.get(sessionId) : undefined;
-  c.set("session", sessionData || null);
-  c.set("sessionId", sessionId || undefined);
-  c.set("sessions", sessions);
+  
+  let user = null;
+  let session = null;
+  let isAuthenticated = false;
+  
+  if (sessionId) {
+    // Look up session and user from db
+    session = db.sessions.get(sessionId);
+    if (session) {
+      user = db.users.get(session.userId);
+      isAuthenticated = !!user;
+    }
+  }
+  
+  c.set("user", user || null);
+  c.set("session", session || null);
+  c.set("isAuthenticated", isAuthenticated);
+  c.set("db", db);
+  
   await next();
 });
 
