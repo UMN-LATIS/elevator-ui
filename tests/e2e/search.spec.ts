@@ -99,7 +99,10 @@ test.describe("Search Input Functionality", () => {
     await page.locator("body").click();
 
     // Press Cmd+K (Mac) or Ctrl+K (Windows/Linux)
-    const modifier = process.platform === "darwin" ? "Meta" : "Control";
+    // Use Control key for all non-Mac platforms (including Linux CI)
+    const userAgent = await page.evaluate(() => navigator.userAgent);
+    const isMac = userAgent.includes("Mac");
+    const modifier = isMac ? "Meta" : "Control";
     await page.keyboard.press(`${modifier}+KeyK`);
 
     // Search input should be focused
