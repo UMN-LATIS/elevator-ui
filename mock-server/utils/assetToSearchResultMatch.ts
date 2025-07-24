@@ -20,12 +20,12 @@ function extractDatesFromAsset(asset: Asset): DateResult[] {
           dates.push({
             start: {
               text: dateWidget.start.text || "",
-              numeric: BigInt(dateWidget.start.numeric || "0"),
+              numeric: safeBigInt(dateWidget.start.numeric),
             },
             end: dateWidget.end
               ? {
                   text: dateWidget.end.text || "",
-                  numeric: BigInt(dateWidget.end.numeric || "0"),
+                  numeric: safeBigInt(dateWidget.end.numeric),
                 }
               : undefined,
             label: dateWidget.label,
