@@ -32,14 +32,11 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter, useRoute } from "vue-router";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
 import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
-
-const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
 const router = useRouter();
@@ -62,24 +59,6 @@ async function handleSubmit() {
     params: { searchId },
   });
 }
-
-function focusInputOnCommandK(event: KeyboardEvent) {
-  if (!inputGroup.value) return;
-  if (event.metaKey && event.key === "k") {
-    event.preventDefault();
-    inputGroup.value.$el.querySelector("input")?.focus();
-  }
-}
-
-function removeFocusOnEscape(event: KeyboardEvent) {
-  if (!inputGroup.value) return;
-  if (event.key === "Escape") {
-    inputGroup.value.$el.querySelector("input")?.blur();
-  }
-}
-
-document.addEventListener("keydown", focusInputOnCommandK);
-document.addEventListener("keydown", removeFocusOnEscape);
 
 const route = useRoute();
 
