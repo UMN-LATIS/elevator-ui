@@ -3,6 +3,9 @@
     ref="buttonRef"
     class="app-menu-button p-2 rounded-full"
     tabindex="0"
+    :aria-expanded="isOpen"
+    aria-controls="app-menu-navigation"
+    aria-label="Toggle main menu"
     @click="isOpen = !isOpen">
     <MenuIcon />
   </button>

@@ -29,9 +29,9 @@ import CollectionItem from "./CollectionItem.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
+import { useInstanceStore } from "@/stores/instanceStore";
 import { useResizeObserver } from "@vueuse/core";
-import { ApiStaticPageResponse } from "@/types";
+import { ApiStaticPageResponse, ShowCustomHeaderMode } from "@/types";
 import api from "@/api";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 

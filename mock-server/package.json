@@ -1,0 +1,20 @@
+{
+  "name": "elevator-ui-mock-server",
+  "version": "1.0.0",
+  "description": "Mock API server for Elevator UI development and testing",
+  "type": "module",
+  "scripts": {
+    "serve:watch": "tsx watch server.ts",
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.17.1",
+    "hono": "^4.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

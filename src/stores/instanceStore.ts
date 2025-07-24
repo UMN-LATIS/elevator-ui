@@ -10,18 +10,13 @@ import {
   User,
   AssetCollection,
   SearchableSpecificField,
+  ShowCustomHeaderMode,
 } from "@/types";
 import {
   toCollectionIndex,
   normalizeAssetCollections,
   flattenCollections,
 } from "@/helpers/collectionHelpers";
-
-export enum ShowCustomHeaderMode {
-  NEVER = 0,
-  ALWAYS = 1,
-  HOME_PAGE_ONLY = 2,
-}
 
 const createState = () => ({
   fetchStatus: ref<FetchStatus>("idle"),
@@ -101,8 +96,8 @@ const actions = (state: ReturnType<typeof createState>) => ({
         apiResponse.collections
       );
       state.customHeaderMode.value = apiResponse.customHeaderMode;
-      state.customHeader.value = apiResponse.customHeader;
-      state.customFooter.value = apiResponse.customFooter;
+      state.customHeader.value = apiResponse.customHeader ?? null;
+      state.customFooter.value = apiResponse.customFooter ?? null;
 
       // add id to searchable field object from api response
       state.searchableFields.value = Object.entries(

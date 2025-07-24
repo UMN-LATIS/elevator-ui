@@ -34,9 +34,10 @@ import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import { computed, ref, watch } from "vue";
 import { ApiStaticPageResponse } from "@/types";
-import { useInstanceStore, ShowCustomHeaderMode } from "@/stores/instanceStore";
+import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
 import config from "@/config";
+import { ShowCustomHeaderMode } from "@/types";
 
 const instanceStore = useInstanceStore();
 

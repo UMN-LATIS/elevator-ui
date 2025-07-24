@@ -79,7 +79,7 @@ const searchStore = useSearchStore();
 
 function focusInputOnCommandK(event: KeyboardEvent) {
   if (!inputGroup.value) return;
-  if (event.metaKey && event.key === "k") {
+  if ((event.metaKey || event.ctrlKey) && event.key === "k") {
     event.preventDefault();
     inputGroup.value.$el.querySelector("input")?.focus();
   }

@@ -19,8 +19,14 @@
         type="submit"
         variant="primary"
         class="block my-4 w-full"
-        :disabled="!state.initialTemplateId || !state.initialCollectionId">
+        :disabled="
+          !state.initialTemplateId ||
+          !state.initialCollectionId ||
+          !savedTemplate
+        "
+        @click="initAsset">
         Continue
+        <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
     </form>
     <Transition v-else name="fade">
@@ -85,6 +91,7 @@ import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useConfirmation } from "./useConfirmation";
+import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -183,9 +190,12 @@ const savedTemplateId = computed(() => {
   return savedAsset.value?.templateId ?? state.initialTemplateId;
 });
 
-const { data: savedTemplate } = useTemplateQuery(savedTemplateId, {
-  enabled: () => !!savedTemplateId.value,
-});
+const { data: savedTemplate, isLoading: isTemplateLoading } = useTemplateQuery(
+  savedTemplateId,
+  {
+    enabled: () => !!savedTemplateId.value,
+  }
+);
 const {
   mutate: saveAsset,
   status: saveAssetStatus,
@@ -231,7 +241,10 @@ onMounted(() => {
 });
 
 function initAsset() {
-  if (!savedTemplate.value) return;
+  invariant(
+    savedTemplate.value,
+    "Cannot initialize asset without a loaded template"
+  );
 
   // if we have an asset, set it
   if (savedAsset.value) {
