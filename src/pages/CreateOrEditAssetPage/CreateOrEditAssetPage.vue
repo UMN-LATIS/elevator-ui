@@ -139,35 +139,11 @@ const localAssetWithoutIds = computed(() => {
   return clonedLocalAsset;
 });
 
-const isAssetFormBlank = computed(() => {
-  if (!state.localAsset) return true;
-  if (!savedTemplate.value) return true;
-
-  // check if the asset has any widget content
-  return savedTemplate.value.widgetArray.some((widgetDef) => {
-    invariant(state.localAsset);
-    const fieldTitle = widgetDef.fieldTitle;
-    const contents = state.localAsset[fieldTitle] as WidgetContent[];
-
-    // if it's a checkbox type, don't consider "unchecked"
-    if (widgetDef.type === "checkbox") {
-      return !contents.some((content) => content.fieldContents);
-    }
-    return !hasWidgetContent(contents, widgetDef.type);
-  });
-});
-
 const hasAssetChanged = computed(() => {
-  if (!savedAsset.value) {
-    const isFormBlank = isAssetFormBlank.value;
-    // if the form is blank, we consider it unchanged
-    console.log({ savedAsset: savedAsset.value, isFormBlank });
-    return !isFormBlank;
-  }
+  if (!savedAsset.value) return true;
 
   const rawSavedAsset = toRaw(savedAsset.value);
   const rawLocalAsset = toRaw(localAssetWithoutIds.value);
-  invariant(rawSavedAsset, "Cannot check asset changes");
   invariant(rawLocalAsset, "Cannot check asset changes");
 
   // console.log(explainObjectDifferences(rawSavedAsset, rawLocalAsset));
@@ -461,9 +437,6 @@ const {
 } = useConfirmation();
 
 onBeforeRouteLeave(async (to, from, next) => {
-  // no unsaved changes, proceed with navigation
-  if (!hasAssetChanged.value) return next();
-
   // if navigating to login/logout page, just proceed
   if (
     typeof to.name === "string" &&
@@ -471,6 +444,35 @@ onBeforeRouteLeave(async (to, from, next) => {
   ) {
     return next();
   }
+
+  // if we still haven't finished initializing, proceed
+  if (!savedTemplate.value || !state.initialCollectionId || !state.localAsset) {
+    return next();
+  }
+
+  // if this is a new asset but the form is blank, allow navigation
+  if (isCreateMode.value) {
+    const widgetsWithContent =
+      savedTemplate.value.widgetArray.filter((widgetDef) => {
+        invariant(state.localAsset, "No local asset");
+
+        // ignore checkbox widgets so that unchecked boxes are not considered content
+        if (widgetDef.type === "checkbox") return false;
+
+        const fieldTitle = widgetDef.fieldTitle;
+        const contents = state.localAsset[fieldTitle] as WidgetContent[];
+        return hasWidgetContent(contents, widgetDef.type);
+      }) ?? [];
+    const isFormBlank = widgetsWithContent.length === 0;
+
+    if (isFormBlank) {
+      return next();
+    }
+  }
+
+  // no unsaved changes, proceed with navigation
+  if (!hasAssetChanged.value) return next();
+
   // otherwise confirm
   const isConfirmed = await confirmLeave();
   return next(isConfirmed);
