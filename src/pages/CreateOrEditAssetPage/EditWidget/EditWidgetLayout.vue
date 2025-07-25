@@ -62,6 +62,12 @@
                     <button
                       type="button"
                       class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
+                      :class="{
+                        // hide the button if there is only one item
+                        // using invisible instead of hidden to keep the layout
+                        // consistent with other widgets
+                        invisible: widgetContents.length < 2,
+                      }"
                       @click="$emit('setPrimary', item.id)">
                       <StarIcon
                         class="w-4 h-4"
@@ -69,9 +75,6 @@
                           item.isPrimary
                             ? 'fill-amber-400 text-amber-400'
                             : 'text-neutral-400',
-                          {
-                            invisible: !isOpen || widgetContents.length < 2,
-                          },
                         ]" />
                       <span class="sr-only">Set as Primary</span>
                     </button>
