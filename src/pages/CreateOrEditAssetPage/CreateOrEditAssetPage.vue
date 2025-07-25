@@ -379,9 +379,16 @@ function getAssetAsSaveableFormData() {
       const fieldTitle = widgetDef.fieldTitle;
       const contents = state.localAsset[fieldTitle] as WidgetContent[];
 
+      // Remove locally assigned IDs from the contents.
+      // This ensures that IDs are not persisted on the mock backend,
+      // preventing potential conflicts or unintended behavior.
+      // It is also a good practice to apply this logic to the real backend
+      // to maintain consistency and avoid issues with ID management.
+      const contentsWithoutId = contents.map(({ id: _id, ...rest }) => rest);
+
       return {
         ...acc,
-        [fieldTitle]: contents ?? createDefaultWidgetContent(widgetDef),
+        [fieldTitle]: contentsWithoutId,
       };
     },
     {} as Record<string, WidgetContent[]>
