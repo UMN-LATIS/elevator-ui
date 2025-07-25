@@ -62,17 +62,19 @@
             </div>
           </ComboboxEmpty>
 
-          <ComboboxItem
-            v-for="option in autocompleteOptions"
-            :key="option.value"
-            :value="option.value">
-            <EditRelatedAssetPreview
-              :assetPreview="option.preview"
-              class="flex-1" />
-            <ComboboxItemIndicator>
-              <Check :class="cn('ml-auto h-4 w-4')" />
-            </ComboboxItemIndicator>
-          </ComboboxItem>
+          <div class="max-h-[33dvh] overflow-y-auto">
+            <ComboboxItem
+              v-for="option in autocompleteOptions"
+              :key="option.value"
+              :value="option.value">
+              <EditRelatedAssetPreview
+                :assetPreview="option.preview"
+                class="flex-1" />
+              <ComboboxItemIndicator>
+                <Check :class="cn('ml-auto h-4 w-4')" />
+              </ComboboxItemIndicator>
+            </ComboboxItem>
+          </div>
         </ComboboxList>
       </Combobox>
       <div v-if="modelValue.targetAssetId" class="flex flex-col gap-1">
