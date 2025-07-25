@@ -5,7 +5,22 @@ import { Asset, TextWidgetContent } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
-// GET /asset/viewAsset/:assetId/true
+// GET /assetManager/userAssets/:offset/true
+app.get("/userAssets/:offset/true", async (c) => {
+  await delay(200);
+  const user = c.get("user");
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const db = c.get("db");
+  const assetPreviews = db.assets
+    .getByUserId(user.id)
+    .slice(Number(c.req.param("offset")), Number(c.req.param("offset")) + 20);
+  return c.json(assetPreviews);
+});
+
+// GET /assetManager/viewAsset/:assetId/true
 app.get("/viewAsset/:assetId/true", async (c) => {
   await delay(200);
   const db = c.get("db");
@@ -17,7 +32,7 @@ app.get("/viewAsset/:assetId/true", async (c) => {
   return c.json(asset);
 });
 
-// GET /asset/getAssetPreview/:assetId
+// GET /assetManager/getAssetPreview/:assetId
 app.get("/getAssetPreview/:assetId", async (c) => {
   await delay(100);
   const db = c.get("db");

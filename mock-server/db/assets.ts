@@ -3,8 +3,11 @@ import { assetToSearchResultMatch } from "../utils/index";
 import { createBaseTable } from "./baseTable";
 import type { CollectionsTable } from "./collections";
 import type { TemplatesTable } from "./templates";
+import invariant from "tiny-invariant";
+import { adminUser } from "./users";
+import { MockUser } from "../types";
 
-const assetSeeds: Asset[] = [
+export const assetSeeds: Asset[] = [
   {
     title_1: [
       {
@@ -39,8 +42,8 @@ const assetSeeds: Asset[] = [
       timezone_type: 3,
       timezone: "UTC",
     },
-    modifiedBy: 1,
-    createdBy: "",
+    modifiedBy: adminUser.id,
+    createdBy: adminUser.id,
     collectionMigration: null,
     deleted: false,
     deletedBy: null,
@@ -95,8 +98,8 @@ const assetSeeds: Asset[] = [
       timezone_type: 3,
       timezone: "UTC",
     },
-    modifiedBy: 1,
-    createdBy: "",
+    modifiedBy: adminUser.id,
+    createdBy: adminUser.id,
     collectionMigration: null,
     deleted: false,
     deletedBy: null,
@@ -124,6 +127,24 @@ export function createAssetsTable({
 
   return {
     ...baseTable,
+    getByUserId: (userId: MockUser["id"]): AssetPreview[] => {
+      const assets: Asset[] =
+        baseTable.filter((asset) => asset.createdBy === userId) ?? [];
+
+      return assets
+        .map((asset) => {
+          const collection = collections.get(asset.collectionId);
+          const template = templates.get(asset.templateId);
+          invariant(collection, `Collection ${asset.collectionId} not found`);
+          invariant(template, `Template ${asset.templateId} not found`);
+          return assetToSearchResultMatch({
+            asset,
+            collection,
+            template,
+          });
+        })
+        .filter(Boolean) as AssetPreview[];
+    },
     create: (asset: Asset): Asset => {
       const newAsset = { ...asset, assetId: crypto.randomUUID() };
       baseTable.set(newAsset.assetId, newAsset);
@@ -148,9 +169,8 @@ export function createAssetsTable({
       }
       const collection = collections.get(asset.collectionId);
       const template = templates.get(asset.templateId);
-      if (!collection || !template) {
-        return null;
-      }
+      invariant(collection, `Collection ${asset.collectionId} not found`);
+      invariant(template, `Template ${asset.templateId} not found`);
       return assetToSearchResultMatch({
         asset,
         collection,

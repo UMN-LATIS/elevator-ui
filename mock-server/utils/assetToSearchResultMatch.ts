@@ -10,6 +10,20 @@ import {
   Template,
 } from "../../src/types";
 
+function safeBigInt(value: bigint | number | string | null): bigint {
+  if (typeof value === "bigint") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return BigInt(value);
+  }
+  if (typeof value === "string") {
+    return BigInt(value);
+  }
+  console.warn("Invalid value for BigInt conversion:", value);
+  return BigInt(0);
+}
+
 function extractDatesFromAsset(asset: Asset): DateResult[] {
   const dates: DateResult[] = [];
   Object.keys(asset).forEach((key) => {
