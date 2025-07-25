@@ -18,15 +18,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import { type StyleValue, useId } from "vue";
+import { useId } from "vue";
 import { cn } from "@/lib/utils";
+import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
     label: string;
     placeholder?: string;
-    labelClass?: StyleValue;
-    inputClass?: StyleValue;
+    labelClass?: CSSClass;
+    inputClass?: CSSClass;
   }>(),
   {
     placeholder: "",

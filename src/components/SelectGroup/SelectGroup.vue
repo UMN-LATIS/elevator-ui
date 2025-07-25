@@ -32,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import { cn } from "@/lib/utils";
-import { type StyleValue } from "vue";
+import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
@@ -46,8 +46,8 @@ withDefaults(
     id?: string;
     placeholder?: string;
     showLabel?: boolean;
-    labelClass?: StyleValue;
-    selectClass?: StyleValue;
+    labelClass?: CSSClass;
+    selectClass?: CSSClass;
   }>(),
   {
     id: () => `select-${crypto.randomUUID()}`,

@@ -36,16 +36,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { StyleValue, useId } from "vue";
+import { useId } from "vue";
 import { cn } from "@/lib/utils";
+import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
     label: string;
     modelValue: string;
     placeholder?: string;
-    inputClass?: StyleValue;
-    labelClass?: StyleValue;
+    inputClass?: CSSClass;
+    labelClass?: CSSClass;
     readonly?: boolean;
   }>(),
   {
