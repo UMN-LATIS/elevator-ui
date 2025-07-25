@@ -390,7 +390,7 @@ export type AssetPreview = SearchResultMatch;
 
 export interface SearchEntry {
   collection?: string[]; // collection ids as strings
-  searchDate?: DateTime;
+  searchDate?: PHPDateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
   showHidden?: boolean | "0" | "1";
@@ -454,7 +454,7 @@ export interface SearchResultsResponse {
   sortableWidgets: SearchSortOptions;
 }
 
-export interface DateTime {
+export interface PHPDateTime {
   date: string;
   timezone_type: number;
   timezone: string;
@@ -497,7 +497,7 @@ export interface Asset {
   readyForDisplay: boolean;
   collectionId: number;
   availableAfter: PHPDateTime | null;
-  modified: DateTime;
+  modified: PHPDateTime;
   modifiedBy: number | string;
   createdBy: number | string;
   deletedBy: number | string | null;

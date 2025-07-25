@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-6 sticky top-20 p-4">
     <div
-      class="grid gap-4 order-last md:order-1 mb-16 md:mb-0"
+      class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
         'grid-cols-2': asset.assetId,
         'grid-cols-1': !asset.assetId,
@@ -17,7 +17,7 @@
         variant="primary"
         type="submit"
         class="disabled:!border-black/10 border-groove disabled:cursor-not-allowed"
-        :disabled="!canSave"
+        :disabled="!isValid || !hasUnsavedChanges || saveStatus === 'pending'"
         @click="$emit('save')">
         Save
         <SpinnerIcon
@@ -26,12 +26,26 @@
         <TriangleAlert v-else-if="saveStatus === 'error'" class="size-4" />
         <CheckCircle2Icon v-else-if="saveStatus === 'success'" class="size-4" />
       </Button>
+
+      <div class="col-start-1 -col-end-1 text-xs text-right">
+        <div
+          v-if="!isValid && missingRequiredFields.length > 0"
+          class="font-medium mb-1 text-red-600">
+          Missing required:
+          <span class="italic">
+            {{ missingRequiredFields.join(", ") }}
+          </span>
+        </div>
+        <p v-else-if="!hasUnsavedChanges" class="text-neutral-400">
+          No unsaved changes
+        </p>
+      </div>
     </div>
     <div class="flex flex-col gap-6 order-1 md:order-2">
       <SelectGroup
         :selectClass="{
           '!bg-green-600 !text-white select-picker-light':
-            asset.readyForDisplay,
+            !!asset.readyForDisplay,
           'bg-transparent border border-solid border-neutral-900':
             !asset.readyForDisplay,
         }"
@@ -145,8 +159,9 @@ import {
   fetchCollectionComparison,
   fetchTemplateComparison,
 } from "@/api/fetchers";
-import { isEmpty } from "ramda";
+import { has, isEmpty } from "ramda";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import { UseTimeAgo } from "@vueuse/components";
 
 const props = defineProps<{
   template: Template;
@@ -173,10 +188,18 @@ const state = reactive({
   isConfirmingMigrateCollection: false,
 });
 
-const canSave = computed(
-  () =>
-    props.isValid && props.hasUnsavedChanges && props.saveStatus !== "pending"
-);
+const missingRequiredFields = computed(() => {
+  if (props.isValid) return [];
+
+  return props.template.widgetArray
+    .filter((widgetDef) => widgetDef.required)
+    .filter((widgetDef) => {
+      const fieldTitle = widgetDef.fieldTitle;
+      const widgetContents = props.asset[fieldTitle] as WidgetContent[];
+      return !hasWidgetContent(widgetContents, widgetDef.type);
+    })
+    .map((widgetDef) => widgetDef.label);
+});
 
 const instanceStore = useInstanceStore();
 
