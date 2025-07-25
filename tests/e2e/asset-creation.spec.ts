@@ -89,7 +89,76 @@ test.describe("Asset Creation", () => {
       const saveButton = page.getByRole("button", { name: "Save" });
       await expect(saveButton).toBeDisabled();
 
-      // TODO: maybe show a validation button by save?
+      // Should show validation message for missing required field
+      await expect(page.getByText("Missing required:")).toBeVisible();
+
+      // Check that the validation message contains "Title"
+      const validationText = page
+        .locator("text=Missing required:")
+        .locator("..");
+      await expect(validationText).toContainText("Title");
+    });
+
+    test("shows validation message for missing required fields", async ({
+      page,
+    }) => {
+      await page.goto("/assetManager/addAsset");
+
+      // Select template and collection
+      const templateSelect = page.getByLabel("Template");
+      await templateSelect.selectOption({ index: 1 });
+
+      const collectionSelect = page.getByLabel("Collection");
+      await collectionSelect.selectOption({ index: 1 });
+
+      // Click Continue to go to the asset form
+      const continueButton = page.getByRole("button", { name: "Continue" });
+      await continueButton.click();
+
+      // Verify validation message appears for missing required fields
+      await expect(page.getByText("Missing required:")).toBeVisible();
+
+      // Should show the specific missing field name (Title)
+      const validationText = page
+        .locator("text=Missing required:")
+        .locator("..");
+      await expect(validationText).toContainText("Title");
+
+      // Save button should be disabled
+      const saveButton = page.getByRole("button", { name: "Save" });
+      await expect(saveButton).toBeDisabled();
+    });
+
+    test("validation message disappears when required fields are filled", async ({
+      page,
+    }) => {
+      await page.goto("/assetManager/addAsset");
+
+      // Select template and collection
+      const templateSelect = page.getByLabel("Template");
+      await templateSelect.selectOption({ index: 1 });
+
+      const collectionSelect = page.getByLabel("Collection");
+      await collectionSelect.selectOption({ index: 1 });
+
+      // Click Continue to go to the asset form
+      const continueButton = page.getByRole("button", { name: "Continue" });
+      await continueButton.click();
+
+      // Initially should show validation message
+      await expect(page.getByText("Missing required:")).toBeVisible();
+      const saveButton = page.getByRole("button", { name: "Save" });
+      await expect(saveButton).toBeDisabled();
+
+      // Fill in the required title field
+      const titleField = page.getByLabel(/title/i).first();
+      await titleField.fill("Test Asset Title");
+
+      // Validation message should disappear
+      await expect(page.getByText("Missing required:")).not.toBeVisible();
+
+      // Save button should be enabled
+      await expect(saveButton).toBeEnabled();
     });
   });
 

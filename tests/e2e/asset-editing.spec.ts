@@ -74,6 +74,87 @@ test.describe("Asset Editing", () => {
       // Just verify the section expands and shows some content
       await expect(menu).toBeVisible();
     });
+
+    test("shows no unsaved changes message when editing without modifications", async ({
+      page,
+    }) => {
+      const assetId = "6875871d4eb080a4880a0f44";
+      await page.goto(`/assetManager/editAsset/${assetId}`);
+
+      // Wait for asset to load
+      const titleField = page.getByLabel(/title/i).first();
+      await expect(titleField).toHaveValue("Asset 1");
+
+      // Should show "No unsaved changes" message
+      await expect(page.getByText("No unsaved changes")).toBeVisible();
+
+      // Save button should be disabled
+      const saveButton = page.getByRole("button", { name: "Save" });
+      await expect(saveButton).toBeDisabled();
+    });
+
+    test("shows validation message when required fields are cleared during editing", async ({
+      page,
+    }) => {
+      const assetId = "6875871d4eb080a4880a0f44";
+      await page.goto(`/assetManager/editAsset/${assetId}`);
+
+      // Wait for asset to load
+      const titleField = page.getByLabel(/title/i).first();
+      await expect(titleField).toHaveValue("Asset 1");
+
+      // Initially should show "No unsaved changes"
+      await expect(page.getByText("No unsaved changes")).toBeVisible();
+      const saveButton = page.getByRole("button", { name: "Save" });
+      await expect(saveButton).toBeDisabled();
+
+      // Clear the required title field
+      await titleField.clear();
+
+      // Should now show validation message
+      await expect(page.getByText("Missing required:")).toBeVisible();
+      const validationText = page
+        .locator("text=Missing required:")
+        .locator("..");
+      await expect(validationText).toContainText("Title");
+
+      // Save button should still be disabled
+      await expect(saveButton).toBeDisabled();
+
+      // "No unsaved changes" message should be hidden
+      await expect(page.getByText("No unsaved changes")).not.toBeVisible();
+    });
+
+    test("validation message disappears when required fields are filled during editing", async ({
+      page,
+    }) => {
+      const assetId = "6875871d4eb080a4880a0f44";
+      await page.goto(`/assetManager/editAsset/${assetId}`);
+
+      // Wait for asset to load
+      const titleField = page.getByLabel(/title/i).first();
+      await expect(titleField).toHaveValue("Asset 1");
+
+      // Clear the required title field to trigger validation
+      await titleField.clear();
+
+      // Should show validation message
+      await expect(page.getByText("Missing required:")).toBeVisible();
+      const saveButton = page.getByRole("button", { name: "Save" });
+      await expect(saveButton).toBeDisabled();
+
+      // Fill in the title field with new content
+      await titleField.fill("Asset 1 - Modified Title");
+
+      // Validation message should disappear
+      await expect(page.getByText("Missing required:")).not.toBeVisible();
+
+      // Save button should be enabled since we have unsaved changes and valid form
+      await expect(saveButton).toBeEnabled();
+
+      // Should not show "No unsaved changes" since we modified the field
+      await expect(page.getByText("No unsaved changes")).not.toBeVisible();
+    });
   });
 
   test.describe("Without Permissions", () => {
