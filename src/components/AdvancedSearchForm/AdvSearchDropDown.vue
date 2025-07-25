@@ -4,8 +4,7 @@
     class="rounded-md text-sm bg-transparent-black-100"
     labelClass="justify-between p-2 py-1"
     chevronClass="!w-4 !h-4"
-    alignment="left"
-  >
+    alignment="left">
     <slot />
   </DropDown>
 </template>

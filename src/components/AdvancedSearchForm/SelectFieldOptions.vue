@@ -2,8 +2,7 @@
   <select
     :value="selectedOption"
     class="rounded-md w-full border-neutral-200"
-    @change="handleSelectChange"
-  >
+    @change="handleSelectChange">
     <option v-for="opt in options" :key="opt" :value="opt">
       {{ opt === "" ? "-" : opt }}
     </option>

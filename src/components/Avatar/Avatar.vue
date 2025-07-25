@@ -1,7 +1,6 @@
 <template>
   <div
-    class="avatar inline-flex justify-center items-center rounded-full w-6 h-6 border text-xs border-neutral-900 font-sans"
-  >
+    class="avatar inline-flex justify-center items-center rounded-full w-6 h-6 border text-xs border-neutral-900 font-sans">
     {{ firstInitial }}
   </div>
 </template>

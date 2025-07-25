@@ -5,13 +5,11 @@
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="w-5 h-5"
-  >
+    class="w-5 h-5">
     <path
       stroke-linecap="round"
       stroke-linejoin="round"
-      d="M15.75 19.5L8.25 12l7.5-7.5"
-    />
+      d="M15.75 19.5L8.25 12l7.5-7.5" />
   </svg>
 </template>
 <script setup lang="ts"></script>

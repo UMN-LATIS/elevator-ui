@@ -2,8 +2,7 @@
   <div class="search-results-timeline">
     <div
       v-if="!slides.length"
-      class="flex flex-col items-center justify-center py-16 gap-4"
-    >
+      class="flex flex-col items-center justify-center py-16 gap-4">
       <h2 class="text-2xl font-medium">No Timeline Events</h2>
 
       <p>The loaded results don't have dates, so we can't make a timeline.</p>

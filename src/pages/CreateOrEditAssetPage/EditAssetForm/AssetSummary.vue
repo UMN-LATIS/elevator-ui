@@ -31,9 +31,9 @@ const props = defineProps<{
 }>();
 
 // Use a getter function so the composable reacts to prop changes
-const { previewImageUrl } = usePreviewImage(() => 
-  typeof props.asset.firstFileHandlerId === 'string' 
-    ? props.asset.firstFileHandlerId 
+const { previewImageUrl } = usePreviewImage(() =>
+  typeof props.asset.firstFileHandlerId === "string"
+    ? props.asset.firstFileHandlerId
     : null
 );
 </script>

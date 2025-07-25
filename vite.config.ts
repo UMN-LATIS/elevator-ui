@@ -22,9 +22,17 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      manifest: "manifest.json", // put in dist/manifest.json, not dist/.vite/manifest.json
+      // create one css stylesheet
+      cssCodeSplit: false,
+
+      // put in dist/manifest.json (default for vite@4),
+      // not dist/.vite/manifest.json (default for vite@5)
+      manifest: "manifest.json",
       rollupOptions: {
-        input: path.resolve(__dirname, "src/main.ts"),
+        input:
+          mode === "test"
+            ? path.resolve(__dirname, "index.html")
+            : path.resolve(__dirname, "src/main.ts"),
       },
       sourcemap: mode !== "production",
     },
@@ -33,6 +41,7 @@ export default defineConfig(({ mode }) => {
         cert: "./.cert/cert.pem",
         key: "./.cert/key.pem",
       },
+      // proxy: false,
       proxy: {
         "/assets": env.VITE_API_PROXY_TARGET,
         "/api": {

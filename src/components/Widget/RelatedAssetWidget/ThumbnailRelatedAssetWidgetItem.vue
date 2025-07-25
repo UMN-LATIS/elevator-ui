@@ -7,20 +7,17 @@
       'ring ring-offset-1 ring-blue-600 hover:border-transparent opacity-100 bg-blue-50':
         isActiveObject,
     }"
-    :to="`#${assetId}`"
-  >
+    :to="`#${assetId}`">
     <ThumbnailImage
       v-if="assetCacheItem.primaryHandler"
       :src="getTinyURL(assetCacheItem.primaryHandler)"
       :alt="title"
-      class="thumbnail-related-asset-widget__image max-w-full"
-    />
+      class="thumbnail-related-asset-widget__image max-w-full" />
     <ThumbnailGeneric v-else :isActive="isActiveObject" />
 
     <SanitizedHTML
       class="whitespace-nowrap text-xs mt-1 truncate overflow-hidden w-full text-center"
-      :html="title"
-    />
+      :html="title" />
   </RouterLink>
 </template>
 <script setup lang="ts">

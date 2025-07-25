@@ -65,7 +65,7 @@
         v-model:startTime="excerpt.startTime"
         v-model:endTime="excerpt.endTime"
         v-model:excerptName="excerpt.name"
-        v-model:is-adding-excerpt="isAddingExcerpt"
+        v-model:isAddingExcerpt="isAddingExcerpt"
         :fileObjectId="assetStore.activeFileObjectId"
         class="mt-4" />
     </div>

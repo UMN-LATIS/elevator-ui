@@ -7,19 +7,15 @@
           isOpen,
         hidden: !isOpen,
       }"
-      @click.self="$emit('close')"
-    >
+      @click.self="$emit('close')">
       <div
         class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[90vh] m-auto w-full"
-        v-bind="$attrs"
-      >
+        v-bind="$attrs">
         <XButton
           class="absolute right-4 top-4 md:top-8 md:right-8"
-          @click="$emit('close')"
-        />
+          @click="$emit('close')" />
         <header
-          class="modal-contents__header flex justify-between items-start p-4 md:p-8"
-        >
+          class="modal-contents__header flex justify-between items-start p-4 md:p-8">
           <h2 class="flex-1 font-bold text-2xl mr-12 flex items-center">
             <slot name="label">
               {{ label }}

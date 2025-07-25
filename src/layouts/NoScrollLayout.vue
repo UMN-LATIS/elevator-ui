@@ -10,11 +10,9 @@
   </div>
 </template>
 <script setup lang="ts">
-
 import AppHeader from "@/components/AppHeader/AppHeader.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 const instanceStore = useInstanceStore();
-
 </script>
 <style></style>

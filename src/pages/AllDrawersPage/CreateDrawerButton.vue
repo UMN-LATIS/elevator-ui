@@ -1,11 +1,14 @@
 <template>
-  <Button class="all-drawers-page__create-drawer-button" @click="isCreateDrawerModalOpen = true">Create Drawer</Button>
+  <Button
+    class="all-drawers-page__create-drawer-button"
+    @click="isCreateDrawerModalOpen = true">
+    Create Drawer
+  </Button>
   <Modal
     :isOpen="isCreateDrawerModalOpen"
     label="Create Drawer"
     class="max-w-lg mx-auto m-4"
-    @close="handleClose"
-  >
+    @close="handleClose">
     <form class="flex flex-col gap-6" @submit.prevent="handleCreateDrawer">
       <DrawerTitleInput v-model="newDrawerTitle" />
       <div class="flex justify-end gap-2 items-center">

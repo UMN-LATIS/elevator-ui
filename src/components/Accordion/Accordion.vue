@@ -3,17 +3,16 @@
     <button
       class="accordion__header flex items-center justify-between w-full gap-2 border-none rounded-b-none"
       :label="isOpen ? 'close' : 'open'"
-      @click="handleAccordionToggle"
-    >
+      @click="handleAccordionToggle">
       <slot name="label">
         <span
           class="flex-1 block p-4 text-left"
           :class="{
             'font-bold ': isOpen,
             'font-normal': !isOpen,
-          }"
-          >{{ convertHtmlToText(label) }}</span
-        >
+          }">
+          {{ convertHtmlToText(label) }}
+        </span>
       </slot>
       <div class="place-items-center flex p-4">
         <slot name="label-icon">
@@ -24,8 +23,7 @@
     </button>
     <div
       v-if="isOpen"
-      class="accordion__body flex flex-col gap-4 px-4 pt-2 pb-4 border-t"
-    >
+      class="accordion__body flex flex-col gap-4 px-4 pt-2 pb-4 border-t">
       <slot />
     </div>
   </div>

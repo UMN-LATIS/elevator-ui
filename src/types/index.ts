@@ -49,6 +49,7 @@ export interface AppConfig {
     };
   };
   mode: "development" | "production" | string | null;
+  isUsingMockServer?: boolean;
 }
 
 /**
@@ -494,7 +495,7 @@ export interface Asset {
   modifiedBy: number | string;
   createdBy: number | string;
   deletedBy: number | string | null;
-  relatedAssetCache: RelatedAssetCache | null;
+  relatedAssetCache: RelatedAssetCache | null | never[];
   firstFileHandlerId?: string | null;
   firstObjectId?: string | null;
   titleObject?: string | null;
@@ -579,8 +580,8 @@ export interface ApiInstanceNavResponse {
   instanceId: number;
   instanceHasLogo: boolean;
   instanceLogo: number;
-  instanceShowCollectionInSearchResults: true;
-  instanceShowTemplateInSearchResults: true;
+  instanceShowCollectionInSearchResults: boolean;
+  instanceShowTemplateInSearchResults: boolean;
   contact: string;
   useCentralAuth: boolean;
   centralAuthLabel: string;
@@ -589,13 +590,15 @@ export interface ApiInstanceNavResponse {
   templates: Record<number, string>; // { templateId: templateName }
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
-  customHeaderMode: number;
-  customHeader: string | null; // html
-  customFooter: string | null; // html
+  customHeaderMode: ShowCustomHeaderMode;
+  customHeader?: string | null; // html
+  customFooter?: string | null; // html
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
+  useCustomCSS: boolean; // whether or not to use custom CSS
 }
 
 export interface StaticContentPage {
+  id?: number;
   title: string;
   content: string | null; // raw HTML
 }
@@ -954,4 +957,15 @@ export interface FileUploadRecord {
   key: string; // s3 "key" aka path to the file in S3
   uploadStatus: "in-progress" | "completed" | "failed";
   location?: string; // S3 URL of the uploaded file
+}
+
+export interface CollectionDescription {
+  collectionDescription: string;
+  collectionTitle: string;
+}
+
+export enum ShowCustomHeaderMode {
+  NEVER = 0,
+  ALWAYS = 1,
+  HOME_PAGE_ONLY = 2,
 }

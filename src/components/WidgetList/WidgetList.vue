@@ -5,8 +5,7 @@
         v-for="widget in widgets"
         :key="widget.widgetId"
         :widget="widget"
-        :asset="asset"
-      />
+        :asset="asset" />
     </div>
   </Transition>
 </template>

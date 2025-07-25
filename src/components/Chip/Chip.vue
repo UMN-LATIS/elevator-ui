@@ -6,8 +6,7 @@
     :class="{
       'chip--is-clickable border border-blue-700  bg-blue-100 text-blue-700 cursor-pointer hover:bg-blue-700 hover:text-white transition-colors ease-in-out':
         href,
-    }"
-  >
+    }">
     <slot />
   </component>
 </template>

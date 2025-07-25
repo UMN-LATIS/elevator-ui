@@ -5,8 +5,7 @@
     enterToClass="opacity-100"
     leaveActiveClass="ease-inout duration-300"
     leaveFromClass="opacity-100"
-    leaveToClass="opacity-0"
-  >
+    leaveToClass="opacity-0">
     <slot />
   </Transition>
 </template>

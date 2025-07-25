@@ -1,5 +1,5 @@
 <template>
-  <div class="app-menu h-full">
+  <nav id="app-menu-navigation" class="app-menu h-full">
     <AppMenuPure
       :instance="instanceStore.instance"
       :currentUser="instanceStore.currentUser"
@@ -30,7 +30,7 @@
       </template>
       <HelpNavSection :instance="instance" />
     </AppMenuPure>
-  </div>
+  </nav>
 </template>
 <script setup lang="ts">
 import { watch } from "vue";

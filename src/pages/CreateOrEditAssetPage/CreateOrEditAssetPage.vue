@@ -19,8 +19,14 @@
         type="submit"
         variant="primary"
         class="block my-4 w-full"
-        :disabled="!state.initialTemplateId || !state.initialCollectionId">
+        :disabled="
+          !state.initialTemplateId ||
+          !state.initialCollectionId ||
+          !savedTemplate
+        "
+        @click="initAsset">
         Continue
+        <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
     </form>
     <Transition v-else :name="state.hasInitialized ? '' : 'fade'">
@@ -85,6 +91,7 @@ import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useConfirmation } from "./useConfirmation";
+import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -184,9 +191,12 @@ const savedTemplateId = computed(() => {
   return savedAsset.value?.templateId ?? state.initialTemplateId;
 });
 
-const { data: savedTemplate } = useTemplateQuery(savedTemplateId, {
-  enabled: () => !!savedTemplateId.value,
-});
+const { data: savedTemplate, isLoading: isTemplateLoading } = useTemplateQuery(
+  savedTemplateId,
+  {
+    enabled: () => !!savedTemplateId.value,
+  }
+);
 const {
   mutate: saveAsset,
   status: saveAssetStatus,
@@ -232,7 +242,10 @@ onMounted(() => {
 });
 
 function initAsset() {
-  if (!savedTemplate.value) return;
+  invariant(
+    savedTemplate.value,
+    "Cannot initialize asset without a loaded template"
+  );
 
   // if we have an asset, set it
   if (savedAsset.value) {
@@ -460,10 +473,7 @@ const {
   onCancel: onCancelLeave,
 } = useConfirmation();
 
-onBeforeRouteLeave(async (to, _from, next) => {
-  // no unsaved changes, proceed with navigation
-  if (!hasAssetChanged.value) return next();
-
+onBeforeRouteLeave(async (to, from, next) => {
   // if navigating to login/logout page, just proceed
   if (
     typeof to.name === "string" &&
@@ -471,6 +481,35 @@ onBeforeRouteLeave(async (to, _from, next) => {
   ) {
     return next();
   }
+
+  // if we still haven't finished initializing, proceed
+  if (!savedTemplate.value || !state.initialCollectionId || !state.localAsset) {
+    return next();
+  }
+
+  // if this is a new asset but the form is blank, allow navigation
+  if (isCreateMode.value) {
+    const widgetsWithContent =
+      savedTemplate.value.widgetArray.filter((widgetDef) => {
+        invariant(state.localAsset, "No local asset");
+
+        // ignore checkbox widgets so that unchecked boxes are not considered content
+        if (widgetDef.type === "checkbox") return false;
+
+        const fieldTitle = widgetDef.fieldTitle;
+        const contents = state.localAsset[fieldTitle] as WidgetContent[];
+        return hasWidgetContent(contents, widgetDef.type);
+      }) ?? [];
+    const isFormBlank = widgetsWithContent.length === 0;
+
+    if (isFormBlank) {
+      return next();
+    }
+  }
+
+  // no unsaved changes, proceed with navigation
+  if (!hasAssetChanged.value) return next();
+
   // otherwise confirm
   const isConfirmed = await confirmLeave();
   return next(isConfirmed);

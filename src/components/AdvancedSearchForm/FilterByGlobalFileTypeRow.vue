@@ -2,13 +2,11 @@
   <BaseFilterRow
     label="File Type"
     :rowIndex="rowIndex"
-    @remove="searchStore.removeFileTypeFilter"
-  >
+    @remove="searchStore.removeFileTypeFilter">
     <select
       v-if="searchStore.filterBy.globalFileType"
       v-model="searchStore.filterBy.globalFileType.fileType"
-      class="rounded-md w-full text-sm"
-    >
+      class="rounded-md w-full text-sm">
       <option value="">All</option>
       <option v-for="opt in sortedOptions" :key="opt.label" :value="opt.value">
         {{ opt.label }}

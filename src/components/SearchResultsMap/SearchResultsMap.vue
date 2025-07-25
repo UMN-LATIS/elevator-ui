@@ -2,15 +2,13 @@
   <div class="search-results-map mb-16">
     <div
       v-if="!markers.length"
-      class="flex flex-col items-center justify-center py-16 gap-4"
-    >
+      class="flex flex-col items-center justify-center py-16 gap-4">
       <h2 class="text-2xl font-medium">No Locations</h2>
 
       <p>The loaded results don't have locations, so we can't make a map.</p>
       <Button
         v-if="matches.length < (totalResults ?? Infinity)"
-        @click="$emit('loadMore')"
-      >
+        @click="$emit('loadMore')">
         Load More
         <SpinnerIcon v-if="status === 'fetching'" class="w-4 h-4 ml-2" />
       </Button>
@@ -22,23 +20,20 @@
       :apiKey="config.arcgis.apiKey"
       :bounds="boundingBox"
       :center="center"
-      mapContainerClass="!h-[50vh]"
-    >
+      mapContainerClass="!h-[50vh]">
       <MapMarker
         v-for="marker in markers"
         :id="marker.id"
         :key="marker.id"
         :lng="marker.lng"
-        :lat="marker.lat"
-      >
+        :lat="marker.lat">
         <MapPopup>
           <Link :to="marker.assetUrl">
             <LazyLoadImage
               v-if="marker.imgSrc"
               :src="marker.imgSrc"
               :alt="marker.title"
-              class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden border"
-            />
+              class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden border" />
           </Link>
           <h1 class="my-2">
             <Link :to="marker.assetUrl">
@@ -48,13 +43,11 @@
 
           <dl
             v-if="marker.entries"
-            class="inline-flex items-baseline flex-wrap m-0"
-          >
+            class="inline-flex items-baseline flex-wrap m-0">
             <div
               v-for="(entry, index) in marker.entries"
               :key="index"
-              class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400 group-hover:text-blue-700 group-focus:text-blue-700"
-            >
+              class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400 group-hover:text-blue-700 group-focus:text-blue-700">
               <dt class="text-xs uppercase">
                 {{ entry?.label || "Item" }}
               </dt>

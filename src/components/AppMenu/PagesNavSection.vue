@@ -11,8 +11,7 @@
         v-for="subItem in item.children"
         :key="subItem.name"
         :to="subItem.href ?? '#'"
-        :isCurrentPage="subItem.isCurrentPage"
-      >
+        :isCurrentPage="subItem.isCurrentPage">
         {{ subItem.name }}
       </AppMenuItem>
     </AppMenuGroup>

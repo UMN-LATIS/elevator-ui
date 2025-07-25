@@ -1,9 +1,9 @@
 <template>
   <InputGroup
-    class="search-bar__search-text-input-group"
     id="search"
     ref="inputGroup"
     v-model="searchStore.query"
+    class="search-bar__search-text-input-group"
     label="Search"
     inputmode="search"
     :labelHidden="true"
@@ -79,7 +79,7 @@ const searchStore = useSearchStore();
 
 function focusInputOnCommandK(event: KeyboardEvent) {
   if (!inputGroup.value) return;
-  if (event.metaKey && event.key === "k") {
+  if ((event.metaKey || event.ctrlKey) && event.key === "k") {
     event.preventDefault();
     inputGroup.value.$el.querySelector("input")?.focus();
   }

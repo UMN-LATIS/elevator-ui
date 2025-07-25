@@ -1,0 +1,54 @@
+name: E2E Tests
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run unit tests
+        run: yarn test
+
+      - name: Install mock server dependencies
+        run: cd mock-server && yarn install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start mock server with frontend
+        run: |
+          yarn mock:serve:test &
+          # Wait for server to be ready
+          timeout 30 bash -c 'until curl http://localhost:3001/health > /dev/null 2>&1; do sleep 1; done'
+        env:
+          NODE_ENV: test
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3001
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
