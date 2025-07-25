@@ -66,7 +66,7 @@
                         // hide the button if there is only one item
                         // using invisible instead of hidden to keep the layout
                         // consistent with other widgets
-                        invisible: widgetContents.length < 2,
+                        invisible: !isOpen || widgetContents.length < 2,
                       }"
                       @click="$emit('setPrimary', item.id)">
                       <StarIcon
