@@ -455,9 +455,9 @@ export interface SearchResultsResponse {
 }
 
 export interface PHPDateTime {
-  date: string;
-  timezone_type: number;
-  timezone: string;
+  date: string; // `2025-04-22 00:00:00.000000`
+  timezone: string; // 'UTC'
+  timezone_type: number; // 3 usually
 }
 
 export interface RelatedAssetCacheItem {
@@ -484,12 +484,6 @@ export type RelatedAssetCache = Record<
   string,
   RelatedAssetCacheItem | null | undefined
 >;
-
-export interface PHPDateTime {
-  date: string; // `2025-04-22 00:00:00.000000`
-  timezone: string; // 'UTC'
-  timezone_type: number; // 3 usually
-}
 
 export interface Asset {
   assetId: string;

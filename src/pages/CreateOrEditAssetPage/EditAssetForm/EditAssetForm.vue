@@ -19,7 +19,11 @@
           :widgetDef="widgetDef"
           :widgetContents="widgetContents"
           :assetId="asset.assetId"
-          :collectionId="typeof asset.collectionId === 'string' ? Number.parseInt(asset.collectionId) : asset.collectionId as number"
+          :collectionId="
+            typeof asset.collectionId === 'string'
+              ? Number.parseInt(asset.collectionId)
+              : asset.collectionId as number
+          "
           :isOpen="openWidgets.has(widgetDef.widgetId)"
           @save="$emit('save')"
           @update:isOpen="

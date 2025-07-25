@@ -29,7 +29,7 @@
         <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
     </form>
-    <Transition v-else name="fade">
+    <Transition v-else :name="state.hasInitialized ? '' : 'fade'">
       <EditAssetForm
         v-if="state.localAsset && savedTemplate"
         :template="savedTemplate"
@@ -108,6 +108,7 @@ const state = reactive({
   localAsset: null as Asset | UnsavedAsset | null,
   initialTemplateId: "",
   initialCollectionId: "",
+  hasInitialized: false,
 });
 
 const { data: savedAsset } = useAssetQuery(() => props.assetId, {
@@ -312,13 +313,48 @@ function initAsset() {
   });
 
   state.localAsset = initialAsset;
+  state.hasInitialized = true;
 }
 
 watch(
   [savedAsset, savedTemplate],
-  () => {
+  (newValues, oldValues) => {
     if (!savedAsset.value || !savedTemplate.value) return;
-    initAsset();
+
+    // Always initialize if we haven't yet or don't have a local asset
+    if (!state.hasInitialized || !state.localAsset) {
+      initAsset();
+      return;
+    }
+
+    // Allow update if the asset ID has changed (create -> edit transition)
+    const [newSavedAsset] = newValues;
+    const [oldSavedAsset] = oldValues || [null];
+
+    if (newSavedAsset?.assetId !== oldSavedAsset?.assetId) {
+      initAsset();
+      return;
+    }
+
+    // For existing assets, only update if there are meaningful server-side changes
+    // (but skip if we're just refetching the same data that would cause rerenders)
+    if (
+      newSavedAsset?.assetId &&
+      oldSavedAsset?.assetId === newSavedAsset.assetId
+    ) {
+      // Check if server returned updated timestamps or other server-managed fields
+      if (
+        newSavedAsset.modified &&
+        newSavedAsset.modified.date !==
+          (state.localAsset?.modified as PHPDateTime)?.date
+      ) {
+        // Update only the server-managed fields, don't reinitialize everything
+        if (state.localAsset) {
+          state.localAsset.modified = newSavedAsset.modified;
+          state.localAsset.modifiedBy = newSavedAsset.modifiedBy;
+        }
+      }
+    }
   },
   { immediate: true }
 );
@@ -485,7 +521,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   return next(isConfirmed);
 });
 
-onBeforeRouteUpdate(async (to, from, next) => {
+onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {
     // if not navigating to create asset, just proceed
     return next();
@@ -503,6 +539,7 @@ onBeforeRouteUpdate(async (to, from, next) => {
   state.localAsset = null;
   state.initialTemplateId = defaultTemplateId.value;
   state.initialCollectionId = defaultCollectionId.value;
+  state.hasInitialized = false;
   resetSaveAssetStatus();
 
   next();
