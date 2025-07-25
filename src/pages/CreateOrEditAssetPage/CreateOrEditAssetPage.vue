@@ -139,11 +139,35 @@ const localAssetWithoutIds = computed(() => {
   return clonedLocalAsset;
 });
 
+const isAssetFormBlank = computed(() => {
+  if (!state.localAsset) return true;
+  if (!savedTemplate.value) return true;
+
+  // check if the asset has any widget content
+  return savedTemplate.value.widgetArray.some((widgetDef) => {
+    invariant(state.localAsset);
+    const fieldTitle = widgetDef.fieldTitle;
+    const contents = state.localAsset[fieldTitle] as WidgetContent[];
+
+    // if it's a checkbox type, don't consider "unchecked"
+    if (widgetDef.type === "checkbox") {
+      return !contents.some((content) => content.fieldContents);
+    }
+    return !hasWidgetContent(contents, widgetDef.type);
+  });
+});
+
 const hasAssetChanged = computed(() => {
-  if (!savedAsset.value) return true;
+  if (!savedAsset.value) {
+    const isFormBlank = isAssetFormBlank.value;
+    // if the form is blank, we consider it unchanged
+    console.log({ savedAsset: savedAsset.value, isFormBlank });
+    return !isFormBlank;
+  }
 
   const rawSavedAsset = toRaw(savedAsset.value);
   const rawLocalAsset = toRaw(localAssetWithoutIds.value);
+  invariant(rawSavedAsset, "Cannot check asset changes");
   invariant(rawLocalAsset, "Cannot check asset changes");
 
   // console.log(explainObjectDifferences(rawSavedAsset, rawLocalAsset));
