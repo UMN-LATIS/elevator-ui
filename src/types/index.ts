@@ -390,7 +390,7 @@ export type AssetPreview = SearchResultMatch;
 
 export interface SearchEntry {
   collection?: string[]; // collection ids as strings
-  searchDate?: DateTime;
+  searchDate?: PHPDateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
   showHidden?: boolean | "0" | "1";
@@ -454,10 +454,10 @@ export interface SearchResultsResponse {
   sortableWidgets: SearchSortOptions;
 }
 
-export interface DateTime {
-  date: string;
-  timezone_type: number;
-  timezone: string;
+export interface PHPDateTime {
+  date: string; // `2025-04-22 00:00:00.000000`
+  timezone: string; // 'UTC'
+  timezone_type: number; // 3 usually
 }
 
 export interface RelatedAssetCacheItem {
@@ -485,19 +485,13 @@ export type RelatedAssetCache = Record<
   RelatedAssetCacheItem | null | undefined
 >;
 
-export interface PHPDateTime {
-  date: string; // `2025-04-22 00:00:00.000000`
-  timezone: string; // 'UTC'
-  timezone_type: number; // 3 usually
-}
-
 export interface Asset {
   assetId: string;
   templateId: number;
   readyForDisplay: boolean;
   collectionId: number;
   availableAfter: PHPDateTime | null;
-  modified: DateTime;
+  modified: PHPDateTime;
   modifiedBy: number | string;
   createdBy: number | string;
   deletedBy: number | string | null;
