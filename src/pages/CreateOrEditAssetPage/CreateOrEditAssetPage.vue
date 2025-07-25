@@ -352,7 +352,6 @@ watch(
         if (state.localAsset) {
           state.localAsset.modified = newSavedAsset.modified;
           state.localAsset.modifiedBy = newSavedAsset.modifiedBy;
-          // Add any other server-managed fields here
         }
       }
     }
