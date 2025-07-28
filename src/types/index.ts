@@ -969,3 +969,8 @@ export enum ShowCustomHeaderMode {
   ALWAYS = 1,
   HOME_PAGE_ONLY = 2,
 }
+
+export interface ApiAssetSubmissionResponse {
+  objectId: string;
+  success?: boolean;
+}

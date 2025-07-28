@@ -15,7 +15,7 @@
           {{ asset.assetId ? "Edit Asset" : "Create Asset" }}
         </h1>
         <h2 class="text-xl md:text-2xl font-bold">
-          {{ asset.title?.[0] || asset.assetId || "New Asset" }}
+          {{ asset.assetId ? savedAssetTitle ?? localAssetTitle : "New Asset" }}
         </h2>
       </header>
     </div>
@@ -28,6 +28,8 @@ import { usePreviewImage } from "@/helpers/usePreviewImage";
 const props = defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
   template: Types.Template;
+  savedAssetTitle: string;
+  localAssetTitle: string;
 }>();
 
 // Use a getter function so the composable reacts to prop changes

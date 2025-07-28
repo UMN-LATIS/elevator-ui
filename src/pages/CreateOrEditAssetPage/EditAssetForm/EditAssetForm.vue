@@ -2,7 +2,12 @@
   <div
     class="md:grid md:grid-cols-[minmax(0,1fr),minmax(auto,20rem)] relative min-h-screen">
     <section class="p-4 max-w-screen-xl w-full mx-auto">
-      <AssetSummary :asset="asset" :template="template" class="mb-4" />
+      <AssetSummary
+        :asset="asset"
+        :template="template"
+        :savedAssetTitle="savedAssetTitle"
+        :localAssetTitle="localAssetTitle"
+        class="mb-4" />
       <div class="flex flex-col">
         <div
           class="flex items-center justify-start gap-2 border-b border-neutral-300 pb-2">
@@ -71,6 +76,8 @@ import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
 const props = defineProps<{
   template: Template;
   asset: Asset | UnsavedAsset;
+  savedAssetTitle: string;
+  localAssetTitle: string;
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   isValid: boolean;

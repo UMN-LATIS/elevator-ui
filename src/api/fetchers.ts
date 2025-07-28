@@ -36,6 +36,7 @@ import {
   TemplateComparison,
   type GetFileContainerApiResponse,
   CollectionDescription,
+  ApiAssetSubmissionResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -576,10 +577,10 @@ export async function createAsset(assetFormData: CreateAssetRequestFormData) {
   const formdata = new FormData();
   formdata.append("formData", JSON.stringify(assetFormData));
 
-  const res = await axios.post<{
-    objectId: string;
-    success?: boolean;
-  }>(`${BASE_URL}/assetManager/submission/true`, formdata);
+  const res = await axios.post<ApiAssetSubmissionResponse>(
+    `${BASE_URL}/assetManager/submission/true`,
+    formdata
+  );
 
   return res.data;
 }
@@ -589,10 +590,10 @@ export async function updateAsset(assetFormData: UpdateAssetRequestFormData) {
   const formdata = new FormData();
   formdata.append("formData", JSON.stringify(assetFormData));
 
-  const res = await axios.post<{
-    objectId: string;
-    success?: boolean;
-  }>(`${BASE_URL}/assetManager/submission/true`, formdata);
+  const res = await axios.post<ApiAssetSubmissionResponse>(
+    `${BASE_URL}/assetManager/submission/true`,
+    formdata
+  );
 
   return res.data;
 }

@@ -1,16 +1,16 @@
 <template>
   <DefaultLayout>
     <form
-      v-if="!assetId && !state.localAsset"
+      v-if="!assetId && !localAsset"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
       @submit.prevent="initAsset">
       <SelectGroup
-        v-model="state.initialTemplateId"
+        v-model="initialTemplateId"
         :options="templateOptions"
         label="Template"
         required />
       <SelectGroup
-        v-model="state.initialCollectionId"
+        v-model="initialCollectionId"
         :options="collectionOptions"
         label="Collection"
         required />
@@ -19,33 +19,30 @@
         type="submit"
         variant="primary"
         class="block my-4 w-full"
-        :disabled="
-          !state.initialTemplateId ||
-          !state.initialCollectionId ||
-          !savedTemplate
-        "
+        :disabled="!initialTemplateId || !initialCollectionId || !savedTemplate"
         @click="initAsset">
         Continue
         <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
     </form>
-    <Transition v-else :name="state.hasInitialized ? '' : 'fade'">
+    <div v-else-if="isLoading" class="flex justify-center items-center py-12">
+      <SpinnerIcon class="w-8 h-8 animate-spin" />
+      <span class="ml-2">Loading...</span>
+    </div>
+    <Transition v-else-if="localAsset && savedTemplate" name="fade">
       <EditAssetForm
-        v-if="state.localAsset && savedTemplate"
         :template="savedTemplate"
-        :asset="state.localAsset"
+        :asset="localAsset"
+        :savedAssetTitle="savedAssetTitle"
+        :localAssetTitle="localAssetTitle"
         :saveStatus="saveAssetStatus"
         :hasUnsavedChanges="hasAssetChanged"
         :isValid="isFormValid"
         class="flex-1"
         @update:templateId="handleConfirmedTemplateIdUpdate($event)"
-        @migrateCollection="handleMigrateCollection($event)"
-        @save="handleSaveAsset"
-        @update:asset="
-          (updatedAsset) => {
-            state.localAsset = updatedAsset;
-          }
-        " />
+        @migrateCollection="handleMigrateCollectionWithNavigation($event)"
+        @save="handleSaveAssetWithNavigation"
+        @update:asset="updateLocalAsset($event)" />
     </Transition>
     <ConfirmModal
       v-if="isConfirmLeaveModalOpen"
@@ -61,24 +58,14 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, watch, toRaw, reactive, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { useAssetQuery } from "@/queries/useAssetQuery";
-import { useTemplateQuery } from "@/queries/useTemplateQuery";
-import { useInstanceStore } from "@/stores/instanceStore";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
-import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import {
-  Asset,
-  UpdateAssetRequestFormData,
-  WidgetContent,
-  UnsavedAsset,
-  PHPDateTime,
+  ApiAssetSubmissionResponse,
   RelatedAssetSaveMessage,
+  WidgetContent,
 } from "@/types";
-import invariant from "tiny-invariant";
-import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { equals } from "ramda";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import {
@@ -92,6 +79,7 @@ import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useConfirmation } from "./useConfirmation";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
+import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 
 const props = withDefaults(
   defineProps<{
@@ -104,371 +92,82 @@ const props = withDefaults(
   }
 );
 
-const state = reactive({
-  localAsset: null as Asset | UnsavedAsset | null,
-  initialTemplateId: "",
-  initialCollectionId: "",
-  hasInitialized: false,
-});
+// Use the asset editor composable
+const assetEditor = useAssetEditor(() => props.assetId);
 
-const { data: savedAsset } = useAssetQuery(() => props.assetId, {
-  enabled: () => !!props.assetId,
-});
-
-const isCreateMode = computed(() => {
-  return !props.assetId;
-});
-
-const localAssetWithoutIds = computed(() => {
-  if (!savedTemplate.value || !state.localAsset) return null;
-  if (!state.localAsset) return null;
-
-  const clonedLocalAsset = JSON.parse(
-    JSON.stringify(state.localAsset)
-  ) as Asset;
-
-  invariant(clonedLocalAsset, "Cannot clone local asset");
-
-  for (const widgetDef of savedTemplate.value.widgetArray) {
-    const fieldTitle = widgetDef.fieldTitle;
-    const contents = clonedLocalAsset[fieldTitle] as WidgetContent[];
-    if (!contents) continue;
-    for (const content of contents) {
-      delete content.id;
-    }
-  }
-  return clonedLocalAsset;
-});
-
-const hasAssetChanged = computed(() => {
-  if (!savedAsset.value) return true;
-
-  const rawSavedAsset = toRaw(savedAsset.value);
-  const rawLocalAsset = toRaw(localAssetWithoutIds.value);
-  invariant(rawLocalAsset, "Cannot check asset changes");
-
-  // console.log(explainObjectDifferences(rawSavedAsset, rawLocalAsset));
-
-  // saved asset only has props for widgets that are not empty
-  // so to check if an asset has changed, first check that every prop in the
-  // save asset matches the local asset
-  const someSavedContentDiffers = Object.entries(rawSavedAsset).some(
-    ([key, savedValue]) => {
-      const localValue = rawLocalAsset[key];
-      return !equals(savedValue, localValue);
-    }
-  );
-
-  // also we need to handle the case where the local asset has fields that
-  // aren't yet in the saved asset
-  const hasNewLocalPropWithContent = Object.entries(rawLocalAsset)
-    // only check props that are not in the saved asset
-    .filter(([key]) => !(key in rawSavedAsset))
-    // if the prop has some content, the asset has changed
-    .some(([, localValue]) =>
-      hasWidgetContent(localValue as WidgetContent[], "any")
-    );
-
-  return someSavedContentDiffers || hasNewLocalPropWithContent;
-});
-
-const isFormValid = computed(() => {
-  if (!savedTemplate.value || !state.localAsset) return false;
-
-  const requiredWidgetDefs = savedTemplate.value.widgetArray.filter(
-    (widgetDef) => widgetDef.required
-  );
-
-  return requiredWidgetDefs.every((widgetDef) => {
-    invariant(state.localAsset);
-    const fieldTitle = widgetDef.fieldTitle;
-    const contents = state.localAsset[fieldTitle] as WidgetContent[];
-    return hasWidgetContent(contents, widgetDef.type);
-  });
-});
-
-const savedTemplateId = computed(() => {
-  return savedAsset.value?.templateId ?? state.initialTemplateId;
-});
-
-const { data: savedTemplate, isLoading: isTemplateLoading } = useTemplateQuery(
-  savedTemplateId,
-  {
-    enabled: () => !!savedTemplateId.value,
-  }
-);
 const {
-  mutate: saveAsset,
-  status: saveAssetStatus,
-  reset: resetSaveAssetStatus,
-} = useUpdateAssetMutation();
-
-const instanceStore = useInstanceStore();
-const templateOptions = computed(() => {
-  const templates = instanceStore.instance.templates ?? [];
-  return templates.map((template) => ({
-    label: template.name,
-    id: template.id.toString(),
-  }));
-});
-
-const defaultTemplateId = computed(() => {
-  // if there's only one option, select it
-  return templateOptions.value.length === 1 ? templateOptions.value[0].id : "";
-});
-
-const collectionOptions = computed(() => {
-  const collections = instanceStore.collections ?? [];
-  return collections.map((collection) => ({
-    label: collection.title,
-    id: collection.id.toString(),
-  }));
-});
-
-const defaultCollectionId = computed(() => {
-  // if there's only one option, select it
-  return collectionOptions.value.length === 1
-    ? collectionOptions.value[0].id
-    : "";
-});
+  localAsset,
+  template: savedTemplate,
+  selectedTemplateId: initialTemplateId,
+  selectedCollectionId: initialCollectionId,
+  isCreateMode,
+  hasAssetChanged,
+  isFormValid,
+  isLoading,
+  isTemplateLoading,
+  saveAssetStatus,
+  templateOptions,
+  collectionOptions,
+  defaultTemplateId,
+  defaultCollectionId,
+  savedAssetTitle,
+  initAsset,
+  handleSaveAsset,
+  handleConfirmedTemplateIdUpdate,
+  handleMigrateCollection,
+  setInitialValues,
+  resetEditor,
+  updateLocalAsset,
+} = assetEditor;
 
 onMounted(() => {
-  if (!state.initialTemplateId) {
-    state.initialTemplateId = defaultTemplateId.value;
-  }
-  if (!state.initialCollectionId) {
-    state.initialCollectionId = defaultCollectionId.value;
-  }
+  setInitialValues(defaultTemplateId.value, defaultCollectionId.value);
 });
 
-function initAsset() {
-  invariant(
-    savedTemplate.value,
-    "Cannot initialize asset without a loaded template"
-  );
-
-  // if we have an asset, set it
-  if (savedAsset.value) {
-    // use `toRaw` so that we don't have a proxy object
-    // and we can use `structuredClone` to deep clone the asset
-    state.localAsset = structuredClone(toRaw(savedAsset.value));
-
-    // loop thru saved asset
-    for (const widgetDef of savedTemplate.value.widgetArray) {
-      // if the asset doesn't have the field, create it
-      if (!state.localAsset[widgetDef.fieldTitle]) {
-        // if this is an upload widget, default to an empty array
-        // otherwise, create a default widget content
-        state.localAsset[widgetDef.fieldTitle] =
-          widgetDef.type === "upload"
-            ? []
-            : [createDefaultWidgetContent(widgetDef)];
-      }
-
-      const widgetContents = state.localAsset[
-        widgetDef.fieldTitle
-      ] as WidgetContent[];
-
-      // add a unique id to each widget content for better reactivity
-      for (const widgetContent of widgetContents) {
-        widgetContent.id ??= crypto.randomUUID();
-      }
-    }
-    return;
-  }
-
-  const firstCollection = instanceStore.collections[0];
-
-  invariant(firstCollection, "Cannot initialize asset without a collection");
-
-  // create the asset
-  const initialAsset: Asset | UnsavedAsset = {
-    assetId: null,
-    templateId: savedTemplate.value.templateId,
-    readyForDisplay: true,
-    collectionId:
-      Number.parseInt(state.initialCollectionId) ?? firstCollection.id,
-    availableAfter: null,
-    modified: {
-      date: new Date().toISOString(),
-      timezone_type: 3,
-      timezone: "UTC",
-    },
-    modifiedBy: 0,
-    createdBy: 0,
-    deletedBy: null,
-    relatedAssetCache: null,
-    firstFileHandlerId: null,
-    firstObjectId: null,
-    titleObject: null,
-    title: [""],
-  };
-
-  // add fields for each widget in the template
-  savedTemplate.value.widgetArray.forEach((widgetDef) => {
-    initialAsset[widgetDef.fieldTitle] =
-      widgetDef.type === "upload"
-        ? [] // don't add any upload item by default. we'll do that once we have an upload.
-        : [createDefaultWidgetContent(widgetDef)];
-  });
-
-  state.localAsset = initialAsset;
-  state.hasInitialized = true;
-}
-
-watch(
-  [savedAsset, savedTemplate],
-  (newValues, oldValues) => {
-    if (!savedAsset.value || !savedTemplate.value) return;
-
-    // Always initialize if we haven't yet or don't have a local asset
-    if (!state.hasInitialized || !state.localAsset) {
-      initAsset();
-      return;
-    }
-
-    // Allow update if the asset ID has changed (create -> edit transition)
-    const [newSavedAsset] = newValues;
-    const [oldSavedAsset] = oldValues || [null];
-
-    if (newSavedAsset?.assetId !== oldSavedAsset?.assetId) {
-      initAsset();
-      return;
-    }
-
-    // For existing assets, only update if there are meaningful server-side changes
-    // (but skip if we're just refetching the same data that would cause rerenders)
-    if (
-      newSavedAsset?.assetId &&
-      oldSavedAsset?.assetId === newSavedAsset.assetId
-    ) {
-      // Check if server returned updated timestamps or other server-managed fields
-      if (
-        newSavedAsset.modified &&
-        newSavedAsset.modified.date !==
-          (state.localAsset?.modified as PHPDateTime)?.date
-      ) {
-        // Update only the server-managed fields, don't reinitialize everything
-        if (state.localAsset) {
-          state.localAsset.modified = newSavedAsset.modified;
-          state.localAsset.modifiedBy = newSavedAsset.modifiedBy;
-        }
-      }
-    }
-  },
-  { immediate: true }
-);
-
-async function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
-  invariant(state.localAsset, "Cannot change template: no asset.");
-
-  state.localAsset.templateId = newTemplateId;
-  handleSaveAsset();
-}
 const route = useRoute();
 const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
-function getAssetAsSaveableFormData() {
-  invariant(state.localAsset, "Cannot save: no asset.");
-  invariant(savedTemplate.value, "Cannot save: no template.");
+function handleSaveAssetWithNavigation() {
+  handleSaveAsset((data: ApiAssetSubmissionResponse) => {
+    if (!isCreateMode.value) {
+      return;
+    }
 
-  const widgetContents = savedTemplate.value.widgetArray.reduce(
-    (acc, widgetDef) => {
-      invariant(state.localAsset);
-      const fieldTitle = widgetDef.fieldTitle;
-      const contents = state.localAsset[fieldTitle] as WidgetContent[];
+    const newAssetId = data.objectId;
 
-      // Remove locally assigned IDs from the contents.
-      // This ensures that IDs are not persisted on the mock backend,
-      // preventing potential conflicts or unintended behavior.
-      // It is also a good practice to apply this logic to the real backend
-      // to maintain consistency and avoid issues with ID management.
-      const contentsWithoutId = contents.map(({ id: _id, ...rest }) => rest);
-
-      return {
-        ...acc,
-        [fieldTitle]: contentsWithoutId,
-      };
-    },
-    {} as Record<string, WidgetContent[]>
-  );
-
-  const formData: UpdateAssetRequestFormData = {
-    objectId: props.assetId ?? "",
-    templateId: String(state.localAsset.templateId),
-    newTemplateId: String(state.localAsset.templateId),
-    collectionId: String(state.localAsset.collectionId),
-    newCollectionId: String(state.localAsset.collectionId),
-    readyForDisplay: state.localAsset.readyForDisplay as boolean,
-    availableAfter: (state.localAsset.availableAfter as PHPDateTime)?.date,
-    ...widgetContents,
-  };
-
-  return formData;
-}
-
-function handleSaveAsset() {
-  invariant(state.localAsset, "Cannot save: no asset.");
-  invariant(savedTemplate.value, "Cannot save: no template.");
-
-  const formData = getAssetAsSaveableFormData();
-
-  saveAsset(formData, {
-    onSuccess: (data) => {
-      setTimeout(() => {
-        resetSaveAssetStatus();
-      }, 3000);
-
-      if (!isCreateMode.value) {
-        return;
-      }
-
-      const newAssetId = data.objectId;
-
-      // if we're creating a related asset, notify the parent
-      if (channelName.value) {
-        // notify parent asset page about the new related asset
-        const channel = new BroadcastChannel(channelName.value);
-        const message: RelatedAssetSaveMessage = {
-          type: SAVE_RELATED_ASSET_TYPE,
-          payload: {
-            relatedAssetId: newAssetId,
-          },
-        };
-        channel.postMessage(message);
-        channel.close();
-      }
-
-      // redirect to the edit asset page (so that we don't keep recreating
-      // new assets on each save!)
-      router.replace({
-        name: "editAsset",
-        params: {
-          assetId: newAssetId,
+    // if we're creating a related asset, notify the parent
+    if (channelName.value) {
+      const channel = new BroadcastChannel(channelName.value);
+      const message: RelatedAssetSaveMessage = {
+        type: SAVE_RELATED_ASSET_TYPE,
+        payload: {
+          relatedAssetId: newAssetId,
         },
-      });
-    },
+      };
+      channel.postMessage(message);
+      channel.close();
+    }
+
+    // redirect to the edit asset page (so that we don't keep recreating
+    // new assets on each save!)
+    router.replace({
+      name: "editAsset",
+      params: {
+        assetId: newAssetId,
+      },
+    });
   });
 }
 
-function handleMigrateCollection(newCollectionId: number) {
-  invariant(state.localAsset, "Cannot change collection: no asset.");
-
-  state.localAsset.collectionId = newCollectionId;
-  const formData = getAssetAsSaveableFormData();
-
-  saveAsset(formData, {
-    onSuccess: () => {
-      // TODO: maybe show a toast or something?
-
-      // migrating the collection can take a bit of time, so redirect
-      // the user to the all my assets page after saving to prevent
-      // more editing during the migration
-      router.push({
-        name: "allMyAssets",
-      });
-    },
+function handleMigrateCollectionWithNavigation(newCollectionId: number) {
+  handleMigrateCollection(newCollectionId, () => {
+    // migrating the collection can take a bit of time, so redirect
+    // the user to the all my assets page after saving to prevent
+    // more editing during the migration
+    router.push({
+      name: "allMyAssets",
+    });
   });
 }
 
@@ -479,7 +178,7 @@ const {
   onCancel: onCancelLeave,
 } = useConfirmation();
 
-onBeforeRouteLeave(async (to, from, next) => {
+onBeforeRouteLeave(async (to, _from, next) => {
   // if navigating to login/logout page, just proceed
   if (
     typeof to.name === "string" &&
@@ -489,7 +188,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   }
 
   // if we still haven't finished initializing, proceed
-  if (!savedTemplate.value || !state.initialCollectionId || !state.localAsset) {
+  if (!savedTemplate.value || !initialCollectionId.value || !localAsset.value) {
     return next();
   }
 
@@ -497,13 +196,13 @@ onBeforeRouteLeave(async (to, from, next) => {
   if (isCreateMode.value) {
     const widgetsWithContent =
       savedTemplate.value.widgetArray.filter((widgetDef) => {
-        invariant(state.localAsset, "No local asset");
+        if (!localAsset.value) return false;
 
         // ignore checkbox widgets so that unchecked boxes are not considered content
         if (widgetDef.type === "checkbox") return false;
 
         const fieldTitle = widgetDef.fieldTitle;
-        const contents = state.localAsset[fieldTitle] as WidgetContent[];
+        const contents = localAsset.value[fieldTitle] as WidgetContent[];
         return hasWidgetContent(contents, widgetDef.type);
       }) ?? [];
     const isFormBlank = widgetsWithContent.length === 0;
@@ -536,11 +235,8 @@ onBeforeRouteUpdate(async (to, _from, next) => {
   }
 
   // reset the asset state
-  state.localAsset = null;
-  state.initialTemplateId = defaultTemplateId.value;
-  state.initialCollectionId = defaultCollectionId.value;
-  state.hasInitialized = false;
-  resetSaveAssetStatus();
+  resetEditor();
+  setInitialValues(defaultTemplateId.value, defaultCollectionId.value);
 
   next();
 });
