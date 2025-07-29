@@ -14,6 +14,7 @@ import authRoutes from "./routes/auth";
 import fileRoutes from "./routes/files";
 import pageRoutes from "./routes/pages";
 import instanceRoutes from "./routes/instance";
+import s3Routes from "./routes/s3";
 
 const app = new Hono<MockServerContext>();
 
@@ -21,8 +22,18 @@ const app = new Hono<MockServerContext>();
 app.use(
   "*",
   cors({
-    origin: ["*"],
+    origin: "*", // Allow all origins
     credentials: true,
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "x-worker-id",
+      "Accept",
+      "Origin",
+      "X-Requested-With",
+    ],
+    // exposeHeaders: ["ETag", "Content-Length", "Content-Type"],
   })
 );
 app.use("*", logger());
@@ -73,7 +84,9 @@ app.route("/defaultinstance/fileManager", fileRoutes);
 app.route("/defaultinstance/assetManager", assetRoutes);
 app.route("/defaultinstance/home", instanceRoutes);
 app.route("/defaultinstance/page", pageRoutes);
-app.route("/defaultinstance/s3", fileRoutes);
+app.route("/defaultinstance/s3", s3Routes);
+// Also mount s3 routes at root level for signed URL handling
+app.route("/s3", s3Routes);
 
 // Test utility routes
 app.post("/_tests/db/refresh", (c) => {

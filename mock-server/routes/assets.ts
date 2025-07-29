@@ -44,6 +44,51 @@ app.get("/getTemplate/:templateId", async (c) => {
   return c.json(template);
 });
 
+// POST /assetManager/getFileContainer
+app.post("/getFileContainer", async (c) => {
+  await delay(100);
+  const formData = await c.req.formData();
+  const containersJson = formData.get("containers") as string;
+
+  if (!containersJson) {
+    return c.json({ error: "Missing containers field" }, 400);
+  }
+
+  try {
+    const containers = JSON.parse(containersJson);
+    const result = containers.map((container: any) => ({
+      bucket: "mock-elevator-bucket",
+      bucketKey: "MOCK_BUCKET_KEY",
+      fileObjectId: generateFileObjectId(),
+      collectionId: container.collectionId,
+      index: container.index,
+      filename: container.filename,
+    }));
+
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: "Invalid containers JSON" }, 400);
+  }
+});
+
+// GET /assetManager/completeSourceFile/:fileObjectId
+app.get("/completeSourceFile/:fileObjectId", async (c) => {
+  await delay(100);
+  const fileObjectId = c.req.param("fileObjectId");
+
+  return c.json({
+    message: "Source file completed successfully",
+    fileObjectId,
+  });
+});
+
+function generateFileObjectId(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
+
 // POST /assetManager/submission/true (create/update asset)
 app.post("/submission/true", async (c) => {
   await delay(500);

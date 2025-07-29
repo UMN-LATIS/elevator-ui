@@ -32,3 +32,6 @@ node_modules
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Mock server temporary files
+/mock-server/tmp/
