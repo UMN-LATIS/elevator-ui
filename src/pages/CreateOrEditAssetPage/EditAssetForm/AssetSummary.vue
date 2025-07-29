@@ -22,7 +22,7 @@
             Edit Asset
           </h1>
           <h2 class="text-xl md:text-2xl font-bold">
-            {{ savedAssetTitle ?? localAssetTitle }}
+            {{ savedAssetTitle || localAssetTitle }}
           </h2>
         </header>
       </Transition>
