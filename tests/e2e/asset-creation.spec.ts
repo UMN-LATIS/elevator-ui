@@ -46,9 +46,10 @@ test.describe("Asset Creation", () => {
       await expect(collectionSelect).toBeVisible();
       await collectionSelect.selectOption({ index: 1 });
 
-      // Continue to asset form
+      // Wait for template to load, then continue to asset form
       const continueButton = page.getByRole("button", { name: "Continue" });
-      await expect(continueButton).toBeEnabled();
+      // Wait for button to be enabled (template loaded)
+      await expect(continueButton).toBeEnabled({ timeout: 5000 });
       await continueButton.click();
 
       // expect to see the Create Asset form
