@@ -8,9 +8,10 @@ import {
   UpdateAssetRequestFormData,
 } from "@/types";
 import invariant from "tiny-invariant";
-import microdiff, { type Difference } from "microdiff";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
+import { equals } from "ramda";
+import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 export function getWidgetContentsWithoutIds(
   asset: Asset | UnsavedAsset,
@@ -39,25 +40,52 @@ export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
   };
 }
 
-export function diffAssets(
-  asset1: Asset | UnsavedAsset | null,
-  asset2: Asset | UnsavedAsset | null,
-  template: Template,
-  opts = { ignoreWidgetIds: true }
-): Difference[] {
-  if (!asset1 || !asset2) {
-    return [] as Difference[];
+export function hasAssetChanged(
+  {
+    savedAsset,
+    localAsset,
+    template,
+  }: {
+    savedAsset: Asset | null;
+    localAsset: Asset | UnsavedAsset;
+    template: Template;
+  },
+  { logDifferences = false }: { logDifferences?: boolean } = {}
+): boolean {
+  if (!savedAsset || !localAsset || !template) return true;
+
+  // For create mode, always consider as changed if there's any content
+  if (!savedAsset.assetId) return true;
+
+  const savedAssetWithoutIds = omitWidgetIds(savedAsset, template);
+  const localAssetWithoutIds = omitWidgetIds(localAsset, template);
+
+  // Check if any saved content differs from local content
+  const someSavedContentDiffers = Object.entries(savedAssetWithoutIds).some(
+    ([key, savedValue]) => {
+      const localValue = localAssetWithoutIds[key];
+      return !equals(savedValue, localValue);
+    }
+  );
+
+  // Check if local asset has new fields with content not in saved asset
+  const hasNewLocalPropWithContent = Object.entries(localAssetWithoutIds)
+    .filter(([key]) => !(key in savedAssetWithoutIds))
+    .some(([, localValue]) =>
+      hasWidgetContent(localValue as WidgetContent[], "any")
+    );
+
+  const hasChanged = someSavedContentDiffers || hasNewLocalPropWithContent;
+
+  if (logDifferences && hasChanged) {
+    const msg = explainObjectDifferences(
+      savedAssetWithoutIds,
+      localAssetWithoutIds
+    );
+    console.log("Asset differences:", msg);
   }
-  if (!opts.ignoreWidgetIds) {
-    return microdiff(asset1, asset2);
-  }
 
-  invariant(template, "Template is required for assetDiff");
-
-  const asset1WithoutIds = omitWidgetIds(asset1, template);
-  const asset2WithoutIds = omitWidgetIds(asset2, template);
-
-  return microdiff(asset1WithoutIds, asset2WithoutIds);
+  return hasChanged;
 }
 
 export function makeLocalAsset({

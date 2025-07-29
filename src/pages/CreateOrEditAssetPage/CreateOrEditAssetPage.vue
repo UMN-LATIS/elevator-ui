@@ -5,12 +5,12 @@
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
       @submit.prevent="initAsset">
       <SelectGroup
-        v-model="initialTemplateId"
+        v-model="selectedTemplateId"
         :options="templateOptions"
         label="Template"
         required />
       <SelectGroup
-        v-model="initialCollectionId"
+        v-model="selectedCollectionId"
         :options="collectionOptions"
         label="Collection"
         required />
@@ -19,7 +19,7 @@
         type="submit"
         variant="primary"
         class="block my-4 w-full"
-        :disabled="!initialTemplateId || !initialCollectionId || !savedTemplate"
+        :disabled="!selectedTemplateId || !selectedCollectionId || !template"
         @click="initAsset">
         Continue
         <SpinnerIcon v-if="isTemplateLoading" />
@@ -29,9 +29,9 @@
       <SpinnerIcon class="w-8 h-8 animate-spin" />
       <span class="ml-2">Loading...</span>
     </div>
-    <Transition v-else-if="localAsset && savedTemplate" name="fade">
+    <Transition v-else-if="localAsset && template" name="fade">
       <EditAssetForm
-        :template="savedTemplate"
+        :template="template"
         :asset="localAsset"
         :savedAssetTitle="savedAssetTitle"
         :localAssetTitle="localAssetTitle"
@@ -63,6 +63,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import {
   ApiAssetSubmissionResponse,
+  Asset,
   RelatedAssetSaveMessage,
   WidgetContent,
 } from "@/types";
@@ -96,10 +97,11 @@ const props = withDefaults(
 const assetEditor = useAssetEditor(() => props.assetId);
 
 const {
+  savedAsset,
   localAsset,
-  template: savedTemplate,
-  selectedTemplateId: initialTemplateId,
-  selectedCollectionId: initialCollectionId,
+  template,
+  selectedTemplateId,
+  selectedCollectionId,
   isCreateMode,
   hasAssetChanged,
   isFormValid,
@@ -111,6 +113,7 @@ const {
   defaultTemplateId,
   defaultCollectionId,
   savedAssetTitle,
+  localAssetTitle,
   initAsset,
   handleSaveAsset,
   handleConfirmedTemplateIdUpdate,
@@ -188,14 +191,14 @@ onBeforeRouteLeave(async (to, _from, next) => {
   }
 
   // if we still haven't finished initializing, proceed
-  if (!savedTemplate.value || !initialCollectionId.value || !localAsset.value) {
+  if (!template.value || !selectedCollectionId.value || !localAsset.value) {
     return next();
   }
 
   // if this is a new asset but the form is blank, allow navigation
   if (isCreateMode.value) {
     const widgetsWithContent =
-      savedTemplate.value.widgetArray.filter((widgetDef) => {
+      template.value.widgetArray.filter((widgetDef) => {
         if (!localAsset.value) return false;
 
         // ignore checkbox widgets so that unchecked boxes are not considered content

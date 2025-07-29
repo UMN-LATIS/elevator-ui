@@ -10,20 +10,29 @@
       <p v-else class="text-xs">No image yet</p>
     </div>
     <div class="order-1 md:order-2">
-      <header class="md:mb-4">
-        <h1 class="text-xs md:text-base font-bold uppercase text-black/25">
-          {{ asset.assetId ? "Edit Asset" : "Create Asset" }}
-        </h1>
-        <h2 class="text-xl md:text-2xl font-bold">
-          {{ asset.assetId ? savedAssetTitle ?? localAssetTitle : "New Asset" }}
-        </h2>
-      </header>
+      <Transition name="fade" mode="out-in">
+        <header v-if="isCreatingNewAsset" class="md:mb-4">
+          <h1 class="text-xs md:text-base font-bold uppercase text-black/25">
+            Create Asset
+          </h1>
+          <h2 class="text-xl md:text-2xl font-bold">New Asset</h2>
+        </header>
+        <header v-else class="md:mb-4">
+          <h1 class="text-xs md:text-base font-bold uppercase text-black/25">
+            Edit Asset
+          </h1>
+          <h2 class="text-xl md:text-2xl font-bold">
+            {{ savedAssetTitle ?? localAssetTitle }}
+          </h2>
+        </header>
+      </Transition>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import * as Types from "@/types";
 import { usePreviewImage } from "@/helpers/usePreviewImage";
+import { computed } from "vue";
 
 const props = defineProps<{
   asset: Types.Asset | Types.UnsavedAsset;
@@ -38,5 +47,9 @@ const { previewImageUrl } = usePreviewImage(() =>
     ? props.asset.firstFileHandlerId
     : null
 );
+
+const isCreatingNewAsset = computed(() => {
+  return !props.asset.assetId;
+});
 </script>
 <style scoped></style>

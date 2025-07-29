@@ -5,19 +5,17 @@ import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   toSaveableFormData,
-  omitWidgetIds,
   doAllRequiredHaveContent,
   makeLocalAsset,
+  hasAssetChanged as hasAssetChangedPure,
 } from "./utils";
 import type {
   Asset,
-  WidgetContent,
   UnsavedAsset,
   Template,
   ApiAssetSubmissionResponse,
+  TextWidgetContent,
 } from "@/types";
-import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { equals } from "ramda";
 import invariant from "tiny-invariant";
 import { MutationStatus } from "@tanstack/vue-query";
 
@@ -105,40 +103,23 @@ export const useAssetEditor = (assetId: () => string | null) => {
 
   const localAssetTitle = computed(() => {
     if (!localAsset.value) return "";
-    return localAsset.value.title?.[0] || localAsset.value.title_1 || "";
+    const localTitle = localAsset.value.title?.[0];
+
+    // if there's no title set, try the title widget
+    const titleWidget = (localAsset.value.title_1 as TextWidgetContent[]) || [];
+    const localTitleWidgetContent = titleWidget?.[0]?.fieldContents;
+
+    return localTitle || localTitleWidgetContent || "";
   });
 
   const hasAssetChanged = computed(() => {
-    if (!savedAsset.value || !localAsset.value || !template.value) return true;
+    if (!localAsset.value || !template.value) return false;
 
-    // For create mode, always consider as changed if there's any content
-    if (!savedAsset.value.assetId) return true;
-
-    const savedAssetWithoutIds = omitWidgetIds(
-      savedAsset.value,
-      template.value
-    );
-    const localAssetWithoutIds = omitWidgetIds(
-      localAsset.value,
-      template.value
-    );
-
-    // Check if any saved content differs from local content
-    const someSavedContentDiffers = Object.entries(savedAssetWithoutIds).some(
-      ([key, savedValue]) => {
-        const localValue = localAssetWithoutIds[key];
-        return !equals(savedValue, localValue);
-      }
-    );
-
-    // Check if local asset has new fields with content not in saved asset
-    const hasNewLocalPropWithContent = Object.entries(localAssetWithoutIds)
-      .filter(([key]) => !(key in savedAssetWithoutIds))
-      .some(([, localValue]) =>
-        hasWidgetContent(localValue as WidgetContent[], "any")
-      );
-
-    return someSavedContentDiffers || hasNewLocalPropWithContent;
+    return hasAssetChangedPure({
+      localAsset: localAsset.value,
+      savedAsset: savedAsset.value,
+      template: template.value,
+    });
   });
 
   const isFormValid = computed(() => {
