@@ -15,6 +15,15 @@ import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
 import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    requiresCanManageAssets?: boolean;
+    requiresCanManageDrawers?: boolean;
+  }
+}
 
 function parseIntFromParam(
   param: string | string[] | undefined
@@ -114,6 +123,10 @@ const router = createRouter({
       path: "/assetManager/userAssets",
       component: () =>
         import("@/pages/AllUserAssetsPage/AllUserAssetsPage.vue"),
+      meta: {
+        requiresAuth: true,
+        requiresCanManageAssets: true,
+      },
     },
     {
       name: "editAsset",
@@ -125,6 +138,10 @@ const router = createRouter({
         assetId: route.params.assetId,
         title: route.params.assetId ? "Edit Asset" : "Add Asset",
       }),
+      meta: {
+        requiresAuth: true,
+        requiresCanManageAssets: true,
+      },
     },
     {
       name: "listCollections",
@@ -166,6 +183,10 @@ const router = createRouter({
       props: (route) => ({
         drawerId: parseIntFromParam(route.params.drawerId),
       }),
+      meta: {
+        requiresAuth: true,
+        requiresCanManageDrawers: true,
+      },
     },
     {
       name: "search",
@@ -235,7 +256,49 @@ router.onError((error) => {
   errorStore.setError(error);
 });
 
-router.beforeResolve((to, from, next) => {
+// Authentication guard - check route meta for required permissions
+router.beforeEach(async (to, _from, next) => {
+  const {
+    requiresAuth = false,
+    requiresCanManageAssets = false,
+    requiresCanManageDrawers = false,
+  } = to.meta;
+
+  // Skip auth check for routes that don't require authentication
+  if (!requiresAuth && !requiresCanManageAssets && !requiresCanManageDrawers) {
+    return next();
+  }
+
+  try {
+    // Get fresh current user data for auth decisions
+    const { getCurrentUser } = useCurrentUser();
+    const currentUser = await getCurrentUser();
+
+    // Redirect if authentication is required but user is not logged in
+    if (requiresAuth && !currentUser) {
+      return next({ name: "home" });
+    }
+
+    // Redirect if canManageAssets permission is required but user doesn't have it
+    if (requiresCanManageAssets && !currentUser?.canManageAssets) {
+      return next({ name: "home" });
+    }
+
+    // Redirect if canManageDrawers permission is required but user doesn't have it
+    if (requiresCanManageDrawers && !currentUser?.canManageDrawers) {
+      return next({ name: "home" });
+    }
+
+    // User meets all requirements
+    next();
+  } catch (error) {
+    console.error("Auth guard error:", error);
+    // On error, redirect to home for safety
+    next({ name: "home" });
+  }
+});
+
+router.beforeResolve((to, _from, next) => {
   // clear any errors in our error store
   // this prevents the error modal from persisting across pages
   const errorStore = useErrorStore();

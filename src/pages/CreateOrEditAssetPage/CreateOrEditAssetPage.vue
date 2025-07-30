@@ -63,7 +63,6 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import {
   ApiAssetSubmissionResponse,
-  Asset,
   RelatedAssetSaveMessage,
   WidgetContent,
 } from "@/types";
@@ -97,7 +96,6 @@ const props = withDefaults(
 const assetEditor = useAssetEditor(() => props.assetId);
 
 const {
-  savedAsset,
   localAsset,
   template,
   selectedTemplateId,
