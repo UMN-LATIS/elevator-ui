@@ -2,14 +2,14 @@ import { defineStore } from "pinia";
 import * as Type from "@/types";
 import config from "@/config";
 import api from "@/api";
-import { watch, ref, computed, nextTick } from "vue";
+import { watch, ref, computed, nextTick, reactive } from "vue";
 import { isNotNil } from "ramda";
 import invariant from "tiny-invariant";
 
 type FileId = string;
 
 export const usePreviewImageStore = defineStore("previewImages", () => {
-  const imageReadyMap = ref(new Map<FileId, boolean>());
+  const imageReadyMap = reactive<Map<FileId, boolean>>(new Map());
   const isPollingForUpdates = ref(false);
   const pollPeriod = ref(4000); // milliseconds
   const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null);
@@ -18,7 +18,7 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
   const isImageReady = (
     fileId: Type.UploadWidgetContent["fileId"]
   ): boolean => {
-    const isReady = imageReadyMap.value.get(fileId);
+    const isReady = imageReadyMap.get(fileId);
     invariant(
       isNotNil(isReady),
       `File ID ${fileId} is not registered in the preview image store.`
@@ -38,8 +38,8 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
   };
 
   const imagesToCheck = computed(() => {
-    return Array.from(imageReadyMap.value.keys()).filter(
-      (fileId) => !imageReadyMap.value.get(fileId)
+    return Array.from(imageReadyMap.keys()).filter(
+      (fileId) => !imageReadyMap.get(fileId)
     );
   });
 
@@ -52,8 +52,8 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
   };
 
   const registerFileId = (fileId: string) => {
-    if (imageReadyMap.value.has(fileId)) return;
-    imageReadyMap.value.set(fileId, false);
+    if (imageReadyMap.has(fileId)) return;
+    imageReadyMap.set(fileId, false);
 
     // Trigger polling on next tick when computed has updated
     nextTick(() => {
@@ -96,7 +96,7 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
 
         results.forEach(({ fileId, status }) => {
           const isReady = status === "true";
-          imageReadyMap.value.set(fileId, isReady);
+          imageReadyMap.set(fileId, isReady);
         });
       } catch (error) {
         console.warn("Failed to check preview images:", error);
