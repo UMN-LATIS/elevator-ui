@@ -190,4 +190,20 @@ app.post("/submission/true", async (c) => {
   });
 });
 
+// GET /assetManager/userAssets/:userId/true
+app.get("/userAssets/:userId/true", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+  const user = c.get("user");
+  const userId = c.req.param("userId");
+
+  // For security, only allow users to see their own assets (or admin users could see all)
+  if (user && (user.id.toString() === userId || user.isSuperAdmin || user.isInstanceAdmin)) {
+    const userAssets = db.assets.getByUserId(Number(userId));
+    return c.json(userAssets);
+  }
+
+  return c.json({ error: "Unauthorized" }, 403);
+});
+
 export default app;

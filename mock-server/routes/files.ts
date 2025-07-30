@@ -140,4 +140,26 @@ app.get("/previewImageByFileId/:fileId/true", async (c) => {
   });
 });
 
+// POST /fileManager/deleteFileObject
+app.post("/deleteFileObject", async (c) => {
+  await delay(100);
+  const formData = await c.req.formData();
+  const parsed = parseFormData(formData) as FileFormData;
+  const fileObjectId = parsed.fileObjectId as string;
+
+  if (!fileObjectId) {
+    return c.json({ error: "fileObjectId is required" }, 400);
+  }
+
+  const db = c.get("db");
+  const deleted = db.files.delete(fileObjectId);
+
+  if (!deleted) {
+    return c.json({ error: "File not found" }, 404);
+  }
+
+  console.log(`Deleted file: ${fileObjectId}`);
+  return c.json({ success: true, fileObjectId });
+});
+
 export default app;

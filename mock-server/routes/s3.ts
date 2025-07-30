@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import type { MockServerContext } from "../types";
 import { processUploadedFile } from "../utils/fileProcessor";
+import { delay } from "../utils";
 
 const app = new Hono<MockServerContext>();
 
@@ -89,6 +90,7 @@ async function handleFileProcessing(
 
 // POST /s3/multipart - Start multipart upload
 app.post("/multipart", async (c) => {
+  await delay(200);
   const db = c.get("db");
   const formData = await c.req.formData();
 
@@ -111,6 +113,7 @@ app.post("/multipart", async (c) => {
 
 // POST /s3/multipart/{uploadId}/complete - Complete multipart upload
 app.post("/multipart/*/complete", async (c) => {
+  await delay(500);
   const pathParts = c.req.path.split("/");
   const uploadId = pathParts[pathParts.length - 2];
   console.log("Complete upload endpoint hit");
@@ -149,6 +152,7 @@ app.post("/multipart/*/complete", async (c) => {
 
 // POST /s3/multipart/{uploadId}/abort - Abort multipart upload
 app.post("/multipart/*/abort", async (c) => {
+  await delay(500);
   const pathParts = c.req.path.split("/");
   const uploadId = pathParts[pathParts.length - 2];
   console.log("Abort upload endpoint hit");
@@ -184,6 +188,7 @@ app.post("/multipart/*/abort", async (c) => {
 
 // POST /s3/multipart/{uploadId}/{partNumber} - Sign part upload
 app.post("/multipart/:uploadId/:partNumber", async (c) => {
+  await delay(200);
   const db = c.get("db");
   const { uploadId, partNumber } = c.req.param();
   const partNum = parseInt(partNumber);

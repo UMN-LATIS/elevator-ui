@@ -56,6 +56,7 @@ export interface DrawerFormData {
 export interface FileFormData {
   fileId?: string;
   fileName?: string;
+  fileObjectId?: string;
   [key: string]: unknown;
 }
 

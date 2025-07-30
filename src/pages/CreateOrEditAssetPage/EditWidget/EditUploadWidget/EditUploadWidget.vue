@@ -37,6 +37,7 @@
     <template #footer>
       <FileUploader
         :collectionId="props.collectionId"
+        @start="handleStartUpload"
         @complete="handleCompleteUpload" />
     </template>
   </EditWidgetLayout>
@@ -68,6 +69,23 @@ const emit = defineEmits<{
 }>();
 
 const isShowingDetails = ref<Set<string>>(new Set());
+
+function handleStartUpload(fileRecord: Type.FileUploadRecord) {
+  // Add the file record to the filename map
+  // const startedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
+  //   ...createDefaultWidgetContent(props.widgetDef),
+  //   fileId: fileRecord.fileObjectId,
+  //   fileDescription: fileRecord.filename,
+  //   fileType: fileRecord.contentType,
+  //   loc: fileRecord.location || "",
+  //   sidecars: {}, // Initialize sidecars as an empty object
+  //   searchData: "", // Initialize searchData as an empty string
+  //   meta: {
+  //     uploadStatus: "pending", // Set initial upload status
+  //   },
+  // };
+  // emit("update:widgetContents", [...props.widgetContents, startedUploadItem]);
+}
 
 function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   // Create a new content item for the uploaded file

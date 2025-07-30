@@ -30,6 +30,13 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "start", fileRecord: Type.FileUploadRecord): void;
   (e: "complete", fileRecord: Type.FileUploadRecord): void;
+  (
+    e: "allComplete",
+    {
+      successful,
+      failed,
+    }: { successful: Type.FileUploadRecord[]; failed: Type.FileUploadRecord[] }
+  ): void;
   (e: "error", error: Error): void;
 }>();
 
