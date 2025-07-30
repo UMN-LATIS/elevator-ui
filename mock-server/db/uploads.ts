@@ -53,26 +53,31 @@ export function createUploadsTable() {
       return upload;
     },
 
-    addPart: (uploadId: string, partNumber: number, filePath: string): void => {
+    addPart: (
+      uploadId: string,
+      partNumber: number,
+      filePath: string,
+      etag: string
+    ): UploadPart => {
       const upload = baseTable.get(uploadId);
-      if (!upload) return;
+      if (!upload) throw new Error(`Upload ${uploadId} not found`);
 
-      const existingPart = upload.parts.find(
-        (p) => p.partNumber === partNumber
-      );
-      if (existingPart) {
-        existingPart.filePath = filePath;
-      } else {
-        upload.parts.push({
-          partNumber,
-          filePath,
-          etag: generateETag(),
-        });
-      }
+      // Remove existing part if it exists (overwrites/retries)
+      upload.parts = upload.parts.filter((p) => p.partNumber !== partNumber);
+
+      const newPart: UploadPart = {
+        partNumber,
+        filePath,
+        etag,
+      };
+
+      upload.parts.push(newPart);
 
       // Sort parts by part number
       upload.parts.sort((a, b) => a.partNumber - b.partNumber);
       baseTable.set(uploadId, upload);
+
+      return newPart;
     },
 
     complete: (uploadId: string): UploadRecord | undefined => {
@@ -97,10 +102,6 @@ export function createUploadsTable() {
 
 function generateUploadId(): string {
   return `upload_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`;
-}
-
-function generateETag(): string {
-  return `"${Math.random().toString(36).substring(2, 34)}"`;
 }
 
 function buildS3Key(fileObjectId: string): string {

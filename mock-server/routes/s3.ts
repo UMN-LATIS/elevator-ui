@@ -178,16 +178,16 @@ app.put("/upload-part/:uploadId/:partNumber", async (c) => {
     // Write part to file
     await fs.writeFile(partFilePath, new Uint8Array(buffer));
 
-    // Add part to upload record
-    db.uploads.addPart(uploadId, partNum, partFilePath);
-
-    // Return ETag (required by S3 protocol)
+    // Generate ETag (required by S3 protocol)
     const etag = `"${Math.random().toString(36).substring(2, 34)}"`;
+
+    // Add part to upload record with ETag
+    const part = db.uploads.addPart(uploadId, partNum, partFilePath, etag);
 
     return new Response(null, {
       status: 200,
       headers: {
-        ETag: etag,
+        ETag: part.etag || etag,
       },
     });
   } catch (error) {
