@@ -658,6 +658,15 @@ export async function getFileContainer({
   return res.data;
 }
 
+function encodeDots(component: string) {
+  return (
+    encodeURIComponent(component)
+      // sometimes s3 keys begin with dots (e.g. ".abdbc...")
+      // which may be denied by backend, so we replace dots with "%2E"
+      .replace(/\./g, "%2E")
+  );
+}
+
 export async function startS3MultipartUpload({
   collectionId,
   fileObjectId,
@@ -699,13 +708,15 @@ export async function signS3UploadPart({
   formData.append("fileObjectId", fileObjectId);
   formData.append("contentType", contentType);
 
+  const encodedUploadId = encodeDots(uploadId);
+
   const res = await axios.post<{
     message: string;
     url: string;
     method: string;
     partNumber: number;
     uploadId: string;
-  }>(`${BASE_URL}/s3/multipart/${uploadId}/${partNumber}`, formData);
+  }>(`${BASE_URL}/s3/multipart/${encodedUploadId}/${partNumber}`, formData);
 
   return res.data;
 }
@@ -726,10 +737,12 @@ export async function completeS3MultipartUpload({
   formData.append("fileObjectId", fileObjectId);
   formData.append("contentType", contentType);
 
+  const encodedUploadId = encodeDots(uploadId);
+
   const res = await axios.post<{
     location: string; // S3 URL of the uploaded file
     message: string;
-  }>(`${BASE_URL}/s3/multipart/${uploadId}/complete`, formData);
+  }>(`${BASE_URL}/s3/multipart/${encodedUploadId}/complete`, formData);
 
   return res.data;
 }
@@ -750,9 +763,11 @@ export async function abortS3MultipartUpload({
   formData.append("fileObjectId", fileObjectId);
   formData.append("contentType", contentType);
 
+  const encodedUploadId = encodeDots(uploadId);
+
   const res = await axios.post<{
     message: string;
-  }>(`${BASE_URL}/s3/multipart/${uploadId}/abort`, formData);
+  }>(`${BASE_URL}/s3/multipart/${encodedUploadId}/abort`, formData);
 
   return res.data;
 }
