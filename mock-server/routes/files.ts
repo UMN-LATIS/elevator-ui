@@ -21,6 +21,7 @@ app.get("/getMetadataForObject/:fileId", async (c) => {
 
 // GET /fileManager/getOriginal/:fileId
 app.get("/getOriginal/:fileId", async (c) => {
+  await delay(300);
   const fileId = c.req.param("fileId");
   console.log(`Downloading original file: ${fileId}`);
 
@@ -48,6 +49,7 @@ app.get("/getOriginal/:fileId", async (c) => {
 
 // GET /fileManager/getDerivativeById/:fileId/:filetype
 app.get("/getDerivativeById/:fileId/:filetype", async (c) => {
+  await delay(200);
   const fileId = c.req.param("fileId");
   const filetype = c.req.param("filetype");
 

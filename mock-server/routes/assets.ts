@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
-import { Asset, TextWidgetContent } from "../../src/types";
+import { Asset, TextWidgetContent, UploadWidgetContent } from "../../src/types";
+import type { DB } from "../db/index";
 
 const app = new Hono<MockServerContext>();
 
@@ -89,37 +90,38 @@ function generateFileObjectId(): string {
   );
 }
 
-function findFirstFileId(formData: any): string | undefined {
-  // Look through all form data for upload widgets
-  for (const [key, value] of Object.entries(formData)) {
-    if (key.startsWith("upload_") && Array.isArray(value) && value.length > 0) {
-      const uploadWidget = value[0] as any;
-      if (uploadWidget.fileId) {
-        return uploadWidget.fileId;
-      }
-    }
-  }
-  return undefined;
+function findFirstFileId(
+  formData: Record<string, unknown>
+): string | undefined {
+  return Object.entries(formData)
+    .filter(
+      ([key, value]) =>
+        key.startsWith("upload_") && Array.isArray(value) && value.length > 0
+    )
+    .map(([, widgets]) => (widgets as UploadWidgetContent[])[0])
+    .find((widget) => widget?.fileId)?.fileId;
 }
 
-function updateFileAssetLinks(db: any, formData: any, assetId: string): void {
-  // Find all upload widgets and update their files to link back to this asset
-  for (const [key, value] of Object.entries(formData)) {
-    if (key.startsWith("upload_") && Array.isArray(value)) {
-      for (const uploadWidget of value as any[]) {
-        if (uploadWidget.fileId) {
-          const existingFile = db.files.get(uploadWidget.fileId);
-          if (existingFile) {
-            // Update the file to link back to this asset
-            db.files.set(uploadWidget.fileId, {
-              ...existingFile,
-              assetId: assetId,
-            });
-          }
-        }
-      }
+function updateFileAssetLinks(
+  db: DB,
+  formData: Record<string, unknown>,
+  assetId: string
+): void {
+  const fileIds = Object.entries(formData)
+    .filter(([key, value]) => key.startsWith("upload_") && Array.isArray(value))
+    .flatMap(([, widgets]) => widgets as UploadWidgetContent[])
+    .map((widget) => widget.fileId)
+    .filter(Boolean);
+
+  fileIds.forEach((fileId) => {
+    const existingFile = db.files.get(fileId);
+    if (existingFile) {
+      db.files.set(fileId, {
+        ...existingFile,
+        assetId,
+      });
     }
-  }
+  });
 }
 
 // POST /assetManager/submission/true (create/update asset)
