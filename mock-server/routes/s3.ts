@@ -4,6 +4,7 @@ import { join } from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import type { MockServerContext } from "../types";
+import { processUploadedFile } from "../utils/fileProcessor";
 
 const app = new Hono<MockServerContext>();
 
@@ -16,6 +17,75 @@ app.use("*", async (c, next) => {
   console.log(`S3 Route: ${c.req.method} ${c.req.path}`);
   await next();
 });
+
+function getFileTypeFromMime(mimeType: string): string {
+  const typeMap: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/svg+xml": "svg",
+    "application/pdf": "pdf",
+    "text/plain": "txt",
+  };
+  return typeMap[mimeType] || "unknown";
+}
+
+async function concatenateUploadParts(upload: any): Promise<string> {
+  const finalFileName = `${upload.fileObjectId}-final`;
+  const finalFilePath = join(TMP_DIR, finalFileName);
+
+  // Create write stream for final file
+  const writeStream = await fs.open(finalFilePath, "w");
+
+  // Concatenate all parts in order
+  for (const part of upload.parts) {
+    if (part.filePath) {
+      const partData = await fs.readFile(part.filePath);
+      await writeStream.write(partData);
+
+      // Clean up part file
+      await fs.unlink(part.filePath).catch(() => {
+        // Ignore errors if file doesn't exist
+      });
+    }
+  }
+
+  await writeStream.close();
+  return finalFilePath;
+}
+
+async function handleFileProcessing(
+  db: any,
+  upload: any,
+  finalFilePath: string
+): Promise<void> {
+  try {
+    // For now, use a generic filename - in real app this would come from the original request
+    const originalFilename = `upload-${upload.fileObjectId}.jpg`;
+    const processedFile = await processUploadedFile(
+      finalFilePath,
+      upload.fileObjectId,
+      originalFilename
+    );
+
+    console.log("File processed successfully:", processedFile);
+
+    // Store file metadata in the database
+    db.files.set(upload.fileObjectId, {
+      id: upload.fileObjectId,
+      fileName: processedFile.filename,
+      fileType: getFileTypeFromMime(processedFile.mimeType),
+      fileSize: processedFile.size,
+      metadata: processedFile.dimensions || {},
+      assetId: "", // Will be linked when asset is created
+      uploadedAt: new Date(),
+    });
+  } catch (error) {
+    console.error("Error processing uploaded file:", error);
+    // Continue anyway - the upload succeeded even if processing failed
+  }
+}
 
 // POST /s3/multipart - Start multipart upload
 app.post("/multipart", async (c) => {
@@ -56,26 +126,10 @@ app.post("/multipart/*/complete", async (c) => {
 
   try {
     // Combine all parts into final file
-    const finalFileName = `${upload.fileObjectId}-final`;
-    const finalFilePath = join(TMP_DIR, finalFileName);
+    const finalFilePath = await concatenateUploadParts(upload);
 
-    // Create write stream for final file
-    const writeStream = await fs.open(finalFilePath, "w");
-
-    // Concatenate all parts in order
-    for (const part of upload.parts) {
-      if (part.filePath) {
-        const partData = await fs.readFile(part.filePath);
-        await writeStream.write(partData);
-
-        // Clean up part file
-        await fs.unlink(part.filePath).catch(() => {
-          // Ignore errors if file doesn't exist
-        });
-      }
-    }
-
-    await writeStream.close();
+    // Process the completed file (move to permanent storage, generate thumbnails)
+    await handleFileProcessing(db, upload, finalFilePath);
 
     // Mark upload as completed
     db.uploads.complete(uploadId);

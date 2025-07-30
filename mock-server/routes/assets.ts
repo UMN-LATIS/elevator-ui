@@ -89,6 +89,39 @@ function generateFileObjectId(): string {
   );
 }
 
+function findFirstFileId(formData: any): string | undefined {
+  // Look through all form data for upload widgets
+  for (const [key, value] of Object.entries(formData)) {
+    if (key.startsWith("upload_") && Array.isArray(value) && value.length > 0) {
+      const uploadWidget = value[0] as any;
+      if (uploadWidget.fileId) {
+        return uploadWidget.fileId;
+      }
+    }
+  }
+  return undefined;
+}
+
+function updateFileAssetLinks(db: any, formData: any, assetId: string): void {
+  // Find all upload widgets and update their files to link back to this asset
+  for (const [key, value] of Object.entries(formData)) {
+    if (key.startsWith("upload_") && Array.isArray(value)) {
+      for (const uploadWidget of value as any[]) {
+        if (uploadWidget.fileId) {
+          const existingFile = db.files.get(uploadWidget.fileId);
+          if (existingFile) {
+            // Update the file to link back to this asset
+            db.files.set(uploadWidget.fileId, {
+              ...existingFile,
+              assetId: assetId,
+            });
+          }
+        }
+      }
+    }
+  }
+}
+
 // POST /assetManager/submission/true (create/update asset)
 app.post("/submission/true", async (c) => {
   await delay(500);
@@ -111,12 +144,16 @@ app.post("/submission/true", async (c) => {
   const titleWidgets = formData.title_1 as TextWidgetContent[];
   const titleWidget = titleWidgets?.[0];
 
+  // Find the first file from upload widgets to set as firstFileHandlerId
+  const firstFileHandlerId = findFirstFileId(formData);
+
   const asset: Omit<Asset, "createdBy"> = {
     ...formData,
     assetId: formData.objectId,
     title: [titleWidget?.fieldContents || "(Untitled)"],
     templateId: formData.templateId,
     collectionId: formData.collectionId,
+    firstFileHandlerId,
     modified: {
       date: new Date().toISOString(),
       timezone_type: 3,
@@ -135,6 +172,16 @@ app.post("/submission/true", async (c) => {
   if (!savedAsset) {
     return c.json({ error: "Asset not found" }, 404);
   }
+
+  // Update all files referenced in this asset to link back to the asset
+  updateFileAssetLinks(db, formData, savedAsset.assetId);
+
+  if (firstFileHandlerId) {
+    console.log(
+      `Asset ${savedAsset.assetId} linked to first file: ${firstFileHandlerId}`
+    );
+  }
+
   return c.json({
     success: true,
     objectId: savedAsset.assetId,
