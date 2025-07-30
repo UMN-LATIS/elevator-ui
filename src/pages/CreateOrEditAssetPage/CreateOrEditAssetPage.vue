@@ -39,9 +39,9 @@
         :hasUnsavedChanges="hasAssetChanged"
         :isValid="isFormValid"
         class="flex-1"
-        @update:templateId="handleConfirmedTemplateIdUpdate($event)"
-        @migrateCollection="handleMigrateCollectionWithNavigation($event)"
-        @save="handleSaveAssetWithNavigation"
+        @update:templateId="updateTemplateId($event)"
+        @migrateCollection="handleMigrateCollection($event)"
+        @save="handleSaveAsset"
         @update:asset="updateLocalAsset($event)" />
     </Transition>
     <ConfirmModal
@@ -58,15 +58,10 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, nextTick, onMounted } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
-import {
-  ApiAssetSubmissionResponse,
-  Asset,
-  RelatedAssetSaveMessage,
-  WidgetContent,
-} from "@/types";
+import { RelatedAssetSaveMessage, WidgetContent } from "@/types";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import {
@@ -97,7 +92,6 @@ const props = withDefaults(
 const assetEditor = useAssetEditor(() => props.assetId);
 
 const {
-  savedAsset,
   localAsset,
   template,
   selectedTemplateId,
@@ -115,9 +109,9 @@ const {
   savedAssetTitle,
   localAssetTitle,
   initAsset,
-  handleSaveAsset,
-  handleConfirmedTemplateIdUpdate,
-  handleMigrateCollection,
+  saveAsset,
+  updateTemplateId,
+  migrateCollection,
   setInitialValues,
   resetEditor,
   updateLocalAsset,
@@ -131,43 +125,43 @@ const route = useRoute();
 const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
-function handleSaveAssetWithNavigation() {
-  handleSaveAsset((data: ApiAssetSubmissionResponse) => {
-    if (!isCreateMode.value) {
-      return;
-    }
+async function handleSaveAsset() {
+  const data = await saveAsset();
+  if (!isCreateMode.value) {
+    return;
+  }
 
-    const newAssetId = data.objectId;
+  const newAssetId = data.objectId;
 
-    // if we're creating a related asset, notify the parent
-    if (channelName.value) {
-      const channel = new BroadcastChannel(channelName.value);
-      const message: RelatedAssetSaveMessage = {
-        type: SAVE_RELATED_ASSET_TYPE,
-        payload: {
-          relatedAssetId: newAssetId,
-        },
-      };
-      channel.postMessage(message);
-      channel.close();
-    }
-
-    // redirect to the edit asset page (so that we don't keep recreating
-    // new assets on each save!)
-    router.replace({
-      name: "editAsset",
-      params: {
-        assetId: newAssetId,
+  // if we're creating a related asset, notify the parent
+  if (channelName.value) {
+    const channel = new BroadcastChannel(channelName.value);
+    const message: RelatedAssetSaveMessage = {
+      type: SAVE_RELATED_ASSET_TYPE,
+      payload: {
+        relatedAssetId: newAssetId,
       },
-    });
+    };
+    channel.postMessage(message);
+    channel.close();
+  }
+
+  // redirect to the edit asset page (so that we don't keep recreating
+  // new assets on each save!)
+  router.replace({
+    name: "editAsset",
+    params: {
+      assetId: newAssetId,
+    },
   });
 }
 
-function handleMigrateCollectionWithNavigation(newCollectionId: number) {
-  handleMigrateCollection(newCollectionId, () => {
-    // migrating the collection can take a bit of time, so redirect
-    // the user to the all my assets page after saving to prevent
-    // more editing during the migration
+async function handleMigrateCollection(newCollectionId: number) {
+  await migrateCollection(newCollectionId);
+  // migrating the collection can take a bit of time, so redirect
+  // the user to the all my assets page after saving to prevent
+  // more editing during the migration
+  nextTick(() => {
     router.push({
       name: "allMyAssets",
     });

@@ -37,6 +37,7 @@
     <template #footer>
       <FileUploader
         :collectionId="props.collectionId"
+        @start="handleStartUpload"
         @complete="handleCompleteUpload" />
     </template>
   </EditWidgetLayout>
@@ -50,6 +51,7 @@ import FileUploader from "./FileUploader.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   collectionId: number;
@@ -69,24 +71,48 @@ const emit = defineEmits<{
 
 const isShowingDetails = ref<Set<string>>(new Set());
 
-function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
+function handleStartUpload(fileRecord: Type.FileUploadRecord) {
+  // add the file record to widget contents immediately
+  // to avoid orphaned uploads
+
   // Create a new content item for the uploaded file
-  const completedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
+  const uploadItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
     fileDescription: fileRecord.filename,
     fileType: fileRecord.contentType,
-    loc: fileRecord.location || "",
+    loc: fileRecord.location ?? "",
     sidecars: {}, // Initialize sidecars as an empty object
     searchData: "", // Initialize searchData as an empty string
   };
 
-  emit("update:widgetContents", [...props.widgetContents, completedUploadItem]);
+  emit("update:widgetContents", [...props.widgetContents, uploadItem]);
 
-  nextTick(() => {
-    // Try to trigger save event after the widget contents are updated
-    emit("save");
+  nextTick(() => emit("save"));
+}
+
+function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
+  const updatedContents = props.widgetContents.map((item) => {
+    if (item.fileId !== fileRecord.fileObjectId) {
+      return item;
+    }
+
+    // if the file record does not have a location at this point
+    // something is wrong. Throw so we can investigate.
+    invariant(
+      fileRecord.location,
+      `File record for ${fileRecord.filename} does not have a location. Cannot update item.`
+    );
+
+    return {
+      ...item,
+      loc: fileRecord.location || "",
+    };
   });
+
+  emit("update:widgetContents", updatedContents);
+
+  nextTick(() => emit("save"));
 }
 
 async function handleDeleteContent(id: string) {
