@@ -18,6 +18,7 @@ import type {
 } from "@/types";
 import invariant from "tiny-invariant";
 import { MutationStatus } from "@tanstack/vue-query";
+import { useDebounceFn } from "@vueuse/core";
 
 export const useAssetEditor = (assetId: () => string | null) => {
   const instanceStore = useInstanceStore();
@@ -64,7 +65,7 @@ export const useAssetEditor = (assetId: () => string | null) => {
     enabled: () => savedTemplateId.value !== null,
   });
 
-  const { mutate: saveAsset } = useUpdateAssetMutation();
+  const { mutate: saveAssetMutation } = useUpdateAssetMutation();
 
   // computed
   const templateOptions = computed(() => {
@@ -188,64 +189,80 @@ export const useAssetEditor = (assetId: () => string | null) => {
     initializeAsset(template.value, collectionId, savedAsset.value || null);
   }
 
-  function handleSaveAsset(
-    onSuccess?: (data: ApiAssetSubmissionResponse) => void
-  ) {
-    invariant(localAsset.value, "Cannot save: no asset.");
-    invariant(template.value, "Cannot save: no template.");
-    saveAssetStatus.value = "pending";
+  const debouncedSaveAssetMutation = useDebounceFn(saveAssetMutation, 500);
 
-    const formData = toSaveableFormData(localAsset.value, template.value);
+  function saveAsset() {
+    return new Promise<ApiAssetSubmissionResponse>((resolve, reject) => {
+      invariant(localAsset.value, "Cannot save: no asset.");
+      invariant(template.value, "Cannot save: no template.");
+      saveAssetStatus.value = "pending";
 
-    saveAsset(formData, {
-      onSuccess: (data) => {
-        saveAssetStatus.value = "success";
-        setTimeout(() => {
-          saveAssetStatus.value = "idle"; // Reset status after a delay
-        }, 3000);
+      // if we're in create mode, we can save asset right away,
+      // otherwise, we should debounce to save
+      const saveFn = isCreateMode.value
+        ? saveAssetMutation
+        : debouncedSaveAssetMutation;
 
-        // For create mode, the server only returns objectId, so update the local asset's ID
-        if (
-          isCreateMode.value &&
-          data &&
-          typeof data === "object" &&
-          "objectId" in data &&
-          localAsset.value
-        ) {
-          const objectId = (data as { objectId: string }).objectId;
-          localAsset.value.assetId = objectId;
-        }
+      const formData = toSaveableFormData(localAsset.value, template.value);
 
-        onSuccess?.(data);
-      },
-      onError: (error) => {
-        saveAssetStatus.value = "error";
-        console.error("Failed to save asset:", error);
-        setTimeout(() => {
-          saveAssetStatus.value = "idle"; // Reset status after a delay
-        }, 10000);
-      },
+      saveFn(formData, {
+        onSuccess: (data) => {
+          saveAssetStatus.value = "success";
+          setTimeout(() => {
+            saveAssetStatus.value = "idle"; // Reset status after a delay
+          }, 3000);
+
+          // For create mode, the server only returns objectId, so update the local asset's ID
+          if (
+            isCreateMode.value &&
+            data &&
+            typeof data === "object" &&
+            "objectId" in data &&
+            localAsset.value
+          ) {
+            const objectId = (data as { objectId: string }).objectId;
+            localAsset.value.assetId = objectId;
+          }
+
+          resolve(data as ApiAssetSubmissionResponse);
+        },
+        onError: (error) => {
+          saveAssetStatus.value = "error";
+          console.error("Failed to save asset:", error);
+          setTimeout(() => {
+            saveAssetStatus.value = "idle"; // Reset status after a delay
+          }, 10000);
+          reject(error);
+        },
+      });
     });
   }
 
-  function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
+  function updateTemplateId(newTemplateId: number) {
     invariant(localAsset.value, "Cannot change template: no asset.");
 
     const updatedAsset = { ...localAsset.value, templateId: newTemplateId };
     updateLocalAsset(updatedAsset);
-    handleSaveAsset();
+    saveAsset();
   }
 
-  function handleMigrateCollection(
-    newCollectionId: number,
-    onSuccess?: () => void
-  ) {
-    invariant(localAsset.value, "Cannot change collection: no asset.");
+  async function migrateCollection(newCollectionId: number) {
+    return new Promise<ApiAssetSubmissionResponse>((resolve, reject) => {
+      try {
+        invariant(localAsset.value, "Cannot change collection: no asset.");
 
-    const updatedAsset = { ...localAsset.value, collectionId: newCollectionId };
-    updateLocalAsset(updatedAsset);
+        const updatedAsset = {
+          ...localAsset.value,
+          collectionId: newCollectionId,
+        };
+        updateLocalAsset(updatedAsset);
 
-    handleSaveAsset(onSuccess);
+        return saveAsset().then(resolve).catch(reject);
+      } catch (error) {
+        console.error("Failed to migrate collection:", error);
+        reject(error);
+      }
+    });
   }
 
   function setInitialValues(templateId: string, collectionId: string) {
@@ -286,8 +303,8 @@ export const useAssetEditor = (assetId: () => string | null) => {
     savedAsset,
     template,
     hasInitialized,
-    selectedTemplateId: selectedTemplateId,
-    selectedCollectionId: selectedCollectionId,
+    selectedTemplateId,
+    selectedCollectionId,
 
     // Computed
     isCreateMode,
@@ -311,9 +328,9 @@ export const useAssetEditor = (assetId: () => string | null) => {
 
     // Actions
     initAsset,
-    handleSaveAsset,
-    handleConfirmedTemplateIdUpdate,
-    handleMigrateCollection,
+    saveAsset,
+    updateTemplateId,
+    migrateCollection,
     setInitialValues,
     resetEditor,
     updateLocalAsset,
