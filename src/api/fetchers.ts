@@ -658,13 +658,15 @@ export async function getFileContainer({
   return res.data;
 }
 
-function encodeDots(component: string) {
-  return (
-    encodeURIComponent(component)
-      // sometimes s3 keys begin with dots (e.g. ".abdbc...")
-      // which may be denied by backend, so we replace dots with "%2E"
-      .replace(/\./g, "%2E")
-  );
+// if the component starts with a dot, we need to encode it
+// because our backend is set to deny any url components that
+// look like a dotfile. (e.g. ".env"). Encoding it as "%2E" doesn't
+// work in Chrome, since it decodes it back to a dot.
+// So we replace dots with "__DOT__" to avoid this issue.
+function replaceStartingDot(component: string, replaceWith = "__DOT__") {
+  return component.startsWith(".")
+    ? component.replace(/^\./, replaceWith)
+    : component;
 }
 
 export async function startS3MultipartUpload({
@@ -708,7 +710,7 @@ export async function signS3UploadPart({
   formData.append("fileObjectId", fileObjectId);
   formData.append("contentType", contentType);
 
-  const encodedUploadId = encodeDots(uploadId);
+  const safeUploadId = replaceStartingDot(uploadId);
 
   const res = await axios.post<{
     message: string;
@@ -716,7 +718,7 @@ export async function signS3UploadPart({
     method: string;
     partNumber: number;
     uploadId: string;
-  }>(`${BASE_URL}/s3/multipart/${encodedUploadId}/${partNumber}`, formData);
+  }>(`${BASE_URL}/s3/multipart/${safeUploadId}/${partNumber}`, formData);
 
   return res.data;
 }
@@ -737,12 +739,12 @@ export async function completeS3MultipartUpload({
   formData.append("fileObjectId", fileObjectId);
   formData.append("contentType", contentType);
 
-  const encodedUploadId = encodeDots(uploadId);
+  const safeUploadId = replaceStartingDot(uploadId);
 
   const res = await axios.post<{
     location: string; // S3 URL of the uploaded file
     message: string;
-  }>(`${BASE_URL}/s3/multipart/${encodedUploadId}/complete`, formData);
+  }>(`${BASE_URL}/s3/multipart/${safeUploadId}/complete`, formData);
 
   return res.data;
 }
@@ -763,11 +765,11 @@ export async function abortS3MultipartUpload({
   formData.append("fileObjectId", fileObjectId);
   formData.append("contentType", contentType);
 
-  const encodedUploadId = encodeDots(uploadId);
+  const safeUploadId = replaceStartingDot(uploadId);
 
   const res = await axios.post<{
     message: string;
-  }>(`${BASE_URL}/s3/multipart/${encodedUploadId}/abort`, formData);
+  }>(`${BASE_URL}/s3/multipart/${safeUploadId}/abort`, formData);
 
   return res.data;
 }
