@@ -21,22 +21,17 @@
   </RouterLink>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
 import { getTinyURL } from "@/helpers/displayUtils";
-import type { RelatedAssetCacheItem } from "@/types";
-import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import { RelatedAssetCacheItem } from "@/types";
 
-const props = defineProps<{
+defineProps<{
   assetId: string;
-  assetCacheItem: RelatedAssetCacheItem;
+  title: string;
   isActiveObject: boolean;
+  assetCacheItem: RelatedAssetCacheItem;
 }>();
-
-const title = computed((): string =>
-  getTitleFromCacheItem(props.assetCacheItem)
-);
 </script>
 <style scoped></style>
