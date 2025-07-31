@@ -36,10 +36,10 @@ import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
-    modelValue: string;
+    modelValue: string | number;
     label: string;
     options: Array<{
-      id: string;
+      id: string | number;
       label: string;
     }>;
     required?: boolean;
@@ -60,7 +60,7 @@ withDefaults(
 );
 
 defineEmits<{
-  (e: "update:modelValue", value: string): void;
+  (e: "update:modelValue", value: string | number): void;
 }>();
 </script>
 <style scoped></style>
