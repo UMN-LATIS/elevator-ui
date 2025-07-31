@@ -16,7 +16,7 @@
     </label>
     <select
       :id="id"
-      :value="modelValue"
+      :value="modelValue ?? ''"
       :class="cn(['rounded-md border-none bg-black/5 text-sm', selectClass])"
       readonly
       required
