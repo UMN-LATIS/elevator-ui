@@ -108,8 +108,9 @@ function getRelatedAssetTitle({
   widgetDef: RelatedAssetWidgetDef;
   label: string;
 }): string {
-  const trimmedTitle = cacheItem?.relatedAssetTitle?.[0].trim() ?? "";
-  const trimmedLabel = label?.trim() ?? "";
+  const relatedAssetTitleArr: string[] = cacheItem?.relatedAssetTitle ?? [];
+  const trimmedTitle: string = relatedAssetTitleArr?.[0]?.trim() ?? "";
+  const trimmedLabel: string = label.trim();
   const shouldShowLabel =
     widgetDef.fieldData.showLabel &&
     trimmedLabel.length > 0 &&
