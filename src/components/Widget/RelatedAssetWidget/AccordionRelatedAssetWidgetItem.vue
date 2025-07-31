@@ -20,18 +20,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
 import Accordion from "@/components/Accordion/Accordion.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
-import { RelatedAssetCacheItem } from "@/types";
-import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import { getTinyURL } from "@/helpers/displayUtils";
-
-const props = defineProps<{
+import { RelatedAssetCacheItem } from "@/types";
+defineProps<{
   assetId: string;
-  assetCacheItem: RelatedAssetCacheItem | null;
+  title: string;
+  assetCacheItem: RelatedAssetCacheItem;
 }>();
-
-const title = computed(() => getTitleFromCacheItem(props.assetCacheItem));
 </script>
 <style scoped></style>
