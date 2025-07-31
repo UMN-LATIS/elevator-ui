@@ -3,31 +3,36 @@
     <form
       v-if="!assetId && !localAsset"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
-      @submit.prevent="initAsset">
+      @submit.prevent>
       <SelectGroup
-        v-model="selectedTemplateId"
+        :modelValue="selectedTemplateId"
         :options="templateOptions"
         label="Template"
-        required />
+        required
+        @update:modelValue="(value: number) =>  setTemplate(value)" />
       <SelectGroup
-        v-model="selectedCollectionId"
+        :modelValue="selectedCollectionId"
         :options="collectionOptions"
         label="Collection"
-        required />
+        required
+        @update:modelValue="(value: number) => setCollection(value)" />
 
       <Button
-        type="submit"
+        type="button"
         variant="primary"
         class="block my-4 w-full"
-        :disabled="!selectedTemplateId || !selectedCollectionId || !template"
-        @click="initAsset">
+        :disabled="!selectedTemplateId || !selectedCollectionId"
+        @click="handleContinue">
         Continue
         <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
     </form>
     <div v-else-if="isLoading" class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
-      <span class="ml-2">Loading...</span>
+      <span class="ml-2">
+        Loading... (T: {{ selectedTemplateId }}, C: {{ selectedCollectionId }},
+        hasTemplate: {{ !!template }}, hasAsset: {{ !!localAsset }})
+      </span>
     </div>
     <Transition v-else-if="localAsset && template" name="fade">
       <EditAssetForm
@@ -35,15 +40,32 @@
         :asset="localAsset"
         :savedAssetTitle="savedAssetTitle"
         :localAssetTitle="localAssetTitle"
-        :saveStatus="saveAssetStatus"
-        :hasUnsavedChanges="hasAssetChanged"
-        :isValid="isFormValid"
+        :saveStatus="isSaving ? 'pending' : 'idle'"
+        :hasUnsavedChanges="isDirty"
+        :isValid="isValid"
         class="flex-1"
-        @update:templateId="updateTemplateId($event)"
+        @update:templateId="handleUpdateTemplateId($event)"
         @migrateCollection="handleMigrateCollection($event)"
         @save="handleSaveAsset"
         @update:asset="updateLocalAsset($event)" />
     </Transition>
+    <div
+      v-else-if="selectedTemplateId && selectedCollectionId"
+      class="flex justify-center items-center py-12">
+      <SpinnerIcon class="w-8 h-8 animate-spin" />
+      <span class="ml-2">
+        Loading template... (T: {{ selectedTemplateId }}, C:
+        {{ selectedCollectionId }}, hasTemplate: {{ !!template }}, hasAsset:
+        {{ !!localAsset }})
+      </span>
+    </div>
+    <div v-else class="p-4 text-center">
+      <p>
+        Debug: T: {{ selectedTemplateId }}, C: {{ selectedCollectionId }},
+        hasTemplate: {{ !!template }}, hasAsset: {{ !!localAsset }}, isLoading:
+        {{ isLoading }}
+      </p>
+    </div>
     <ConfirmModal
       v-if="isConfirmLeaveModalOpen"
       :isOpen="isConfirmLeaveModalOpen"
@@ -58,7 +80,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted } from "vue";
+import { computed, nextTick } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, WidgetContent } from "@/types";
@@ -88,84 +110,93 @@ const props = withDefaults(
   }
 );
 
-// Use the asset editor composable
-const assetEditor = useAssetEditor(() => props.assetId);
-
+// Use the clean asset editor composable
 const {
   localAsset,
   template,
   selectedTemplateId,
   selectedCollectionId,
   isCreateMode,
-  hasAssetChanged,
-  isFormValid,
+  isDirty,
+  isValid,
   isLoading,
   isTemplateLoading,
-  saveAssetStatus,
+  isSaving,
   templateOptions,
   collectionOptions,
-  defaultTemplateId,
-  defaultCollectionId,
   savedAssetTitle,
   localAssetTitle,
-  initAsset,
-  saveAsset,
-  updateTemplateId,
-  migrateCollection,
-  setInitialValues,
-  resetEditor,
+  setTemplate,
+  setCollection,
   updateLocalAsset,
-} = assetEditor;
+  save,
+  saveAndWait,
+  reset,
+} = useAssetEditor(() => props.assetId);
 
-onMounted(() => {
-  setInitialValues(defaultTemplateId.value, defaultCollectionId.value);
-});
+// Handler for Continue button
+function handleContinue() {
+  if (selectedTemplateId.value && selectedCollectionId.value) {
+    setTemplate(selectedTemplateId.value);
+    setCollection(selectedCollectionId.value);
+  }
+}
+
+// Auto-initialization is now handled by the composable
 
 const route = useRoute();
 const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
 async function handleSaveAsset() {
-  const data = await saveAsset();
-  if (!isCreateMode.value) {
-    return;
+  try {
+    await saveAndWait();
+
+    // For create mode, handle redirect after save
+    if (isCreateMode.value && localAsset.value?.assetId) {
+      const newAssetId = localAsset.value.assetId;
+
+      // Notify parent if this is a related asset
+      if (channelName.value) {
+        const channel = new BroadcastChannel(channelName.value);
+        const message: RelatedAssetSaveMessage = {
+          type: SAVE_RELATED_ASSET_TYPE,
+          payload: {
+            relatedAssetId: newAssetId,
+          },
+        };
+        channel.postMessage(message);
+        channel.close();
+      }
+
+      // Redirect to edit mode to prevent recreating assets
+      router.replace({
+        name: "editAsset",
+        params: {
+          assetId: newAssetId,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Save failed:", error);
   }
-
-  const newAssetId = data.objectId;
-
-  // if we're creating a related asset, notify the parent
-  if (channelName.value) {
-    const channel = new BroadcastChannel(channelName.value);
-    const message: RelatedAssetSaveMessage = {
-      type: SAVE_RELATED_ASSET_TYPE,
-      payload: {
-        relatedAssetId: newAssetId,
-      },
-    };
-    channel.postMessage(message);
-    channel.close();
-  }
-
-  // redirect to the edit asset page (so that we don't keep recreating
-  // new assets on each save!)
-  router.replace({
-    name: "editAsset",
-    params: {
-      assetId: newAssetId,
-    },
-  });
 }
 
 async function handleMigrateCollection(newCollectionId: number) {
-  await migrateCollection(newCollectionId);
-  // migrating the collection can take a bit of time, so redirect
-  // the user to the all my assets page after saving to prevent
-  // more editing during the migration
+  setCollection(newCollectionId);
+  await saveAndWait();
+
+  // Redirect after migration to prevent further editing
   nextTick(() => {
     router.push({
       name: "allMyAssets",
     });
   });
+}
+
+function handleUpdateTemplateId(newTemplateId: number) {
+  setTemplate(newTemplateId);
+  save(); // Auto-save after template change
 }
 
 const {
@@ -210,7 +241,7 @@ onBeforeRouteLeave(async (to, _from, next) => {
   }
 
   // no unsaved changes, proceed with navigation
-  if (!hasAssetChanged.value) return next();
+  if (!isDirty.value) return next();
 
   // otherwise confirm
   const isConfirmed = await confirmLeave();
@@ -224,7 +255,7 @@ onBeforeRouteUpdate(async (to, _from, next) => {
   }
 
   // confirm if there are unsaved changes
-  if (hasAssetChanged.value) {
+  if (isDirty.value) {
     const isConfirmed = await confirmLeave();
     if (!isConfirmed) {
       return next(false);
@@ -232,8 +263,7 @@ onBeforeRouteUpdate(async (to, _from, next) => {
   }
 
   // reset the asset state
-  resetEditor();
-  setInitialValues(defaultTemplateId.value, defaultCollectionId.value);
+  reset();
 
   next();
 });

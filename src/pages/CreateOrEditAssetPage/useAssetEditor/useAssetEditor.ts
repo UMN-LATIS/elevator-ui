@@ -1,14 +1,10 @@
-import { computed, watch, ref } from "vue";
+import { reactive, computed, readonly, watchEffect } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { useInstanceStore } from "@/stores/instanceStore";
-import {
-  toSaveableFormData,
-  doAllRequiredHaveContent,
-  makeLocalAsset,
-  hasAssetChanged as hasAssetChangedPure,
-} from "./utils";
+import { toSaveableFormData } from "./utils";
 import type {
   Asset,
   UnsavedAsset,
@@ -16,323 +12,261 @@ import type {
   ApiAssetSubmissionResponse,
   TextWidgetContent,
 } from "@/types";
-import invariant from "tiny-invariant";
-import { MutationStatus } from "@tanstack/vue-query";
-import { useDebounceFn } from "@vueuse/core";
+import {
+  initialState,
+  reduce,
+  type EditorEvent,
+  type Effect,
+} from "./editor.model";
 
-export const useAssetEditor = (assetId: () => string | null) => {
+export function useAssetEditor(assetId: () => string | null) {
   const instanceStore = useInstanceStore();
 
-  // Reactive state
-  const localAsset = ref<Asset | UnsavedAsset | null>(null);
-  const hasInitialized = ref(false);
-  const selectedTemplateId = ref("");
-  const selectedCollectionId = ref("");
-  const saveAssetStatus = ref<MutationStatus>("idle");
+  const state = reactive(initialState());
 
-  // Queries
-  const { data: savedAsset, error: assetError } = useAssetQuery(assetId, {
-    enabled: () => !!assetId(),
-  });
-
-  const safeParseInt = (val: unknown): number | null => {
-    if (typeof val === "string" || typeof val === "number") {
-      const parsed = Number.parseInt(val as string, 10);
-      return Number.isNaN(parsed) ? null : parsed;
-    }
-    return null;
+  /**
+   * Dispatch - sends all state changes go through pure reducer
+   */
+  const dispatch = (event: EditorEvent): void => {
+    const [nextState, effect] = reduce(state, event);
+    Object.assign(state, nextState);
+    runEffect(effect);
   };
 
-  const savedTemplateId = computed((): number | null => {
-    const assetTemplateId = savedAsset.value?.templateId;
-    const initialId = selectedTemplateId.value;
-
-    // For asset editing, use the asset's template ID
-    if (assetTemplateId) return safeParseInt(assetTemplateId);
-
-    // For asset creation, convert string ID to number
-    if (initialId) return safeParseInt(initialId);
-
-    return null;
+  // Server queries
+  const { error: assetError } = useAssetQuery(assetId, {
+    enabled: () => !!assetId(),
+    onSuccess: (saved: Asset | null) =>
+      dispatch({
+        type: "LOAD_SAVED_ASSET_SUCCESS",
+        saved: saved ?? null,
+      }),
   });
 
-  // queries
-  const {
-    data: template,
-    isLoading: isTemplateLoading,
-    error: templateError,
-  } = useTemplateQuery(savedTemplateId, {
-    enabled: () => savedTemplateId.value !== null,
+  const templateId = computed(() => {
+    const selected = state.selectedTemplateId;
+    const savedId = state.savedAsset?.templateId;
+    // Use saved asset's template ID if editing, otherwise use selected ID
+    const effectiveId = savedId ?? (selected === "" ? null : selected);
+    return effectiveId;
   });
+
+  const { isLoading: isTemplateLoading, error: templateError } =
+    useTemplateQuery(templateId, {
+      enabled: () => templateId.value !== null,
+      onSuccess: (template: Template) =>
+        template &&
+        dispatch({
+          type: "LOAD_TEMPLATE_SUCCESS",
+          template,
+        }),
+    });
 
   const { mutate: saveAssetMutation } = useUpdateAssetMutation();
 
-  // computed
+  /**
+   * Effect executor - declarative side effects based on reducer commands
+   */
+  const runEffect = (effect: Effect): void => {
+    if (effect.kind === "save") {
+      if (!state.localAsset || !state.template) return;
+
+      const formData = toSaveableFormData(state.localAsset, state.template);
+      saveAssetMutation(formData, {
+        onSuccess: (res: ApiAssetSubmissionResponse) =>
+          dispatch({
+            type: "SAVE_SUCCESS",
+            saved: res,
+          }),
+        onError: (error: unknown) => {
+          const message =
+            error instanceof Error ? error.message : "Save failed";
+          dispatch({
+            type: "SAVE_FAILURE",
+            message,
+          });
+        },
+      });
+    }
+  };
+
+  // Options for template/collection selects
   const templateOptions = computed(() => {
     const templates = instanceStore.instance.templates ?? [];
     return templates.map((template) => ({
       label: template.name,
-      id: template.id.toString(),
+      id: template.id.toString(), // Convert to string for SelectGroup
     }));
-  });
-
-  const defaultTemplateId = computed(() => {
-    return templateOptions.value.length === 1
-      ? templateOptions.value[0].id
-      : "";
   });
 
   const collectionOptions = computed(() => {
     const collections = instanceStore.collections ?? [];
     return collections.map((collection) => ({
       label: collection.title,
-      id: collection.id.toString(),
+      id: collection.id.toString(), // Convert to string for SelectGroup
     }));
   });
 
-  const defaultCollectionId = computed(() => {
+  const defaultTemplateId = computed((): string => {
+    return templateOptions.value.length === 1
+      ? templateOptions.value[0].id
+      : "";
+  });
+
+  const defaultCollectionId = computed((): string => {
     return collectionOptions.value.length === 1
       ? collectionOptions.value[0].id
       : "";
   });
 
-  const isCreateMode = computed(() => !savedAsset.value?.assetId);
+  // Initialize with defaults when available (create mode)
+  const shouldInitialize = computed(() => {
+    return (
+      state.status === "idle" &&
+      !assetId() &&
+      defaultTemplateId.value &&
+      defaultCollectionId.value
+    );
+  });
 
-  const savedAssetTitle = computed(
-    () => savedAsset.value?.title?.[0] ?? savedAsset.value?.assetId ?? ""
-  );
+  const formStatus = computed(() => state.status);
+
+  // Auto-initialize for create mode
+  watchEffect(() => {
+    if (!shouldInitialize.value) return;
+
+    if (defaultTemplateId.value) {
+      dispatch({
+        type: "SET_TEMPLATE",
+        id: Number.parseInt(defaultTemplateId.value),
+      });
+    }
+
+    if (defaultCollectionId.value) {
+      dispatch({
+        type: "SET_COLLECTION",
+        id: Number.parseInt(defaultCollectionId.value),
+      });
+    }
+  });
+
+  // Derived computed properties
+  const isCreateMode = computed(() => !state.savedAsset?.assetId);
+
+  const savedAssetTitle = computed(() => {
+    return state.savedAsset?.title?.[0] ?? state.savedAsset?.assetId ?? "";
+  });
 
   const localAssetTitle = computed(() => {
-    if (!localAsset.value) return "";
-    const localTitle = localAsset.value.title?.[0];
+    if (!state.localAsset) return "";
 
-    // if there's no title set, try the title widget
-    const titleWidget = (localAsset.value.title_1 as TextWidgetContent[]) || [];
-    const localTitleWidgetContent = titleWidget?.[0]?.fieldContents;
-
+    const localTitle = state.localAsset.title?.[0];
+    const titleWidget = (state.localAsset as Record<string, unknown>).title_1;
+    const titleWidgetArray = Array.isArray(titleWidget)
+      ? (titleWidget as TextWidgetContent[])
+      : [];
+    const localTitleWidgetContent = titleWidgetArray[0]?.fieldContents;
     return localTitle || localTitleWidgetContent || "";
   });
 
-  const hasAssetChanged = computed(() => {
-    if (!localAsset.value || !template.value) return false;
-
-    return hasAssetChangedPure({
-      localAsset: localAsset.value,
-      savedAsset: savedAsset.value,
-      template: template.value,
-    });
-  });
-
-  const isFormValid = computed(() => {
-    if (!template.value || !localAsset.value) return false;
-    return doAllRequiredHaveContent(localAsset.value, template.value);
-  });
-
   const isLoading = computed(() => {
-    // Loading if we're waiting for template or if we haven't initialized yet
-    return isTemplateLoading.value || (!!assetId() && !hasInitialized.value);
+    return isTemplateLoading.value || state.status === "initializing";
   });
 
-  // Auto-set initial values when defaults are available for create mode
-  watch(
-    [defaultTemplateId, defaultCollectionId],
-    ([newTemplateId, newCollectionId]) => {
-      if (!assetId() && newTemplateId && newCollectionId) {
-        if (!selectedTemplateId.value) {
-          selectedTemplateId.value = newTemplateId;
-        }
-        if (!selectedCollectionId.value) {
-          selectedCollectionId.value = newCollectionId;
-        }
-      }
-    },
-    { immediate: true }
+  // Single autosave effect - replaces complex watchers with simple reactivity
+  const shouldAutosave = computed(() => {
+    return state.status === "editing" && state.isDirty && state.isValid;
+  });
+
+  watchDebounced(
+    shouldAutosave,
+    (should: boolean) => should && dispatch({ type: "REQUEST_SAVE" }),
+    { debounce: 500, maxWait: 2000 }
   );
 
-  // Initialize asset when data is available (only for edit mode)
-  watch(
-    [savedAsset, template],
-    ([newAsset, newTemplate]) => {
-      // For create mode, don't auto-initialize - wait for user to click Continue
-      if (!assetId()) return;
+  /** Set the selected template ID and trigger template loading */
+  const setTemplate = (id: number): void =>
+    dispatch({ type: "SET_TEMPLATE", id });
 
-      if (!newTemplate) return;
+  /** Set the selected collection ID */
+  const setCollection = (id: number): void =>
+    dispatch({ type: "SET_COLLECTION", id });
 
-      const collectionId = Number.parseInt(
-        selectedCollectionId.value || defaultCollectionId.value
-      );
+  /** Update the local asset data */
+  const updateLocalAsset = (asset: Asset | UnsavedAsset): void =>
+    dispatch({ type: "UPDATE_LOCAL_ASSET", asset });
 
-      // Only initialize if we haven't yet, or if asset ID changed (create -> edit transition)
-      const shouldInitialize =
-        !hasInitialized.value ||
-        !localAsset.value ||
-        newAsset?.assetId !== savedAsset.value?.assetId;
+  /** Trigger a save operation (with autosave debouncing) */
+  const save = (): void => dispatch({ type: "REQUEST_SAVE" });
 
-      if (shouldInitialize) {
-        initializeAsset(newTemplate, collectionId, newAsset || null);
-      }
-    },
-    { immediate: true }
-  );
+  /** Reset the editor to initial state */
+  const reset = (): void => dispatch({ type: "RESET" });
 
-  // Actions
-  function initAsset() {
-    invariant(
-      template.value,
-      "Cannot initialize asset without a loaded template"
-    );
+  /**
+   * Promise-based save for special cases (redirects, etc)
+   */
+  const saveAndWait = (): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      save();
 
-    const collectionId = Number.parseInt(
-      selectedCollectionId.value || defaultCollectionId.value
-    );
-
-    initializeAsset(template.value, collectionId, savedAsset.value || null);
-  }
-
-  const debouncedSaveAssetMutation = useDebounceFn(saveAssetMutation, 500);
-
-  function saveAsset() {
-    return new Promise<ApiAssetSubmissionResponse>((resolve, reject) => {
-      invariant(localAsset.value, "Cannot save: no asset.");
-      invariant(template.value, "Cannot save: no template.");
-      saveAssetStatus.value = "pending";
-
-      // if we're in create mode, we can save asset right away,
-      // otherwise, we should debounce to save
-      const saveFn = isCreateMode.value
-        ? saveAssetMutation
-        : debouncedSaveAssetMutation;
-
-      const formData = toSaveableFormData(localAsset.value, template.value);
-
-      saveFn(formData, {
-        onSuccess: (data) => {
-          saveAssetStatus.value = "success";
-          setTimeout(() => {
-            saveAssetStatus.value = "idle"; // Reset status after a delay
-          }, 3000);
-
-          // For create mode, the server only returns objectId, so update the local asset's ID
-          if (
-            isCreateMode.value &&
-            data &&
-            typeof data === "object" &&
-            "objectId" in data &&
-            localAsset.value
-          ) {
-            const objectId = (data as { objectId: string }).objectId;
-            localAsset.value.assetId = objectId;
+      // Watch for status changes to resolve or reject
+      const unwatch = watchDebounced(
+        () => state.status,
+        (status: string) => {
+          if (status === "editing") {
+            unwatch();
+            resolve();
+          } else if (status === "error") {
+            unwatch();
+            reject(new Error(state.error || "Save failed"));
           }
-
-          resolve(data as ApiAssetSubmissionResponse);
         },
-        onError: (error) => {
-          saveAssetStatus.value = "error";
-          console.error("Failed to save asset:", error);
-          setTimeout(() => {
-            saveAssetStatus.value = "idle"; // Reset status after a delay
-          }, 10000);
-          reject(error);
-        },
-      });
+        { debounce: 50 }
+      );
     });
-  }
-
-  function updateTemplateId(newTemplateId: number) {
-    invariant(localAsset.value, "Cannot change template: no asset.");
-
-    const updatedAsset = { ...localAsset.value, templateId: newTemplateId };
-    updateLocalAsset(updatedAsset);
-    saveAsset();
-  }
-
-  async function migrateCollection(newCollectionId: number) {
-    return new Promise<ApiAssetSubmissionResponse>((resolve, reject) => {
-      try {
-        invariant(localAsset.value, "Cannot change collection: no asset.");
-
-        const updatedAsset = {
-          ...localAsset.value,
-          collectionId: newCollectionId,
-        };
-        updateLocalAsset(updatedAsset);
-
-        return saveAsset().then(resolve).catch(reject);
-      } catch (error) {
-        console.error("Failed to migrate collection:", error);
-        reject(error);
-      }
-    });
-  }
-
-  function setInitialValues(templateId: string, collectionId: string) {
-    selectedTemplateId.value = templateId || defaultTemplateId.value;
-    selectedCollectionId.value = collectionId || defaultCollectionId.value;
-  }
-
-  // Local actions - moved from store
-  function initializeAsset(
-    templateData: Template,
-    collectionId: number,
-    existingAsset?: Asset | null
-  ) {
-    localAsset.value = makeLocalAsset({
-      template: templateData,
-      collectionId,
-      savedAsset: existingAsset || null,
-    });
-
-    hasInitialized.value = true;
-  }
-
-  function updateLocalAsset(updatedAsset: Asset | UnsavedAsset) {
-    localAsset.value = updatedAsset;
-  }
-
-  function resetEditor() {
-    localAsset.value = null;
-    hasInitialized.value = false;
-    selectedTemplateId.value = "";
-    selectedCollectionId.value = "";
-    saveAssetStatus.value = "idle";
-  }
+  };
 
   return {
-    // State
-    localAsset,
-    savedAsset,
-    template,
-    hasInitialized,
-    selectedTemplateId,
-    selectedCollectionId,
+    // State - single source of truth
+    state: readonly(state),
 
-    // Computed
+    // Computed properties
     isCreateMode,
-    hasAssetChanged,
-    isFormValid,
     isLoading,
-    isTemplateLoading,
     savedAssetTitle,
     localAssetTitle,
+    formStatus,
+
+    // State getters - clean computed access
+    localAsset: computed(() => state.localAsset),
+    template: computed(() => state.template),
+    selectedTemplateId: computed((): number | "" => state.selectedTemplateId),
+    selectedCollectionId: computed(
+      (): number | "" => state.selectedCollectionId
+    ),
+    isDirty: computed(() => state.isDirty),
+    isValid: computed(() => state.isValid),
+    hasError: computed(() => state.status === "error"),
+    isSaving: computed(() => state.status === "saving"),
+    error: computed(() => state.error),
 
     // Query status
     assetError,
     templateError,
-    saveAssetStatus,
+    isTemplateLoading,
 
-    // Options
+    // Options for selects
     templateOptions,
     collectionOptions,
     defaultTemplateId,
     defaultCollectionId,
 
-    // Actions
-    initAsset,
-    saveAsset,
-    updateTemplateId,
-    migrateCollection,
-    setInitialValues,
-    resetEditor,
+    // Actions - clean, intentional API
+    setTemplate,
+    setCollection,
     updateLocalAsset,
-  };
-};
+    save,
+    saveAndWait,
+    reset,
+  } as const;
+}
