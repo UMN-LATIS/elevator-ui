@@ -59,8 +59,18 @@ app.post("/submission/true", async (c) => {
     formData: AssetFormData;
   };
 
-  if (!formData.templateId || !formData.collectionId) {
-    return c.json({ error: "Template and collection are required" }, 400);
+  // convert collectionId and templateId to numbers
+  formData.collectionId = Number(formData.collectionId);
+  formData.templateId = Number(formData.templateId);
+
+  if (
+    Number.isNaN(formData.collectionId) ||
+    Number.isNaN(formData.templateId)
+  ) {
+    return c.json(
+      { error: "valid templateId and collectionId are required" },
+      400
+    );
   }
 
   const titleWidgets = formData.title_1 as TextWidgetContent[];
