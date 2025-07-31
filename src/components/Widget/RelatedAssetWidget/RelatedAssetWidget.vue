@@ -4,17 +4,15 @@
     :class="{
       'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
       'gap-2': widgetType !== LinkedRelatedAssetWidgetItem,
-    }"
-  >
+    }">
     <component
       :is="widgetType"
       v-for="relatedAsset in contentsWithAssetId"
       :key="relatedAsset.targetAssetId"
       :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
       :assetId="relatedAsset.targetAssetId"
-      :assetCacheItem="asset.relatedAssetCache?.[relatedAsset.targetAssetId]"
-      :label="relatedAsset.label ?? ''"
-    >
+      :assetCacheItem="relatedAsset.cacheItem"
+      :title="relatedAsset.title">
       <div class="flex items-center justify-end gap-2">
         <ArrowButton :to="`/asset/viewAsset/${relatedAsset.targetAssetId}`" />
       </div>
@@ -25,8 +23,10 @@
 import { type Component, computed, onMounted, onBeforeUnmount } from "vue";
 import {
   Asset,
-  RelatedAssetWidgetProps,
+  RelatedAssetWidgetProps as RelatedAssetWidgetDef,
   RelatedAssetWidgetContent,
+  RelatedAssetCacheItem,
+  RelatedAssetCache,
 } from "@/types";
 import AccordionRelatedAssetWidgetItem from "./AccordionRelatedAssetWidgetItem.vue";
 import CollapsedInlineRelatedAssetWidgetItem from "./CollapsedInlineRelatedAssetWidgetItem.vue";
@@ -36,7 +36,7 @@ import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 
 const props = defineProps<{
-  widget: RelatedAssetWidgetProps;
+  widget: RelatedAssetWidgetDef;
   contents: RelatedAssetWidgetContent[];
   asset: Asset;
 }>();
@@ -62,10 +62,26 @@ const widgetType = computed((): Component => {
 });
 
 const contentsWithAssetId = computed(() =>
-  props.contents.filter(
-    (item): item is WithTargetAssetId<RelatedAssetWidgetContent> =>
-      !!item.targetAssetId
-  )
+  props.contents
+    .filter(
+      (item): item is WithTargetAssetId<RelatedAssetWidgetContent> =>
+        !!item.targetAssetId
+    )
+    .map((relatedAsset) => {
+      const cacheItem = getRelatedAssetCacheItem(
+        relatedAsset.targetAssetId,
+        props.asset.relatedAssetCache
+      );
+      return {
+        ...relatedAsset,
+        cacheItem,
+        title: getRelatedAssetTitle({
+          cacheItem,
+          label: relatedAsset.label ?? "",
+          widgetDef: props.widget,
+        }),
+      };
+    })
 );
 
 const activeIndex = computed(() =>
@@ -75,6 +91,35 @@ const activeIndex = computed(() =>
 );
 
 const hasActiveObjectWithin = computed(() => activeIndex.value !== -1);
+
+function getRelatedAssetCacheItem(
+  targetAssetId: string,
+  relatedAssetCache: RelatedAssetCache | never[] | null
+): RelatedAssetCacheItem | null {
+  return relatedAssetCache?.[targetAssetId] ?? null;
+}
+
+function getRelatedAssetTitle({
+  cacheItem,
+  widgetDef,
+  label,
+}: {
+  cacheItem: RelatedAssetCacheItem | null;
+  widgetDef: RelatedAssetWidgetDef;
+  label: string;
+}): string {
+  const trimmedTitle = cacheItem?.relatedAssetTitle?.[0].trim() ?? "";
+  const trimmedLabel = label?.trim() ?? "";
+  const shouldShowLabel =
+    widgetDef.fieldData.showLabel &&
+    trimmedLabel.length > 0 &&
+    trimmedLabel !== trimmedTitle;
+
+  if (!shouldShowLabel) {
+    return trimmedTitle || "(No Title)";
+  }
+  return `${trimmedTitle} (${trimmedLabel})`;
+}
 
 function setPrevObjectAsActive() {
   const prevIndex =

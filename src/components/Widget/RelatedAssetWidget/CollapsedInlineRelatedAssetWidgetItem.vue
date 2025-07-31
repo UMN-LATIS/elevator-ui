@@ -10,16 +10,13 @@
 <script setup lang="ts">
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { computed } from "vue";
-import type { RelatedAssetCacheItem } from "@/types";
-import { getTitleFromCacheItem } from "./getTitleFromCacheItem";
 import { useAsset } from "@/helpers/useAsset";
 
 const props = defineProps<{
   assetId: string;
-  assetCacheItem: RelatedAssetCacheItem | null;
+  title: string;
 }>();
 
-const title = computed(() => getTitleFromCacheItem(props.assetCacheItem));
 const assetIdRef = computed(() => props.assetId);
 const { asset } = useAsset(assetIdRef);
 </script>
