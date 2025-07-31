@@ -1,4 +1,4 @@
-import { computed, watch, ref } from "vue";
+import { computed, watch, ref, MaybeRefOrGetter, toValue, toRef } from "vue";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { useTemplateQuery } from "@/queries/useTemplateQuery";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
@@ -12,47 +12,30 @@ import {
 import type {
   Asset,
   UnsavedAsset,
-  Template,
   ApiAssetSubmissionResponse,
   TextWidgetContent,
+  SelectOption,
 } from "@/types";
 import invariant from "tiny-invariant";
 import { MutationStatus } from "@tanstack/vue-query";
 
-export const useAssetEditor = (assetId: () => string | null) => {
+export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
   const instanceStore = useInstanceStore();
 
   // Reactive state
   const localAsset = ref<Asset | UnsavedAsset | null>(null);
   const hasInitialized = ref(false);
-  const selectedTemplateId = ref("");
-  const selectedCollectionId = ref("");
+  const selectedTemplateId = ref<number | null>(null);
+  const selectedCollectionId = ref<number | null>(null);
   const saveAssetStatus = ref<MutationStatus>("idle");
 
   // Queries
-  const { data: savedAsset, error: assetError } = useAssetQuery(assetId, {
-    enabled: () => !!assetId(),
-  });
-
-  const safeParseInt = (val: unknown): number | null => {
-    if (typeof val === "string" || typeof val === "number") {
-      const parsed = Number.parseInt(val as string, 10);
-      return Number.isNaN(parsed) ? null : parsed;
-    }
-    return null;
-  };
-
-  const savedTemplateId = computed((): number | null => {
-    const assetTemplateId = savedAsset.value?.templateId;
-    const initialId = selectedTemplateId.value;
-
-    // For asset editing, use the asset's template ID
-    if (assetTemplateId) return safeParseInt(assetTemplateId);
-
-    // For asset creation, convert string ID to number
-    if (initialId) return safeParseInt(initialId);
-
-    return null;
+  const {
+    data: savedAsset,
+    error: assetError,
+    isLoading: isSavedAssetLoading,
+  } = useAssetQuery(assetId, {
+    enabled: () => !!toValue(assetId),
   });
 
   // queries
@@ -60,39 +43,28 @@ export const useAssetEditor = (assetId: () => string | null) => {
     data: template,
     isLoading: isTemplateLoading,
     error: templateError,
-  } = useTemplateQuery(savedTemplateId, {
-    enabled: () => savedTemplateId.value !== null,
+  } = useTemplateQuery(selectedTemplateId, {
+    enabled: () => selectedTemplateId.value !== null,
+    experimental_prefetchInRender: true,
   });
 
   const { mutate: saveAsset } = useUpdateAssetMutation();
 
   // computed
-  const templateOptions = computed(() => {
+  const templateOptions = computed((): SelectOption<number>[] => {
     const templates = instanceStore.instance.templates ?? [];
     return templates.map((template) => ({
       label: template.name,
-      id: template.id.toString(),
+      id: template.id,
     }));
   });
 
-  const defaultTemplateId = computed(() => {
-    return templateOptions.value.length === 1
-      ? templateOptions.value[0].id
-      : "";
-  });
-
-  const collectionOptions = computed(() => {
+  const collectionOptions = computed((): SelectOption<number>[] => {
     const collections = instanceStore.collections ?? [];
     return collections.map((collection) => ({
       label: collection.title,
-      id: collection.id.toString(),
+      id: collection.id,
     }));
-  });
-
-  const defaultCollectionId = computed(() => {
-    return collectionOptions.value.length === 1
-      ? collectionOptions.value[0].id
-      : "";
   });
 
   const isCreateMode = computed(() => !savedAsset.value?.assetId);
@@ -127,65 +99,61 @@ export const useAssetEditor = (assetId: () => string | null) => {
     return doAllRequiredHaveContent(localAsset.value, template.value);
   });
 
-  const isLoading = computed(() => {
-    // Loading if we're waiting for template or if we haven't initialized yet
-    return isTemplateLoading.value || (!!assetId() && !hasInitialized.value);
-  });
-
-  // Auto-set initial values when defaults are available for create mode
-  watch(
-    [defaultTemplateId, defaultCollectionId],
-    ([newTemplateId, newCollectionId]) => {
-      if (!assetId() && newTemplateId && newCollectionId) {
-        if (!selectedTemplateId.value) {
-          selectedTemplateId.value = newTemplateId;
-        }
-        if (!selectedCollectionId.value) {
-          selectedCollectionId.value = newCollectionId;
-        }
-      }
-    },
-    { immediate: true }
-  );
-
   // Initialize asset when data is available (only for edit mode)
   watch(
     [savedAsset, template],
-    ([newAsset, newTemplate]) => {
+    async () => {
       // For create mode, don't auto-initialize - wait for user to click Continue
-      if (!assetId()) return;
-
-      if (!newTemplate) return;
-
-      const collectionId = Number.parseInt(
-        selectedCollectionId.value || defaultCollectionId.value
-      );
-
-      // Only initialize if we haven't yet, or if asset ID changed (create -> edit transition)
-      const shouldInitialize =
-        !hasInitialized.value ||
-        !localAsset.value ||
-        newAsset?.assetId !== savedAsset.value?.assetId;
-
-      if (shouldInitialize) {
-        initializeAsset(newTemplate, collectionId, newAsset || null);
+      if (!toValue(assetId) || !savedAsset.value || hasInitialized.value) {
+        return;
       }
+
+      // if asset is loaded, we can initialize the collection and template id
+      selectedCollectionId.value = savedAsset.value.collectionId;
+      selectedTemplateId.value = savedAsset.value.templateId;
+
+      // if the loaded template is different from the selected one,
+      // we can't do anything more yet
+      if (template.value?.templateId !== selectedTemplateId.value) {
+        return;
+      }
+
+      localAsset.value = makeLocalAsset({
+        template: template.value,
+        collectionId: selectedCollectionId.value,
+        savedAsset: savedAsset.value,
+      });
+      hasInitialized.value = true;
     },
     { immediate: true }
   );
 
   // Actions
-  function initAsset() {
+  function initNewAsset() {
+    // ensure all our assumptions are met before initializing
     invariant(
       template.value,
       "Cannot initialize asset without a loaded template"
     );
-
-    const collectionId = Number.parseInt(
-      selectedCollectionId.value || defaultCollectionId.value
+    invariant(
+      selectedCollectionId.value,
+      "Cannot initialize asset without a selected collection"
+    );
+    invariant(!hasInitialized.value, "Asset editor already initialized");
+    invariant(!localAsset.value, "Cannot initialize: asset already exists");
+    invariant(isCreateMode.value, "Cannot initialize: this is not create mode");
+    invariant(
+      selectedTemplateId.value === template.value.templateId,
+      "Template ID mismatch"
     );
 
-    initializeAsset(template.value, collectionId, savedAsset.value || null);
+    localAsset.value = makeLocalAsset({
+      template: template.value,
+      collectionId: selectedCollectionId.value,
+      savedAsset: null,
+    });
+
+    hasInitialized.value = true;
   }
 
   function handleSaveAsset(
@@ -248,26 +216,6 @@ export const useAssetEditor = (assetId: () => string | null) => {
     handleSaveAsset(onSuccess);
   }
 
-  function setInitialValues(templateId: string, collectionId: string) {
-    selectedTemplateId.value = templateId || defaultTemplateId.value;
-    selectedCollectionId.value = collectionId || defaultCollectionId.value;
-  }
-
-  // Local actions - moved from store
-  function initializeAsset(
-    templateData: Template,
-    collectionId: number,
-    existingAsset?: Asset | null
-  ) {
-    localAsset.value = makeLocalAsset({
-      template: templateData,
-      collectionId,
-      savedAsset: existingAsset || null,
-    });
-
-    hasInitialized.value = true;
-  }
-
   function updateLocalAsset(updatedAsset: Asset | UnsavedAsset) {
     localAsset.value = updatedAsset;
   }
@@ -275,10 +223,19 @@ export const useAssetEditor = (assetId: () => string | null) => {
   function resetEditor() {
     localAsset.value = null;
     hasInitialized.value = false;
-    selectedTemplateId.value = "";
-    selectedCollectionId.value = "";
+    selectedTemplateId.value = null;
+    selectedCollectionId.value = null;
     saveAssetStatus.value = "idle";
   }
+
+  watch(toRef(assetId), (newAssetId) => {
+    // if assetId matches current asset, skip reset to avoid flash
+    if (newAssetId === localAsset.value?.assetId) {
+      return;
+    }
+
+    resetEditor();
+  });
 
   return {
     // State
@@ -286,35 +243,32 @@ export const useAssetEditor = (assetId: () => string | null) => {
     savedAsset,
     template,
     hasInitialized,
-    selectedTemplateId: selectedTemplateId,
-    selectedCollectionId: selectedCollectionId,
+    selectedTemplateId,
+    selectedCollectionId,
 
     // Computed
     isCreateMode,
     hasAssetChanged,
     isFormValid,
-    isLoading,
-    isTemplateLoading,
     savedAssetTitle,
     localAssetTitle,
 
     // Query status
-    assetError,
+    isTemplateLoading,
     templateError,
+    isSavedAssetLoading,
     saveAssetStatus,
+    assetError,
 
     // Options
     templateOptions,
     collectionOptions,
-    defaultTemplateId,
-    defaultCollectionId,
 
     // Actions
-    initAsset,
+    initNewAsset,
     handleSaveAsset,
     handleConfirmedTemplateIdUpdate,
     handleMigrateCollection,
-    setInitialValues,
     resetEditor,
     updateLocalAsset,
   };
