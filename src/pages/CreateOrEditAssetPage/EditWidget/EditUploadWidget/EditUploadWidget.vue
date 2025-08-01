@@ -74,7 +74,7 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   const completedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
-    fileDescription: fileRecord.filename,
+    fileDescription: "",
     fileType: fileRecord.contentType,
     loc: fileRecord.location || "",
     sidecars: {}, // Initialize sidecars as an empty object

@@ -16,12 +16,12 @@
     </label>
     <select
       :id="id"
-      :value="modelValue"
+      :value="modelValue ?? ''"
       :class="cn(['rounded-md border-none bg-black/5 text-sm', selectClass])"
       readonly
       required
       @change="
-        $emit('update:modelValue', ($event.target as HTMLSelectElement).value)
+        handleUpdateSelection(($event.target as HTMLSelectElement).value)
       ">
       <option value="" disabled selected>{{ placeholder }}</option>
       <option v-for="opt in options" :key="opt.id" :value="opt.id">
@@ -36,10 +36,10 @@ import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
-    modelValue: string;
+    modelValue: string | number | null;
     label: string;
     options: Array<{
-      id: string;
+      id: string | number;
       label: string;
     }>;
     required?: boolean;
@@ -59,8 +59,24 @@ withDefaults(
   }
 );
 
-defineEmits<{
-  (e: "update:modelValue", value: string): void;
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string | number | null): void;
 }>();
+
+function handleUpdateSelection(value: string | number) {
+  // if the value is empty, set it to null
+  if (value === "") {
+    return emit("update:modelValue", null);
+  }
+
+  // if the value is a number, convert it to a number
+  const maybeNumber = Number(value);
+  if (Number.isInteger(maybeNumber)) {
+    return emit("update:modelValue", maybeNumber);
+  }
+
+  // otherwise, return the value as a string
+  return emit("update:modelValue", value);
+}
 </script>
 <style scoped></style>

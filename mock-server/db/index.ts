@@ -8,6 +8,7 @@ import { createSessionsTable } from "./sessions";
 import { createTemplatesTable } from "./templates";
 import { createUsersTable } from "./users";
 import { createSearchesTable } from "./searches";
+import { createUploadsTable } from "./uploads";
 
 const makeDb = () => {
   const collections = createCollectionsTable();
@@ -24,6 +25,7 @@ const makeDb = () => {
     pages: createPagesTable(),
     files: createFilesTable(),
     drawers: createDrawersTable(),
+    uploads: createUploadsTable(),
   };
 
   // Seed all the db tables

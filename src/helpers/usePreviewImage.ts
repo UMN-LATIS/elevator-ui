@@ -1,55 +1,45 @@
 import { usePreviewImageStore } from "@/stores/previewImageStore";
+import invariant from "tiny-invariant";
 import {
   computed,
   watch,
   toValue,
-  ref,
   type MaybeRefOrGetter,
   type ComputedRef,
 } from "vue";
 
-// Return type that creates a type guard relationship
 interface PreviewImageResult {
   isReady: ComputedRef<boolean>;
   previewImageUrl: ComputedRef<string | null>;
 }
 
-// this composable provides a nicer interface for using the
-// preview image store. So that we don't need to init polling,
-// or register file ids in the components that use it.
 export const usePreviewImage = (
   fileIdSource: MaybeRefOrGetter<string | null | undefined>
 ): PreviewImageResult => {
   const store = usePreviewImageStore();
-
-  store.init();
-
-  // Watch for fileId changes and register new ones
-  const isFileIdRegistered = ref(false);
+  const fileId = computed(() => toValue(fileIdSource));
 
   watch(
-    () => toValue(fileIdSource),
-    (fileId) => {
-      if (!fileId) {
-        isFileIdRegistered.value = false;
-        return;
-      }
-      store.registerFileId(fileId);
-      isFileIdRegistered.value = true;
+    fileId,
+    () => {
+      if (!fileId.value) return;
+      store.registerFileId(fileId.value);
     },
     { immediate: true }
   );
 
-  const isReady = computed(() => {
-    const fileId = toValue(fileIdSource);
-    if (!fileId || !isFileIdRegistered.value) return false;
-    return store.isImageReady(fileId);
+  const isReady = computed((): boolean => {
+    return Boolean(fileId.value && store.isImageReady(fileId.value));
   });
 
   const previewImageUrl = computed(() => {
-    const fileId = toValue(fileIdSource);
-    if (!fileId || !isFileIdRegistered.value) return null;
-    return store.getPreviewImageUrl(fileId);
+    if (!isReady.value) return null;
+    invariant(
+      fileId.value,
+      "File ID must be defined to get preview image URL."
+    );
+
+    return store.getPreviewImageUrl(fileId.value);
   });
 
   return {

@@ -3,7 +3,7 @@
     <form
       v-if="!assetId && !localAsset"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
-      @submit.prevent="initAsset">
+      @submit.prevent>
       <SelectGroup
         v-model="selectedTemplateId"
         :options="templateOptions"
@@ -20,12 +20,14 @@
         variant="primary"
         class="block my-4 w-full"
         :disabled="!selectedTemplateId || !selectedCollectionId || !template"
-        @click="initAsset">
+        @click="initNewAsset">
         Continue
         <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
     </form>
-    <div v-else-if="isLoading" class="flex justify-center items-center py-12">
+    <div
+      v-else-if="assetId && (isTemplateLoading || !hasInitialized)"
+      class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
       <span class="ml-2">Loading...</span>
     </div>
@@ -97,7 +99,7 @@ const props = withDefaults(
 const assetEditor = useAssetEditor(() => props.assetId);
 
 const {
-  savedAsset,
+  hasInitialized,
   localAsset,
   template,
   selectedTemplateId,
@@ -105,26 +107,29 @@ const {
   isCreateMode,
   hasAssetChanged,
   isFormValid,
-  isLoading,
   isTemplateLoading,
+  isSavedAssetLoading,
   saveAssetStatus,
   templateOptions,
   collectionOptions,
-  defaultTemplateId,
-  defaultCollectionId,
   savedAssetTitle,
   localAssetTitle,
-  initAsset,
+  initNewAsset,
   handleSaveAsset,
   handleConfirmedTemplateIdUpdate,
   handleMigrateCollection,
-  setInitialValues,
   resetEditor,
   updateLocalAsset,
 } = assetEditor;
 
 onMounted(() => {
-  setInitialValues(defaultTemplateId.value, defaultCollectionId.value);
+  // if only 1 template or collection, set it as the default
+  if (templateOptions.value.length === 1) {
+    selectedTemplateId.value = templateOptions.value[0].id;
+  }
+  if (collectionOptions.value.length === 1) {
+    selectedCollectionId.value = collectionOptions.value[0].id;
+  }
 });
 
 const route = useRoute();
@@ -239,7 +244,6 @@ onBeforeRouteUpdate(async (to, _from, next) => {
 
   // reset the asset state
   resetEditor();
-  setInitialValues(defaultTemplateId.value, defaultCollectionId.value);
 
   next();
 });

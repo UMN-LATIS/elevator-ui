@@ -157,6 +157,25 @@ export function createAssetsTable({
         template,
       });
     },
+    getByUserId: (userId: number): AssetPreview[] => {
+      return baseTable
+        .filter(
+          (asset) => asset.createdBy === userId || asset.modifiedBy === userId
+        )
+        .map((asset) => {
+          const collection = collections.get(asset.collectionId);
+          const template = templates.get(asset.templateId);
+          if (!collection || !template) {
+            return null;
+          }
+          return assetToSearchResultMatch({
+            asset,
+            collection,
+            template,
+          });
+        })
+        .filter((preview): preview is AssetPreview => preview !== null);
+    },
   };
 }
 
