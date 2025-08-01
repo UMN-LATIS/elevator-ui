@@ -910,8 +910,8 @@ export interface AssetSummary {
   };
 }
 
-export interface SelectOption {
-  id: string;
+export interface SelectOption<idType = string> {
+  id: idType;
   label: string;
 }
 
