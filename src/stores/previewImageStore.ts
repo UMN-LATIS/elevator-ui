@@ -1,23 +1,17 @@
 import { defineStore } from "pinia";
 import * as Type from "@/types";
 import config from "@/config";
-import api from "@/api";
-import { watch, ref, computed, nextTick, reactive } from "vue";
+import { computed, reactive, watchEffect } from "vue";
 import { isNotNil } from "ramda";
 import invariant from "tiny-invariant";
+import { usePreviewImagesQuery } from "@/queries/usePreviewImagesQuery";
 
-type FileId = string;
+type FileId = Type.UploadWidgetContent["fileId"];
 
 export const usePreviewImageStore = defineStore("previewImages", () => {
   const imageReadyMap = reactive<Map<FileId, boolean>>(new Map());
-  const isPollingForUpdates = ref(false);
-  const pollPeriod = ref(4000); // milliseconds
-  const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null);
-  const isInitialized = ref(false);
 
-  const isImageReady = (
-    fileId: Type.UploadWidgetContent["fileId"]
-  ): boolean => {
+  const isImageReady = (fileId: FileId): boolean => {
     const isReady = imageReadyMap.get(fileId);
     invariant(
       isNotNil(isReady),
@@ -26,9 +20,7 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
     return isReady;
   };
 
-  const getPreviewImageUrl = (
-    fileId: Type.UploadWidgetContent["fileId"]
-  ): string => {
+  const getPreviewImageUrl = (fileId: FileId): string => {
     const isReady = isImageReady(fileId);
     // adding query param to force browser to reload the
     // image if the state has changed.
@@ -43,96 +35,26 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
     );
   });
 
-  const init = () => {
-    if (isInitialized.value) return;
-    isInitialized.value = true;
-    watch(() => imagesToCheck.value, pollForUpdates, {
-      immediate: true,
-    });
-  };
+  const { data: previewResults } = usePreviewImagesQuery(imagesToCheck);
+
+  // Update imageReadyMap when query results change
+  watchEffect(() => {
+    if (previewResults.value) {
+      previewResults.value.forEach(({ fileId, status }) => {
+        imageReadyMap.set(fileId, status === "true");
+      });
+    }
+  });
 
   const registerFileId = (fileId: string) => {
     if (imageReadyMap.has(fileId)) return;
     imageReadyMap.set(fileId, false);
-
-    // Trigger polling on next tick when computed has updated
-    nextTick(() => {
-      if (!isPollingForUpdates.value && imagesToCheck.value.length > 0) {
-        pollForUpdates();
-      }
-    });
-  };
-
-  const pollForUpdates = () => {
-    // Stop any existing polling first
-    if (timeoutId.value) {
-      clearTimeout(timeoutId.value);
-      timeoutId.value = null;
-    }
-
-    // If no files to check, just stop polling
-    if (imagesToCheck.value.length === 0) {
-      isPollingForUpdates.value = false;
-      return;
-    }
-
-    // Start fresh polling session
-    if (isPollingForUpdates.value) return;
-    isPollingForUpdates.value = true;
-
-    const poll = async () => {
-      // if no files to check, stop polling
-      if (imagesToCheck.value.length === 0) {
-        isPollingForUpdates.value = false;
-        if (timeoutId.value) {
-          clearTimeout(timeoutId.value);
-          timeoutId.value = null;
-        }
-        return;
-      }
-
-      try {
-        const results = await api.checkPreviewImages(imagesToCheck.value);
-
-        results.forEach(({ fileId, status }) => {
-          const isReady = status === "true";
-          imageReadyMap.set(fileId, isReady);
-        });
-      } catch (error) {
-        console.warn("Failed to check preview images:", error);
-      }
-
-      // Schedule next poll if still polling
-      if (isPollingForUpdates.value && imagesToCheck.value.length > 0) {
-        timeoutId.value = setTimeout(poll, pollPeriod.value);
-      } else {
-        isPollingForUpdates.value = false;
-      }
-    };
-
-    poll();
-  };
-
-  const cleanup = () => {
-    if (timeoutId.value) {
-      clearTimeout(timeoutId.value);
-      timeoutId.value = null;
-    }
-    isPollingForUpdates.value = false;
   };
 
   return {
     imageReadyMap,
-    isPollingForUpdates,
-    pollPeriod,
-    timeoutId,
-    isInitialized,
     isImageReady,
     getPreviewImageUrl,
-    imagesToCheck,
-    init,
     registerFileId,
-    pollForUpdates,
-    cleanup,
   };
 });

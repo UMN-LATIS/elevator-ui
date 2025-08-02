@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
-import { Asset, TextWidgetContent } from "../../src/types";
+import { Asset, TextWidgetContent, UploadWidgetContent } from "../../src/types";
+import type { DB } from "../db/index";
 
 const app = new Hono<MockServerContext>();
 
@@ -44,6 +45,85 @@ app.get("/getTemplate/:templateId", async (c) => {
   return c.json(template);
 });
 
+// POST /assetManager/getFileContainer
+app.post("/getFileContainer", async (c) => {
+  await delay(100);
+  const formData = await c.req.formData();
+  const containersJson = formData.get("containers") as string;
+
+  if (!containersJson) {
+    return c.json({ error: "Missing containers field" }, 400);
+  }
+
+  try {
+    const containers = JSON.parse(containersJson);
+    const result = containers.map((container: any) => ({
+      bucket: "mock-elevator-bucket",
+      bucketKey: "MOCK_BUCKET_KEY",
+      fileObjectId: generateFileObjectId(),
+      collectionId: container.collectionId,
+      index: container.index,
+      filename: container.filename,
+    }));
+
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: "Invalid containers JSON" }, 400);
+  }
+});
+
+// GET /assetManager/completeSourceFile/:fileObjectId
+app.get("/completeSourceFile/:fileObjectId", async (c) => {
+  await delay(100);
+  const fileObjectId = c.req.param("fileObjectId");
+
+  return c.json({
+    message: "Source file completed successfully",
+    fileObjectId,
+  });
+});
+
+function generateFileObjectId(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
+
+function findFirstFileId(
+  formData: Record<string, unknown>
+): string | undefined {
+  return Object.entries(formData)
+    .filter(
+      ([key, value]) =>
+        key.startsWith("upload_") && Array.isArray(value) && value.length > 0
+    )
+    .map(([, widgets]) => (widgets as UploadWidgetContent[])[0])
+    .find((widget) => widget?.fileId)?.fileId;
+}
+
+function updateFileAssetLinks(
+  db: DB,
+  formData: Record<string, unknown>,
+  assetId: string
+): void {
+  const fileIds = Object.entries(formData)
+    .filter(([key, value]) => key.startsWith("upload_") && Array.isArray(value))
+    .flatMap(([, widgets]) => widgets as UploadWidgetContent[])
+    .map((widget) => widget.fileId)
+    .filter(Boolean);
+
+  fileIds.forEach((fileId) => {
+    const existingFile = db.files.get(fileId);
+    if (existingFile) {
+      db.files.set(fileId, {
+        ...existingFile,
+        assetId,
+      });
+    }
+  });
+}
+
 // POST /assetManager/submission/true (create/update asset)
 app.post("/submission/true", async (c) => {
   await delay(500);
@@ -76,12 +156,16 @@ app.post("/submission/true", async (c) => {
   const titleWidgets = formData.title_1 as TextWidgetContent[];
   const titleWidget = titleWidgets?.[0];
 
+  // Find the first file from upload widgets to set as firstFileHandlerId
+  const firstFileHandlerId = findFirstFileId(formData);
+
   const asset: Omit<Asset, "createdBy"> = {
     ...formData,
     assetId: formData.objectId,
     title: [titleWidget?.fieldContents || "(Untitled)"],
     templateId: formData.templateId,
     collectionId: formData.collectionId,
+    firstFileHandlerId,
     modified: {
       date: new Date().toISOString(),
       timezone_type: 3,
@@ -100,10 +184,36 @@ app.post("/submission/true", async (c) => {
   if (!savedAsset) {
     return c.json({ error: "Asset not found" }, 404);
   }
+
+  // Update all files referenced in this asset to link back to the asset
+  updateFileAssetLinks(db, formData, savedAsset.assetId);
+
+  if (firstFileHandlerId) {
+    console.log(
+      `Asset ${savedAsset.assetId} linked to first file: ${firstFileHandlerId}`
+    );
+  }
+
   return c.json({
     success: true,
     objectId: savedAsset.assetId,
   });
+});
+
+// GET /assetManager/userAssets/:userId/true
+app.get("/userAssets/:userId/true", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+  const user = c.get("user");
+  const userId = c.req.param("userId");
+
+  // For security, only allow users to see their own assets (or admin users could see all)
+  if (user && (user.id.toString() === userId || user.isSuperAdmin || user.isInstanceAdmin)) {
+    const userAssets = db.assets.getByUserId(Number(userId));
+    return c.json(userAssets);
+  }
+
+  return c.json({ error: "Unauthorized" }, 403);
 });
 
 export default app;
