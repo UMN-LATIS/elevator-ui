@@ -48,7 +48,7 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     experimental_prefetchInRender: true,
   });
 
-  const { mutate: saveAsset } = useUpdateAssetMutation();
+  const { mutate: saveAssetMut } = useUpdateAssetMutation();
 
   // computed
   const templateOptions = computed((): SelectOption<number>[] => {
@@ -156,64 +156,65 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     hasInitialized.value = true;
   }
 
-  function handleSaveAsset(
-    onSuccess?: (data: ApiAssetSubmissionResponse) => void
-  ) {
-    invariant(localAsset.value, "Cannot save: no asset.");
-    invariant(template.value, "Cannot save: no template.");
-    saveAssetStatus.value = "pending";
+  function saveAsset(): Promise<ApiAssetSubmissionResponse> {
+    return new Promise((resolve, reject) => {
+      invariant(localAsset.value, "Cannot save: no asset.");
+      invariant(template.value, "Cannot save: no template.");
 
-    const formData = toSaveableFormData(localAsset.value, template.value);
+      saveAssetStatus.value = "pending";
 
-    saveAsset(formData, {
-      onSuccess: (data) => {
-        saveAssetStatus.value = "success";
-        setTimeout(() => {
-          saveAssetStatus.value = "idle"; // Reset status after a delay
-        }, 3000);
+      const formData = toSaveableFormData(localAsset.value, template.value);
 
-        // For create mode, the server only returns objectId, so update the local asset's ID
-        if (
-          isCreateMode.value &&
-          data &&
-          typeof data === "object" &&
-          "objectId" in data &&
-          localAsset.value
-        ) {
-          const objectId = (data as { objectId: string }).objectId;
-          localAsset.value.assetId = objectId;
-        }
+      saveAssetMut(formData, {
+        onSuccess: (data) => {
+          saveAssetStatus.value = "success";
+          setTimeout(() => {
+            saveAssetStatus.value = "idle"; // Reset status after a delay
+          }, 3000);
 
-        onSuccess?.(data);
-      },
-      onError: (error) => {
-        saveAssetStatus.value = "error";
-        console.error("Failed to save asset:", error);
-        setTimeout(() => {
-          saveAssetStatus.value = "idle"; // Reset status after a delay
-        }, 10000);
-      },
+          // For create mode, the server only returns objectId, so update the local asset's ID
+          if (
+            isCreateMode.value &&
+            data &&
+            typeof data === "object" &&
+            "objectId" in data &&
+            localAsset.value
+          ) {
+            const objectId = (data as { objectId: string }).objectId;
+            localAsset.value.assetId = objectId;
+          }
+
+          return resolve(data);
+        },
+        onError: (error) => {
+          saveAssetStatus.value = "error";
+          console.error("Failed to save asset:", error);
+          setTimeout(() => {
+            saveAssetStatus.value = "idle"; // Reset status after a delay
+          }, 10000);
+          reject(error);
+        },
+      });
     });
   }
 
-  function handleConfirmedTemplateIdUpdate(newTemplateId: number) {
+  function updateTemplateId(newTemplateId: number) {
     invariant(localAsset.value, "Cannot change template: no asset.");
 
     const updatedAsset = { ...localAsset.value, templateId: newTemplateId };
     updateLocalAsset(updatedAsset);
-    handleSaveAsset();
+    saveAsset();
   }
 
-  function handleMigrateCollection(
-    newCollectionId: number,
-    onSuccess?: () => void
-  ) {
+  async function migrateCollection(
+    newCollectionId: number
+  ): Promise<ApiAssetSubmissionResponse> {
     invariant(localAsset.value, "Cannot change collection: no asset.");
 
     const updatedAsset = { ...localAsset.value, collectionId: newCollectionId };
     updateLocalAsset(updatedAsset);
 
-    handleSaveAsset(onSuccess);
+    return saveAsset();
   }
 
   function updateLocalAsset(updatedAsset: Asset | UnsavedAsset) {
@@ -266,9 +267,9 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
 
     // Actions
     initNewAsset,
-    handleSaveAsset,
-    handleConfirmedTemplateIdUpdate,
-    handleMigrateCollection,
+    saveAsset,
+    updateTemplateId,
+    migrateCollection,
     resetEditor,
     updateLocalAsset,
   };
