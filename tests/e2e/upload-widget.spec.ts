@@ -8,6 +8,10 @@ const __dirname = path.dirname(__filename);
 
 test.describe("EditUploadWidget", () => {
   test.beforeEach(async ({ page, request }) => {
+    // Block ArcGIS requests
+    await page.route("**/arcgis.com/**", (route) => route.abort());
+    await page.route("**/basemaps-api.arcgis.com/**", (route) => route.abort());
+
     const workerId = test.info().workerIndex.toString();
     await setupWorkerHTTPHeader({ page, workerId });
     await refreshDatabase({ request, workerId });
