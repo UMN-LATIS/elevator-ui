@@ -3,7 +3,7 @@
     <form
       v-if="!assetId && !localAsset"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
-      @submit.prevent>
+      @submit.prevent="initNewAsset">
       <SelectGroup
         v-model="selectedTemplateId"
         :options="templateOptions"
@@ -19,8 +19,7 @@
         type="submit"
         variant="primary"
         class="block my-4 w-full"
-        :disabled="!selectedTemplateId || !selectedCollectionId || !template"
-        @click="initNewAsset">
+        :disabled="!selectedTemplateId || !selectedCollectionId || !template">
         Continue
         <SpinnerIcon v-if="isTemplateLoading" />
       </Button>
@@ -43,7 +42,7 @@
         class="flex-1"
         @update:templateId="updateTemplateId($event)"
         @migrateCollection="handleMigrateCollectionWithNavigation($event)"
-        @save="handleSaveAssetWithNavigation"
+        @save="handleSaveAsset"
         @update:asset="updateLocalAsset($event)" />
     </Transition>
     <ConfirmModal
@@ -78,6 +77,7 @@ import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useConfirmation } from "./useConfirmation";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
+import invariant from "tiny-invariant";
 
 const props = withDefaults(
   defineProps<{
@@ -130,8 +130,11 @@ const route = useRoute();
 const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
-async function handleSaveAssetWithNavigation() {
+async function handleSaveAsset() {
   const data = await saveAsset();
+  invariant(data, "Expected data to be defined after saveAsset");
+  console.log("Asset saved:", { data });
+  invariant(!!data, "Expected data to be defined after saveAsset");
   if (!isCreateMode.value) {
     return;
   }
