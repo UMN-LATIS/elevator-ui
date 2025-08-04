@@ -133,8 +133,7 @@ const channelName = computed(() => route.query.channelName as string);
 async function handleSaveAsset() {
   const data = await saveAsset();
   invariant(data, "Expected data to be defined after saveAsset");
-  console.log("Asset saved:", { data });
-  invariant(!!data, "Expected data to be defined after saveAsset");
+
   if (!isCreateMode.value) {
     return;
   }
