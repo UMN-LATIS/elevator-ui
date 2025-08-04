@@ -22,7 +22,11 @@
           leaveFrom="opacity-100 scale-100"
           leaveTo="opacity-0 scale-95"
           as="template">
-          <DialogPanel class="flex-1">
+          <DialogPanel
+            class="flex-1"
+            role="dialog"
+            aria-modal="true"
+            :aria-label="title">
             <Notification
               :title="title"
               :type="type"
