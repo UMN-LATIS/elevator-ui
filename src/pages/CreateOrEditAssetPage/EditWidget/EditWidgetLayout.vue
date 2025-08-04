@@ -12,17 +12,22 @@
       :class="{
         'sticky top-[5rem] z-10': isOpen,
       }">
-      <button type="button" class="text-left" @click.stop="toggleExpand">
+      <button
+        type="button"
+        class="text-left"
+        :aria-expanded="isOpen"
+        :aria-controls="`widget-${widgetDef.widgetId}-content`"
+        @click.stop="toggleExpand">
         <div class="flex gap-2">
           <ChevronDownIcon v-if="isOpen" class="!size-4" />
           <ChevronRightIcon v-else class="!size-4" />
-          <span class="sr-only">
-            {{ isOpen ? "Collapse" : "Expand" }}
-          </span>
           <h2 class="text-base font-bold leading-none">
             {{ widgetDef.label }}
             <span v-if="widgetDef.required" class="text-red-500">*</span>
           </h2>
+          <span class="sr-only">
+            {{ isOpen ? "collapse" : "expand" }} section
+          </span>
         </div>
       </button>
       <div>
@@ -38,6 +43,7 @@
     </div>
     <div
       ref="editLayoutContents"
+      :aria-labelledby="`widget-${widgetDef.widgetId}-heading`"
       :class="{
         'opacity-50': !isOpen,
       }">

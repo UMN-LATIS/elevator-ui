@@ -30,6 +30,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "start", fileRecord: Type.FileUploadRecord): void;
   (e: "complete", fileRecord: Type.FileUploadRecord): void;
+  (e: "allComplete"): void;
   (e: "error", error: Error): void;
 }>();
 
@@ -192,8 +193,9 @@ const uppy = new Uppy({
 });
 
 // clear upload state on success
-uppy.on("complete", ({ successful, failed }) => {
+uppy.on("complete", ({ successful, _failed }) => {
   successful?.forEach((file) => uppy.removeFile(file.id));
+  emit("allComplete");
 });
 
 uppy.on("error", (error) => {

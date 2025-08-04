@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="edit-upload-widget-item">
     <div class="grid grid-cols-3 gap-4 mb-2">
       <div class="w-full aspect-square rounded-md overflow-hidden relative">
         <img
@@ -33,8 +33,7 @@
         <textarea
           :id="`${item.id}-description`"
           :value="item.fileDescription"
-          placeholder="Enter a description for this file"
-          class="bg-black/5 border-none rounded-md w-full text-sm font-mono flex-1"
+          class="bg-black/5 border-none rounded-md w-full text-sm font-mono flex-1 placeholder:text-neutral-400"
           @input="handleDescriptionUpdate" />
       </div>
       <EditUploadWidgetItemSidecars
