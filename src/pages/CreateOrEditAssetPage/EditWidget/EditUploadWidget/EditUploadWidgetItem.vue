@@ -33,8 +33,7 @@
         <textarea
           :id="`${item.id}-description`"
           :value="item.fileDescription"
-          placeholder="Enter a description for this file"
-          class="bg-black/5 border-none rounded-md w-full text-sm font-mono flex-1"
+          class="bg-black/5 border-none rounded-md w-full text-sm font-mono flex-1 placeholder:text-neutral-400"
           @input="handleDescriptionUpdate" />
       </div>
       <EditUploadWidgetItemSidecars
