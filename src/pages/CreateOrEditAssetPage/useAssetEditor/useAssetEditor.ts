@@ -49,7 +49,7 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     experimental_prefetchInRender: true,
   });
 
-  const { mutate: saveAssetMut } = useUpdateAssetMutation();
+  const { mutateAsync: saveAssetMut } = useUpdateAssetMutation();
 
   // computed
   const templateOptions = computed((): SelectOption<number>[] => {
@@ -157,56 +157,64 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     hasInitialized.value = true;
   }
 
-  function saveAsset(): Promise<ApiAssetSubmissionResponse> {
-    return new Promise((resolve, reject) => {
-      invariant(localAsset.value, "Cannot save: no asset.");
-      invariant(template.value, "Cannot save: no template.");
+  async function saveAsset(): Promise<ApiAssetSubmissionResponse> {
+    invariant(localAsset.value, "Cannot save: no asset.");
+    invariant(template.value, "Cannot save: no template.");
 
-      saveAssetStatus.value = "pending";
+    saveAssetStatus.value = "pending";
 
-      const formData = toSaveableFormData(localAsset.value, template.value);
+    const formData = toSaveableFormData(localAsset.value, template.value);
 
-      saveAssetMut(formData, {
-        onSuccess: (data) => {
-          saveAssetStatus.value = "success";
-          setTimeout(() => {
-            saveAssetStatus.value = "idle"; // Reset status after a delay
-          }, 3000);
+    try {
+      const data = await saveAssetMut(formData);
+      invariant(data, "Expected data to be defined after saveAsset");
 
-          // For create mode, the server only returns objectId, so update the local asset's ID
-          if (
-            isCreateMode.value &&
-            data &&
-            typeof data === "object" &&
-            "objectId" in data &&
-            localAsset.value
-          ) {
-            const objectId = (data as { objectId: string }).objectId;
-            localAsset.value.assetId = objectId;
-          }
+      saveAssetStatus.value = "success";
+      setTimeout(() => {
+        saveAssetStatus.value = "idle"; // Reset status after a delay
+      }, 3000);
 
-          return resolve(data);
-        },
-        onError: (error) => {
-          saveAssetStatus.value = "error";
-          console.error("Failed to save asset:", error);
-          setTimeout(() => {
-            saveAssetStatus.value = "idle"; // Reset status after a delay
-          }, 10000);
-          reject(error);
-        },
-      });
-    });
+      // For create mode, the server only returns objectId, so update the local asset's ID
+      if (
+        isCreateMode.value &&
+        data &&
+        typeof data === "object" &&
+        "objectId" in data &&
+        localAsset.value
+      ) {
+        const objectId = (data as { objectId: string }).objectId;
+        localAsset.value.assetId = objectId;
+      }
+
+      return data;
+    } catch (error) {
+      saveAssetStatus.value = "error";
+      console.error("Failed to save asset:", error);
+      setTimeout(() => {
+        saveAssetStatus.value = "idle"; // Reset status after a delay
+      }, 10000);
+      throw error;
+    }
   }
 
-  const debouncedSaveAsset = useDebounceFn(saveAsset, 500);
+  const debouncedSaveAsset = useDebounceFn(
+    (): Promise<ApiAssetSubmissionResponse> => {
+      return saveAsset();
+    },
+    1000,
+    {
+      maxWait: 5000,
+      // don't reject the promise if a call is cancelled due to debounce
+      rejectOnCancel: true,
+    }
+  );
 
   function updateTemplateId(newTemplateId: number) {
     invariant(localAsset.value, "Cannot change template: no asset.");
 
     const updatedAsset = { ...localAsset.value, templateId: newTemplateId };
     updateLocalAsset(updatedAsset);
-    saveAsset();
+    return saveAsset();
   }
 
   async function migrateCollection(
@@ -270,7 +278,8 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
 
     // Actions
     initNewAsset,
-    saveAsset: debouncedSaveAsset,
+    saveAsset,
+    debouncedSaveAsset,
     updateTemplateId,
     migrateCollection,
     resetEditor,

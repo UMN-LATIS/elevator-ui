@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="edit-upload-widget-item">
     <div class="grid grid-cols-3 gap-4 mb-2">
       <div class="w-full aspect-square rounded-md overflow-hidden relative">
         <img

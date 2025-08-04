@@ -37,6 +37,7 @@
     <template #footer>
       <FileUploader
         :collectionId="props.collectionId"
+        @start="handleUploadStart"
         @complete="handleCompleteUpload" />
     </template>
   </EditWidgetLayout>
@@ -50,6 +51,7 @@ import FileUploader from "./FileUploader.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   collectionId: number;
@@ -69,19 +71,37 @@ const emit = defineEmits<{
 
 const isShowingDetails = ref<Set<string>>(new Set());
 
-function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
-  // Create a new content item for the uploaded file
-  const completedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
+function handleUploadStart(fileRecord: Type.FileUploadRecord) {
+  const startedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
     fileDescription: "",
     fileType: fileRecord.contentType,
-    loc: fileRecord.location || "",
+    loc: "",
     sidecars: {}, // Initialize sidecars as an empty object
     searchData: "", // Initialize searchData as an empty string
   };
 
-  emit("update:widgetContents", [...props.widgetContents, completedUploadItem]);
+  emit("update:widgetContents", [...props.widgetContents, startedUploadItem]);
+
+  nextTick(() => {
+    // Try to trigger save event after the widget contents are updated
+    emit("save");
+  });
+}
+
+function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
+  // find the item that was started
+  const updatedItems = props.widgetContents.map((item) => {
+    return item.fileId === fileRecord.fileObjectId
+      ? {
+          ...item,
+          loc: fileRecord.location, // Update the location with the S3 URL
+        }
+      : item;
+  });
+
+  emit("update:widgetContents", updatedItems);
 
   nextTick(() => {
     // Try to trigger save event after the widget contents are updated
