@@ -38,7 +38,8 @@
       <FileUploader
         :collectionId="props.collectionId"
         @start="handleUploadStart"
-        @complete="handleCompleteUpload" />
+        @complete="handleCompleteUpload"
+        @allComplete="emit('save')" />
     </template>
   </EditWidgetLayout>
 </template>
@@ -51,7 +52,7 @@ import FileUploader from "./FileUploader.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
-import invariant from "tiny-invariant";
+import { useDebounceFn } from "@vueuse/core";
 
 const props = defineProps<{
   collectionId: number;
@@ -71,6 +72,10 @@ const emit = defineEmits<{
 
 const isShowingDetails = ref<Set<string>>(new Set());
 
+const debouncedEmitSave = useDebounceFn(() => emit("save"), 2000, {
+  maxWait: 10000,
+});
+
 function handleUploadStart(fileRecord: Type.FileUploadRecord) {
   const startedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
@@ -83,30 +88,22 @@ function handleUploadStart(fileRecord: Type.FileUploadRecord) {
   };
 
   emit("update:widgetContents", [...props.widgetContents, startedUploadItem]);
-
-  nextTick(() => {
-    // Try to trigger save event after the widget contents are updated
-    emit("save");
-  });
+  nextTick(() => debouncedEmitSave());
 }
 
 function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   // find the item that was started
   const updatedItems = props.widgetContents.map((item) => {
     return item.fileId === fileRecord.fileObjectId
-      ? {
+      ? ({
           ...item,
           loc: fileRecord.location, // Update the location with the S3 URL
-        }
+        } as Type.WithId<Type.UploadWidgetContent>)
       : item;
   });
 
   emit("update:widgetContents", updatedItems);
-
-  nextTick(() => {
-    // Try to trigger save event after the widget contents are updated
-    emit("save");
-  });
+  nextTick(() => debouncedEmitSave());
 }
 
 async function handleDeleteContent(id: string) {
@@ -134,10 +131,7 @@ async function handleDeleteContent(id: string) {
     ops.deleteWidgetContent(props.widgetContents, id)
   );
 
-  nextTick(() => {
-    // Try to trigger save event after the widget contents are updated
-    emit("save");
-  });
+  nextTick(() => debouncedEmitSave());
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {

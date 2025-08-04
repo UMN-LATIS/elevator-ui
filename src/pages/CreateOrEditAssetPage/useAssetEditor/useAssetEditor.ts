@@ -18,7 +18,6 @@ import type {
 } from "@/types";
 import invariant from "tiny-invariant";
 import { MutationStatus } from "@tanstack/vue-query";
-import { useDebounceFn } from "@vueuse/core";
 
 export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
   const instanceStore = useInstanceStore();
@@ -197,18 +196,6 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     }
   }
 
-  const debouncedSaveAsset = useDebounceFn(
-    (): Promise<ApiAssetSubmissionResponse> => {
-      return saveAsset();
-    },
-    1000,
-    {
-      maxWait: 5000,
-      // don't reject the promise if a call is cancelled due to debounce
-      rejectOnCancel: true,
-    }
-  );
-
   function updateTemplateId(newTemplateId: number) {
     invariant(localAsset.value, "Cannot change template: no asset.");
 
@@ -279,7 +266,6 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     // Actions
     initNewAsset,
     saveAsset,
-    debouncedSaveAsset,
     updateTemplateId,
     migrateCollection,
     resetEditor,
