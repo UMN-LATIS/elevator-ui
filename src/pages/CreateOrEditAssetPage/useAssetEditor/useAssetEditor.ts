@@ -18,6 +18,7 @@ import type {
 } from "@/types";
 import invariant from "tiny-invariant";
 import { MutationStatus } from "@tanstack/vue-query";
+import { useDebounceFn } from "@vueuse/core";
 
 export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
   const instanceStore = useInstanceStore();
@@ -198,6 +199,8 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     });
   }
 
+  const debouncedSaveAsset = useDebounceFn(saveAsset, 500);
+
   function updateTemplateId(newTemplateId: number) {
     invariant(localAsset.value, "Cannot change template: no asset.");
 
@@ -267,7 +270,7 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
 
     // Actions
     initNewAsset,
-    saveAsset,
+    saveAsset: debouncedSaveAsset,
     updateTemplateId,
     migrateCollection,
     resetEditor,
