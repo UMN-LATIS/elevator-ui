@@ -21,6 +21,9 @@
         class="block my-4 w-full"
         :disabled="!state.selectedCollectionId || !state.selectedTemplateId">
         Continue
+        <SpinnerIcon
+          v-if="assetEditor.isTemplateLoading"
+          class="w-4 h-4 ml-2 animate-spin" />
       </Button>
     </form>
     <div
