@@ -445,7 +445,7 @@ const templateSeeds: Template[] = [
         allowMultiple: true,
         attemptAutocomplete: false,
         fieldTitle: "upload_1",
-        label: "First Upload",
+        label: "Multiple Uploads",
         tooltip: "",
         fieldData: {
           extractDate: true,
@@ -470,10 +470,11 @@ const templateSeeds: Template[] = [
       {
         widgetId: 3003,
         type: "upload",
-        allowMultiple: true,
+        // max of 1 upload
+        allowMultiple: false,
         attemptAutocomplete: false,
         fieldTitle: "upload_2",
-        label: "Second Upload",
+        label: "Single Upload",
         tooltip: "",
         fieldData: {
           extractDate: true,

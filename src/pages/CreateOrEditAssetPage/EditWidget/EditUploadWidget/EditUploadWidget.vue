@@ -82,8 +82,8 @@ const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-const debouncedEmitSave = useDebounceFn(() => emit("save"), 1000, {
-  maxWait: 5000,
+const debouncedEmitSave = useDebounceFn(() => emit("save"), 500, {
+  maxWait: 2000,
 });
 
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {

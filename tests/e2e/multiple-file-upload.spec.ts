@@ -126,30 +126,58 @@ test.describe("Multiple File Upload", () => {
       .getByLabel("Title")
       .fill("Test Asset with Multiple File Uploads");
 
-    const widgetNames = ["First Upload", "Second Upload"];
-    for (const widgetName of widgetNames) {
-      const widget = page.locator("section.edit-widget-layout").filter({
+    // check that multiple upload widget works
+    const multUploadWidget = page.locator("section.edit-widget-layout").filter({
+      has: page.getByRole("heading", {
+        name: "Multiple Uploads",
+      }),
+    });
+
+    await expect(multUploadWidget).toBeVisible();
+    await multUploadWidget.scrollIntoViewIfNeeded();
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await multUploadWidget
+      .getByRole("button", { name: "browse files" })
+      .click();
+    const fileChooser = await fileChooserPromise;
+    // Upload multiple files simultaneously
+    const testFiles = [
+      "test-image.jpg",
+      "goldy-mn.png",
+      "visit-jones-hall.png",
+      "yolo.png",
+    ].map((filename) => path.join(testDir, "..", "fixtures", filename));
+    await fileChooser.setFiles(testFiles);
+
+    // verify that the widget now has 4 entries
+    await expect(
+      multUploadWidget.locator(".edit-upload-widget-item")
+    ).toHaveCount(4);
+
+    const singleUploadWidget = page
+      .locator("section.edit-widget-layout")
+      .filter({
         has: page.getByRole("heading", {
-          name: widgetName,
+          name: "Single Upload",
         }),
       });
-      await expect(widget).toBeVisible();
-      await widget.scrollIntoViewIfNeeded();
-      const fileChooserPromise = page.waitForEvent("filechooser");
-      await widget.getByRole("button", { name: "browse files" }).click();
-      const fileChooser = await fileChooserPromise;
-      // Upload multiple files simultaneously
-      const testFiles = [
-        "test-image.jpg",
-        "goldy-mn.png",
-        "visit-jones-hall.png",
-        "yolo.png",
-      ].map((filename) => path.join(testDir, "..", "fixtures", filename));
-      await fileChooser.setFiles(testFiles);
-      // verify that the widget now has 4 entries
-      const entries = widget.locator(".edit-upload-widget-item");
-      await expect(entries).toHaveCount(4);
-    }
+
+    await expect(singleUploadWidget).toBeVisible();
+    await singleUploadWidget.scrollIntoViewIfNeeded();
+    const singleFileChooserPromise = page.waitForEvent("filechooser");
+    await singleUploadWidget
+      .getByRole("button", { name: "browse files" })
+      .click();
+    const singleFileChooser = await singleFileChooserPromise;
+
+    await singleFileChooser.setFiles(
+      path.join(testDir, "..", "fixtures", "goldy-mn.png")
+    );
+
+    // verify that the widget now has 4 entries
+    await expect(
+      singleUploadWidget.locator(".edit-upload-widget-item")
+    ).toHaveCount(1);
 
     // wait for network requests to complete
     await page.waitForLoadState("networkidle");
@@ -165,8 +193,7 @@ test.describe("Multiple File Upload", () => {
       "Test Asset with Multiple File Uploads"
     );
 
-    // and that there are 8 entries
     const entries = page.locator(".edit-upload-widget-item");
-    await expect(entries).toHaveCount(8);
+    await expect(entries).toHaveCount(5);
   });
 });
