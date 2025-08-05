@@ -43,6 +43,7 @@
     <template #footer>
       <FileUploader
         :collectionId="props.collectionId"
+        :maxNumberOfFiles="widgetDef.allowMultiple ? undefined : 1"
         @start="handleUploadStart"
         @complete="handleCompleteUpload"
         @allComplete="emit('save')" />

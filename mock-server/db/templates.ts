@@ -442,7 +442,7 @@ const templateSeeds: Template[] = [
       {
         widgetId: 3002,
         type: "upload",
-        allowMultiple: true,
+        allowMultiple: false,
         attemptAutocomplete: false,
         fieldTitle: "upload_1",
         label: "First Upload",
@@ -470,7 +470,7 @@ const templateSeeds: Template[] = [
       {
         widgetId: 3003,
         type: "upload",
-        allowMultiple: true,
+        allowMultiple: false,
         attemptAutocomplete: false,
         fieldTitle: "upload_2",
         label: "Second Upload",
