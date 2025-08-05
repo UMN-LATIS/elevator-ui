@@ -87,7 +87,6 @@
                 </div>
                 <div>
                   <button
-                    v-if="widgetDef.allowMultiple"
                     :class="[
                       'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
