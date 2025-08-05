@@ -1,65 +1,45 @@
-import { computed, watch, ref, MaybeRefOrGetter, toValue, toRef } from "vue";
-import { useAssetQuery } from "@/queries/useAssetQuery";
-import { useTemplateQuery } from "@/queries/useTemplateQuery";
-import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
+import * as T from "@/types";
+import { MutationStatus } from "@tanstack/vue-query";
+import { computed, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
-  toSaveableFormData,
+  hasAssetChanged as hasAssetChangedPure,
   doAllRequiredHaveContent,
   makeLocalAsset,
-  hasAssetChanged as hasAssetChangedPure,
+  toSaveableFormData,
 } from "./utils";
-import type {
-  Asset,
-  UnsavedAsset,
-  ApiAssetSubmissionResponse,
-  TextWidgetContent,
-  SelectOption,
-} from "@/types";
 import invariant from "tiny-invariant";
-import { MutationStatus } from "@tanstack/vue-query";
+import * as fetchers from "@/api/fetchers";
 
-export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
+interface AssetEditorState {
+  localAsset: T.Asset | T.UnsavedAsset | null;
+  savedAsset: T.Asset | null;
+  template: T.Template | null;
+  isInitialized: boolean;
+  saveAssetStatus: MutationStatus;
+  isTemplateLoading?: boolean;
+}
+
+const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
+  localAsset: null,
+  savedAsset: null,
+  template: null,
+  isInitialized: false,
+  saveAssetStatus: "idle",
+  isTemplateLoading: false,
+  ...opts,
+});
+
+export const useAssetEditor = () => {
+  const state = reactive<AssetEditorState>(initState());
+
+  const assetId = computed(
+    (): T.Asset["assetId"] | null => state.localAsset?.assetId ?? null
+  );
+
   const instanceStore = useInstanceStore();
 
-  // Reactive state
-  const localAsset = ref<Asset | UnsavedAsset | null>(null);
-  const hasInitialized = ref(false);
-  const selectedTemplateId = ref<number | null>(null);
-  const selectedCollectionId = ref<number | null>(null);
-  const saveAssetStatus = ref<MutationStatus>("idle");
-
-  // Queries
-  const {
-    data: savedAsset,
-    error: assetError,
-    isLoading: isSavedAssetLoading,
-  } = useAssetQuery(assetId, {
-    enabled: () => !!toValue(assetId),
-  });
-
-  // queries
-  const {
-    data: template,
-    isLoading: isTemplateLoading,
-    error: templateError,
-  } = useTemplateQuery(selectedTemplateId, {
-    enabled: () => selectedTemplateId.value !== null,
-    experimental_prefetchInRender: true,
-  });
-
-  const { mutateAsync: saveAssetMut } = useUpdateAssetMutation();
-
-  // computed
-  const templateOptions = computed((): SelectOption<number>[] => {
-    const templates = instanceStore.instance.templates ?? [];
-    return templates.map((template) => ({
-      label: template.name,
-      id: template.id,
-    }));
-  });
-
-  const collectionOptions = computed((): SelectOption<number>[] => {
+  const collectionOptions = computed((): T.SelectOption<number>[] => {
     const collections = instanceStore.collections ?? [];
     return collections.map((collection) => ({
       label: collection.title,
@@ -67,208 +47,262 @@ export const useAssetEditor = (assetId: MaybeRefOrGetter<string | null>) => {
     }));
   });
 
-  const isCreateMode = computed(() => !savedAsset.value?.assetId);
+  const templateOptions = computed((): T.SelectOption<number>[] => {
+    const templates = instanceStore.instance.templates ?? [];
+    return templates.map((template) => ({
+      label: template.name,
+      id: template.id,
+    }));
+  });
 
   const savedAssetTitle = computed(
-    () => savedAsset.value?.title?.[0] ?? savedAsset.value?.assetId ?? ""
+    () => state.savedAsset?.title?.[0] ?? state.savedAsset?.assetId ?? ""
   );
 
   const localAssetTitle = computed(() => {
-    if (!localAsset.value) return "";
-    const localTitle = localAsset.value.title?.[0];
+    if (!state.localAsset) return "";
+    const localTitle = state.localAsset.title?.[0];
 
     // if there's no title set, try the title widget
-    const titleWidget = (localAsset.value.title_1 as TextWidgetContent[]) || [];
+    const titleWidget =
+      (state.localAsset.title_1 as T.TextWidgetContent[]) || [];
     const localTitleWidgetContent = titleWidget?.[0]?.fieldContents;
 
     return localTitle || localTitleWidgetContent || "";
   });
 
   const hasAssetChanged = computed(() => {
-    if (!localAsset.value || !template.value) return false;
+    if (!state.localAsset || !state.template) return false;
 
     return hasAssetChangedPure({
-      localAsset: localAsset.value,
-      savedAsset: savedAsset.value,
-      template: template.value,
+      localAsset: state.localAsset,
+      savedAsset: state.savedAsset,
+      template: state.template,
     });
   });
 
   const isFormValid = computed(() => {
-    if (!template.value || !localAsset.value) return false;
-    return doAllRequiredHaveContent(localAsset.value, template.value);
+    if (!state.template || !state.localAsset) return false;
+    return doAllRequiredHaveContent(state.localAsset, state.template);
   });
 
-  // Initialize asset when data is available (only for edit mode)
-  watch(
-    [savedAsset, template],
-    async () => {
-      // For create mode, don't auto-initialize - wait for user to click Continue
-      if (!toValue(assetId) || !savedAsset.value || hasInitialized.value) {
-        return;
-      }
+  // ACTIONS
+  /**
+   * Reset the state to initial values
+   */
+  function reset() {
+    Object.assign(state, initState());
+  }
 
-      // if asset is loaded, we can initialize the collection and template id
-      selectedCollectionId.value = savedAsset.value.collectionId;
-      selectedTemplateId.value = savedAsset.value.templateId;
-
-      // if the loaded template is different from the selected one,
-      // we can't do anything more yet
-      if (template.value?.templateId !== selectedTemplateId.value) {
-        return;
-      }
-
-      localAsset.value = makeLocalAsset({
-        template: template.value,
-        collectionId: selectedCollectionId.value,
-        savedAsset: savedAsset.value,
-      });
-      hasInitialized.value = true;
-    },
-    { immediate: true }
-  );
-
-  // Actions
-  function initNewAsset() {
-    // ensure all our assumptions are met before initializing
+  /**
+   * Initialize a new asset based on a template and collection
+   */
+  async function initNewAsset({
+    templateId,
+    collectionId,
+  }: {
+    templateId: number;
+    collectionId: number;
+  }): Promise<void> {
+    state.isInitialized = false;
+    state.isTemplateLoading = true;
+    const template = await fetchers.fetchTemplate(templateId);
+    state.isTemplateLoading = false;
     invariant(
-      template.value,
-      "Cannot initialize asset without a loaded template"
-    );
-    invariant(
-      selectedCollectionId.value,
-      "Cannot initialize asset without a selected collection"
-    );
-    invariant(!hasInitialized.value, "Asset editor already initialized");
-    invariant(!localAsset.value, "Cannot initialize: asset already exists");
-    invariant(isCreateMode.value, "Cannot initialize: this is not create mode");
-    invariant(
-      selectedTemplateId.value === template.value.templateId,
-      "Template ID mismatch"
+      template,
+      `Cannot initialize new asset: no template found with id ${templateId}`
     );
 
-    localAsset.value = makeLocalAsset({
-      template: template.value,
-      collectionId: selectedCollectionId.value,
+    state.template = template;
+
+    state.localAsset = makeLocalAsset({
+      template,
+      collectionId,
       savedAsset: null,
     });
 
-    hasInitialized.value = true;
+    state.isInitialized = true;
   }
 
-  async function saveAsset(): Promise<ApiAssetSubmissionResponse> {
-    invariant(localAsset.value, "Cannot save: no asset.");
-    invariant(template.value, "Cannot save: no template.");
-
-    saveAssetStatus.value = "pending";
-
-    const formData = toSaveableFormData(localAsset.value, template.value);
-
-    try {
-      const data = await saveAssetMut(formData);
-      invariant(data, "Expected data to be defined after saveAsset");
-
-      saveAssetStatus.value = "success";
-      setTimeout(() => {
-        saveAssetStatus.value = "idle"; // Reset status after a delay
-      }, 3000);
-
-      // For create mode, the server only returns objectId, so update the local asset's ID
-      if (
-        isCreateMode.value &&
-        data &&
-        typeof data === "object" &&
-        "objectId" in data &&
-        localAsset.value
-      ) {
-        const objectId = (data as { objectId: string }).objectId;
-        localAsset.value.assetId = objectId;
-      }
-
-      return data;
-    } catch (error) {
-      saveAssetStatus.value = "error";
-      console.error("Failed to save asset:", error);
-      setTimeout(() => {
-        saveAssetStatus.value = "idle"; // Reset status after a delay
-      }, 10000);
-      throw error;
-    }
-  }
-
-  function updateTemplateId(newTemplateId: number) {
-    invariant(localAsset.value, "Cannot change template: no asset.");
-
-    const updatedAsset = { ...localAsset.value, templateId: newTemplateId };
-    updateLocalAsset(updatedAsset);
-    return saveAsset();
-  }
-
-  async function migrateCollection(
-    newCollectionId: number
-  ): Promise<ApiAssetSubmissionResponse> {
-    invariant(localAsset.value, "Cannot change collection: no asset.");
-
-    const updatedAsset = { ...localAsset.value, collectionId: newCollectionId };
-    updateLocalAsset(updatedAsset);
-
-    return saveAsset();
-  }
-
-  function updateLocalAsset(updatedAsset: Asset | UnsavedAsset) {
-    localAsset.value = updatedAsset;
-  }
-
-  function resetEditor() {
-    localAsset.value = null;
-    hasInitialized.value = false;
-    selectedTemplateId.value = null;
-    selectedCollectionId.value = null;
-    saveAssetStatus.value = "idle";
-  }
-
-  watch(toRef(assetId), (newAssetId) => {
-    // if assetId matches current asset, skip reset to avoid flash
-    if (newAssetId === localAsset.value?.assetId) {
+  /**
+   * Initialize the editor with an existing asset by its ID
+   */
+  async function initExistingAsset(
+    assetId: T.Asset["assetId"],
+    opts: { force?: boolean } = {}
+  ): Promise<void> {
+    if (state.localAsset?.assetId === assetId && !opts.force) {
       return;
     }
 
-    resetEditor();
-  });
+    state.savedAsset = await fetchers.fetchAsset(assetId);
 
-  return {
-    // State
-    localAsset,
-    savedAsset,
-    template,
-    hasInitialized,
-    selectedTemplateId,
-    selectedCollectionId,
+    const templateId = state.savedAsset?.templateId ?? null;
+    invariant(templateId, "no templateId on saved asset");
 
-    // Computed
-    isCreateMode,
+    // only fetch a new template if it's not the current one
+    if (state.template?.templateId !== templateId) {
+      state.template = await fetchers.fetchTemplate(templateId);
+    }
+
+    invariant(
+      state.template,
+      `cannot setAssetId: no template with id ${templateId}`
+    );
+
+    const collectionId = state.savedAsset?.collectionId ?? null;
+    invariant(collectionId, "no collectionId on saved asset");
+
+    state.localAsset = makeLocalAsset({
+      template: state.template,
+      collectionId,
+      savedAsset: state.savedAsset,
+    });
+
+    state.isInitialized = true;
+  }
+
+  /**
+   * Reload the current asset from the backend (if it has an assetId)
+   */
+  async function refreshAsset(): Promise<void> {
+    invariant(state.localAsset?.assetId, "Cannot refresh: no assetId");
+    return initExistingAsset(state.localAsset.assetId, { force: true });
+  }
+
+  /**
+   * Save the current local asset to the backend
+   */
+  async function saveAsset(): Promise<void> {
+    invariant(state.localAsset, "Cannot save: no local asset");
+    invariant(state.template, "Cannot save: no template");
+    invariant(
+      state.localAsset.templateId === state.template.templateId,
+      "Cannot save: localAsset.templateId !== template.templateId"
+    );
+
+    state.saveAssetStatus = "pending";
+    try {
+      const formData = toSaveableFormData(state.localAsset, state.template);
+
+      const { objectId } = await fetchers.updateAsset(formData);
+      invariant(objectId, "Expected objectId to be defined after saveAsset");
+
+      // update the local assetId with the returned objectId
+      state.localAsset.assetId = objectId;
+      state.saveAssetStatus = "success";
+
+      setTimeout(() => {
+        state.saveAssetStatus = "idle"; // Reset status after a delay
+      }, 3000);
+
+      return refreshAsset();
+    } catch (err) {
+      console.error(`Cannot save asset: ${err}`);
+
+      state.saveAssetStatus = "error";
+
+      setTimeout(() => {
+        state.saveAssetStatus = "idle"; // Reset status after a delay
+      }, 10000);
+
+      throw err;
+    }
+  }
+
+  async function updateCollection(newCollectionId: number): Promise<void> {
+    invariant(state.localAsset, "Cannot change collection: no local asset.");
+    invariant(state.template, "Cannot change collection: no current template.");
+    state.localAsset.collectionId = newCollectionId;
+
+    // component should handle the saving and redirecting
+  }
+
+  /**
+   * update the template in the state, and migrates the current local asset
+   * to the new template.
+   */
+  async function migrateToTemplate(newTemplateId: number): Promise<void> {
+    invariant(state.localAsset, "Cannot change template: no local asset.");
+    invariant(state.template, "Cannot change template: no current template.");
+
+    if (
+      // if all templateIds are the same, return the current template
+      state.template.templateId === newTemplateId &&
+      state.localAsset.templateId === newTemplateId
+    ) {
+      return;
+    }
+
+    state.isTemplateLoading = true;
+    const newTemplate = await fetchers.fetchTemplate(newTemplateId);
+    invariant(
+      newTemplate,
+      `Cannot update templateId: no template found with id ${newTemplateId}`
+    );
+
+    state.template = newTemplate;
+    state.isTemplateLoading = false;
+
+    if (!state.localAsset) {
+      return;
+    }
+
+    // if we have a local asset,  migrate it
+    const defaultAsset = makeLocalAsset({
+      template: newTemplate,
+      collectionId: state.localAsset.collectionId,
+      savedAsset: null,
+    });
+
+    state.localAsset = {
+      ...defaultAsset,
+      ...state.localAsset,
+      templateId: newTemplate.templateId, // Ensure the templateId is updated
+    };
+
+    // component should handle the saving
+  }
+
+  async function updateLocalAsset(
+    updatedAsset: T.UnsavedAsset | T.Asset
+  ): Promise<void> {
+    invariant(state.localAsset, "Cannot update asset: no local asset.");
+
+    // If the templateId has changed, we need to update the template
+    // and migrate the asset
+    if (state.localAsset.templateId !== updatedAsset.templateId) {
+      await migrateToTemplate(updatedAsset.templateId);
+    }
+
+    state.localAsset = updatedAsset;
+  }
+
+  // wrapping in reactive to auto-unwrap refs
+  return reactive({
+    // state
+    ...toRefs(state),
+
+    // computed
+    assetId,
+    templateId: computed(() => state.template?.templateId ?? null),
+    collectionId: computed(() => state.localAsset?.collectionId ?? null),
+    isNewAsset: computed(() => !state.localAsset?.assetId),
+    collectionOptions,
+    templateOptions,
+    localAssetTitle,
+    savedAssetTitle,
     hasAssetChanged,
     isFormValid,
-    savedAssetTitle,
-    localAssetTitle,
 
-    // Query status
-    isTemplateLoading,
-    templateError,
-    isSavedAssetLoading,
-    saveAssetStatus,
-    assetError,
-
-    // Options
-    templateOptions,
-    collectionOptions,
-
-    // Actions
+    // actions
+    reset,
     initNewAsset,
+    initExistingAsset,
     saveAsset,
-    updateTemplateId,
-    migrateCollection,
-    resetEditor,
+    migrateToTemplate,
+    refreshAsset,
     updateLocalAsset,
-  };
+    updateCollection,
+  });
 };

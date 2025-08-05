@@ -75,66 +75,24 @@
         inputClass="text-sm pl-3"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
-        v-model="state.localTemplateId"
-        :options="templateOptions"
+        :modelValue="displayTemplateId"
+        :options="assetEditor.templateOptions"
         label="Template"
         required
-        @update:modelValue="compareTemplatesAndConfirm" />
+        @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
-        :options="collectionOptions"
+        :options="assetEditor.collectionOptions"
         label="Collection"
         required
-        @update:modelValue="compareCollectionsAndConfirm" />
+        @update:modelValue="handleUpdateCollectionId($event)" />
 
       <TableOfContents :items="tocItems" />
     </div>
-    <Teleport to="body">
-      <ConfirmModal
-        type="danger"
-        :isOpen="state.isConfirmingTemplateChange"
-        title="Are you sure?"
-        @confirm="handleConfirmTemplateChange"
-        @close="handleCancelTemplateChange">
-        <p>
-          Switching templates may result in the loss of data. The following
-          fields are not present in the new template:
-        </p>
-
-        <ul v-if="state.templateComparison" class="list-disc list-inside">
-          <li
-            v-for="(value, key) in (state.templateComparison as TemplateComparison)"
-            :key="key">
-            {{ value.label }} ({{ value.type }})
-          </li>
-        </ul>
-      </ConfirmModal>
-
-      <ConfirmModal
-        type="danger"
-        :isOpen="state.isConfirmingMigrateCollection"
-        title="Move Asset to New Collection?"
-        @confirm="handleConfirmMigrateCollection"
-        @close="handleCancelMigrateCollection">
-        <div class="flex flex-col gap-4">
-          <p>
-            Changing collections will make this asset
-            <b>temporarily unavailable</b>
-            while the migration is taking place.
-          </p>
-
-          <p>
-            Your current changes will be
-            <b>saved.</b>
-          </p>
-        </div>
-      </ConfirmModal>
-    </Teleport>
   </div>
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import Button from "@/components/Button/Button.vue";
 import {
   Asset,
@@ -143,7 +101,6 @@ import {
   PHPDateTime,
   WidgetDef,
   WidgetContent,
-  TemplateComparison,
 } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
@@ -154,14 +111,12 @@ import TableOfContents, {
   TocItem,
 } from "../TableOfContents/TableOfContents.vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import invariant from "tiny-invariant";
 import {
-  fetchCollectionComparison,
-  fetchTemplateComparison,
-} from "@/api/fetchers";
-import { has, isEmpty } from "ramda";
-import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import { UseTimeAgo } from "@vueuse/components";
+  getMissingRequiredFields,
+  phpDateToString,
+} from "../useAssetEditor/utils";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   template: Template;
@@ -169,66 +124,42 @@ const props = defineProps<{
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   isValid: boolean;
+  selectedTemplateId?: number | null;
 }>();
 
 const emit = defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
-  (e: "update:templateId", templateId: string): void;
+  (e: "update:templateId", templateId: number): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
   (e: "migrateCollection", collectionId: number): void;
 }>();
 
 const state = reactive({
-  localTemplateId: String(props.asset.templateId ?? ""),
-  templateComparison: null as TemplateComparison | [] | null,
-  isConfirmingTemplateChange: false,
-  localCollectionId: String(props.asset.collectionId ?? ""),
-  collectionComparison: null as { migration: boolean } | null,
-  isConfirmingMigrateCollection: false,
+  localCollectionId: props.asset.collectionId,
 });
 
-const missingRequiredFields = computed(() => {
-  if (props.isValid) return [];
+// Use controlled value for template ID - either selected or asset's current
+const displayTemplateId = computed(
+  () => props.selectedTemplateId ?? props.asset.templateId
+);
 
-  return props.template.widgetArray
-    .filter((widgetDef) => widgetDef.required)
-    .filter((widgetDef) => {
-      const fieldTitle = widgetDef.fieldTitle;
-      const widgetContents = props.asset[fieldTitle] as WidgetContent[];
-      return !hasWidgetContent(widgetContents, widgetDef.type);
-    })
-    .map((widgetDef) => widgetDef.label);
-});
-
-const instanceStore = useInstanceStore();
-
-const templateOptions = computed(() => {
-  return (
-    instanceStore.instance.templates?.map((template) => ({
-      label: template.name,
-      id: template.id.toString(),
-    })) ?? []
-  );
-});
-
-const collectionOptions = computed(() => {
-  return (
-    instanceStore.collections?.map((collection) => ({
-      label: collection.title,
-      id: collection.id.toString(),
-    })) ?? []
-  );
-});
-
-const phpDateToString = (phpDateTime: PHPDateTime | null): string => {
-  if (!phpDateTime?.date) {
-    return "";
+watch(
+  () => props.asset.collectionId,
+  (newCollectionId) => {
+    state.localCollectionId = newCollectionId;
   }
-  return new Date(phpDateTime.date).toISOString().split("T")[0];
-};
+);
 
 const localAvailableAfterDate = ref("");
+const assetEditor = useAssetEditor();
+
+const missingRequiredFields = computed(() => {
+  return getMissingRequiredFields({
+    asset: props.asset,
+    template: props.template,
+  });
+});
 
 function handleUpdateAvailableAfter(value: string | number) {
   if (!value) {
@@ -292,81 +223,14 @@ const tocItems = computed((): TocItem[] => {
     });
 });
 
-// the use has selected a new template Id, we need to fetch
-// a template comparison and then confirm
-// if they cancel, reset the templateId to the
-async function compareTemplatesAndConfirm(value: string) {
-  const valueInt = Number.parseInt(value);
-  invariant(!Number.isNaN(valueInt), "newTemplateId should be a number");
-
-  state.templateComparison = await fetchTemplateComparison(
-    props.asset.templateId as number,
-    valueInt
-  );
-
-  // if the template comparison is empty, it means the
-  // we can change template without issue, so don't bother
-  // confirming
-  if (!state.templateComparison || isEmpty(state.templateComparison)) {
-    handleConfirmTemplateChange();
-    return;
-  }
-
-  state.isConfirmingTemplateChange = true;
+function handleUpdateTemplateId(templateId: number | string | null) {
+  invariant(typeof templateId === "number", "Template ID must be a number");
+  emit("update:templateId", templateId);
 }
 
-function handleConfirmTemplateChange() {
-  emit("update:templateId", state.localTemplateId);
-  state.isConfirmingTemplateChange = false;
-  state.templateComparison = null;
-}
-
-function handleCancelTemplateChange() {
-  // reset the local templateId to the original value
-  state.localTemplateId = String(props.asset.templateId ?? "");
-  state.isConfirmingTemplateChange = false;
-  state.templateComparison = null;
-}
-
-async function compareCollectionsAndConfirm(value: string) {
-  const newCollectionId = Number.parseInt(value);
-  invariant(
-    !Number.isNaN(newCollectionId),
-    "newCollectionId should be a number"
-  );
-
-  state.collectionComparison = await fetchCollectionComparison(
-    props.asset.collectionId as number,
-    newCollectionId
-  );
-
-  // if migration is false, it means that we can change collection without
-  // issue
-  if (!state.collectionComparison.migration) {
-    emit("update:asset", {
-      ...props.asset,
-      collectionId: newCollectionId,
-    });
-    state.isConfirmingMigrateCollection = false;
-    state.collectionComparison = null;
-    return;
-  }
-
-  state.isConfirmingMigrateCollection = true;
-}
-
-function handleConfirmMigrateCollection() {
-  const newCollectionId = Number.parseInt(state.localCollectionId);
-  emit("migrateCollection", newCollectionId);
-  state.isConfirmingMigrateCollection = false;
-  state.collectionComparison = null;
-}
-
-function handleCancelMigrateCollection() {
-  // reset the local collectionId to the original value
-  state.localCollectionId = String(props.asset.collectionId ?? "");
-  state.isConfirmingMigrateCollection = false;
-  state.collectionComparison = null;
+function handleUpdateCollectionId(collectionId: number | string | null) {
+  invariant(typeof collectionId === "number", "Collection ID must be a number");
+  emit("migrateCollection", collectionId);
 }
 </script>
 <style>
