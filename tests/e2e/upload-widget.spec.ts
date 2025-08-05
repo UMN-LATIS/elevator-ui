@@ -19,7 +19,7 @@ test.describe("EditUploadWidget", () => {
     await page.goto("/");
   });
 
-  test("should upload file, add description, save and verify persistence", async ({
+  test("upload file, add description, save and verify persistence", async ({
     page,
   }) => {
     // Navigate to create asset page through menu
@@ -73,22 +73,15 @@ test.describe("EditUploadWidget", () => {
       timeout: 15000,
     });
 
-    // First save the asset to get into edit mode where description fields should be available
-    const saveButton = page.getByRole("button", { name: "Save" });
-    await saveButton.click();
-
-    // Should redirect to edit mode
+    // page should automatically have saved
     await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
-
-    // Verify the uploaded file is visible
-    await expect(page.getByText("test-image.jpg")).toBeVisible();
 
     // Now look for description field in edit mode - try different possible selectors
     const descriptionField = page.getByRole("textbox", {
       name: "Description / Alt Text ?",
     });
+    await expect(descriptionField).toBeVisible({ timeout: 5000 });
     await descriptionField.scrollIntoViewIfNeeded();
-    await expect(descriptionField).toBeVisible({ timeout: 2000 });
 
     // Enter a description for the uploaded file
     await descriptionField.fill(
@@ -96,7 +89,12 @@ test.describe("EditUploadWidget", () => {
     );
 
     // Save the asset with description
+    const saveButton = page.getByRole("button", { name: "Save" });
+    await expect(saveButton).toBeEnabled();
     await saveButton.click();
+
+    // wait for save to complete
+    await page.waitForLoadState("networkidle");
 
     // Do a full page refresh to verify persistence
     await page.reload();

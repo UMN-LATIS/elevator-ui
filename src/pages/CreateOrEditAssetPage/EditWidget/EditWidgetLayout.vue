@@ -7,6 +7,9 @@
       'cursor-pointer': !isOpen,
     }"
     @click="handleSectionClick">
+    <h2 class="sr-only">
+      {{ widgetDef.label }}
+    </h2>
     <div
       class="flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
       :class="{
@@ -14,21 +17,14 @@
       }">
       <button
         type="button"
-        class="text-left"
+        class="flex justify-start gap-2 text-base font-bold leading-none"
         :aria-expanded="isOpen"
         :aria-controls="`widget-${widgetDef.widgetId}-content`"
         @click.stop="toggleExpand">
-        <div class="flex gap-2">
-          <ChevronDownIcon v-if="isOpen" class="!size-4" />
-          <ChevronRightIcon v-else class="!size-4" />
-          <h2 class="text-base font-bold leading-none">
-            {{ widgetDef.label }}
-            <span v-if="widgetDef.required" class="text-red-500">*</span>
-          </h2>
-          <span class="sr-only">
-            {{ isOpen ? "collapse" : "expand" }} section
-          </span>
-        </div>
+        <ChevronDownIcon v-if="isOpen" class="!size-4" />
+        <ChevronRightIcon v-else class="!size-4" />
+        {{ widgetDef.label }}
+        <span v-if="widgetDef.required" class="text-red-500">*</span>
       </button>
       <div>
         <Tooltip v-if="hasContents" tip="Content added">
