@@ -423,7 +423,7 @@ const templateSeeds: Template[] = [
       {
         widgetId: 3001,
         type: "text",
-        allowMultiple: false,
+        allowMultiple: true,
         attemptAutocomplete: false,
         fieldTitle: "title_1",
         label: "Title",
@@ -498,7 +498,7 @@ const templateSeeds: Template[] = [
       {
         widgetId: 22,
         type: "date",
-        allowMultiple: false,
+        allowMultiple: true,
         attemptAutocomplete: false,
         fieldTitle: "date_1",
         label: "Date",
