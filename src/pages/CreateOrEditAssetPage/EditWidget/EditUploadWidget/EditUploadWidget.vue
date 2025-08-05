@@ -27,6 +27,12 @@
         :item="item"
         :widgetDef="widgetDef"
         :isShowingDetails="isShowingDetails.has(item.id)"
+        :class="[
+          'upload-widget-item',
+          {
+            'upload-widget-item--is-uploading': !item.loc,
+          },
+        ]"
         @update:item="handleUpdateItem"
         @toggle:details="
           isShowingDetails.has(item.id)
@@ -144,5 +150,12 @@ function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
   emit("update:widgetContents", updatedContents);
 }
 </script>
-<style scoped></style>
+<style>
+/**
+ * hide widget items until upload completes
+ */
+.drag-drop-list-item:has(.upload-widget-item.upload-widget-item--is-uploading) {
+  @apply hidden;
+}
+</style>
 <style></style>
