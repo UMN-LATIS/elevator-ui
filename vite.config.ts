@@ -49,6 +49,8 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
           cookieDomainRewrite: "localhost",
+          // don't verify SSL certs in dev
+          secure: false,
         },
       },
     },

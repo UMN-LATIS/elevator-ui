@@ -203,7 +203,7 @@ app.post("/multipart/:uploadId/:partNumber", async (c) => {
   }
 
   // Create a mock signed URL that points to our own endpoint
-  const mockSignedUrl = `http://localhost:3001/s3/upload-part/${uploadId}/${partNumber}`;
+  const mockSignedUrl = `https://localhost:3001/s3/upload-part/${uploadId}/${partNumber}`;
 
   return c.json({
     message: "signPart",

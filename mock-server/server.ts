@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import { createServer } from "node:https";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
@@ -134,9 +136,14 @@ app.get("/health", (c) =>
 app.get("*", serveStatic({ path: "../dist/index.html" }));
 
 const MOCK_SERVER_PORT = 3001;
-console.log(`🚀 Mock server running on http://localhost:${MOCK_SERVER_PORT}`);
+console.log(`🚀 Mock server running on https://localhost:${MOCK_SERVER_PORT}`);
 
 serve({
   fetch: app.fetch,
   port: MOCK_SERVER_PORT,
+  createServer: createServer,
+  serverOptions: {
+    cert: fs.readFileSync("../.cert/cert.pem"),
+    key: fs.readFileSync("../.cert/key.pem"),
+  },
 });
