@@ -6,6 +6,9 @@ import { dirname } from "path";
 import type { MockServerContext } from "../types";
 import { processUploadedFile } from "../utils/fileProcessor";
 import { delay } from "../utils";
+import config from "../config";
+
+const MOCK_SERVER_BASE = `${config.ORIGIN}:${config.PORT}`;
 
 const app = new Hono<MockServerContext>();
 
@@ -203,7 +206,7 @@ app.post("/multipart/:uploadId/:partNumber", async (c) => {
   }
 
   // Create a mock signed URL that points to our own endpoint
-  const mockSignedUrl = `https://localhost:3001/s3/upload-part/${uploadId}/${partNumber}`;
+  const mockSignedUrl = `${MOCK_SERVER_BASE}/s3/upload-part/${uploadId}/${partNumber}`;
 
   return c.json({
     message: "signPart",

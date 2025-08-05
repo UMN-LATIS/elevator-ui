@@ -23,7 +23,7 @@
     "mock:install": "cd mock-server && npm install",
     "mock:serve": "cd mock-server && npm run serve:watch",
     "mock:serve:test": "yarn build:test && cd mock-server && npm run serve:watch",
-    "dev:mock": "VITE_API_PROXY_TARGET=https://localhost:3001 VITE_IS_USING_MOCK_SERVER=true concurrently \"npm run mock:serve\" \"npm run dev\""
+    "dev:mock": "VITE_API_PROXY_TARGET=http://localhost:3001 VITE_IS_USING_MOCK_SERVER=true concurrently \"npm run mock:serve\" \"npm run dev\""
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
