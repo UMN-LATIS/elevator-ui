@@ -50,9 +50,10 @@
         :saveStatus="saveStatus"
         :hasUnsavedChanges="hasUnsavedChanges"
         :isValid="isValid"
+        :selectedTemplateId="selectedTemplateId"
         @save="$emit('save')"
         @cancel="$emit('cancel')"
-        @update:templateId="$emit('update:templateId', Number.parseInt($event))"
+        @update:templateId="$emit('update:templateId', $event)"
         @migrateCollection="$emit('migrateCollection', $event)"
         @update:asset="$emit('update:asset', $event)" />
     </aside>
@@ -81,6 +82,7 @@ const props = defineProps<{
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   isValid: boolean;
+  selectedTemplateId?: number | null;
 }>();
 
 defineEmits<{

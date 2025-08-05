@@ -1,5 +1,6 @@
 import { Template } from "../../src/types";
 import { createBaseTable } from "./baseTable";
+import invariant from "tiny-invariant";
 
 const templateSeeds: Template[] = [
   {
@@ -154,8 +155,8 @@ const templateSeeds: Template[] = [
         type: "checkbox",
         allowMultiple: false,
         attemptAutocomplete: false,
-        fieldTitle: "coolstuff_1",
-        label: "Cool Stuff",
+        fieldTitle: "checkbox_1",
+        label: "Checkbox",
         tooltip: "",
         fieldData: [],
         display: true,
@@ -350,8 +351,8 @@ const templateSeeds: Template[] = [
         type: "upload",
         allowMultiple: true,
         attemptAutocomplete: false,
-        fieldTitle: "image_1",
-        label: "Image",
+        fieldTitle: "upload_1",
+        label: "Upload",
         tooltip: "",
         fieldData: {
           extractDate: true,
@@ -413,13 +414,62 @@ const templateSeeds: Template[] = [
   },
 ];
 
+interface ComparisonResult {
+  type: string; // "missing"?
+  label: string; // "Title", "Checkbox", etc.
+}
+
+type WidgetDefKey = string;
+type TemplateComparison = Record<WidgetDefKey, ComparisonResult>;
+
 export function createTemplatesTable() {
   const baseTable = createBaseTable(
     (template: Template) => template.templateId,
     templateSeeds
   );
 
-  return baseTable;
+  return {
+    ...baseTable,
+    compare(
+      sourceTemplate: Template,
+      destTemplate: Template
+    ): TemplateComparison {
+      // check for which fields are missing in b that exist in a
+      const sourceFields = sourceTemplate.widgetArray.map((w) => w.fieldTitle);
+
+      const comparison: TemplateComparison = sourceFields.reduce(
+        (acc, field) => {
+          const sourceWidget = sourceTemplate.widgetArray.find(
+            (w) => w.fieldTitle === field
+          );
+          invariant(sourceWidget, `Widget with fieldTitle ${field} not found`);
+
+          const destWidget = destTemplate.widgetArray.find(
+            (w) => w.fieldTitle === field
+          );
+
+          if (!destWidget) {
+            return {
+              ...acc,
+              [field]: { type: "missing", label: sourceWidget.label },
+            };
+          }
+
+          if (destWidget.type !== sourceWidget.type) {
+            return {
+              ...acc,
+              [field]: { type: "type mismatch", label: sourceWidget.label },
+            };
+          }
+
+          return acc;
+        },
+        {}
+      );
+
+      return comparison;
+    },
+  };
 }
 
 export type TemplatesTable = ReturnType<typeof createTemplatesTable>;

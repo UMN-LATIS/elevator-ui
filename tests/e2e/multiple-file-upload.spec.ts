@@ -30,7 +30,7 @@ test.describe("Multiple File Upload", () => {
     await page.goto("/assetManager/addAsset");
   });
 
-  test("should upload multiple files simultaneously and verify persistence", async ({
+  test("upload multiple files simultaneously and verify persistence", async ({
     page,
   }) => {
     await expect(page).toHaveURL(/\/assetManager\/addAsset/);
@@ -56,10 +56,10 @@ test.describe("Multiple File Upload", () => {
       .getByLabel("Title")
       .fill("Test Asset with Multiple File Uploads");
 
-    // const fileInput = page.locator('input[type="file"]').first();
-    // await fileInput.setInputFiles(testFiles);
     const imageWidget = page.locator("section.edit-widget-layout").filter({
-      has: page.getByRole("heading", { name: "Image" }),
+      has: page.getByRole("heading", {
+        name: "Upload",
+      }),
     });
     await imageWidget.scrollIntoViewIfNeeded();
     await expect(imageWidget).toBeVisible();

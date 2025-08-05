@@ -185,6 +185,23 @@ export function makeWidgetContents(
     : [createDefaultWidgetContent(widgetDef)];
 }
 
+export function getMissingRequiredFields({
+  asset,
+  template,
+}: {
+  asset: Asset | UnsavedAsset;
+  template: Template;
+}) {
+  return template.widgetArray
+    .filter((widgetDef) => widgetDef.required)
+    .filter((widgetDef) => {
+      const fieldTitle = widgetDef.fieldTitle;
+      const widgetContents = asset[fieldTitle] as WidgetContent[];
+      return !hasWidgetContent(widgetContents, widgetDef.type);
+    })
+    .map((widgetDef) => widgetDef.label);
+}
+
 export function doAllRequiredHaveContent(
   asset: Asset | UnsavedAsset,
   template: Template
@@ -217,4 +234,30 @@ export function toSaveableFormData(
     availableAfter: (asset.availableAfter as PHPDateTime)?.date,
     ...widgetContentsWithoutIds,
   };
+}
+
+export function migrateAssetToTemplate(
+  asset: Asset | UnsavedAsset,
+  newTemplate: Template
+): Asset | UnsavedAsset {
+  // Create a new local asset with the new template
+  const localAsset = makeLocalAsset({
+    template: newTemplate,
+    collectionId: asset.collectionId,
+    savedAsset: null,
+  });
+
+  // Copy over the fields from the old asset to the new one
+  return {
+    ...localAsset,
+    ...asset,
+    templateId: newTemplate.templateId, // Ensure the templateId is updated
+  };
+}
+
+export function phpDateToString(phpDateTime: PHPDateTime | null): string {
+  if (!phpDateTime?.date) {
+    return "";
+  }
+  return new Date(phpDateTime.date).toISOString().split("T")[0];
 }

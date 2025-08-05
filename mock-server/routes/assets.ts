@@ -3,6 +3,7 @@ import { parseFormData, delay } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
 import { Asset, TextWidgetContent, UploadWidgetContent } from "../../src/types";
 import type { DB } from "../db/index";
+import { isEmpty } from "ramda";
 
 const app = new Hono<MockServerContext>();
 
@@ -208,12 +209,34 @@ app.get("/userAssets/:userId/true", async (c) => {
   const userId = c.req.param("userId");
 
   // For security, only allow users to see their own assets (or admin users could see all)
-  if (user && (user.id.toString() === userId || user.isSuperAdmin || user.isInstanceAdmin)) {
+  if (
+    user &&
+    (user.id.toString() === userId || user.isSuperAdmin || user.isInstanceAdmin)
+  ) {
     const userAssets = db.assets.getByUserId(Number(userId));
     return c.json(userAssets);
   }
 
   return c.json({ error: "Unauthorized" }, 403);
+});
+
+// GET /assetManager/compareTemplates/:templateId1/:templateId2
+app.get("/compareTemplates/:templateId1/:templateId2", async (c) => {
+  await delay(100);
+
+  const db = c.get("db");
+
+  const templateId1 = Number(c.req.param("templateId1"));
+  const templateId2 = Number(c.req.param("templateId2"));
+  const template1 = db.templates.get(templateId1);
+  const template2 = db.templates.get(templateId2);
+  if (!template1 || !template2) {
+    return c.json({ error: "One or both templates not found" }, 404);
+  }
+  const differences = db.templates.compare(template1, template2);
+
+  // prod returns empty array if no differences
+  return isEmpty(differences) ? c.json([]) : c.json(differences);
 });
 
 export default app;

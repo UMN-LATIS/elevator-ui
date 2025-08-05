@@ -485,7 +485,7 @@ export type RelatedAssetCache = Record<
   RelatedAssetCacheItem | null | undefined
 >;
 
-export interface Asset {
+interface BaseAsset {
   assetId: string;
   templateId: number;
   readyForDisplay: boolean;
@@ -500,10 +500,17 @@ export interface Asset {
   firstObjectId?: string | null;
   titleObject?: string | null;
   title?: string[];
-  [key: string]: unknown; // widget content
 }
 
-export type UnsavedAsset = Omit<Asset, "assetId"> & { assetId: null };
+interface AssetWidgetFields {
+  [key: string]: unknown;
+}
+
+export type Asset = BaseAsset & AssetWidgetFields;
+
+export type UnsavedAsset = Omit<BaseAsset, "assetId"> & {
+  assetId: null;
+} & AssetWidgetFields;
 
 type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];

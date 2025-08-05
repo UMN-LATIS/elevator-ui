@@ -72,8 +72,8 @@ const emit = defineEmits<{
 
 const isShowingDetails = ref<Set<string>>(new Set());
 
-const debouncedEmitSave = useDebounceFn(() => emit("save"), 2000, {
-  maxWait: 10000,
+const debouncedEmitSave = useDebounceFn(() => emit("save"), 1000, {
+  maxWait: 5000,
 });
 
 function handleUploadStart(fileRecord: Type.FileUploadRecord) {
