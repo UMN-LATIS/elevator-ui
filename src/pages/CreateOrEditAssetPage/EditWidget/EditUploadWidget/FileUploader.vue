@@ -236,7 +236,7 @@ uppy.on("error", (error) => {
   }
 
   & .uppy-Dashboard-AddFiles-info {
-    @apply flex items-center justify-center p-0;
+    @apply flex items-center justify-center p-0 static;
 
     & .uppy-Dashboard-note {
       @apply text-xs text-black/50;
