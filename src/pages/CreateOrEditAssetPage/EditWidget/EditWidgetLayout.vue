@@ -11,7 +11,7 @@
       {{ widgetDef.label }}
     </h2>
     <div
-      class="flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
+      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
       :class="{
         'sticky top-[5rem] z-10': isOpen,
       }">
