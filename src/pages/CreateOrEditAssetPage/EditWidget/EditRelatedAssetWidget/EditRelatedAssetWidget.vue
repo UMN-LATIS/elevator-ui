@@ -31,7 +31,16 @@
       }
     ">
     <template #fieldContents="{ item }">
+      <EditInlineRelatedAssetWidgetContentItem
+        v-if="widgetDef.fieldData.displayInline"
+        :collectionId="collectionId"
+        :widgetDef="widgetDef"
+        :widgetContents="widgetContents"
+        :assetId="assetId"
+        :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
+        @update:modelValue="handleUpdate" />
       <EditRelatedAssetWidgetContentItem
+        v-else
         :widgetDef="widgetDef"
         :widgetContents="widgetContents"
         :assetId="assetId"
@@ -42,12 +51,14 @@
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
-import EditWidgetLayout from "./EditWidgetLayout.vue";
-import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetWidgetContentItem.vue";
-import * as ops from "./helpers/editWidgetOps";
+import EditWidgetLayout from "../EditWidgetLayout.vue";
+import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetContentItem.vue";
+import EditInlineRelatedAssetWidgetContentItem from "./EditRelatedAssetInlineContentItem.vue";
+import * as ops from "../helpers/editWidgetOps";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
+  collectionId: Type.AssetCollection["id"];
   widgetDef: Type.RelatedAssetWidgetDef;
   widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
   assetId: string | null; // current assetId. could be null for new assets
