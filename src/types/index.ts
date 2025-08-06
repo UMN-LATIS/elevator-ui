@@ -291,7 +291,7 @@ export interface UploadWidgetContent extends WidgetContent {
   fileDescription: string;
   fileType: string;
   searchData: string | null;
-  loc: string | null;
+  loc: LocationObject | null;
   sidecars: {
     ppm?: number | null; // pixels per millimeter
     iframe?: string | null; // iframe url

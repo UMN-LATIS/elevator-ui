@@ -27,12 +27,7 @@
         :item="item"
         :widgetDef="widgetDef"
         :isShowingDetails="isShowingDetails.has(item.id)"
-        :class="[
-          'upload-widget-item',
-          {
-            'upload-widget-item--is-uploading': !item.loc,
-          },
-        ]"
+        class="upload-widget-item"
         @update:item="handleUpdateItem"
         @toggle:details="
           isShowingDetails.has(item.id)
@@ -59,7 +54,6 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
 import { useDebounceFn } from "@vueuse/core";
-import invariant from "tiny-invariant";
 
 const props = defineProps<{
   collectionId: number;
@@ -87,17 +81,12 @@ const debouncedEmitSave = useDebounceFn(() => emit("save"), 500, {
 });
 
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
-  invariant(
-    fileRecord.location,
-    `fileRecord must have a location after upload`
-  );
-
   const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
     fileDescription: "",
     fileType: fileRecord.contentType,
-    loc: fileRecord.location || "", // Use the location from the file record
+    loc: null, // server will extract from metadata
     sidecars: {}, // Initialize sidecars as an empty object
     searchData: "", // Initialize searchData as an empty string
   };
@@ -150,12 +139,5 @@ function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
   emit("update:widgetContents", updatedContents);
 }
 </script>
-<style>
-/**
- * hide widget items until upload completes
- */
-.drag-drop-list-item:has(.upload-widget-item.upload-widget-item--is-uploading) {
-  @apply hidden;
-}
-</style>
+<style scoped></style>
 <style></style>
