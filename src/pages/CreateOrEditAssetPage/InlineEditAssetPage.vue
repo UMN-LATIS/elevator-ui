@@ -8,22 +8,7 @@
         <span class="ml-2">Loading...</span>
       </div>
       <section v-else class="px-2 max-w-screen-xl w-full mx-auto">
-        <!-- <AssetSummary
-        :asset="assetEditor.localAsset"
-        :template="assetEditor.template"
-        :savedAssetTitle="assetEditor.savedAssetTitle"
-        :localAssetTitle="assetEditor.localAssetTitle"
-        class="mb-4" /> -->
         <div class="flex flex-col">
-          <!-- <div
-          class="flex items-center justify-start gap-2 border-b border-neutral-300 pb-2">
-          <Button variant="tertiary" @click="handleExpandAll">
-            Expand All
-          </Button>
-          <Button variant="tertiary" @click="handleCollapseAll">
-            Collapse All
-          </Button>
-        </div> -->
           <EditWidget
             v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
             :key="widgetDef.widgetId"
@@ -54,7 +39,7 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
-import { computed, nextTick, onMounted, reactive, watch } from "vue";
+import { computed, nextTick, reactive, watch } from "vue";
 import { RelatedAssetSaveMessage } from "@/types";
 import { useRoute, useRouter } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
@@ -62,7 +47,6 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import EditWidget from "./EditWidget/EditWidget.vue";
-import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
   defineProps<{
