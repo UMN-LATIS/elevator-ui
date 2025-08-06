@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="overflow-hidden">
     <div v-if="!templateId" class="text-red-500">
       No template selected for this related asset widget. Please set
       <code class="font-mono bg-black/5">defaultTemplate</code>
@@ -9,14 +9,16 @@
       v-else
       ref="iframeRef"
       :src="`/assetManager/addAsset/${templateId}/${collectionId}/true`"
-      class="w-full h-full"
+      class="w-full border-0"
       frameborder="0"
-      @load="handleIframeLoad" />
+      :height="iframeHeight || 500" />
   </div>
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
-import { computed, useTemplateRef } from "vue";
+import invariant from "tiny-invariant";
+import { computed, useTemplateRef, ref, onMounted } from "vue";
+import * as Penpal from "penpal";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
@@ -32,12 +34,40 @@ const templateId = computed((): Type.Template["templateId"] | null => {
   return props.widgetDef.fieldData.defaultTemplate ?? null;
 });
 
-function handleIframeLoad() {
-  // This function can be used to handle any actions after the iframe loads
-  // For example, you might want to focus on the iframe or log a message
-  console.log("Iframe loaded successfully");
+const iframeHeight = ref<number>(500);
 
-  // adjust the container height to fit the iframe content
-  console.log(iframeRef.value);
-}
+onMounted(async () => {
+  invariant(iframeRef.value, "iframeRef must be defined");
+
+  // Set up Penpal connection to communicate with iframe
+  try {
+    if (!iframeRef.value?.contentWindow) {
+      console.warn("[PARENT] iframe contentWindow not available yet");
+      return;
+    }
+
+    const messenger = new Penpal.WindowMessenger({
+      remoteWindow: iframeRef.value.contentWindow,
+      allowedOrigins: ["*"], // Allow any origin for now
+    });
+
+    const connection = Penpal.connect({
+      messenger,
+      methods: {
+        updateHeight(height: number) {
+          iframeHeight.value = height;
+          console.log(`[PARENT] Iframe height updated to: ${height}px`);
+        },
+      },
+    });
+
+    // Wait for connection to establish
+    await connection.promise;
+    console.log(
+      "[PARENT] Penpal connection established with inline asset iframe"
+    );
+  } catch (error) {
+    console.warn("[PARENT] Failed to establish Penpal connection:", error);
+  }
+});
 </script>

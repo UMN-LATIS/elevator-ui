@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-edit-asset-page bg-black/5">
+  <div ref="containerRef" class="inline-edit-asset-page bg-black/5">
     <Transition name="fade">
       <div
         v-if="!assetEditor.localAsset || !assetEditor.template"
@@ -9,6 +9,20 @@
       </div>
       <section v-else class="max-w-screen-xl w-full mx-auto">
         <div class="flex flex-col">
+          <div
+            class="flex items-center justify-end gap-2 border-b border-neutral-300 pb-2">
+            <Button
+              v-if="openWidgets.size === 0"
+              variant="tertiary"
+              @click="handleExpandAll">
+              <ChevronsUpDownIcon class="w-4 h-4" />
+              <span>Expand</span>
+            </Button>
+            <Button v-else variant="tertiary" @click="handleCollapseAll">
+              <ChevronsDownUpIcon class="w-4 h-4" />
+              <span>Collapse</span>
+            </Button>
+          </div>
           <EditWidget
             v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
             :key="widgetDef.widgetId"
@@ -39,7 +53,15 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
-import { computed, nextTick, reactive, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  useTemplateRef,
+  watch,
+} from "vue";
 import { RelatedAssetSaveMessage } from "@/types";
 import { useRoute, useRouter } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
@@ -47,6 +69,14 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import EditWidget from "./EditWidget/EditWidget.vue";
+import Button from "@/components/Button/Button.vue";
+import * as Penpal from "penpal";
+import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
+
+// Penpal method interfaces for type safety
+interface IFrameParentMethods extends Penpal.Methods {
+  updateHeight(height: number): void;
+}
 
 const props = withDefaults(
   defineProps<{
@@ -91,18 +121,6 @@ watch(
 );
 
 const openWidgets = reactive(new Set<T.WidgetDef["widgetId"]>());
-
-// All widgets open by default
-watch(
-  () => assetEditor.isInitialized && assetEditor.template,
-  () => {
-    // once we've initialized the asset editor and have a template
-    // we can expand all widgets
-    if (!assetEditor.isInitialized || !assetEditor.template) return;
-    handleExpandAll();
-  },
-  { immediate: true }
-);
 
 const widgetDefAndContents = computed(
   (): Array<{
@@ -185,6 +203,53 @@ async function handleSaveAsset() {
     },
   });
 }
+
+// Set up Penpal connection to communicate with parent iframe container
+let parentConnection: IFrameParentMethods | null = null;
+
+// Set up ResizeObserver to monitor content height changes
+const resizeObserver = new ResizeObserver(() => {
+  const docHeight = containerRef.value?.clientHeight ?? 0;
+
+  if (!parentConnection) {
+    console.warn("[IFRAME] No parent connection to update height");
+    return;
+  }
+
+  parentConnection.updateHeight(docHeight);
+});
+
+const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
+
+onMounted(async () => {
+  invariant(containerRef.value, "containerRef must be defined");
+
+  // Connect to parent using Penpal
+  try {
+    const messenger = new Penpal.WindowMessenger({
+      remoteWindow: window.parent,
+      allowedOrigins: ["*"], // Allow any origin for now
+    });
+
+    parentConnection = await Penpal.connect<IFrameParentMethods>({
+      messenger,
+    }).promise;
+
+    // Start observing height changes after connection is established
+    resizeObserver.observe(containerRef.value);
+
+    // Send initial height
+    const initialHeight = containerRef.value.clientHeight;
+    parentConnection.updateHeight(initialHeight);
+  } catch (error) {
+    console.warn("Failed to connect to parent via Penpal:", error);
+  }
+});
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+  parentConnection = null;
+});
 </script>
 <style>
 .inline-edit-asset-page .edit-widget-layout__accordion-button-wrapper {
