@@ -19,10 +19,11 @@ import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResults
 function parseIntFromParam(
   param: string | string[] | undefined
 ): number | null {
-  if (typeof param === "string") {
-    return Number.parseInt(param);
+  if (typeof param !== "string") {
+    return null;
   }
-  return null;
+  const parsed = Number.parseInt(param);
+  return Number.isNaN(parsed) ? null : parsed;
 }
 
 /**
@@ -114,6 +115,18 @@ const router = createRouter({
       path: "/assetManager/userAssets",
       component: () =>
         import("@/pages/AllUserAssetsPage/AllUserAssetsPage.vue"),
+    },
+    {
+      // for inline related assets
+      name: "adddAssetInline",
+      path: "/assetManager/addAsset/:templateId/:collectionId/true",
+      component: () =>
+        import("@/pages/CreateOrEditAssetPage/InlineEditAssetPage.vue"),
+      props: (route) => ({
+        templateId: parseIntFromParam(route.params.templateId),
+        // could be null
+        collectionId: parseIntFromParam(route.params.collectionId),
+      }),
     },
     {
       name: "editAsset",
