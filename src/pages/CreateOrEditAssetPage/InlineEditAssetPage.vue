@@ -7,7 +7,7 @@
         <SpinnerIcon class="w-8 h-8 animate-spin" />
         <span class="ml-2">Loading...</span>
       </div>
-      <section v-else class="px-2 max-w-screen-xl w-full mx-auto">
+      <section v-else class="max-w-screen-xl w-full mx-auto">
         <div class="flex flex-col">
           <EditWidget
             v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
