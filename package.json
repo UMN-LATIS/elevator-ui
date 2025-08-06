@@ -59,6 +59,7 @@
     "lucide-vue-next": "^0.525.0",
     "mapbox-gl-esri-sources": "^0.0.7",
     "maplibre-gl": "^3.6.2",
+    "penpal": "^7.0.4",
     "pinia": "^2.3.1",
     "quill": "^2.0.3",
     "quill-paste-smart": "^2.0.0",
