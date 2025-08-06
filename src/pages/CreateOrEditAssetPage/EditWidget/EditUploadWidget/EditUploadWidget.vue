@@ -27,12 +27,7 @@
         :item="item"
         :widgetDef="widgetDef"
         :isShowingDetails="isShowingDetails.has(item.id)"
-        :class="[
-          'upload-widget-item',
-          {
-            'upload-widget-item--is-uploading': !item.loc,
-          },
-        ]"
+        class="upload-widget-item"
         @update:item="handleUpdateItem"
         @toggle:details="
           isShowingDetails.has(item.id)
@@ -42,15 +37,15 @@
     </template>
     <template #footer>
       <FileUploader
+        v-show="widgetDef.allowMultiple || !hasContents"
         :collectionId="props.collectionId"
-        @start="handleUploadStart"
-        @complete="handleCompleteUpload"
-        @allComplete="emit('save')" />
+        :maxNumberOfFiles="widgetDef.allowMultiple ? undefined : 1"
+        @complete="handleCompleteUpload" />
     </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
@@ -77,39 +72,32 @@ const emit = defineEmits<{
 }>();
 
 const isShowingDetails = ref<Set<string>>(new Set());
-
-const debouncedEmitSave = useDebounceFn(() => emit("save"), 1000, {
-  maxWait: 5000,
+const hasContents = computed(() => {
+  return props.widgetContents.length > 0;
 });
 
-function handleUploadStart(fileRecord: Type.FileUploadRecord) {
-  const startedUploadItem: Type.WithId<Type.UploadWidgetContent> = {
+const debouncedEmitSave = useDebounceFn(() => emit("save"), 500, {
+  maxWait: 2000,
+});
+
+async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
+  const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
     fileDescription: "",
     fileType: fileRecord.contentType,
-    loc: "",
+    loc: null, // server will extract from metadata
     sidecars: {}, // Initialize sidecars as an empty object
     searchData: "", // Initialize searchData as an empty string
   };
 
-  emit("update:widgetContents", [...props.widgetContents, startedUploadItem]);
-  nextTick(() => debouncedEmitSave());
-}
+  emit("update:widgetContents", [
+    ...props.widgetContents,
+    uploadedItem,
+  ] as Type.WithId<Type.UploadWidgetContent>[]);
 
-function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
-  // find the item that was started
-  const updatedItems = props.widgetContents.map((item) => {
-    return item.fileId === fileRecord.fileObjectId
-      ? ({
-          ...item,
-          loc: fileRecord.location, // Update the location with the S3 URL
-        } as Type.WithId<Type.UploadWidgetContent>)
-      : item;
-  });
-
-  emit("update:widgetContents", updatedItems);
-  nextTick(() => debouncedEmitSave());
+  await nextTick();
+  debouncedEmitSave();
 }
 
 async function handleDeleteContent(id: string) {
@@ -137,7 +125,8 @@ async function handleDeleteContent(id: string) {
     ops.deleteWidgetContent(props.widgetContents, id)
   );
 
-  nextTick(() => debouncedEmitSave());
+  await nextTick();
+  debouncedEmitSave();
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
@@ -150,12 +139,5 @@ function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
   emit("update:widgetContents", updatedContents);
 }
 </script>
-<style>
-/**
- * hide widget items until upload completes
- */
-.drag-drop-list-item:has(.upload-widget-item.upload-widget-item--is-uploading) {
-  @apply hidden;
-}
-</style>
+<style scoped></style>
 <style></style>

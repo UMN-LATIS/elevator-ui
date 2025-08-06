@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import { createServer } from "node:https";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
@@ -15,6 +17,7 @@ import fileRoutes from "./routes/files";
 import pageRoutes from "./routes/pages";
 import instanceRoutes from "./routes/instance";
 import s3Routes from "./routes/s3";
+import config from "./config";
 
 const app = new Hono<MockServerContext>();
 
@@ -133,10 +136,14 @@ app.get("/health", (c) =>
 // SPA fallback - serve index.html for all unmatched routes
 app.get("*", serveStatic({ path: "../dist/index.html" }));
 
-const MOCK_SERVER_PORT = 3001;
-console.log(`🚀 Mock server running on http://localhost:${MOCK_SERVER_PORT}`);
+console.log(`🚀 Mock server running on ${config.ORIGIN}:${config.PORT}`);
 
 serve({
   fetch: app.fetch,
-  port: MOCK_SERVER_PORT,
+  port: config.PORT,
+  // createServer: createServer,
+  // serverOptions: {
+  //   cert: fs.readFileSync("../.cert/cert.pem"),
+  //   key: fs.readFileSync("../.cert/key.pem"),
+  // },
 });

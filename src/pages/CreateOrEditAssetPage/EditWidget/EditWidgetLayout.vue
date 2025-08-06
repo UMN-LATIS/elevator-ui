@@ -87,7 +87,6 @@
                 </div>
                 <div>
                   <button
-                    v-if="widgetDef.allowMultiple"
                     :class="[
                       'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
@@ -102,9 +101,9 @@
                 </div>
               </div>
             </template>
-            <template v-if="widgetDef.allowMultiple" #footer>
+            <template #footer>
               <slot name="footer">
-                <div class="flex justify-center">
+                <div v-if="widgetDef.allowMultiple" class="flex justify-center">
                   <Button variant="tertiary" @click="$emit('add')">
                     <PlusIcon class="w-4 h-4" />
                     {{ widgetDef.label }}

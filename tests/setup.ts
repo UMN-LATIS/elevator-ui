@@ -1,6 +1,8 @@
 import { type APIRequestContext, type Page } from "@playwright/test";
+import mockServerConfig from "../mock-server/config";
 
-const MOCK_SERVER_PORT = 3001;
+const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
+
 // Simple helper to set up worker-specific test environment
 export async function setupWorkerHTTPHeader({
   page,
@@ -22,12 +24,9 @@ export async function refreshDatabase({
   request: APIRequestContext;
   workerId: string;
 }) {
-  const response = await request.post(
-    `http://localhost:${MOCK_SERVER_PORT}/_tests/db/refresh`,
-    {
-      headers: { "x-worker-id": workerId },
-    }
-  );
+  const response = await request.post(`${MOCK_SERVER_BASE}/_tests/db/refresh`, {
+    headers: { "x-worker-id": workerId },
+  });
 
   if (!response.ok()) {
     throw new Error(
@@ -49,13 +48,10 @@ export async function loginUser({
   workerId: string;
   username?: string;
 }) {
-  const response = await request.post(
-    `http://localhost:${MOCK_SERVER_PORT}/_tests/auth/login`,
-    {
-      data: { username },
-      headers: { "x-worker-id": workerId },
-    }
-  );
+  const response = await request.post(`${MOCK_SERVER_BASE}/_tests/auth/login`, {
+    data: { username },
+    headers: { "x-worker-id": workerId },
+  });
 
   if (!response.ok()) {
     throw new Error(

@@ -37,10 +37,10 @@ export default defineConfig(({ mode }) => {
       sourcemap: mode !== "production",
     },
     server: {
-      https: {
-        cert: "./.cert/cert.pem",
-        key: "./.cert/key.pem",
-      },
+      // https: {
+      //   cert: "./.cert/cert.pem",
+      //   key: "./.cert/key.pem",
+      // },
       // proxy: false,
       proxy: {
         "/assets": env.VITE_API_PROXY_TARGET,
@@ -49,6 +49,8 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
           cookieDomainRewrite: "localhost",
+          // don't verify SSL certs in dev
+          secure: false,
         },
       },
     },

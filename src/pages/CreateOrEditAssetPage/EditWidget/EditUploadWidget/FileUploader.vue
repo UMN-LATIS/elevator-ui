@@ -6,6 +6,8 @@
       :props="{
         height: 'auto',
         width: '100%',
+        proudlyDisplayPoweredByUppy: false,
+        note,
       }" />
   </div>
 </template>
@@ -22,9 +24,12 @@ import "@uppy/status-bar/dist/style.min.css";
 import "@uppy/progress-bar/dist/style.min.css";
 import config from "@/config";
 import api from "@/api";
+import { pluralize } from "@/helpers/pluralize";
+import { computed } from "vue";
 
 const props = defineProps<{
   collectionId: number;
+  maxNumberOfFiles?: number;
 }>();
 
 const emit = defineEmits<{
@@ -39,8 +44,21 @@ const filenameToObjectIdMap = new Map<
   Type.FileUploadRecord
 >();
 
+const note = computed(() => {
+  if (props.maxNumberOfFiles) {
+    return `${props.maxNumberOfFiles} ${pluralize(
+      props.maxNumberOfFiles,
+      "file"
+    )} maximum`;
+  }
+  return null;
+});
+
 const uppy = new Uppy({
   autoProceed: true,
+  restrictions: {
+    maxNumberOfFiles: props.maxNumberOfFiles,
+  },
 }).use(umnAwsS3, {
   endpoint: config.instance.base.url,
   shouldUseMultipart: true,
@@ -215,6 +233,14 @@ uppy.on("error", (error) => {
   }
   & .uppy-Dashboard-AddFiles {
     @apply border-2 border-blue-200 bg-blue-50 hover:border-blue-400 rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-blue-500;
+  }
+
+  & .uppy-Dashboard-AddFiles-info {
+    @apply flex items-center justify-center p-0 static;
+
+    & .uppy-Dashboard-note {
+      @apply text-xs text-black/50;
+    }
   }
 
   & .uppy-Dashboard-AddFiles-list {
