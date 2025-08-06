@@ -278,6 +278,14 @@ export const useAssetEditor = () => {
     state.localAsset = updatedAsset;
   }
 
+  function updateAssetField(
+    field: keyof T.UnsavedAsset,
+    value: T.UnsavedAsset[keyof T.UnsavedAsset]
+  ): void {
+    invariant(state.localAsset, "Cannot update asset field: no local asset.");
+    state.localAsset[field] = value;
+  }
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -304,5 +312,6 @@ export const useAssetEditor = () => {
     refreshAsset,
     updateLocalAsset,
     updateCollection,
+    updateAssetField,
   });
 };
