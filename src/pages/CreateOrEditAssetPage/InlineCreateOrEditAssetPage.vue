@@ -233,37 +233,30 @@ watch(
 onMounted(async () => {
   invariant(containerRef.value, "containerRef must be defined");
 
-  console.log("[IFRAME] InlineEditAssetPage mounted");
+  const messenger = new Penpal.WindowMessenger({
+    remoteWindow: window.parent,
+    allowedOrigins: ["*"], // Allow any origin for now
+  });
 
-  // Connect to parent using Penpal
-  try {
-    const messenger = new Penpal.WindowMessenger({
-      remoteWindow: window.parent,
-      allowedOrigins: ["*"], // Allow any origin for now
-    });
+  const childMethods: T.InlineRelatedAssetChildMethods = {
+    async saveAsset(): Promise<T.Asset["assetId"]> {
+      console.log("[IFRAME] Saving asset from child");
+      await handleSaveAsset();
+      return assetEditor.localAsset?.assetId ?? "";
+    },
+  };
 
-    const childMethods: T.InlineRelatedAssetChildMethods = {
-      async saveAsset(): Promise<T.Asset["assetId"]> {
-        console.log("[IFRAME] Saving asset from child");
-        await handleSaveAsset();
-        return assetEditor.localAsset?.assetId ?? "";
-      },
-    };
+  parentConnection = await Penpal.connect<T.InlineRelatedAssetParentMethods>({
+    messenger,
+    methods: childMethods,
+  }).promise;
 
-    parentConnection = await Penpal.connect<T.InlineRelatedAssetParentMethods>({
-      messenger,
-      methods: childMethods,
-    }).promise;
+  // Start observing height changes after connection is established
+  resizeObserver.observe(containerRef.value);
 
-    // Start observing height changes after connection is established
-    resizeObserver.observe(containerRef.value);
-
-    // Send initial height
-    const initialHeight = containerRef.value.clientHeight;
-    parentConnection.updateHeight(initialHeight);
-  } catch (error) {
-    console.warn("Failed to connect to parent via Penpal:", error);
-  }
+  // Send initial height
+  const initialHeight = containerRef.value.clientHeight;
+  parentConnection.updateHeight(initialHeight);
 });
 
 onUnmounted(() => {

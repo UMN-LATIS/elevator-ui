@@ -1,6 +1,5 @@
 <template>
   <div class="overflow-hidden">
-    {{ modelValue }}
     <div v-if="!templateId" class="text-red-500">
       No template selected for this related asset widget. Please set
       <code class="font-mono bg-black/5">defaultTemplate</code>
@@ -18,21 +17,9 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import invariant from "tiny-invariant";
-import {
-  computed,
-  useTemplateRef,
-  ref,
-  onMounted,
-  inject,
-  shallowReactive,
-  onUnmounted,
-  watch,
-} from "vue";
+import { computed, useTemplateRef, ref, inject, onUnmounted, watch } from "vue";
 import * as Penpal from "penpal";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/components/DragDropList/constants";
-import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
-import { reactive } from "vue";
-import { on } from "ramda";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
@@ -78,7 +65,6 @@ async function setupIframeConnection(): Promise<Type.InlineRelatedAssetChildMeth
   const parentMethods: Type.InlineRelatedAssetParentMethods = {
     updateHeight(height: number) {
       iframeHeight.value = height;
-      console.log(`[PARENT] Iframe height updated to: ${height}px`);
     },
     updateHasRelatedAssetChanged(isChanged: boolean) {
       invariant(
@@ -103,38 +89,27 @@ async function setupIframeConnection(): Promise<Type.InlineRelatedAssetChildMeth
   }).promise;
 }
 
-watch(
-  [iframeUrl, iframeRef],
-  async () => {
-    invariant(assetEditor);
+watch([iframeUrl, iframeRef], async () => {
+  invariant(assetEditor);
 
-    // if we already have a connection, we're done
-    if (iframeConnection) {
-      console.log("[PARENT] Iframe connection already established");
-      return;
+  if (iframeConnection || !iframeRef.value) {
+    return;
+  }
+
+  iframeConnection = await setupIframeConnection();
+
+  assetEditor.onBeforeSave(async () => {
+    invariant(iframeConnection);
+    const relatedAssetId = await iframeConnection.saveAsset();
+
+    if (relatedAssetId) {
+      emit("update:modelValue", {
+        ...props.modelValue,
+        targetAssetId: relatedAssetId,
+      });
     }
-
-    if (!iframeRef.value) {
-      console.warn("[PARENT] Iframe ref is not defined");
-      return;
-    }
-
-    iframeConnection = await setupIframeConnection();
-
-    assetEditor.onBeforeSave(async () => {
-      invariant(iframeConnection);
-      const relatedAssetId = await iframeConnection.saveAsset();
-
-      if (relatedAssetId) {
-        emit("update:modelValue", {
-          ...props.modelValue,
-          targetAssetId: relatedAssetId,
-        });
-      }
-    });
-  },
-  { immediate: true }
-);
+  });
+});
 
 onUnmounted(() => {
   iframeConnection = null;
