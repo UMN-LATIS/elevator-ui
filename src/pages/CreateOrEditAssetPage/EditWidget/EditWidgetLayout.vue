@@ -26,7 +26,7 @@
         {{ widgetDef.label }}
         <span v-if="widgetDef.required" class="text-red-500">*</span>
       </button>
-      <div>
+      <div class="widget-status-icons">
         <Tooltip v-if="hasContents" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
         </Tooltip>

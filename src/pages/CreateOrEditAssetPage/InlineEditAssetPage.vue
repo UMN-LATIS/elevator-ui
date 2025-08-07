@@ -10,18 +10,24 @@
       <section v-else class="max-w-screen-xl w-full mx-auto">
         <div class="flex flex-col">
           <div
-            class="flex items-center justify-end gap-2 border-b border-neutral-300 pb-2">
-            <Button
-              v-if="openWidgets.size === 0"
-              variant="tertiary"
-              @click="handleExpandAll">
-              <ChevronsUpDownIcon class="w-4 h-4" />
-              <span>Expand</span>
-            </Button>
-            <Button v-else variant="tertiary" @click="handleCollapseAll">
-              <ChevronsDownUpIcon class="w-4 h-4" />
-              <span>Collapse</span>
-            </Button>
+            class="flex items-center justify-between gap-2 border-b border-neutral-300">
+            <h3
+              class="text-xs uppercase font-bold text-neutral-400 mr-auto px-1">
+              {{ assetEditor.template.templateName }}
+            </h3>
+            <div>
+              <Button
+                v-if="openWidgets.size === 0"
+                variant="tertiary"
+                @click="handleExpandAll">
+                <ChevronsUpDownIcon class="w-4 h-4" />
+                <span class="sr-only">Expand</span>
+              </Button>
+              <Button v-else variant="tertiary" @click="handleCollapseAll">
+                <ChevronsDownUpIcon class="w-4 h-4" />
+                <span class="sr-only">Collapse</span>
+              </Button>
+            </div>
           </div>
           <EditWidget
             v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
@@ -252,9 +258,16 @@ onUnmounted(() => {
 });
 </script>
 <style>
-.inline-edit-asset-page .edit-widget-layout__accordion-button-wrapper {
-  /* this undoes the 5rem sticky top applied to
+.inline-edit-asset-page {
+  & .edit-widget-layout__accordion-button-wrapper {
+    /* this undoes the 5rem sticky top applied to
   the edit widget layout component when not inlined */
-  top: 0 !important;
+    top: 0 !important;
+  }
+
+  .widget-status-icons {
+    /* align with accordion button icon */
+    padding-right: 0.5rem;
+  }
 }
 </style>
