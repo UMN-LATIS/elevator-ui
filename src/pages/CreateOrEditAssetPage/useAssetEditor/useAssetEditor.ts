@@ -17,6 +17,7 @@ interface AssetEditorState {
   template: T.Template | null;
   isInitialized: boolean;
   saveAssetStatus: MutationStatus;
+  modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
   isTemplateLoading?: boolean;
 }
 
@@ -27,6 +28,10 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
   isInitialized: false,
   saveAssetStatus: "idle",
   isTemplateLoading: false,
+
+  // inline related assets are part of this local asset
+  // so we track widgets that have changed here
+  modifiedInlineRelatedAssetWidgets: new Set(),
   ...opts,
 });
 
@@ -74,11 +79,16 @@ export const useAssetEditor = () => {
   const hasAssetChanged = computed(() => {
     if (!state.localAsset || !state.template) return false;
 
-    return hasAssetChangedPure({
+    const hasLocalAssetChanged = hasAssetChangedPure({
       localAsset: state.localAsset,
       savedAsset: state.savedAsset,
       template: state.template,
     });
+
+    // do have any modified inline related assets?
+    const haveInlineRelatedAssetsChanged =
+      state.modifiedInlineRelatedAssetWidgets.size > 0;
+    return hasLocalAssetChanged || haveInlineRelatedAssetsChanged;
   });
 
   const isFormValid = computed(() => {
@@ -306,6 +316,20 @@ export const useAssetEditor = () => {
     await Promise.allSettled(beforeSaveCallbacks.map((callback) => callback()));
   }
 
+  function updateModifiedInlineRelatedAsset(
+    widgetId: T.WithId<T.RelatedAssetWidgetContent>["id"],
+    hasChangedSinceSave: boolean
+  ): void {
+    invariant(
+      state.localAsset,
+      "Cannot set modified inline related asset: no local asset."
+    );
+
+    hasChangedSinceSave
+      ? state.modifiedInlineRelatedAssetWidgets.add(widgetId)
+      : state.modifiedInlineRelatedAssetWidgets.delete(widgetId);
+  }
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -334,5 +358,6 @@ export const useAssetEditor = () => {
     updateCollection,
     updateAssetField,
     onBeforeSave,
+    updateModifiedInlineRelatedAsset,
   });
 };

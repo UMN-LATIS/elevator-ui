@@ -222,6 +222,14 @@ const resizeObserver = new ResizeObserver(() => {
 
 const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
 
+watch(
+  () => assetEditor.hasAssetChanged,
+  (hasChanged) => {
+    if (!parentConnection) return;
+    parentConnection.updateHasRelatedAssetChanged(hasChanged);
+  }
+);
+
 onMounted(async () => {
   invariant(containerRef.value, "containerRef must be defined");
 
@@ -259,7 +267,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  console.log("[IFRAME] InlineEditAssetPage unmounted");
   resizeObserver?.disconnect();
   parentConnection = null;
 });

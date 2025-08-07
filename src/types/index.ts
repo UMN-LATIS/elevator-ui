@@ -991,7 +991,7 @@ export interface InlineRelatedAssetParentMethods extends PenpalMethods {
 
   // TODO: prob something for validation or changes
   // updateIsRelatedAssetValid(isValid: boolean);
-  // updateIsRelatedAssetChanged(isChanged: boolean);
+  updateHasRelatedAssetChanged(isChanged: boolean);
 }
 
 export interface InlineRelatedAssetChildMethods extends PenpalMethods {

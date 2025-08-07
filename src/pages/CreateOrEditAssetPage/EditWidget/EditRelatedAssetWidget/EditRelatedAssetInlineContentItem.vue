@@ -18,9 +18,21 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import invariant from "tiny-invariant";
-import { computed, useTemplateRef, ref, onMounted, inject } from "vue";
+import {
+  computed,
+  useTemplateRef,
+  ref,
+  onMounted,
+  inject,
+  shallowReactive,
+  onUnmounted,
+  watch,
+} from "vue";
 import * as Penpal from "penpal";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/components/DragDropList/constants";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
+import { reactive } from "vue";
+import { on } from "ramda";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
@@ -36,11 +48,13 @@ const emit = defineEmits<{
   ): void;
 }>();
 
+const iframeHeight = ref(500);
 const iframeRef = useTemplateRef<HTMLIFrameElement>("iframeRef");
-const iframeUrl = computed(() => {
-  // if no target asset, then it's a new asset
-  const isNewAsset = !props.modelValue.targetAssetId;
+const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+let iframeConnection: Type.InlineRelatedAssetChildMethods | null = null;
 
+const iframeUrl = computed(() => {
+  const isNewAsset = !props.modelValue.targetAssetId;
   return isNewAsset
     ? `/assetManager/addAsset/${templateId.value}/${props.collectionId}/true`
     : `/assetManager/editAsset/${props.modelValue.targetAssetId}/true`;
@@ -50,72 +64,79 @@ const templateId = computed((): Type.Template["templateId"] | null => {
   return props.widgetDef.fieldData.defaultTemplate ?? null;
 });
 
-const iframeHeight = ref<number>(500);
-const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
-
-let iframeConnection: Type.InlineRelatedAssetChildMethods | null = null;
-
-onMounted(async () => {
-  invariant(iframeRef.value, "iframeRef must be defined");
-  // we want to save the iframe asset before the parent saves
-  // so we register a before save callback
+async function setupIframeConnection(): Promise<Type.InlineRelatedAssetChildMethods> {
   invariant(
-    assetEditor,
-    "Asset editor must be provided to register before save callback"
+    iframeRef.value?.contentWindow,
+    "Iframe must have a defined contentWindow"
   );
 
-  // Set up Penpal connection to communicate with iframe
-  try {
-    if (!iframeRef.value?.contentWindow) {
-      console.warn("[PARENT] iframe contentWindow not available yet");
+  const messenger = new Penpal.WindowMessenger({
+    remoteWindow: iframeRef.value.contentWindow,
+    allowedOrigins: ["*"], // Allow any origin for now
+  });
+
+  const parentMethods: Type.InlineRelatedAssetParentMethods = {
+    updateHeight(height: number) {
+      iframeHeight.value = height;
+      console.log(`[PARENT] Iframe height updated to: ${height}px`);
+    },
+    updateHasRelatedAssetChanged(isChanged: boolean) {
+      invariant(
+        assetEditor,
+        "Cannot update relative asset change: no asset editor provided"
+      );
+      assetEditor.updateModifiedInlineRelatedAsset(
+        props.modelValue.id,
+        isChanged
+      );
+    },
+  };
+
+  // Note on the typing
+  // Penpal.connect's generic wants the child methods
+  // so that it knows what methods are available on the connection
+  // meanwhile we pass the parent methods to the connect function
+  // to expose them to the child iframe
+  return Penpal.connect<Type.InlineRelatedAssetChildMethods>({
+    messenger,
+    methods: parentMethods,
+  }).promise;
+}
+
+watch(
+  [iframeUrl, iframeRef],
+  async () => {
+    invariant(assetEditor);
+
+    // if we already have a connection, we're done
+    if (iframeConnection) {
+      console.log("[PARENT] Iframe connection already established");
       return;
     }
 
-    const messenger = new Penpal.WindowMessenger({
-      remoteWindow: iframeRef.value.contentWindow,
-      allowedOrigins: ["*"], // Allow any origin for now
-    });
+    if (!iframeRef.value) {
+      console.warn("[PARENT] Iframe ref is not defined");
+      return;
+    }
 
-    const parentMethods: Type.InlineRelatedAssetParentMethods = {
-      updateHeight(height: number) {
-        iframeHeight.value = height;
-        console.log(`[PARENT] Iframe height updated to: ${height}px`);
-      },
-      // onBeforeSave(fn: () => Promise<void>) {
-      //   assetEditor.onBeforeSave(fn);
-      // },
-    };
-
-    iframeConnection =
-      await Penpal.connect<Type.InlineRelatedAssetChildMethods>({
-        messenger,
-        methods: parentMethods,
-      }).promise;
-
-    // Wait for connection to establish
-    console.log(
-      "[PARENT] Penpal connection established with inline asset iframe"
-    );
+    iframeConnection = await setupIframeConnection();
 
     assetEditor.onBeforeSave(async () => {
-      invariant(
-        iframeConnection,
-        "Iframe connection must be established to save asset"
-      );
-
-      // notify the iframe to save its asset
-      console.log("[PARENT] Notifying iframe to save asset");
+      invariant(iframeConnection);
       const relatedAssetId = await iframeConnection.saveAsset();
-      console.log("[PARENT] Iframe asset saved successfully");
 
-      // now update this widget content with the new related asset ID
-      emit("update:modelValue", {
-        ...props.modelValue,
-        targetAssetId: relatedAssetId,
-      });
+      if (relatedAssetId) {
+        emit("update:modelValue", {
+          ...props.modelValue,
+          targetAssetId: relatedAssetId,
+        });
+      }
     });
-  } catch (error) {
-    console.warn("[PARENT] Failed to establish Penpal connection:", error);
-  }
+  },
+  { immediate: true }
+);
+
+onUnmounted(() => {
+  iframeConnection = null;
 });
 </script>
