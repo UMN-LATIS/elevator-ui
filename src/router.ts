@@ -117,15 +117,23 @@ const router = createRouter({
         import("@/pages/AllUserAssetsPage/AllUserAssetsPage.vue"),
     },
     {
-      // for inline related assets
-      name: "adddAssetInline",
+      name: "addInlineRelatedAsset",
       path: "/assetManager/addAsset/:templateId/:collectionId/true",
       component: () =>
-        import("@/pages/CreateOrEditAssetPage/InlineEditAssetPage.vue"),
+        import("@/pages/CreateOrEditAssetPage/InlineCreateOrEditAssetPage.vue"),
       props: (route) => ({
         templateId: parseIntFromParam(route.params.templateId),
         // could be null
         collectionId: parseIntFromParam(route.params.collectionId),
+      }),
+    },
+    {
+      name: "editInlineRelatedAsset",
+      path: "/assetManager/editAsset/:assetId/true",
+      component: () =>
+        import("@/pages/CreateOrEditAssetPage/InlineCreateOrEditAssetPage.vue"),
+      props: (route) => ({
+        assetId: route.params.assetId,
       }),
     },
     {

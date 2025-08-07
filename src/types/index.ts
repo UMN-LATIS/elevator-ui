@@ -7,6 +7,7 @@ import {
 } from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
 import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
+import type { Methods as PenpalMethods } from "penpal";
 
 export * from "./TimelineJSTypes";
 
@@ -980,4 +981,19 @@ export enum ShowCustomHeaderMode {
 export interface ApiAssetSubmissionResponse {
   objectId: string;
   success?: boolean;
+}
+
+// methods the child iframe can call on the parent
+export interface InlineRelatedAssetParentMethods extends PenpalMethods {
+  // communicate the height of the child iframe
+  // useful to resizing the iframe to match its content
+  updateHeight(height: number);
+
+  // TODO: prob something for validation or changes
+  // updateIsRelatedAssetValid(isValid: boolean);
+  // updateIsRelatedAssetChanged(isChanged: boolean);
+}
+
+export interface InlineRelatedAssetChildMethods extends PenpalMethods {
+  saveAsset(): Promise<Asset["assetId"]>;
 }

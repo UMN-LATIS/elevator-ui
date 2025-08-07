@@ -79,11 +79,6 @@ import Button from "@/components/Button/Button.vue";
 import * as Penpal from "penpal";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 
-// Penpal method interfaces for type safety
-interface IFrameParentMethods extends Penpal.Methods {
-  updateHeight(height: number): void;
-}
-
 const props = withDefaults(
   defineProps<{
     templateId?: number | null;
@@ -211,7 +206,7 @@ async function handleSaveAsset() {
 }
 
 // Set up Penpal connection to communicate with parent iframe container
-let parentConnection: IFrameParentMethods | null = null;
+let parentConnection: T.InlineRelatedAssetParentMethods | null = null;
 
 // Set up ResizeObserver to monitor content height changes
 const resizeObserver = new ResizeObserver(() => {
@@ -230,6 +225,8 @@ const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
 onMounted(async () => {
   invariant(containerRef.value, "containerRef must be defined");
 
+  console.log("[IFRAME] InlineEditAssetPage mounted");
+
   // Connect to parent using Penpal
   try {
     const messenger = new Penpal.WindowMessenger({
@@ -237,8 +234,17 @@ onMounted(async () => {
       allowedOrigins: ["*"], // Allow any origin for now
     });
 
-    parentConnection = await Penpal.connect<IFrameParentMethods>({
+    const childMethods: T.InlineRelatedAssetChildMethods = {
+      async saveAsset(): Promise<T.Asset["assetId"]> {
+        console.log("[IFRAME] Saving asset from child");
+        await handleSaveAsset();
+        return assetEditor.localAsset?.assetId ?? "";
+      },
+    };
+
+    parentConnection = await Penpal.connect<T.InlineRelatedAssetParentMethods>({
       messenger,
+      methods: childMethods,
     }).promise;
 
     // Start observing height changes after connection is established
@@ -253,6 +259,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  console.log("[IFRAME] InlineEditAssetPage unmounted");
   resizeObserver?.disconnect();
   parentConnection = null;
 });

@@ -181,8 +181,16 @@ export const useAssetEditor = () => {
       "Cannot save: localAsset.templateId !== template.templateId"
     );
 
+    if (state.saveAssetStatus === "pending") {
+      // TODO: if already saving, wait until the current save is done? and return that promise?
+      // For now, just log a warning
+      console.warn("Already saving asset, waiting for current save to finish.");
+    }
+
     state.saveAssetStatus = "pending";
     try {
+      await runBeforeSaveCallbacks();
+
       const formData = toSaveableFormData(state.localAsset, state.template);
 
       const { objectId } = await fetchers.updateAsset(formData);
@@ -286,6 +294,18 @@ export const useAssetEditor = () => {
     state.localAsset[field] = value;
   }
 
+  // this is a hook to allow components to register a callback
+  // before the asset is saved. Use case: triggering an automatic
+  // save of a related asset
+  const beforeSaveCallbacks: (() => Promise<void>)[] = [];
+  function onBeforeSave(fn: () => Promise<void>): void {
+    beforeSaveCallbacks.push(fn);
+  }
+
+  async function runBeforeSaveCallbacks() {
+    await Promise.allSettled(beforeSaveCallbacks.map((callback) => callback()));
+  }
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -313,5 +333,6 @@ export const useAssetEditor = () => {
     updateLocalAsset,
     updateCollection,
     updateAssetField,
+    onBeforeSave,
   });
 };

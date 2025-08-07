@@ -203,5 +203,10 @@ const hasContents = computed(() =>
   & .drop-indicator.drop-indicator--bottom {
     bottom: -3px;
   }
+
+  & .drag-handle {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 }
 </style>

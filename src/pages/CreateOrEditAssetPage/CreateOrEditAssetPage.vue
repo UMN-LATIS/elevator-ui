@@ -105,7 +105,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, watch } from "vue";
+import { computed, nextTick, onMounted, provide, reactive, watch } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
@@ -119,6 +119,7 @@ import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/components/DragDropList/constants";
 
 const props = withDefaults(
   defineProps<{
@@ -298,6 +299,17 @@ async function updateTemplateId() {
   // save and replace route
   handleSaveAsset();
 }
+
+// provide the asset editor to child components
+// each asset editor instance gets its own instance
+// so that we can have multiple tabs editing different assets
+// without interference. Still, sometimes the child component
+// needs to access the parent asset editor instance to do
+// things like register an `onBeforeSave` callback
+// (e.g. with inline asset editing, we want to save the
+// inline asset before the parent saves)
+provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
+provide("assetEditor", assetEditor);
 
 onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {

@@ -35,7 +35,6 @@
         v-if="widgetDef.fieldData.displayInline"
         :collectionId="collectionId"
         :widgetDef="widgetDef"
-        :widgetContents="widgetContents"
         :assetId="assetId"
         :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
         @update:modelValue="handleUpdate" />
@@ -55,7 +54,6 @@ import EditWidgetLayout from "../EditWidgetLayout.vue";
 import EditRelatedAssetWidgetContentItem from "./EditRelatedAssetContentItem.vue";
 import EditInlineRelatedAssetWidgetContentItem from "./EditRelatedAssetInlineContentItem.vue";
 import * as ops from "../helpers/editWidgetOps";
-import invariant from "tiny-invariant";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
@@ -74,20 +72,9 @@ const emit = defineEmits<{
 }>();
 
 const handleUpdate = (updatedItem) => {
-  const index = props.widgetContents.findIndex(
-    (item) => item.id === updatedItem.id
+  const updatedContents = props.widgetContents.map((item) =>
+    item.id === updatedItem.id ? updatedItem : item
   );
-
-  invariant(
-    index !== -1,
-    `Item with id ${updatedItem.id} not found in widgetContents`
-  );
-
-  const updatedContents = [
-    ...props.widgetContents.slice(0, index),
-    updatedItem,
-    ...props.widgetContents.slice(index + 1),
-  ];
 
   emit("update:widgetContents", updatedContents);
 };
