@@ -87,6 +87,21 @@
                 </div>
                 <div>
                   <button
+                    v-if="
+                      // primarily we want to prevent users from deleting
+                      // an item if there's no way to add it back
+                      // if `allowMultiple` is false, they won't have a button
+                      // to add a new item
+                      widgetDef.allowMultiple ||
+                      // but it's possible that the widget previously
+                      // had multiple items, so we should let them delete
+                      // if there's more than one item
+                      widgetContents.length > 1 ||
+                      // for upload widget, the user will have access to
+                      // the upload input if they remove items
+                      // so it's fine to let them delete
+                      widgetDef.type === Types.WIDGET_TYPES.UPLOAD
+                    "
                     :class="[
                       'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
