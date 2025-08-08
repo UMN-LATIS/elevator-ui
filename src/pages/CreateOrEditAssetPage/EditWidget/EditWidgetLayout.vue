@@ -17,7 +17,7 @@
       }">
       <button
         type="button"
-        class="flex justify-start gap-2 text-base font-bold leading-none"
+        class="flex justify-start gap-2 text-base font-bold leading-none text-left"
         :aria-expanded="isOpen"
         :aria-controls="`widget-${widgetDef.widgetId}-content`"
         @click.stop="toggleExpand">

@@ -41,7 +41,6 @@ const iframeRef = useTemplateRef<HTMLIFrameElement>("iframeRef");
 const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 let iframeConnection: Type.InlineRelatedAssetChildMethods | null = null;
 
-console.log(config.instance.base);
 const BASE_URL = config.instance.base.url;
 
 const iframeUrl = computed(() => {
