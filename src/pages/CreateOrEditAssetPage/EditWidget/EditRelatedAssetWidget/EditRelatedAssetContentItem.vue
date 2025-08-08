@@ -94,7 +94,7 @@
         <Tooltip tip="View related asset">
           <Button
             variant="tertiary"
-            :to="`/asset/viewAsset/${modelValue.targetAssetId}`"
+            :to="`${BASE_URL}/asset/viewAsset/${modelValue.targetAssetId}`"
             target="_blank">
             <span class="sr-only">View</span>
             <ArrowRightIcon class="size-4" />
@@ -103,7 +103,7 @@
         <Tooltip tip="Edit related asset">
           <Button
             variant="tertiary"
-            :to="`/assetManager/editAsset/${modelValue.targetAssetId}`"
+            :to="`${BASE_URL}/assetManager/editAsset/${modelValue.targetAssetId}`"
             target="_blank">
             <span class="sr-only">Edit</span>
             <PencilIcon class="size-4" />
@@ -170,7 +170,7 @@ const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
 
 console.log(config.instance.base);
-// const BASE_PATH = config.instance.base.path;
+const BASE_URL = config.instance.base.url;
 
 const {
   data: matches,
