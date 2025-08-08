@@ -103,7 +103,7 @@
         <Tooltip tip="Edit related asset">
           <Button
             variant="tertiary"
-            :to="`${BASE_URL}/assetManager/editAsset/${modelValue.targetAssetId}`"
+            :href="`${BASE_URL}/assetManager/editAsset/${modelValue.targetAssetId}`"
             target="_blank">
             <span class="sr-only">Edit</span>
             <PencilIcon class="size-4" />
@@ -185,7 +185,7 @@ const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({
     channelName: channelName.value,
   });
-  return `/assetManager/addAsset?${params.toString()}`;
+  return `${BASE_URL}/assetManager/addAsset?${params.toString()}`;
 });
 
 // use window.open for opening new related asset so that
