@@ -150,6 +150,7 @@ import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { isSaveRelatedAssetMessage } from "@/types/guards";
+import config from "@/config";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -167,6 +168,9 @@ const emit = defineEmits<{
 
 const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
+
+console.log(config.instance.base);
+// const BASE_PATH = config.instance.base.path;
 
 const {
   data: matches,
