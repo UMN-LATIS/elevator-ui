@@ -20,6 +20,7 @@ import invariant from "tiny-invariant";
 import { computed, useTemplateRef, ref, inject, onUnmounted, watch } from "vue";
 import * as Penpal from "penpal";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/components/DragDropList/constants";
+import config from "@/config";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
@@ -40,11 +41,14 @@ const iframeRef = useTemplateRef<HTMLIFrameElement>("iframeRef");
 const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 let iframeConnection: Type.InlineRelatedAssetChildMethods | null = null;
 
+console.log(config.instance.base);
+const BASE_URL = config.instance.base.url;
+
 const iframeUrl = computed(() => {
   const isNewAsset = !props.modelValue.targetAssetId;
   return isNewAsset
-    ? `/assetManager/addAsset/${templateId.value}/${props.collectionId}/true`
-    : `/assetManager/editAsset/${props.modelValue.targetAssetId}/true`;
+    ? `${BASE_URL}/assetManager/addAsset/${templateId.value}/${props.collectionId}/true`
+    : `${BASE_URL}/assetManager/editAsset/${props.modelValue.targetAssetId}/true`;
 });
 
 const templateId = computed((): Type.Template["templateId"] | null => {
