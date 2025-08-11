@@ -201,10 +201,18 @@ watch(
 </script>
 <style>
 .inline-edit-asset-page {
+  & .edit-widget-layout {
+    /* overridde the default styles for widget layout which
+    will try to use multiple columns thinkng this is a full page.
+    CSS container queries would be good here too. */
+    @apply lg:grid-cols-1;
+  }
+
   & .edit-widget-layout__accordion-button-wrapper {
     /* this undoes the 5rem sticky top applied to
   the edit widget layout component when not inlined */
     top: 0 !important;
+    width: auto;
   }
 
   .widget-status-icons {
