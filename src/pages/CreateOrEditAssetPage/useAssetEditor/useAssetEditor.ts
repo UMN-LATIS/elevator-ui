@@ -10,6 +10,7 @@ import {
 } from "./utils";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
+import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 interface AssetEditorState {
   localAsset: T.Asset | T.UnsavedAsset | null;
@@ -94,6 +95,19 @@ export const useAssetEditor = () => {
   const isFormValid = computed(() => {
     if (!state.template || !state.localAsset) return false;
     return doAllRequiredHaveContent(state.localAsset, state.template);
+  });
+
+  const widgetIdsWithContent = computed((): T.WidgetDef["widgetId"][] => {
+    return (
+      state.template?.widgetArray
+        .filter((widgetDef) => {
+          const widgetKey = widgetDef.fieldTitle;
+          const contents = (state.localAsset?.[widgetKey] ??
+            []) as T.WidgetContent[];
+          return hasWidgetContent(contents, widgetDef.type);
+        })
+        .map((widgetDef) => widgetDef.widgetId) ?? []
+    );
   });
 
   // ACTIONS
@@ -350,6 +364,7 @@ export const useAssetEditor = () => {
     savedAssetTitle,
     hasAssetChanged,
     isFormValid,
+    widgetIdsWithContent,
 
     // actions
     reset,

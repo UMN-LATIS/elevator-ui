@@ -93,16 +93,8 @@ const emit = defineEmits<{
 const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 const assetEditor = useAssetEditor();
 
-onMounted(() => {
-  invariant(
-    props.assetId || (props.templateId && props.collectionId),
-    "Inline related assets require either an assetId (editing) or a templateId and collectionId (creating)"
-  );
-
-  invariant(
-    parentAssetEditor,
-    "Parent asset editor must be defined to register onBeforeSave hook"
-  );
+onMounted(async () => {
+  invariant(parentAssetEditor);
 
   // register a hook to save the current asset whenever the parent asset is saved
   parentAssetEditor.onBeforeSave(async (): Promise<void> => {
@@ -111,18 +103,18 @@ onMounted(() => {
   });
 
   if (props.assetId) {
-    return assetEditor.initExistingAsset(props.assetId);
+    await assetEditor.initExistingAsset(props.assetId);
+  } else {
+    invariant(props.templateId && props.collectionId);
+    await assetEditor.initNewAsset({
+      templateId: props.templateId,
+      collectionId: props.collectionId,
+    });
   }
 
-  invariant(
-    props.templateId && props.collectionId,
-    "When creating a new asset, templateId and collectionId must be provided"
-  );
-
-  return assetEditor.initNewAsset({
-    templateId: props.templateId,
-    collectionId: props.collectionId,
-  });
+  // start expanded
+  openWidgetsWithContent();
+  return;
 });
 
 const openWidgets = reactive(new Set<T.WidgetDef["widgetId"]>());
@@ -160,6 +152,14 @@ const allWidgetIds = computed(() =>
 
 function handleExpandAll() {
   allWidgetIds.value.forEach((widgetId) => openWidgets.add(widgetId));
+}
+
+function openWidgetsWithContent() {
+  assetEditor.widgetIdsWithContent.forEach((widgetId) => {
+    if (allWidgetIds.value.includes(widgetId)) {
+      openWidgets.add(widgetId);
+    }
+  });
 }
 
 function handleCollapseAll() {
