@@ -83,8 +83,6 @@ const props = withDefaults(
   }
 );
 
-console.log("InlineCreateOrEditAssetPage props:", props);
-
 const emit = defineEmits<{
   (e: "update:assetId", assetId: T.Asset["assetId"]): void;
   (e: "update:relatedAssetDirty", isDirty: boolean): void; // unsaved changes
@@ -101,9 +99,19 @@ onMounted(() => {
     "Inline related assets require either an assetId (editing) or a templateId and collectionId (creating)"
   );
 
+  invariant(
+    parentAssetEditor,
+    "Parent asset editor must be defined to register onBeforeSave hook"
+  );
+
+  // register a hook to save the current asset whenever the parent asset is saved
+  parentAssetEditor.onBeforeSave(async (): Promise<void> => {
+    if (!assetEditor.hasAssetChanged) return;
+    return handleSaveAsset();
+  });
+
   if (props.assetId) {
-    assetEditor.initExistingAsset(props.assetId);
-    return;
+    return assetEditor.initExistingAsset(props.assetId);
   }
 
   invariant(
@@ -111,20 +119,9 @@ onMounted(() => {
     "When creating a new asset, templateId and collectionId must be provided"
   );
 
-  assetEditor.initNewAsset({
+  return assetEditor.initNewAsset({
     templateId: props.templateId,
     collectionId: props.collectionId,
-  });
-
-  invariant(
-    parentAssetEditor,
-    "Parent asset editor must be defined to register onBeforeSave hook"
-  );
-
-  // register a hook to save the current asset whenever the parent asset is saved
-  parentAssetEditor.onBeforeSave(async () => {
-    if (!assetEditor.hasAssetChanged) return;
-    return handleSaveAsset();
   });
 });
 
