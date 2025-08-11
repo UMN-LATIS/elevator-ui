@@ -60,7 +60,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, reactive, watch } from "vue";
 import EditWidget from "../EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
@@ -96,7 +96,13 @@ defineEmits<{
 const openWidgets = reactive(new Set<WidgetDef["widgetId"]>());
 
 // start with all widgets open
-onMounted(() => handleExpandAll());
+watch(
+  () => props.template,
+  () => {
+    handleExpandAll();
+  },
+  { immediate: true }
+);
 
 const widgetDefAndContents = computed(
   (): Array<{
