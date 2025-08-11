@@ -3676,11 +3676,6 @@ pbf@^3.2.1:
     ieee754 "^1.1.12"
     resolve-protobuf-schema "^2.1.0"
 
-penpal@^7.0.4:
-  version "7.0.4"
-  resolved "https://registry.yarnpkg.com/penpal/-/penpal-7.0.4.tgz#8bc5f3e14eeb38d20cdab90c68baa63c7d63db2b"
-  integrity sha512-O+M2V83oSaWQRDHghxYsq23TQgjAEzlrwemS0a1md16wZWqgOgmB35u4zluMwyqF6GnF/XT4v0N4QrrRgWAgSQ==
-
 picocolors@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.1.1.tgz#3d321af3eab939b083c8f929a1d12cda81c26b6b"
