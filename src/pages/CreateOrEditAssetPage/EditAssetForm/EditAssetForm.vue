@@ -73,6 +73,7 @@ import {
 } from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
+import { all } from "ramda";
 
 const props = defineProps<{
   template: Template;
@@ -95,15 +96,6 @@ defineEmits<{
 
 const openWidgets = reactive(new Set<WidgetDef["widgetId"]>());
 
-// start with all widgets open
-watch(
-  () => props.template,
-  () => {
-    handleExpandAll();
-  },
-  { immediate: true }
-);
-
 const widgetDefAndContents = computed(
   (): Array<{
     widgetDef: WidgetDef;
@@ -118,6 +110,15 @@ const widgetDefAndContents = computed(
 
 const allWidgetIds = computed(() =>
   widgetDefAndContents.value.map(({ widgetDef }) => widgetDef.widgetId)
+);
+
+// start with all widgets open
+watch(
+  () => props.template,
+  () => {
+    handleExpandAll();
+  },
+  { immediate: true }
 );
 
 function handleExpandAll() {
