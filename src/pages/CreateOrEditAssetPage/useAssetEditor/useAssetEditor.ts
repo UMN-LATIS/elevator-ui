@@ -317,7 +317,7 @@ export const useAssetEditor = () => {
   }
 
   function updateModifiedInlineRelatedAsset(
-    widgetId: T.WithId<T.RelatedAssetWidgetContent>["id"],
+    widgetContentItemId: T.WithId<T.RelatedAssetWidgetContent>["id"],
     hasChangedSinceSave: boolean
   ): void {
     invariant(
@@ -326,8 +326,8 @@ export const useAssetEditor = () => {
     );
 
     hasChangedSinceSave
-      ? state.modifiedInlineRelatedAssetWidgets.add(widgetId)
-      : state.modifiedInlineRelatedAssetWidgets.delete(widgetId);
+      ? state.modifiedInlineRelatedAssetWidgets.add(widgetContentItemId)
+      : state.modifiedInlineRelatedAssetWidgets.delete(widgetContentItemId);
   }
 
   // wrapping in reactive to auto-unwrap refs
@@ -361,3 +361,5 @@ export const useAssetEditor = () => {
     updateModifiedInlineRelatedAsset,
   });
 };
+
+export type AssetEditor = ReturnType<typeof useAssetEditor>;

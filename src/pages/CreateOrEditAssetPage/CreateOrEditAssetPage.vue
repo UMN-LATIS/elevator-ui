@@ -119,7 +119,7 @@ import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/components/DragDropList/constants";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 
 const props = withDefaults(
   defineProps<{

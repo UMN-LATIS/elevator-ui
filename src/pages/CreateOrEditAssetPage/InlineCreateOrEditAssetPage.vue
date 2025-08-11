@@ -1,5 +1,5 @@
 <template>
-  <div ref="containerRef" class="inline-edit-asset-page bg-black/5">
+  <div ref="containerRef" class="inline-edit-asset-page">
     <Transition name="fade">
       <div
         v-if="!assetEditor.localAsset || !assetEditor.template"
@@ -37,6 +37,7 @@
             :assetId="assetEditor.localAsset.assetId"
             :collectionId="assetEditor.localAsset.collectionId"
             :isOpen="openWidgets.has(widgetDef.widgetId)"
+            class="inline-related-asset-widget"
             @save="handleSaveAsset"
             @update:isOpen="
               (open) => {
@@ -59,25 +60,15 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
-import {
-  computed,
-  nextTick,
-  onMounted,
-  onUnmounted,
-  reactive,
-  useTemplateRef,
-  watch,
-} from "vue";
-import { RelatedAssetSaveMessage } from "@/types";
-import { useRoute, useRouter } from "vue-router";
-import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
+import { computed, onMounted, reactive, useTemplateRef, watch } from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
-import * as Penpal from "penpal";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { inject } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -92,34 +83,50 @@ const props = withDefaults(
   }
 );
 
-// Use the asset editor composable
+console.log("InlineCreateOrEditAssetPage props:", props);
+
+const emit = defineEmits<{
+  (e: "update:assetId", assetId: T.Asset["assetId"]): void;
+  (e: "update:relatedAssetDirty", isDirty: boolean): void; // unsaved changes
+}>();
+
+// the parent asset component's editor - used to register the `onBeforeSave`
+// hook
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 const assetEditor = useAssetEditor();
 
-watch(
-  () => props.assetId,
-  () => {
-    invariant(
-      props.assetId || (props.templateId && props.collectionId),
-      "Inline related assets require either an assetId (editing) or a templateId and collectionId (creating)"
-    );
+onMounted(() => {
+  invariant(
+    props.assetId || (props.templateId && props.collectionId),
+    "Inline related assets require either an assetId (editing) or a templateId and collectionId (creating)"
+  );
 
-    if (props.assetId) {
-      assetEditor.initExistingAsset(props.assetId);
-      return;
-    }
+  if (props.assetId) {
+    assetEditor.initExistingAsset(props.assetId);
+    return;
+  }
 
-    invariant(
-      props.templateId && props.collectionId,
-      "When creating a new asset, templateId and collectionId must be provided"
-    );
+  invariant(
+    props.templateId && props.collectionId,
+    "When creating a new asset, templateId and collectionId must be provided"
+  );
 
-    assetEditor.initNewAsset({
-      templateId: props.templateId,
-      collectionId: props.collectionId,
-    });
-  },
-  { immediate: true }
-);
+  assetEditor.initNewAsset({
+    templateId: props.templateId,
+    collectionId: props.collectionId,
+  });
+
+  invariant(
+    parentAssetEditor,
+    "Parent asset editor must be defined to register onBeforeSave hook"
+  );
+
+  // register a hook to save the current asset whenever the parent asset is saved
+  parentAssetEditor.onBeforeSave(async () => {
+    if (!assetEditor.hasAssetChanged) return;
+    return handleSaveAsset();
+  });
+});
 
 const openWidgets = reactive(new Set<T.WidgetDef["widgetId"]>());
 
@@ -162,107 +169,35 @@ function handleCollapseAll() {
   openWidgets.clear();
 }
 
-const route = useRoute();
-const router = useRouter();
-const channelName = computed(() => route.query.channelName as string);
-
 async function handleSaveAsset() {
-  const isNewAsset = !props.assetId;
+  const isExistingAsset = props.assetId;
   await assetEditor.saveAsset();
 
   invariant(
     assetEditor.localAsset?.assetId,
     "Local asset id must be defined after saving"
   );
-  const savedAssetId = assetEditor.localAsset.assetId;
+
+  // reset the dirty state now that we've saved
+  emit("update:relatedAssetDirty", false);
 
   // if this is an existing asset, we're done
-  if (!isNewAsset) {
-    return;
-  }
+  if (isExistingAsset) return;
 
-  // if we're creating a related asset, notify the parent
-  if (channelName.value) {
-    const channel = new BroadcastChannel(channelName.value);
-    const message: RelatedAssetSaveMessage = {
-      type: SAVE_RELATED_ASSET_TYPE,
-      payload: {
-        relatedAssetId: savedAssetId,
-      },
-    };
-    channel.postMessage(message);
-    channel.close();
-  }
-
-  // redirect to the edit asset page (so that we don't keep recreating
-  // new assets on each save!)
-  await nextTick();
-  router.replace({
-    name: "editAsset",
-    params: {
-      assetId: savedAssetId,
-    },
-  });
+  // redirect to the edit asset page
+  const savedAssetId = assetEditor.localAsset.assetId;
+  emit("update:assetId", savedAssetId);
 }
-
-// Set up Penpal connection to communicate with parent iframe container
-let parentConnection: T.InlineRelatedAssetParentMethods | null = null;
-
-// Set up ResizeObserver to monitor content height changes
-const resizeObserver = new ResizeObserver(() => {
-  const docHeight = containerRef.value?.clientHeight ?? 0;
-
-  if (!parentConnection) {
-    console.warn("[IFRAME] No parent connection to update height");
-    return;
-  }
-
-  parentConnection.updateHeight(docHeight);
-});
 
 const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
 
 watch(
   () => assetEditor.hasAssetChanged,
   (hasChanged) => {
-    if (!parentConnection) return;
-    parentConnection.updateHasRelatedAssetChanged(hasChanged);
+    // emit the dirty state to the parent component
+    emit("update:relatedAssetDirty", hasChanged);
   }
 );
-
-onMounted(async () => {
-  invariant(containerRef.value, "containerRef must be defined");
-
-  const messenger = new Penpal.WindowMessenger({
-    remoteWindow: window.parent,
-    allowedOrigins: ["*"], // Allow any origin for now
-  });
-
-  const childMethods: T.InlineRelatedAssetChildMethods = {
-    async saveAsset(): Promise<T.Asset["assetId"]> {
-      console.log("[IFRAME] Saving asset from child");
-      await handleSaveAsset();
-      return assetEditor.localAsset?.assetId ?? "";
-    },
-  };
-
-  parentConnection = await Penpal.connect<T.InlineRelatedAssetParentMethods>({
-    messenger,
-    methods: childMethods,
-  }).promise;
-
-  // Start observing height changes after connection is established
-  resizeObserver.observe(containerRef.value);
-
-  // Send initial height
-  const initialHeight = containerRef.value.clientHeight;
-  parentConnection.updateHeight(initialHeight);
-});
-
-onUnmounted(() => {
-  resizeObserver?.disconnect();
-  parentConnection = null;
-});
 </script>
 <style>
 .inline-edit-asset-page {
