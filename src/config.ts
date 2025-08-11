@@ -5,9 +5,9 @@ import { AppConfig } from "@/types";
 const defaultConfig: AppConfig = {
   instance: {
     base: {
-      origin: import.meta.env.VITE_BASE_ORIGIN ?? "https://localhost",
+      origin: import.meta.env.VITE_BASE_ORIGIN ?? "http://localhost",
       path: import.meta.env.VITE_BASE_PATH ?? "/",
-      url: import.meta.env.VITE_BASE_URL ?? "https://localhost/",
+      url: import.meta.env.VITE_BASE_URL ?? "http://localhost/",
     },
     theming: {
       // list of themes
