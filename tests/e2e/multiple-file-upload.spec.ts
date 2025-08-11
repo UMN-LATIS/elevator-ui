@@ -56,11 +56,14 @@ test.describe("Multiple File Upload", () => {
       .getByLabel("Title")
       .fill("Test Asset with Multiple File Uploads");
 
-    const imageWidget = page.locator("section.edit-widget-layout").filter({
-      has: page.getByRole("heading", {
-        name: "Upload",
-      }),
-    });
+    const imageWidget = page
+      .locator("section.edit-widget-layout")
+      .filter({
+        has: page.getByRole("heading", {
+          name: "Upload",
+        }),
+      })
+      .first();
     await imageWidget.scrollIntoViewIfNeeded();
     await expect(imageWidget).toBeVisible();
 
@@ -189,7 +192,7 @@ test.describe("Multiple File Upload", () => {
     await expect(page).toHaveURL(/\/assetManager\/editAsset/);
 
     // Verify the title is still filled
-    await expect(page.getByLabel("Title")).toHaveValue(
+    await expect(page.getByLabel("Title").first()).toHaveValue(
       "Test Asset with Multiple File Uploads"
     );
 
