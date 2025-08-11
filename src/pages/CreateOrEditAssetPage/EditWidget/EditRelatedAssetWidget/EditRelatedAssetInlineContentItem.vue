@@ -41,9 +41,6 @@ defineEmits<{
   ): void;
 }>();
 
-// TODO: fix these props changing which is triggering rerender.
-console.log("EditRelatedAssetInlineContentItem props:", props);
-
 const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 
 const templateId = computed((): Type.Template["templateId"] | null => {

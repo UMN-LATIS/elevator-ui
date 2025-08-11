@@ -55,7 +55,6 @@ function readFileAsText(file: File): Promise<string> {
 }
 
 async function handleFileChange(event: Event) {
-  console.log("File change event triggered");
   const target = event.target as HTMLInputElement;
   if (!target.files?.length) {
     console.warn("No files selected");

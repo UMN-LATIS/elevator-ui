@@ -169,7 +169,6 @@ const emit = defineEmits<{
 const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
 
-console.log(config.instance.base);
 const BASE_URL = config.instance.base.url;
 
 const {
@@ -229,7 +228,6 @@ function handleSelectItem(targetAssetId: string | null) {
 }
 const broadcastChannel = new BroadcastChannel(channelName.value);
 function handleMessageEvent(event: MessageEvent) {
-  console.log("Received message from broadcast channel", event);
   const message = event.data;
   if (!isSaveRelatedAssetMessage(message)) {
     return;
@@ -237,10 +235,6 @@ function handleMessageEvent(event: MessageEvent) {
 
   // if the target asset is already selected, ignore the message
   if (message.payload.relatedAssetId === props.modelValue.targetAssetId) {
-    console.log(
-      "Received message for already selected asset, ignoring",
-      message.payload.relatedAssetId
-    );
     return;
   }
 
