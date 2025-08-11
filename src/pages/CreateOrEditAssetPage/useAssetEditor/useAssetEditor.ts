@@ -183,7 +183,9 @@ export const useAssetEditor = () => {
   /**
    * Save the current local asset to the backend
    */
-  async function saveAsset(): Promise<void> {
+  async function saveAsset({
+    refresh,
+  }: { refresh?: boolean } = {}): Promise<void> {
     invariant(state.localAsset, "Cannot save: no local asset");
     invariant(state.template, "Cannot save: no template");
     invariant(
@@ -214,7 +216,9 @@ export const useAssetEditor = () => {
         state.saveAssetStatus = "idle"; // Reset status after a delay
       }, 3000);
 
-      return refreshAsset();
+      if (refresh) {
+        return refreshAsset();
+      }
     } catch (err) {
       console.error(`Cannot save asset: ${err}`);
 
