@@ -91,8 +91,10 @@ test.describe("Edit Asset: Update Template", () => {
     await expect(textAreaWidget).toBeVisible();
 
     // the checkbox field should still be checked
-    await expect(page.getByLabel("Checkbox")).toBeChecked();
+    // use `first()` to get the parent widget, not the inline asset widget
+    await expect(page.getByLabel("Checkbox").first()).toBeChecked();
     // the title field should still have the value
-    await expect(page.getByLabel("Title")).toHaveValue("Test Asset");
+    // use `first()` to get the parent widget, not the inline asset widget
+    await expect(page.getByLabel("Title").first()).toHaveValue("Test Asset");
   });
 });
