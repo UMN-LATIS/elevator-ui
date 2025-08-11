@@ -69,6 +69,7 @@ import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { inject } from "vue";
+import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 const props = withDefaults(
   defineProps<{
@@ -113,7 +114,7 @@ onMounted(async () => {
   }
 
   // start expanded
-  openWidgetsWithContent();
+  openRequiredOrFilledWidgets();
   return;
 });
 
@@ -154,10 +155,14 @@ function handleExpandAll() {
   allWidgetIds.value.forEach((widgetId) => openWidgets.add(widgetId));
 }
 
-function openWidgetsWithContent() {
-  assetEditor.widgetIdsWithContent.forEach((widgetId) => {
-    if (allWidgetIds.value.includes(widgetId)) {
-      openWidgets.add(widgetId);
+function openRequiredOrFilledWidgets() {
+  widgetDefAndContents.value.forEach(({ widgetDef, widgetContents }) => {
+    if (widgetDef.required) {
+      return openWidgets.add(widgetDef.widgetId);
+    }
+
+    if (hasWidgetContent(widgetContents, widgetDef.type)) {
+      return openWidgets.add(widgetDef.widgetId);
     }
   });
 }

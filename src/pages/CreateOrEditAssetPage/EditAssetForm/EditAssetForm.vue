@@ -73,7 +73,6 @@ import {
 } from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
-import { all } from "ramda";
 
 const props = defineProps<{
   template: Template;
