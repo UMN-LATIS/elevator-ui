@@ -1,7 +1,14 @@
 <template>
   <div
     :key="toast.id"
-    class="toast-root__toast pointer-events-auto shadow-md bg-neutral-900 text-neutral-200 p-4 rounded-md relative overflow-hidden"
+    class="toast-root__toast pointer-events-auto shadow-md p-4 rounded-md relative overflow-hidden border transition-all duration-300 ease-in-out"
+    :class="{
+      'bg-red-50 text-red-700 border-red-200': toast.variant === 'error',
+      'bg-green-50 text-green-700 border-green-200':
+        toast.variant === 'success',
+      ' border-neutral-900 bg-neutral-900 text-neutral-200':
+        toast.variant === 'default' || !toast.variant,
+    }"
     @mouseenter="isPaused = true"
     @mouseleave="isPaused = false">
     <button class="float-right" @click="$emit('dismiss', toast.id)">
@@ -9,11 +16,25 @@
       <XIcon />
     </button>
     <div
-      class="timer absolute top-0 left-0 w-full h-1 bg-neutral-600 transform"
+      class="timer absolute top-0 left-0 w-full h-1 transform"
+      :class="{
+        'bg-red-300': toast.variant === 'error',
+        'bg-neutral-600': toast.variant === 'default' || !toast.variant,
+      }"
       :style="{
         transform: `translateX(-${timerWidthPercent}%)`,
       }" />
-    <p>{{ toast.message }}</p>
+    <h3
+      v-if="toast.title"
+      class="text-sm font-semibold"
+      :class="{
+        'text-red-700': toast.variant === 'error',
+        'text-green-700': toast.variant === 'success',
+        'text-neutral-200': toast.variant === 'default' || !toast.variant,
+      }">
+      {{ toast.title }}
+    </h3>
+    <p class="text-xs">{{ toast.message }}</p>
     <p v-if="toast.url" class="mt-1 flex justify-end">
       <Link
         :to="toast.url"

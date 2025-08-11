@@ -846,10 +846,12 @@ export type ApiRemoveAssetFromDrawerResponse = ApiSuccessResponse;
 
 export interface Toast {
   id: string;
+  title?: string; // optional title for the toast
   message: string;
   duration?: number;
   url?: string;
   urlText?: string;
+  variant?: "default" | "error" | "success";
 }
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
