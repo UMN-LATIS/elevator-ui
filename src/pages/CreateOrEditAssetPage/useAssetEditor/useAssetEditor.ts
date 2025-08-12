@@ -13,6 +13,7 @@ import * as fetchers from "@/api/fetchers";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 interface AssetEditorState {
+  editorId: string; // unique ID for this editor instance
   localAsset: T.Asset | T.UnsavedAsset | null;
   savedAsset: T.Asset | null;
   template: T.Template | null;
@@ -23,6 +24,7 @@ interface AssetEditorState {
 }
 
 const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
+  editorId: crypto.randomUUID(),
   localAsset: null,
   savedAsset: null,
   template: null,
@@ -378,6 +380,9 @@ export const useAssetEditor = () => {
     updateAssetField,
     onBeforeSave,
     updateModifiedInlineRelatedAsset,
+    getWidgetInstanceId: (
+      widgetId: T.WidgetDef["widgetId"]
+    ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`,
   });
 };
 

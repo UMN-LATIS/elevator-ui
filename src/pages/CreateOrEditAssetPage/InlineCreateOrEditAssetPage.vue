@@ -30,20 +30,28 @@
             </div>
           </div>
           <EditWidget
-            v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
-            :key="widgetDef.widgetId"
+            v-for="{
+              widgetDef,
+              widgetContents,
+              widgetInstanceId,
+            } in widgetInstances"
+            :key="widgetInstanceId"
             :widgetDef="widgetDef"
             :widgetContents="widgetContents"
             :assetId="assetEditor.localAsset.assetId"
             :collectionId="assetEditor.localAsset.collectionId"
-            :isOpen="openWidgets.has(widgetDef.widgetId)"
+            :isOpen="
+              openWidgets.has(
+                assetEditor.getWidgetInstanceId(widgetDef.widgetId)
+              )
+            "
             class="inline-related-asset-widget"
             @save="handleSaveAsset"
             @update:isOpen="
               (open) => {
                 open
-                  ? openWidgets.add(widgetDef.widgetId)
-                  : openWidgets.delete(widgetDef.widgetId);
+                  ? openWidgets.add(widgetInstanceId)
+                  : openWidgets.delete(widgetInstanceId);
               }
             "
             @update:widgetContents="
@@ -68,7 +76,7 @@ import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
-import { inject } from "vue";
+import { inject, provide } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 const props = withDefaults(
@@ -92,7 +100,12 @@ const emit = defineEmits<{
 // the parent asset component's editor - used to register the `onBeforeSave`
 // hook
 const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+// unique editor instance for this inline asset
 const assetEditor = useAssetEditor();
+
+// Provide this inline editor to child components
+provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
 onMounted(async () => {
   invariant(parentAssetEditor);
@@ -118,10 +131,11 @@ onMounted(async () => {
   return;
 });
 
-const openWidgets = reactive(new Set<T.WidgetDef["widgetId"]>());
+const openWidgets = reactive(new Set<T.WidgetInstanceId>());
 
-const widgetDefAndContents = computed(
+const widgetInstances = computed(
   (): Array<{
+    widgetInstanceId: T.WidgetInstanceId;
     widgetDef: T.WidgetDef;
     widgetContents: T.WidgetContent[];
   }> => {
@@ -139,6 +153,7 @@ const widgetDefAndContents = computed(
         "Local asset must be defined after initialization"
       );
       return {
+        widgetInstanceId: assetEditor.getWidgetInstanceId(widgetDef.widgetId),
         widgetDef,
         widgetContents: (assetEditor.localAsset[widgetDef.fieldTitle] ??
           []) as T.WidgetContent[],
@@ -148,7 +163,7 @@ const widgetDefAndContents = computed(
 );
 
 const allWidgetIds = computed(() =>
-  widgetDefAndContents.value.map(({ widgetDef }) => widgetDef.widgetId)
+  widgetInstances.value.map((w) => w.widgetInstanceId)
 );
 
 function handleExpandAll() {
@@ -156,15 +171,16 @@ function handleExpandAll() {
 }
 
 function openRequiredOrFilledWidgets() {
-  widgetDefAndContents.value.forEach(({ widgetDef, widgetContents }) => {
-    if (widgetDef.required) {
-      return openWidgets.add(widgetDef.widgetId);
+  widgetInstances.value.forEach(
+    ({ widgetDef, widgetContents, widgetInstanceId }) => {
+      if (
+        widgetDef.required ||
+        hasWidgetContent(widgetContents, widgetDef.type)
+      ) {
+        return openWidgets.add(widgetInstanceId);
+      }
     }
-
-    if (hasWidgetContent(widgetContents, widgetDef.type)) {
-      return openWidgets.add(widgetDef.widgetId);
-    }
-  });
+  );
 }
 
 function handleCollapseAll() {

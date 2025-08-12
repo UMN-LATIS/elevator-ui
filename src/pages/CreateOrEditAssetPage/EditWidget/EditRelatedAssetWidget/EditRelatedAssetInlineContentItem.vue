@@ -7,10 +7,10 @@
     </div>
     <InlineCreateOrEditAssetPage
       v-else
+      :key="modelValue.id"
       :templateId="templateId"
       :collectionId="props.collectionId"
       :assetId="modelValue.targetAssetId"
-      :parentAssetEditor="parentAssetEditor"
       class="w-full h-full"
       @update:assetId="
         $emit('update:modelValue', {
@@ -41,11 +41,11 @@ defineEmits<{
   ): void;
 }>();
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
-
 const templateId = computed((): Type.Template["templateId"] | null => {
   return props.widgetDef.fieldData.defaultTemplate ?? null;
 });
+
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 
 function handleUpdateRelatedAssetDirty(isDirty: boolean) {
   // emit the dirty state to the parent component

@@ -1,6 +1,6 @@
 <template>
   <section
-    :id="`widget-${widgetDef.widgetId}`"
+    :id="widgetInstanceId"
     class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
@@ -19,7 +19,7 @@
         type="button"
         class="flex justify-start gap-2 text-base font-bold leading-none text-left"
         :aria-expanded="isOpen"
-        :aria-controls="`widget-${widgetDef.widgetId}-content`"
+        :aria-controls="`${widgetInstanceId}-content`"
         @click.stop="toggleExpand">
         <ChevronDownIcon v-if="isOpen" class="!size-4" />
         <ChevronRightIcon v-else class="!size-4" />
@@ -39,12 +39,12 @@
     </div>
     <div
       ref="editLayoutContents"
-      :aria-labelledby="`widget-${widgetDef.widgetId}-heading`"
+      :aria-labelledby="`${widgetInstanceId}-heading`"
       :class="{
         'opacity-50': !isOpen,
       }">
       <slot name="widgetContents">
-        <DragDropContainer :groupId="widgetDef.widgetId">
+        <DragDropContainer :groupId="widgetInstanceId">
           <DragDropList
             :modelValue="widgetContents"
             :listId="widgetDef.widgetId"
@@ -143,6 +143,9 @@ import { computed, useTemplateRef, watch } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 import { useFocusWithin } from "@vueuse/core";
+import { inject } from "vue";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetContents: T[];
@@ -166,6 +169,16 @@ const editLayoutContentsRef = useTemplateRef<HTMLElement>("editLayoutContents");
 const { focused: isFocusedWithin } = useFocusWithin(
   editLayoutContentsRef.value
 );
+
+const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+const widgetInstanceId = computed((): string => {
+  invariant(
+    assetEditor,
+    "Asset editor not found. Make sure this component is used within an AssetEditor context."
+  );
+  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+});
 
 watch(isFocusedWithin, (isFocused) => {
   if (isFocused) {
