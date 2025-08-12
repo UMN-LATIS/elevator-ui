@@ -60,7 +60,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, reactive } from "vue";
+import { computed, reactive, watch } from "vue";
 import EditWidget from "../EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
@@ -95,9 +95,6 @@ defineEmits<{
 
 const openWidgets = reactive(new Set<WidgetDef["widgetId"]>());
 
-// start with all widgets open
-onMounted(() => handleExpandAll());
-
 const widgetDefAndContents = computed(
   (): Array<{
     widgetDef: WidgetDef;
@@ -112,6 +109,15 @@ const widgetDefAndContents = computed(
 
 const allWidgetIds = computed(() =>
   widgetDefAndContents.value.map(({ widgetDef }) => widgetDef.widgetId)
+);
+
+// start with all widgets open
+watch(
+  () => props.template,
+  () => {
+    handleExpandAll();
+  },
+  { immediate: true }
 );
 
 function handleExpandAll() {

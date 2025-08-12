@@ -7,6 +7,7 @@ import {
 } from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
 import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
+import { AssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 
 export * from "./TimelineJSTypes";
 
@@ -845,10 +846,12 @@ export type ApiRemoveAssetFromDrawerResponse = ApiSuccessResponse;
 
 export interface Toast {
   id: string;
+  title?: string; // optional title for the toast
   message: string;
   duration?: number;
   url?: string;
   urlText?: string;
+  variant?: "default" | "error" | "success";
 }
 
 export interface CustomAxiosRequestConfig extends AxiosRequestConfig {
@@ -981,3 +984,9 @@ export interface ApiAssetSubmissionResponse {
   objectId: string;
   success?: boolean;
 }
+
+// multiple inline editors on the same page may have the same widget id
+// so we need to make a unique id for this instance or we could wind up
+// with shared state between instances
+export type WidgetInstanceId =
+  `${AssetEditor["editorId"]}-${WidgetDef["widgetId"]}`;

@@ -1,6 +1,6 @@
 <template>
   <section
-    :id="`widget-${widgetDef.widgetId}`"
+    :id="widgetInstanceId"
     class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
@@ -11,22 +11,22 @@
       {{ widgetDef.label }}
     </h2>
     <div
-      class="flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
+      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
       :class="{
         'sticky top-[5rem] z-10': isOpen,
       }">
       <button
         type="button"
-        class="flex justify-start gap-2 text-base font-bold leading-none"
+        class="flex justify-start gap-2 text-base font-bold leading-none text-left"
         :aria-expanded="isOpen"
-        :aria-controls="`widget-${widgetDef.widgetId}-content`"
+        :aria-controls="`${widgetInstanceId}-content`"
         @click.stop="toggleExpand">
         <ChevronDownIcon v-if="isOpen" class="!size-4" />
         <ChevronRightIcon v-else class="!size-4" />
         {{ widgetDef.label }}
         <span v-if="widgetDef.required" class="text-red-500">*</span>
       </button>
-      <div>
+      <div class="widget-status-icons">
         <Tooltip v-if="hasContents" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
         </Tooltip>
@@ -39,12 +39,12 @@
     </div>
     <div
       ref="editLayoutContents"
-      :aria-labelledby="`widget-${widgetDef.widgetId}-heading`"
+      :aria-labelledby="`${widgetInstanceId}-heading`"
       :class="{
         'opacity-50': !isOpen,
       }">
       <slot name="widgetContents">
-        <DragDropContainer :groupId="widgetDef.widgetId">
+        <DragDropContainer :groupId="widgetInstanceId">
           <DragDropList
             :modelValue="widgetContents"
             :listId="widgetDef.widgetId"
@@ -87,6 +87,21 @@
                 </div>
                 <div>
                   <button
+                    v-if="
+                      // primarily we want to prevent users from deleting
+                      // an item if there's no way to add it back
+                      // if `allowMultiple` is false, they won't have a button
+                      // to add a new item
+                      widgetDef.allowMultiple ||
+                      // but it's possible that the widget previously
+                      // had multiple items, so we should let them delete
+                      // if there's more than one item
+                      widgetContents.length > 1 ||
+                      // for upload widget, the user will have access to
+                      // the upload input if they remove items
+                      // so it's fine to let them delete
+                      widgetDef.type === Types.WIDGET_TYPES.UPLOAD
+                    "
                     :class="[
                       'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
                       {
@@ -128,6 +143,9 @@ import { computed, useTemplateRef, watch } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 import { useFocusWithin } from "@vueuse/core";
+import { inject } from "vue";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetContents: T[];
@@ -151,6 +169,16 @@ const editLayoutContentsRef = useTemplateRef<HTMLElement>("editLayoutContents");
 const { focused: isFocusedWithin } = useFocusWithin(
   editLayoutContentsRef.value
 );
+
+const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+const widgetInstanceId = computed((): string => {
+  invariant(
+    assetEditor,
+    "Asset editor not found. Make sure this component is used within an AssetEditor context."
+  );
+  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+});
 
 watch(isFocusedWithin, (isFocused) => {
   if (isFocused) {
@@ -187,6 +215,11 @@ const hasContents = computed(() =>
   }
   & .drop-indicator.drop-indicator--bottom {
     bottom: -3px;
+  }
+
+  & .drag-handle {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 }
 </style>

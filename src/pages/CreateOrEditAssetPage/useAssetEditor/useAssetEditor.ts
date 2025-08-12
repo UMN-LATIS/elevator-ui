@@ -10,23 +10,31 @@ import {
 } from "./utils";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
+import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 interface AssetEditorState {
+  editorId: string; // unique ID for this editor instance
   localAsset: T.Asset | T.UnsavedAsset | null;
   savedAsset: T.Asset | null;
   template: T.Template | null;
   isInitialized: boolean;
   saveAssetStatus: MutationStatus;
+  modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
   isTemplateLoading?: boolean;
 }
 
 const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
+  editorId: crypto.randomUUID(),
   localAsset: null,
   savedAsset: null,
   template: null,
   isInitialized: false,
   saveAssetStatus: "idle",
   isTemplateLoading: false,
+
+  // inline related assets are part of this local asset
+  // so we track widgets that have changed here
+  modifiedInlineRelatedAssetWidgets: new Set(),
   ...opts,
 });
 
@@ -74,16 +82,34 @@ export const useAssetEditor = () => {
   const hasAssetChanged = computed(() => {
     if (!state.localAsset || !state.template) return false;
 
-    return hasAssetChangedPure({
+    const hasLocalAssetChanged = hasAssetChangedPure({
       localAsset: state.localAsset,
       savedAsset: state.savedAsset,
       template: state.template,
     });
+
+    // do have any modified inline related assets?
+    const haveInlineRelatedAssetsChanged =
+      state.modifiedInlineRelatedAssetWidgets.size > 0;
+    return hasLocalAssetChanged || haveInlineRelatedAssetsChanged;
   });
 
   const isFormValid = computed(() => {
     if (!state.template || !state.localAsset) return false;
     return doAllRequiredHaveContent(state.localAsset, state.template);
+  });
+
+  const widgetIdsWithContent = computed((): T.WidgetDef["widgetId"][] => {
+    return (
+      state.template?.widgetArray
+        .filter((widgetDef) => {
+          const widgetKey = widgetDef.fieldTitle;
+          const contents = (state.localAsset?.[widgetKey] ??
+            []) as T.WidgetContent[];
+          return hasWidgetContent(contents, widgetDef.type);
+        })
+        .map((widgetDef) => widgetDef.widgetId) ?? []
+    );
   });
 
   // ACTIONS
@@ -173,7 +199,9 @@ export const useAssetEditor = () => {
   /**
    * Save the current local asset to the backend
    */
-  async function saveAsset(): Promise<void> {
+  async function saveAsset({
+    refresh,
+  }: { refresh?: boolean } = {}): Promise<void> {
     invariant(state.localAsset, "Cannot save: no local asset");
     invariant(state.template, "Cannot save: no template");
     invariant(
@@ -181,8 +209,16 @@ export const useAssetEditor = () => {
       "Cannot save: localAsset.templateId !== template.templateId"
     );
 
+    if (state.saveAssetStatus === "pending") {
+      // TODO: if already saving, wait until the current save is done? and return that promise?
+      // For now, just log a warning
+      console.warn("Already saving asset, waiting for current save to finish.");
+    }
+
     state.saveAssetStatus = "pending";
     try {
+      await runBeforeSaveCallbacks();
+
       const formData = toSaveableFormData(state.localAsset, state.template);
 
       const { objectId } = await fetchers.updateAsset(formData);
@@ -196,7 +232,9 @@ export const useAssetEditor = () => {
         state.saveAssetStatus = "idle"; // Reset status after a delay
       }, 3000);
 
-      return refreshAsset();
+      if (refresh) {
+        return refreshAsset();
+      }
     } catch (err) {
       console.error(`Cannot save asset: ${err}`);
 
@@ -278,6 +316,40 @@ export const useAssetEditor = () => {
     state.localAsset = updatedAsset;
   }
 
+  function updateAssetField(
+    field: keyof T.UnsavedAsset,
+    value: T.UnsavedAsset[keyof T.UnsavedAsset]
+  ): void {
+    invariant(state.localAsset, "Cannot update asset field: no local asset.");
+    state.localAsset[field] = value;
+  }
+
+  // this is a hook to allow components to register a callback
+  // before the asset is saved. Use case: triggering an automatic
+  // save of a related asset
+  const beforeSaveCallbacks: (() => Promise<void>)[] = [];
+  function onBeforeSave(fn: () => Promise<void>): void {
+    beforeSaveCallbacks.push(fn);
+  }
+
+  async function runBeforeSaveCallbacks() {
+    await Promise.allSettled(beforeSaveCallbacks.map((callback) => callback()));
+  }
+
+  function updateModifiedInlineRelatedAsset(
+    widgetContentItemId: T.WithId<T.RelatedAssetWidgetContent>["id"],
+    hasChangedSinceSave: boolean
+  ): void {
+    invariant(
+      state.localAsset,
+      "Cannot set modified inline related asset: no local asset."
+    );
+
+    hasChangedSinceSave
+      ? state.modifiedInlineRelatedAssetWidgets.add(widgetContentItemId)
+      : state.modifiedInlineRelatedAssetWidgets.delete(widgetContentItemId);
+  }
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -294,6 +366,7 @@ export const useAssetEditor = () => {
     savedAssetTitle,
     hasAssetChanged,
     isFormValid,
+    widgetIdsWithContent,
 
     // actions
     reset,
@@ -304,5 +377,13 @@ export const useAssetEditor = () => {
     refreshAsset,
     updateLocalAsset,
     updateCollection,
+    updateAssetField,
+    onBeforeSave,
+    updateModifiedInlineRelatedAsset,
+    getWidgetInstanceId: (
+      widgetId: T.WidgetDef["widgetId"]
+    ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`,
   });
 };
+
+export type AssetEditor = ReturnType<typeof useAssetEditor>;

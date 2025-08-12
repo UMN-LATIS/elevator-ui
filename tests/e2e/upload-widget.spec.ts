@@ -55,6 +55,7 @@ test.describe("EditUploadWidget", () => {
     // Fill required title field
     await page
       .getByLabel("Title")
+      .first()
       .fill("Test Asset with Upload and Description");
 
     // Upload file
@@ -77,9 +78,11 @@ test.describe("EditUploadWidget", () => {
     await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
 
     // Now look for description field in edit mode - try different possible selectors
-    const descriptionField = page.getByRole("textbox", {
-      name: "Description / Alt Text ?",
-    });
+    const descriptionField = page
+      .getByRole("textbox", {
+        name: "Description / Alt Text ?",
+      })
+      .first();
     await expect(descriptionField).toBeVisible({ timeout: 5000 });
     await descriptionField.scrollIntoViewIfNeeded();
 
@@ -100,9 +103,11 @@ test.describe("EditUploadWidget", () => {
     await page.reload();
 
     // After refresh, verify the file and description are still there
-    const description = page.getByRole("textbox", {
-      name: "Description / Alt Text ?",
-    });
+    const description = page
+      .getByRole("textbox", {
+        name: "Description / Alt Text ?",
+      })
+      .first();
     await description.scrollIntoViewIfNeeded();
     await expect(description).toBeVisible();
   });

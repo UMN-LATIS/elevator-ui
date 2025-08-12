@@ -22,7 +22,7 @@ import EditMultiSelectWidget from "./EditMultiSelectWidget.vue";
 import EditLocationWidget from "./EditLocationWidget.vue";
 import EditUploadWidget from "./EditUploadWidget/EditUploadWidget.vue";
 import EditTagWidget from "./EditTagWidget.vue";
-import EditRelatedAssetWidget from "./EditRelatedAssetWidget.vue";
+import EditRelatedAssetWidget from "./EditRelatedAssetWidget/EditRelatedAssetWidget.vue";
 import EditTextWidget from "./EditTextWidget.vue";
 
 defineProps<{

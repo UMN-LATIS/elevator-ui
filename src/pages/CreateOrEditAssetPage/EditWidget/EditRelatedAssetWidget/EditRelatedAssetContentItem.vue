@@ -94,7 +94,7 @@
         <Tooltip tip="View related asset">
           <Button
             variant="tertiary"
-            :to="`/asset/viewAsset/${modelValue.targetAssetId}`"
+            :to="`${BASE_URL}/asset/viewAsset/${modelValue.targetAssetId}`"
             target="_blank">
             <span class="sr-only">View</span>
             <ArrowRightIcon class="size-4" />
@@ -103,7 +103,7 @@
         <Tooltip tip="Edit related asset">
           <Button
             variant="tertiary"
-            :to="`/assetManager/editAsset/${modelValue.targetAssetId}`"
+            :href="`${BASE_URL}/assetManager/editAsset/${modelValue.targetAssetId}`"
             target="_blank">
             <span class="sr-only">Edit</span>
             <PencilIcon class="size-4" />
@@ -150,6 +150,7 @@ import EditRelatedAssetPreview from "./EditRelatedAssetPreview.vue";
 import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { isSaveRelatedAssetMessage } from "@/types/guards";
+import config from "@/config";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -168,6 +169,8 @@ const emit = defineEmits<{
 const searchInput = ref("");
 const debouncedSearchInput = useDebounce(searchInput, 300);
 
+const BASE_URL = config.instance.base.url;
+
 const {
   data: matches,
   isLoading,
@@ -181,7 +184,7 @@ const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({
     channelName: channelName.value,
   });
-  return `/assetManager/addAsset?${params.toString()}`;
+  return `${BASE_URL}/assetManager/addAsset?${params.toString()}`;
 });
 
 // use window.open for opening new related asset so that
@@ -225,7 +228,6 @@ function handleSelectItem(targetAssetId: string | null) {
 }
 const broadcastChannel = new BroadcastChannel(channelName.value);
 function handleMessageEvent(event: MessageEvent) {
-  console.log("Received message from broadcast channel", event);
   const message = event.data;
   if (!isSaveRelatedAssetMessage(message)) {
     return;
@@ -233,10 +235,6 @@ function handleMessageEvent(event: MessageEvent) {
 
   // if the target asset is already selected, ignore the message
   if (message.payload.relatedAssetId === props.modelValue.targetAssetId) {
-    console.log(
-      "Received message for already selected asset, ignoring",
-      message.payload.relatedAssetId
-    );
     return;
   }
 

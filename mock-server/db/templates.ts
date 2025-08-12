@@ -385,10 +385,10 @@ const templateSeeds: Template[] = [
         fieldData: {
           nestData: true,
           showLabel: true,
-          matchAgainst: [72],
+          matchAgainst: [1],
           displayInline: true,
           thumbnailView: false,
-          defaultTemplate: 72,
+          defaultTemplate: 1,
           ignoreForDateSearch: false,
           ignoreForDigitalAsset: false,
           collapseNestedChildren: false,

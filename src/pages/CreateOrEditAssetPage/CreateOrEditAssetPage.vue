@@ -105,7 +105,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, watch } from "vue";
+import { computed, nextTick, onMounted, provide, reactive, watch } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
@@ -119,6 +119,8 @@ import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useToastStore } from "@/stores/toastStore";
 
 const props = withDefaults(
   defineProps<{
@@ -133,6 +135,7 @@ const props = withDefaults(
 
 // Use the asset editor composable
 const assetEditor = useAssetEditor();
+const toastStore = useToastStore();
 
 watch(
   () => props.assetId,
@@ -197,41 +200,58 @@ const channelName = computed(() => route.query.channelName as string);
 
 async function handleSaveAsset() {
   const isNewAsset = !props.assetId;
-  await assetEditor.saveAsset();
+  try {
+    await assetEditor.saveAsset();
 
-  invariant(
-    assetEditor.localAsset?.assetId,
-    "Local asset id must be defined after saving"
-  );
-  const savedAssetId = assetEditor.localAsset.assetId;
+    toastStore.addToast({
+      title: isNewAsset ? "Created" : "Updated",
+      message: "Asset saved successfully.",
+      variant: "success",
+      duration: 2000,
+    });
 
-  // if this is an existing asset, we're done
-  if (!isNewAsset) {
-    return;
-  }
+    invariant(
+      assetEditor.localAsset?.assetId,
+      "Local asset id must be defined after saving"
+    );
+    const savedAssetId = assetEditor.localAsset.assetId;
 
-  // if we're creating a related asset, notify the parent
-  if (channelName.value) {
-    const channel = new BroadcastChannel(channelName.value);
-    const message: RelatedAssetSaveMessage = {
-      type: SAVE_RELATED_ASSET_TYPE,
-      payload: {
-        relatedAssetId: savedAssetId,
+    // if this is an existing asset, we're done
+    if (!isNewAsset) {
+      return;
+    }
+
+    // if we're creating a related asset, notify the parent
+    if (channelName.value) {
+      const channel = new BroadcastChannel(channelName.value);
+      const message: RelatedAssetSaveMessage = {
+        type: SAVE_RELATED_ASSET_TYPE,
+        payload: {
+          relatedAssetId: savedAssetId,
+        },
+      };
+      channel.postMessage(message);
+      channel.close();
+    }
+
+    // redirect to the edit asset page (so that we don't keep recreating
+    // new assets on each save!)
+    await nextTick();
+    router.replace({
+      name: "editAsset",
+      params: {
+        assetId: savedAssetId,
       },
-    };
-    channel.postMessage(message);
-    channel.close();
+    });
+  } catch (error) {
+    // handle error, e.g. show a toast
+    console.error("Error saving asset:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: "Failed to save asset. Please try again.",
+      variant: "error",
+    });
   }
-
-  // redirect to the edit asset page (so that we don't keep recreating
-  // new assets on each save!)
-  await nextTick();
-  router.replace({
-    name: "editAsset",
-    params: {
-      assetId: savedAssetId,
-    },
-  });
 }
 
 async function handleConfirmCollectionChange(newCollectionId: number) {
@@ -251,6 +271,10 @@ async function migrateCollection() {
   );
   await assetEditor.updateCollection(state.selectedCollectionId);
   await assetEditor.saveAsset();
+  toastStore.addToast({
+    message: "Migration started. This may take a few minutes.",
+  });
+
   // redirect to the all my assets page after saving
   router.push({
     name: "allMyAssets",
@@ -298,6 +322,17 @@ async function updateTemplateId() {
   // save and replace route
   handleSaveAsset();
 }
+
+// provide the asset editor to child components
+// each asset editor instance gets its own instance
+// so that we can have multiple tabs editing different assets
+// without interference. Still, sometimes the child component
+// needs to access the parent asset editor instance to do
+// things like register an `onBeforeSave` callback
+// (e.g. with inline asset editing, we want to save the
+// inline asset before the parent saves)
+provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
+provide("assetEditor", assetEditor);
 
 onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {

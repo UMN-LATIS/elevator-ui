@@ -1,5 +1,6 @@
 import { LngLat } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
+import { type AssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 
 export const UMN_LNGLAT: LngLat = {
   lat: 44.972109,
@@ -42,3 +43,4 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
 } as const;
 
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
+export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<AssetEditor>;
