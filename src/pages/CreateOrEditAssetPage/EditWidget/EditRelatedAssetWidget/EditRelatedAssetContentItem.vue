@@ -184,6 +184,14 @@ const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({
     channelName: channelName.value,
   });
+
+  if (props.widgetDef.fieldData.defaultTemplate) {
+    params.append(
+      "defaultTemplateId",
+      String(props.widgetDef.fieldData.defaultTemplate)
+    );
+  }
+
   return `${BASE_URL}/assetManager/addAsset?${params.toString()}`;
 });
 

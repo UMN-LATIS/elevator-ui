@@ -173,11 +173,24 @@ watch(
   { immediate: true }
 );
 
+function isTemplateOption(templateId: number) {
+  return assetEditor.templateOptions.some((option) => option.id === templateId);
+}
+
 onMounted(() => {
+  const defaultTemplateId = Number(
+    new URLSearchParams(window.location.search).get("defaultTemplateId")
+  );
+
+  if (defaultTemplateId && isTemplateOption(defaultTemplateId)) {
+    state.selectedTemplateId = defaultTemplateId;
+  }
+
   // if only 1 template or collection, set it as the default
-  if (assetEditor.templateOptions.length === 1) {
+  if (!state.selectedTemplateId && assetEditor.templateOptions.length === 1) {
     state.selectedTemplateId = assetEditor.templateOptions[0].id;
   }
+
   if (assetEditor.collectionOptions.length === 1) {
     state.selectedCollectionId = assetEditor.collectionOptions[0].id;
   }
