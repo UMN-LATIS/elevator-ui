@@ -9,6 +9,13 @@ const collectionSeeds: AssetCollection[] = [
     children: [],
     parentId: null,
   },
+  {
+    id: 2,
+    title: "Second Collection",
+    previewImageId: "",
+    children: [],
+    parentId: null,
+  },
 ];
 
 function toRawAssetCollection(collection: AssetCollection): RawAssetCollection {
