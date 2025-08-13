@@ -224,10 +224,10 @@ async function handleSaveAsset() {
     await assetEditor.saveAsset();
 
     toastStore.addToast({
-      title: isNewAsset ? "Created" : "Updated",
-      message: "Asset saved successfully.",
+      title: "Saved",
+      message: `Asset saved successfully.`,
       variant: "success",
-      duration: 2000,
+      duration: 3000,
     });
 
     invariant(
