@@ -178,12 +178,19 @@ function isTemplateOption(templateId: number) {
 }
 
 onMounted(() => {
-  const defaultTemplateId = Number(
-    new URLSearchParams(window.location.search).get("defaultTemplateId")
-  );
+  const params = new URLSearchParams(window.location.search);
+  const defaultTemplateId = Number(params.get("defaultTemplateId"));
+  const collectionId = Number(params.get("collectionId"));
 
   if (defaultTemplateId && isTemplateOption(defaultTemplateId)) {
     state.selectedTemplateId = defaultTemplateId;
+  }
+
+  if (
+    collectionId &&
+    assetEditor.collectionOptions.some((c) => c.id === collectionId)
+  ) {
+    state.selectedCollectionId = collectionId;
   }
 
   // if only 1 template or collection, set it as the default

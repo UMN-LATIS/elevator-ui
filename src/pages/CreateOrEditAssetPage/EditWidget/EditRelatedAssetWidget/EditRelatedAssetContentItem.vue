@@ -122,7 +122,7 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import { useSearchAssetsQuery } from "@/queries/useSearchAssetsQuery";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 import { cn } from "@/lib/utils";
 import {
   Combobox,
@@ -151,6 +151,7 @@ import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { isSaveRelatedAssetMessage } from "@/types/guards";
 import config from "@/config";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -180,9 +181,13 @@ const {
 const targetAssetId = computed(() => props.modelValue.targetAssetId);
 
 const channelName = computed(() => `relatedAssetWidget-${props.modelValue.id}`);
+
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
 const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({
     channelName: channelName.value,
+    collectionId: String(parentAssetEditor?.collectionId),
   });
 
   if (props.widgetDef.fieldData.defaultTemplate) {
