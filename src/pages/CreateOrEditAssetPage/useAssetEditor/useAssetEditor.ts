@@ -237,9 +237,7 @@ export const useAssetEditor = () => {
       state.localAsset.modifiedBy = savedAsset.modifiedBy;
       state.localAsset.firstFileHandlerId = savedAsset.firstFileHandlerId;
 
-      // update the local assetId with the returned objectId
       state.saveAssetStatus = "success";
-
       setTimeout(() => {
         state.saveAssetStatus = "idle"; // Reset status after a delay
       }, 3000);
