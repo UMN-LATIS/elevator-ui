@@ -1,6 +1,6 @@
 <template>
   <div
-    class="toast-root fixed top-12 right-0 z-50 p-4 w-full max-w-sm pointer-events-none flex flex-col items-end gap-1">
+    class="toast-root fixed bottom-4 right-0 z-50 p-4 w-full max-w-sm pointer-events-none flex flex-col items-end gap-1">
     <TransitionGroup name="fade">
       <Toast
         v-for="toast in toastStore.toasts"
