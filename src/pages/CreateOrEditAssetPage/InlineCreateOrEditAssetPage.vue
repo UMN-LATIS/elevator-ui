@@ -107,12 +107,26 @@ const assetEditor = useAssetEditor();
 // Provide this inline editor to child components
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
+function hasAssetContent(asset: T.UnsavedAsset, template: T.Template): boolean {
+  // check widget for any content
+  return template.widgetArray.every((widgetDef) => {
+    const contents = asset[widgetDef.fieldTitle] as T.WidgetContent[];
+    return hasWidgetContent(contents, widgetDef.type);
+  });
+}
+
 onMounted(async () => {
   invariant(parentAssetEditor);
 
   // register a hook to save the current asset whenever the parent asset is saved
   parentAssetEditor.onBeforeSave(async (): Promise<void> => {
-    if (!assetEditor.hasAssetChanged) return;
+    // TODO: There's a bug where `assetEditor.hasAssetChanged`
+    // can sometimes be incorrect. Provided the asset isn't
+    // blank, we'll always save when the parent is saved to avoid
+    // losing changes.
+    if (assetEditor.isBlank) {
+      return;
+    }
     return handleSaveAsset();
   });
 
