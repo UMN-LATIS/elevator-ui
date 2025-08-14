@@ -17,7 +17,7 @@
         variant="primary"
         type="submit"
         class="disabled:!border-black/10 border-groove disabled:cursor-not-allowed"
-        :disabled="!isValid || !hasUnsavedChanges || saveStatus === 'pending'"
+        :disabled="!isValid || saveStatus === 'pending'"
         @click="$emit('save')">
         Save
         <SpinnerIcon
