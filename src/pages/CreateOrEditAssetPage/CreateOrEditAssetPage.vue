@@ -264,11 +264,12 @@ async function handleSaveAsset() {
       },
     });
   } catch (error) {
+    invariant(error instanceof Error);
     // handle error, e.g. show a toast
     console.error("Error saving asset:", error);
     toastStore.addToast({
       title: "Error",
-      message: "Failed to save asset. Please try again.",
+      message: `Failed to save asset: ${error.message}`,
       variant: "error",
     });
   }
