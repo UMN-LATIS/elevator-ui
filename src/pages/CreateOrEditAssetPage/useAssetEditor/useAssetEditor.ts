@@ -112,6 +112,23 @@ export const useAssetEditor = () => {
     );
   });
 
+  // NOTE: unchecked checkbox widgets are considered content,
+  // So, if the asset contains any, the widget will not be considered blank.
+  const isBlank = computed((): boolean => {
+    if (!state.localAsset || !state.template) return true;
+
+    const someWidgetHasContent = state.template.widgetArray.some(
+      (widgetDef) => {
+        invariant(state.localAsset);
+        const contents = (state.localAsset[widgetDef.fieldTitle] ??
+          []) as T.WidgetContent[];
+        return hasWidgetContent(contents, widgetDef.type);
+      }
+    );
+
+    return !someWidgetHasContent;
+  });
+
   // ACTIONS
   /**
    * Reset the state to initial values
@@ -367,6 +384,7 @@ export const useAssetEditor = () => {
     hasAssetChanged,
     isFormValid,
     widgetIdsWithContent,
+    isBlank,
 
     // actions
     reset,

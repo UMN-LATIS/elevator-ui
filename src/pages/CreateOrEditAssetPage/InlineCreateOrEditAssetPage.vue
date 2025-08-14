@@ -112,7 +112,17 @@ onMounted(async () => {
 
   // register a hook to save the current asset whenever the parent asset is saved
   parentAssetEditor.onBeforeSave(async (): Promise<void> => {
-    if (!assetEditor.hasAssetChanged) return;
+    // TODO: There's a bug where `assetEditor.hasAssetChanged`
+    // can sometimes be incorrect. Provided the asset isn't
+    // blank, we'll always save when the parent is saved to avoid
+    // losing changes. Once this is fixed, we can update this to
+    // only save if the asset is Not blank and has changed.
+
+    // NOTE: unchecked checkbox widget are considered
+    // content, so the form will save if there are any
+    if (assetEditor.isBlank) {
+      return;
+    }
     return handleSaveAsset();
   });
 
