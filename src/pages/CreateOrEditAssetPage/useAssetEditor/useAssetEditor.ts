@@ -222,7 +222,7 @@ export const useAssetEditor = () => {
       const formData = toSaveableFormData(state.localAsset, state.template);
 
       const { asset } = await fetchers.updateAsset(formData);
-      invariant(asset, "Expected objectId to be defined after saveAsset");
+      invariant(asset, "Expected asset to be defined after saveAsset");
 
       // update local asset values with data from returned asset
       // we only update a subset of values to avoid overwriting
