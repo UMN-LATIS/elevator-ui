@@ -216,9 +216,7 @@ export const useAssetEditor = () => {
   /**
    * Save the current local asset to the backend
    */
-  async function saveAsset({
-    refresh,
-  }: { refresh?: boolean } = {}): Promise<void> {
+  async function saveAsset(): Promise<void> {
     invariant(state.localAsset, "Cannot save: no local asset");
     invariant(state.template, "Cannot save: no template");
     invariant(
@@ -241,17 +239,25 @@ export const useAssetEditor = () => {
       const { objectId } = await fetchers.updateAsset(formData);
       invariant(objectId, "Expected objectId to be defined after saveAsset");
 
-      // update the local assetId with the returned objectId
-      state.localAsset.assetId = objectId;
-      state.saveAssetStatus = "success";
+      const savedAsset = await fetchers.fetchAsset(objectId);
+      invariant(
+        savedAsset,
+        "Expected saved asset to be defined after saveAsset"
+      );
 
+      state.savedAsset = savedAsset;
+
+      // make some targeted updates to the local asset to avoid unnecessary reactivity
+      state.localAsset.assetId = savedAsset.assetId;
+      state.localAsset.title = savedAsset.title;
+      state.localAsset.modified = savedAsset.modified;
+      state.localAsset.modifiedBy = savedAsset.modifiedBy;
+      state.localAsset.firstFileHandlerId = savedAsset.firstFileHandlerId;
+
+      state.saveAssetStatus = "success";
       setTimeout(() => {
         state.saveAssetStatus = "idle"; // Reset status after a delay
       }, 3000);
-
-      if (refresh) {
-        return refreshAsset();
-      }
     } catch (err) {
       console.error(`Cannot save asset: ${err}`);
 
