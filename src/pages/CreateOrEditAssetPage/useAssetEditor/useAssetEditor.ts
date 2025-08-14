@@ -112,6 +112,8 @@ export const useAssetEditor = () => {
     );
   });
 
+  // NOTE: unchecked checkbox widgets are considered content,
+  // So, if the asset contains any, the widget will not be considered blank.
   const isBlank = computed((): boolean => {
     if (!state.localAsset || !state.template) return true;
 
