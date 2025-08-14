@@ -221,11 +221,25 @@ export const useAssetEditor = () => {
 
       const formData = toSaveableFormData(state.localAsset, state.template);
 
-      const { objectId } = await fetchers.updateAsset(formData);
-      invariant(objectId, "Expected objectId to be defined after saveAsset");
+      const { asset } = await fetchers.updateAsset(formData);
+      invariant(asset, "Expected objectId to be defined after saveAsset");
 
-      // update the local assetId with the returned objectId
-      state.localAsset.assetId = objectId;
+      // update local asset values with data from returned asset
+      // we only update a subset of values to avoid overwriting
+      // locally assigned widget item id's which will trigger rerenders
+      const { assetId, title, firstFileHandlerId, modified, modifiedBy } =
+        asset;
+
+      state.savedAsset = asset;
+      state.localAsset = {
+        ...state.localAsset,
+        assetId,
+        title,
+        firstFileHandlerId,
+        modified,
+        modifiedBy,
+      };
+
       state.saveAssetStatus = "success";
 
       setTimeout(() => {

@@ -982,6 +982,7 @@ export enum ShowCustomHeaderMode {
 
 export interface ApiAssetSubmissionResponse {
   objectId: string;
+  asset: Asset;
   success?: boolean;
 }
 
