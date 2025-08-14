@@ -198,6 +198,7 @@ app.post("/submission/true", async (c) => {
   return c.json({
     success: true,
     objectId: savedAsset.assetId,
+    asset: savedAsset,
   });
 });
 
