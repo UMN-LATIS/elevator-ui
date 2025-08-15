@@ -1,13 +1,7 @@
-import { MultiSelectWidgetContent } from "@/types";
+import { MultiSelectWidgetContent, SelectOption } from "@/types";
 import { isObject } from "@vueuse/core";
-import {
-  computed,
-  MaybeRefOrGetter,
-  ref,
-  toValue,
-  reactive,
-  toRefs,
-} from "vue";
+import invariant from "tiny-invariant";
+import { computed, MaybeRefOrGetter, toValue, reactive, toRefs } from "vue";
 
 export interface NestedOptionsObj {
   [category: string]: string[] | Record<string, NestedOptionsObj | []>;
@@ -21,8 +15,8 @@ export interface Level {
 
 // tree node
 export interface FlatOption {
-  id: string;
-  level: number;
+  id: string | number;
+  depth: Level["depth"];
   value: string | number;
   parentId: FlatOption["id"] | null;
 }
@@ -68,7 +62,7 @@ function toFlatOptionsAndLevels(
       const optionId = `${levelId}-${toAlphaNum(option).toLowerCase()}`;
       const flatOption: FlatOption = {
         id: optionId,
-        level: levelDepth,
+        depth: levelDepth,
         value: option,
         parentId,
       };
@@ -86,7 +80,7 @@ function toFlatOptionsAndLevels(
       const optionId = `${levelId}-${toAlphaNum(value).toLowerCase()}`;
       const flatOption: FlatOption = {
         id: optionId,
-        level: levelDepth,
+        depth: levelDepth,
         value,
         parentId,
       };
@@ -126,110 +120,137 @@ export const useCascadeSelect = (
     selectedOption: null as FlatOption | null,
   });
 
-  const getters = {
-    lookups: computed(() => {
-      return toFlatOptionsAndLevels(toValue(nestedOptions));
-    }),
+  const lookups = computed(() => {
+    return toFlatOptionsAndLevels(toValue(nestedOptions));
+  });
 
-    levelLookup: computed((): LevelLookup => {
-      return getters.lookups.value.levelLookup;
-    }),
+  const levelLookup = computed((): LevelLookup => {
+    return lookups.value.levelLookup;
+  });
 
-    optionsLookup: computed((): OptionsLookup => {
-      return getters.lookups.value.optionsLookup;
-    }),
+  const optionsLookup = computed((): OptionsLookup => {
+    return lookups.value.optionsLookup;
+  });
 
-    widgetFieldContents: computed(() => {
-      if (!state.selectedOption) {
-        return null;
-      }
+  const selectedPath = computed((): FlatOption[] => {
+    if (!state.selectedOption) {
+      return [];
+    }
+    const path: FlatOption[] = [];
+    let currentOption: FlatOption | null = state.selectedOption;
+    // climb down the tree to the root to build the path
+    while (currentOption) {
+      path.unshift(currentOption);
+      currentOption = currentOption.parentId
+        ? optionsLookup.value.get(currentOption.parentId) || null
+        : null;
+    }
+    return path;
+  });
 
-      return getters.convertOptionToWidgetFieldContentsObject(
-        state.selectedOption
-      );
-    }),
-    flatOptions: computed((): FlatOption[] => {
-      const optionsLookup: OptionsLookup = getters.optionsLookup.value;
-      return Array.from(optionsLookup.values()).sort(
-        (a: FlatOption, b: FlatOption) => {
-          if (a.level !== b.level) {
-            // ascending level
-            return a.level - b.level;
-          }
-          // ascending value
-          return String(a.value).localeCompare(String(b.value));
+  const getOptionsByParentId = (parentId: FlatOption["id"] | null) => {
+    return flatOptions.value.filter((option) => option.parentId === parentId);
+  };
+
+  const getLabelForOption = (option: FlatOption) => {
+    const label = getLevelByDepth(option.depth)?.label;
+    invariant(label, `No level found for depth ${option.depth}`);
+    return label;
+  };
+
+  const currentSelectOptions = computed((): SelectOption<string | number>[] => {
+    const currentParentId = state.selectedOption?.parentId ?? null;
+    // get the options that are children of the selected option
+    return getOptionsByParentId(currentParentId).map((option) => ({
+      id: option.id,
+      label: String(option.value),
+    }));
+  });
+
+  const nextSelectOptions = computed((): SelectOption<string | number>[] => {
+    // if no selected option, return empty array
+    return getOptionsByParentId(state.selectedOption?.id ?? null).map(
+      (option) => ({
+        id: option.id,
+        label: String(option.value),
+      })
+    );
+  });
+
+  // Derived computeds that can reference the base ones
+  const getLevel = (levelId: Level["id"]) => {
+    return levelLookup.value.get(levelId) || null;
+  };
+
+  const widgetFieldContents = computed(() => {
+    if (!state.selectedOption) {
+      return null;
+    }
+
+    return selectedPath.value.reduce((acc, opt) => {
+      // get label for opt
+      const label = getLabelForOption(opt);
+
+      // widget content keys are alphanumeric version of
+      // the level label (spaces and special characters removed
+      // so that they can be persisted in a database)
+      const widgetContentKey = toAlphaNum(label).toLowerCase();
+      return {
+        ...acc,
+        [widgetContentKey]: opt.value,
+      };
+    }, {} as MultiSelectWidgetContent["fieldContents"]);
+  });
+
+  const flatOptions = computed((): FlatOption[] => {
+    return Array.from(optionsLookup.value.values()).sort(
+      (a: FlatOption, b: FlatOption) => {
+        if (a.depth !== b.depth) {
+          // ascending level
+          return a.depth - b.depth;
         }
-      );
-    }),
-
-    levels: computed((): Level[] => {
-      const levelLookup: LevelLookup = getters.levelLookup.value;
-      return Array.from(levelLookup.values()).sort((a, b) => {
-        // ascending depth
-        return a.depth - b.depth;
-      });
-    }),
-
-    getLevelByDepth: (depth: Level["depth"]) => {
-      return getters.levels.value.find((level) => level.depth === depth);
-    },
-
-    getOptionsByLevelId: (level: Level["id"]) => {
-      const levelLookup = getters.levelLookup.value;
-      return getters.flatOptions.value.filter(
-        (option) => option.level === levelLookup.get(level)?.depth
-      );
-    },
-
-    getOptionsByDepth: (depth: Level["depth"]) => {
-      const level = getters.getLevelByDepth(depth);
-      if (!level) {
-        return [];
+        // ascending value
+        return String(a.value).localeCompare(String(b.value));
       }
-      return getters.getOptionsByLevelId(level.id);
-    },
+    );
+  });
 
-    getOptionsByParentId: (parentId: FlatOption["id"] | null) => {
-      return getters.flatOptions.value.filter(
-        (option) => option.parentId === parentId
-      );
-    },
+  const levels = computed((): Level[] => {
+    return Array.from(levelLookup.value.values()).sort((a, b) => {
+      // ascending depth
+      return a.depth - b.depth;
+    });
+  });
 
-    getSelectedPath: (selectedOption: FlatOption | null) => {
-      if (!selectedOption) {
-        return [];
-      }
-      const optionsLookup = getters.optionsLookup.value;
-      const path: FlatOption[] = [];
-      let currentOption: FlatOption | null = selectedOption;
-      while (currentOption) {
-        // climb down the tree to the root to build the path
-        path.unshift(currentOption);
-        currentOption = currentOption.parentId
-          ? optionsLookup.get(currentOption.parentId) || null
-          : null;
-      }
-      return path;
-    },
+  const getLevelByDepth = (depth: Level["depth"]) => {
+    return levels.value.find((level) => level.depth === depth);
+  };
 
-    convertOptionToWidgetFieldContentsObject: (
-      option: FlatOption
-    ): MultiSelectWidgetContent["fieldContents"] => {
-      return getters.getSelectedPath(option).reduce((acc, opt) => {
-        acc[opt.level] = acc[opt.level] || [];
-        acc[opt.level].push(opt.value);
-        return acc;
-      }, {} as MultiSelectWidgetContent["fieldContents"]);
-    },
+  const getOptionsByLevelId = (level: Level["id"]) => {
+    return flatOptions.value.filter(
+      (option) => option.depth === levelLookup.value.get(level)?.depth
+    );
+  };
 
-    getOptionById: (optionId: FlatOption["id"]) => {
-      return getters.getOptionById(optionId) || null;
-    },
+  const getOptionsByDepth = (depth: Level["depth"]): FlatOption[] => {
+    const level = getLevelByDepth(depth);
+    if (!level) {
+      return [];
+    }
+    return getOptionsByLevelId(level.id);
+  };
+
+  const getOption = (optionId: FlatOption["id"]) => {
+    return optionsLookup.value.get(optionId) || null;
   };
 
   const actions = {
-    selectOption(optionId: FlatOption["id"]) {
-      const option = getters.getOptionById(optionId);
+    selectOption(optionId: FlatOption["id"] | null) {
+      if (!optionId) {
+        state.selectedOption = null;
+        return;
+      }
+      const option = getOption(optionId);
       if (option) {
         state.selectedOption = option;
       }
@@ -241,7 +262,7 @@ export const useCascadeSelect = (
         return;
       }
       const lastOptionInPath = path[path.length - 1];
-      const option = getters.getOptionById(lastOptionInPath.id);
+      const option = getOption(lastOptionInPath.id);
       if (option) {
         state.selectedOption = option;
       }
@@ -250,11 +271,76 @@ export const useCascadeSelect = (
     clearSelection() {
       state.selectedOption = null;
     },
+
+    selectOptionByWidgetFieldContents(
+      fieldContents: MultiSelectWidgetContent["fieldContents"]
+    ) {
+      if (!fieldContents) {
+        state.selectedOption = null;
+        return;
+      }
+
+      // normalize the field content keys to lowercase
+      // alphanumeric strings
+      const normFieldContents: Record<string, string | number> = {};
+      for (const key in fieldContents) {
+        const normKey = toAlphaNum(key).toLowerCase();
+        normFieldContents[normKey] = fieldContents[key];
+      }
+
+      // iterate over levels in order of depth
+      const path: FlatOption[] = [];
+      let parentId: FlatOption["id"] | null = null;
+
+      // note that levels are already sorted by depth
+      for (const level of levels.value) {
+        // the field contents key is the level label converted to alphanumeric
+        const normFieldContentsKey = toAlphaNum(level.label).toLowerCase();
+
+        const valueAtLevel = normFieldContents[normFieldContentsKey];
+
+        // if there's no value for this level, we're done
+        if (!valueAtLevel) {
+          break;
+        }
+
+        // now find the option in this level that matches the value and parentId
+        const options = getOptionsByParentId(parentId);
+        const matchingOption = options.find(
+          (opt) => opt.value === valueAtLevel
+        );
+
+        // if no matching option, we can't continue, so break
+        if (!matchingOption) {
+          break;
+        }
+
+        // add the matching option to the path
+        path.push(matchingOption);
+        // update parentId for the next level
+        parentId = matchingOption.id;
+      }
+
+      // the last option in the constructed path is the selected option
+      actions.selectOptionByPath(path);
+    },
   };
 
-  return {
+  // wrapping in reactive to auto-unwrap refs
+  return reactive({
     ...toRefs(state),
-    ...getters,
+    flatOptions,
+    levels,
+    selectedPath,
+    widgetFieldContents,
+    currentSelectOptions,
+    nextSelectOptions,
+    getLevel,
+    getLevelByDepth,
+    getOption,
+    getOptionsByLevelId,
+    getOptionsByDepth,
+    getOptionsByParentId,
     ...actions,
-  };
+  });
 };
