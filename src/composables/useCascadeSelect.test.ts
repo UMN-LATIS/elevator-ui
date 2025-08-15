@@ -33,17 +33,17 @@ describe("useCascadeSelect", () => {
   it("converts a nested options object to a flat list of options sorted by level and value", () => {
     const { flatOptions } = useCascadeSelect(() => nestedOptions);
 
-    expect(flatOptions.value).toEqual([
+    expect(flatOptions).toEqual([
       // countries
       {
         id: "country-canada",
-        level: 0,
+        depth: 0,
         value: "canada",
         parentId: null,
       },
       {
         id: "country-usa",
-        level: 0,
+        depth: 0,
         value: "usa",
         parentId: null,
       },
@@ -51,31 +51,31 @@ describe("useCascadeSelect", () => {
       // states and provinces
       {
         id: "stateorprovince-alberta",
-        level: 1,
+        depth: 1,
         value: "alberta",
         parentId: "country-canada",
       },
       {
         id: "stateorprovince-mn",
-        level: 1,
+        depth: 1,
         value: "mn",
         parentId: "country-usa",
       },
       {
         id: "stateorprovince-quebec",
-        level: 1,
+        depth: 1,
         value: "quebec",
         parentId: "country-canada",
       },
       {
         id: "stateorprovince-southdakota",
-        level: 1,
+        depth: 1,
         value: "South Dakota",
         parentId: "country-usa",
       },
       {
         id: "stateorprovince-wi",
-        level: 1,
+        depth: 1,
         value: "wi",
         parentId: "country-usa",
       },
@@ -85,7 +85,7 @@ describe("useCascadeSelect", () => {
   it("returns the levels of the nested options", () => {
     const { levels } = useCascadeSelect(nestedOptions);
 
-    expect(levels.value).toEqual([
+    expect(levels).toEqual([
       {
         id: "country",
         label: "country",
@@ -106,13 +106,13 @@ describe("useCascadeSelect", () => {
     expect(optionsAtLevel0).toEqual([
       {
         id: "country-canada",
-        level: 0,
+        depth: 0,
         value: "canada",
         parentId: null,
       },
       {
         id: "country-usa",
-        level: 0,
+        depth: 0,
         value: "usa",
         parentId: null,
       },
@@ -122,31 +122,31 @@ describe("useCascadeSelect", () => {
     expect(optionsAtLevel1).toEqual([
       {
         id: "stateorprovince-alberta",
-        level: 1,
+        depth: 1,
         value: "alberta",
         parentId: "country-canada",
       },
       {
         id: "stateorprovince-mn",
-        level: 1,
+        depth: 1,
         value: "mn",
         parentId: "country-usa",
       },
       {
         id: "stateorprovince-quebec",
-        level: 1,
+        depth: 1,
         value: "quebec",
         parentId: "country-canada",
       },
       {
         id: "stateorprovince-southdakota",
-        level: 1,
+        depth: 1,
         value: "South Dakota",
         parentId: "country-usa",
       },
       {
         id: "stateorprovince-wi",
-        level: 1,
+        depth: 1,
         value: "wi",
         parentId: "country-usa",
       },
