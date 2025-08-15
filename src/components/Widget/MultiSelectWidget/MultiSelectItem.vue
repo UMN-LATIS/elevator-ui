@@ -1,11 +1,11 @@
 <template>
   <ul>
     <template v-for="category in organizedSelectCategories" :key="category">
-      <li v-if="content.fieldContents[category]">
+      <li v-if="getCategoryContent(category)">
         <ClickToSearchLink
           :widget="widget"
           :linkText="contentsUpToCategory(category)">
-          {{ content.fieldContents[category] }}
+          {{ getCategoryContent(category) }}
         </ClickToSearchLink>
       </li>
     </template>
@@ -18,28 +18,42 @@ import { computed } from "vue";
 import { MultiSelectWidgetContent, MultiSelectWidgetDef } from "@/types";
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 
-interface Props {
+const props = defineProps<{
   widget: MultiSelectWidgetDef;
   content: MultiSelectWidgetContent;
-}
-
-const props = defineProps<Props>();
+}>();
 
 const organizedSelectCategories = computed(() => {
   return uniqueValues(recursiveSort(props.widget.fieldData, false)).map(
-    makeSafeForTitle
+    toAlphaNum
   );
 });
 
-const makeSafeForTitle = (title) => {
-  return title.replace(/[^a-zA-Z0-9]+/, "");
-};
+const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]+/, "");
+
+const toNormedCategory = (str: string | number) =>
+  toAlphaNum(String(str)).toLowerCase();
+
+// normalize field content keys
+const normalizedFieldContents = computed(() => {
+  // make keys alphanumeric and lowercase
+  return Object.fromEntries(
+    Object.entries(props.content.fieldContents).map(([key, value]) => {
+      return [toNormedCategory(key), value];
+    })
+  );
+});
+
+const getCategoryContent = (str: string | number) =>
+  normalizedFieldContents.value[toNormedCategory(str)];
 
 const contentsUpToCategory = (targetCategory) => {
   const returnValue: string[] = [];
+  const normedTargetCategory = toNormedCategory(targetCategory);
   for (const category of organizedSelectCategories.value) {
-    returnValue.push(props.content.fieldContents[category]);
-    if (category == targetCategory) {
+    const normedCategory = toNormedCategory(category);
+    returnValue.push(normedCategory);
+    if (category === normedTargetCategory) {
       return returnValue.join(" : ");
     }
   }

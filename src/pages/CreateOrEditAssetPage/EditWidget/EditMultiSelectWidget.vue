@@ -18,7 +18,6 @@
         :id="`${item.id}-select`"
         :modelValue="item.fieldContents"
         :options="widgetDef.fieldData"
-        labelClass="font-medium"
         :showLabel="false"
         @update:modelValue="handleUpdateFieldContents(item.id, $event)" />
     </template>
