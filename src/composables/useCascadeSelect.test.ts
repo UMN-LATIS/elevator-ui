@@ -1,10 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  type FlatOption,
-  type Level,
-  type NestedOptionsObj,
-  useCascadeSelect,
-} from "./useCascadeSelect";
+import { type NestedOptionsObj, useCascadeSelect } from "./useCascadeSelect";
 
 const nestedOptions: NestedOptionsObj = {
   country: {
