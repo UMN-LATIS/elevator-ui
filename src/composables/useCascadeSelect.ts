@@ -124,7 +124,7 @@ export const useCascadeSelect = (
     }
     const path: FlatOption[] = [];
     let currentOption: FlatOption | null = state.selectedOption;
-    // climb down the tree to the root to build the path
+    // climb up the tree to the root to build the path
     while (currentOption) {
       path.unshift(currentOption);
       currentOption = currentOption.parentId
