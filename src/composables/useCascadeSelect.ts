@@ -6,6 +6,8 @@ import { computed, MaybeRefOrGetter, toValue, reactive, toRefs } from "vue";
 export interface NestedOptionsObj {
   [category: string]: string[] | Record<string, NestedOptionsObj | []>;
 }
+// Example:
+// { Country: { usa: { State: { mn: [], wi: [] } }, canada: { State: ["quebec"] } } }
 
 export interface Level {
   id: string;
@@ -25,14 +27,24 @@ export type OptionsLookup = Map<FlatOption["id"], FlatOption>;
 export type LevelLookup = Map<Level["id"], Level>;
 
 const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]/g, "");
+const createOptionId = (levelId: string, rawValue: string | number) =>
+  `${levelId}-${toAlphaNum(String(rawValue)).toLowerCase()}`;
 
-// recursively converts nested options to a flat list of options
-// returns a lookup of levels an a lookup of options
+/**
+ * Recursively converts a nested options structure into flat lookups for:
+ *  - levels (category metadata per depth)
+ *  - options (each concrete selectable value with parent linkage)
+ *
+ *  Each branching object layer has exactly one "category label" key whose value
+ *  is either an array of terminal option strings OR an object whose keys are
+ *  option values and whose values are the next category object (again with a
+ *  single key) or an empty array to terminate that branch.
+ */
 function toFlatOptionsAndLevels(
   nestedOptions: NestedOptionsObj,
   levelDepth = 0,
   parentId: FlatOption["id"] | null = null
-) {
+): { levelLookup: LevelLookup; optionsLookup: OptionsLookup } {
   const levelLookup: Map<Level["id"], Level> = new Map();
   const optionsLookup: Map<FlatOption["id"], FlatOption> = new Map();
 
@@ -47,7 +59,7 @@ function toFlatOptionsAndLevels(
 
   if (Array.isArray(options)) {
     for (const option of options) {
-      const optionId = `${levelId}-${toAlphaNum(option).toLowerCase()}`;
+      const optionId = createOptionId(levelId, option);
       optionsLookup.set(optionId, {
         id: optionId,
         depth: levelDepth,
@@ -60,7 +72,7 @@ function toFlatOptionsAndLevels(
 
   if (isObject(options)) {
     for (const [value, moreNestedOptions] of Object.entries(options)) {
-      const optionId = `${levelId}-${toAlphaNum(value).toLowerCase()}`;
+      const optionId = createOptionId(levelId, value);
       optionsLookup.set(optionId, {
         id: optionId,
         depth: levelDepth,
@@ -117,9 +129,10 @@ export const useCascadeSelect = (
     return path;
   });
 
-  const getOptionsByParentId = (parentId: FlatOption["id"] | null) => {
-    return flatOptions.value.filter((option) => option.parentId === parentId);
-  };
+  const getOptionsByParentId = (
+    parentId: FlatOption["id"] | null
+  ): FlatOption[] =>
+    flatOptions.value.filter((option) => option.parentId === parentId);
 
   const getLabelForOption = (option: FlatOption) => {
     const label = getLevelByDepth(option.depth)?.label;
@@ -130,26 +143,19 @@ export const useCascadeSelect = (
   const currentSelectOptions = computed((): SelectOption<string | number>[] => {
     const currentParentId = state.selectedOption?.parentId ?? null;
     // get the options that are children of the selected option
-    return getOptionsByParentId(currentParentId).map((option) => ({
-      id: option.id,
-      label: String(option.value),
-    }));
+    return getOptionsByParentId(currentParentId).map(mapOptionToSelect);
   });
 
   const nextSelectOptions = computed((): SelectOption<string | number>[] => {
     // if no selected option, return empty array
     return getOptionsByParentId(state.selectedOption?.id ?? null).map(
-      (option) => ({
-        id: option.id,
-        label: String(option.value),
-      })
+      mapOptionToSelect
     );
   });
 
   // Derived computeds that can reference the base ones
-  const getLevel = (levelId: Level["id"]) => {
-    return levelLookup.value.get(levelId) || null;
-  };
+  const getLevel = (levelId: Level["id"]): Level | null =>
+    levelLookup.value.get(levelId) || null;
 
   const widgetFieldContents = computed(() => {
     if (!state.selectedOption) {
@@ -171,47 +177,40 @@ export const useCascadeSelect = (
     }, {} as MultiSelectWidgetContent["fieldContents"]);
   });
 
-  const flatOptions = computed((): FlatOption[] => {
-    return Array.from(optionsLookup.value.values()).sort(
-      (a: FlatOption, b: FlatOption) => {
-        if (a.depth !== b.depth) {
-          // ascending level
-          return a.depth - b.depth;
-        }
-        // ascending value
-        return String(a.value).localeCompare(String(b.value));
-      }
-    );
-  });
+  const flatOptions = computed((): FlatOption[] =>
+    Array.from(optionsLookup.value.values()).sort((a, b) =>
+      a.depth === b.depth
+        ? String(a.value).localeCompare(String(b.value))
+        : a.depth - b.depth
+    )
+  );
 
-  const levels = computed((): Level[] => {
-    return Array.from(levelLookup.value.values()).sort((a, b) => {
-      // ascending depth
-      return a.depth - b.depth;
-    });
-  });
+  const levels = computed((): Level[] =>
+    Array.from(levelLookup.value.values()).sort((a, b) => a.depth - b.depth)
+  );
 
-  const getLevelByDepth = (depth: Level["depth"]) => {
-    return levels.value.find((level) => level.depth === depth);
-  };
+  const getLevelByDepth = (depth: Level["depth"]): Level | undefined =>
+    levels.value.find((level) => level.depth === depth);
 
-  const getOptionsByLevelId = (level: Level["id"]) => {
-    return flatOptions.value.filter(
+  const getOptionsByLevelId = (level: Level["id"]): FlatOption[] =>
+    flatOptions.value.filter(
       (option) => option.depth === levelLookup.value.get(level)?.depth
     );
-  };
 
   const getOptionsByDepth = (depth: Level["depth"]): FlatOption[] => {
     const level = getLevelByDepth(depth);
-    if (!level) {
-      return [];
-    }
-    return getOptionsByLevelId(level.id);
+    return level ? getOptionsByLevelId(level.id) : [];
   };
 
-  const getOption = (optionId: FlatOption["id"]) => {
-    return optionsLookup.value.get(optionId) || null;
-  };
+  const getOption = (optionId: FlatOption["id"]): FlatOption | null =>
+    optionsLookup.value.get(optionId) || null;
+
+  const mapOptionToSelect = (
+    option: FlatOption
+  ): SelectOption<string | number> => ({
+    id: option.id,
+    label: String(option.value),
+  });
 
   const actions = {
     selectOption(optionId: FlatOption["id"] | null) {
