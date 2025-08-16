@@ -152,4 +152,67 @@ describe("useCascadeSelect", () => {
       },
     ]);
   });
+
+  it("captures deeper levels that only exist under later siblings", () => {
+    const tricky: NestedOptionsObj = {
+      category: {
+        // first sibling is a leaf (array) so depth ends here on this path
+        alpha: [],
+        // second sibling introduces a new deeper level
+        beta: {
+          Subcategory: {
+            one: [],
+            two: [],
+          },
+        },
+      },
+    };
+
+    const { levels, flatOptions, getOptionsByDepth } = useCascadeSelect(tricky);
+
+    expect(levels).toEqual([
+      { id: "category", label: "category", depth: 0 },
+      { id: "subcategory", label: "Subcategory", depth: 1 },
+    ]);
+
+    // level 0 options
+    expect(getOptionsByDepth(0)).toEqual([
+      { id: "category-alpha", depth: 0, value: "alpha", parentId: null },
+      { id: "category-beta", depth: 0, value: "beta", parentId: null },
+    ]);
+
+    // level 1 options (children of beta only)
+    expect(getOptionsByDepth(1)).toEqual([
+      {
+        id: "subcategory-one",
+        depth: 1,
+        value: "one",
+        parentId: "category-beta",
+      },
+      {
+        id: "subcategory-two",
+        depth: 1,
+        value: "two",
+        parentId: "category-beta",
+      },
+    ]);
+
+    // flat options should include all 4
+    expect(flatOptions).toEqual([
+      { id: "category-alpha", depth: 0, value: "alpha", parentId: null },
+      { id: "category-beta", depth: 0, value: "beta", parentId: null },
+      {
+        id: "subcategory-one",
+        depth: 1,
+        value: "one",
+        parentId: "category-beta",
+      },
+      {
+        id: "subcategory-two",
+        depth: 1,
+        value: "two",
+        parentId: "category-beta",
+      },
+    ]);
+  });
 });
