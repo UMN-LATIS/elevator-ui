@@ -215,4 +215,38 @@ describe("useCascadeSelect", () => {
       },
     ]);
   });
+
+  it("handles duplicate option names at the same level with different parents", () => {
+    // This test case reproduces the bug where options with the same name
+    // at the same level might not all show up because they have the same id
+    const duplicateNamesOptions: NestedOptionsObj = {
+      City: {
+        minneapolis: {
+          Neighborhood: ["downtown", "uptown", "northeast"],
+        },
+        mankato: {
+          Neighborhood: ["downtown", "eastside", "westside"],
+        },
+      },
+    };
+
+    const { getOptionsByDepth } = useCascadeSelect(duplicateNamesOptions);
+
+    // Should have 6 neighborhood options total (3 from each city)
+    const neighborhoodOptions = getOptionsByDepth(1);
+    expect(neighborhoodOptions).toHaveLength(6);
+
+    // Should include both "downtown" options with different parent IDs
+    const downtownOptions = neighborhoodOptions.filter(
+      (opt) => opt.value === "downtown"
+    );
+    expect(downtownOptions).toHaveLength(2);
+
+    // They should have different parent IDs
+    const parentIds = downtownOptions.map((opt) => opt.parentId);
+    expect(parentIds).toEqual(
+      expect.arrayContaining(["city-minneapolis", "city-mankato"])
+    );
+    expect(parentIds[0]).not.toBe(parentIds[1]);
+  });
 });
