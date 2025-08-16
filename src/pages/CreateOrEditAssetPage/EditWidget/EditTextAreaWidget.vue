@@ -81,4 +81,3 @@ defineEmits<{
   min-height: 6rem;
 }
 </style>
-<style></style>
