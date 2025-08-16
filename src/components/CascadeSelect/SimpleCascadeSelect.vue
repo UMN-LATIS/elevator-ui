@@ -1,6 +1,6 @@
 <template>
   <div class="cascade-select flex flex-col gap-4">
-    <!-- show any curretly selected segments -->
+    <!-- show any currently selected segments -->
     <div class="flex flex-col gap-1">
       <template
         v-for="selectedSegment in cascadeSelect.selectedPath"
