@@ -234,7 +234,7 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       await expect(minnesotaLink).toBeVisible();
       const mnHref = await minnesotaLink.getAttribute("href");
       const mnLastSegment = mnHref?.split("/").pop()?.toLowerCase();
-      expect(mnLastSegment).toBe(encodeURIComponent("usa : minnesota"));
+      expect(mnLastSegment).toBe(encodeURIComponent("usa : minnesota").toLowerCase());
 
       // Check that Summit Hill link URL should contain actual values
       const summitLink = page.getByRole("link", { name: "Summit Hill" });
@@ -242,7 +242,7 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       const summitHref = await summitLink.getAttribute("href");
       const summitLastSegment = summitHref?.split("/").pop()?.toLowerCase();
       expect(summitLastSegment).toBe(
-        encodeURIComponent("usa : minnesota : St. Paul : Summit Hill")
+        encodeURIComponent("usa : minnesota : St. Paul : Summit Hill").toLowerCase()
       );
     });
   });

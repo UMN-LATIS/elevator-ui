@@ -47,13 +47,15 @@ const normalizedFieldContents = computed(() => {
 const getCategoryContent = (str: string | number) =>
   normalizedFieldContents.value[toNormedCategory(str)];
 
-const contentsUpToCategory = (targetCategory) => {
+const contentsUpToCategory = (targetCategory: string) => {
   const returnValue: string[] = [];
   const normedTargetCategory = toNormedCategory(targetCategory);
   for (const category of organizedSelectCategories.value) {
     const normedCategory = toNormedCategory(category);
-    returnValue.push(normedCategory);
-    if (category === normedTargetCategory) {
+    // Use the actual field content value instead of the category name
+    const categoryValue = getCategoryContent(category);
+    returnValue.push(String(categoryValue));
+    if (normedCategory === normedTargetCategory) {
       return returnValue.join(" : ");
     }
   }
