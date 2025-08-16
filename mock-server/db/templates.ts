@@ -227,7 +227,9 @@ const templateSeeds: Template[] = [
                     minneapolis: {
                       neighborhood: ["uptown", "downtown"],
                     },
-                    "St. Paul": [],
+                    "St. Paul": {
+                      neighborhood: ["Summit Hill", "frogtown"],
+                    },
                   },
                 },
                 wisconsin: {
