@@ -27,8 +27,13 @@ export type OptionsLookup = Map<FlatOption["id"], FlatOption>;
 export type LevelLookup = Map<Level["id"], Level>;
 
 const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]/g, "");
-const createOptionId = (levelId: string, rawValue: string | number) =>
-  `${levelId}-${toAlphaNum(String(rawValue)).toLowerCase()}`;
+const createOptionId = (
+  rawValue: string | number, 
+  parentId: string | null = null
+) => {
+  const valueId = toAlphaNum(String(rawValue)).toLowerCase();
+  return parentId ? `${parentId}-${valueId}` : valueId;
+};
 
 /**
  * Recursively converts a nested options structure into flat lookups for:
@@ -59,7 +64,7 @@ function toFlatOptionsAndLevels(
 
   if (Array.isArray(options)) {
     for (const option of options) {
-      const optionId = createOptionId(levelId, option);
+      const optionId = createOptionId(option, parentId);
       optionsLookup.set(optionId, {
         id: optionId,
         depth: levelDepth,
@@ -72,7 +77,7 @@ function toFlatOptionsAndLevels(
 
   if (isObject(options)) {
     for (const [value, moreNestedOptions] of Object.entries(options)) {
-      const optionId = createOptionId(levelId, value);
+      const optionId = createOptionId(value, parentId);
       optionsLookup.set(optionId, {
         id: optionId,
         depth: levelDepth,

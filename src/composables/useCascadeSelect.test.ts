@@ -36,13 +36,13 @@ describe("useCascadeSelect", () => {
     expect(flatOptions).toEqual([
       // countries
       {
-        id: "country-canada",
+        id: "canada",
         depth: 0,
         value: "canada",
         parentId: null,
       },
       {
-        id: "country-usa",
+        id: "usa",
         depth: 0,
         value: "usa",
         parentId: null,
@@ -50,34 +50,34 @@ describe("useCascadeSelect", () => {
 
       // states and provinces
       {
-        id: "stateorprovince-alberta",
+        id: "canada-alberta",
         depth: 1,
         value: "alberta",
-        parentId: "country-canada",
+        parentId: "canada",
       },
       {
-        id: "stateorprovince-mn",
+        id: "usa-mn",
         depth: 1,
         value: "mn",
-        parentId: "country-usa",
+        parentId: "usa",
       },
       {
-        id: "stateorprovince-quebec",
+        id: "canada-quebec",
         depth: 1,
         value: "quebec",
-        parentId: "country-canada",
+        parentId: "canada",
       },
       {
-        id: "stateorprovince-southdakota",
+        id: "usa-southdakota",
         depth: 1,
         value: "South Dakota",
-        parentId: "country-usa",
+        parentId: "usa",
       },
       {
-        id: "stateorprovince-wi",
+        id: "usa-wi",
         depth: 1,
         value: "wi",
-        parentId: "country-usa",
+        parentId: "usa",
       },
     ]);
   });
@@ -105,13 +105,13 @@ describe("useCascadeSelect", () => {
     const optionsAtLevel0 = getOptionsByDepth(0);
     expect(optionsAtLevel0).toEqual([
       {
-        id: "country-canada",
+        id: "canada",
         depth: 0,
         value: "canada",
         parentId: null,
       },
       {
-        id: "country-usa",
+        id: "usa",
         depth: 0,
         value: "usa",
         parentId: null,
@@ -121,34 +121,34 @@ describe("useCascadeSelect", () => {
     const optionsAtLevel1 = getOptionsByDepth(1);
     expect(optionsAtLevel1).toEqual([
       {
-        id: "stateorprovince-alberta",
+        id: "canada-alberta",
         depth: 1,
         value: "alberta",
-        parentId: "country-canada",
+        parentId: "canada",
       },
       {
-        id: "stateorprovince-mn",
+        id: "usa-mn",
         depth: 1,
         value: "mn",
-        parentId: "country-usa",
+        parentId: "usa",
       },
       {
-        id: "stateorprovince-quebec",
+        id: "canada-quebec",
         depth: 1,
         value: "quebec",
-        parentId: "country-canada",
+        parentId: "canada",
       },
       {
-        id: "stateorprovince-southdakota",
+        id: "usa-southdakota",
         depth: 1,
         value: "South Dakota",
-        parentId: "country-usa",
+        parentId: "usa",
       },
       {
-        id: "stateorprovince-wi",
+        id: "usa-wi",
         depth: 1,
         value: "wi",
-        parentId: "country-usa",
+        parentId: "usa",
       },
     ]);
   });
@@ -177,41 +177,41 @@ describe("useCascadeSelect", () => {
 
     // level 0 options
     expect(getOptionsByDepth(0)).toEqual([
-      { id: "category-alpha", depth: 0, value: "alpha", parentId: null },
-      { id: "category-beta", depth: 0, value: "beta", parentId: null },
+      { id: "alpha", depth: 0, value: "alpha", parentId: null },
+      { id: "beta", depth: 0, value: "beta", parentId: null },
     ]);
 
     // level 1 options (children of beta only)
     expect(getOptionsByDepth(1)).toEqual([
       {
-        id: "subcategory-one",
+        id: "beta-one",
         depth: 1,
         value: "one",
-        parentId: "category-beta",
+        parentId: "beta",
       },
       {
-        id: "subcategory-two",
+        id: "beta-two",
         depth: 1,
         value: "two",
-        parentId: "category-beta",
+        parentId: "beta",
       },
     ]);
 
     // flat options should include all 4
     expect(flatOptions).toEqual([
-      { id: "category-alpha", depth: 0, value: "alpha", parentId: null },
-      { id: "category-beta", depth: 0, value: "beta", parentId: null },
+      { id: "alpha", depth: 0, value: "alpha", parentId: null },
+      { id: "beta", depth: 0, value: "beta", parentId: null },
       {
-        id: "subcategory-one",
+        id: "beta-one",
         depth: 1,
         value: "one",
-        parentId: "category-beta",
+        parentId: "beta",
       },
       {
-        id: "subcategory-two",
+        id: "beta-two",
         depth: 1,
         value: "two",
-        parentId: "category-beta",
+        parentId: "beta",
       },
     ]);
   });
@@ -245,7 +245,7 @@ describe("useCascadeSelect", () => {
     // They should have different parent IDs
     const parentIds = downtownOptions.map((opt) => opt.parentId);
     expect(parentIds).toEqual(
-      expect.arrayContaining(["city-minneapolis", "city-mankato"])
+      expect.arrayContaining(["minneapolis", "mankato"])
     );
     expect(parentIds[0]).not.toBe(parentIds[1]);
   });
