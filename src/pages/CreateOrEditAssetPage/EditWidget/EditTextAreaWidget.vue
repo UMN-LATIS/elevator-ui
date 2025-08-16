@@ -75,5 +75,10 @@ defineEmits<{
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 </script>
-<style scoped></style>
+<style scoped>
+/* Ensure the embedded Quill editor starts a bit taller */
+.edit-textarea-widget :deep(.ql-container .ql-editor) {
+  min-height: 6rem;
+}
+</style>
 <style></style>
