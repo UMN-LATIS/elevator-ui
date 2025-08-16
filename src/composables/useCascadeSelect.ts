@@ -36,80 +36,49 @@ function toFlatOptionsAndLevels(
   const levelLookup: Map<Level["id"], Level> = new Map();
   const optionsLookup: Map<FlatOption["id"], FlatOption> = new Map();
 
-  // get the levels from the nested options
   const levelLabel = Object.keys(nestedOptions)[0];
+  if (!levelLabel) return { levelLookup, optionsLookup };
 
-  // if no level label, we're done
-  if (!levelLabel) {
-    return { levelLookup, optionsLookup };
-  }
-
-  // otherwise, add the current level to the lookup
   const levelId = toAlphaNum(levelLabel).toLowerCase();
-  const level: Level = {
-    id: levelId,
-    label: levelLabel,
-    depth: levelDepth,
-  };
+  const level: Level = { id: levelId, label: levelLabel, depth: levelDepth };
   levelLookup.set(levelId, level);
 
-  // then proces each option at this level
   const options = nestedOptions[levelLabel];
 
-  // CASE 1: options is an array of strings
   if (Array.isArray(options)) {
-    options.forEach((option) => {
+    for (const option of options) {
       const optionId = `${levelId}-${toAlphaNum(option).toLowerCase()}`;
-      const flatOption: FlatOption = {
+      optionsLookup.set(optionId, {
         id: optionId,
         depth: levelDepth,
         value: option,
         parentId,
-      };
-      optionsLookup.set(optionId, flatOption);
-    });
-
-    // an array means we're done with this level
+      });
+    }
     return { levelLookup, optionsLookup };
   }
 
-  // CASE 2: options is an object with nested options
   if (isObject(options)) {
-    Object.entries(options).forEach(([value, moreNestedOptions]) => {
-      // add this option to the lookup
+    for (const [value, moreNestedOptions] of Object.entries(options)) {
       const optionId = `${levelId}-${toAlphaNum(value).toLowerCase()}`;
-      const flatOption: FlatOption = {
+      optionsLookup.set(optionId, {
         id: optionId,
         depth: levelDepth,
         value,
         parentId,
-      };
-      optionsLookup.set(optionId, flatOption);
+      });
 
-      // then recursively process the nested options
-      // if the nested options is an array, it means we're done with this level
-      if (Array.isArray(moreNestedOptions)) {
-        return;
+      if (!Array.isArray(moreNestedOptions)) {
+        const {
+          levelLookup: nestedLevelLookup,
+          optionsLookup: nestedOptionsLookup,
+        } = toFlatOptionsAndLevels(moreNestedOptions, levelDepth + 1, optionId);
+        nestedLevelLookup.forEach((lvl) => levelLookup.set(lvl.id, lvl));
+        nestedOptionsLookup.forEach((opt) => optionsLookup.set(opt.id, opt));
       }
-
-      // otherwise, recurse into the nested options
-      const {
-        levelLookup: nestedLevelLookup,
-        optionsLookup: nestedOptionsLookup,
-      } = toFlatOptionsAndLevels(moreNestedOptions, levelDepth + 1, optionId);
-
-      // merge the nested lookups into the main lookups
-      nestedLevelLookup.forEach((lvl) => levelLookup.set(lvl.id, lvl));
-      nestedOptionsLookup.forEach((opt) => optionsLookup.set(opt.id, opt));
-
-      return {
-        levelLookup,
-        optionsLookup,
-      };
-    });
+    }
   }
 
-  // if we reach here, it means we have processed all options at this level
   return { levelLookup, optionsLookup };
 }
 
