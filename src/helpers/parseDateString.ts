@@ -4,7 +4,7 @@
 export function parseDateString(dateString: string): string | null {
   if (!dateString) return null;
 
-  const date = Date.parse(dateString + " UTC");
+  const date = Date.parse(dateString);
   if (!isNaN(date)) {
     return (date / 1000).toString();
   }
