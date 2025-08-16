@@ -112,7 +112,7 @@ const assetSeeds: Asset[] = [
     title_1: [
       {
         isPrimary: false,
-        fieldContents: "Asset 2",
+        fieldContents: "All Fields Asset",
       },
     ],
     upload_1: [
@@ -172,7 +172,7 @@ const assetSeeds: Asset[] = [
     assetId: "687969fd9c90c709c1021d01",
     firstFileHandlerId: "687969f8f53caa21660c9eea",
     firstObjectId: null,
-    title: ["Asset 3"],
+    title: ["All Fields Asset"],
     titleObject: "title_1",
   },
 ];
