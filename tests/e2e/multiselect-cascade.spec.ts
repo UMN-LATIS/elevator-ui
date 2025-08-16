@@ -197,21 +197,21 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
         .locator(".edit-multiselect-widget")
         .filter({ hasText: "Cascade Select" });
       await expect(cascadeWidget.getByLabel("City")).toHaveValue(
-        "city-minneapolis"
+        "usa-minnesota-minneapolis"
       );
 
       // Demonstrate that city selection can be changed
       await cascadeWidget
         .getByLabel("City")
         .selectOption({ label: "St. Paul" });
-      await expect(cascadeWidget.getByLabel("City")).toHaveValue("city-stpaul");
+      await expect(cascadeWidget.getByLabel("City")).toHaveValue("usa-minnesota-stpaul");
 
       // Verify that changing back to original works too
       await cascadeWidget
         .getByLabel("City")
         .selectOption({ label: "minneapolis" });
       await expect(cascadeWidget.getByLabel("City")).toHaveValue(
-        "city-minneapolis"
+        "usa-minnesota-minneapolis"
       );
     });
 
