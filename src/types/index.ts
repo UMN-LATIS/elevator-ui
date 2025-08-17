@@ -307,7 +307,7 @@ export interface UploadWidgetContent extends WidgetContent {
 }
 
 export interface MultiSelectWidgetContent extends WidgetContent {
-  fieldContents: object;
+  fieldContents: Record<string, string | number>;
 }
 
 export interface DateComponent {
