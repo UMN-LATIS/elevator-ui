@@ -218,7 +218,7 @@ const templateSeeds: Template[] = [
         fieldData: {
           country: {
             usa: {
-              state: {
+              "State or Province": {
                 minnesota: {
                   city: {
                     mankato: {
@@ -226,6 +226,9 @@ const templateSeeds: Template[] = [
                     },
                     minneapolis: {
                       neighborhood: ["uptown", "downtown"],
+                    },
+                    "St. Paul": {
+                      neighborhood: ["Summit Hill", "frogtown"],
                     },
                   },
                 },
@@ -235,7 +238,7 @@ const templateSeeds: Template[] = [
               },
             },
             canada: {
-              state: {
+              "State or Province": {
                 quebec: {
                   city: ["montreal"],
                 },

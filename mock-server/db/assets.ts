@@ -108,6 +108,73 @@ const assetSeeds: Asset[] = [
     title: ["Asset 2"],
     titleObject: "title_1",
   },
+  {
+    title_1: [
+      {
+        isPrimary: false,
+        fieldContents: "All Fields Asset",
+      },
+    ],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "687969f8f53caa21660c9ee0",
+        fileType: "png",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "test_image.png",
+      },
+      {
+        loc: null,
+        fileId: "68796a06f53caa21660c9ee1",
+        fileType: "png",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "test_image_2.png",
+      },
+    ],
+    checkbox_1: [
+      {
+        isPrimary: false,
+        fieldContents: false,
+      },
+    ],
+    cascadeselect_1: [
+      {
+        isPrimary: false,
+        fieldContents: {
+          country: "usa",
+          stateorprovince: "minnesota",
+          city: "St. Paul",
+          neighborhood: "Summit Hill",
+        },
+      },
+    ],
+    relatedAssetCache: [],
+    templateId: 68,
+    readyForDisplay: true,
+    collectionId: 1,
+    availableAfter: null,
+    modified: {
+      date: "2025-07-17 21:25:26.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    modifiedBy: 1,
+    createdBy: "",
+    collectionMigration: null,
+    deleted: false,
+    deletedBy: null,
+    deletedAt: null,
+    csvBatch: null,
+    assetId: "687969fd9c90c709c1021d01",
+    firstFileHandlerId: "687969f8f53caa21660c9eea",
+    firstObjectId: null,
+    title: ["All Fields Asset"],
+    titleObject: "title_1",
+  },
 ];
 
 export function createAssetsTable({
