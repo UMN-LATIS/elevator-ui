@@ -24,9 +24,9 @@ const props = defineProps<{
 }>();
 
 const organizedSelectCategories = computed(() => {
-  return uniqueValues(collectAlternatingKeys(props.widget.fieldData, false)).map(
-    toAlphaNum
-  );
+  return uniqueValues(
+    collectAlternatingKeys(props.widget.fieldData, false)
+  ).map(toAlphaNum);
 });
 
 const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]+/, "");

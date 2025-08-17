@@ -17,6 +17,12 @@ export const collectAlternatingKeys = (inputObject: object, skip: boolean): stri
   return outputArray.flat();
 };
 
+/**
+ * Removes duplicate values from an array of strings, preserving the first occurrence of each value.
+ *
+ * @param inputArray - Array of strings that may contain duplicates
+ * @returns New array with only unique values, maintaining original order
+ */
 export const uniqueValues = (inputArray: string[]) => {
   return inputArray.filter((value, index, self) => {
     return self.indexOf(value) === index;
