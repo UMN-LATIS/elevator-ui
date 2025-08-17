@@ -4,7 +4,7 @@
       <h1 class="text-8xl font-bold text-neutral-200">{{ errorCode }}</h1>
       <h2 class="text-4xl mb-8">{{ getMessage(errorCode) }}</h2>
       <p class="my-4">{{ getDetailedMessage(errorCode) }}</p>
-      <Button :href="config.instance.base.url" icon="home" iconPosition="start">
+      <Button :to="{ name: 'home' }" icon="home" iconPosition="start">
         Go Home
       </Button>
     </div>
@@ -13,7 +13,6 @@
 <script setup lang="ts">
 import Button from "@/components/Button/Button.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import config from "@/config";
 import { usePageTitle } from "@/helpers/usePageTitle";
 
 const statusMessages = {

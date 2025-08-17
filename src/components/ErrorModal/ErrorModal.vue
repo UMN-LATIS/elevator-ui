@@ -18,7 +18,7 @@
 
           <div class="mt-1">
             <!-- using href for force app reload -->
-            <Button :href="BASE_URL" variant="tertiary">Go Home</Button>
+            <Button :to="{ name: 'home' }" variant="tertiary">Go Home</Button>
           </div>
         </Notification>
       </div>
