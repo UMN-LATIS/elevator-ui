@@ -29,7 +29,7 @@ const organizedSelectCategories = computed(() => {
   );
 });
 
-const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]+/, "");
+const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]/g, "");
 
 const toNormedCategory = (str: string | number) =>
   toAlphaNum(String(str)).toLowerCase();
