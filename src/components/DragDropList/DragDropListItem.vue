@@ -57,7 +57,7 @@ const props = defineProps<{
 const groupId = inject(GROUP_ID_PROVIDE_KEY);
 invariant(groupId, "groupId is not defined");
 
-const listItemRef = ref<HTMLElement | null>(null);
+const listItemRef = useTemplateRef("listItemRef");
 const closestEdge = ref<dnd.Edge | null>(null);
 
 const dragDropStore = useDragDropStore(groupId);

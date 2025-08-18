@@ -9,7 +9,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { inject, onMounted, onUnmounted, ref, computed } from "vue";
+import {
+  inject,
+  onMounted,
+  onUnmounted,
+  ref,
+  computed,
+  useTemplateRef,
+} from "vue";
 import type { CleanupFn } from "@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types";
 import * as dnd from "./utils/dnd";
 import { useDragDropStore } from "./useDragDropStore";
@@ -24,7 +31,7 @@ const props = defineProps<{
 const groupId = inject(GROUP_ID_PROVIDE_KEY);
 invariant(groupId, "groupId must be provided");
 
-const emptyListRef = ref<HTMLElement | null>(null);
+const emptyListRef = useTemplateRef("emptyListRef");
 const isDraggingOver = ref(false);
 
 const cleanupFns = [] as CleanupFn[];

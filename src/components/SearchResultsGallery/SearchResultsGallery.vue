@@ -33,7 +33,7 @@
       :modules="modules"
       :slidesPerView="1"
       :spaceBetween="50"
-      :thumbs="{ swiper: thumbsSwiper }"
+      :thumbs="{ swiper: thumbsSwiper as SwiperType }"
       :keyboard="{ enabled: true, onlyInViewport: false }"
       @swiper="setMainSwiper"
       @slideChange="onMainSlideChange">
@@ -125,7 +125,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, useTemplateRef } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { type Swiper as SwiperType } from "swiper";
 import { Navigation, Scrollbar, A11y, Thumbs, Keyboard } from "swiper";
@@ -159,7 +159,7 @@ const emit = defineEmits<{
 const modules = [Navigation, Scrollbar, A11y, Thumbs, Keyboard];
 const thumbsSwiper = ref<SwiperType | null>(null);
 const mainSwiper = ref<SwiperType | null>(null);
-const galleryEl = ref<HTMLElement | null>(null);
+const galleryEl = useTemplateRef("galleryEl");
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen(galleryEl);
 const { slides, createSlidesForMatch } = useSlidesForMatches([]);
 

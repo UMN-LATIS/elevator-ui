@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch } from "vue";
+import { ref, inject, watch, useTemplateRef } from "vue";
 import config from "@/config";
 import {
   useIframeMessaging,
@@ -37,7 +37,7 @@ const emit = defineEmits<{
   (eventName: "update:currentScrubberPosition", currentTime: number);
 }>();
 
-const videoPlayerIframe = ref<HTMLIFrameElement | null>(null);
+const videoPlayerIframe = useTemplateRef("videoPlayerIframe");
 const currentScrubberPosition = ref<number>(0);
 const iframeMessaging = useIframeMessaging(videoPlayerIframe);
 

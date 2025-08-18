@@ -40,7 +40,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, useTemplateRef } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
@@ -52,7 +52,7 @@ import { useDrawerStore } from "@/stores/drawerStore";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { ShowCustomHeaderMode } from "@/types";
 
-const gridContainer = ref<HTMLElement | null>(null);
+const gridContainer = useTemplateRef("gridContainer");
 const numCols = ref(1);
 const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();

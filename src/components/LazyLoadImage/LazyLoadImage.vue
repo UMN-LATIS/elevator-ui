@@ -19,7 +19,7 @@
 </template>
 <script setup lang="ts">
 import { useIntersectionObserver } from "@vueuse/core";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import ImageIcon from "@/icons/ImageIcon.vue";
 import getScrollParent from "../../helpers/getScrollParent";
 
@@ -28,7 +28,7 @@ defineProps<{
   alt: string | null;
 }>();
 
-const imgContainer = ref<HTMLDivElement | null>(null);
+const imgContainer = useTemplateRef("imgContainer");
 const isLoaded = ref(false);
 const isImageLoadComplete = ref(false);
 
