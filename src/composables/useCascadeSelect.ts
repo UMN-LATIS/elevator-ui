@@ -1,5 +1,6 @@
 import { MultiSelectWidgetContent, SelectOption } from "@/types";
 import { isObject } from "@vueuse/core";
+import { isNotNil } from "ramda";
 import invariant from "tiny-invariant";
 import { computed, MaybeRefOrGetter, toValue, reactive, toRefs } from "vue";
 
