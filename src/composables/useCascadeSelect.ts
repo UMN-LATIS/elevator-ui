@@ -27,7 +27,8 @@ export interface FlatOption {
 export type OptionsLookup = Map<FlatOption["id"], FlatOption>;
 export type LevelLookup = Map<Level["id"], Level>;
 
-const toAlphaNum = (str: string) => str.replace(/[^a-zA-Z0-9]/g, "");
+const ALPHA_NUM_REGEX = /[^a-zA-Z0-9]/g;
+const toAlphaNum = (str: string) => str.replace(ALPHA_NUM_REGEX, "");
 const createOptionId = (
   rawValue: string | number,
   parentId: string | number | null = null
