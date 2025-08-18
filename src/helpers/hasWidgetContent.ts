@@ -49,17 +49,7 @@ export function hasDateContent(contents: unknown[]): boolean {
     if (!isDateWidgetContent(content)) return false;
 
     // both range and moments need numeric and text
-    if (!content.start.numeric || !content.start.text?.trim()) {
-      return false;
-    }
-
-    // if this is a moment, we need to check the end date too
-    if (!content.range) {
-      return true;
-    }
-
-    // otherwise the end date needs to be valid too
-    return !!content.end.numeric && !!content.end.text?.trim();
+    return !!content.start.numeric && !!content.start.text?.trim();
   });
 }
 

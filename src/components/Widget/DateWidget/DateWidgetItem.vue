@@ -24,8 +24,11 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const hasEndDate = (dateContent: DateWidgetContent) =>
+  dateContent.end.text !== null && dateContent.end.text !== "";
+
 const dateString = computed(() => {
-  return props.dateContent.range
+  return hasEndDate(props.dateContent)
     ? `${props.dateContent.start.text} - ${props.dateContent.end.text}`
     : props.dateContent.start.text ?? "-";
 });
