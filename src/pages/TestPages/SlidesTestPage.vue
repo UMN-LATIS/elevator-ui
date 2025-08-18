@@ -26,7 +26,7 @@
       :slidesPerView="1"
       :spaceBetween="50"
       :scrollbar="{ draggable: true }"
-      :thumbs="{ swiper: thumbsSwiper }"
+      :thumbs="{ swiper: thumbsSwiper as SwiperType }"
       @swiper="setMainSwiper"
       @slideChange="onMainSlideChange">
       <SwiperSlide v-for="(slide, i) in slides" :key="i">

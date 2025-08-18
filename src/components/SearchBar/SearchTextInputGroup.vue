@@ -60,7 +60,13 @@
   </InputGroup>
 </template>
 <script setup lang="ts">
-import { onUnmounted, onMounted, ref } from "vue";
+import {
+  onUnmounted,
+  onMounted,
+  ref,
+  useTemplateRef,
+  type ComponentPublicInstance,
+} from "vue";
 import { SearchIcon, CircleXIcon, SpinnerIcon } from "@/icons";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import { VerticalDotsIcon } from "@/icons";
@@ -73,7 +79,7 @@ const emit = defineEmits<{
   (eventName: "clearAllFilters"): void;
 }>();
 
-const inputGroup = ref<InstanceType<typeof InputGroup> | null>(null);
+const inputGroup = useTemplateRef<ComponentPublicInstance>("inputGroup");
 const searchInputHasFocus = ref(false);
 const searchStore = useSearchStore();
 

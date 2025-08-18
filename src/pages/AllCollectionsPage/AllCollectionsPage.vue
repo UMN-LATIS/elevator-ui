@@ -24,7 +24,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
 import CollectionItem from "./CollectionItem.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
@@ -36,7 +36,7 @@ import api from "@/api";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 
 const instanceStore = useInstanceStore();
-const collectionGrid = ref<HTMLElement | null>(null);
+const collectionGrid = useTemplateRef("collectionGrid");
 
 const collections = computed(() => instanceStore.collections);
 const numCols = ref(1);

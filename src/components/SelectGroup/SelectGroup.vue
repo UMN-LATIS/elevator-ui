@@ -30,13 +30,13 @@
     </select>
   </div>
 </template>
-<script setup lang="ts">
+<script setup lang="ts" generic="TModelValue = string | number | null">
 import { cn } from "@/lib/utils";
 import { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
-    modelValue: string | number | null;
+    modelValue: TModelValue;
     label: string;
     options: Array<{
       id: string | number;
@@ -60,23 +60,23 @@ withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: string | number | null): void;
+  (e: "update:modelValue", value: TModelValue): void;
 }>();
 
-function handleUpdateSelection(value: string | number) {
+function handleUpdateSelection(value: string) {
   // if the value is empty, set it to null
   if (value === "") {
-    return emit("update:modelValue", null);
+    return emit("update:modelValue", null as TModelValue);
   }
 
   // if the value is a number, convert it to a number
   const maybeNumber = Number(value);
   if (Number.isInteger(maybeNumber)) {
-    return emit("update:modelValue", maybeNumber);
+    return emit("update:modelValue", maybeNumber as TModelValue);
   }
 
   // otherwise, return the value as a string
-  return emit("update:modelValue", value);
+  return emit("update:modelValue", value as TModelValue);
 }
 </script>
 <style scoped></style>

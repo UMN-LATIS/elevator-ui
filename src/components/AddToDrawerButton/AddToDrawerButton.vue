@@ -88,7 +88,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onMounted } from "vue";
+import { ref, computed, reactive, watch, onMounted, Ref } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -220,7 +220,7 @@ function reset() {
   isSelectDrawerTouched.value = false;
 }
 
-const mainObjectViewerIframe = ref<HTMLIFrameElement | null>(null);
+const mainObjectViewerIframe: Ref<HTMLIFrameElement | null> = ref(null);
 const { postMessage: postMessageToObjectViewer } = useIframeMessaging(
   mainObjectViewerIframe
 );

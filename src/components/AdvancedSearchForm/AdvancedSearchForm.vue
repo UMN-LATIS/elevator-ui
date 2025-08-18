@@ -54,7 +54,7 @@
   </form>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, useTemplateRef } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { onClickOutside } from "@vueuse/core";
@@ -71,7 +71,7 @@ const emit = defineEmits<{
 
 const searchStore = useSearchStore();
 const instanceStore = useInstanceStore();
-const advancedSearchForm = ref<HTMLDivElement | null>(null);
+const advancedSearchForm = useTemplateRef("advancedSearchForm");
 
 onClickOutside(advancedSearchForm, () => {
   emit("close");

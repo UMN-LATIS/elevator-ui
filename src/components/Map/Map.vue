@@ -45,6 +45,7 @@ import {
   onUnmounted,
   reactive,
   type Ref,
+  useTemplateRef,
 } from "vue";
 import { useResizeObserver } from "@vueuse/core";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -90,7 +91,7 @@ const emit = defineEmits<{
   (eventName: "load", mapboxMap: MapLibreMap);
 }>();
 
-const mapContainerRef = ref<HTMLDivElement | null>(null);
+const mapContainerRef = useTemplateRef("mapContainerRef");
 const mapRef = ref<MapLibreMap | null>(null);
 const markers = reactive(new Map<string, GeoJSON.Feature>());
 const isLoaded = ref(false);

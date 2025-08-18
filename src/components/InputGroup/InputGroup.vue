@@ -40,7 +40,7 @@
     </div>
   </div>
 </template>
-<script setup lang="ts">
+<script setup lang="ts" generic="TModelValue = string | number | null">
 import { CSSClass } from "@/types";
 import { useId } from "vue";
 import { cn } from "@/lib/utils";
@@ -70,7 +70,7 @@ defineEmits<{
   (eventName: "blur", event: FocusEvent): void;
 }>();
 
-const model = defineModel<string | number, "number">({
+const model = defineModel<TModelValue>({
   required: true,
 });
 </script>

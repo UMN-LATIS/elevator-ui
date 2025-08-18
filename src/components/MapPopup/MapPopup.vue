@@ -4,11 +4,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { inject, ref, onMounted, onUnmounted } from "vue";
+import { inject, ref, onMounted, onUnmounted, useTemplateRef } from "vue";
 import { MarkerContext } from "@/types";
 import { MarkerInjectionKey } from "@/constants/mapConstants";
 
-const popupContainerRef = ref<HTMLElement | null>(null);
+const popupContainerRef = useTemplateRef("popupContainerRef");
 const markerContext = inject<MarkerContext>(MarkerInjectionKey);
 
 onMounted(() => {

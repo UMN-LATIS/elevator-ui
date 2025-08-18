@@ -13,7 +13,7 @@
 </template>
 <script setup lang="ts">
 import { WidgetDef } from "@/types";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, useTemplateRef } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import shave from "shave";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
@@ -32,7 +32,7 @@ const props = withDefaults(
   }
 );
 const show = ref(false);
-const truncateText = ref<HTMLDivElement | null>(null);
+const truncateText = useTemplateRef("truncateText");
 const isTruncated = ref(false);
 
 const debouncedShave = useDebounceFn(() => {
