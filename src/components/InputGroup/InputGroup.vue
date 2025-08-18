@@ -40,7 +40,7 @@
     </div>
   </div>
 </template>
-<script setup lang="ts" generic="TModelValue = 'string' | 'number' | 'null'">
+<script setup lang="ts" generic="TModelValue = string | number | null">
 import { CSSClass } from "@/types";
 import { useId } from "vue";
 import { cn } from "@/lib/utils";
