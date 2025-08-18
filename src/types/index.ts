@@ -241,7 +241,6 @@ export interface DateWidgetContent extends WidgetContent {
   label: string;
   start: DateMoment;
   end: DateMoment;
-  range?: boolean;
 }
 
 export type Coordinates = [
