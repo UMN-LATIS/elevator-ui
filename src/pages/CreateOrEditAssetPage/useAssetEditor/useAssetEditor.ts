@@ -4,15 +4,12 @@ import { computed, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
-  doAllRequiredHaveContent,
   makeLocalAsset,
   toSaveableFormData,
-  getMissingRequiredFields,
 } from "./utils";
+import * as validation from "./validation";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
-import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { get } from "@vueuse/core";
 
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
@@ -22,7 +19,6 @@ interface AssetEditorState {
   isInitialized: boolean;
   saveAssetStatus: MutationStatus;
   modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
-  invalidWidgetContentItems: Set<T.WithId<T.WidgetContent>["id"]>;
   isTemplateLoading?: boolean;
 }
 
@@ -42,9 +38,6 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
   isInitialized: false,
   saveAssetStatus: "idle",
   isTemplateLoading: false,
-
-  // track widget content items with errors
-  invalidWidgetContentItems: new Set(),
 
   // inline related assets are part of this local asset
   // so we track widgets that have changed here
@@ -67,6 +60,9 @@ export const useAssetEditor = () => {
   );
 
   const instanceStore = useInstanceStore();
+
+  ////////////////////////////////////////////////
+  // COMPUTED
 
   const collectionOptions = computed((): T.SelectOption<number>[] => {
     const collections = instanceStore.collections ?? [];
@@ -116,24 +112,24 @@ export const useAssetEditor = () => {
   });
 
   const isFormValid = computed(() => {
-    if (!state.template || !state.localAsset) return false;
-    return (
-      doAllRequiredHaveContent(state.localAsset, state.template) &&
-      !state.invalidWidgetContentItems.size
-    );
+    if (!state.localAsset || !state.template) return false;
+    return validation.isFormValid(state.localAsset, state.template);
   });
 
   const widgetIdsWithContent = computed((): T.WidgetDef["widgetId"][] => {
-    return (
-      state.template?.widgetArray
-        .filter((widgetDef) => {
-          const widgetKey = widgetDef.fieldTitle;
-          const contents = (state.localAsset?.[widgetKey] ??
-            []) as T.WidgetContent[];
-          return hasWidgetContent(contents, widgetDef.type);
-        })
-        .map((widgetDef) => widgetDef.widgetId) ?? []
-    );
+    if (!state.template || !state.localAsset) return [];
+
+    return state.template.widgetArray
+      .filter((widgetDef) => {
+        const widgetContents = (state.localAsset?.[widgetDef.fieldTitle] ??
+          []) as T.WithId<T.WidgetContent>[];
+        const widgetValidation = validation.validateWidget(
+          widgetDef,
+          widgetContents
+        );
+        return widgetValidation.hasContent;
+      })
+      .map((widgetDef) => widgetDef.widgetId);
   });
 
   // NOTE: unchecked checkbox widgets are considered content,
@@ -143,17 +139,66 @@ export const useAssetEditor = () => {
 
     const someWidgetHasContent = state.template.widgetArray.some(
       (widgetDef) => {
-        invariant(state.localAsset);
-        const contents = (state.localAsset[widgetDef.fieldTitle] ??
-          []) as T.WidgetContent[];
-        return hasWidgetContent(contents, widgetDef.type);
+        const widgetContents = (state.localAsset?.[widgetDef.fieldTitle] ??
+          []) as T.WithId<T.WidgetContent>[];
+        const widgetValidation = validation.validateWidget(
+          widgetDef,
+          widgetContents
+        );
+        return widgetValidation.hasContent;
       }
     );
 
     return !someWidgetHasContent;
   });
 
+  const missingRequiredFields = computed((): string[] => {
+    if (!state.localAsset || !state.template) return [];
+    return validation.getMissingRequiredFields(
+      state.localAsset,
+      state.template
+    );
+  });
+
+  const invalidFields = computed((): string[] => {
+    if (!state.localAsset || !state.template) return [];
+    return validation.getInvalidFields(state.localAsset, state.template);
+  });
+
+  const tocItems = computed((): TocItem[] => {
+    if (!state.template || !state.localAsset) {
+      return [];
+    }
+    return state.template.widgetArray
+      .toSorted((a, b) => a.templateOrder - b.templateOrder)
+      .map((widgetDef: T.WidgetDef) => {
+        const id = getWidgetInstanceId(widgetDef.widgetId);
+        const widgetContents = (state.localAsset?.[widgetDef.fieldTitle] ??
+          []) as T.WithId<T.WidgetContent>[];
+        const widgetValidation = validation.validateWidget(
+          widgetDef,
+          widgetContents
+        );
+
+        const tocItem: TocItem = {
+          id,
+          label: widgetDef.label,
+          hasContent: widgetValidation.hasContent,
+          isRequired: widgetDef.required,
+          isValid: widgetValidation.isValid,
+        };
+
+        return tocItem;
+      });
+  });
+
+  ////////////////////////////////////////////////
   // ACTIONS
+
+  const getWidgetInstanceId = (
+    widgetId: T.WidgetDef["widgetId"]
+  ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`;
+
   /**
    * Reset the state to initial values
    */
@@ -397,144 +442,65 @@ export const useAssetEditor = () => {
       : state.modifiedInlineRelatedAssetWidgets.delete(widgetContentItemId);
   }
 
-  const getWidgetInstanceId = (
-    widgetId: T.WidgetDef["widgetId"]
-  ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`;
-
-  function updateWidgetContentItemValidationStatus(
-    widgetContentItemId: T.WithId<T.WidgetContent>["id"],
-    isValid: boolean
-  ): void {
-    isValid
-      ? state.invalidWidgetContentItems.delete(widgetContentItemId)
-      : state.invalidWidgetContentItems.add(widgetContentItemId);
-  }
-
-  function getWidgetByInstanceId(
-    widgetInstanceId: T.WidgetInstanceId
-  ): T.WithId<T.WidgetContent>[] {
-    invariant(state.template, "Cannot get widget by instanceId: no template.");
-    const widgetDef = state.template.widgetArray.find(
-      (widget) => getWidgetInstanceId(widget.widgetId) === widgetInstanceId
-    );
-    invariant(widgetDef, `No widget found for instanceId: ${widgetInstanceId}`);
-
-    const widgetContents = state.localAsset?.[widgetDef.fieldTitle];
-    invariant(
-      widgetContents,
-      `No contents found for widget: ${widgetDef.fieldTitle}`
-    );
-    return widgetContents as T.WithId<T.WidgetContent>[];
-  }
-
-  // add a map for faster lookups of invalid widget items
-  const contentIdToWidgetInstanceIdMap = computed(() => {
-    const map = new Map<T.WithId<T.WidgetContent>["id"], T.WidgetInstanceId>();
-    if (!state.template || !state.localAsset) return map;
-
-    state.template.widgetArray.forEach((widgetDef) => {
-      const widgetContents = getWidgetContents(widgetDef);
-      widgetContents.forEach((contentItem) => {
-        const instanceId = getWidgetInstanceId(widgetDef.widgetId);
-        map.set(contentItem.id, instanceId);
-      });
-    });
-    return map;
-  });
-
   function isWidgetContentValid(widgetInstanceId: T.WidgetInstanceId): boolean {
-    if (!state.localAsset || !state.template) {
-      return false;
-    }
+    if (!state.template || !state.localAsset) return false;
 
-    if (!state.invalidWidgetContentItems.size) {
-      return true; // no invalid items, so all are valid
-    }
-
-    // otherwise check if the widget has one of the invalid items
-    const someInvalid = [...state.invalidWidgetContentItems].some(
-      (contentItemId) => {
-        const instanceId =
-          contentIdToWidgetInstanceIdMap.value.get(contentItemId);
-        return instanceId === widgetInstanceId;
-      }
+    const widgetDef = state.template.widgetArray.find(
+      (w) => getWidgetInstanceId(w.widgetId) === widgetInstanceId
     );
+    if (!widgetDef) return false;
 
-    return !someInvalid;
+    const widgetContents = (state.localAsset[widgetDef.fieldTitle] ??
+      []) as T.WithId<T.WidgetContent>[];
+    const widgetValidation = validation.validateWidget(
+      widgetDef,
+      widgetContents
+    );
+    return widgetValidation.isValid;
   }
 
-  function getWidgetContents(
-    widgetDef: T.WidgetDef
-  ): T.WithId<T.WidgetContent>[] {
-    invariant(state.localAsset, "Cannot get widget contents: no local asset.");
-    const contents = state.localAsset[
-      widgetDef.fieldTitle
-    ] as T.WithId<T.WidgetContent>[];
-    invariant(
-      contents,
-      `No contents found for widget: ${widgetDef.fieldTitle}`
+  function getWidgetErrors(widgetInstanceId: T.WidgetInstanceId): string[] {
+    if (!state.template || !state.localAsset) return [];
+
+    const widgetDef = state.template.widgetArray.find(
+      (w) => getWidgetInstanceId(w.widgetId) === widgetInstanceId
     );
-    return contents;
+    if (!widgetDef) return [];
+
+    const widgetContents = (state.localAsset[widgetDef.fieldTitle] ??
+      []) as T.WithId<T.WidgetContent>[];
+    const widgetValidation = validation.validateWidget(
+      widgetDef,
+      widgetContents
+    );
+    return widgetValidation.errors;
   }
 
-  function getInvalidFields(): string[] {
-    invariant(state.template, "Cannot get invalid widget names: no template.");
-    const invalidWidgetNames = state.template.widgetArray
-      .filter((widgetDef) => {
-        const contents = getWidgetContents(widgetDef);
-        return contents.some((contentItem) =>
-          state.invalidWidgetContentItems.has(contentItem.id)
-        );
-      })
-      .map(
-        (widgetDef) => widgetDef.label || `unlabeled ${widgetDef.type} fieldset`
+  function getFieldErrors(contentId: string, fieldName: string): string[] {
+    if (!state.template || !state.localAsset) return [];
+
+    // Find validation for the widget that contains this content
+    for (const widgetDef of state.template.widgetArray) {
+      const widgetContents = (state.localAsset[widgetDef.fieldTitle] ??
+        []) as T.WithId<T.WidgetContent>[];
+      const widgetValidation = validation.validateWidget(
+        widgetDef,
+        widgetContents
       );
-    return invalidWidgetNames;
+      const contentErrors = widgetValidation.fieldErrors.get(contentId);
+      if (contentErrors) {
+        const fieldErrors = contentErrors.get(fieldName);
+        if (fieldErrors) {
+          return fieldErrors;
+        }
+      }
+    }
+    return [];
   }
 
-  const missingRequiredFields = computed((): string[] => {
-    if (!state.localAsset || !state.template) {
-      return [];
-    }
-    return getMissingRequiredFields({
-      asset: state.localAsset,
-      template: state.template,
-    });
-  });
-
-  const invalidFields = computed((): string[] => {
-    if (!state.localAsset || !state.template) {
-      return [];
-    }
-    return getInvalidFields();
-  });
-
-  const tocItems = computed((): TocItem[] => {
-    if (!state.template || !state.localAsset) {
-      return [];
-    }
-    return state.template.widgetArray
-      .toSorted((a, b) => a.templateOrder - b.templateOrder)
-      .map((widgetDef: T.WidgetDef) => {
-        invariant(state.localAsset);
-        const fieldTitle = widgetDef.fieldTitle;
-        const widgetContents = state.localAsset[
-          fieldTitle
-        ] as T.WidgetContent[];
-
-        const id = getWidgetInstanceId(widgetDef.widgetId);
-
-        const tocItem: TocItem = {
-          id,
-          label: widgetDef.label,
-          hasContent: hasWidgetContent(widgetContents, widgetDef.type),
-          isRequired: widgetDef.required,
-          isValid: isWidgetContentValid(id),
-        };
-
-        return tocItem;
-      });
-  });
+  function hasFieldError(contentId: string, fieldName: string): boolean {
+    return getFieldErrors(contentId, fieldName).length > 0;
+  }
 
   // wrapping in reactive to auto-unwrap refs
   return reactive({
@@ -571,7 +537,11 @@ export const useAssetEditor = () => {
     onBeforeSave,
     updateModifiedInlineRelatedAsset,
     getWidgetInstanceId,
-    updateWidgetContentItemValidationStatus,
     isWidgetContentValid,
+    getWidgetErrors,
+    getFieldErrors,
+    hasFieldError,
   });
 };
+
+export type AssetEditor = ReturnType<typeof useAssetEditor>;

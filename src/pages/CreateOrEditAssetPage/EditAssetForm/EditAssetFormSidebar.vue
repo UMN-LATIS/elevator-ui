@@ -95,32 +95,21 @@
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
 
-      <TableOfContents :items="tocItems" />
+      <TableOfContents />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { computed, inject, reactive, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
-import {
-  Asset,
-  UnsavedAsset,
-  Template,
-  PHPDateTime,
-  WidgetDef,
-  WidgetContent,
-} from "@/types";
+import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import TableOfContents, {
-  TocItem,
-} from "../TableOfContents/TableOfContents.vue";
-import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import TableOfContents from "../TableOfContents/TableOfContents.vue";
 import { phpDateToString } from "../useAssetEditor/utils";
-import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 
