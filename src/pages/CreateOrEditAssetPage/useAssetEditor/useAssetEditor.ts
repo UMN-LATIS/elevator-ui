@@ -11,7 +11,6 @@ import {
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
   localAsset: T.Asset | T.UnsavedAsset | null;
@@ -20,6 +19,7 @@ interface AssetEditorState {
   isInitialized: boolean;
   saveAssetStatus: MutationStatus;
   modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
+  invalidWidgetContentItems: Set<T.WithId<T.WidgetContent>["id"]>;
   isTemplateLoading?: boolean;
 }
 
@@ -31,6 +31,9 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
   isInitialized: false,
   saveAssetStatus: "idle",
   isTemplateLoading: false,
+
+  // track widget content items with errors
+  invalidWidgetContentItems: new Set(),
 
   // inline related assets are part of this local asset
   // so we track widgets that have changed here
@@ -373,6 +376,48 @@ export const useAssetEditor = () => {
       : state.modifiedInlineRelatedAssetWidgets.delete(widgetContentItemId);
   }
 
+  const getWidgetInstanceId = (
+    widgetId: T.WidgetDef["widgetId"]
+  ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`;
+
+  function updateWidgetContentItemValidationStatus(
+    widgetContentItemId: T.WithId<T.WidgetContent>["id"],
+    isValid: boolean
+  ): void {
+    isValid
+      ? state.invalidWidgetContentItems.delete(widgetContentItemId)
+      : state.invalidWidgetContentItems.add(widgetContentItemId);
+  }
+
+  function getWidgetByInstanceId(
+    widgetInstanceId: T.WidgetInstanceId
+  ): T.WithId<T.WidgetContent>[] {
+    invariant(state.template, "Cannot get widget by instanceId: no template.");
+    const widgetDef = state.template.widgetArray.find(
+      (widget) => getWidgetInstanceId(widget.widgetId) === widgetInstanceId
+    );
+    invariant(widgetDef, `No widget found for instanceId: ${widgetInstanceId}`);
+
+    const widgetContents = state.localAsset?.[widgetDef.fieldTitle];
+    invariant(
+      widgetContents,
+      `No contents found for widget: ${widgetDef.fieldTitle}`
+    );
+    return widgetContents as T.WithId<T.WidgetContent>[];
+  }
+
+  function isWidgetContentValid(widgetInstanceId: T.WidgetInstanceId): boolean {
+    invariant(
+      state.template,
+      "Cannot check widget content validity: no template."
+    );
+    const widgetContents = getWidgetByInstanceId(widgetInstanceId);
+    const someInvalid = widgetContents.some((contentItem) =>
+      state.invalidWidgetContentItems.has(contentItem.id)
+    );
+    return !someInvalid;
+  }
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -404,10 +449,8 @@ export const useAssetEditor = () => {
     updateAssetField,
     onBeforeSave,
     updateModifiedInlineRelatedAsset,
-    getWidgetInstanceId: (
-      widgetId: T.WidgetDef["widgetId"]
-    ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`,
+    getWidgetInstanceId,
+    updateWidgetContentItemValidationStatus,
+    isWidgetContentValid,
   });
 };
-
-export type AssetEditor = ReturnType<typeof useAssetEditor>;

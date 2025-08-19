@@ -68,7 +68,8 @@ import {
   parseDateString,
   unixTimestampToFormattedDate,
 } from "@/helpers/parseDateString";
-import { computed, ref } from "vue";
+import { computed, inject, ref, watch } from "vue";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.DateWidgetContent>;
@@ -112,7 +113,21 @@ const parsedStartDate = computed(() => {
   return unixTimestampToFormattedDate(props.modelValue.start.numeric);
 });
 
-const isValidStartDate = computed(() => parsedStartDate.value !== null);
+const isWidgetContentDirty = computed(() => {
+  const content = props.modelValue;
+  return [content.start.text, content.end.text, content.label].some(
+    (str) => str !== "" && str !== null
+  );
+});
+
+const isValidStartDate = computed(() => {
+  if (!isWidgetContentDirty.value) return true;
+
+  return (
+    props.modelValue.start.text !== "" &&
+    props.modelValue.start.numeric !== null
+  );
+});
 
 const handleUpdateStartDate = (startDateText: string) => {
   const startDateNumeric = parseDateString(startDateText);
@@ -145,12 +160,16 @@ const isStartBeforeEnd = computed(() => {
   return BigInt(startNumeric) <= BigInt(endNumeric);
 });
 
-const isValidEndDate = computed(
-  () =>
+const isValidEndDate = computed(() => {
+  if (!isWidgetContentDirty.value) {
+    return true;
+  }
+  return (
     props.modelValue.end.numeric !== null &&
     props.modelValue.end.text !== "" &&
     isStartBeforeEnd.value
-);
+  );
+});
 
 const handleUpdateEndDate = (endDateText: string) => {
   const endDateNumeric: string | null = parseDateString(endDateText);
@@ -164,5 +183,31 @@ const handleUpdateEndDate = (endDateText: string) => {
     },
   });
 };
+
+const isWidgetContentItemValid = computed(() => {
+  const hasEndDate = props.modelValue.end.numeric;
+  return (
+    isValidStartDate.value &&
+    // either no end date or valid end date
+    (!hasEndDate || (isValidEndDate.value && isStartBeforeEnd.value))
+  );
+});
+
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+// report the current validation status to parent asset editor
+// so it can display
+watch(isWidgetContentItemValid, (isValid) => {
+  if (!parentAssetEditor) {
+    console.warn(
+      "cannot update widget content item validation status: no parent asset editor"
+    );
+    return;
+  }
+  parentAssetEditor?.updateWidgetContentItemValidationStatus(
+    props.modelValue.id,
+    isValid
+  );
+});
 </script>
 <style scoped></style>

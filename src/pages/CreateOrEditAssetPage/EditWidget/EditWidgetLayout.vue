@@ -35,6 +35,9 @@
           tip="Required content missing">
           <TriangleAlertIcon class="w-4 h-4 text-red-500" />
         </Tooltip>
+        <Tooltip v-else-if="!isWidgetValid" tip="Invalid content">
+          <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+        </Tooltip>
       </div>
     </div>
     <div
@@ -172,12 +175,17 @@ const { focused: isFocusedWithin } = useFocusWithin(
 
 const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 
-const widgetInstanceId = computed((): string => {
+const widgetInstanceId = computed(() => {
   invariant(
     assetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
   return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+});
+
+const isWidgetValid = computed(() => {
+  invariant(assetEditor);
+  return assetEditor.isWidgetContentValid(widgetInstanceId.value);
 });
 
 watch(isFocusedWithin, (isFocused) => {
