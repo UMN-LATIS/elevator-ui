@@ -203,24 +203,6 @@ watch(
   }
 );
 
-const tocItems = computed((): TocItem[] => {
-  return props.template.widgetArray
-    .toSorted((a, b) => a.templateOrder - b.templateOrder)
-    .map((widgetDef: WidgetDef) => {
-      const fieldTitle = widgetDef.fieldTitle;
-      const widgetContents = props.asset[fieldTitle] as WidgetContent[];
-
-      const tocItem: TocItem = {
-        id: `widget-${widgetDef.widgetId}`,
-        label: widgetDef.label,
-        hasContent: hasWidgetContent(widgetContents, widgetDef.type),
-        isRequired: widgetDef.required,
-      };
-
-      return tocItem;
-    });
-});
-
 function handleUpdateTemplateId(templateId: number | string | null) {
   invariant(typeof templateId === "number", "Template ID must be a number");
   emit("update:templateId", templateId);

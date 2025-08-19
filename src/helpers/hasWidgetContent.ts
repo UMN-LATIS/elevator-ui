@@ -33,10 +33,7 @@ export function hasTextContent(contents: unknown[]): boolean {
 export function hasCheckboxContent(contents: unknown[]): boolean {
   if (!Array.isArray(contents)) return false;
 
-  return (
-    contents.length > 0 &&
-    contents.some((content) => isCheckboxWidgetContent(content))
-  );
+  return contents.some((content) => isCheckboxWidgetContent(content));
 }
 
 /**
@@ -49,7 +46,7 @@ export function hasDateContent(contents: unknown[]): boolean {
     if (!isDateWidgetContent(content)) return false;
 
     // both range and moments need numeric and text
-    return !!content.start.numeric && !!content.start.text?.trim();
+    return !!content.start.numeric || !!content.start.text?.trim();
   });
 }
 

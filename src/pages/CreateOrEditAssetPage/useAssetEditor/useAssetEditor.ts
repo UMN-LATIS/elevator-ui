@@ -12,6 +12,7 @@ import {
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import { get } from "@vueuse/core";
 
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
@@ -23,6 +24,14 @@ interface AssetEditorState {
   modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
   invalidWidgetContentItems: Set<T.WithId<T.WidgetContent>["id"]>;
   isTemplateLoading?: boolean;
+}
+
+export interface TocItem {
+  id: string;
+  label: string;
+  isRequired?: boolean;
+  hasContent?: boolean;
+  isValid?: boolean;
 }
 
 const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
@@ -418,15 +427,39 @@ export const useAssetEditor = () => {
     return widgetContents as T.WithId<T.WidgetContent>[];
   }
 
+  // add a map for faster lookups of invalid widget items
+  const contentIdToWidgetInstanceIdMap = computed(() => {
+    const map = new Map<T.WithId<T.WidgetContent>["id"], T.WidgetInstanceId>();
+    if (!state.template || !state.localAsset) return map;
+
+    state.template.widgetArray.forEach((widgetDef) => {
+      const widgetContents = getWidgetContents(widgetDef);
+      widgetContents.forEach((contentItem) => {
+        const instanceId = getWidgetInstanceId(widgetDef.widgetId);
+        map.set(contentItem.id, instanceId);
+      });
+    });
+    return map;
+  });
+
   function isWidgetContentValid(widgetInstanceId: T.WidgetInstanceId): boolean {
-    invariant(
-      state.template,
-      "Cannot check widget content validity: no template."
+    if (!state.localAsset || !state.template) {
+      return false;
+    }
+
+    if (!state.invalidWidgetContentItems.size) {
+      return true; // no invalid items, so all are valid
+    }
+
+    // otherwise check if the widget has one of the invalid items
+    const someInvalid = [...state.invalidWidgetContentItems].some(
+      (contentItemId) => {
+        const instanceId =
+          contentIdToWidgetInstanceIdMap.value.get(contentItemId);
+        return instanceId === widgetInstanceId;
+      }
     );
-    const widgetContents = getWidgetByInstanceId(widgetInstanceId);
-    const someInvalid = widgetContents.some((contentItem) =>
-      state.invalidWidgetContentItems.has(contentItem.id)
-    );
+
     return !someInvalid;
   }
 
@@ -476,6 +509,33 @@ export const useAssetEditor = () => {
     return getInvalidFields();
   });
 
+  const tocItems = computed((): TocItem[] => {
+    if (!state.template || !state.localAsset) {
+      return [];
+    }
+    return state.template.widgetArray
+      .toSorted((a, b) => a.templateOrder - b.templateOrder)
+      .map((widgetDef: T.WidgetDef) => {
+        invariant(state.localAsset);
+        const fieldTitle = widgetDef.fieldTitle;
+        const widgetContents = state.localAsset[
+          fieldTitle
+        ] as T.WidgetContent[];
+
+        const id = getWidgetInstanceId(widgetDef.widgetId);
+
+        const tocItem: TocItem = {
+          id,
+          label: widgetDef.label,
+          hasContent: hasWidgetContent(widgetContents, widgetDef.type),
+          isRequired: widgetDef.required,
+          isValid: isWidgetContentValid(id),
+        };
+
+        return tocItem;
+      });
+  });
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -496,6 +556,7 @@ export const useAssetEditor = () => {
     isBlank,
     missingRequiredFields,
     invalidFields,
+    tocItems,
 
     // actions
     reset,

@@ -45,6 +45,10 @@
         :id="`${modelValue.id}-end-date`"
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
+        :inputClass="{
+          'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
+            !isValidEndDate,
+        }"
         @update:modelValue="handleUpdateEndDate($event as string)" />
       <div class="pl-4">
         <p v-if="modelValue.end.text" class="text-neutral-500 text-xs my-1">
@@ -185,12 +189,13 @@ const handleUpdateEndDate = (endDateText: string) => {
 };
 
 const isWidgetContentItemValid = computed(() => {
-  const hasEndDate = props.modelValue.end.numeric;
-  return (
-    isValidStartDate.value &&
-    // either no end date or valid end date
-    (!hasEndDate || (isValidEndDate.value && isStartBeforeEnd.value))
-  );
+  if (!isValidStartDate.value) return false;
+
+  // if this is not range content, we're done
+  if (!isShowingRange.value) return true;
+
+  // otherwise, check the end date
+  return isValidEndDate.value;
 });
 
 const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
