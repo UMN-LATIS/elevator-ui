@@ -49,7 +49,6 @@
         :asset="asset"
         :saveStatus="saveStatus"
         :hasUnsavedChanges="hasUnsavedChanges"
-        :isValid="isValid"
         :selectedTemplateId="selectedTemplateId"
         @save="$emit('save')"
         @cancel="$emit('cancel')"

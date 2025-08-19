@@ -7,10 +7,12 @@ import {
   doAllRequiredHaveContent,
   makeLocalAsset,
   toSaveableFormData,
+  getMissingRequiredFields,
 } from "./utils";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
   localAsset: T.Asset | T.UnsavedAsset | null;
@@ -41,6 +43,13 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
   ...opts,
 });
 
+/**
+ * Provides a reactive asset editor state and methods to manage the asset lifecycle
+ * Note that each instance of this composable has
+ * its own state, so that it can be used in inline related
+ * assets without affecting the main asset editor.
+ * Use provide/inject to share state with child components.
+ */
 export const useAssetEditor = () => {
   const state = reactive<AssetEditorState>(initState());
 
@@ -99,7 +108,10 @@ export const useAssetEditor = () => {
 
   const isFormValid = computed(() => {
     if (!state.template || !state.localAsset) return false;
-    return doAllRequiredHaveContent(state.localAsset, state.template);
+    return (
+      doAllRequiredHaveContent(state.localAsset, state.template) &&
+      !state.invalidWidgetContentItems.size
+    );
   });
 
   const widgetIdsWithContent = computed((): T.WidgetDef["widgetId"][] => {
@@ -418,6 +430,52 @@ export const useAssetEditor = () => {
     return !someInvalid;
   }
 
+  function getWidgetContents(
+    widgetDef: T.WidgetDef
+  ): T.WithId<T.WidgetContent>[] {
+    invariant(state.localAsset, "Cannot get widget contents: no local asset.");
+    const contents = state.localAsset[
+      widgetDef.fieldTitle
+    ] as T.WithId<T.WidgetContent>[];
+    invariant(
+      contents,
+      `No contents found for widget: ${widgetDef.fieldTitle}`
+    );
+    return contents;
+  }
+
+  function getInvalidFields(): string[] {
+    invariant(state.template, "Cannot get invalid widget names: no template.");
+    const invalidWidgetNames = state.template.widgetArray
+      .filter((widgetDef) => {
+        const contents = getWidgetContents(widgetDef);
+        return contents.some((contentItem) =>
+          state.invalidWidgetContentItems.has(contentItem.id)
+        );
+      })
+      .map(
+        (widgetDef) => widgetDef.label || `unlabeled ${widgetDef.type} fieldset`
+      );
+    return invalidWidgetNames;
+  }
+
+  const missingRequiredFields = computed((): string[] => {
+    if (!state.localAsset || !state.template) {
+      return [];
+    }
+    return getMissingRequiredFields({
+      asset: state.localAsset,
+      template: state.template,
+    });
+  });
+
+  const invalidFields = computed((): string[] => {
+    if (!state.localAsset || !state.template) {
+      return [];
+    }
+    return getInvalidFields();
+  });
+
   // wrapping in reactive to auto-unwrap refs
   return reactive({
     // state
@@ -436,6 +494,8 @@ export const useAssetEditor = () => {
     isFormValid,
     widgetIdsWithContent,
     isBlank,
+    missingRequiredFields,
+    invalidFields,
 
     // actions
     reset,
