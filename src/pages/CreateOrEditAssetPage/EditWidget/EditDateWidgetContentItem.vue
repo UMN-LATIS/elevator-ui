@@ -7,7 +7,7 @@
       @update:modelValue="handleUpdateLabel($event as string)" />
     <SelectGroup
       :id="`${modelValue.id}-select`"
-      :modelValue="modelValue.range ? 'range' : 'moment'"
+      :modelValue="isShowingRange ? 'range' : 'moment'"
       label="Date Type"
       :options="[
         { id: 'moment', label: 'Moment' },
@@ -17,20 +17,20 @@
 
     <div
       :class="{
-        'col-span-2': !modelValue.range,
+        'col-span-2': !isShowingRange,
       }">
       <InputGroup
         :id="`${modelValue.id}-start-date`"
-        :label="modelValue.range ? 'Start Date' : 'Date'"
+        :label="isShowingRange ? 'Start Date' : 'Date'"
         :modelValue="modelValue.start.text ?? ''"
         :inputClass="{
           'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
-            hasStartDateError,
+            !isValidStartDate,
         }"
         @update:modelValue="handleUpdateStartDate($event as string)" />
       <div class="pl-4">
-        <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
-          Invalid date.
+        <p v-if="!isValidStartDate" class="text-red-700 text-xs my-1">
+          Invalid start date.
         </p>
         <p
           v-else-if="modelValue.start.text"
@@ -40,20 +40,21 @@
       </div>
     </div>
 
-    <div v-if="modelValue.range">
+    <div v-if="isShowingRange">
       <InputGroup
         :id="`${modelValue.id}-end-date`"
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
         @update:modelValue="handleUpdateEndDate($event as string)" />
       <div class="pl-4">
-        <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
-          Invalid date.
-        </p>
-        <p
-          v-else-if="modelValue.end.text"
-          class="text-neutral-500 text-xs my-1">
+        <p v-if="modelValue.end.text" class="text-neutral-500 text-xs my-1">
           {{ parsedEndDate }}
+        </p>
+        <p v-if="!isValidEndDate" class="text-red-700 text-xs my-1">
+          Invalid end date.
+        </p>
+        <p v-else-if="!isStartBeforeEnd" class="text-red-700 text-xs my-1">
+          End date must be after start date
         </p>
       </div>
     </div>
@@ -80,11 +81,21 @@ const emit = defineEmits<{
   ): void;
 }>();
 
+const isShowingRange = ref(!!props.modelValue.end.text);
+
 const handleUpdateDateType = (value: string) => {
-  emit("update:modelValue", {
-    ...props.modelValue,
-    range: value === "range",
-  });
+  isShowingRange.value = value === "range";
+
+  // if we're not showing range, clear end date
+  if (!isShowingRange.value) {
+    emit("update:modelValue", {
+      ...props.modelValue,
+      end: {
+        text: "",
+        numeric: null,
+      },
+    });
+  }
 };
 
 const handleUpdateLabel = (value: string) => {
@@ -94,7 +105,6 @@ const handleUpdateLabel = (value: string) => {
   });
 };
 
-const hasStartDateError = ref(false);
 const parsedStartDate = computed(() => {
   if (!props.modelValue.start.numeric) {
     return null;
@@ -102,45 +112,55 @@ const parsedStartDate = computed(() => {
   return unixTimestampToFormattedDate(props.modelValue.start.numeric);
 });
 
-const handleUpdateStartDate = (value: string) => {
-  hasStartDateError.value = false;
-  const parsedDate = parseDateString(value);
+const isValidStartDate = computed(() => parsedStartDate.value !== null);
 
-  if (parsedDate === null) {
-    hasStartDateError.value = true;
-  }
+const handleUpdateStartDate = (startDateText: string) => {
+  const startDateNumeric = parseDateString(startDateText);
 
   emit("update:modelValue", {
     ...props.modelValue,
     start: {
       ...props.modelValue.start,
-      text: value,
-      numeric: parsedDate,
+      text: startDateText,
+      numeric: startDateNumeric,
     },
   });
 };
 
-const hasEndDateError = ref(false);
 const parsedEndDate = computed(() => {
   if (!props.modelValue.end.numeric) {
     return null;
   }
+
   return unixTimestampToFormattedDate(props.modelValue.end.numeric);
 });
-const handleUpdateEndDate = (value: string) => {
-  hasEndDateError.value = false;
-  const parsedDate = parseDateString(value);
 
-  if (parsedDate === null) {
-    hasEndDateError.value = true;
+const isStartBeforeEnd = computed(() => {
+  const startNumeric: string | null = props.modelValue.start.numeric;
+  const endNumeric: string | null = props.modelValue.end.numeric;
+  if (startNumeric === null || endNumeric === null) {
+    return true;
   }
+
+  return BigInt(startNumeric) <= BigInt(endNumeric);
+});
+
+const isValidEndDate = computed(
+  () =>
+    props.modelValue.end.numeric !== null &&
+    props.modelValue.end.text !== "" &&
+    isStartBeforeEnd.value
+);
+
+const handleUpdateEndDate = (endDateText: string) => {
+  const endDateNumeric: string | null = parseDateString(endDateText);
 
   emit("update:modelValue", {
     ...props.modelValue,
     end: {
       ...props.modelValue.end,
-      text: value,
-      numeric: parsedDate,
+      text: endDateText,
+      numeric: endDateNumeric,
     },
   });
 };
