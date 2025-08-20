@@ -94,7 +94,7 @@
         <Tooltip tip="View related asset">
           <Button
             variant="tertiary"
-            :to="`${BASE_URL}/asset/viewAsset/${modelValue.targetAssetId}`"
+            :href="`${BASE_URL}/asset/viewAsset/${modelValue.targetAssetId}`"
             target="_blank">
             <span class="sr-only">View</span>
             <ArrowRightIcon class="size-4" />
