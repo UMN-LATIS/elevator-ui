@@ -33,6 +33,7 @@
     <template #fieldContents="{ item }">
       <EditDateWidgetContentItem
         :modelValue="(item as Type.WithId<Type.DateWidgetContent>)"
+        :widgetDef="widgetDef"
         @update:modelValue="handleItemUpdate" />
     </template>
   </EditWidgetLayout>

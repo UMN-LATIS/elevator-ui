@@ -18,6 +18,11 @@
       <button
         type="button"
         class="flex justify-start gap-2 text-base font-bold leading-none text-left"
+        :class="{
+          'text-red-700':
+            (widgetDef.required && !hasContents) ||
+            (hasContents && !isWidgetValid),
+        }"
         :aria-expanded="isOpen"
         :aria-controls="`${widgetInstanceId}-content`"
         @click.stop="toggleExpand">
@@ -27,12 +32,17 @@
         <span v-if="widgetDef.required" class="text-red-500">*</span>
       </button>
       <div class="widget-status-icons">
-        <Tooltip v-if="hasContents" tip="Content added">
+        <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
         </Tooltip>
         <Tooltip
-          v-else-if="!hasContents && widgetDef.required"
+          v-else-if="widgetDef.required && !hasContents"
           tip="Required content missing">
+          <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+        </Tooltip>
+        <Tooltip
+          v-else-if="hasContents && !isWidgetValid"
+          tip="Invalid content">
           <TriangleAlertIcon class="w-4 h-4 text-red-500" />
         </Tooltip>
       </div>
@@ -146,6 +156,7 @@ import { useFocusWithin } from "@vueuse/core";
 import { inject } from "vue";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import invariant from "tiny-invariant";
+import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 
 const props = defineProps<{
   widgetContents: T[];
@@ -170,14 +181,26 @@ const { focused: isFocusedWithin } = useFocusWithin(
   editLayoutContentsRef.value
 );
 
-const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 
-const widgetInstanceId = computed((): string => {
+const assetValidation = useAssetValidation();
+
+const widgetInstanceId = computed(() => {
   invariant(
-    assetEditor,
+    parentAssetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
-  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+  return parentAssetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+});
+
+const validation = computed(() => {
+  return assetValidation.widgetValidations.value.find(
+    (v) => v.id === widgetInstanceId.value
+  );
+});
+
+const isWidgetValid = computed(() => {
+  return validation.value?.isValid;
 });
 
 watch(isFocusedWithin, (isFocused) => {
