@@ -5,7 +5,7 @@
       {{ title }}
     </h2>
     <ol class="text-sm">
-      <li v-for="item in items" :key="item.id">
+      <li v-for="item in tocItems" :key="item.id">
         <a
           :href="`#${item.id}`"
           class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 px-2"
@@ -15,17 +15,27 @@
             'text-black/50 hover:bg-transparent': activeId !== item.id,
           }"
           @click.prevent="scrollToSection(item.id)">
-          <div>
+          <div
+            :class="{
+              'text-red-700':
+                (item.isRequired && !item.hasContent) ||
+                (item.hasContent && !item.isValid),
+            }">
             {{ item.label }}
             <span v-if="item.isRequired" class="text-red-500">*</span>
           </div>
           <div>
-            <Tooltip v-if="item.hasContent" tip="has content">
+            <Tooltip v-if="item.hasContent && item.isValid" tip="has content">
               <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
             </Tooltip>
             <Tooltip
               v-else-if="!item.hasContent && item.isRequired"
               tip="Required content missing">
+              <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+            </Tooltip>
+            <Tooltip
+              v-else-if="item.hasContent && !item.isRequired && !item.isValid"
+              tip="content invalid">
               <TriangleAlertIcon class="w-4 h-4 text-red-500" />
             </Tooltip>
             <Tooltip v-else tip="empty">
@@ -43,17 +53,10 @@ import { CircleFilledCheckIcon } from "@/icons";
 import { CircleIcon, TriangleAlertIcon } from "lucide-vue-next";
 import { onMounted, onUnmounted, reactive, computed } from "vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-
-export interface TocItem {
-  id: string;
-  label: string;
-  isRequired?: boolean;
-  hasContent?: boolean;
-}
+import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 
 const props = withDefaults(
   defineProps<{
-    items: TocItem[];
     title?: string;
     offset?: number;
   }>(),
@@ -62,6 +65,18 @@ const props = withDefaults(
     offset: 100,
   }
 );
+
+// Generate tocItems from validation data
+const { widgetValidations } = useAssetValidation();
+const tocItems = computed(() => {
+  return widgetValidations.value.map((validation) => ({
+    id: validation.id,
+    label: validation.label,
+    isRequired: validation.isRequired,
+    hasContent: !validation.isEmpty,
+    isValid: validation.isValid,
+  }));
+});
 
 let observer: IntersectionObserver | null = null;
 
@@ -77,7 +92,7 @@ const scrollToSection = (id: string) => {
 
 const visibleItems = reactive<Set<string>>(new Set());
 const activeId = computed(() => {
-  for (const item of props.items) {
+  for (const item of tocItems.value) {
     if (visibleItems.has(item.id)) {
       return item.id;
     }
@@ -103,7 +118,7 @@ onMounted(() => {
   );
 
   // Observe all items
-  props.items.forEach((item) => {
+  tocItems.value.forEach((item) => {
     const element = document.getElementById(item.id);
     if (!element || !observer) {
       return;
