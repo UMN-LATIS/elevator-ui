@@ -41,7 +41,6 @@
         :localAssetTitle="assetEditor.localAssetTitle"
         :saveStatus="assetEditor.saveAssetStatus"
         :hasUnsavedChanges="assetEditor.hasAssetChanged"
-        :isValid="assetEditor.isFormValid"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
@@ -361,7 +360,6 @@ async function updateTemplateId() {
 // (e.g. with inline asset editing, we want to save the
 // inline asset before the parent saves)
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
-provide("assetEditor", assetEditor);
 
 onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {

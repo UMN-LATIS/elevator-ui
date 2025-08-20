@@ -49,7 +49,6 @@
         :asset="asset"
         :saveStatus="saveStatus"
         :hasUnsavedChanges="hasUnsavedChanges"
-        :isValid="isValid"
         :selectedTemplateId="selectedTemplateId"
         @save="$emit('save')"
         @cancel="$emit('cancel')"
@@ -81,7 +80,6 @@ const props = defineProps<{
   localAssetTitle: string;
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
-  isValid: boolean;
   selectedTemplateId?: number | null;
 }>();
 
