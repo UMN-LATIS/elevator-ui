@@ -78,6 +78,10 @@ import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { inject, provide } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import {
+  useAssetValidationProvider,
+  useAssetValidation,
+} from "./useAssetEditor/useAssetValidation";
 
 const props = withDefaults(
   defineProps<{
@@ -107,6 +111,14 @@ const assetEditor = useAssetEditor();
 // Provide this inline editor to child components
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
+useAssetValidationProvider(
+  () => assetEditor.localAsset,
+  () => assetEditor.template,
+  assetEditor.getWidgetInstanceId
+);
+
+const { isBlank } = useAssetValidation();
+
 onMounted(async () => {
   invariant(parentAssetEditor);
 
@@ -120,7 +132,7 @@ onMounted(async () => {
 
     // NOTE: unchecked checkbox widget are considered
     // content, so the form will save if there are any
-    if (assetEditor.isBlank) {
+    if (isBlank.value) {
       return;
     }
     return handleSaveAsset();

@@ -4,13 +4,11 @@ import { computed, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
-  doAllRequiredHaveContent,
   makeLocalAsset,
   toSaveableFormData,
 } from "./utils";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
-import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
@@ -38,6 +36,13 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
   ...opts,
 });
 
+/**
+ * Provides a reactive asset editor state and methods to manage the asset lifecycle
+ * Note that each instance of this composable has
+ * its own state, so that it can be used in inline related
+ * assets without affecting the main asset editor.
+ * Use provide/inject to share state with child components.
+ */
 export const useAssetEditor = () => {
   const state = reactive<AssetEditorState>(initState());
 
@@ -46,6 +51,9 @@ export const useAssetEditor = () => {
   );
 
   const instanceStore = useInstanceStore();
+
+  ////////////////////////////////////////////////
+  // COMPUTED
 
   const collectionOptions = computed((): T.SelectOption<number>[] => {
     const collections = instanceStore.collections ?? [];
@@ -94,42 +102,13 @@ export const useAssetEditor = () => {
     return hasLocalAssetChanged || haveInlineRelatedAssetsChanged;
   });
 
-  const isFormValid = computed(() => {
-    if (!state.template || !state.localAsset) return false;
-    return doAllRequiredHaveContent(state.localAsset, state.template);
-  });
-
-  const widgetIdsWithContent = computed((): T.WidgetDef["widgetId"][] => {
-    return (
-      state.template?.widgetArray
-        .filter((widgetDef) => {
-          const widgetKey = widgetDef.fieldTitle;
-          const contents = (state.localAsset?.[widgetKey] ??
-            []) as T.WidgetContent[];
-          return hasWidgetContent(contents, widgetDef.type);
-        })
-        .map((widgetDef) => widgetDef.widgetId) ?? []
-    );
-  });
-
-  // NOTE: unchecked checkbox widgets are considered content,
-  // So, if the asset contains any, the widget will not be considered blank.
-  const isBlank = computed((): boolean => {
-    if (!state.localAsset || !state.template) return true;
-
-    const someWidgetHasContent = state.template.widgetArray.some(
-      (widgetDef) => {
-        invariant(state.localAsset);
-        const contents = (state.localAsset[widgetDef.fieldTitle] ??
-          []) as T.WidgetContent[];
-        return hasWidgetContent(contents, widgetDef.type);
-      }
-    );
-
-    return !someWidgetHasContent;
-  });
-
+  ////////////////////////////////////////////////
   // ACTIONS
+
+  const getWidgetInstanceId = (
+    widgetId: T.WidgetDef["widgetId"]
+  ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`;
+
   /**
    * Reset the state to initial values
    */
@@ -388,9 +367,6 @@ export const useAssetEditor = () => {
     localAssetTitle,
     savedAssetTitle,
     hasAssetChanged,
-    isFormValid,
-    widgetIdsWithContent,
-    isBlank,
 
     // actions
     reset,
@@ -404,9 +380,7 @@ export const useAssetEditor = () => {
     updateAssetField,
     onBeforeSave,
     updateModifiedInlineRelatedAsset,
-    getWidgetInstanceId: (
-      widgetId: T.WidgetDef["widgetId"]
-    ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`,
+    getWidgetInstanceId,
   });
 };
 
