@@ -121,6 +121,7 @@ import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
+import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
 
 const props = withDefaults(
   defineProps<{
@@ -135,6 +136,13 @@ const props = withDefaults(
 
 // Use the asset editor composable
 const assetEditor = useAssetEditor();
+
+useAssetValidationProvider(
+  () => assetEditor.localAsset,
+  () => assetEditor.template,
+  assetEditor.getWidgetInstanceId
+);
+
 const toastStore = useToastStore();
 
 watch(
