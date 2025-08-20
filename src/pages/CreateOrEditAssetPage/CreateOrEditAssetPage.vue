@@ -262,6 +262,9 @@ async function handleSaveAsset() {
       params: {
         assetId: savedAssetId,
       },
+      state: {
+        preserveScroll: true,
+      },
     });
   } catch (error) {
     invariant(error instanceof Error);
