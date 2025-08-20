@@ -40,8 +40,6 @@ function handleUpdate(quillHTML: string) {
     return;
   }
 
-  console.log("quillHTML", quillHTML);
-  console.log("quill.getSemanticHTML()", quill.getSemanticHTML());
   emit("update:modelValue", quillHTML);
 }
 
