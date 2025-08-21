@@ -7,7 +7,6 @@ import {
 } from "@/constants/constants";
 import { AxiosRequestConfig } from "axios";
 import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
-import { AssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 
 export * from "./TimelineJSTypes";
 
@@ -987,5 +986,18 @@ export interface ApiAssetSubmissionResponse {
 // multiple inline editors on the same page may have the same widget id
 // so we need to make a unique id for this instance or we could wind up
 // with shared state between instances
-export type WidgetInstanceId =
-  `${AssetEditor["editorId"]}-${WidgetDef["widgetId"]}`;
+type AssetEditorId = string;
+export type WidgetInstanceId = `${AssetEditorId}-${WidgetDef["widgetId"]}`;
+
+export interface WidgetValidationState {
+  isValid: boolean;
+  errors: string[];
+}
+
+export interface TocItem {
+  id: string;
+  label: string;
+  isRequired?: boolean;
+  hasContent?: boolean;
+  isValid?: boolean;
+}
