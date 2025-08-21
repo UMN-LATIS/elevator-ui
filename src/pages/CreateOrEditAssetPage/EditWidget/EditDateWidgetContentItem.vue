@@ -7,7 +7,7 @@
       @update:modelValue="handleUpdateLabel($event as string)" />
     <SelectGroup
       :id="`${modelValue.id}-select`"
-      :modelValue="modelValue.range ? 'range' : 'moment'"
+      :modelValue="isShowingRange ? 'range' : 'moment'"
       label="Date Type"
       :options="[
         { id: 'moment', label: 'Moment' },
@@ -17,11 +17,11 @@
 
     <div
       :class="{
-        'col-span-2': !modelValue.range,
+        'col-span-2': !isShowingRange,
       }">
       <InputGroup
         :id="`${modelValue.id}-start-date`"
-        :label="modelValue.range ? 'Start Date' : 'Date'"
+        :label="isShowingRange ? 'Start Date' : 'Date'"
         :modelValue="modelValue.start.text ?? ''"
         :inputClass="{
           'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
@@ -30,7 +30,7 @@
         @update:modelValue="handleUpdateStartDate($event as string)" />
       <div class="pl-4">
         <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
-          Invalid date.
+          {{ startDateErrors.join(". ") }}
         </p>
         <p
           v-else-if="modelValue.start.text"
@@ -40,15 +40,19 @@
       </div>
     </div>
 
-    <div v-if="modelValue.range">
+    <div v-if="isShowingRange">
       <InputGroup
         :id="`${modelValue.id}-end-date`"
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
+        :inputClass="{
+          'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
+            hasEndDateError,
+        }"
         @update:modelValue="handleUpdateEndDate($event as string)" />
       <div class="pl-4">
         <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
-          Invalid date.
+          {{ endDateErrors.join(". ") }}
         </p>
         <p
           v-else-if="modelValue.end.text"
@@ -67,10 +71,14 @@ import {
   parseDateString,
   unixTimestampToFormattedDate,
 } from "@/helpers/parseDateString";
-import { computed, ref } from "vue";
+import { computed, inject, ref } from "vue";
+import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.DateWidgetContent>;
+  widgetDef?: Type.WidgetDef;
 }>();
 
 const emit = defineEmits<{
@@ -80,11 +88,21 @@ const emit = defineEmits<{
   ): void;
 }>();
 
+const isShowingRange = ref(!!props.modelValue.end.text);
+
 const handleUpdateDateType = (value: string) => {
-  emit("update:modelValue", {
-    ...props.modelValue,
-    range: value === "range",
-  });
+  isShowingRange.value = value === "range";
+
+  // if we're not showing range, clear end date
+  if (!isShowingRange.value) {
+    emit("update:modelValue", {
+      ...props.modelValue,
+      end: {
+        text: "",
+        numeric: null,
+      },
+    });
+  }
 };
 
 const handleUpdateLabel = (value: string) => {
@@ -94,7 +112,48 @@ const handleUpdateLabel = (value: string) => {
   });
 };
 
-const hasStartDateError = ref(false);
+const { widgetValidations } = useAssetValidation();
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+// Get the proper widget instance ID
+const widgetInstanceId = computed(() => {
+  if (!props.widgetDef) return null;
+  invariant(
+    parentAssetEditor,
+    "Asset editor not found. Make sure this component is used within an AssetEditor context."
+  );
+  return parentAssetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+});
+
+// Find validation for current widget using proper widget instance ID
+const widgetValidation = computed(() => {
+  if (!widgetInstanceId.value) return null;
+  return widgetValidations.value.find((validation) => {
+    return validation.id === widgetInstanceId.value;
+  });
+});
+
+const startDateErrors = computed(() => {
+  return (
+    widgetValidation.value?.errors.getItemFieldErrors(
+      props.modelValue.id,
+      "start"
+    ) || []
+  );
+});
+
+const endDateErrors = computed(() => {
+  return (
+    widgetValidation.value?.errors.getItemFieldErrors(
+      props.modelValue.id,
+      "end"
+    ) || []
+  );
+});
+
+const hasStartDateError = computed(() => startDateErrors.value.length > 0);
+const hasEndDateError = computed(() => endDateErrors.value.length > 0);
+
 const parsedStartDate = computed(() => {
   if (!props.modelValue.start.numeric) {
     return null;
@@ -102,45 +161,36 @@ const parsedStartDate = computed(() => {
   return unixTimestampToFormattedDate(props.modelValue.start.numeric);
 });
 
-const handleUpdateStartDate = (value: string) => {
-  hasStartDateError.value = false;
-  const parsedDate = parseDateString(value);
-
-  if (parsedDate === null) {
-    hasStartDateError.value = true;
-  }
+const handleUpdateStartDate = (startDateText: string) => {
+  const startDateNumeric = parseDateString(startDateText);
 
   emit("update:modelValue", {
     ...props.modelValue,
     start: {
       ...props.modelValue.start,
-      text: value,
-      numeric: parsedDate,
+      text: startDateText,
+      numeric: startDateNumeric,
     },
   });
 };
 
-const hasEndDateError = ref(false);
 const parsedEndDate = computed(() => {
   if (!props.modelValue.end.numeric) {
     return null;
   }
+
   return unixTimestampToFormattedDate(props.modelValue.end.numeric);
 });
-const handleUpdateEndDate = (value: string) => {
-  hasEndDateError.value = false;
-  const parsedDate = parseDateString(value);
 
-  if (parsedDate === null) {
-    hasEndDateError.value = true;
-  }
+const handleUpdateEndDate = (endDateText: string) => {
+  const endDateNumeric: string | null = parseDateString(endDateText);
 
   emit("update:modelValue", {
     ...props.modelValue,
     end: {
       ...props.modelValue.end,
-      text: value,
-      numeric: parsedDate,
+      text: endDateText,
+      numeric: endDateNumeric,
     },
   });
 };

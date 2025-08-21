@@ -78,6 +78,10 @@ import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { inject, provide } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
+import {
+  useAssetValidationProvider,
+  useAssetValidation,
+} from "./useAssetEditor/useAssetValidation";
 
 const props = withDefaults(
   defineProps<{
@@ -107,20 +111,21 @@ const assetEditor = useAssetEditor();
 // Provide this inline editor to child components
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
+useAssetValidationProvider(
+  () => assetEditor.localAsset,
+  () => assetEditor.template,
+  assetEditor.getWidgetInstanceId
+);
+const { isBlank } = useAssetValidation();
+
 onMounted(async () => {
   invariant(parentAssetEditor);
 
   // register a hook to save the current asset whenever the parent asset is saved
   parentAssetEditor.onBeforeSave(async (): Promise<void> => {
-    // TODO: There's a bug where `assetEditor.hasAssetChanged`
-    // can sometimes be incorrect. Provided the asset isn't
-    // blank, we'll always save when the parent is saved to avoid
-    // losing changes. Once this is fixed, we can update this to
-    // only save if the asset is Not blank and has changed.
-
     // NOTE: unchecked checkbox widget are considered
     // content, so the form will save if there are any
-    if (assetEditor.isBlank) {
+    if (isBlank.value) {
       return;
     }
     return handleSaveAsset();
