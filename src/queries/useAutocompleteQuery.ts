@@ -39,7 +39,5 @@ export function useAutocompleteQuery(
       const term = toValue(searchTerm);
       return Boolean(term && term.length >= 1);
     }),
-    // staleTime: 5 * 60 * 1000, // 5 minutes
-    // gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }
