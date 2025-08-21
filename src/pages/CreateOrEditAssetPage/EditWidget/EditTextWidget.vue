@@ -74,6 +74,7 @@ import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.
 import * as ops from "./helpers/editWidgetOps";
 import { computed, inject } from "vue";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TextWidgetDef;
@@ -90,9 +91,10 @@ const emit = defineEmits<{
 }>();
 
 const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
-const templateId = computed(
-  () => parentAssetEditor?.templateId?.toString() || ""
-);
+const templateId = computed(() => {
+  invariant(parentAssetEditor);
+  return parentAssetEditor.templateId;
+});
 
 // Handle field updates from AutoCompleteInput
 function handleFieldUpdate(

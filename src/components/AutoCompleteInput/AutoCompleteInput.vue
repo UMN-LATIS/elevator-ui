@@ -66,7 +66,7 @@ const props = withDefaults(
     modelValue: string;
     placeholder?: string;
     fieldTitle: string;
-    templateId?: string | number;
+    templateId?: number | null;
     inputClass?: CSSClass;
     id: string;
   }>(),
@@ -74,7 +74,7 @@ const props = withDefaults(
     id: "",
     placeholder: "",
     inputClass: "",
-    templateId: "",
+    templateId: undefined,
   }
 );
 
