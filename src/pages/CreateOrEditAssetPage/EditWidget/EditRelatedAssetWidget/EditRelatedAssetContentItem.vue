@@ -51,15 +51,13 @@
           </div>
 
           <ComboboxEmpty>
-            <div v-if="isLoading || debouncedSearchInput !== searchInput">
+            <div v-if="isLoading">
               <div class="flex items-center justify-center gap-2">
                 <SpinnerIcon class="size-4" />
                 <span>Loading...</span>
               </div>
             </div>
-            <div v-else-if="isSuccess && autocompleteOptions.length === 0">
-              None found.
-            </div>
+            <div v-else>None found.</div>
           </ComboboxEmpty>
 
           <div class="max-h-[33dvh] overflow-y-auto">
@@ -172,11 +170,17 @@ const debouncedSearchInput = useDebounce(searchInput, 300);
 
 const BASE_URL = config.instance.base.url;
 
-const {
-  data: matches,
-  isLoading,
-  isSuccess,
-} = useSearchAssetsQuery(debouncedSearchInput);
+const { data: matches, isFetching } = useSearchAssetsQuery(
+  debouncedSearchInput
+);
+
+// Show loading when user is typing or when query is fetching
+const isLoading = computed(() => {
+  const hasActiveInput = searchInput.value.trim().length > 0;
+  const isTyping =
+    hasActiveInput && searchInput.value !== debouncedSearchInput.value;
+  return isTyping || isFetching.value;
+});
 
 const targetAssetId = computed(() => props.modelValue.targetAssetId);
 
