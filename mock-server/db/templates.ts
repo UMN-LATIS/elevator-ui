@@ -135,7 +135,7 @@ const templateSeeds: Template[] = [
         widgetId: 45306,
         type: "text",
         allowMultiple: true,
-        attemptAutocomplete: true,
+        attemptAutocomplete: false,
         fieldTitle: "title_1",
         label: "Title",
         tooltip: "",
@@ -726,7 +726,13 @@ const templateSeeds: Template[] = [
         tooltip: "Asset category",
         fieldData: {
           multiSelect: false,
-          selectGroup: ["", "Academic", "Research", "Administrative", "Cultural"],
+          selectGroup: [
+            "",
+            "Academic",
+            "Research",
+            "Administrative",
+            "Cultural",
+          ],
         },
         display: true,
         displayInPreview: false,

@@ -4,6 +4,7 @@
     @update:modelValue="(val) => emit('update:modelValue', String(val))">
     <ComboboxAnchor asChild>
       <ComboboxInput
+        :id="id"
         v-model="searchTerm"
         :placeholder="placeholder"
         :class="inputClass"
@@ -67,8 +68,10 @@ const props = withDefaults(
     fieldTitle: string;
     templateId?: string | number;
     inputClass?: CSSClass;
+    id: string;
   }>(),
   {
+    id: "",
     placeholder: "",
     inputClass: "",
     templateId: "",
