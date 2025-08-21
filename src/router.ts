@@ -16,6 +16,10 @@ import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
 import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
 
+interface RouterHistoryState {
+  preserveScroll?: boolean;
+}
+
 function parseIntFromParam(
   param: string | string[] | undefined
 ): number | null {
@@ -82,6 +86,15 @@ const router = createRouter({
 
     // if we're navigating to the same page, don't scroll
     if (to.path === from.path) return false;
+
+    // preserveScroll flag is set, don't scroll
+    const historyState = router.options.history.state as
+      | RouterHistoryState
+      | undefined;
+
+    if (historyState?.preserveScroll) {
+      return false;
+    }
 
     // otherwise scroll to the top of the page
     return {
