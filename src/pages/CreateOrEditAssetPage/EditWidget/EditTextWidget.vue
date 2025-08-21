@@ -44,7 +44,7 @@
             :placeholder="widgetDef.label"
             :fieldTitle="widgetDef.fieldTitle"
             :templateId="templateId"
-            class="w-full bg-black/5 border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            inputClass="w-full bg-black/5 border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             @update:modelValue="(value) => handleFieldUpdate(item, value)" />
         </div>
 
