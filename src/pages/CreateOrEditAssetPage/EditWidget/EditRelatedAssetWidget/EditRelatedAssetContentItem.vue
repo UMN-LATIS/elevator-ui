@@ -171,7 +171,7 @@ const debouncedSearchInput = useDebounce(searchInput, 300);
 const BASE_URL = config.instance.base.url;
 
 const { data: matches, isFetching } = useSearchAssetsQuery(
-  () => debouncedSearchInput.value
+  debouncedSearchInput
 );
 
 // Show loading when user is typing or when query is fetching
