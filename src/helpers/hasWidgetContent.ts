@@ -33,14 +33,12 @@ export function hasTextContent(contents: unknown[]): boolean {
 export function hasCheckboxContent(contents: unknown[]): boolean {
   if (!Array.isArray(contents)) return false;
 
-  return (
-    contents.length > 0 &&
-    contents.some((content) => isCheckboxWidgetContent(content))
-  );
+  return contents.some((content) => isCheckboxWidgetContent(content));
 }
 
 /**
- * Checks if a DateWidgetContent array has at least one valid date
+ * Checks if a DateWidgetContent array has at least one field with
+ * text
  */
 export function hasDateContent(contents: unknown[]): boolean {
   if (!Array.isArray(contents)) return false;
@@ -48,13 +46,16 @@ export function hasDateContent(contents: unknown[]): boolean {
   return contents.some((content) => {
     if (!isDateWidgetContent(content)) return false;
 
-    // both range and moments need numeric and text
-    return !!content.start.numeric && !!content.start.text?.trim();
+    return (
+      !!content.start.text?.trim() ||
+      !!content.end.text?.trim() ||
+      !!content.label
+    );
   });
 }
 
 /**
- * Checks if a LocationWidgetContent array has at least one valid location
+ * Checks if a LocationWidgetContent array has at least one location
  */
 export function hasLocationContent(contents: unknown[]): boolean {
   if (!Array.isArray(contents)) return false;
@@ -66,7 +67,7 @@ export function hasLocationContent(contents: unknown[]): boolean {
       Array.isArray(content.loc?.coordinates) &&
       content.loc.coordinates.length === 2 &&
       // coordinates need to be numbers
-      content.loc.coordinates.every(
+      content.loc.coordinates.some(
         (coord) => typeof coord === "number" && !isNaN(coord)
       )
   );

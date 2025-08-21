@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-6 sticky top-20 p-4">
+  <div v-if="parentAssetEditor" class="flex flex-col gap-6 sticky top-20 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
@@ -17,7 +17,7 @@
         variant="primary"
         type="submit"
         class="disabled:!border-black/10 border-groove disabled:cursor-not-allowed"
-        :disabled="!isValid || saveStatus === 'pending'"
+        :disabled="!isAssetValid || saveStatus === 'pending'"
         @click="$emit('save')">
         Save
         <SpinnerIcon
@@ -29,11 +29,19 @@
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
         <div
-          v-if="!isValid && missingRequiredFields.length > 0"
+          v-if="missingRequiredFields.length > 0"
           class="font-medium mb-1 text-red-600">
           Missing required:
           <span class="italic">
             {{ missingRequiredFields.join(", ") }}
+          </span>
+        </div>
+        <div
+          v-if="invalidFields.length > 0"
+          class="font-medium mb-1 text-red-600">
+          Invalid:
+          <span class="italic">
+            {{ invalidFields.join(", ") }}
           </span>
         </div>
         <p v-else-if="!hasUnsavedChanges" class="text-neutral-400">
@@ -76,54 +84,41 @@
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="displayTemplateId"
-        :options="assetEditor.templateOptions"
+        :options="parentAssetEditor.templateOptions"
         label="Template"
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
-        :options="assetEditor.collectionOptions"
+        :options="parentAssetEditor.collectionOptions"
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
 
-      <TableOfContents :items="tocItems" />
+      <TableOfContents />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, inject, reactive, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
-import {
-  Asset,
-  UnsavedAsset,
-  Template,
-  PHPDateTime,
-  WidgetDef,
-  WidgetContent,
-} from "@/types";
+import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import TableOfContents, {
-  TocItem,
-} from "../TableOfContents/TableOfContents.vue";
-import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import {
-  getMissingRequiredFields,
-  phpDateToString,
-} from "../useAssetEditor/utils";
-import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
+import TableOfContents from "../TableOfContents/TableOfContents.vue";
+import { phpDateToString } from "../useAssetEditor/utils";
 import invariant from "tiny-invariant";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 
 const props = defineProps<{
   template: Template;
   asset: Asset | UnsavedAsset;
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
-  isValid: boolean;
   selectedTemplateId?: number | null;
 }>();
 
@@ -152,14 +147,11 @@ watch(
 );
 
 const localAvailableAfterDate = ref("");
-const assetEditor = useAssetEditor();
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
 
-const missingRequiredFields = computed(() => {
-  return getMissingRequiredFields({
-    asset: props.asset,
-    template: props.template,
-  });
-});
+// Use validation system for form validation
+const { isAssetValid, missingRequiredFields, invalidFields } =
+  useAssetValidation();
 
 function handleUpdateAvailableAfter(value: string | number) {
   if (!value) {
@@ -204,24 +196,6 @@ watch(
     deep: true,
   }
 );
-
-const tocItems = computed((): TocItem[] => {
-  return props.template.widgetArray
-    .toSorted((a, b) => a.templateOrder - b.templateOrder)
-    .map((widgetDef: WidgetDef) => {
-      const fieldTitle = widgetDef.fieldTitle;
-      const widgetContents = props.asset[fieldTitle] as WidgetContent[];
-
-      const tocItem: TocItem = {
-        id: `widget-${widgetDef.widgetId}`,
-        label: widgetDef.label,
-        hasContent: hasWidgetContent(widgetContents, widgetDef.type),
-        isRequired: widgetDef.required,
-      };
-
-      return tocItem;
-    });
-});
 
 function handleUpdateTemplateId(templateId: number | string | null) {
   invariant(typeof templateId === "number", "Template ID must be a number");
