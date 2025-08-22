@@ -22,7 +22,14 @@
           @keydown.enter="handleKeydownEnter"
           @keydown.up="handleKeydownUp"
           @keydown.down="handleKeydownDown"
-          @keydown.esc="handleKeydownEsc" />
+          @keydown.esc="handleKeydownEsc"
+          @keydown="
+            $emit('keydown', $event, {
+              searchTerm: searchTerm,
+              highlightedSuggestion: highlightedSuggestion,
+              modelValue: modelValue,
+            })
+          " />
       </div>
     </PopoverAnchor>
 
@@ -109,6 +116,14 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
+  keydown: [
+    event: KeyboardEvent,
+    {
+      searchTerm: string;
+      highlightedSuggestion: string | null;
+      modelValue: string;
+    }
+  ];
 }>();
 
 // Component refs
