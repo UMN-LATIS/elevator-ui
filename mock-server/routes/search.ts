@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { parseFormData, delay } from "../utils/index";
-import type {
-  SearchRequestOptions,
-  SearchResultsResponse,
+import {
+  WIDGET_TYPES,
+  type SearchRequestOptions,
+  type SearchResultsResponse,
 } from "../../src/types";
 import type { MockServerContext } from "../types.js";
 
@@ -153,7 +154,7 @@ app.post("/autocomplete", async (c) => {
   const body = await c.req.formData();
   const parsed = parseFormData(body);
 
-  const templateId = parsed.templateId as string;
+  const templateId = parsed.templateId as number;
   const fieldTitle = parsed.fieldTitle as string;
   const searchTerm = parsed.searchTerm as string;
 
@@ -162,7 +163,16 @@ app.post("/autocomplete", async (c) => {
   );
 
   // if field seems like a tag type, generate tag suggestions
-  const isTagField = fieldTitle.startsWith("tag") || fieldTitle.startsWith("keywords");
+  const template = _db.templates.get(templateId);
+  if (!template) {
+    return c.json({ error: "Template not found" }, 404);
+  }
+
+  const widget = template.widgetArray.find((widgetDef) => {
+    return widgetDef.fieldTitle === fieldTitle;
+  });
+
+  const isTagField = widget?.type === WIDGET_TYPES.TAG_LIST;
 
   const suggestions = isTagField
     ? generateTagAutocompletions(searchTerm)
