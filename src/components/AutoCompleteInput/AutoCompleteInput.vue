@@ -72,7 +72,12 @@
                 ? 'bg-blue-100 text-blue-700'
                 : 'hover:bg-blue-100/50',
             ]"
-            @click="commitSelection(suggestion)">
+            @mousedown.prevent="
+              // use mousedown to prevent race condition with input blur
+              // mousedown will commit the suggestion, and blur
+              // won't try to commit searchTerm
+              commitSelection(suggestion)
+            ">
             <span>{{ suggestion }}</span>
           </div>
         </div>
