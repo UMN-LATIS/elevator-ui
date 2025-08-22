@@ -37,7 +37,7 @@
           :placeholder="`${widgetDef.label}...`"
           :fieldTitle="widgetDef.fieldTitle"
           :templateId="templateId"
-          inputClass="!py-0 flex-1"
+          inputClass="!py-0 flex-1 min-w-12"
           :blurOnSelect="false"
           @keydown="(event) => handleKeydown(item.id, event)" />
         <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
