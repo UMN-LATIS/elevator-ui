@@ -108,7 +108,89 @@ test.describe("Autocomplete Functionality", () => {
     await page.reload();
 
     // "New Option" should persist (testing that non-autocomplete values are allowed)
-    const titleFieldFinal = await page.getByLabel(/title/i).first();
+    const titleFieldFinal = page.getByLabel(/title/i).first();
     await expect(titleFieldFinal).toHaveValue("New Option");
+  });
+
+  test("autocomplete works for tag fields in All Fields with Autocomplete template", async ({
+    page,
+  }) => {
+    // Navigate to Add Asset page
+    const menuToggle = page.getByRole("button", { name: "Toggle main menu" });
+    await menuToggle.click();
+
+    const manageAssetsButton = page.getByRole("button", {
+      name: "Manage Assets",
+    });
+    await manageAssetsButton.click();
+
+    const addAssetLink = page.getByText("Add Asset");
+    await addAssetLink.click();
+
+    await expect(page).toHaveURL(/\/assetManager\/addAsset/);
+
+    // Select "All Fields with Autocomplete" template
+    const templateSelect = page.getByLabel("Template");
+    await templateSelect.selectOption({
+      label: "All Fields with Autocomplete",
+    });
+
+    // Select Default Collection
+    const collectionSelect = page.getByLabel("Collection");
+    await collectionSelect.selectOption({ label: "Default Collection" });
+
+    // Continue to asset form
+    const continueButton = page.getByRole("button", { name: "Continue" });
+    await expect(continueButton).toBeEnabled({ timeout: 5000 });
+    await continueButton.click();
+
+    // Should see the Create Asset form
+    await expect(
+      page.getByRole("heading", { name: "Create Asset" })
+    ).toBeVisible();
+
+    // Find the Keywords (tag) field input by its placeholder
+    const keywordsInput = page.getByPlaceholder("Keywords...");
+
+    // Initially there should be no autocomplete options visible
+    await expect(page.getByRole("option").first()).not.toBeVisible();
+
+    // Test that autocomplete suggestions appear for tag fields
+    await keywordsInput.fill("res");
+
+    // Wait for autocomplete suggestions to appear
+    await expect(
+      page.getByRole("option", { name: "research", exact: true })
+    ).toBeVisible({ timeout: 3000 });
+
+    // Clear and type full word to add tag
+    await keywordsInput.clear();
+    await keywordsInput.fill("research");
+    await keywordsInput.press(","); // Use comma to trigger tag addition
+
+    // Should see "research" tag added
+    await expect(
+      page.getByTestId("tag-item").getByText("research")
+    ).toBeVisible();
+
+    // Add a custom tag by typing and using enter
+    await keywordsInput.fill("custom-tag");
+    await keywordsInput.press("Enter");
+
+    // Should see both tags
+    await expect(
+      page.getByTestId("tag-item").getByText("research")
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("tag-item").getByText("custom-tag")
+    ).toBeVisible();
+
+    // Fill in title field to make asset valid
+    const titleField = page.getByLabel(/title/i).first();
+    await titleField.fill("Tag Autocomplete Test Asset");
+
+    // Verify that both the autocomplete functionality and tag addition work
+    // Test passes if tags are visible after being added
+    await expect(page.getByTestId("tag-item")).toHaveCount(2);
   });
 });
