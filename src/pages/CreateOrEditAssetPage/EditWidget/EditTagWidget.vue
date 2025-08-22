@@ -33,14 +33,13 @@
         <AutoCompleteInput
           v-if="widgetDef.attemptAutocomplete"
           :id="`edit-tag-widget-autocomplete-${item.id}`"
-          :modelValue="tagInput"
+          v-model="tagInput"
           :placeholder="`${widgetDef.label}...`"
           :fieldTitle="widgetDef.fieldTitle"
           :templateId="templateId"
-          :inputClass="'!py-0'"
+          inputClass="!py-0 flex-1"
           :blurOnSelect="false"
-          @update:modelValue="handleTagUpdate(item.id, $event)"
-          @keydown="(event, ctx) => handleKeydown(item.id, event, ctx)" />
+          @keydown="(event) => handleKeydown(item.id, event)" />
         <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
       </TagsInput>
     </template>
@@ -147,22 +146,36 @@ function handleTagUpdate(itemId: string, value: string) {
   });
 }
 
-interface KeydownContext {
-  searchTerm: string;
-  highlightedSuggestion: string | null;
-  modelValue: string;
+function removeLastTag(itemId: string) {
+  const item = props.widgetContents.find((content) => content.id === itemId);
+  const tags = item?.tags || [];
+
+  const updatedTags = tags.slice(0, -1); // Remove the last tag
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      itemId,
+      updatedTags,
+      "tags"
+    )
+  );
 }
 
-function handleKeydown(
-  itemId: string,
-  event: KeyboardEvent,
-  ctx: KeydownContext
-) {
-  if (event.key === ",") {
-    // add tag on comma
+async function handleKeydown(itemId: string, event: KeyboardEvent) {
+  const ADD_TAG_KEYS = [",", "Tab", "Enter"];
+
+  if (ADD_TAG_KEYS.includes(event.key)) {
     event.preventDefault();
-    handleTagUpdate(itemId, ctx.searchTerm);
+    await nextTick(); // make sure that tagInput is updated
+    handleTagUpdate(itemId, tagInput.value);
     return;
+  }
+
+  // delete the previous tag on backspace if the input is empty
+  if (event.key === "Backspace" && tagInput.value === "") {
+    event.preventDefault();
+    removeLastTag(itemId);
   }
 }
 </script>

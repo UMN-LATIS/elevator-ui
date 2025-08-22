@@ -8,7 +8,7 @@
         <Input
           :id="id"
           ref="inputRef"
-          :modelValue="searchTerm"
+          :modelValue="modelValue"
           :placeholder="placeholder"
           :class="inputClass"
           autocomplete="off"
@@ -21,14 +21,12 @@
           "
           aria-autocomplete="list"
           @update:modelValue="handleUpdateSearchTerm"
-          @blur="handleInputBlur"
           @keydown.enter="handleKeydownEnter"
           @keydown.up="handleKeydownUp"
           @keydown.down="handleKeydownDown"
           @keydown.esc="handleKeydownEsc"
           @keydown="
             $emit('keydown', $event, {
-              searchTerm: searchTerm,
               highlightedSuggestion: highlightedSuggestion,
               modelValue: modelValue,
             })
@@ -124,7 +122,6 @@ const emit = defineEmits<{
   keydown: [
     event: KeyboardEvent,
     {
-      searchTerm: string;
       highlightedSuggestion: string | null;
       modelValue: string;
     }
@@ -134,8 +131,6 @@ const emit = defineEmits<{
 // Component refs
 const inputRef = useTemplateRef("inputRef");
 
-// Autocomplete state
-const searchTerm = ref(props.modelValue);
 const isOpen = ref(false);
 const highlightedIndex = ref(-1);
 
@@ -145,7 +140,10 @@ const highlightedSuggestion = computed((): string | null => {
 });
 
 // Debounced search for API calls
-const debouncedSearchTerm = useDebounce(searchTerm, 300);
+const debouncedSearchTerm = useDebounce(
+  computed(() => props.modelValue),
+  300
+);
 
 // Query for autocomplete suggestions
 const { data: suggestions, isFetching } = useAutocompleteQuery(
@@ -155,8 +153,8 @@ const { data: suggestions, isFetching } = useAutocompleteQuery(
 );
 
 const isTyping = computed(() => {
-  const hasActiveInput = searchTerm.value.trim().length >= 1;
-  return hasActiveInput && searchTerm.value !== debouncedSearchTerm.value;
+  const hasActiveInput = props.modelValue.trim().length >= 1;
+  return hasActiveInput && props.modelValue !== debouncedSearchTerm.value;
 });
 
 const isLoadingSuggestions = computed(() => {
@@ -165,14 +163,15 @@ const isLoadingSuggestions = computed(() => {
 
 const showEmptyState = computed(() => {
   return (
-    searchTerm.value.trim().length >= 1 &&
+    props.modelValue.trim().length >= 1 &&
     !isLoadingSuggestions.value &&
     suggestions.value.length === 0
   );
 });
 
 function handleUpdateSearchTerm(value: string) {
-  searchTerm.value = value;
+  emit("update:modelValue", value);
+
   highlightedIndex.value = -1; // Reset highlighting on new input
 
   // If the input is empty, close the dropdown
@@ -185,15 +184,8 @@ function handleUpdateSearchTerm(value: string) {
   isOpen.value = true;
 }
 
-function handleInputBlur() {
-  // Accept whatever was typed as the final value
-  if (searchTerm.value !== props.modelValue) {
-    commitSelection(searchTerm.value);
-  }
-}
-
 function handleKeydownDown(event: KeyboardEvent) {
-  const trimmedTerm = searchTerm.value.trim();
+  const trimmedTerm = props.modelValue.trim();
   // if no searchTerm or suggestions, we're done
   if (!trimmedTerm.length || !suggestions.value.length) {
     return;
@@ -212,7 +204,7 @@ function handleKeydownDown(event: KeyboardEvent) {
 }
 
 function handleKeydownUp(event: KeyboardEvent) {
-  const trimmedTerm = searchTerm.value.trim();
+  const trimmedTerm = props.modelValue.trim();
   // if no searchTerm or suggestions, we're done
   if (!trimmedTerm.length || !suggestions.value.length) {
     return;
@@ -225,7 +217,7 @@ function handleKeydownUp(event: KeyboardEvent) {
 }
 
 function handleKeydownEnter(event: KeyboardEvent) {
-  const trimmedTerm = searchTerm.value.trim();
+  const trimmedTerm = props.modelValue.trim();
   // if no searchTerm or suggestions, we're done
   if (!trimmedTerm.length) {
     return;
@@ -250,22 +242,10 @@ async function commitSelection(selection: string) {
   highlightedIndex.value = -1;
 
   // set search term and update the modelValue
-  searchTerm.value = selection;
   emit("update:modelValue", selection);
 
   if (props.blurOnSelect) {
     inputRef.value?.$el.blur(); // Remove focus from input
   }
 }
-
-// Sync external modelValue changes to internal searchTerm
-// e.g. if parent resets the value to empty string
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (newValue !== searchTerm.value) {
-      searchTerm.value = newValue;
-    }
-  }
-);
 </script>
