@@ -24,7 +24,7 @@
           v-for="tag in item.tags"
           :key="tag"
           :value="tag"
-          class="bg-neutral-900 text-neutral-100"
+          class="bg-neutral-900 text-neutral-100 h-auto"
           data-testid="tag-item">
           <TagsInputItemText />
           <TagsInputItemDelete />
