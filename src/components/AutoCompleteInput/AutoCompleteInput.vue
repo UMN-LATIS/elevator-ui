@@ -38,7 +38,7 @@
 
     <PopoverPortal>
       <PopoverContent
-        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md"
+        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md z-10"
         role="listbox"
         :aria-labelledby="id"
         align="start"
