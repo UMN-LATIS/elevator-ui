@@ -38,7 +38,8 @@
           :templateId="templateId"
           :inputClass="'!py-0'"
           :blurOnSelect="false"
-          @update:modelValue="handleTagUpdate(item.id, $event)" />
+          @update:modelValue="handleTagUpdate(item.id, $event)"
+          @keydown="(event, ctx) => handleKeydown(item.id, event, ctx)" />
         <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
       </TagsInput>
     </template>
@@ -143,6 +144,25 @@ function handleTagUpdate(itemId: string, value: string) {
   nextTick(() => {
     tagInput.value = "";
   });
+}
+
+interface KeydownContext {
+  searchTerm: string;
+  highlightedSuggestion: string | null;
+  modelValue: string;
+}
+
+function handleKeydown(
+  itemId: string,
+  event: KeyboardEvent,
+  ctx: KeydownContext
+) {
+  if (event.key === ",") {
+    // add tag on comma
+    event.preventDefault();
+    handleTagUpdate(itemId, ctx.searchTerm);
+    return;
+  }
 }
 </script>
 
