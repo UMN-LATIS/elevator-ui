@@ -189,6 +189,16 @@ test.describe("Autocomplete Functionality", () => {
     const titleField = page.getByLabel(/title/i).first();
     await titleField.fill("Tag Autocomplete Test Asset");
 
+    // Save the asset
+    const saveButton = page.getByRole("button", { name: "Save" });
+    await saveButton.click();
+
+    // Should redirect to edit mode
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+
+    // Reload the page to test persistence
+    await page.reload();
+
     // Verify that both the autocomplete functionality and tag addition work
     // Test passes if tags are visible after being added
     await expect(page.getByTestId("tag-item")).toHaveCount(2);
