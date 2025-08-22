@@ -162,7 +162,7 @@ app.post("/autocomplete", async (c) => {
   );
 
   // if field seems like a tag type, generate tag suggestions
-  const isTagField = fieldTitle.startsWith("tag");
+  const isTagField = fieldTitle.startsWith("tag") || fieldTitle.startsWith("keywords");
 
   const suggestions = isTagField
     ? generateTagAutocompletions(searchTerm)
