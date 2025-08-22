@@ -48,7 +48,7 @@
         <!-- Empty state -->
         <div
           v-else-if="showEmptyState"
-          class="p-4 text-sm text-muted-foreground">
+          class="p-4 text-sm text-muted-foreground text-center">
           No suggestions found.
         </div>
 
