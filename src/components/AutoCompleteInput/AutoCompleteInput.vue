@@ -131,7 +131,7 @@ const isOpen = ref(false);
 const highlightedIndex = ref(-1);
 
 const highlightedSuggestion = computed((): string | null => {
-  if (!suggestions.value.length || highlightedIndex.value <= 0) return null;
+  if (!suggestions.value.length || highlightedIndex.value < 0) return null;
   return suggestions.value[highlightedIndex.value] ?? null;
 });
 
