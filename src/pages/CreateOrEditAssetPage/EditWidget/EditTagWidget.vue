@@ -34,7 +34,7 @@
           :id="`edit-tag-widget-autocomplete-${item.id}`"
           :modelValue="tagInput"
           :placeholder="`${widgetDef.label}...`"
-          :fieldTitle="widgetDef.label"
+          :fieldTitle="widgetDef.fieldTitle"
           :templateId="templateId"
           :inputClass="'!py-0'"
           :blurOnSelect="false"
