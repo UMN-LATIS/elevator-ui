@@ -40,7 +40,7 @@
         <!-- Loading state -->
         <div
           v-if="isLoadingSuggestions"
-          class="flex items-center justify-center gap-2 p-2">
+          class="flex items-center justify-center gap-2 p-4">
           <SpinnerIcon class="size-4" />
           <span class="text-sm">Loading suggestions...</span>
         </div>
@@ -48,7 +48,7 @@
         <!-- Empty state -->
         <div
           v-else-if="showEmptyState"
-          class="p-2 text-sm text-muted-foreground">
+          class="p-4 text-sm text-muted-foreground">
           No suggestions found.
         </div>
 
@@ -81,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, watch } from "vue";
+import { computed, ref, useTemplateRef } from "vue";
 import { useDebounce } from "@vueuse/core";
 import {
   PopoverRoot,
