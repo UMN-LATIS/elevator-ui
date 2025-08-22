@@ -4,34 +4,30 @@
     class="autocomplete-input"
     @update:open="isOpen = $event">
     <PopoverAnchor asChild>
-      <div>
-        <Input
-          :id="id"
-          ref="inputRef"
-          :modelValue="modelValue"
-          :placeholder="placeholder"
-          :class="inputClass"
-          autocomplete="off"
-          role="combobox"
-          :aria-expanded="isOpen"
-          :aria-activedescendant="
-            highlightedIndex >= 0
-              ? `${id}-option-${highlightedIndex}`
-              : undefined
-          "
-          aria-autocomplete="list"
-          @update:modelValue="handleUpdateSearchTerm"
-          @keydown.enter="handleKeydownEnter"
-          @keydown.up="handleKeydownUp"
-          @keydown.down="handleKeydownDown"
-          @keydown.esc="handleKeydownEsc"
-          @keydown="
-            $emit('keydown', $event, {
-              highlightedSuggestion: highlightedSuggestion,
-              modelValue: modelValue,
-            })
-          " />
-      </div>
+      <Input
+        :id="id"
+        ref="inputRef"
+        :modelValue="modelValue"
+        :placeholder="placeholder"
+        :class="inputClass"
+        autocomplete="off"
+        role="combobox"
+        :aria-expanded="isOpen"
+        :aria-activedescendant="
+          highlightedIndex >= 0 ? `${id}-option-${highlightedIndex}` : undefined
+        "
+        aria-autocomplete="list"
+        @update:modelValue="handleUpdateSearchTerm"
+        @keydown.enter="handleKeydownEnter"
+        @keydown.up="handleKeydownUp"
+        @keydown.down="handleKeydownDown"
+        @keydown.esc="handleKeydownEsc"
+        @keydown="
+          $emit('keydown', $event, {
+            highlightedSuggestion: highlightedSuggestion,
+            modelValue: modelValue,
+          })
+        " />
     </PopoverAnchor>
 
     <PopoverPortal>
