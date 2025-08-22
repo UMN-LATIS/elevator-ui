@@ -32,7 +32,9 @@ test.describe("Autocomplete Functionality", () => {
 
     // Select "All Fields with Autocomplete" template
     const templateSelect = page.getByLabel("Template");
-    await templateSelect.selectOption({ label: "All Fields with Autocomplete" });
+    await templateSelect.selectOption({
+      label: "All Fields with Autocomplete",
+    });
 
     // Select Default Collection
     const collectionSelect = page.getByLabel("Collection");
@@ -44,29 +46,38 @@ test.describe("Autocomplete Functionality", () => {
     await continueButton.click();
 
     // Should see the Create Asset form
-    await expect(page.getByRole("heading", { name: "Create Asset" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Create Asset" })
+    ).toBeVisible();
 
     const titleField = page.getByLabel(/title/i).first();
 
     // Initially there should be no autocomplete open
-    await expect(page.getByRole("listbox")).not.toBeVisible();
+    await expect(page.getByRole("option").first()).not.toBeVisible();
 
     // Select the title input - still no autocomplete should be open
     await titleField.click();
-    await expect(page.getByRole("listbox")).not.toBeVisible();
+    await expect(page.getByRole("option").first()).not.toBeVisible();
 
     // Type "tes" and should see autocomplete options
     await titleField.fill("tes");
-    
-    // Wait for autocomplete suggestions to appear
-    await expect(page.getByRole("listbox")).toBeVisible({ timeout: 3000 });
-    await expect(page.getByRole("option", { name: "test 3", exact: true })).toBeVisible();
 
-    // Select "test 3" option (exact match)
-    await page.getByRole("option", { name: "test 3", exact: true }).click();
+    // Wait for autocomplete suggestions to appear (they render in a portal as dialog)
+    await expect(
+      page.getByRole("option", { name: "test 3", exact: true })
+    ).toBeVisible({ timeout: 3000 });
+    await expect(
+      page.getByRole("option", { name: "test 1", exact: true })
+    ).toBeVisible();
 
-    // Should see "Test 3" in the input (case may vary based on implementation)
-    await expect(titleField).toHaveValue(/test 3/i);
+    // Use keyboard navigation to select "test 3" option
+    await titleField.press("ArrowDown"); // Move to first option
+    await titleField.press("ArrowDown"); // Move to second option
+    await titleField.press("ArrowDown"); // Move to third option (test 3)
+    await titleField.press("Enter"); // Select the highlighted option
+
+    // Should see "test 3" in the input
+    await expect(titleField).toHaveValue("test 3");
 
     // Save the asset
     const saveButton = page.getByRole("button", { name: "Save" });
@@ -97,7 +108,7 @@ test.describe("Autocomplete Functionality", () => {
     await page.reload();
 
     // "New Option" should persist (testing that non-autocomplete values are allowed)
-    const titleFieldFinal = page.getByLabel(/title/i).first();
+    const titleFieldFinal = await page.getByLabel(/title/i).first();
     await expect(titleFieldFinal).toHaveValue("New Option");
   });
 });

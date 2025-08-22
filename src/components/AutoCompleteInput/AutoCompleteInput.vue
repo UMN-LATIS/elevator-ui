@@ -1,5 +1,8 @@
 <template>
-  <PopoverRoot :open="isOpen" @update:open="isOpen = $event">
+  <PopoverRoot
+    :open="isOpen"
+    class="autocomplete-input"
+    @update:open="isOpen = $event">
     <PopoverAnchor asChild>
       <div>
         <Input
@@ -35,7 +38,6 @@
 
     <PopoverPortal>
       <PopoverContent
-        v-if="suggestions.length > 0 || isLoadingSuggestions || showEmptyState"
         class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md"
         role="listbox"
         :aria-labelledby="id"
@@ -65,14 +67,13 @@
             role="option"
             :aria-selected="suggestion === modelValue"
             :class="[
-              'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
+              'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
               index === highlightedIndex
-                ? 'bg-accent text-accent-foreground'
-                : 'hover:bg-accent/50',
+                ? 'bg-blue-100 text-blue-700'
+                : 'hover:bg-blue-100/50',
             ]"
             @click="commitSelection(suggestion)">
             <span>{{ suggestion }}</span>
-            <Check v-if="suggestion === modelValue" class="ml-auto h-4 w-4" />
           </div>
         </div>
       </PopoverContent>
@@ -90,7 +91,6 @@ import {
   PopoverAnchor,
 } from "reka-ui";
 import { Input } from "@/components/ui/input";
-import { Check } from "lucide-vue-next";
 import { SpinnerIcon } from "@/icons";
 import { useAutocompleteQuery } from "@/queries/useAutocompleteQuery";
 import { CSSClass } from "@/types";
