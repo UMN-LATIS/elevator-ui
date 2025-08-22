@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 import { useDebounce } from "@vueuse/core";
 import {
   PopoverRoot,
@@ -96,12 +96,14 @@ const props = withDefaults(
     templateId?: number | null;
     inputClass?: CSSClass;
     id: string;
+    blurOnSelect?: boolean;
   }>(),
   {
     id: "",
     placeholder: "",
     inputClass: "",
     templateId: undefined,
+    blurOnSelect: true,
   }
 );
 
@@ -231,6 +233,19 @@ async function commitSelection(selection: string) {
   searchTerm.value = selection;
   emit("update:modelValue", selection);
 
-  inputRef.value?.$el.blur(); // Remove focus from input
+  if (props.blurOnSelect) {
+    inputRef.value?.$el.blur(); // Remove focus from input
+  }
 }
+
+// Sync external modelValue changes to internal searchTerm
+// e.g. if parent resets the value to empty string
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue !== searchTerm.value) {
+      searchTerm.value = newValue;
+    }
+  }
+);
 </script>

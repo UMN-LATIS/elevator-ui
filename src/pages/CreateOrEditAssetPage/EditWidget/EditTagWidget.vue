@@ -29,7 +29,17 @@
           <TagsInputItemDelete />
         </TagsInputItem>
 
-        <TagsInputInput :placeholder="`${widgetDef.label}...`" />
+        <AutoCompleteInput
+          v-if="widgetDef.attemptAutocomplete"
+          :id="`edit-tag-widget-autocomplete-${item.id}`"
+          :modelValue="tagInput"
+          :placeholder="`${widgetDef.label}...`"
+          :fieldTitle="widgetDef.label"
+          :templateId="templateId"
+          :inputClass="'!py-0'"
+          :blurOnSelect="false"
+          @update:modelValue="handleTagUpdate(item.id, $event)" />
+        <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
       </TagsInput>
     </template>
   </EditWidgetLayout>
@@ -46,12 +56,25 @@ import {
   TagsInputItemDelete,
   TagsInputInput,
 } from "@/components/ui/tags-input";
+import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
+import { inject, computed, ref, nextTick } from "vue";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TagListWidgetDef;
   widgetContents: Type.WithId<Type.TagListWidgetContent>[];
   isOpen: boolean;
 }>();
+
+const tagInput = ref("");
+
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+const templateId = computed(() => {
+  invariant(parentAssetEditor, "Parent asset editor is required");
+  return parentAssetEditor.templateId;
+});
 
 const emit = defineEmits<{
   (
@@ -88,6 +111,39 @@ const handleUpdateTags = (
     ops.makeUpdateContentPayload(props.widgetContents, itemId, tags, "tags")
   );
 };
+
+function handleTagUpdate(itemId: string, value: string) {
+  tagInput.value = value;
+
+  const trimmedValue = value.trim();
+
+  // If the input is empty, no change is needed
+  if (!trimmedValue.length) return;
+
+  const existingTags =
+    props.widgetContents.find((content) => content.id === itemId)?.tags || [];
+
+  // If the tag already exists, no change is needed
+  if (existingTags.includes(trimmedValue)) {
+    tagInput.value = ""; // Clear input if tag already exists
+    return;
+  }
+
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      itemId,
+      [...existingTags, trimmedValue],
+      "tags"
+    )
+  );
+
+  // Clear the tag input after updating
+  nextTick(() => {
+    tagInput.value = "";
+  });
+}
 </script>
 
 <style scoped></style>
