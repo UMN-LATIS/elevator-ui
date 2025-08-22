@@ -35,7 +35,22 @@
         <label :for="`${item.id}-input`" class="sr-only">
           {{ widgetDef.label }}
         </label>
+
+        <!-- Autocomplete Text Input -->
+        <div v-if="widgetDef.attemptAutocomplete">
+          <AutoCompleteInput
+            :id="`${item.id}-input`"
+            :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
+            :placeholder="widgetDef.label"
+            :fieldTitle="widgetDef.fieldTitle"
+            :templateId="templateId"
+            inputClass="w-full bg-black/5 border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @update:modelValue="(value) => handleFieldUpdate(item, value)" />
+        </div>
+
+        <!-- Regular Text Input -->
         <Input
+          v-else
           :id="`${item.id}-input`"
           :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
           :placeholder="widgetDef.label"
@@ -55,21 +70,40 @@
 import * as Type from "@/types";
 import { Input } from "@/components/ui/input";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
+import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
 import * as ops from "./helpers/editWidgetOps";
+import { computed, inject } from "vue";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 
-defineProps<{
+const props = defineProps<{
   widgetDef: Type.TextWidgetDef;
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
   isOpen: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.TextWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const templateId = computed(
+  () => parentAssetEditor?.templateId?.toString() || ""
+);
+
+// Handle field updates from AutoCompleteInput
+function handleFieldUpdate(
+  item: Type.WithId<Type.TextWidgetContent>,
+  value: string
+) {
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(props.widgetContents, item.id, value)
+  );
+}
 </script>
 <style scoped></style>
 <style></style>
