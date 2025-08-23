@@ -121,6 +121,7 @@ import { isEmpty } from "ramda";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
+import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
 
 const props = withDefaults(
   defineProps<{
@@ -363,6 +364,8 @@ async function updateTemplateId() {
 // (e.g. with inline asset editing, we want to save the
 // inline asset before the parent saves)
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
+
+usePageAssetIdProvider(() => props.assetId ?? null);
 
 onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {
