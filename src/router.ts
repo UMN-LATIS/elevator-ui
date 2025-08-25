@@ -15,6 +15,17 @@ import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
 import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
+import { User } from "./types";
+import { ApiError } from "./api/ApiError";
+import { getCurrentUser } from "./composables/useCurrentUser";
+import { getQueryClientInstance } from "./queries/queryClientInstance";
+
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    canAccess?: (user: User, route: RouteLocationNormalized) => boolean;
+  }
+}
 
 interface RouterHistoryState {
   preserveScroll?: boolean;
@@ -128,6 +139,12 @@ const router = createRouter({
       path: "/assetManager/userAssets",
       component: () =>
         import("@/pages/AllUserAssetsPage/AllUserAssetsPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => {
+          return user.canManageAssets;
+        },
+      },
     },
     {
       name: "addInlineRelatedAsset",
@@ -139,6 +156,12 @@ const router = createRouter({
         // could be null
         collectionId: parseIntFromParam(route.params.collectionId),
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => {
+          return user.canManageAssets;
+        },
+      },
     },
     {
       name: "editInlineRelatedAsset",
@@ -148,6 +171,12 @@ const router = createRouter({
       props: (route) => ({
         assetId: route.params.assetId,
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => {
+          return user.canManageAssets;
+        },
+      },
     },
     {
       name: "editAsset",
@@ -159,6 +188,12 @@ const router = createRouter({
         assetId: route.params.assetId,
         title: route.params.assetId ? "Edit Asset" : "Add Asset",
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => {
+          return user.canManageAssets;
+        },
+      },
     },
     {
       name: "listCollections",
@@ -281,6 +316,36 @@ router.beforeResolve((to, from, next) => {
     next(path);
   }
   next();
+});
+
+// Auth guard - can't use composables in router guards, so use getCurrentUser()
+router.beforeEach(async (to, _from, next) => {
+  // if route doesn't require auth, continue
+  if (!to.meta.requiresAuth) {
+    return next();
+  }
+
+  try {
+    const queryClient = getQueryClientInstance();
+    const currentUser = await getCurrentUser(queryClient);
+
+    if (!currentUser?.isLoggedIn) {
+      throw new ApiError(`You must be logged in to access ${to.fullPath}`, 401);
+    }
+
+    // Check permissions if canAccess is defined
+    if (to.meta.canAccess && !to.meta.canAccess(currentUser, to)) {
+      throw new ApiError("You don't have permission to access this page", 403);
+    }
+
+    return next();
+  } catch (error) {
+    // Let existing error handling deal with it
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError("Authentication check failed", 401);
+  }
 });
 
 export default router;

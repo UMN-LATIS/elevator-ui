@@ -667,6 +667,8 @@ export interface User {
   isSuperAdmin: boolean;
   canManageAssets: boolean;
   canManageDrawers: boolean;
+  isLoggedIn?: boolean;
+  canSearchAndBrowse?: boolean;
 }
 
 export interface NavItem {
