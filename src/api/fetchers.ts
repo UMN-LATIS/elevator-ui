@@ -304,6 +304,35 @@ export async function fetchSearchResults(
   return res.data;
 }
 
+export async function fetchRelatedAssetSearchResults({
+  query,
+  templateIds = [],
+}: {
+  query: string;
+  templateIds?: number[];
+}): Promise<SearchResultsResponse> {
+  const formdata = new FormData();
+
+  // always suppress recent and show hidden for related assets
+  formdata.append("suppressRecent", String(true));
+  formdata.append("showHidden", String(true));
+  formdata.append(
+    "searchQuery",
+    JSON.stringify({
+      searchText: query,
+    })
+  );
+
+  templateIds.forEach((id) => formdata.append("templateId[]", String(id)));
+
+  const res = await axios.post<SearchResultsResponse>(
+    `${BASE_URL}/search/searchResults`,
+    formdata
+  );
+
+  return res.data;
+}
+
 export async function fetchSearchId(
   query: string,
   opts: Omit<SearchRequestOptions, "searchText"> = {}
