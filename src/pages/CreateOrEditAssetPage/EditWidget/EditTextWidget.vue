@@ -45,7 +45,8 @@
             :fieldTitle="widgetDef.fieldTitle"
             :templateId="templateId"
             inputClass="w-full bg-black/5 border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            @update:modelValue="(value) => handleFieldUpdate(item, value)" />
+            @update:modelValue="(value) => handleFieldUpdate(item, value)"
+            @update:searchTerm="(value) => handleFieldUpdate(item, value)" />
         </div>
 
         <!-- Regular Text Input -->
@@ -74,6 +75,7 @@ import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.
 import * as ops from "./helpers/editWidgetOps";
 import { computed, inject } from "vue";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TextWidgetDef;
@@ -90,9 +92,10 @@ const emit = defineEmits<{
 }>();
 
 const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
-const templateId = computed(
-  () => parentAssetEditor?.templateId?.toString() || ""
-);
+const templateId = computed(() => {
+  invariant(parentAssetEditor);
+  return parentAssetEditor.templateId;
+});
 
 // Handle field updates from AutoCompleteInput
 function handleFieldUpdate(

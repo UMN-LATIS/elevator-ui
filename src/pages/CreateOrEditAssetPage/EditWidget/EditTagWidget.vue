@@ -24,12 +24,23 @@
           v-for="tag in item.tags"
           :key="tag"
           :value="tag"
-          class="bg-neutral-900 text-neutral-100">
+          class="bg-neutral-900 text-neutral-100 h-auto"
+          data-testid="tag-item">
           <TagsInputItemText />
           <TagsInputItemDelete />
         </TagsInputItem>
 
-        <TagsInputInput :placeholder="`${widgetDef.label}...`" />
+        <AutoCompleteInput
+          v-if="widgetDef.attemptAutocomplete"
+          :id="`edit-tag-widget-autocomplete-${item.id}`"
+          v-model="tagInput"
+          :placeholder="`${widgetDef.label}...`"
+          :fieldTitle="widgetDef.fieldTitle"
+          :templateId="templateId"
+          inputClass="!py-0 flex-1 min-w-24"
+          :blurOnSelect="false"
+          @keydown="(event) => handleKeydown(item.id, event)" />
+        <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
       </TagsInput>
     </template>
   </EditWidgetLayout>
@@ -46,12 +57,25 @@ import {
   TagsInputItemDelete,
   TagsInputInput,
 } from "@/components/ui/tags-input";
+import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
+import { inject, computed, ref, nextTick } from "vue";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TagListWidgetDef;
   widgetContents: Type.WithId<Type.TagListWidgetContent>[];
   isOpen: boolean;
 }>();
+
+const tagInput = ref("");
+
+const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+
+const templateId = computed(() => {
+  invariant(parentAssetEditor, "Parent asset editor is required");
+  return parentAssetEditor.templateId;
+});
 
 const emit = defineEmits<{
   (
@@ -88,6 +112,72 @@ const handleUpdateTags = (
     ops.makeUpdateContentPayload(props.widgetContents, itemId, tags, "tags")
   );
 };
+
+function handleTagUpdate(itemId: string, value: string) {
+  tagInput.value = value;
+
+  const trimmedValue = value.trim();
+
+  // If the input is empty, no change is needed
+  if (!trimmedValue.length) return;
+
+  const existingTags =
+    props.widgetContents.find((content) => content.id === itemId)?.tags || [];
+
+  // If the tag already exists, no change is needed
+  if (existingTags.includes(trimmedValue)) {
+    tagInput.value = ""; // Clear input if tag already exists
+    return;
+  }
+
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      itemId,
+      [...existingTags, trimmedValue],
+      "tags"
+    )
+  );
+
+  // Clear the tag input after updating
+  nextTick(() => {
+    tagInput.value = "";
+  });
+}
+
+function removeLastTag(itemId: string) {
+  const item = props.widgetContents.find((content) => content.id === itemId);
+  const tags = item?.tags || [];
+
+  const updatedTags = tags.slice(0, -1); // Remove the last tag
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      itemId,
+      updatedTags,
+      "tags"
+    )
+  );
+}
+
+async function handleKeydown(itemId: string, event: KeyboardEvent) {
+  const ADD_TAG_KEYS = [",", "Tab", "Enter"];
+
+  if (ADD_TAG_KEYS.includes(event.key)) {
+    event.preventDefault();
+    await nextTick(); // make sure that tagInput is updated
+    handleTagUpdate(itemId, tagInput.value);
+    return;
+  }
+
+  // delete the previous tag on backspace if the input is empty
+  if (event.key === "Backspace" && tagInput.value === "") {
+    event.preventDefault();
+    removeLastTag(itemId);
+  }
+}
 </script>
 
 <style scoped></style>

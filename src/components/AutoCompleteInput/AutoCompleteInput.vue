@@ -1,62 +1,95 @@
 <template>
-  <Combobox
-    :modelValue="modelValue"
-    @update:modelValue="(val) => emit('update:modelValue', String(val))">
-    <ComboboxAnchor asChild>
-      <ComboboxInput
+  <PopoverRoot
+    :open="isOpen"
+    class="autocomplete-input"
+    @update:open="isOpen = $event">
+    <PopoverAnchor asChild>
+      <Input
         :id="id"
-        v-model="searchTerm"
+        ref="inputRef"
+        :modelValue="modelValue"
         :placeholder="placeholder"
         :class="inputClass"
-        :displayValue="(val) => String(val)"
-        @blur="handleBlur" />
-    </ComboboxAnchor>
+        autocomplete="off"
+        role="combobox"
+        :aria-expanded="isOpen"
+        :aria-activedescendant="
+          highlightedIndex >= 0 ? `${id}-option-${highlightedIndex}` : undefined
+        "
+        aria-autocomplete="list"
+        @update:modelValue="handleUpdateSearchTerm"
+        @keydown.enter="handleKeydownEnter"
+        @keydown.up="handleKeydownUp"
+        @keydown.down="handleKeydownDown"
+        @keydown.esc="handleKeydownEsc"
+        @keydown="
+          $emit('keydown', $event, {
+            highlightedSuggestion: highlightedSuggestion,
+            modelValue: modelValue,
+          })
+        " />
+    </PopoverAnchor>
 
-    <ComboboxList
-      class="z-50 max-h-96 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md">
-      <ComboboxEmpty>
+    <PopoverPortal>
+      <PopoverContent
+        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md z-10 max-w-sm"
+        role="listbox"
+        :aria-labelledby="id"
+        align="start"
+        :sideOffset="4">
+        <!-- Loading state -->
         <div
           v-if="isLoadingSuggestions"
-          class="flex items-center justify-center gap-2 p-2">
+          class="flex items-center justify-center gap-2 p-4">
           <SpinnerIcon class="size-4" />
           <span class="text-sm">Loading suggestions...</span>
         </div>
+
+        <!-- Empty state -->
         <div
           v-else-if="showEmptyState"
-          class="p-2 text-sm text-muted-foreground">
+          class="p-4 text-sm text-muted-foreground text-center">
           No suggestions found.
         </div>
-      </ComboboxEmpty>
 
-      <div class="max-h-[33dvh] overflow-y-auto">
-        <ComboboxItem
-          v-for="suggestion in suggestions"
-          :key="suggestion"
-          :value="suggestion"
-          class="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground">
-          <span>{{ suggestion }}</span>
-          <ComboboxItemIndicator class="ml-auto">
-            <Check class="h-4 w-4" />
-          </ComboboxItemIndicator>
-        </ComboboxItem>
-      </div>
-    </ComboboxList>
-  </Combobox>
+        <!-- Suggestions -->
+        <div v-else class="max-h-[33dvh] overflow-y-auto">
+          <div
+            v-for="(suggestion, index) in suggestions"
+            :id="`${id}-option-${index}`"
+            :key="suggestion"
+            role="option"
+            :aria-selected="suggestion === modelValue"
+            :class="[
+              'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
+              index === highlightedIndex
+                ? 'bg-blue-100 text-blue-700'
+                : 'hover:bg-blue-100/50',
+            ]"
+            @mousedown.prevent="
+              // use mousedown to prevent race condition with input blur
+              // mousedown will commit the suggestion, and blur
+              // won't try to commit searchTerm
+              commitSelection(suggestion)
+            ">
+            <span>{{ suggestion }}</span>
+          </div>
+        </div>
+      </PopoverContent>
+    </PopoverPortal>
+  </PopoverRoot>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref } from "vue";
+import { computed, ref, useTemplateRef } from "vue";
 import { useDebounce } from "@vueuse/core";
 import {
-  Combobox,
-  ComboboxAnchor,
-  ComboboxInput,
-  ComboboxList,
-  ComboboxEmpty,
-  ComboboxItem,
-  ComboboxItemIndicator,
-} from "@/components/ui/combobox";
-import { Check } from "lucide-vue-next";
+  PopoverRoot,
+  PopoverContent,
+  PopoverPortal,
+  PopoverAnchor,
+} from "reka-ui";
+import { Input } from "@/components/ui/input";
 import { SpinnerIcon } from "@/icons";
 import { useAutocompleteQuery } from "@/queries/useAutocompleteQuery";
 import { CSSClass } from "@/types";
@@ -66,27 +99,47 @@ const props = withDefaults(
     modelValue: string;
     placeholder?: string;
     fieldTitle: string;
-    templateId?: string | number;
+    templateId?: number | null;
     inputClass?: CSSClass;
     id: string;
+    blurOnSelect?: boolean;
   }>(),
   {
     id: "",
     placeholder: "",
     inputClass: "",
-    templateId: "",
+    templateId: undefined,
+    blurOnSelect: true,
   }
 );
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
+  keydown: [
+    event: KeyboardEvent,
+    {
+      highlightedSuggestion: string | null;
+      modelValue: string;
+    }
+  ];
 }>();
 
-// Autocomplete state
-const searchTerm = ref(props.modelValue);
+// Component refs
+const inputRef = useTemplateRef("inputRef");
+
+const isOpen = ref(false);
+const highlightedIndex = ref(-1);
+
+const highlightedSuggestion = computed((): string | null => {
+  if (!suggestions.value.length || highlightedIndex.value < 0) return null;
+  return suggestions.value[highlightedIndex.value] ?? null;
+});
 
 // Debounced search for API calls
-const debouncedSearchTerm = useDebounce(searchTerm, 300);
+const debouncedSearchTerm = useDebounce(
+  computed(() => props.modelValue),
+  300
+);
 
 // Query for autocomplete suggestions
 const { data: suggestions, isFetching } = useAutocompleteQuery(
@@ -96,8 +149,8 @@ const { data: suggestions, isFetching } = useAutocompleteQuery(
 );
 
 const isTyping = computed(() => {
-  const hasActiveInput = searchTerm.value.trim().length >= 1;
-  return hasActiveInput && searchTerm.value !== debouncedSearchTerm.value;
+  const hasActiveInput = props.modelValue.trim().length >= 1;
+  return hasActiveInput && props.modelValue !== debouncedSearchTerm.value;
 });
 
 const isLoadingSuggestions = computed(() => {
@@ -106,25 +159,89 @@ const isLoadingSuggestions = computed(() => {
 
 const showEmptyState = computed(() => {
   return (
-    searchTerm.value.trim().length >= 1 &&
+    props.modelValue.trim().length >= 1 &&
     !isLoadingSuggestions.value &&
     suggestions.value.length === 0
   );
 });
 
-// Watch for external modelValue changes
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (newValue === searchTerm.value) return;
-    searchTerm.value = newValue;
-  }
-);
+function handleUpdateSearchTerm(value: string) {
+  emit("update:modelValue", value);
 
-// if they leave the field, accept whatever was typed
-// as the final value
-function handleBlur() {
-  if (searchTerm.value === props.modelValue) return;
-  emit("update:modelValue", searchTerm.value);
+  highlightedIndex.value = -1; // Reset highlighting on new input
+
+  // If the input is empty, close the dropdown
+  if (value.trim().length === 0) {
+    isOpen.value = false;
+    return;
+  }
+
+  // Open dropdown when user is actively typing
+  isOpen.value = true;
+}
+
+function handleKeydownDown(event: KeyboardEvent) {
+  const trimmedTerm = props.modelValue.trim();
+  // if no searchTerm or suggestions, we're done
+  if (!trimmedTerm.length || !suggestions.value.length) {
+    return;
+  }
+
+  event.preventDefault();
+
+  // make sure dropdown is open
+  isOpen.value = true;
+
+  // advance highlight if possible
+  highlightedIndex.value = Math.min(
+    highlightedIndex.value + 1,
+    suggestions.value.length - 1
+  );
+}
+
+function handleKeydownUp(event: KeyboardEvent) {
+  const trimmedTerm = props.modelValue.trim();
+  // if no searchTerm or suggestions, we're done
+  if (!trimmedTerm.length || !suggestions.value.length) {
+    return;
+  }
+
+  event.preventDefault();
+
+  // move highlight up if possible
+  highlightedIndex.value = Math.max(highlightedIndex.value - 1, -1);
+}
+
+function handleKeydownEnter(event: KeyboardEvent) {
+  const trimmedTerm = props.modelValue.trim();
+  // if no searchTerm or suggestions, we're done
+  if (!trimmedTerm.length) {
+    return;
+  }
+
+  event.preventDefault();
+
+  // commit the highlighted suggestion or the current term
+  commitSelection(highlightedSuggestion.value ?? trimmedTerm);
+}
+
+function handleKeydownEsc(event: KeyboardEvent) {
+  // Close the dropdown and reset highlighting
+  event.preventDefault();
+  isOpen.value = false;
+  highlightedIndex.value = -1;
+}
+
+async function commitSelection(selection: string) {
+  // reset state
+  isOpen.value = false;
+  highlightedIndex.value = -1;
+
+  // set search term and update the modelValue
+  emit("update:modelValue", selection);
+
+  if (props.blurOnSelect) {
+    inputRef.value?.$el.blur(); // Remove focus from input
+  }
 }
 </script>
