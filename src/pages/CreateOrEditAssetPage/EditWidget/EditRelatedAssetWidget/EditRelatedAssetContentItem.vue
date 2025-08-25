@@ -150,6 +150,7 @@ import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { isSaveRelatedAssetMessage } from "@/types/guards";
 import config from "@/config";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useSearchRelatedAssetsQuery } from "@/queries/useSearchRelatedAssetsQuery";
 
 const props = defineProps<{
   modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
@@ -170,9 +171,14 @@ const debouncedSearchInput = useDebounce(searchInput, 300);
 
 const BASE_URL = config.instance.base.url;
 
-const { data: matches, isFetching } = useSearchAssetsQuery(
-  debouncedSearchInput
-);
+const matchAgainstTemplateIds = computed(() => {
+  return props.widgetDef.fieldData.matchAgainst ?? [];
+});
+
+const { data: matches, isFetching } = useSearchRelatedAssetsQuery({
+  query: debouncedSearchInput,
+  templateIds: matchAgainstTemplateIds,
+});
 
 // Show loading when user is typing or when query is fetching
 const isLoading = computed(() => {
@@ -243,6 +249,7 @@ function handleSelectItem(targetAssetId: string | null) {
     targetAssetId,
   });
 }
+
 const broadcastChannel = new BroadcastChannel(channelName.value);
 function handleMessageEvent(event: MessageEvent) {
   const message = event.data;
