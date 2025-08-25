@@ -226,6 +226,8 @@ uppy.on("error", (error) => {
 <style>
 .file-uploader {
   & .uppy-Dashboard-inner {
+    /* prevent uppy z-index conflicts with our modals */
+    isolation: isolate;
     border: 0;
   }
   & .uppy-Dashboard-dropFilesHereHint {
