@@ -330,7 +330,11 @@ router.beforeEach(async (to, _from, next) => {
     const currentUser = await getCurrentUser(queryClient);
 
     if (!currentUser?.isLoggedIn) {
-      throw new ApiError(`You must be logged in to access ${to.fullPath}`, 401);
+      throw new ApiError(
+        `You must be logged in to access ${to.fullPath}`, 
+        401, 
+        { redirectUrl: to.fullPath }
+      );
     }
 
     // Check permissions if canAccess is defined
