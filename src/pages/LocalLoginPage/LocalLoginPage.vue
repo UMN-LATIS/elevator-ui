@@ -104,6 +104,7 @@ import config from "@/config";
 import api from "@/api";
 import { resetAllStores } from "@/stores/resetAllStores";
 import { useDrawerStore } from "@/stores/drawerStore";
+import { getQueryClientInstance } from "@/queries/queryClientInstance";
 
 const props = withDefaults(
   defineProps<{
@@ -174,6 +175,10 @@ const login = async () => {
     // reset the cache and reinitialize stores
     api.clearCache();
     resetAllStores();
+
+    const queryClient = getQueryClientInstance();
+    queryClient.clear();
+
     await instanceStore.init();
     await drawerStore.init();
     router.push(props.redirectURL);
