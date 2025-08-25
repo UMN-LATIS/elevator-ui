@@ -2,12 +2,15 @@
   <AppMenuGroup v-if="currentUser?.canManageAssets" label="Manage Assets">
     <AppMenuItem to="/assetManager/userAssets/">All My Assets</AppMenuItem>
     <AppMenuItem to="/assetManager/addAsset">Add Asset</AppMenuItem>
-    <template v-if="assetId">
-      <AppMenuItem :to="`/assetManager/editAsset/${assetId}`">
+    <template v-if="activeAssetId">
+      <AppMenuItem
+        v-if="!isAssetEditPage"
+        :to="`/assetManager/editAsset/${activeAssetId}`">
         Edit Asset
       </AppMenuItem>
       <AppMenuItem @click="handleDeleteAssetClick">Delete Asset</AppMenuItem>
-      <AppMenuItem :href="`${BASE_URL}/assetManager/restoreAsset/${assetId}`">
+      <AppMenuItem
+        :href="`${BASE_URL}/assetManager/restoreAsset/${activeAssetId}`">
         Restore Asset
       </AppMenuItem>
       <Divider />
@@ -20,9 +23,11 @@ import AppMenuItem from "./AppMenuItem.vue";
 import Divider from "./Divider.vue";
 import config from "@/config";
 import { ElevatorInstance, User } from "@/types";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
+import { computed } from "vue";
+import { usePageAssetId } from "@/composables/usePageAssetId";
 
 const BASE_URL = config.instance.base.url;
 
@@ -32,12 +37,17 @@ const props = defineProps<{
   assetId: string | null;
 }>();
 
+const pageAssetId = usePageAssetId();
+const activeAssetId = computed(
+  () => props.assetId ?? pageAssetId?.value ?? null
+);
+
 const router = useRouter();
 const { mutate: deleteAsset } = useDeleteAssetMutation();
 const errorStore = useErrorStore();
 
 async function handleDeleteAssetClick() {
-  if (!props.assetId) {
+  if (!activeAssetId.value) {
     throw new Error(`assetId is null. Cannot delete asset.`);
   }
 
@@ -47,7 +57,7 @@ async function handleDeleteAssetClick() {
     return;
   }
 
-  deleteAsset(props.assetId, {
+  deleteAsset(activeAssetId.value, {
     onSuccess: () => {
       router.push("/assetManager/userAssets");
     },
@@ -57,6 +67,11 @@ async function handleDeleteAssetClick() {
     },
   });
 }
+
+const route = useRoute();
+const isAssetEditPage = computed(() => {
+  return route.path.includes("/assetManager/editAsset/");
+});
 </script>
 <style>
 .edit-nav-section__add-asset-dropdown[data-headlessui-state="open"]
