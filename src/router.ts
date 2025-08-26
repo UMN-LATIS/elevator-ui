@@ -15,6 +15,14 @@ import { useErrorStore } from "./stores/errorStore";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
 import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
 import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
+import { User } from "./types";
+
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    canAccess?: (user: User) => boolean;
+  }
+}
 
 interface RouterHistoryState {
   preserveScroll?: boolean;
@@ -128,6 +136,10 @@ const router = createRouter({
       path: "/assetManager/userAssets",
       component: () =>
         import("@/pages/AllUserAssetsPage/AllUserAssetsPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.canManageAssets,
+      },
     },
     {
       name: "addInlineRelatedAsset",
@@ -139,6 +151,10 @@ const router = createRouter({
         // could be null
         collectionId: parseIntFromParam(route.params.collectionId),
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.canManageAssets,
+      },
     },
     {
       name: "editInlineRelatedAsset",
@@ -148,6 +164,10 @@ const router = createRouter({
       props: (route) => ({
         assetId: route.params.assetId,
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.canManageAssets,
+      },
     },
     {
       name: "editAsset",
@@ -159,6 +179,10 @@ const router = createRouter({
         assetId: route.params.assetId,
         title: route.params.assetId ? "Edit Asset" : "Add Asset",
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.canManageAssets,
+      },
     },
     {
       name: "listCollections",
