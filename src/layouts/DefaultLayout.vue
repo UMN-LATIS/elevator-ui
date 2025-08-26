@@ -5,7 +5,24 @@
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
 
     <main id="main" class="flex-1 flex flex-col" tabindex="-1">
-      <slot />
+      <!-- Not Authenticated -->
+      <div v-if="requiresAuth && !currentUser" class="p-8">
+        <SignInRequiredNotice />
+      </div>
+
+      <!-- Not Authorized -->
+      <div v-else-if="!canAccess" class="p-8">
+        <h1 class="text-4xl font-bold mb-4">Access Denied</h1>
+        <p class="mb-4">You do not have permission to view this page.</p>
+        <Button :to="{ name: 'home' }" icon="home" iconPosition="start">
+          Go Home
+        </Button>
+      </div>
+
+      <!-- All good -->
+      <template v-else>
+        <slot />
+      </template>
     </main>
     <slot name="footer" />
     <Transition name="fade">
@@ -26,11 +43,30 @@ import { ChevronUpIcon } from "@/icons";
 import { useWindowScroll } from "@vueuse/core";
 import SkipNavLink from "@/components/SkipNavLink/SkipNavLink.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { useRoute } from "vue-router";
+import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
+import Button from "@/components/Button/Button.vue";
 
 const { y: scrollY } = useWindowScroll();
 
 const showScrollToTop = computed(() => {
   return scrollY.value > 0;
+});
+
+const instanceStore = useInstanceStore();
+const route = useRoute();
+
+const requiresAuth = computed(() => {
+  return route.meta.requiresAuth ?? false;
+});
+
+const currentUser = computed(() => instanceStore.currentUser);
+
+const canAccess = computed(() => {
+  if (!requiresAuth.value) return true;
+  if (!route.meta.canAccess) return true;
+
+  return currentUser.value && route.meta.canAccess(currentUser.value);
 });
 </script>
 <style></style>
