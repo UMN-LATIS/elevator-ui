@@ -56,11 +56,11 @@ export const useAssetEditor = () => {
   // COMPUTED
 
   const collectionOptions = computed((): T.SelectOption<number>[] => {
-    const collections = instanceStore.collections ?? [];
+    const collections = instanceStore.flatCollections ?? [];
     return collections.map((collection) => ({
       label: collection.title,
       id: collection.id,
-    }));
+    })).sort((a, b) => a.label.localeCompare(b.label));
   });
 
   const templateOptions = computed((): T.SelectOption<number>[] => {
