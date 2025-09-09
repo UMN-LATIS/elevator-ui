@@ -24,7 +24,7 @@
         handleUpdateSelection(($event.target as HTMLSelectElement).value)
       ">
       <option value="" disabled selected>{{ placeholder }}</option>
-      <option v-for="opt in options" :key="opt.id" :value="opt.id">
+      <option v-for="opt in options" :key="opt.id" :value="opt.id" :disabled="opt.disabled">
         {{ opt.label }}
       </option>
     </select>
@@ -41,6 +41,7 @@ withDefaults(
     options: Array<{
       id: string | number;
       label: string;
+      disabled?: boolean;
     }>;
     required?: boolean;
     id?: string;

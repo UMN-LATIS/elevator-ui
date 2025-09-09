@@ -652,6 +652,7 @@ export interface AssetCollection {
   previewImageId: string | null;
   children: AssetCollection[] | null;
   parentId: number | null;
+  canEdit: boolean;
 }
 
 export interface Page {

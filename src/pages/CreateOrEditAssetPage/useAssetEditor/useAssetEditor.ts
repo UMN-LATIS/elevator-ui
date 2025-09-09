@@ -56,10 +56,11 @@ export const useAssetEditor = () => {
   // COMPUTED
 
   const collectionOptions = computed((): T.SelectOption<number>[] => {
-    const collections = instanceStore.flatCollections ?? [];
+    const collections = instanceStore.flatEditableCollections ?? [];
     return collections.map((collection) => ({
       label: collection.title,
       id: collection.id,
+      disabled: collection.canEdit === false,
     })).sort((a, b) => a.label.localeCompare(b.label));
   });
 
