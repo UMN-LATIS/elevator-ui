@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parentAssetEditor" class="flex flex-col gap-6 sticky top-20 p-4">
+  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-20 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
@@ -28,6 +28,11 @@
       </Button>
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
+        <p class="text-neutral-400">
+          <span v-if="parentAssetEditor.lastModified" class="text-neutral-400">
+            {{ parentAssetEditor.lastModified }}
+          </span>
+        </p>
         <div
           v-if="missingRequiredFields.length > 0"
           class="font-medium mb-1 text-red-600">
@@ -94,6 +99,9 @@
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
+      <Tuple label="Asset ID" class="text-sm px-3" labelClass="font-normal">
+        <span class="text-neutral-500">{{ asset.assetId ?? "-" }}</span>
+      </Tuple>
 
       <TableOfContents />
     </div>
@@ -113,6 +121,7 @@ import { phpDateToString } from "../useAssetEditor/utils";
 import invariant from "tiny-invariant";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import Tuple from "@/components/Tuple/Tuple.vue";
 
 const props = defineProps<{
   template: Template;

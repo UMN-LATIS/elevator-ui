@@ -377,6 +377,10 @@ export const useAssetEditor = () => {
     localAssetTitle,
     savedAssetTitle,
     hasAssetChanged,
+    lastModified: computed(() => {
+      if (!state.localAsset?.modified?.date) return null;
+      return new Date(state.localAsset.modified.date).toLocaleString();
+    }),
 
     // actions
     reset,

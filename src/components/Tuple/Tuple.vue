@@ -8,11 +8,16 @@
     <div class="tuple__label flex justify-between items-center">
       <slot name="label">
         <span
-          class="text-xs block uppercase leading-none mb-1 tracking-wide"
-          :class="{
-            'font-bold': variant === 'stacked',
-            'sr-only': variant === 'value-only',
-          }">
+          :class="
+            cn(
+              'text-xs block uppercase leading-none mb-1 tracking-wide',
+              {
+                'font-bold': variant === 'stacked',
+                'sr-only': variant === 'value-only',
+              },
+              labelClass
+            )
+          ">
           {{ label }}
         </span>
         <slot name="label-extra"></slot>
@@ -24,13 +29,18 @@
   </div>
 </template>
 <script setup lang="ts">
+import { cn } from "@/lib/utils";
+import { CSSClass } from "@/types";
+
 withDefaults(
   defineProps<{
     label: string;
     variant?: "stacked" | "inline" | "value-only";
+    labelClass?: CSSClass;
   }>(),
   {
     variant: "stacked",
+    labelClass: "",
   }
 );
 </script>
