@@ -28,6 +28,11 @@
       </Button>
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
+        <p class="text-neutral-400">
+          <span v-if="parentAssetEditor.lastModified" class="text-neutral-400">
+            {{ parentAssetEditor.lastModified }}
+          </span>
+        </p>
         <div
           v-if="missingRequiredFields.length > 0"
           class="font-medium mb-1 text-red-600">
