@@ -8,7 +8,7 @@
       <li v-for="item in tocItems" :key="item.id">
         <a
           :href="`#${item.id}`"
-          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 px-2"
+          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 pl-3"
           :class="{
             'text-blue-700 font-medium border-blue-700 bg-white/50 hover:bg-white/75 rounded-sm':
               activeId === item.id,

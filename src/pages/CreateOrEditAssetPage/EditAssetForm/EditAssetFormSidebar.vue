@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parentAssetEditor" class="flex flex-col gap-6 sticky top-20 p-4">
+  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-20 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
