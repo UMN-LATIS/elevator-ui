@@ -234,6 +234,16 @@ export const useAssetEditor = () => {
       state.localAsset.modifiedBy = savedAsset.modifiedBy;
       state.localAsset.firstFileHandlerId = savedAsset.firstFileHandlerId;
 
+      // clear any upload widget `regenerate` flags
+      const uploadWidgetItems = state.template.widgetArray
+        .filter((w) => w.type === T.WIDGET_TYPES.UPLOAD)
+        .flatMap((w) => state.localAsset?.[w.fieldTitle] as T.WithId<T.UploadWidgetContent>[])
+        .filter(Boolean);
+
+      uploadWidgetItems.forEach((item) => {
+        item.regenerate = undefined;
+      });
+
       state.saveAssetStatus = "success";
       setTimeout(() => {
         state.saveAssetStatus = "idle"; // Reset status after a delay
@@ -368,6 +378,10 @@ export const useAssetEditor = () => {
     localAssetTitle,
     savedAssetTitle,
     hasAssetChanged,
+    lastModified: computed(() => {
+      if (!state.localAsset?.modified?.date) return null;
+      return new Date(state.localAsset.modified.date).toLocaleString();
+    }),
 
     // actions
     reset,
