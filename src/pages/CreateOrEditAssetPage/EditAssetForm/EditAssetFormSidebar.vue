@@ -99,6 +99,9 @@
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
+      <Tuple label="Asset ID" class="text-sm px-3" labelClass="font-normal">
+        <span class="text-neutral-500">{{ asset.assetId ?? "-" }}</span>
+      </Tuple>
 
       <TableOfContents />
     </div>
@@ -118,6 +121,7 @@ import { phpDateToString } from "../useAssetEditor/utils";
 import invariant from "tiny-invariant";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import Tuple from "@/components/Tuple/Tuple.vue";
 
 const props = defineProps<{
   template: Template;
