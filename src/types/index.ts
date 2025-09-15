@@ -925,6 +925,7 @@ export interface AssetSummary {
 export interface SelectOption<idType = string> {
   id: idType;
   label: string;
+  disabled?: boolean;
 }
 
 export interface GeocoderResult {
