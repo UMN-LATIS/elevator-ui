@@ -23,7 +23,6 @@ const createState = () => ({
   currentUser: ref<User | null>(null),
   pages: ref<Page[]>([]),
   collections: ref<AssetCollection[]>([]),
-  editableCollections: ref<AssetCollection[]>([]),
   searchableFields: ref<SearchableSpecificField[]>([]),
   instance: ref<ElevatorInstance>({
     id: null,
@@ -52,7 +51,6 @@ const getters = (state: ReturnType<typeof createState>) => ({
 
   // list of collections with titles that include their parent titles
   flatCollections: computed(() => flattenCollections(state.collections.value)),
-  flatEditableCollections: computed(() =>flattenCollections(state.editableCollections.value)),
   async getCollectionById(
     id: number
   ): Promise<Required<AssetCollection> | null> {
@@ -95,9 +93,6 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.instance.value = selectInstanceFromResponse(apiResponse);
       state.collections.value = normalizeAssetCollections(
         apiResponse.collections
-      );
-      state.editableCollections.value = normalizeAssetCollections(
-        apiResponse.editableCollections
       );
       state.customHeaderMode.value = apiResponse.customHeaderMode;
       state.customHeader.value = apiResponse.customHeader ?? null;

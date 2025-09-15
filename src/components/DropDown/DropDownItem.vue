@@ -1,5 +1,8 @@
 <template>
-  <MenuItem v-slot="{ active }" class="dropdown__dropdown-item">
+  <MenuItem
+    v-slot="{ active }"
+    class="dropdown__dropdown-item"
+    :disabled="disabled">
     <component
       :is="$attrs.disabled ? 'div' : Link"
       class="block px-4 py-2 text-sm !no-underline"
@@ -22,6 +25,7 @@ defineProps<{
   href?: string;
   to?: string;
   current?: boolean;
+  disabled?: boolean;
 }>();
 </script>
 <style scoped>
