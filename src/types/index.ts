@@ -642,6 +642,8 @@ export interface RawAssetCollection {
   id: number;
   title: string;
   previewImageId?: string | null;
+  canView: boolean;
+  canEdit: boolean;
   children?: RawAssetCollection[];
 }
 
@@ -652,6 +654,7 @@ export interface AssetCollection {
   previewImageId: string | null;
   children: AssetCollection[] | null;
   parentId: number | null;
+  canView: boolean;
   canEdit: boolean;
 }
 
