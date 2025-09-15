@@ -24,7 +24,11 @@
         handleUpdateSelection(($event.target as HTMLSelectElement).value)
       ">
       <option value="" disabled selected>{{ placeholder }}</option>
-      <option v-for="opt in options" :key="opt.id" :value="opt.id" :disabled="opt.disabled">
+      <option
+        v-for="opt in options"
+        :key="opt.id"
+        :value="opt.id"
+        :disabled="!!opt.disabled">
         {{ opt.label }}
       </option>
     </select>
@@ -32,17 +36,13 @@
 </template>
 <script setup lang="ts" generic="TModelValue = string | number | null">
 import { cn } from "@/lib/utils";
-import { CSSClass } from "@/types";
+import { CSSClass, SelectOption } from "@/types";
 
 withDefaults(
   defineProps<{
     modelValue: TModelValue;
     label: string;
-    options: Array<{
-      id: string | number;
-      label: string;
-      disabled?: boolean;
-    }>;
+    options: Array<SelectOption<string | number>>;
     required?: boolean;
     id?: string;
     placeholder?: string;
