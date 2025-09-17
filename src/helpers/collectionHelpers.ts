@@ -65,3 +65,19 @@ export function flattenCollections(
     }),
   ];
 }
+
+/**
+ * Recursively filter collection by predicate.
+ * If predicate fails, its children will not be included.
+ * This is useful for filtering collections based on permissions.
+ */
+export const filterCollections = (
+  predicate: (col: AssetCollection) => boolean,
+  nestedCollections: AssetCollection[]
+): AssetCollection[] =>
+  nestedCollections.filter(predicate).map((col) => ({
+    ...col,
+    children: col.children?.length
+      ? filterCollections(predicate, col.children)
+      : col.children,
+  }));

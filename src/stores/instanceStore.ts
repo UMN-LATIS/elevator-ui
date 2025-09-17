@@ -16,6 +16,7 @@ import {
   toCollectionIndex,
   normalizeAssetCollections,
   flattenCollections,
+  filterCollections,
 } from "@/helpers/collectionHelpers";
 
 const createState = () => ({
@@ -48,9 +49,23 @@ const getters = (state: ReturnType<typeof createState>) => ({
   isLoggedIn: computed(() => !!state.currentUser.value),
   isReady: computed(() => state.fetchStatus.value === "success"),
   collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
+  viewableCollections: computed((): AssetCollection[] =>
+    filterCollections((col) => col.canView, state.collections.value)
+  ),
+  browsableCollections: computed((): AssetCollection[] =>
+    filterCollections(
+      (col) => col.canView && col.showInBrowse,
+      state.collections.value
+    )
+  ),
 
-  // list of collections with titles that include their parent titles
   flatCollections: computed(() => flattenCollections(state.collections.value)),
+  flatViewableCollections: computed((): Omit<AssetCollection, "children">[] =>
+    flattenCollections(getters(state).viewableCollections.value)
+  ),
+  flatBrowsableCollections: computed((): Omit<AssetCollection, "children">[] =>
+    flattenCollections(getters(state).browsableCollections.value)
+  ),
   async getCollectionById(
     id: number
   ): Promise<Required<AssetCollection> | null> {
@@ -58,7 +73,6 @@ const getters = (state: ReturnType<typeof createState>) => ({
     const collection = index[id];
     if (!collection) return null;
 
-    // include the collection description
     try {
       const description = await api.getCollectionDescription(id);
       return {

@@ -12,7 +12,7 @@
         :html="collectionPageContent.content" />
       <div ref="collectionGrid" class="grid">
         <CollectionItem
-          v-for="collection in collections"
+          v-for="collection in instanceStore.browsableCollections"
           :key="collection.id"
           :collection="collection" />
       </div>
@@ -38,12 +38,6 @@ import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 const instanceStore = useInstanceStore();
 const collectionGrid = useTemplateRef("collectionGrid");
 
-const collections = computed(() =>
-  // only show collections that the user can view here
-  // the collections list may include collections that are not viewable
-  // if SOME collection is editable
-  instanceStore.collections.filter((c) => c.canView)
-);
 const numCols = ref(1);
 const collectionPageContent = ref<ApiStaticPageResponse | null>(null);
 
@@ -73,7 +67,7 @@ useResizeObserver(collectionGrid, (entries) => {
 });
 
 const numRows = computed(() => {
-  const numCollections = collections.value.length;
+  const numCollections = instanceStore.browsableCollections.length;
   return Math.ceil(numCollections / numCols.value);
 });
 </script>
