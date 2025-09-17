@@ -1,6 +1,6 @@
 import * as T from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
-import { computed, reactive, toRefs } from "vue";
+import { computed, nextTick, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
@@ -348,6 +348,8 @@ export const useAssetEditor = () => {
 
   async function runBeforeSaveCallbacks() {
     await Promise.allSettled(beforeSaveCallbacks.map((callback) => callback()));
+    // wait for next ticket to ensure any state changes are applied
+    await nextTick();
   }
 
   function updateModifiedInlineRelatedAsset(
