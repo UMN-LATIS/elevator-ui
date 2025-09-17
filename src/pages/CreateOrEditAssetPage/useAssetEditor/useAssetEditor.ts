@@ -56,10 +56,12 @@ export const useAssetEditor = () => {
   // COMPUTED
 
   const collectionOptions = computed((): T.SelectOption<number>[] => {
+    // show all collections, but disable ones that cannot be edited
     const collections = instanceStore.flatCollections ?? [];
     return collections.map((collection) => ({
       label: collection.title,
       id: collection.id,
+      disabled: !collection.canEdit,
     })).sort((a, b) => a.label.localeCompare(b.label));
   });
 

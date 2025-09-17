@@ -8,6 +8,9 @@ const collectionSeeds: AssetCollection[] = [
     previewImageId: "",
     children: [],
     parentId: null,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
   },
   {
     id: 2,
@@ -15,6 +18,9 @@ const collectionSeeds: AssetCollection[] = [
     previewImageId: "",
     children: [],
     parentId: null,
+    showInBrowse: true,
+    canView: true,
+    canEdit: false,
   },
 ];
 
@@ -23,6 +29,9 @@ function toRawAssetCollection(collection: AssetCollection): RawAssetCollection {
     id: collection.id,
     title: collection.title,
     previewImageId: collection.previewImageId,
+    showInBrowse: collection.showInBrowse,
+    canView: collection.canView,
+    canEdit: collection.canEdit,
     children:
       collection.children?.map(toRawAssetCollection) ??
       ([] as RawAssetCollection[]),

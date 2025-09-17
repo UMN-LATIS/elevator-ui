@@ -40,6 +40,7 @@
         :key="collection.id"
         class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
         :title="prefixWithHyphens(collection.title)"
+        :disabled="!collection.canView"
         @click="searchStore.addCollectionIdFilter(collection.id)">
         {{ prefixWithHyphens(collection.title) }}
       </AdvSearchDropDownItem>

@@ -23,9 +23,9 @@
         <h2 :class="{ 'font-bold': showMore }">{{ collection.title }}</h2>
       </Link>
     </div>
-    <div v-if="collection.children">
+    <div v-if="viewableChildren.length">
       <CollectionItem
-        v-for="child in collection.children"
+        v-for="child in viewableChildren"
         v-show="showMore"
         :key="child.id"
         :collection="child"
@@ -48,6 +48,12 @@ const props = defineProps<{
 const imgSrc = computed((): string | null => {
   const imgId = props.collection.previewImageId;
   return imgId ? getThumbURL(imgId) : null;
+});
+
+const viewableChildren = computed(() => {
+  return props.collection.children
+    ? props.collection.children.filter((c) => c.canView)
+    : [];
 });
 
 const showMore = ref(false);

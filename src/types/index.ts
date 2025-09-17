@@ -642,6 +642,9 @@ export interface RawAssetCollection {
   id: number;
   title: string;
   previewImageId?: string | null;
+  showInBrowse: boolean; // whether it appears on collections list page
+  canView: boolean;
+  canEdit: boolean;
   children?: RawAssetCollection[];
 }
 
@@ -652,6 +655,9 @@ export interface AssetCollection {
   previewImageId: string | null;
   children: AssetCollection[] | null;
   parentId: number | null;
+  showInBrowse: boolean; // whether it appears on collections list page
+  canView: boolean;
+  canEdit: boolean;
 }
 
 export interface Page {
@@ -921,6 +927,7 @@ export interface AssetSummary {
 export interface SelectOption<idType = string> {
   id: idType;
   label: string;
+  disabled?: boolean;
 }
 
 export interface GeocoderResult {
