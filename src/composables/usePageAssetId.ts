@@ -11,5 +11,5 @@ export const usePageAssetIdProvider = (
 };
 
 export const usePageAssetId = () => {
-  return inject(PAGE_ASSET_ID);
+  return inject(PAGE_ASSET_ID, null);
 };
