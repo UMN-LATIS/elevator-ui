@@ -1,59 +1,44 @@
 <template>
-  <div v-if="!show" ref="truncateText" v-html="fieldContents"></div>
-  <div v-if="show" v-html="fieldContents"></div>
+  <div
+    ref="containerRef"
+    class="prose"
+    :class="{
+      'line-clamp-3 max-h-[5rem] overflow-hidden': !isExpanded,
+    }"
+    v-html="fieldContents" />
 
   <button
-    v-if="isTruncated"
+    v-if="isTruncateable"
     class="flex items-center uppercase text-xs text-blue-600"
-    @click="show = !show">
-    Show {{ show ? "Less" : "More" }}
-    <ChevronUpIcon v-if="show" />
+    @click="isExpanded = !isExpanded">
+    {{ isExpanded ? "Show Less" : "Show More" }}
+    <ChevronUpIcon v-if="isExpanded" />
     <ChevronDownIcon v-else />
   </button>
 </template>
 <script setup lang="ts">
 import { WidgetDef } from "@/types";
 import { ref, onMounted, useTemplateRef } from "vue";
-import { useResizeObserver, useDebounceFn } from "@vueuse/core";
-import shave from "shave";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
-import config from "@/config";
+import invariant from "tiny-invariant";
 
-const props = withDefaults(
-  defineProps<{
-    fieldContents: string;
-    widget: WidgetDef;
-    textTruncationHeight?: number;
-  }>(),
-  {
-    textTruncationHeight:
-      config.instance.textAreaItem.defaultTextTruncationHeight,
-  }
-);
-const show = ref(false);
-const truncateText = useTemplateRef("truncateText");
-const isTruncated = ref(false);
+defineProps<{
+  fieldContents: string;
+  widget: WidgetDef;
+}>();
 
-const debouncedShave = useDebounceFn(() => {
-  updateShave();
-}, 50);
+const isExpanded = ref(false);
+const containerRef = useTemplateRef("containerRef");
+const isTruncateable = ref(false);
 
-function updateShave() {
-  if (!truncateText.value) {
-    return;
-  }
-
-  shave(
-    [truncateText.value] as unknown as NodeList,
-    props.textTruncationHeight
-  );
-  isTruncated.value =
-    truncateText.value.querySelector<HTMLElement>(".js-shave") !== null;
+function doesContentOverflow(el: HTMLElement | null = null) {
+  return el ? el.scrollHeight > el.clientHeight : false;
 }
 
-useResizeObserver(truncateText, debouncedShave);
 onMounted(() => {
-  updateShave();
+  invariant(containerRef.value);
+  isTruncateable.value = doesContentOverflow(containerRef.value);
 });
 </script>
+<style scoped></style>

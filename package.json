@@ -64,7 +64,6 @@
     "quill-paste-smart": "^2.0.0",
     "ramda": "^0.31.3",
     "reka-ui": "^2.4.0",
-    "shave": "^5.0.4",
     "striptags": "^4.0.0-alpha.4",
     "swiper": "^9.4.1",
     "tailwind-merge": "^3.3.1",
