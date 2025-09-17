@@ -23,7 +23,7 @@
         <h2 :class="{ 'font-bold': showMore }">{{ collection.title }}</h2>
       </Link>
     </div>
-    <div v-if="collection.children">
+    <div v-if="viewableChildren.length">
       <CollectionItem
         v-for="child in viewableChildren"
         v-show="showMore"
