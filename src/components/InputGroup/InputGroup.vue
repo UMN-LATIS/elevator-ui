@@ -2,7 +2,7 @@
   <div class="input-group">
     <label
       :for="id"
-      class="block text-xs font-medium text-neutral-700 uppercase mb-1"
+      class="block text-xs font-medium uppercase mb-1"
       :class="[{ 'sr-only': labelHidden }, labelClass]">
       {{ label }}
       <span v-if="required" class="text-red-600">*</span>
@@ -76,6 +76,10 @@ const model = defineModel<TModelValue>({
 });
 </script>
 <style scoped>
+.input-group label {
+  color: var(--app-input-label-textColor, var(--color-neutral-900));
+}
+
 /* hack to show placeholder text for safari date inputs.
 safari will show the current date if no value is set, even if a placeholder is set. */
 @supports (font: -apple-system-body) and (-webkit-appearance: none) {
