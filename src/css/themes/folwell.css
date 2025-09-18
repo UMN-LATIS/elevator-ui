@@ -20,6 +20,7 @@
 
   --app-fontFamily: "Open Sans", "Work Sans", "Helvetica Neue", sans-serif;
   --app-textColor: var(--color-zinc-900);
+  --app-placeholderColor: var(--color-zinc-400);
   --app-backgroundColor: var(--color-zinc-100);
   --app-borderColor: var(--color-zinc-300);
   --app-borderWidth: 2px;

@@ -25,6 +25,7 @@
             {
               'pl-10': $slots.prepend,
               'pr-10': $slots.append,
+              'input--is-blank': !model,
             },
             inputClass,
           ])
@@ -74,4 +75,19 @@ const model = defineModel<TModelValue>({
   required: true,
 });
 </script>
-<style scoped></style>
+<style scoped>
+/* hack to show placeholder text for safari date inputs.
+safari will show the current date if no value is set, even if a placeholder is set. */
+@supports (font: -apple-system-body) and (-webkit-appearance: none) {
+  /* target date inputs without values that are not focused and make the text
+  safari shows transparent */
+  input[type="date"].input--is-blank:not(:focus) {
+    color: transparent;
+  }
+  /* then use a pseudo element to show the placeholder text */
+  input[type="date"].input--is-blank:not(:focus)::before {
+    content: attr(placeholder);
+    color: var(--app-placeholderColor, #a3a3a3);
+  }
+}
+</style>
