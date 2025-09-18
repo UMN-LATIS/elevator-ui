@@ -1,20 +1,22 @@
 <template>
-  <div
-    ref="containerRef"
-    class="prose"
-    :class="{
-      'line-clamp-3 max-h-[5rem] overflow-hidden': !isExpanded,
-    }"
-    v-html="fieldContents" />
+  <div class="text-area-item">
+    <div
+      ref="containerRef"
+      class="prose"
+      :class="{
+        'line-clamp-3 max-h-[5rem] overflow-hidden': !isExpanded,
+      }"
+      v-html="fieldContents" />
 
-  <button
-    v-if="isTruncateable"
-    class="flex items-center uppercase text-xs text-blue-600"
-    @click="isExpanded = !isExpanded">
-    {{ isExpanded ? "Show Less" : "Show More" }}
-    <ChevronUpIcon v-if="isExpanded" />
-    <ChevronDownIcon v-else />
-  </button>
+    <button
+      v-if="isTruncateable"
+      class="flex items-center uppercase text-xs text-blue-600"
+      @click="isExpanded = !isExpanded">
+      {{ isExpanded ? "Show Less" : "Show More" }}
+      <ChevronUpIcon v-if="isExpanded" />
+      <ChevronDownIcon v-else />
+    </button>
+  </div>
 </template>
 <script setup lang="ts">
 import { WidgetDef } from "@/types";
@@ -41,4 +43,12 @@ onMounted(() => {
   isTruncateable.value = doesContentOverflow(containerRef.value);
 });
 </script>
-<style scoped></style>
+<style>
+.text-area-item .prose {
+  line-height: 1.4;
+
+  & li[data-list="bullet"] {
+    list-style-type: disc;
+  }
+}
+</style>
