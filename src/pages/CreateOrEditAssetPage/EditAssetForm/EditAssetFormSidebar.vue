@@ -85,6 +85,7 @@
         v-model="localAvailableAfterDate"
         label="Available After"
         type="date"
+        placeholder="mm / dd / yyyy"
         inputClass="text-sm pl-3"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
