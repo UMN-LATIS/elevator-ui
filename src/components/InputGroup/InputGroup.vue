@@ -25,6 +25,7 @@
             {
               'pl-10': $slots.prepend,
               'pr-10': $slots.append,
+              'input--is-blank': !model,
             },
             inputClass,
           ])
@@ -80,13 +81,13 @@ safari will show the current date if no value is set, even if a placeholder is s
 @supports (font: -apple-system-body) and (-webkit-appearance: none) {
   /* target date inputs without values that are not focused and make the text
   safari shows transparent */
-  input[type="date"]:not([value]):not(:focus) {
+  input[type="date"].input--is-blank:not(:focus) {
     color: transparent;
   }
   /* then use a pseudo element to show the placeholder text */
-  input[type="date"]:not([value]):not(:focus)::before {
+  input[type="date"].input--is-blank:not(:focus)::before {
     content: attr(placeholder);
-    color: #999;
+    color: var(--app-placeholderColor, #a3a3a3);
   }
 }
 </style>

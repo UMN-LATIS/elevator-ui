@@ -8,6 +8,7 @@
   --app-textColor: var(--color-neutral-900);
   --app-headingColor: var(--color-neutral-900);
   --app-backgroundColor: var(--color-neutral-100);
+  --app-placeholderColor: var(--color-neutral-400);
   --app-borderColor: var(--color-neutral-900);
   --app-borderWidth: 2px;
 
