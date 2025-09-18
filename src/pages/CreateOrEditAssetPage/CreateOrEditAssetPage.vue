@@ -379,4 +379,8 @@ onBeforeRouteUpdate(async (to, _from, next) => {
   next();
 });
 </script>
-<style scoped></style>
+<style scoped>
+label {
+  color: var(--app-input-label-textColor, var(--color-neutral-900));
+}
+</style>

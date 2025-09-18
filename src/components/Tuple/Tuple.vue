@@ -12,7 +12,7 @@
             cn(
               'text-xs block uppercase leading-none mb-1 tracking-wide',
               {
-                'font-bold': variant === 'stacked',
+                'font-medium': variant === 'stacked',
                 'sr-only': variant === 'value-only',
               },
               labelClass
