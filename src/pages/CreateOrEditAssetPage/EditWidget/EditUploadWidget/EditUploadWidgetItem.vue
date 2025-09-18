@@ -40,10 +40,10 @@
         <Tuple
           label="Source File"
           class="flex items-center justify-between flex-wrap text-sm gap-2 -mt-2">
-          {{ fileMetadata?.sourcefile }}
+          {{ fileMetaData?.sourcefile }}
           <Button
-            v-if="fileMetadata?.sourcefile"
-            :href="fileMetadata?.sourcefile"
+            v-if="fileMetaData?.sourcefile"
+            :href="fileMetaData?.sourcefile"
             variant="tertiary"
             class="flex items-center gap-1 !no-underline text-xs uppercase font-medium"
             download>
