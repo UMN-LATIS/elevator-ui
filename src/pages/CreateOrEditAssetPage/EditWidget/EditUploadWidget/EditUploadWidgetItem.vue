@@ -3,16 +3,16 @@
     <div class="grid grid-cols-3 gap-4 mb-2">
       <div class="w-full aspect-square rounded-md overflow-hidden relative">
         <img
-          v-if="item.fileId && isPreviewImageReady && previewImageUrl"
+          v-if="item.fileId && previewImageUrl"
           :src="previewImageUrl"
           :alt="`thumbnail for item: ${item.fileDescription}`"
           class="w-full h-full object-cover" />
         <div
           v-else
           class="w-full h-full flex items-center justify-center bg-black/5 text-neutral-400">
-          <SpinnerIcon class="size-5 animate-spin" />
+          <FileIcon class="size-8" />
           <span class="sr-only">
-            Loading preview image for {{ item.fileDescription }}
+            No preview image for {{ item.fileDescription }}
           </span>
         </div>
       </div>
@@ -96,7 +96,7 @@
 import * as Type from "@/types";
 import config from "@/config";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-import { ChevronDownIcon } from "lucide-vue-next";
+import { ChevronDownIcon, FileIcon } from "lucide-vue-next";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Button from "@/components/Button/Button.vue";
 import { SpinnerIcon } from "@/icons";
@@ -115,9 +115,7 @@ const emit = defineEmits<{
 }>();
 
 // Use the new preview image composable
-const { isReady: isPreviewImageReady, previewImageUrl } = usePreviewImage(
-  () => props.item.fileId
-);
+const { previewImageUrl } = usePreviewImage(() => props.item.fileId);
 
 function handleDescriptionUpdate(event: Event) {
   const target = event.target as HTMLTextAreaElement;

@@ -33,7 +33,6 @@ export const usePreviewImage = (
   });
 
   const previewImageUrl = computed(() => {
-    if (!isReady.value) return null;
     invariant(
       fileId.value,
       "File ID must be defined to get preview image URL."
