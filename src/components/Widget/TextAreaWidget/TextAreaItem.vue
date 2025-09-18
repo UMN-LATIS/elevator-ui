@@ -47,6 +47,10 @@ onMounted(() => {
 .text-area-item .prose {
   line-height: 1.4;
 
+  /* this is a workaround for quill saving bulleted lists as
+   * ordered lists (e.g. `<ol><li data-list="bullet">`)
+   * this should now be fixed in the EditTextAreaWidget.vue but
+   * adding this style workaround in case */
   & li[data-list="bullet"] {
     list-style-type: disc;
   }
