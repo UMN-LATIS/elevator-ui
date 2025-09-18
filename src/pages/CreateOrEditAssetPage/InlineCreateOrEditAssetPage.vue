@@ -70,13 +70,16 @@
 import * as T from "@/types";
 import { computed, onMounted, reactive, useTemplateRef, watch } from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
+import {
+  createAssetEditor,
+  useAssetEditor,
+} from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
-import { inject, provide } from "vue";
+import { provide } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import {
   useAssetValidationProvider,
@@ -103,10 +106,10 @@ const emit = defineEmits<{
 
 // the parent asset component's editor - used to register the `onBeforeSave`
 // hook
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 // unique editor instance for this inline asset
-const assetEditor = useAssetEditor();
+const assetEditor = createAssetEditor();
 
 // Provide this inline editor to child components
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);

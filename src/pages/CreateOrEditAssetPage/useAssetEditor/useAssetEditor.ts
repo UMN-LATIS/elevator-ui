@@ -1,6 +1,6 @@
 import * as T from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
-import { computed, nextTick, reactive, toRefs } from "vue";
+import { computed, inject, nextTick, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
@@ -9,6 +9,7 @@ import {
 import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
@@ -37,13 +38,14 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
 });
 
 /**
- * Provides a reactive asset editor state and methods to manage the asset lifecycle
+ * Creates (but does NOT provide) a reactive asset editor state
+ *  and methods to manage the asset lifecycle
  * Note that each instance of this composable has
  * its own state, so that it can be used in inline related
  * assets without affecting the main asset editor.
- * Use provide/inject to share state with child components.
+ * use `useAssetEditor` in child components to access the parent instance
  */
-export const useAssetEditor = () => {
+export const createAssetEditor = () => {
   const state = reactive<AssetEditorState>(initState());
 
   const assetId = computed(
@@ -409,4 +411,18 @@ export const useAssetEditor = () => {
   });
 };
 
-export type AssetEditor = ReturnType<typeof useAssetEditor>;
+export type AssetEditor = ReturnType<typeof createAssetEditor>;
+
+/**
+ * Injects the parent asset editor from provide/inject context
+ * Use this when you need to access the parent editor instance
+ */
+export const useAssetEditor = (): AssetEditor => {
+  const assetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+  if (!assetEditor) {
+    throw new Error(
+      "useAssetEditor must be called within an AssetEditor provider"
+    );
+  }
+  return assetEditor;
+};

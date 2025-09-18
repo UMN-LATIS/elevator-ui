@@ -58,8 +58,8 @@ import {
   TagsInputInput,
 } from "@/components/ui/tags-input";
 import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
-import { inject, computed, ref, nextTick } from "vue";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { computed, ref, nextTick } from "vue";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
@@ -70,7 +70,7 @@ const props = defineProps<{
 
 const tagInput = ref("");
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 const templateId = computed(() => {
   invariant(parentAssetEditor, "Parent asset editor is required");
