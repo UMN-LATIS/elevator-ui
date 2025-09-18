@@ -149,7 +149,7 @@ import Button from "@/components/Button/Button.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { isSaveRelatedAssetMessage } from "@/types/guards";
 import config from "@/config";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import { useSearchRelatedAssetsQuery } from "@/queries/useSearchRelatedAssetsQuery";
 
 const props = defineProps<{
@@ -192,7 +192,7 @@ const targetAssetId = computed(() => props.modelValue.targetAssetId);
 
 const channelName = computed(() => `relatedAssetWidget-${props.modelValue.id}`);
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({

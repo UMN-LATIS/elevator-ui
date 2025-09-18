@@ -108,7 +108,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, inject, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
@@ -119,7 +119,7 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
 import { phpDateToString } from "../useAssetEditor/utils";
 import invariant from "tiny-invariant";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import Tuple from "@/components/Tuple/Tuple.vue";
 
@@ -156,7 +156,7 @@ watch(
 );
 
 const localAvailableAfterDate = ref("");
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 // Use validation system for form validation
 const { isAssetValid, missingRequiredFields, invalidFields } =

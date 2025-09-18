@@ -73,8 +73,8 @@ import { Input } from "@/components/ui/input";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
 import * as ops from "./helpers/editWidgetOps";
-import { computed, inject } from "vue";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { computed } from "vue";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
@@ -91,7 +91,7 @@ const emit = defineEmits<{
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 const templateId = computed(() => {
   invariant(parentAssetEditor);
   return parentAssetEditor.templateId;

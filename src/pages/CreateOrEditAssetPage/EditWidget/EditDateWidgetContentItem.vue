@@ -71,9 +71,9 @@ import {
   parseDateString,
   unixTimestampToFormattedDate,
 } from "@/helpers/parseDateString";
-import { computed, inject, ref } from "vue";
+import { computed, ref } from "vue";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
@@ -113,7 +113,7 @@ const handleUpdateLabel = (value: string) => {
 };
 
 const { widgetValidations } = useAssetValidation();
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 // Get the proper widget instance ID
 const widgetInstanceId = computed(() => {

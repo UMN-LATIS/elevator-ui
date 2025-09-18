@@ -153,8 +153,7 @@ import { computed, useTemplateRef, watch } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 import { useFocusWithin } from "@vueuse/core";
-import { inject } from "vue";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 
@@ -181,7 +180,7 @@ const { focused: isFocusedWithin } = useFocusWithin(
   editLayoutContentsRef.value
 );
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 const assetValidation = useAssetValidation();
 

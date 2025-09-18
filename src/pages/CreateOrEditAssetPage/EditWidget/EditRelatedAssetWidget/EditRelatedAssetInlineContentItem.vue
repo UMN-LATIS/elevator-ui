@@ -23,8 +23,8 @@
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
-import { computed, inject } from "vue";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { computed } from "vue";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import InlineCreateOrEditAssetPage from "../../InlineCreateOrEditAssetPage.vue";
 
 const props = defineProps<{
@@ -45,7 +45,7 @@ const templateId = computed((): Type.Template["templateId"] | null => {
   return props.widgetDef.fieldData.defaultTemplate ?? null;
 });
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
+const parentAssetEditor = useAssetEditor();
 
 function handleUpdateRelatedAssetDirty(isDirty: boolean) {
   // emit the dirty state to the parent component

@@ -114,7 +114,7 @@ import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
+import { createAssetEditor } from "./useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
@@ -135,7 +135,7 @@ const props = withDefaults(
 );
 
 // Use the asset editor composable
-const assetEditor = useAssetEditor();
+const assetEditor = createAssetEditor();
 
 useAssetValidationProvider(
   () => assetEditor.localAsset,
