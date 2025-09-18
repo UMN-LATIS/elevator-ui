@@ -5,8 +5,8 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
   makeLocalAsset,
-  toSaveableFormData,
 } from "./utils";
+import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 
@@ -58,11 +58,13 @@ export const useAssetEditor = () => {
   const collectionOptions = computed((): T.SelectOption<number>[] => {
     // show all collections, but disable ones that cannot be edited
     const collections = instanceStore.flatCollections ?? [];
-    return collections.map((collection) => ({
-      label: collection.title,
-      id: collection.id,
-      disabled: !collection.canEdit,
-    })).sort((a, b) => a.label.localeCompare(b.label));
+    return collections
+      .map((collection) => ({
+        label: collection.title,
+        id: collection.id,
+        disabled: !collection.canEdit,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   });
 
   const templateOptions = computed((): T.SelectOption<number>[] => {
@@ -238,7 +240,12 @@ export const useAssetEditor = () => {
       // clear any upload widget `regenerate` flags
       const uploadWidgetItems = state.template.widgetArray
         .filter((w) => w.type === T.WIDGET_TYPES.UPLOAD)
-        .flatMap((w) => state.localAsset?.[w.fieldTitle] as T.WithId<T.UploadWidgetContent>[])
+        .flatMap(
+          (w) =>
+            state.localAsset?.[
+              w.fieldTitle
+            ] as T.WithId<T.UploadWidgetContent>[]
+        )
         .filter(Boolean);
 
       uploadWidgetItems.forEach((item) => {
@@ -348,7 +355,7 @@ export const useAssetEditor = () => {
 
   async function runBeforeSaveCallbacks() {
     await Promise.allSettled(beforeSaveCallbacks.map((callback) => callback()));
-    // wait for next ticket to ensure any state changes are applied
+    // wait for next tick to ensure any state changes are applied
     await nextTick();
   }
 

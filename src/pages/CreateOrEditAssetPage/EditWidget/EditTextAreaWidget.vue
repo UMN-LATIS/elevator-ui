@@ -60,18 +60,14 @@ import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
 import TextEditor from "@/components/TextEditor/TextEditor.vue";
 import * as ops from "./helpers/editWidgetOps";
-import { inject, onMounted } from "vue";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
-import invariant from "tiny-invariant";
-import Quill from "quill";
 
-const props = defineProps<{
+defineProps<{
   widgetDef: Type.TextWidgetDef;
   widgetContents: Type.WithId<Type.TextWidgetContent>[];
   isOpen: boolean;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (
     e: "update:widgetContents",
     widgetContents: Type.WithId<Type.TextWidgetContent>[]
@@ -79,40 +75,7 @@ const emit = defineEmits<{
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-const parentAssetEditor = inject(ASSET_EDITOR_PROVIDE_KEY);
-
-const quill = new Quill(document.createElement("div"));
-// remove whitespace and empty paragraphs
-function cleanFieldContents(html: string): string {
-  // remove empty paragraphs
-  const emptyParagraphRegex = /<p>(&nbsp;|\s|<br>)*<\/p>/g;
-  const trimmed = html.trim().replace(emptyParagraphRegex, "");
-
-  // convert quill's html to semantic html
-  // e.g. `<ol><li data-list="bullet">` to `<ul><li>`
-  const delta = quill.clipboard.convert({ html: trimmed });
-  quill.setContents(delta);
-  const semanticHtml = quill.getSemanticHTML();
-
-  // quill converts EVERY space to &nbsp; so convert them back to normal spaces
-  // and trim again to remove any leading/trailing spaces
-  const cleanedSemanticHtml = semanticHtml.replace(/&nbsp;/g, " ").trim();
-  return cleanedSemanticHtml;
-}
-
-onMounted(() => {
-  invariant(parentAssetEditor);
-  // register a beforeSave callback with the parent editor
-  // to clean up field contents (e.g. removing empty paragraphs)
-  // so that the asset view formatting is cleaner
-  parentAssetEditor.onBeforeSave(async () => {
-    const trimmedContents = props.widgetContents.map((content) => ({
-      ...content,
-      fieldContents: cleanFieldContents(content.fieldContents ?? ""),
-    }));
-    emit("update:widgetContents", trimmedContents);
-  });
-});
+// Note: textarea content cleaning now happens automatically before save in `toSaveableFormData()`in the asset editor.
 </script>
 <style scoped>
 /* Ensure the embedded Quill editor starts a bit taller */
