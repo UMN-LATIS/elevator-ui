@@ -4,7 +4,10 @@
       ref="containerRef"
       class="prose"
       :class="{
-        'line-clamp-3 max-h-[5rem] overflow-hidden': !isExpanded,
+        'overflow-hidden': !isExpanded,
+      }"
+      :style="{
+        'max-height': !isExpanded ? `${truncateHeight}px` : 'none',
       }"
       v-html="fieldContents" />
 
@@ -24,6 +27,7 @@ import { ref, onMounted, useTemplateRef } from "vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
 import invariant from "tiny-invariant";
+import config from "@/config";
 
 defineProps<{
   fieldContents: string;
@@ -33,6 +37,7 @@ defineProps<{
 const isExpanded = ref(false);
 const containerRef = useTemplateRef("containerRef");
 const isTruncateable = ref(false);
+const truncateHeight = config.instance.textAreaItem.defaultTextTruncationHeight;
 
 function doesContentOverflow(el: HTMLElement | null = null) {
   return el ? el.scrollHeight > el.clientHeight : false;
