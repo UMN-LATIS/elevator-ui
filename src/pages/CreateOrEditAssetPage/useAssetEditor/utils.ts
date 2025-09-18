@@ -5,35 +5,30 @@ import {
   WidgetContent,
   WidgetDef,
   PHPDateTime,
-  UpdateAssetRequestFormData,
+  WithId,
 } from "@/types";
 import invariant from "tiny-invariant";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
-import { equals } from "ramda";
+import { equals, omit } from "ramda";
 import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
-export function getWidgetContentsWithoutIds(
-  asset: Asset | UnsavedAsset,
-  template: Template
-): Record<string, WidgetContent[]> {
-  return template.widgetArray.reduce((acc, widgetDef) => {
-    const widgetContents = asset[widgetDef.fieldTitle] as
-      | WidgetContent[]
-      | undefined;
-    if (!widgetContents) {
-      return acc;
-    }
-    // omit id from each widget content
-    acc[widgetDef.fieldTitle] = widgetContents.map(
-      ({ id: _id, ...rest }) => rest
-    );
-    return acc;
-  }, {} as Record<string, WidgetContent[]>);
-}
-
 export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
-  const widgetContentsWithoutIds = getWidgetContentsWithoutIds(asset, template);
+  // remove ids from each widget content item
+  const widgetContentsWithoutIds = template.widgetArray.reduce(
+    (acc, widgetDef) => {
+      const widgetContents = asset[widgetDef.fieldTitle] as
+        | WithId<WidgetContent>[]
+        | undefined;
+      if (!widgetContents) {
+        return acc;
+      }
+      acc[widgetDef.fieldTitle] = widgetContents.map((c) => omit(["id"], c));
+      return acc;
+    },
+    {} as Record<string, WidgetContent[]>
+  );
+
   return {
     ...asset,
     ...widgetContentsWithoutIds,
@@ -216,24 +211,6 @@ export function doAllRequiredHaveContent(
     const contents = asset[fieldTitle] as WidgetContent[];
     return hasWidgetContent(contents, widgetDef.type);
   });
-}
-
-export function toSaveableFormData(
-  asset: Asset | UnsavedAsset,
-  template: Template
-): UpdateAssetRequestFormData {
-  const widgetContentsWithoutIds = getWidgetContentsWithoutIds(asset, template);
-
-  return {
-    objectId: asset.assetId ?? "",
-    templateId: String(asset.templateId),
-    newTemplateId: String(asset.templateId),
-    collectionId: String(asset.collectionId),
-    newCollectionId: String(asset.collectionId),
-    readyForDisplay: asset.readyForDisplay as boolean,
-    availableAfter: (asset.availableAfter as PHPDateTime)?.date,
-    ...widgetContentsWithoutIds,
-  };
 }
 
 export function migrateAssetToTemplate(

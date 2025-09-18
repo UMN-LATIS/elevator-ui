@@ -74,6 +74,8 @@ defineEmits<{
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+// Note: textarea content cleaning now happens automatically before save in `toSaveableFormData()`in the asset editor.
 </script>
 <style scoped>
 /* Ensure the embedded Quill editor starts a bit taller */

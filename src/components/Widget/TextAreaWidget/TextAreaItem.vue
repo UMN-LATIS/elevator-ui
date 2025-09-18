@@ -1,59 +1,63 @@
 <template>
-  <div v-if="!show" ref="truncateText" v-html="fieldContents"></div>
-  <div v-if="show" v-html="fieldContents"></div>
+  <div class="text-area-item">
+    <div
+      ref="containerRef"
+      class="prose"
+      :class="{
+        'overflow-hidden': !isExpanded,
+      }"
+      :style="{
+        'max-height': !isExpanded ? `${truncateHeight}px` : 'none',
+      }"
+      v-html="fieldContents" />
 
-  <button
-    v-if="isTruncated"
-    class="flex items-center uppercase text-xs text-blue-600"
-    @click="show = !show">
-    Show {{ show ? "Less" : "More" }}
-    <ChevronUpIcon v-if="show" />
-    <ChevronDownIcon v-else />
-  </button>
+    <button
+      v-if="isTruncateable"
+      class="flex items-center uppercase text-xs text-blue-600"
+      @click="isExpanded = !isExpanded">
+      {{ isExpanded ? "Show Less" : "Show More" }}
+      <ChevronUpIcon v-if="isExpanded" />
+      <ChevronDownIcon v-else />
+    </button>
+  </div>
 </template>
 <script setup lang="ts">
 import { WidgetDef } from "@/types";
 import { ref, onMounted, useTemplateRef } from "vue";
-import { useResizeObserver, useDebounceFn } from "@vueuse/core";
-import shave from "shave";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import ChevronUpIcon from "@/icons/ChevronUpIcon.vue";
+import invariant from "tiny-invariant";
 import config from "@/config";
 
-const props = withDefaults(
-  defineProps<{
-    fieldContents: string;
-    widget: WidgetDef;
-    textTruncationHeight?: number;
-  }>(),
-  {
-    textTruncationHeight:
-      config.instance.textAreaItem.defaultTextTruncationHeight,
-  }
-);
-const show = ref(false);
-const truncateText = useTemplateRef("truncateText");
-const isTruncated = ref(false);
+defineProps<{
+  fieldContents: string;
+  widget: WidgetDef;
+}>();
 
-const debouncedShave = useDebounceFn(() => {
-  updateShave();
-}, 50);
+const isExpanded = ref(false);
+const containerRef = useTemplateRef("containerRef");
+const isTruncateable = ref(false);
+const truncateHeight = config.instance.textAreaItem.defaultTextTruncationHeight;
 
-function updateShave() {
-  if (!truncateText.value) {
-    return;
-  }
-
-  shave(
-    [truncateText.value] as unknown as NodeList,
-    props.textTruncationHeight
-  );
-  isTruncated.value =
-    truncateText.value.querySelector<HTMLElement>(".js-shave") !== null;
+function doesContentOverflow(el: HTMLElement | null = null) {
+  return el ? el.scrollHeight > el.clientHeight : false;
 }
 
-useResizeObserver(truncateText, debouncedShave);
 onMounted(() => {
-  updateShave();
+  invariant(containerRef.value);
+  isTruncateable.value = doesContentOverflow(containerRef.value);
 });
 </script>
+<style>
+.text-area-item .prose {
+  line-height: 1.4;
+
+  /* this is a workaround for quill saving bulleted lists as
+   * ordered lists (e.g. `<ol><li data-list="bullet">`)
+   * this should now be fixed in the EditTextAreaWidget.vue but
+   * adding this style workaround in case */
+  & li[data-list="bullet"] {
+    list-style-type: disc;
+  }
+}
+</style>
