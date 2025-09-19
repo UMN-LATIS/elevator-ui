@@ -43,7 +43,7 @@
           {{ fileMetaData?.sourcefile }}
           <Button
             v-if="fileMetaData?.sourcefile"
-            :href="fileMetaData?.sourcefile"
+            :href="`${config.instance.base.url}/fileManager/getOriginal/${item.fileId}`"
             variant="tertiary"
             class="flex items-center gap-1 !no-underline text-xs uppercase font-medium"
             download>
