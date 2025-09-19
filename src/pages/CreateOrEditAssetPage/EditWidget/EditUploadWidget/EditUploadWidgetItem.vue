@@ -73,7 +73,7 @@
         <Tuple label="Location">
           <pre>{{ item.loc || "-" }}</pre>
         </Tuple>
-        <Tuple label="Search Data" class="text-sm text-neutral-600 mb-2">
+        <Tuple label="Search Data">
           <pre>{{ item.searchData || "-" }}</pre>
         </Tuple>
         <div class="flex justify-between gap-4 flex-wrap">
