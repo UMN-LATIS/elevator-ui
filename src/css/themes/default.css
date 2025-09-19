@@ -158,6 +158,9 @@
   --app-button-tertiary-disabled-backgroundColor: tranparent;
   --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
 
+  /* Input */
+  --app-input-label-textColor: var(--color-neutral-900);
+
   /* Tuple */
   --app-tuple-label-textColor: var(--color-neutral-900);
   --app-tuple-value-textColor: var(--color-neutral-700);
