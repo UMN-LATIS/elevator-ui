@@ -9,7 +9,7 @@
         <ChevronRight v-else class="size-4" />
       </button>
       <Link
-        class="collection-item__parent-link flex gap-2 flex-1 !no-underline rounded-md"
+        class="collection-item__parent-link flex items-center gap-2 flex-1 !no-underline rounded-md"
         :to="`/collections/browseCollection/${collection.id}`"
         :class="{
           'p-3': nestingLevel === 0,
