@@ -1,19 +1,19 @@
 <template>
-  <div class="collection-item rounded-md">
-    <div class="collection-item__parent flex items-center rounded-md">
+  <div class="collection-item rounded-md flex flex-col">
+    <div class="collection-item__parent flex-1 flex rounded-md">
       <button
-        v-if="collection.children && collection.children.length > 0"
-        class="collection-item__parent-expand-button p-3 inline-flex items-center rounded-md justify-center duration-150"
+        v-if="collection.children?.length"
+        class="collection-item__parent-expand-button px-2 py-3 flex items-center rounded-md justify-center duration-150"
         @click="showMore = !showMore">
         <ChevronDown v-if="showMore" class="size-4" />
         <ChevronRight v-else class="size-4" />
       </button>
       <Link
-        class="collection-item__parent-link flex gap-2 flex-1 items-center !no-underline h-full p-2 rounded-md"
+        class="collection-item__parent-link flex gap-2 flex-1 !no-underline rounded-md"
         :to="`/collections/browseCollection/${collection.id}`"
         :class="{
-          // add padding if root collections have no children
-          'pl-4': nestingLevel === 0 && !collection.children?.length,
+          'p-3': nestingLevel === 0,
+          'py-2': nestingLevel !== 0,
         }">
         <LazyLoadImage
           v-if="imgSrc"
@@ -29,6 +29,7 @@
         v-show="showMore"
         :key="child.id"
         :collection="child"
+        :nestingLevel="nestingLevel + 1"
         class="ml-8" />
     </div>
   </div>
