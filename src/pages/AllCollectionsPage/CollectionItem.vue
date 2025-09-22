@@ -9,10 +9,11 @@
         <ChevronRight v-else class="size-4" />
       </button>
       <Link
-        class="collection-item__parent-link flex items-center gap-2 flex-1 !no-underline rounded-md"
+        class="collection-item__parent-link flex items-center gap-2 flex-1 pr-2 !no-underline rounded-md"
         :to="`/collections/browseCollection/${collection.id}`"
         :class="{
-          'p-3': nestingLevel === 0,
+          'py-3': nestingLevel === 0,
+          'pl-2': nestingLevel !== 0 && !collection.children?.length,
           'py-2': nestingLevel !== 0,
         }">
         <LazyLoadImage
