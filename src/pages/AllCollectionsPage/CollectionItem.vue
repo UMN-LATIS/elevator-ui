@@ -1,6 +1,6 @@
 <template>
   <div
-    class="all-collections-page__collection-item p-4 rounded border transition-colors duration-150">
+    class="all-collections-page__collection-item collection-item p-4 rounded border transition-colors duration-150">
     <div class="flex items-center gap-1">
       <button
         v-if="collection.children && collection.children.length > 0"
