@@ -60,10 +60,19 @@ onMounted(async () => {
 useResizeObserver(collectionGrid, (entries) => {
   const [entry] = entries;
   const { width } = entry.contentRect;
-  if (width < 640) numCols.value = 1;
-  if (width < 768) numCols.value = 2;
-  if (width < 1024) numCols.value = 3;
-  if (width >= 1024) numCols.value = 4;
+  if (width < 640) {
+    numCols.value = 1;
+    return;
+  }
+  if (width < 768) {
+    numCols.value = 2;
+    return;
+  }
+  if (width < 1024) {
+    numCols.value = 3;
+    return;
+  }
+  numCols.value = 4;
 });
 
 const numRows = computed(() => {

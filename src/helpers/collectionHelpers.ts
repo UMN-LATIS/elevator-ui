@@ -68,16 +68,43 @@ export function flattenCollections(
 
 /**
  * Recursively filter collection by predicate.
- * If predicate fails, its children will not be included.
+ * If predicate fails, children will be checked and appended if they pass.
  * This is useful for filtering collections based on permissions.
  */
 export const filterCollections = (
   predicate: (col: AssetCollection) => boolean,
   nestedCollections: AssetCollection[]
-): AssetCollection[] =>
-  nestedCollections.filter(predicate).map((col) => ({
-    ...col,
-    children: col.children?.length
-      ? filterCollections(predicate, col.children)
-      : col.children,
-  }));
+): AssetCollection[] => {
+  const result: AssetCollection[] = [];
+
+  for (const collection of nestedCollections) {
+    // recursively filter children by predicate
+    const filteredChildren = filterCollections(
+      predicate,
+      collection.children ?? []
+    );
+
+    // if this collection passes the predicate, include it with its filtered children
+    if (predicate(collection)) {
+      result.push({
+        ...collection,
+        children: filteredChildren,
+      });
+    }
+
+    // if this collection fails the predicate, but has children that passed, include those children
+    else if (filteredChildren.length) {
+      // update the children's parentId to this collection's parentId
+      const promotedFilteredChildren = filteredChildren.map((child) => ({
+        ...child,
+        parentId: collection.parentId,
+      }));
+      result.push(...promotedFilteredChildren);
+    }
+
+    // and if neither the collection nor its children pass,
+    // do nothing (i.e., exclude it)
+  }
+
+  return result;
+};
