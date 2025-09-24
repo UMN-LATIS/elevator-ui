@@ -224,5 +224,5 @@
   --app-sidebar-textColor: var(--color-neutral-900);
   --app-sidebar-link-textColor: var(--color-neutral-900);
 
-  --app-object-fit: cover; /* cover or contain */
+  --app-object-fit: contain; /* cover or contain */
 }
