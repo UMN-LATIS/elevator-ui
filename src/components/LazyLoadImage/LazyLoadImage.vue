@@ -12,7 +12,7 @@
       @load="isImageLoadComplete = true" />
     <div
       v-if="!isImageLoadComplete"
-      class="lazy-load-image__placeholder bg-neutral-200 border-neutral-300 text-neutral-400 absolute inset-0 z-10 flex items-center justify-center border">
+      class="lazy-load-image__placeholder bg-neutral-200 text-neutral-400 absolute inset-0 z-10 flex items-center justify-center">
       <ImageIcon />
     </div>
   </div>
