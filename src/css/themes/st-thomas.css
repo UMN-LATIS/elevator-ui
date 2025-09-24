@@ -149,7 +149,7 @@
   --app-sidebar-link-textColor: var(--color-gray-900);
 
   /* Media Card, Collection Item, Drawers */
-  --app-mediaCard-hover-backgroundColor: var(--color-purple-100);
+  --app-mediaCard-hover-backgroundColor: var(--color-purple-50);
   --app-mediaCard-hover-borderColor: var(--color-brand-active);
   --app-mediaCard-hover-textColor: var(--color-brand-active);
 
