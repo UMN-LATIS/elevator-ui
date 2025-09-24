@@ -174,4 +174,8 @@
       color: var(--color-gray-900);
     }
   }
+
+  .lazy-load-image img {
+    object-fit: contain;
+  }
 }
