@@ -54,7 +54,7 @@ a:focus .media-card {
   border-color: var(--app-mediaCard-hover-borderColor, var(--color-blue-600));
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--hover-text-color);
+    color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
   }
 }
 </style>
