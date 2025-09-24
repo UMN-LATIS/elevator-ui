@@ -23,7 +23,7 @@ withDefaults(
 </script>
 <style scoped>
 .app-menu-item {
-  color: var(--app-appMenu-textColor);
+  color: var(--app-appMenuItem-textColor);
 
   &:hover,
   &:focus,
