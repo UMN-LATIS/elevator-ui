@@ -43,7 +43,7 @@ export interface AppConfig {
      * Automatically load all search results if the total
      * result count is under 1000, bypassing the "Load All" button
      */
-    autoLoadAllResults: boolean;
+    autoloadMaxSearchResults: boolean;
   };
   arcgis: {
     apiKey: string;

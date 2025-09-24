@@ -309,7 +309,7 @@ const getters = (state: SearchStoreState) => ({
    * 3. We have fewer results loaded than total available
    */
   shouldAutoLoadAll: computed((): boolean => {
-    if (!config.instance.autoLoadAllResults) return false;
+    if (!config.instance.autoloadMaxSearchResults) return false;
     if (!state.totalResults.value) return false;
     if (state.totalResults.value >= 1000) return false;
     return getters(state).hasMoreResults.value;

@@ -26,7 +26,7 @@ const defaultConfig: AppConfig = {
       defaultTextTruncationHeight: 72,
     },
     googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID ?? null,
-    autoLoadAllResults: import.meta.env.VITE_AUTO_LOAD_ALL_RESULTS?.toLowerCase() === "true",
+    autoloadMaxSearchResults: import.meta.env.VITE_AUTO_LOAD_ALL_RESULTS?.toLowerCase() === "true",
   },
   arcgis: {
     apiKey:
