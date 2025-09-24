@@ -2,7 +2,7 @@
   <Link
     :href="href"
     :to="to"
-    class="app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:bg-blue-100 hover:text-neutral-900"
+    class="app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline focus:outline-none focus:ring-2"
     :class="{
       'is-current-page': isCurrentPage,
     }">
@@ -24,9 +24,22 @@ withDefaults(
 <style scoped>
 .app-menu-item {
   color: var(--app-appMenu-textColor);
+
+  &:hover,
+  &:focus,
+  &:focus-within {
+    background: var(
+      --app-appMenuItem-hover-backgroundColor,
+      var(--color-blue-50)
+    );
+    color: var(--app-appMenuItem-hover-textColor, var(--color-blue-600));
+  }
 }
 .app-menu-item.is-current-page {
-  background: var(--app-appMenu-currentPage-backgroundColor);
-  color: var(--app-appMenu-currentPage-textColor);
+  background: var(
+    --app-appMenu-currentPage-backgroundColor,
+    var(--color-blue-100)
+  );
+  color: var(--app-appMenu-currentPage-textColor, var(--color-blue-700));
 }
 </style>

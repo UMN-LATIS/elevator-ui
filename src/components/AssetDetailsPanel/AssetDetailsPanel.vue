@@ -18,9 +18,9 @@
           v-if="assetId && instanceStore.currentUser?.canManageAssets"
           :to="`/assetManager/editAsset/${assetId}`"
           title="Edit Asset"
-          class="mr-2">
+          class="flex items-center justify-center px-3 py-2 rounded-md">
           <span class="sr-only">Edit Asset</span>
-          <PencilIcon class="size-4 text-blue-700" />
+          <PencilIcon class="size-4" />
         </IconButton>
       </template>
       <template v-if="assetId && asset && template">
@@ -64,6 +64,7 @@ import { RouterLink } from "vue-router";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { PencilIcon } from "lucide-vue-next";
 import IconButton from "../IconButton/IconButton.vue";
+import Link from "../Link/Link.vue";
 
 const props = withDefaults(
   defineProps<{

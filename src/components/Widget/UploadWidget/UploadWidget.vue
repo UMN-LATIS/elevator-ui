@@ -47,12 +47,10 @@
         v-for="(content, key) in contents"
         :key="key"
         :title="content.fileDescription"
-        class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline hover:bg-blue-50 hover:text-blue-600 w-24 text-neutral-600"
+        class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline w-24"
         :class="{
-          'opacity-80 hover:opacity-100 hover:border-blue-600': !isFileActive(
-            content.fileId
-          ),
-          'ring ring-offset-1 ring-blue-600 hover:border-transparent opacity-100 bg-blue-50':
+          'opacity-80 hover:opacity-100': !isFileActive(content.fileId),
+          'ring ring-offset-1 is-active hover:border-transparent opacity-100':
             isFileActive(content.fileId),
         }"
         @click="assetStore.activeFileObjectId = content.fileId">
@@ -274,3 +272,21 @@ onBeforeUnmount(() => {
   window.removeEventListener("keydown", handleNextPrevArrowPresses);
 });
 </script>
+<style scoped>
+.upload-widget button:hover,
+.upload-widget button:focus,
+.upload-widget button.is-active {
+  --tw-ring-color: var(
+    --app-mediaCard-hover-borderColor,
+    var(--color-blue-600)
+  );
+
+  /* slightly darker bg on hover to indicate interactivity */
+  background-color: var(
+    --app-mediaCard-hover-backgroundColor,
+    var(--color-blue-50)
+  );
+
+  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+}
+</style>

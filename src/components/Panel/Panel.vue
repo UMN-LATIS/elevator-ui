@@ -1,7 +1,7 @@
 <template>
   <section class="panel flex flex-col overflow-auto">
     <header
-      class="panel__header flex items-center sticky top-0 left-0 justify-between z-10 backdrop-blur-[2px]"
+      class="panel__header flex flex-wrap items-center sticky top-0 left-0 justify-between z-10 backdrop-blur-[2px]"
       :class="{
         'h-full': !isOpen,
       }">

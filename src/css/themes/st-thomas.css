@@ -1,80 +1,62 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
 [data-theme="st-thomas"] {
-  --brand-purple-bright: #9e28b5;
-  --brand-purple: #510c76;
-  --brand-purple-light: #e9d9ff;
+  --color-brand: #510c76;
+  --color-brand-100: var(--color-purple-50);
+  --color-brand-content: #ffffff;
+  --color-brand-active: #9e28b5;
+  --color-base-100: var(--color-white);
+  --color-base-200: var(--color-gray-100);
+  --color-base-300: var(--color-gray-200);
+  --color-base-content: var(--color-gray-800);
 
   --app-fontFamily: Lato, sans-serif;
-  --app-textColor: var(--color-gray-600);
-  --app-backgroundColor: var(--color-purple-50);
-  --app-borderColor: var(--color-purple-300);
-  --app-borderWidth: 2px;
+  --app-textColor: var(--color-base-content);
+  --app-backgroundColor: var(--color-base-100);
+  --app-borderColor: var(--color-gray-300);
+  --app-borderWidth: 1px;
 
   /**
   * App Header
   */
-  --app-appHeader-backgroundColor: var(--color-white);
-  --app-appHeader-secondaryNav-backgroundColor: var(--white);
-  --app-appHeader-textColor: var(--brand-purple-bright);
-  --app-appHeader-wordmark-textColor: var(--black);
-  --app-appHeader-logo-color: var(--brand-purple);
-  --app-appHeader-borderBottomColor: var(--app-borderColor);
-  --app-appMenu-backgroundColor: var(--color-purple-100);
-  --app-appMenu-headingColor: var(--brand-purple);
-  --app-appMenu-textColor: var(--color-purple-800);
-  --app-appMenuButton-backgroundColor: var(--brand-purple);
-  --app-appMenuButton-textColor: var(--app-backgroundColor);
+  --app-appHeader-backgroundColor: var(--color-brand);
+  --app-appHeader-secondaryNav-backgroundColor: var(--color-base-100);
+  --app-appHeader-textColor: var(--color-brand-content);
+  --app-appHeader-wordmark-textColor: var(--color-brand-content);
+  --app-appHeader-logo-color: var(--color-brand-content);
+  --app-appHeader-borderBottomColor: tranparent;
+  --app-appHeader-avatar-textColor: var(--color-brand-content);
+  --app-appMenu-backgroundColor: var(--color-base-100);
+  --app-appMenu-headingColor: var(--color-base-content);
+  --app-appMenuButton-backgroundColor: transparent;
+  --app-appMenuButton-textColor: var(--color-brand-content);
 
-  & .app-header {
-    border-top: 0.5rem solid var(--brand-purple);
-  }
-
-  & .app-logo-mark h1 {
-    line-height: 1;
-    font-weight: 400;
-  }
-
-  & .custom-app-header {
-    background-color: var(--color-purple-900);
-    color: var(--color-purple-100);
-  }
-
-  & .app-menu__items :where(button, a):where(:hover, :focus) {
-    background: var(--color-purple-50);
-    border-radius: 0.25rem;
-  }
+  --app-appMenuItem-textColor: var(--color-base-content);
+  --app-appMenuItem-hover-backgroundColor: var(--color-purple-50);
+  --app-appMenuItem-hover-textColor: var(--color-brand-active);
 
   /**
   * Link
   */
-  --app-link-textColor: var(--color-purple-600);
-  --app-link-textColor-inverse: var(--app-backgroundColor);
-  --app-link-hover-textColor: var(--color-purple-800);
+  --app-link-textColor: var(--color-brand-active);
+  --app-link-textColor-inverse: var(--color-brand-100);
+  --app-link-hover-textColor: var(--color-brand);
 
   /**
   * Panel (Drawer)
   */
   --app-panel-borderColor: tranparent;
   --app-panel-borderWidth: 2px;
-  --app-panel-header-textColor: var(--app-textColor);
-  --app-panel-header-backgroundColor: var(--color-purple-100);
-  --app-panel-body-top-borderColor: white;
-  --app-panel-body-textColor: var(--app-textColor);
-  --app-panel-body-backgroundColor: var(--color-purple-100);
+  --app-panel-header-textColor: var(--color-base-content);
+  --app-panel-header-backgroundColor: var(--color-base-200);
+  --app-panel-body-textColor: var(--color-base-content);
+  --app-panel-body-backgroundColor: var(--color-base-200);
   --app-panel-body-items-gap: 1.5rem;
-
-  & .asset-view__details-panel {
-    background-color: var(--color-purple-100);
-    & button {
-      color: var(--color-purple-800);
-    }
-  }
 
   /**
   * Object Viewer
   */
-  --app-objectViewer-backgroundColor: var(--color-neutral-300);
+  --app-objectViewer-backgroundColor: var(--color-base-100);
 
   /**
   * Widget List
@@ -84,35 +66,35 @@
   /**
   * Accordion
   */
-  --app-accordion-header-backgroundColor: var(--color-zinc-200);
+  --app-accordion-header-backgroundColor: var(--color-gray-200);
   --app-accordion-header-textColor: var(--app-textColor);
-  --app-accordion-body-backgroundColor: var(--white);
+  --app-accordion-body-backgroundColor: var(--color-white);
   --app-accordion-body-textColor: var(--app-textColor);
   --app-accordion-outer-borderWidth: 1px;
-  --app-accordion-outer-borderColor: var(--color-neutral-200);
+  --app-accordion-outer-borderColor: var(--color-gray-200);
   --app-accordion-inner-borderWidth: 1px;
   --app-accordion-inner-borderColor: transparent;
 
   /* Tuple */
-  --app-tuple-label-textColor: var(--color-neutral-900);
-  --app-tuple-value-textColor: var(--color-neutral-700);
+  --app-tuple-label-textColor: var(--color-gray-900);
+  --app-tuple-value-textColor: var(--color-gray-700);
 
   /* Scrollbar */
   --app-scrollbar-width: 0.5rem;
-  --app-scrollbar-thumb-backgroundColor: #aaa;
-  --app-scrollbar-thumb-hover-backgroundColor: #555;
-  --app-scrollbar-track-backgroundColor: rgba(255, 255, 255, 33%);
+  --app-scrollbar-thumb-backgroundColor: var(--color-gray-400);
+  --app-scrollbar-thumb-hover-backgroundColor: var(--color-gray-500);
+  --app-scrollbar-track-backgroundColor: var(--color-gray-200);
 
   /** Meta Data Only Page */
-  --app-metaDataOnlyView-backgroundColor: var(--color-neutral-300);
-  --app-metaDataOnlyView-contentViewer-backgroundColor: var(--color-neutral-50);
-  --app-metaDataOnlyView-contentViewer-textColor: var(--color-neutral-900);
+  --app-metaDataOnlyView-backgroundColor: var(--color-gray-300);
+  --app-metaDataOnlyView-contentViewer-backgroundColor: var(--color-gray-50);
+  --app-metaDataOnlyView-contentViewer-textColor: var(--color-gray-900);
 
   /** Modal **/
-  --app-modalContents-backgroundColor: var(--color-neutral-50);
-  --app-modalContents-textColor: var(--color-nuetral-900);
-  --app-modalContents-header-backgroundColor: var(--color-neutral-200);
-  --app-modalContents-header-textColor: var(--color-neutral-900);
+  --app-modalContents-backgroundColor: var(--color-base-100);
+  --app-modalContents-textColor: var(--color-base-content);
+  --app-modalContents-header-backgroundColor: var(--color-gray-200);
+  --app-modalContents-header-textColor: var(--color-gray-900);
 
   /* Thumbnail Image */
   --app-thumbnailImage-backgroundColor: var(--color-white);
@@ -125,7 +107,24 @@
   /**
   * Button Primary (default)
   */
-  --app-button-primary-backgroundColor: var(--brand-purple);
+  --app-button-primary-backgroundColor: var(--color-brand);
+  --app-button-primary-borderColor: var(--color-brand);
+  --app-button-primary-textColor: var(--color-brand-content);
+
+  /* Button Primary :hover */
+  --app-button-primary-hover-backgroundColor: var(--color-brand-active);
+  --app-button-primary-hover-borderColor: var(--color-brand-active);
+  --app-button-primary-hover-textColor: var(--color-brand-content);
+
+  /* Button Secondary */
+  --app-button-secondary-borderColor: var(--color-brand-active);
+  --app-button-secondary-backgroundColor: transparent;
+  --app-button-secondary-textColor: var(--color-brand-active);
+
+  /* Button Secondary :hover */
+  --app-button-secondary-hover-borderColor: var(--color-brand-active);
+  --app-button-secondary-hover-backgroundColor: var(--color-brand-active);
+  --app-button-secondary-hover-textColor: var(--color-brand-content);
 
   /**
   * Button Tertiary (default)
@@ -139,17 +138,40 @@
   --app-button-tertiary-hover-backgroundColor: var(--color-purple-50);
   --app-button-tertiary-hover-textColor: var(--color-purple-700);
 
+  /* Icon Buttons */
+  --app-iconButton-color: var(--color-brand);
+  --app-iconButton-hover-backgroundColor: var(--color-purple-50);
+  --app-iconButton-hover-color: var(--color-brand-active);
+
   /* sidebar on create/edit page */
   --app-sidebar-backgroundColor: var(--color-purple-100);
-  --app-sidebar-textColor: var(--color-neutral-900);
-  --app-sidebar-link-textColor: var(--color-neutral-900);
+  --app-sidebar-textColor: var(--color-gray-900);
+  --app-sidebar-link-textColor: var(--color-gray-900);
+
+  /* Media Card, Collection Item, Drawers */
+  --app-mediaCard-hover-backgroundColor: var(--color-purple-100);
+  --app-mediaCard-hover-borderColor: var(--color-brand-active);
+  --app-mediaCard-hover-textColor: var(--color-brand-active);
 
   & .prose {
     &
       :where(h1, h2, h3, h4, h5):not(
         :where([class~="not-prose"], [class~="not-prose"] *)
       ) {
-      color: var(--brand-purple);
+      color: var(--color-brand);
+    }
+  }
+
+  .search-bar {
+    color: var(--color-gray-900);
+
+    & #search {
+      background: white;
+      color: var(--color-gray-900);
+      border: var(--app-borderWidth) solid var(--color-gray-300);
+    }
+    & button:not[type="submit"] {
+      color: var(--color-gray-900);
     }
   }
 }

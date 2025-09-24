@@ -23,4 +23,8 @@ defineProps<{
   fileHandlerId: string | null;
 }>();
 </script>
-<style scoped></style>
+<style scoped>
+.object-viewer {
+  background-color: var(--app-objectViewer-backgroundColor);
+}
+</style>
