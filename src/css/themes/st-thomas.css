@@ -163,7 +163,7 @@
       color: var(--color-gray-900);
       border: var(--app-borderWidth) solid var(--color-gray-300);
     }
-    & button:not[type="submit"] {
+    & button:not([type="submit"]) {
       color: var(--color-gray-900);
     }
   }
