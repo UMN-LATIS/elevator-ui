@@ -154,14 +154,6 @@
   --app-mediaCard-hover-borderColor: var(--color-brand-active);
   --app-mediaCard-hover-textColor: var(--color-brand-active);
 
-  & .prose {
-    &
-      :where(h1, h2, h3, h4, h5):not(
-        :where([class~="not-prose"], [class~="not-prose"] *)
-      ) {
-      color: var(--color-brand);
-    }
-  }
 
   .search-bar {
     color: var(--color-gray-900);
