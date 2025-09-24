@@ -25,7 +25,7 @@
   --app-appHeader-textColor: var(--color-brand-content);
   --app-appHeader-wordmark-textColor: var(--color-brand-content);
   --app-appHeader-logo-color: var(--color-brand-content);
-  --app-appHeader-borderBottomColor: tranparent;
+  --app-appHeader-borderBottomColor: transparent;
   --app-appHeader-avatar-textColor: var(--color-brand-content);
   --app-appMenu-backgroundColor: var(--color-base-100);
   --app-appMenu-headingColor: var(--color-base-content);
