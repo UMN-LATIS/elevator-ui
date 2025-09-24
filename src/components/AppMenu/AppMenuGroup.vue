@@ -24,7 +24,7 @@ defineProps<{
 </script>
 <style scoped>
 .app-menu-group {
-  color: var(--app-appMenu-textColor);
+  color: var(--app-appMenuItem-textColor);
 
   & .disclosure-button {
     &:hover,
