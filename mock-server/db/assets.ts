@@ -4,8 +4,8 @@ import { createBaseTable } from "./baseTable";
 import type { CollectionsTable } from "./collections";
 import type { TemplatesTable } from "./templates";
 
-const assetSeeds: Asset[] = [
-  {
+const generateMockAssets = (count = 100): Asset[] => {
+  const baseAsset: Asset = {
     title_1: [
       {
         isPrimary: false,
@@ -51,131 +51,79 @@ const assetSeeds: Asset[] = [
     firstObjectId: null,
     title: ["Asset 1"],
     titleObject: "title_1",
-  },
-  {
-    title_1: [
-      {
-        isPrimary: false,
-        fieldContents: "Asset 2",
-      },
-    ],
-    upload_1: [
-      {
-        loc: null,
-        fileId: "687969f8f53caa21660c9ee0",
-        fileType: "png",
-        sidecars: [],
-        isPrimary: false,
-        searchData: null,
-        fileDescription: "test_image.png",
-      },
-      {
-        loc: null,
-        fileId: "68796a06f53caa21660c9ee1",
-        fileType: "png",
-        sidecars: [],
-        isPrimary: false,
-        searchData: null,
-        fileDescription: "test_image_2.png",
-      },
-    ],
-    checkbox_1: [
-      {
-        isPrimary: false,
-        fieldContents: false,
-      },
-    ],
-    relatedAssetCache: [],
-    templateId: 1,
-    readyForDisplay: true,
-    collectionId: 1,
-    availableAfter: null,
-    modified: {
-      date: "2025-07-17 21:25:26.000000",
-      timezone_type: 3,
-      timezone: "UTC",
-    },
-    modifiedBy: 1,
-    createdBy: "",
-    collectionMigration: null,
-    deleted: false,
-    deletedBy: null,
-    deletedAt: null,
-    csvBatch: null,
-    assetId: "687969fd9c90c709c1021d00",
-    firstFileHandlerId: "687969f8f53caa21660c9ee0",
-    firstObjectId: null,
-    title: ["Asset 2"],
-    titleObject: "title_1",
-  },
-  {
-    title_1: [
-      {
-        isPrimary: false,
-        fieldContents: "All Fields Asset",
-      },
-    ],
-    upload_1: [
-      {
-        loc: null,
-        fileId: "687969f8f53caa21660c9ee0",
-        fileType: "png",
-        sidecars: [],
-        isPrimary: false,
-        searchData: null,
-        fileDescription: "test_image.png",
-      },
-      {
-        loc: null,
-        fileId: "68796a06f53caa21660c9ee1",
-        fileType: "png",
-        sidecars: [],
-        isPrimary: false,
-        searchData: null,
-        fileDescription: "test_image_2.png",
-      },
-    ],
-    checkbox_1: [
-      {
-        isPrimary: false,
-        fieldContents: false,
-      },
-    ],
-    cascadeselect_1: [
-      {
-        isPrimary: false,
-        fieldContents: {
-          country: "usa",
-          stateorprovince: "minnesota",
-          city: "St. Paul",
-          neighborhood: "Summit Hill",
+  };
+
+  const assets: Asset[] = [];
+  const fileTypes = ["txt", "pdf", "docx", "jpg", "png", "mp4", "wav"];
+  const subjects = [
+    "Research",
+    "Documentation",
+    "Image",
+    "Video",
+    "Audio",
+    "Report",
+    "Analysis",
+    "Study",
+  ];
+
+  for (let i = 1; i <= count; i++) {
+    const fileType = fileTypes[i % fileTypes.length];
+    const subject = subjects[i % subjects.length];
+    const title = `${subject} Asset ${i}`;
+
+    // Generate consistent but unique IDs
+    const assetId = `asset_${crypto.randomUUID()}`;
+    const fileId = `file_${crypto.randomUUID()}`;
+    const handlerId = `handler_${crypto.randomUUID()}`;
+
+    // Vary the date slightly for each asset
+    const baseDate = new Date("2025-07-14T22:40:25Z");
+    baseDate.setHours(baseDate.getHours() + i * 2); // Add 2 hours per asset
+
+    const asset: Asset = {
+      ...baseAsset,
+      title_1: [
+        {
+          isPrimary: false,
+          fieldContents: title,
         },
+      ],
+      upload_1: [
+        {
+          loc: null,
+          fileId,
+          fileType,
+          sidecars: [],
+          isPrimary: false,
+          searchData: null,
+          fileDescription: `${subject.toLowerCase()}_file_${i}.${fileType}`,
+        },
+      ],
+      checkbox_1: [
+        {
+          isPrimary: false,
+          fieldContents: i % 3 === 0, // Every third asset has checkbox true
+        },
+      ],
+      assetId,
+      firstFileHandlerId: handlerId,
+      title: [title],
+      modified: {
+        date: baseDate.toISOString().replace("T", " ").replace("Z", ".000000"),
+        timezone_type: 3,
+        timezone: "UTC",
       },
-    ],
-    relatedAssetCache: [],
-    templateId: 68,
-    readyForDisplay: true,
-    collectionId: 1,
-    availableAfter: null,
-    modified: {
-      date: "2025-07-17 21:25:26.000000",
-      timezone_type: 3,
-      timezone: "UTC",
-    },
-    modifiedBy: 1,
-    createdBy: "",
-    collectionMigration: null,
-    deleted: false,
-    deletedBy: null,
-    deletedAt: null,
-    csvBatch: null,
-    assetId: "687969fd9c90c709c1021d01",
-    firstFileHandlerId: "687969f8f53caa21660c9eea",
-    firstObjectId: null,
-    title: ["All Fields Asset"],
-    titleObject: "title_1",
-  },
-];
+      collectionId: (i % 3) + 1, // Distribute across collections 1, 2, 3
+      modifiedBy: (i % 5) + 1, // Rotate through users 1-5
+    };
+
+    assets.push(asset);
+  }
+
+  return assets;
+};
+
+const assetSeeds: Asset[] = generateMockAssets();
 
 export function createAssetsTable({
   collections,

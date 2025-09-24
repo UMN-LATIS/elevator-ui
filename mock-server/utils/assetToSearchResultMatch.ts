@@ -10,6 +10,20 @@ import {
   Template,
 } from "../../src/types";
 
+// Helper function to safely convert to bigint
+function safeBigInt(value: unknown): bigint {
+  if (typeof value === 'bigint') return value;
+  if (typeof value === 'number') return BigInt(value);
+  if (typeof value === 'string' && value !== '') {
+    try {
+      return BigInt(value);
+    } catch {
+      return BigInt(0);
+    }
+  }
+  return BigInt(0);
+}
+
 function extractDatesFromAsset(asset: Asset): DateResult[] {
   const dates: DateResult[] = [];
   Object.keys(asset).forEach((key) => {

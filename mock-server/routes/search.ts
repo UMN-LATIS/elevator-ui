@@ -125,7 +125,10 @@ app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
   await delay(200);
   const db = c.get("db");
   const searchId = c.req.param("searchId");
-  const results = db.searches.get(searchId);
+  const page = Number.parseInt(c.req.param("page") || "0");
+  const loadAll = c.req.param("loadAll") === "true";
+
+  const results = db.searches.getPage(searchId, page, loadAll);
 
   if (!results) {
     return c.json({ error: "Search not found" }, 404);
