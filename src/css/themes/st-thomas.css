@@ -46,7 +46,7 @@
   /**
   * Panel (Drawer)
   */
-  --app-panel-borderColor: tranparent;
+  --app-panel-borderColor: transparent;
   --app-panel-borderWidth: 2px;
   --app-panel-header-textColor: var(--color-base-content);
   --app-panel-header-backgroundColor: var(--color-base-200);
