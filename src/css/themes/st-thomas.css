@@ -15,6 +15,7 @@
   --app-backgroundColor: var(--color-base-100);
   --app-borderColor: var(--color-gray-300);
   --app-borderWidth: 1px;
+  --app-object-fit: contain;
 
   /**
   * App Header
@@ -173,9 +174,5 @@
     & button:not[type="submit"] {
       color: var(--color-gray-900);
     }
-  }
-
-  .lazy-load-image img {
-    object-fit: contain;
   }
 }

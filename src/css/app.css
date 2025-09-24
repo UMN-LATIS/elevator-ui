@@ -166,6 +166,10 @@ h6 {
   }
 }
 
+.app-object-fit {
+  object-fit: var(--app-object-fit, cover);
+}
+
 /**
 * CLASSES THAT CAN BE USED ON STATIC PAGES
 * (all prefixed with `el-` to avoid conflicts)

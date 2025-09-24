@@ -11,7 +11,7 @@
     <LazyLoadImage
       :src="src"
       :alt="alt"
-      class="w-full h-full object-cover transition-all"
+      class="w-full h-full app-object-fit transition-all"
       :class="{
         'group-hover:scale-110 group-hover:opacity-100 opacity-80':
           showHoverIcon,

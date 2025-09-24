@@ -19,7 +19,7 @@
           v-if="imgSrc"
           :src="imgSrc"
           :alt="collection.title"
-          class="w-6 h-6 object-cover rounded-md" />
+          class="w-6 h-6 app-object-fit rounded-md" />
         <h2 :class="{ 'font-bold': showMore }">{{ collection.title }}</h2>
       </Link>
     </div>

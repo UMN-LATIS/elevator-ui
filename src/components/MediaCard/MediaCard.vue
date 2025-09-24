@@ -9,7 +9,7 @@
           :src="imgSrc"
           :alt="imgAlt || 'Untitled'"
           loading="lazy"
-          class="object-cover w-full h-full" />
+          class="app-object-fit w-full h-full" />
         <DocumentIcon v-else />
       </div>
     </div>
