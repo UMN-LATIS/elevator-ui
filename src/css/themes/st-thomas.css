@@ -145,7 +145,7 @@
   --app-iconButton-hover-color: var(--color-brand-active);
 
   /* sidebar on create/edit page */
-  --app-sidebar-backgroundColor: var(--color-purple-100);
+  --app-sidebar-backgroundColor: var(--color-base-200);
   --app-sidebar-textColor: var(--color-gray-900);
   --app-sidebar-link-textColor: var(--color-gray-900);
 
