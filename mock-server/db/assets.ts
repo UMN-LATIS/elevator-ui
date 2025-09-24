@@ -4,75 +4,64 @@ import { createBaseTable } from "./baseTable";
 import type { CollectionsTable } from "./collections";
 import type { TemplatesTable } from "./templates";
 
-const generateMockAssets = (count = 100): Asset[] => {
-  const baseAsset: Asset = {
-    title_1: [
-      {
-        isPrimary: false,
-        fieldContents: "Asset 1",
-      },
-    ],
-    upload_1: [
-      {
-        loc: null,
-        fileId: "6875872f4eb080a4880a0f45",
-        fileType: "txt",
-        sidecars: [],
-        isPrimary: false,
-        searchData: null,
-        fileDescription: "file.txt",
-      },
-    ],
-    checkbox_1: [
-      {
-        isPrimary: false,
-        fieldContents: false,
-      },
-    ],
-    relatedAssetCache: [],
-    templateId: 1,
-    readyForDisplay: true,
-    collectionId: 1,
-    availableAfter: null,
-    modified: {
-      date: "2025-07-14 22:40:25.000000",
-      timezone_type: 3,
-      timezone: "UTC",
+const baseAsset: Asset = {
+  title_1: [
+    {
+      isPrimary: false,
+      fieldContents: "Asset 1",
     },
-    modifiedBy: 1,
-    createdBy: "",
-    collectionMigration: null,
-    deleted: false,
-    deletedBy: null,
-    deletedAt: null,
-    csvBatch: null,
-    assetId: "6875871d4eb080a4880a0f44",
-    firstFileHandlerId: "687587494eb080a4880a0f46",
-    firstObjectId: null,
-    title: ["Asset 1"],
-    titleObject: "title_1",
-  };
+  ],
+  upload_1: [
+    {
+      loc: null,
+      fileId: "6875872f4eb080a4880a0f45",
+      fileType: "txt",
+      sidecars: [],
+      isPrimary: false,
+      searchData: null,
+      fileDescription: "file.txt",
+    },
+  ],
+  checkbox_1: [
+    {
+      isPrimary: false,
+      fieldContents: false,
+    },
+  ],
+  relatedAssetCache: [],
+  templateId: 1,
+  readyForDisplay: true,
+  collectionId: 1,
+  availableAfter: null,
+  modified: {
+    date: "2025-07-14 22:40:25.000000",
+    timezone_type: 3,
+    timezone: "UTC",
+  },
+  modifiedBy: 1,
+  createdBy: "",
+  collectionMigration: null,
+  deleted: false,
+  deletedBy: null,
+  deletedAt: null,
+  csvBatch: null,
+  assetId: "6875871d4eb080a4880a0f44",
+  firstFileHandlerId: "687587494eb080a4880a0f46",
+  firstObjectId: null,
+  title: ["Asset 1"],
+  titleObject: "title_1",
+};
+
+const generateMockAssets = (count = 100): Asset[] => {
 
   const assets: Asset[] = [];
   const fileTypes = ["txt", "pdf", "docx", "jpg", "png", "mp4", "wav"];
-  const subjects = [
-    "Research",
-    "Documentation",
-    "Image",
-    "Video",
-    "Audio",
-    "Report",
-    "Analysis",
-    "Study",
-  ];
 
   for (let i = 1; i <= count; i++) {
     const fileType = fileTypes[i % fileTypes.length];
-    const subject = subjects[i % subjects.length];
-    const title = `${subject} Asset ${i}`;
+    const title = `Asset ${i}`;
 
-    // Generate consistent but unique IDs
-    const assetId = `asset_${crypto.randomUUID()}`;
+    const assetId =`asset_${crypto.randomUUID()}`;
     const fileId = `file_${crypto.randomUUID()}`;
     const handlerId = `handler_${crypto.randomUUID()}`;
 
@@ -96,7 +85,7 @@ const generateMockAssets = (count = 100): Asset[] => {
           sidecars: [],
           isPrimary: false,
           searchData: null,
-          fileDescription: `${subject.toLowerCase()}_file_${i}.${fileType}`,
+          fileDescription: `file.${fileType}`,
         },
       ],
       checkbox_1: [
@@ -123,7 +112,36 @@ const generateMockAssets = (count = 100): Asset[] => {
   return assets;
 };
 
-const assetSeeds: Asset[] = generateMockAssets();
+const assetSeeds: Asset[] = [
+  baseAsset,
+  // Special test asset for multiselect cascade tests
+  {
+    ...baseAsset,
+    cascadeselect_1: [
+      {
+        isPrimary: false,
+        fieldContents: {
+          country: "usa",
+          stateorprovince: "minnesota",
+          city: "St. Paul",
+          neighborhood: "Summit Hill"
+        }
+      }
+    ],
+    assetId: "687969fd9c90c709c1021d01",
+    firstFileHandlerId: "handler_cascade_test",
+    title: ["All Fields Asset"],
+    templateId: 68, // All Fields Test template
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
+  ...generateMockAssets(),
+];
 
 export function createAssetsTable({
   collections,
