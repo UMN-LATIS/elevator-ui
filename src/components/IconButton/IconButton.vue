@@ -6,7 +6,7 @@
       :type="type"
       :to="componentType === RouterLink ? to : undefined"
       v-bind="$attrs"
-      class="flex items-center justify-center aspect-square p-2 text-neutral-900 hover:text-blue-700 hover:bg-blue-50 border border-transparent hover:border-blue-600 rounded-md transition-colors duration-150"
+      class="flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150"
       :title="title"
       @click="($event) => $emit('click', $event)">
       <slot />
@@ -53,4 +53,20 @@ const componentType = computed(() => {
   return "button";
 });
 </script>
-<style scoped></style>
+<style scoped>
+.icon-button :is(button, a, .router-link) {
+  background-color: var(--app-iconButton-backgroundColor, transparent);
+  color: var(--app-iconButton-color, var(--color-blue-700));
+  border-radius: var(--app-iconButton-borderRadius, 0.375rem);
+  border: var(--app-iconButton-border, 1px solid transparent);
+
+  &:hover {
+    background-color: var(
+      --app-iconButton-hover-backgroundColor,
+      var(--color-blue-50)
+    );
+    color: var(--app-iconButton-hover-color, var(--color-blue-600));
+    border: 1px solid var(--app-iconButton-hover-color, var(--color-blue-600));
+  }
+}
+</style>

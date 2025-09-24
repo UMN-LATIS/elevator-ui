@@ -9,7 +9,7 @@
           :src="imgSrc"
           :alt="imgAlt || 'Untitled'"
           loading="lazy"
-          class="object-cover w-full h-full" />
+          class="app-object-fit w-full h-full" />
         <DocumentIcon v-else />
       </div>
     </div>
@@ -49,14 +49,12 @@ defineProps<{
 .media-card:has(.media-card__image:hover),
 .media-card:has(.media-card__body:hover),
 a:focus .media-card {
-  --hover-text-color: var(--color-blue-600);
-  --hover-bg-color: var(--color-blue-50);
-  background: var(--hover-bg-color);
-  color: var(--hover-text-color);
-  border-color: var(--hover-text-color);
+  background: var(--app-mediaCard-hover-backgroundColor, var(--color-blue-50));
+  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+  border-color: var(--app-mediaCard-hover-borderColor, var(--color-blue-600));
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--hover-text-color);
+    color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
   }
 }
 </style>

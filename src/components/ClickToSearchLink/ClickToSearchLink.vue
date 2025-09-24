@@ -2,7 +2,7 @@
   <span v-if="props.widget.clickToSearch">
     <a
       :href="clickToSearchUrl"
-      class="click-to-search-link text-blue-600 hover:text-blue-700 hover:underline"
+      class="click-to-search-link hover:underline"
       @click.prevent="handleClick">
       <slot :isClickable="true" />
     </a>
@@ -44,3 +44,12 @@ async function handleClick() {
   router.push(`/search/s/${searchId}`);
 }
 </script>
+<style scoped>
+.click-to-search-link {
+  color: var(--app-link-textColor);
+}
+.click-to-search-link:hover,
+.click-to-search-link:focus {
+  color: var(--app-link-hover-textColor);
+}
+</style>

@@ -6,7 +6,7 @@
       <img
         v-if="typeof asset.firstFileHandlerId === 'string' && previewImageUrl"
         :src="previewImageUrl"
-        class="w-full h-full object-cover" />
+        class="w-full h-full app-object-fit" />
       <p v-else class="text-[0.5rem] p-1">No image yet</p>
     </div>
     <div class="order-1 md:order-2">

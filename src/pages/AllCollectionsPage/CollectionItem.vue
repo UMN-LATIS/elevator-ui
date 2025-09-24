@@ -19,7 +19,7 @@
           v-if="imgSrc"
           :src="imgSrc"
           :alt="collection.title"
-          class="w-6 h-6 object-cover rounded-md" />
+          class="w-6 h-6 app-object-fit rounded-md" />
         <h2 :class="{ 'font-bold': showMore }">{{ collection.title }}</h2>
       </Link>
     </div>
@@ -71,14 +71,12 @@ const showMore = ref(false);
 }
 
 .collection-item:hover {
-  --hover-text-color: var(--color-blue-600);
-  --hover-bg-color: var(--color-blue-50);
-  background: var(--hover-bg-color);
-  color: var(--hover-text-color);
-  border-color: var(--hover-text-color);
+  background: var(--app-mediaCard-hover-backgroundColor, var(--color-blue-50));
+  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+  border-color: var(--app-mediaCard-hover-borderColor, var(--color-blue-600));
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--hover-text-color);
+    color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
   }
 }
 

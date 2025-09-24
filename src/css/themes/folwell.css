@@ -32,7 +32,7 @@
   --app-appHeader-secondaryNav-backgroundColor: var(--white);
   --app-appHeader-textColor: var(--black);
   --app-appHeader-wordmark-textColor: var(--black);
-  --app-appHeader-logo-color: var(--maroon);
+  --app-appHeader-logo-color: var(--black);
   --app-appHeader-borderBottomColor: var(--app-borderColor);
 
   & .app-header {

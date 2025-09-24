@@ -33,7 +33,7 @@
               v-if="marker.imgSrc"
               :src="marker.imgSrc"
               :alt="marker.title"
-              class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden border" />
+              class="h-8 w-8 sm:h-16 sm:w-16 app-object-fit rounded-md overflow-hidden border" />
           </Link>
           <h1 class="my-2">
             <Link :to="marker.assetUrl">

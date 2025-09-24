@@ -80,7 +80,7 @@
             v-if="slide.thumb.src"
             :src="slide.thumb.src"
             :alt="slide.thumb.alt ?? 'Loading...'"
-            class="swiper-lazy object-cover w-full h-full" />
+            class="swiper-lazy app-object-fit w-full h-full" />
           <DocumentIcon v-else />
         </div>
       </SwiperSlide>

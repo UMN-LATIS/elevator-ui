@@ -6,7 +6,7 @@
       v-if="imgSrc"
       :src="imgSrc"
       :alt="title"
-      class="h-8 w-8 sm:h-16 sm:w-16 object-cover rounded-md overflow-hidden" />
+      class="h-8 w-8 sm:h-16 sm:w-16 app-object-fit rounded-md overflow-hidden" />
     <div v-else class="h-8 w-8 sm:h-16 sm:w-16" />
     <div class="flex-1">
       <h1

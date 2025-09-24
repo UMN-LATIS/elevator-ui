@@ -6,7 +6,7 @@
           v-if="item.fileId && previewImageUrl"
           :src="previewImageUrl"
           :alt="`thumbnail for item: ${item.fileDescription}`"
-          class="w-full h-full object-cover" />
+          class="w-full h-full app-object-fit" />
         <div
           v-else
           class="w-full h-full flex items-center justify-center bg-black/5 text-neutral-400">

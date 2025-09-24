@@ -17,6 +17,7 @@ import {
 import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
 import { useInstanceStore } from "./instanceStore";
 import { parseDateString } from "@/helpers/parseDateString";
+import config from "@/config";
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -299,6 +300,19 @@ const getters = (state: SearchStoreState) => ({
 
   currentSearchTerm: computed((): string => {
     return state.searchEntry.value?.searchText ?? "";
+  }),
+
+  /**
+   * Determines if we should automatically load all results based on:
+   * 1. Config setting is enabled
+   * 2. Total results are available and < 1000
+   * 3. We have fewer results loaded than total available
+   */
+  shouldAutoLoadAll: computed((): boolean => {
+    if (!config.instance.autoloadMaxSearchResults) return false;
+    if (!state.totalResults.value) return false;
+    if (state.totalResults.value >= 1000) return false;
+    return getters(state).hasMoreResults.value;
   }),
 });
 
@@ -709,6 +723,11 @@ const actions = (state: SearchStoreState) => ({
         finalOpts
       );
       this._updateStoreWithSearchResultResponse(res);
+
+      // Auto-load all results if configured and conditions are met
+      if (getters(state).shouldAutoLoadAll.value && !finalOpts.loadAll) {
+        await this.loadMore({ loadAll: true });
+      }
     } catch (error) {
       console.error(error);
       state.status.value = "error";

@@ -34,7 +34,7 @@ const instanceStore = useInstanceStore();
 
 const currentUser = computed(() => instanceStore.currentUser);
 </script>
-<style scoped lang="postcss">
+<style scoped>
 .app-header {
   background: var(--app-appHeader-backgroundColor);
   border-bottom: var(--app-borderWidth) solid
@@ -42,7 +42,7 @@ const currentUser = computed(() => instanceStore.currentUser);
   color: var(--app-appHeader-textColor);
 }
 .app-header__logo-link {
-  color: var(--app-appHeader-textColor);
+  color: var(--app-appHeader-logo-color);
 }
 
 .app-header__wordmark {

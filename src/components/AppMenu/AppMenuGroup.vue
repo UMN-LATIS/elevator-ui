@@ -1,11 +1,11 @@
 <template>
-  <div class="expandable-nav-section">
+  <div class="expandable-nav-section app-menu-group">
     <Disclosure v-slot="{ open }" as="div" class="space-y-1">
       <DisclosureButton
-        class="group w-full flex items-center pl-2 pr-1 py-2 text-left font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 my-1 hover:bg-blue-100 hover:text-neutral-900">
+        class="disclosure-button group w-full flex items-center pl-2 pr-1 py-2 text-left font-medium focus:outline-none focus:ring-2 my-1">
         <span class="flex-1">{{ label }}</span>
         <ChevronDownIcon
-          class="w-5 h-5 text-neutral-400 group-hover:text-neutral-500 transform ease-in-out duration-150"
+          class="w-5 h-5 transform ease-in-out duration-150"
           :class="{ ' -rotate-90': !open }" />
       </DisclosureButton>
       <DisclosurePanel class="space-y-1 pl-8">
@@ -23,7 +23,19 @@ defineProps<{
 }>();
 </script>
 <style scoped>
-.expandable-nav-section {
-  color: var(--app-appMenu-textColor);
+.app-menu-group {
+  color: var(--app-appMenuItem-textColor);
+
+  & .disclosure-button {
+    &:hover,
+    &:focus,
+    &:focus-within {
+      background: var(
+        --app-appMenuItem-hover-backgroundColor,
+        var(--color-blue-50)
+      );
+      color: var(--app-appMenuItem-hover-textColor, var(--color-blue-600));
+    }
+  }
 }
 </style>

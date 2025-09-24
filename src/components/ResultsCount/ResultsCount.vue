@@ -10,9 +10,13 @@
       <Button
         v-if="showingCount < total"
         variant="tertiary"
+        :class="{
+          'button--load-all': canLoadAll,
+          'button--load-more': !canLoadAll,
+        }"
         @click="handleLoadMoreClick">
         <slot name="loadMoreButtonLabel">
-          Load {{ total - showingCount < 1000 ? "All" : "More" }}
+          Load {{ canLoadAll ? "All" : "More" }}
         </slot>
         <SpinnerIcon
           v-show="fetchStatus === 'fetching'"
@@ -30,6 +34,7 @@
 import Button from "@/components/Button/Button.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { FetchStatus } from "@/types";
+import { computed } from "vue";
 
 const props = defineProps<{
   showingCount: number;
@@ -50,5 +55,11 @@ function handleLoadMoreClick() {
   }
   emit("loadMore");
 }
+
+const canLoadAll = computed(() => {
+  return (
+    props.showingCount < props.total && props.total - props.showingCount < 1000
+  );
+});
 </script>
 <style scoped></style>

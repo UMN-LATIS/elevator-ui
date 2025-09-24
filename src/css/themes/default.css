@@ -21,12 +21,15 @@
   --app-appHeader-wordmark-textColor: var(--app-textColor);
   --app-appHeader-logo-color: var(--app-textColor);
   --app-appHeader-borderBottomColor: var(--app-borderColor);
+  --app-appHeader-avatar-textColor: var(--app-textColor);
+  --app-appHeader-avatar-borderColor: var(--app-appHeader-avatar-textColor);
+  --app-appMenu-backgroundColor: transparent;
 
   /**
   * App Menu
   */
   --app-appMenu-backgroundColor: var(--app-backgroundColor);
-  --app-appMenu-textColor: var(--app-textColor);
+  --app-appMenuItem-textColor: var(--app-textColor);
   --app-appMenu-headingColor: var(--app-headingColor);
   --app-appMenu-currentPage-textColor: var(--color-blue-600);
   --app-appMenu-currentPage-backgroundColor: var(--color-neutral-200);
@@ -211,12 +214,15 @@
   --app-mediaCard-title-textColor: var(--app-accordion-header-textColor);
 
   /* App Menu */
-  --app-menu-backgroundColor: var(--color-neutral-50);
-  --app-menu-textColor: var(--color-neutral-900);
-  --app-menu-link-textColor: var(--color-neutral-900);
+  --app-appMenu-backgroundColor: var(--color-neutral-50);
+  --app-appMenuItem-textColor: var(--color-neutral-900);
+  --app-appMenuItem-hover-backgroundColor: var(--color-blue-50);
+  --app-appMenuItem-hover-textColor: var(--color-blue-600);
 
   /* sidebar on create/edit page */
   --app-sidebar-backgroundColor: var(--color-neutral-200);
   --app-sidebar-textColor: var(--color-neutral-900);
   --app-sidebar-link-textColor: var(--color-neutral-900);
+
+  --app-object-fit: contain; /* cover or contain */
 }
