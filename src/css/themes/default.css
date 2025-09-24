@@ -23,7 +23,7 @@
   --app-appHeader-borderBottomColor: var(--app-borderColor);
   --app-appHeader-avatar-textColor: var(--app-textColor);
   --app-appHeader-avatar-borderColor: var(--app-appHeader-avatar-textColor);
-  --app-appMenu-backgroundColor: tranparent;
+  --app-appMenu-backgroundColor: transparent;
 
   /**
   * App Menu
