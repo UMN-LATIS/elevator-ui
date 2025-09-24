@@ -39,6 +39,11 @@ export interface AppConfig {
       defaultTextTruncationHeight: number;
     };
     googleAnalyticsId: string | null;
+    /**
+     * Automatically load all search results if the total
+     * result count is under 1000, bypassing the "Load All" button
+     */
+    autoLoadAllResults: boolean;
   };
   arcgis: {
     apiKey: string;
