@@ -211,7 +211,7 @@ onMounted(() => {
   & .ql-html-buttonCancel {
     background-color: var(--app-button-secondary-backgroundColor);
     border-color: var(--app-button-secondary-borderColor);
-    color: var(--app-button-secondar-textColor);
+    color: var(--app-button-secondary-textColor);
 
     &:hover {
       background-color: var(--app-button-secondary-hover-backgroundColor);
