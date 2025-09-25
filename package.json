@@ -61,6 +61,7 @@
     "maplibre-gl": "^3.6.2",
     "pinia": "^2.3.1",
     "quill": "^2.0.3",
+    "quill-html-edit-button": "^3.0.0",
     "quill-paste-smart": "^2.0.0",
     "ramda": "^0.31.3",
     "reka-ui": "^2.4.0",

@@ -14,6 +14,7 @@ import { QuillyEditor } from "vue-quilly";
 import Quill from "quill/quill";
 import { ref, onMounted, computed } from "vue";
 import "quill-paste-smart";
+import htmlEditButton from "quill-html-edit-button";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 
@@ -43,10 +44,17 @@ function handleUpdate(quillHTML: string) {
   emit("update:modelValue", quillHTML);
 }
 
+Quill.register("modules/htmlEditButton", htmlEditButton);
+
 const options = computed(() => ({
   theme: "snow",
   // bounds: editor.value ? editor.value.$el : null,
   modules: {
+    htmlEditButton: {
+      buttonHTML: "&lt;/&gt;",
+      okText: "Submit",
+      msg: 'Edit HTML here, when you click "Submit" the quill editor\'s contents will be replaced',
+    },
     toolbar: [
       [
         "bold",
@@ -54,7 +62,6 @@ const options = computed(() => ({
         { list: "ordered" },
         { list: "bullet" },
         "link",
-        "code-block",
         "formula",
         { direction: "rtl" }, // text direction
         "clean",
@@ -131,5 +138,86 @@ onMounted(() => {
     button:hover .ql-stroke.ql-fill
   ) {
   @apply fill-current;
+}
+
+/* HTML Edit Button specific overrides */
+
+.ql-snow.ql-toolbar button[title="Show HTML source"] {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+  font-size: 0.66rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -1px;
+  position: absolute;
+  right: 0;
+  top: 0.5rem;
+}
+
+.ql-html-popupContainer {
+  width: 90dvw;
+  height: 80dvh;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 0.375rem; /* rounded-md */
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.ql-html-textArea {
+  left: 0;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 0.375rem; /* rounded-md */
+  height: auto;
+  width: auto;
+  flex: 1;
+}
+
+.ql-html-buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  position: static;
+  transform: initial;
+  gap: 0.5rem;
+
+  & button {
+    border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem; /* rounded-md */
+    transition: all 0.2s;
+  }
+}
+
+.ql-html-buttonCancel {
+  background-color: var(--app-button-secondary-backgroundColor);
+  border-color: var(--app-button-secondary-borderColor);
+  color: var(--app-button-secondar-textColor);
+
+  &:hover {
+    background-color: var(--app-button-secondary-hover-backgroundColor);
+    border-color: var(--app-button-secondary-hover-borderColor);
+    color: var(--app-button-secondary-hover-textColor);
+  }
+}
+.ql-html-buttonOk {
+  background-color: var(--app-button-primary-backgroundColor);
+  border-color: var(--app-button-primary-borderColor);
+  color: var(--app-button-primary-textColor);
+
+  &:hover {
+    background-color: var(--app-button-primary-hover-backgroundColor);
+    border-color: var(--app-button-primary-hover-borderColor);
+    color: var(--app-button-primary-hover-textColor);
+  }
 }
 </style>
