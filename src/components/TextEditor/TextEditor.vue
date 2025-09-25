@@ -151,73 +151,84 @@ onMounted(() => {
   justify-content: center;
   letter-spacing: -1px;
   position: absolute;
-  right: 0;
+  right: 0.5rem;
   top: 0.5rem;
 }
 
-.ql-html-popupContainer {
-  width: 90dvw;
-  height: 80dvh;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-radius: 0.375rem; /* rounded-md */
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-}
-
-.ql-html-textArea {
-  left: 0;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 0.375rem; /* rounded-md */
-  height: auto;
-  width: auto;
-  flex: 1;
-}
-
-.ql-html-buttonGroup {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  position: static;
-  transform: initial;
-  gap: 0.5rem;
-
-  & button {
-    border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
-    margin: 0;
-    padding: 0.5rem 1rem;
+.ql-html-overlayContainer {
+  & .ql-html-popupContainer {
+    width: 90dvw;
+    height: 80dvh;
+    position: absolute;
+    top: 50%;
+    right: initial;
+    bottom: initial;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border-radius: 0.375rem; /* rounded-md */
-    transition: all 0.2s;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
   }
-}
 
-.ql-html-buttonCancel {
-  background-color: var(--app-button-secondary-backgroundColor);
-  border-color: var(--app-button-secondary-borderColor);
-  color: var(--app-button-secondar-textColor);
-
-  &:hover {
-    background-color: var(--app-button-secondary-hover-backgroundColor);
-    border-color: var(--app-button-secondary-hover-borderColor);
-    color: var(--app-button-secondary-hover-textColor);
+  & .ql-html-textContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
-}
-.ql-html-buttonOk {
-  background-color: var(--app-button-primary-backgroundColor);
-  border-color: var(--app-button-primary-borderColor);
-  color: var(--app-button-primary-textColor);
 
-  &:hover {
-    background-color: var(--app-button-primary-hover-backgroundColor);
-    border-color: var(--app-button-primary-hover-borderColor);
-    color: var(--app-button-primary-hover-textColor);
+  & .ql-html-textArea.ql-container {
+    position: static;
+    left: 0;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 0.375rem; /* rounded-md */
+    height: auto;
+    width: auto;
+    flex: 1;
+  }
+
+  & .ql-html-buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    position: static;
+    transform: initial;
+    gap: 0.5rem;
+
+    & button {
+      border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
+      margin: 0;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem; /* rounded-md */
+      transition: all 0.2s;
+    }
+  }
+
+  & .ql-html-buttonCancel {
+    background-color: var(--app-button-secondary-backgroundColor);
+    border-color: var(--app-button-secondary-borderColor);
+    color: var(--app-button-secondar-textColor);
+
+    &:hover {
+      background-color: var(--app-button-secondary-hover-backgroundColor);
+      border-color: var(--app-button-secondary-hover-borderColor);
+      color: var(--app-button-secondary-hover-textColor);
+    }
+  }
+  & .ql-html-buttonOk {
+    background-color: var(--app-button-primary-backgroundColor);
+    border-color: var(--app-button-primary-borderColor);
+    color: var(--app-button-primary-textColor);
+
+    &:hover {
+      background-color: var(--app-button-primary-hover-backgroundColor);
+      border-color: var(--app-button-primary-hover-borderColor);
+      color: var(--app-button-primary-hover-textColor);
+    }
   }
 }
 </style>
