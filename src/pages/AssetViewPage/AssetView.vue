@@ -13,7 +13,8 @@
         'md:top-0 md:bottom-16 md:left-0 md:right-0':
           !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
       }"
-      :fileHandlerId="assetStore.activeFileObjectId" />
+      :fileHandlerId="assetStore.activeFileObjectId"
+      :parentAssetId="assetStore.activeAssetId" />
     <AssetDetailsPanel
       class="asset-view__asset-panel md:absolute"
       :class="{

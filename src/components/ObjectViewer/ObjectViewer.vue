@@ -4,7 +4,9 @@
     <iframe
       v-if="fileHandlerId"
       class="object-viewer__iframe w-full flex-1"
-      :src="`${config.instance.base.url}/asset/getEmbed/${fileHandlerId}`"
+      :src="`${config.instance.base.url}/asset/getEmbed/${fileHandlerId}/${
+        parentAssetId ?? ''
+      }`"
       frameBorder="0"
       allowfullscreen="true"></iframe>
     <div
@@ -21,6 +23,7 @@ import config from "@/config";
 
 defineProps<{
   fileHandlerId: string | null;
+  parentAssetId: string | null;
 }>();
 </script>
 <style scoped>
