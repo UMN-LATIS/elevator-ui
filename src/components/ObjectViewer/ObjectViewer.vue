@@ -21,10 +21,15 @@
 <script setup lang="ts">
 import config from "@/config";
 
-defineProps<{
-  fileHandlerId: string | null;
-  parentAssetId: string | null;
-}>();
+withDefaults(
+  defineProps<{
+    fileHandlerId: string | null;
+    parentAssetId?: string | null;
+  }>(),
+  {
+    parentAssetId: null,
+  }
+);
 </script>
 <style scoped>
 .object-viewer {
