@@ -56,19 +56,21 @@ export function clearCache() {
   cache = createCache();
 }
 
-async function getAsset(assetId: string): Promise<Asset | null> {
+// parentAssetId is needed to properly resolve permissions for related assets
+async function getAsset(assetId: string, parentAssetId = ''): Promise<Asset | null> {
   if (!assetId) return null;
 
   // load asset and cache it in the store
   const asset =
-    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId));
+    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId, parentAssetId));
   cache.assets.set(assetId, asset);
 
   return asset;
 }
 
 async function getAssetWithTemplate(
-  assetId: string | null
+  assetId: string | null,
+  parentAssetId = ''
 ): Promise<{ asset: Asset | null; template: Template | null }> {
   if (!assetId) {
     return { asset: null, template: null };
@@ -76,7 +78,7 @@ async function getAssetWithTemplate(
 
   // load asset and cache it in the store
   const asset =
-    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId));
+    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId, parentAssetId));
   cache.assets.set(assetId, asset);
 
   if (!asset) return { asset: null, template: null };
