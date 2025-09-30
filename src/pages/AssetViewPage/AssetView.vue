@@ -27,6 +27,7 @@
       }"
       :showToggle="permitPanelToggle"
       :assetId="assetStore.activeAssetId"
+      :parentAssetId="assetStore.activeAssetId"
       :isOpen="permitPanelToggle ? isAssetDetailsOpen : true"
       @toggle="isAssetDetailsOpen = !isAssetDetailsOpen" />
     <ObjectDetailsPanel

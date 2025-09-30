@@ -71,10 +71,12 @@ const props = withDefaults(
     assetId: string | null;
     isOpen?: boolean;
     showToggle?: boolean;
+    parentAssetId?: string | null;
   }>(),
   {
     isOpen: true,
     showToggle: true,
+    parentAssetId: null,
   }
 );
 
@@ -83,7 +85,8 @@ defineEmits<{
 }>();
 
 const assetIdRef = computed(() => props.assetId);
-const { asset, template } = useAsset(assetIdRef);
+const parentAssetIdRef = computed(() => props.parentAssetId);
+const { asset, template } = useAsset(assetIdRef, parentAssetIdRef);
 const instanceStore = useInstanceStore();
 const moreLikeThisItems = ref<SearchResultMatch[]>([]);
 const showCollectionBottom = computed(

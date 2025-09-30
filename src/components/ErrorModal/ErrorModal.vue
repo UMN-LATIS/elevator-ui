@@ -3,7 +3,7 @@
     <Transition name="fade">
       <div
         v-if="error"
-        class="fixed inset-0 z-40 bg-transparent-black-700 flex items-center justify-center">
+        class="bg-transparent-black-700 flex items-center justify-center">
         <SignInRequiredNotice v-if="isCurrentUserUnauthorized" />
 
         <Notification
