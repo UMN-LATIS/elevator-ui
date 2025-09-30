@@ -27,7 +27,7 @@ const props = defineProps<{
 
 const assetStore = useAssetStore();
 const assetIdRef = computed(() => props.assetId);
-const parentAssetIdRef = computed(() => assetStore.activeAssetId);
+const parentAssetIdRef = computed((): string => assetStore.activeAssetId ?? "");
 const { asset, template } = useAsset(assetIdRef, parentAssetIdRef);
 const widgets = computed(() =>
   getWidgetsForDisplay({ asset: asset.value, template: template.value })
