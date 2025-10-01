@@ -1,9 +1,12 @@
 import { Asset, Template } from "@/types";
-import { Ref, ref, watch, computed } from "vue";
+import { Ref, ref, watch, computed, MaybeRefOrGetter, toValue } from "vue";
 import api from "../api";
 import { getAssetTitle } from "./displayUtils";
 
-export function useAsset(assetIdRef: Ref<string | null>) {
+export function useAsset(
+  assetIdRef: Ref<string | null>,
+  parentAssetIdRef?: MaybeRefOrGetter<string | null>
+) {
   const assetRef = ref<Asset | null>(null);
   const templateRef = ref<Template | null>(null);
   const title = computed((): string =>
@@ -12,7 +15,8 @@ export function useAsset(assetIdRef: Ref<string | null>) {
 
   async function onAssetIdChange() {
     const { asset, template } = await api.getAssetWithTemplate(
-      assetIdRef.value
+      assetIdRef.value,
+      toValue(parentAssetIdRef) ?? ""
     );
     assetRef.value = asset;
     templateRef.value = template;

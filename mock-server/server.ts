@@ -19,7 +19,7 @@ import instanceRoutes from "./routes/instance";
 import s3Routes from "./routes/s3";
 import config from "./config";
 
-const app = new Hono<MockServerContext>();
+const app = new Hono<MockServerContext>({ strict: false });
 
 // Middleware
 app.use(

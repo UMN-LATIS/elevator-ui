@@ -19,13 +19,16 @@ import { getWidgetsForDisplay } from "@/helpers/displayUtils";
 
 import Widget from "@/components/Widget/Widget.vue";
 import { useAsset } from "@/helpers/useAsset";
+import { useAssetStore } from "@/stores/assetStore";
 
 const props = defineProps<{
   assetId: string;
 }>();
 
+const assetStore = useAssetStore();
 const assetIdRef = computed(() => props.assetId);
-const { asset, template } = useAsset(assetIdRef);
+const parentAssetIdRef = computed((): string => assetStore.activeAssetId ?? "");
+const { asset, template } = useAsset(assetIdRef, parentAssetIdRef);
 const widgets = computed(() =>
   getWidgetsForDisplay({ asset: asset.value, template: template.value })
 );

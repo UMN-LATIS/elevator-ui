@@ -80,9 +80,10 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
   return Promise.reject(apiError);
 });
 
-export async function fetchAsset(assetId: string): Promise<Asset | null> {
+// parentAssetId is needed to properly resolve permissions for related assets
+export async function fetchAsset(assetId: string, parentAssetId = ''): Promise<Asset | null> {
   const res = await axios.get<Asset>(
-    `${BASE_URL}/asset/viewAsset/${assetId}/true`
+    `${BASE_URL}/asset/viewAsset/${assetId}/true/${parentAssetId}`
   );
   if (!res.data) {
     return null;

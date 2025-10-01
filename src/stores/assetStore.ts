@@ -26,7 +26,8 @@ export const useAssetStore = defineStore("asset2", {
       assetId: string | null,
       objectId?: string | null
     ): Promise<Asset | null> {
-      const { asset } = await api.getAssetWithTemplate(assetId);
+      const parentAssetId = this.activeAssetId || "";
+      const { asset } = await api.getAssetWithTemplate(assetId, parentAssetId);
 
       if (!asset || !assetId) {
         this.activeAssetId = null;
@@ -59,7 +60,8 @@ export const useAssetStore = defineStore("asset2", {
      * @returns the active object
      */
     async setActiveObject(objectId: string | null): Promise<Asset | null> {
-      const { asset } = await api.getAssetWithTemplate(objectId);
+      const parentAssetId = this.activeAssetId || "";
+      const { asset } = await api.getAssetWithTemplate(objectId, parentAssetId);
 
       // if asset exists, set the objectId to active, otherwise null
       this.activeObjectId = asset ? objectId : null;
@@ -68,8 +70,10 @@ export const useAssetStore = defineStore("asset2", {
       return asset;
     },
 
+    // parentAssetId is needed to properly resolve permissions for related assets
     async getAsset(assetId: string): Promise<Asset | null> {
-      const { asset } = await api.getAssetWithTemplate(assetId);
+      const parentAssetId = this.activeAssetId || "";
+      const { asset } = await api.getAssetWithTemplate(assetId, parentAssetId);
 
       return asset;
     },
