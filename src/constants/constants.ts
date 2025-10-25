@@ -56,3 +56,7 @@ export const ASSET_VALIDATION_PROVIDE_KEY = Symbol() as InjectionKey<
 export const PAGE_ASSET_ID = Symbol() as InjectionKey<
   ComputedRef<Asset["assetId"] | null>
 >;
+
+export const ELEVATOR_EVENTS = {
+  CONTENT_PAGE_LOADED: "elevator:content-page:loaded",
+};

@@ -38,6 +38,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
 import config from "@/config";
 import { ShowCustomHeaderMode } from "@/types";
+import { ELEVATOR_EVENTS } from "@/constants/constants";
 
 const instanceStore = useInstanceStore();
 
@@ -59,6 +60,9 @@ watch(
   () => props.pageId,
   async () => {
     page.value = await api.getStaticPage(props.pageId);
+    // fire custom event to notify any 3rd party scripts that the page content has loaded
+    const event = new CustomEvent(ELEVATOR_EVENTS.CONTENT_PAGE_LOADED);
+    window.dispatchEvent(event);
   },
   { immediate: true }
 );

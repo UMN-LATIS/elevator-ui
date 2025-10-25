@@ -67,6 +67,7 @@ import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 import Notification from "@/components/Notification/Notification.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
+import { ELEVATOR_EVENTS } from "@/constants/constants";
 
 const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
@@ -114,6 +115,9 @@ watch(
     const homePageId = findHomePageId();
     page.value = await fetchHomePage(homePageId);
     featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
+    // fire custom event to notify any 3rd party scripts that the page content has loaded
+    const event = new CustomEvent(ELEVATOR_EVENTS.CONTENT_PAGE_LOADED);
+    window.dispatchEvent(event);
   },
   { immediate: true }
 );
