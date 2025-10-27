@@ -39,6 +39,7 @@ import api from "@/api";
 import config from "@/config";
 import { ShowCustomHeaderMode } from "@/types";
 import { ELEVATOR_EVENTS } from "@/constants/constants";
+import { onImagesLoaded } from "@/helpers/onImagesLoaded";
 
 const instanceStore = useInstanceStore();
 
@@ -56,38 +57,26 @@ const canCurrentUserEdit = computed(() => {
   );
 });
 
+async function firePageLoadEvents() {
+  await nextTick();
+  const contentLoadedEvent = new CustomEvent(
+    ELEVATOR_EVENTS.CONTENT_PAGE_LOADED
+  );
+  window.dispatchEvent(contentLoadedEvent);
+
+  onImagesLoaded(".static-content-page__content", () => {
+    const imagesLoadedEvent = new CustomEvent(
+      ELEVATOR_EVENTS.CONTENT_PAGE_IMAGES_LOADED
+    );
+    window.dispatchEvent(imagesLoadedEvent);
+  });
+}
+
 watch(
   () => props.pageId,
   async () => {
     page.value = await api.getStaticPage(props.pageId);
-    // Wait for Vue to render the DOM before firing the event
-    await nextTick();
-    // fire custom event to notify any 3rd party scripts that the page content has loaded
-    const contentLoadedEvent = new CustomEvent(
-      ELEVATOR_EVENTS.CONTENT_PAGE_LOADED
-    );
-    window.dispatchEvent(contentLoadedEvent);
-
-    // Wait for all images to load
-    const container = document.querySelector(".static-content-page__content");
-    if (container) {
-      const images = container.querySelectorAll("img");
-      await Promise.all(
-        Array.from(images).map((img) => {
-          if (img.complete) return Promise.resolve();
-          return new Promise<void>((resolve) => {
-            img.addEventListener("load", () => resolve());
-            img.addEventListener("error", () => resolve());
-          });
-        })
-      );
-
-      // Fire images loaded event
-      const imagesLoadedEvent = new CustomEvent(
-        ELEVATOR_EVENTS.CONTENT_PAGE_IMAGES_LOADED
-      );
-      window.dispatchEvent(imagesLoadedEvent);
-    }
+    firePageLoadEvents();
   },
   { immediate: true }
 );
