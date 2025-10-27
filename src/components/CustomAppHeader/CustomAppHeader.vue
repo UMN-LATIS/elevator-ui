@@ -3,7 +3,7 @@
     <SanitizedHTML
       :html="instanceStore?.customHeader ?? ''"
       :addTags="['style', 'link', 'script']"
-      :permitScripts="true"
+      :allowScripts="true"
       class="w-full" />
   </div>
 </template>

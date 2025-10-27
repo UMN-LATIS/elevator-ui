@@ -18,12 +18,12 @@ const props = withDefaults(
     html: string;
     removeInlineStyles?: boolean;
     addTags?: string[];
-    permitScripts?: boolean;
+    allowScripts?: boolean;
   }>(),
   {
     removeInlineStyles: false,
     addTags: () => [],
-    permitScripts: false,
+    allowScripts: false,
   }
 );
 
@@ -91,7 +91,7 @@ onMounted(async () => {
   await nextTick();
   emit("contentLoaded");
 
-  if (!props.permitScripts) return;
+  if (!props.allowScripts) return;
 
   const container = containerRef.value;
   if (!container) {
