@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, nextTick } from "vue";
 import { StaticContentPage, Asset, ShowCustomHeaderMode } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
@@ -115,9 +115,34 @@ watch(
     const homePageId = findHomePageId();
     page.value = await fetchHomePage(homePageId);
     featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
+    // Wait for Vue to render the DOM before firing the event
+    await nextTick();
     // fire custom event to notify any 3rd party scripts that the page content has loaded
-    const event = new CustomEvent(ELEVATOR_EVENTS.CONTENT_PAGE_LOADED);
-    window.dispatchEvent(event);
+    const contentLoadedEvent = new CustomEvent(
+      ELEVATOR_EVENTS.CONTENT_PAGE_LOADED
+    );
+    window.dispatchEvent(contentLoadedEvent);
+
+    // Wait for all images to load
+    const container = document.querySelector(".home-page-content");
+    if (container) {
+      const images = container.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve());
+            img.addEventListener("error", () => resolve());
+          });
+        })
+      );
+
+      // Fire images loaded event
+      const imagesLoadedEvent = new CustomEvent(
+        ELEVATOR_EVENTS.CONTENT_PAGE_IMAGES_LOADED
+      );
+      window.dispatchEvent(imagesLoadedEvent);
+    }
   },
   { immediate: true }
 );

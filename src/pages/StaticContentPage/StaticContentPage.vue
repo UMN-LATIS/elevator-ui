@@ -32,7 +32,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, nextTick } from "vue";
 import { ApiStaticPageResponse } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 import api from "@/api";
@@ -60,9 +60,34 @@ watch(
   () => props.pageId,
   async () => {
     page.value = await api.getStaticPage(props.pageId);
+    // Wait for Vue to render the DOM before firing the event
+    await nextTick();
     // fire custom event to notify any 3rd party scripts that the page content has loaded
-    const event = new CustomEvent(ELEVATOR_EVENTS.CONTENT_PAGE_LOADED);
-    window.dispatchEvent(event);
+    const contentLoadedEvent = new CustomEvent(
+      ELEVATOR_EVENTS.CONTENT_PAGE_LOADED
+    );
+    window.dispatchEvent(contentLoadedEvent);
+
+    // Wait for all images to load
+    const container = document.querySelector(".static-content-page__content");
+    if (container) {
+      const images = container.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve());
+            img.addEventListener("error", () => resolve());
+          });
+        })
+      );
+
+      // Fire images loaded event
+      const imagesLoadedEvent = new CustomEvent(
+        ELEVATOR_EVENTS.CONTENT_PAGE_IMAGES_LOADED
+      );
+      window.dispatchEvent(imagesLoadedEvent);
+    }
   },
   { immediate: true }
 );

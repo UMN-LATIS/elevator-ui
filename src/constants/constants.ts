@@ -59,4 +59,5 @@ export const PAGE_ASSET_ID = Symbol() as InjectionKey<
 
 export const ELEVATOR_EVENTS = {
   CONTENT_PAGE_LOADED: "elevator:content-page:loaded",
+  CONTENT_PAGE_IMAGES_LOADED: "elevator:content-page:images-loaded",
 };
