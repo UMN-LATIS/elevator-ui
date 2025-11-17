@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="asset"
-    class="collapsed-inline-related-asset-widget-item flex flex-col">
+    class="collapsed-inline-related-asset-widget-item flex flex-col w-full">
     <div class="flex justify-between items-baseline">
       <h3>{{ title }}</h3>
       <Button :to="`/asset/viewAsset/${assetId}`" variant="tertiary">
