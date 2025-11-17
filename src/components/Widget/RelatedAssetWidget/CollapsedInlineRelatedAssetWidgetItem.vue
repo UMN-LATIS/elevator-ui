@@ -7,7 +7,6 @@
       <Button :to="`/asset/viewAsset/${assetId}`" variant="tertiary">
         View
         <ArrowRightIcon class="size-4" />
-        <span class="sr-only">Read more about {{ title }}</span>
       </Button>
     </div>
     <WidgetList :assetId="assetId" />
