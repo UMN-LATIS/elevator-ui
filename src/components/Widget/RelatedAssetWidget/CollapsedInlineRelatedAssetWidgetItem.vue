@@ -1,8 +1,14 @@
 <template>
   <section
     v-if="asset"
-    class="collapsed-inline-related-asset-widget-item flex flex-col">
-    <h3>{{ title }}</h3>
+    class="collapsed-inline-related-asset-widget-item flex flex-col w-full">
+    <div class="flex justify-between items-baseline">
+      <h3>{{ title }}</h3>
+      <Button :to="`/asset/viewAsset/${assetId}`" variant="tertiary">
+        View
+        <ArrowRightIcon class="size-4" />
+      </Button>
+    </div>
     <WidgetList :assetId="assetId" />
   </section>
 </template>
@@ -10,6 +16,8 @@
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { computed } from "vue";
 import { useAsset } from "@/helpers/useAsset";
+import { ArrowRightIcon } from "lucide-vue-next";
+import Button from "@/components/Button/Button.vue";
 
 const props = defineProps<{
   assetId: string;
