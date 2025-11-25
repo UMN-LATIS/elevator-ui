@@ -13,7 +13,7 @@
     <div
       class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0 items-center bg-white/10 backdrop-blur-md"
       :class="{
-        'sticky top-[4.33rem] z-10': isOpen,
+        'sticky top-[4rem] z-10': isOpen,
       }">
       <button
         type="button"
