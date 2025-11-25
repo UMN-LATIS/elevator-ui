@@ -11,13 +11,13 @@
       {{ widgetDef.label }}
     </h2>
     <div
-      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
+      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0 items-center bg-white/10 backdrop-blur-md"
       :class="{
-        'sticky top-[5rem] z-10': isOpen,
+        'sticky top-[4.33rem] z-10': isOpen,
       }">
       <button
         type="button"
-        class="flex justify-start gap-2 text-base font-bold leading-none text-left"
+        class="flex justify-start py-2 gap-2 text-base font-bold leading-none text-left"
         :class="{
           'text-red-700':
             (widgetDef.required && !hasContents) ||

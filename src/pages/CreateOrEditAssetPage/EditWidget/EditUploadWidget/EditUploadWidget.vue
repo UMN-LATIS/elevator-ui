@@ -33,9 +33,9 @@
             class="w-full flex items-center gap-2"
             @click="handleRegenerateAllDerivatives">
             <CircleFilledCheckIcon
-              class="size-4"
-              v-if="isRegeneratingAllDerivatives" />
-            <Circle class="size-4" v-else />
+              v-if="isRegeneratingAllDerivatives"
+              class="size-4" />
+            <Circle v-else class="size-4" />
             Regenerate All Derivatives
           </button>
         </DropDownItem>
