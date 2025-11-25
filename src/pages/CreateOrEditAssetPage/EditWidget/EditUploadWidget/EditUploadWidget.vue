@@ -185,10 +185,6 @@ function handleRegenerateAllDerivatives() {
   // also open all details views
   const allIds = props.widgetContents.map((item) => item.id);
   isShowingDetails.value = new Set(allIds);
-
-  // nextTick(() => {
-  //   debouncedEmitSave();
-  // });
 }
 </script>
 <style scoped></style>
