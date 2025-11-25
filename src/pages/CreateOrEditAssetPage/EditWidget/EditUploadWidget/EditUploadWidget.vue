@@ -22,6 +22,25 @@
         $emit('update:widgetContents', widgetContents as Type.WithId<Type.UploadWidgetContent>[]);
       }
     ">
+    <template #moreWidgetActions>
+      <DropDown :showChevron="false">
+        <template #label>
+          <span class="sr-only">Toggle More Actions Menu</span>
+          <VerticalDotsIcon class="w-5 h-5" />
+        </template>
+        <DropDownItem is="div">
+          <button
+            class="w-full flex items-center gap-2"
+            @click="handleRegenerateAllDerivatives">
+            <CircleFilledCheckIcon
+              class="size-4"
+              v-if="isRegeneratingAllDerivatives" />
+            <Circle class="size-4" v-else />
+            Regenerate All Derivatives
+          </button>
+        </DropDownItem>
+      </DropDown>
+    </template>
     <template #fieldContents="{ item }">
       <EditUploadWidgetItem
         :item="item"
@@ -53,6 +72,11 @@ import FileUploader from "./FileUploader.vue";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
+import DropDown from "@/components/DropDown/DropDown.vue";
+import DropDownItem from "@/components/DropDown/DropDownItem.vue";
+import { VerticalDotsIcon } from "@/icons";
+import { Circle } from "lucide-vue-next";
+import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 import { useDebounceFn } from "@vueuse/core";
 
 const props = defineProps<{
@@ -137,6 +161,34 @@ function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
     return existingItem;
   });
   emit("update:widgetContents", updatedContents);
+}
+
+const isRegeneratingAllDerivatives = computed(() => {
+  return props.widgetContents.every(
+    (item: Type.WithId<Type.UploadWidgetContent>) => item.regenerate === "On"
+  );
+});
+
+function handleRegenerateAllDerivatives() {
+  const updatedContents = props.widgetContents.map(
+    (item: Type.WithId<Type.UploadWidgetContent>) => ({
+      ...item,
+      // regenerate is not true/false, but "On" or undefined
+      regenerate: isRegeneratingAllDerivatives.value
+        ? undefined
+        : ("On" as const),
+    })
+  );
+
+  emit("update:widgetContents", updatedContents);
+
+  // also open all details views
+  const allIds = props.widgetContents.map((item) => item.id);
+  isShowingDetails.value = new Set(allIds);
+
+  // nextTick(() => {
+  //   debouncedEmitSave();
+  // });
 }
 </script>
 <style scoped></style>

@@ -44,13 +44,14 @@ import { Float } from "@headlessui-float/vue";
 
 withDefaults(
   defineProps<{
-    label: string;
+    label?: string;
     alignment?: "left" | "right";
     showChevron?: boolean;
     labelClass?: string | string[] | Record<string, boolean>;
     chevronClass?: string | string[] | Record<string, boolean>;
   }>(),
   {
+    label: "Options",
     alignment: "right",
     showChevron: true,
     labelClass: "",

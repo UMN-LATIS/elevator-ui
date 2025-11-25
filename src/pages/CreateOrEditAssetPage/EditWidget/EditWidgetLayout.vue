@@ -31,7 +31,8 @@
         {{ widgetDef.label }}
         <span v-if="widgetDef.required" class="text-red-500">*</span>
       </button>
-      <div class="widget-status-icons">
+      <div class="flex items-center gap-2">
+        <slot name="moreWidgetActions"></slot>
         <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
         </Tooltip>
