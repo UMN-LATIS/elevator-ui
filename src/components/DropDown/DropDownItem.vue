@@ -4,7 +4,7 @@
     class="dropdown__dropdown-item"
     :disabled="disabled">
     <component
-      :is="$attrs.disabled ? 'div' : Link"
+      :is="is || ($attrs.disabled ? 'div' : Link)"
       class="block px-4 py-2 text-sm !no-underline"
       :class="{
         'bg-blue-50 !text-blue-900': active,
@@ -22,6 +22,7 @@
 import { MenuItem } from "@headlessui/vue";
 import Link from "@/components/Link/Link.vue";
 defineProps<{
+  is?: string;
   href?: string;
   to?: string;
   current?: boolean;

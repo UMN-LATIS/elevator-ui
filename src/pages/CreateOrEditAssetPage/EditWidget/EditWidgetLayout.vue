@@ -11,13 +11,13 @@
       {{ widgetDef.label }}
     </h2>
     <div
-      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0"
+      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0 items-center bg-white/10 backdrop-blur-md"
       :class="{
-        'sticky top-[5rem] z-10': isOpen,
+        'sticky top-[4rem] z-10': isOpen,
       }">
       <button
         type="button"
-        class="flex justify-start gap-2 text-base font-bold leading-none text-left"
+        class="flex justify-start py-2 gap-2 text-base font-bold leading-none text-left"
         :class="{
           'text-red-700':
             (widgetDef.required && !hasContents) ||
@@ -31,7 +31,8 @@
         {{ widgetDef.label }}
         <span v-if="widgetDef.required" class="text-red-500">*</span>
       </button>
-      <div class="widget-status-icons">
+      <div class="flex items-center gap-2">
+        <slot name="moreWidgetActions"></slot>
         <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
           <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
         </Tooltip>

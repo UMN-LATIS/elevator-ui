@@ -1,6 +1,6 @@
 <template>
   <div class="edit-upload-widget-item">
-    <div class="grid grid-cols-3 gap-x-4 gap-y-3 mb-2">
+    <div class="grid grid-cols-3 gap-x-4 gap-y-2">
       <div class="w-full aspect-square rounded-md overflow-hidden relative">
         <img
           v-if="item.fileId && previewImageUrl"
@@ -53,6 +53,7 @@
         </Tuple>
       </div>
       <EditUploadWidgetItemSidecars
+        v-if="Object.keys(item.sidecars).length"
         class="col-span-3"
         :item="item"
         :widgetDef="widgetDef"
