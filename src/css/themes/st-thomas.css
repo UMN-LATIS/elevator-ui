@@ -29,8 +29,12 @@
   --app-appHeader-avatar-textColor: var(--color-brand-content);
   --app-appMenu-backgroundColor: var(--color-base-100);
   --app-appMenu-headingColor: var(--color-base-content);
+
+  /* App Menu Button (hamburger) */
   --app-appMenuButton-backgroundColor: transparent;
   --app-appMenuButton-textColor: var(--color-brand-content);
+  --app-appMenuButton-hover-backgroundColor: white;
+  --app-appMenuButton-hover-textColor: var(--color-brand);
 
   --app-appMenuItem-textColor: var(--color-base-content);
   --app-appMenuItem-hover-backgroundColor: var(--color-purple-50);
