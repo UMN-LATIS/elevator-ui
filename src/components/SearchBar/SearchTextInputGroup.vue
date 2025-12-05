@@ -143,6 +143,7 @@ onUnmounted(() => {
 
   & button {
     color: currentColor;
+    border: none;
   }
 
   & button:hover {
@@ -150,10 +151,6 @@ onUnmounted(() => {
       --app-searchBar-advancedSearchToggle-hasFilters-hover-backgroundColor
     );
     color: var(--app-searchBar-advancedSearchToggle-hasFilters-hover-textColor);
-  }
-
-  & button {
-    border: none;
   }
 }
 </style>
