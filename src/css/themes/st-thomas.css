@@ -154,7 +154,6 @@
   --app-mediaCard-hover-borderColor: var(--color-brand-active);
   --app-mediaCard-hover-textColor: var(--color-brand-active);
 
-
   .search-bar {
     color: var(--color-gray-900);
 
@@ -162,9 +161,6 @@
       background: white;
       color: var(--color-gray-900);
       border: var(--app-borderWidth) solid var(--color-gray-300);
-    }
-    & button:not([type="submit"]) {
-      color: var(--color-gray-900);
     }
   }
 }
