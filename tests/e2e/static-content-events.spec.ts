@@ -174,4 +174,33 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
       "images loaded: 2/2, all complete: true"
     );
   });
+
+  test("emits IMAGES_LOADED event even when some images fail to load", async ({
+    page,
+  }) => {
+    // Navigate to page 3 which has 1 valid image and 2 broken images
+    await page.goto("/page/view/3");
+
+    await expect(
+      page.getByRole("heading", { name: "Page with Image Load Errors" })
+    ).toBeVisible();
+
+    // Wait for IMAGES_LOADED event (should still fire despite broken images)
+    const testElement = page.locator("#test-images-loaded");
+    await expect(testElement).toBeVisible({ timeout: 15000 });
+
+    // Verify the event fired with all 3 images in the payload
+    await expect(testElement).toHaveAttribute("data-total-count", "3");
+
+    // Verify only 1 image actually loaded successfully
+    await expect(testElement).toHaveAttribute("data-loaded-count", "1");
+
+    // Verify not all images loaded (allLoaded should be false)
+    await expect(testElement).toHaveAttribute("data-all-loaded", "false");
+
+    // Verify the text reflects the mixed state
+    await expect(testElement).toContainText(
+      "images loaded: 1/3, all complete: false"
+    );
+  });
 });

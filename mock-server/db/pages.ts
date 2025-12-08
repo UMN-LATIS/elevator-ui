@@ -23,6 +23,17 @@ const pageSeeds: MockPage[] = [
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Goldy_Gopher_Volleyball.jpg/500px-Goldy_Gopher_Volleyball.jpg" alt="Goldy Gopher snowboarding down a staircase at a women's volleyball game" width="300" />
     `,
   },
+  {
+    id: 3,
+    title: "Test Page with Broken Images",
+    content: `
+    <h1>Page with Image Load Errors</h1>
+    <p>This page has a mix of valid and broken images to test error handling</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Goldy_the_Gopher.jpg" alt="Valid image" width="300" />
+    <img src="https://invalid-domain-that-does-not-exist.com/broken-image.jpg" alt="Broken image 1" width="300" />
+    <img src="https://example.com/this-image-does-not-exist-404.png" alt="Broken image 2" width="300" />
+    `,
+  },
 ];
 
 function toPageWithoutContent(page: MockPage): Page {
