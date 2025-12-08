@@ -86,3 +86,92 @@ test.describe("Static Content Page - Custom Events", () => {
     await expect(testElement).toHaveText("images in static content = 2");
   });
 });
+
+test.describe("Static Content Page - IMAGES_LOADED Event", () => {
+  test.beforeEach(async ({ page, request }) => {
+    const workerId = test.info().workerIndex.toString();
+    await setupWorkerHTTPHeader({
+      page,
+      workerId,
+    });
+
+    await refreshDatabase({ request, workerId });
+
+    // Update instance with a script that listens for IMAGES_LOADED
+    await updateInstance({
+      request,
+      workerId,
+      updates: {
+        customHeaderMode: 1, // ShowCustomHeaderMode.ALWAYS
+        customHeader: `
+          <script>
+            // Listen for the images loaded event
+            window.addEventListener('elevator:static-content-page:images-loaded', (event) => {
+              const { pageId, images } = event.detail;
+
+              // Check if all images are actually loaded
+              const allLoaded = images.every(img => img.complete && img.naturalWidth > 0);
+              const loadedCount = images.filter(img => img.complete && img.naturalWidth > 0).length;
+
+              // Add test element with results
+              const testEl = document.createElement('div');
+              testEl.id = 'test-images-loaded';
+              testEl.setAttribute('data-all-loaded', allLoaded.toString());
+              testEl.setAttribute('data-loaded-count', loadedCount.toString());
+              testEl.setAttribute('data-total-count', images.length.toString());
+              testEl.textContent = \`images loaded: \${loadedCount}/\${images.length}, all complete: \${allLoaded}\`;
+              document.body.appendChild(testEl);
+            });
+          </script>
+        `,
+      },
+    });
+
+    await loginUser({ request, page, workerId });
+  });
+
+  test("emits IMAGES_LOADED event after images are fully loaded", async ({
+    page,
+  }) => {
+    // Navigate to the "About" page (pageId = 2, which has 2 images)
+    await page.goto("/page/view/2");
+
+    // Wait for the heading to ensure page is loaded
+    await expect(
+      page.getByRole("heading", { name: "About Elevator" })
+    ).toBeVisible();
+
+    // Wait for the test element (proves IMAGES_LOADED event fired)
+    const testElement = page.locator("#test-images-loaded");
+    await expect(testElement).toBeVisible({ timeout: 15000 }); // Longer timeout for image loading
+
+    // Verify all images were actually loaded when the event fired
+    await expect(testElement).toHaveAttribute("data-all-loaded", "true");
+    await expect(testElement).toHaveAttribute("data-loaded-count", "2");
+    await expect(testElement).toHaveAttribute("data-total-count", "2");
+
+    // Verify the text content
+    await expect(testElement).toContainText(
+      "images loaded: 2/2, all complete: true"
+    );
+  });
+
+  test("handles pages with images that take time to load", async ({ page }) => {
+    // Navigate to the "Home Page" (pageId = 1, which also has 2 images)
+    await page.goto("/page/view/1");
+
+    await expect(
+      page.getByRole("heading", { name: "Elevator Home Page" })
+    ).toBeVisible();
+
+    // Wait for IMAGES_LOADED event
+    const testElement = page.locator("#test-images-loaded");
+    await expect(testElement).toBeVisible({ timeout: 5000 });
+
+    // Verify images were loaded (not just present in DOM)
+    await expect(testElement).toHaveAttribute("data-all-loaded", "true");
+    await expect(testElement).toHaveText(
+      "images loaded: 2/2, all complete: true"
+    );
+  });
+});
