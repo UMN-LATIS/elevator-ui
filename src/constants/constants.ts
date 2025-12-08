@@ -29,6 +29,14 @@ export const SORT_KEYS = {
   CUSTOM: "custom",
 } as const;
 
+// custom elevator events that custom header/footer scripts can listen for
+export const ELEVATOR_EVENTS = {
+  STATIC_CONTENT_PAGE: {
+    CONTENT_LOADED: "elevator:static-content-page:content-loaded",
+    IMAGES_LOADED: "elevator:static-content-page:images-loaded",
+  },
+} as const;
+
 // these are ids for searchable fields that don't actually exist
 // in the api, but we want to treat them like they do for the sake
 // of the UI
