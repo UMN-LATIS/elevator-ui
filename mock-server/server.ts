@@ -128,6 +128,22 @@ app.post("/_tests/auth/login", async (c) => {
   return c.json({ sessionId: session.id, user });
 });
 
+app.patch("/_tests/instance/update", async (c) => {
+  const db = c.get("db");
+  const updates = await c.req.json();
+
+  const instance = db.instances.getDefault();
+  if (!instance) {
+    return c.json({ error: "Instance not found" }, 404);
+  }
+
+  // Merge updates into existing instance
+  const updatedInstance = { ...instance, ...updates };
+  db.instances.set(instance.id, updatedInstance);
+
+  return c.json({ success: true, instance: updatedInstance });
+});
+
 // Health check
 app.get("/health", (c) =>
   c.json({ status: "ok", timestamp: new Date().toISOString() })

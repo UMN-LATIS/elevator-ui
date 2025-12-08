@@ -77,3 +77,29 @@ export async function loginUser({
     }
   }
 }
+
+export async function updateInstance({
+  request,
+  workerId,
+  updates,
+}: {
+  request: APIRequestContext;
+  workerId: string;
+  updates: Record<string, unknown>;
+}) {
+  const response = await request.patch(
+    `${MOCK_SERVER_BASE}/_tests/instance/update`,
+    {
+      data: updates,
+      headers: { "x-worker-id": workerId },
+    }
+  );
+
+  if (!response.ok()) {
+    throw new Error(
+      `Instance update failed: ${response.status()} ${await response.text()}`
+    );
+  }
+
+  return await response.json();
+}

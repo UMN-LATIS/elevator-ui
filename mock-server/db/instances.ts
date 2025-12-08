@@ -41,7 +41,13 @@ export function createInstancesTable({ pages }: { pages: PagesTable }) {
       if (baseTable.size() === 0) {
         throw new Error("No instances available");
       }
-      return instanceSeeds[0]; // Return the first/default instance
+      // Get the instance from the store (which may have been updated)
+      // rather than returning the seed data directly
+      const instance = baseTable.get(instanceSeeds[0].id);
+      if (!instance) {
+        throw new Error("Default instance not found");
+      }
+      return instance;
     },
   };
 }
