@@ -37,6 +37,7 @@ export interface MockInstance {
   useCustomCSS: boolean;
   featuredAssetId: string | null;
   featuredAssetText: string | null;
+  pages: MockPage[];
 }
 
 export interface AssetFormData {
@@ -73,6 +74,7 @@ export interface MockPage {
   id: number;
   title: string;
   content: string;
+  includeInNav?: boolean;
   children?: MockPage[];
 }
 

@@ -13,16 +13,17 @@ import { createUploadsTable } from "./uploads";
 const makeDb = () => {
   const collections = createCollectionsTable();
   const templates = createTemplatesTable();
+  const pages = createPagesTable();
   const assets = createAssetsTable({ collections, templates });
   const tables = {
     collections,
     templates,
     assets,
+    pages,
     searches: createSearchesTable({ assets, collections, templates }),
     users: createUsersTable(),
     sessions: createSessionsTable(),
-    instances: createInstancesTable(),
-    pages: createPagesTable(),
+    instances: createInstancesTable({ pages }),
     files: createFilesTable(),
     drawers: createDrawersTable(),
     uploads: createUploadsTable(),

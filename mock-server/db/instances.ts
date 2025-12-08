@@ -1,6 +1,7 @@
 import { ShowCustomHeaderMode } from "../../src/types";
-import { MockInstance } from "../types";
+import { MockInstance, MockPage } from "../types";
 import { createBaseTable } from "./baseTable";
+import { PagesTable } from "./pages";
 
 const instanceSeeds: MockInstance[] = [
   {
@@ -19,12 +20,13 @@ const instanceSeeds: MockInstance[] = [
     customFooter: null,
     useVoyagerViewer: true,
     useCustomCSS: false,
-    featuredAssetId: "",
-    featuredAssetText: "",
+    featuredAssetId: "687969fd9c90c709c1021d01",
+    featuredAssetText: "This is a featured asset",
+    pages: [],
   },
 ];
 
-export function createInstancesTable() {
+export function createInstancesTable({ pages }: { pages: PagesTable }) {
   const baseTable = createBaseTable(
     (instance: MockInstance) => instance.id,
     instanceSeeds
@@ -32,6 +34,9 @@ export function createInstancesTable() {
 
   return {
     ...baseTable,
+    get pages() {
+      return pages.getAll();
+    },
     getDefault: (): MockInstance => {
       if (baseTable.size() === 0) {
         throw new Error("No instances available");
