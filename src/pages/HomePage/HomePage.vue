@@ -139,7 +139,7 @@ const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
   window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
 };
 
-let cleanupOnAllImagesLoaded: (() => void) | null = null;
+const cleanupFns = [] as Array<() => void>;
 
 // Emit custom events when both page and featured asset (if any) are loaded
 watch(
@@ -147,7 +147,8 @@ watch(
   async (isComplete) => {
     if (!isComplete) return;
 
-    cleanupOnAllImagesLoaded?.();
+    cleanupFns.forEach((fn) => fn());
+    cleanupFns.length = 0; // Clear the array
 
     await nextTick();
     dispatchEvent(CONTENT_LOADED, {
@@ -155,22 +156,29 @@ watch(
       featuredAssetId: featuredAssetId.value,
     });
 
-    cleanupOnAllImagesLoaded = onAllImagesLoaded(
-      ".home-page-content",
-      (images: HTMLImageElement[]) =>
-        dispatchEvent(IMAGES_LOADED, {
-          homePageId: homePageId.value,
-          featuredAssetId: featuredAssetId.value,
-          images,
-        }),
-      { timeout: 10000 }
-    );
+    [".home-page-content", ".featured-asset-block"].forEach((selector) => {
+      // test if selector exists
+      const element = document.querySelector(selector);
+      if (!element) return;
+
+      const cleanup = onAllImagesLoaded(
+        selector,
+        (images: HTMLImageElement[]) =>
+          dispatchEvent(IMAGES_LOADED, {
+            homePageId: homePageId.value,
+            featuredAssetId: featuredAssetId.value,
+            images,
+          }),
+        { timeout: 10000 }
+      );
+      cleanupFns.push(cleanup);
+    });
   },
   { immediate: true }
 );
 
 onUnmounted(() => {
-  cleanupOnAllImagesLoaded?.();
+  cleanupFns.forEach((fn) => fn());
 });
 </script>
 <style scoped>
