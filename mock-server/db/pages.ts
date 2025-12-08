@@ -34,6 +34,16 @@ const pageSeeds: MockPage[] = [
     <img src="https://example.com/this-image-does-not-exist-404.png" alt="Broken image 2" width="300" />
     `,
   },
+  {
+    id: 4,
+    title: "Test Page with Slow Loading Image",
+    content: `
+    <h1>Page with Timeout Test</h1>
+    <p>This page has an image that takes longer than the timeout to load</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/59/Goldy_the_Gopher.jpg" alt="Fast loading image" width="300" />
+    <img src="http://localhost:3001/_tests/slow-image.jpg" alt="Slow loading image" width="300" />
+    `,
+  },
 ];
 
 function toPageWithoutContent(page: MockPage): Page {

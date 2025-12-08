@@ -144,6 +144,21 @@ app.patch("/_tests/instance/update", async (c) => {
   return c.json({ success: true, instance: updatedInstance });
 });
 
+// Endpoint that delays response to test timeout behavior
+app.get("/_tests/slow-image.jpg", async (c) => {
+  // Delay for 15 seconds (longer than the 10-second timeout in onAllImagesLoaded)
+  await new Promise((resolve) => setTimeout(resolve, 15000));
+
+  // Return a 1x1 transparent GIF
+  const gif = Buffer.from(
+    "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+    "base64"
+  );
+
+  c.header("Content-Type", "image/gif");
+  return c.body(gif);
+});
+
 // Health check
 app.get("/health", (c) =>
   c.json({ status: "ok", timestamp: new Date().toISOString() })

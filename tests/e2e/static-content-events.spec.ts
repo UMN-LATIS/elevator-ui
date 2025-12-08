@@ -203,4 +203,49 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
       "images loaded: 1/3, all complete: false"
     );
   });
+
+  test("emits IMAGES_LOADED event after timeout when image takes too long", async ({
+    page,
+  }) => {
+    test.setTimeout(20000); // Increase test timeout to 20 seconds
+
+    // Listen for console messages for debugging
+    page.on("console", (msg) => console.log("BROWSER:", msg.text()));
+
+    // Navigate to page 4 which has 1 fast image and 1 slow image (15s delay)
+    // The timeout in onAllImagesLoaded is 10 seconds
+    await page.goto("/page/view/4");
+
+    await expect(
+      page.getByRole("heading", { name: "Page with Timeout Test" })
+    ).toBeVisible();
+
+    // Track when the event fires
+    const startTime = Date.now();
+
+    // Wait for IMAGES_LOADED event - should fire after ~10 seconds (timeout)
+    const testElement = page.locator("#test-images-loaded");
+    await expect(testElement).toBeVisible({ timeout: 15000 });
+
+    const eventTime = Date.now() - startTime;
+
+    // Verify the event fired around the timeout period (10 seconds ± 2 seconds)
+    // Not before images finish loading naturally (15 seconds)
+    expect(eventTime).toBeGreaterThan(8000); // At least 8 seconds
+    expect(eventTime).toBeLessThan(13000); // Less than 13 seconds (timeout + buffer)
+
+    // Verify the event fired with both images in the payload
+    await expect(testElement).toHaveAttribute("data-total-count", "2");
+
+    // Only the fast image should be loaded when timeout fires
+    await expect(testElement).toHaveAttribute("data-loaded-count", "1");
+
+    // Not all images loaded due to timeout
+    await expect(testElement).toHaveAttribute("data-all-loaded", "false");
+
+    // Verify the text reflects timeout state
+    await expect(testElement).toContainText(
+      "images loaded: 1/2, all complete: false"
+    );
+  });
 });
