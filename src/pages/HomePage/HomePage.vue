@@ -111,15 +111,7 @@ const { data: featuredAsset } = useAssetQuery(featuredAssetId, {
 
 // Provide fallback if no home page is configured
 const page = computed(() => {
-  if (pageData.value) return pageData.value;
-  if (!isReady.value || !canSearchAndBrowse.value) return null;
-  if (homePageId.value === null) {
-    return {
-      title: "No Home Page",
-      content: `<p>Update your instance to set a Home Page</p>`,
-    };
-  }
-  return null;
+  return pageData.value ?? null;
 });
 
 // Determine when both queries are complete
