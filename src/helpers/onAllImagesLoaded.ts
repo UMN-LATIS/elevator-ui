@@ -7,48 +7,57 @@ export function onAllImagesLoaded(
 ): () => void {
   const { timeout = 10_000 } = opts;
 
-  const container = document.querySelector(selector);
-  if (!container) {
-    throw new Error(`Container not found: ${selector}`);
-  }
-
-  const images = Array.from(container.querySelectorAll("img"));
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let rafId: number | null = null;
   const abortController = new AbortController();
   let completed = false;
 
-  const handleComplete = () => {
-    if (completed) return;
-    completed = true;
-    abortController.abort(); // Remove all listeners at once
-    onComplete(images);
+  const setupImageHandlers = () => {
+    const container = document.querySelector(selector);
+    if (!container) {
+      throw new Error(`Container not found: ${selector}`);
+    }
+
+    const images = Array.from(container.querySelectorAll("img"));
+
+    const handleComplete = () => {
+      if (completed) return;
+      completed = true;
+      abortController.abort(); // Remove all listeners at once
+      onComplete(images);
+    };
+
+    // Create a promise for each image
+    Promise.all(
+      images.map((img) => {
+        if (img.complete) return Promise.resolve();
+
+        return new Promise<void>((resolve) => {
+          const load = () => resolve();
+          const error = () => resolve();
+
+          img.addEventListener("load", load, {
+            signal: abortController.signal,
+            once: true,
+          });
+          img.addEventListener("error", error, {
+            signal: abortController.signal,
+            once: true,
+          });
+        });
+      })
+    ).then(handleComplete);
+
+    // Timeout fallback
+    timeoutId = setTimeout(handleComplete, timeout);
   };
 
-  // Create a promise for each image
-  Promise.all(
-    images.map((img) => {
-      if (img.complete) return Promise.resolve();
-
-      return new Promise<void>((resolve) => {
-        const load = () => resolve();
-        const error = () => resolve();
-
-        img.addEventListener("load", load, {
-          signal: abortController.signal,
-          once: true,
-        });
-        img.addEventListener("error", error, {
-          signal: abortController.signal,
-          once: true,
-        });
-      });
-    })
-  ).then(handleComplete);
-
-  // Timeout fallback
-  const timeoutId = setTimeout(handleComplete, timeout);
+  // Wait for next animation frame to ensure v-html and other dynamic content is rendered. Awaiting `nextTick` is not sufficient.
+  rafId = requestAnimationFrame(setupImageHandlers);
 
   return () => {
-    clearTimeout(timeoutId);
+    if (timeoutId !== null) clearTimeout(timeoutId);
+    if (rafId !== null) cancelAnimationFrame(rafId);
     abortController.abort();
   };
 }
