@@ -56,8 +56,7 @@ const canCurrentUserEdit = computed(() => {
   );
 });
 
-const { CONTENT_LOADED: DOM_READY, IMAGES_LOADED } =
-  ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
+const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
 const { data: page } = useStaticPageQuery(pageIdRef);
 
 const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
@@ -75,7 +74,7 @@ watch(
     cleanupOnAllImagesLoaded?.();
 
     await nextTick();
-    dispatchEvent(DOM_READY, { pageId: pageIdRef.value });
+    dispatchEvent(CONTENT_LOADED, { pageId: pageIdRef.value });
 
     cleanupOnAllImagesLoaded = onAllImagesLoaded(
       ".static-content-page__content",
