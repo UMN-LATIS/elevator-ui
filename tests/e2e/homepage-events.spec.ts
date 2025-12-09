@@ -115,7 +115,7 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
         customHeaderMode: 2, // ShowCustomHeaderMode.HOME_PAGE_ONLY
         customHeader: `
           <script>
-            // Track all IMAGES_LOADED events (HomePage fires one per area)
+            // Track IMAGES_LOADED event (HomePage fires once for all content areas)
             let eventCount = 0;
             let totalImagesFromEvents = 0;
             let totalLoadedFromEvents = 0;
