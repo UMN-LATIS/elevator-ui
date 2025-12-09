@@ -4,7 +4,6 @@
 export function getScriptsFromHTML(
   html: string | null | undefined
 ): HTMLScriptElement[] {
-  console.log("Extracting scripts from HTML");
   if (!html) return [];
 
   // Create a temporary DOM element to parse the sanitized HTML
