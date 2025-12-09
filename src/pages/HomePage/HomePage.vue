@@ -148,23 +148,17 @@ watch(
       featuredAssetId: featuredAssetId.value,
     });
 
-    [".home-page-content", ".featured-asset-block"].forEach((selector) => {
-      // test if selector exists
-      const element = document.querySelector(selector);
-      if (!element) return;
-
-      const cleanup = onAllImagesLoaded(
-        selector,
-        (images: HTMLImageElement[]) =>
-          dispatchEvent(IMAGES_LOADED, {
-            pageId: homePageId.value,
-            featuredAssetId: featuredAssetId.value,
-            images,
-          }),
-        { timeout: 10000 }
-      );
-      cleanupFns.add(cleanup);
-    });
+    const cleanup = onAllImagesLoaded(
+      ".home-page-content, .featured-asset-block",
+      (images: HTMLImageElement[]) =>
+        dispatchEvent(IMAGES_LOADED, {
+          pageId: homePageId.value,
+          featuredAssetId: featuredAssetId.value,
+          images,
+        }),
+      { timeout: 10000 }
+    );
+    cleanupFns.add(cleanup);
   },
   { immediate: true }
 );
