@@ -25,7 +25,7 @@ test.describe("HomePage - CONTENT_LOADED Event", () => {
         customHeader: `
           <script>
             // Listen for the home page content loaded event
-            window.addEventListener('elevator:home-page:content-loaded', (event) => {
+            window.addEventListener('elevator:static-content-page:content-loaded', (event) => {
               const { homePageId, featuredAssetId } = event.detail;
 
               // Add test element to verify event fired
@@ -120,7 +120,7 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
             let totalImagesFromEvents = 0;
             let totalLoadedFromEvents = 0;
 
-            window.addEventListener('elevator:home-page:images-loaded', (event) => {
+            window.addEventListener('elevator:static-content-page:images-loaded', (event) => {
               eventCount++;
               const { homePageId, featuredAssetId, images } = event.detail;
 
@@ -166,7 +166,9 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
     await loginUser({ request, page, workerId });
   });
 
-  test("emits IMAGES_LOADED events for both content areas", async ({ page }) => {
+  test("emits IMAGES_LOADED events for both content areas", async ({
+    page,
+  }) => {
     await page.goto("/");
 
     await expect(
