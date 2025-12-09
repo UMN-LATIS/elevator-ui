@@ -144,12 +144,12 @@
   */
   --app-button-tertiary-borderColor: transparent;
   --app-button-tertiary-backgroundColor: transparent;
-  --app-button-tertiary-textColor: var(--color-blue-600);
+  --app-button-tertiary-textColor: var(--color-neutral-600);
 
   /* Button Tertiary :hover */
   --app-button-tertiary-hover-borderColor: transparent;
-  --app-button-tertiary-hover-backgroundColor: var(--color-blue-50);
-  --app-button-tertiary-hover-textColor: var(--color-blue-700);
+  --app-button-tertiary-hover-backgroundColor: var(--color-neutral-50);
+  --app-button-tertiary-hover-textColor: var(--color-neutral-700);
 
   /* Button Tertiary :active */
   --app-button-tertiary-active-borderColor: tranparent;
@@ -160,6 +160,29 @@
   --app-button-tertiary-disabled-borderColor: transparent;
   --app-button-tertiary-disabled-backgroundColor: tranparent;
   --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
+
+  /**
+  * Search Bar - Advanced Search Toggle
+  * Default state (no filters applied)
+  */
+  --app-searchBar-advancedSearchToggle-backgroundColor: transparent;
+  --app-searchBar-advancedSearchToggle-textColor: var(--app-textColor);
+  --app-searchBar-advancedSearchToggle-hover-backgroundColor: hsla(
+    0 0% 0% / 0.05
+  );
+  --app-searchBar-advancedSearchToggle-hover-textColor: var(--app-textColor);
+
+  /**
+  * Search Bar - Advanced Search Toggle with Filters Applied
+  */
+  --app-searchBar-advancedSearchToggle-hasFilters-backgroundColor: var(
+    --color-neutral-900
+  );
+  --app-searchBar-advancedSearchToggle-hasFilters-textColor: white;
+  --app-searchBar-advancedSearchToggle-hasFilters-hover-backgroundColor: var(
+    --color-neutral-700
+  );
+  --app-searchBar-advancedSearchToggle-hasFilters-hover-textColor: white;
 
   /* Input */
   --app-input-label-textColor: var(--color-neutral-900);

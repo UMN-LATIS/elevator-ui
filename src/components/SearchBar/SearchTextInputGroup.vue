@@ -21,29 +21,37 @@
           <span class="sr-only">Clear Search</span>
           <CircleXIcon />
         </button>
-        <button
-          v-if="!searchStore.hasFiltersApplied"
-          type="button"
-          class="w-8 h-8 inline-flex items-center justify-center rounded-full"
-          @click="$emit('moreOptionClick')">
-          <span class="sr-only">Advanced Search</span>
-          <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
-        </button>
-        <div v-if="searchStore.hasFiltersApplied" class="inline-flex">
+
+        <div
+          class="advanced-search-toggle-container inline-flex"
+          :class="{
+            'advanced-search-toggle-container--has-filters':
+              searchStore.hasFiltersApplied,
+          }">
           <button
+            v-if="!searchStore.hasFiltersApplied"
             type="button"
-            class="inline-flex items-center justify-center rounded-l-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2 border-r border-neutral-600"
+            class="w-8 h-8 inline-flex items-center justify-center rounded-full"
             @click="$emit('moreOptionClick')">
-            {{ searchStore.filteredByCount }}
-            {{ pluralize(searchStore.filteredByCount, "filter") }}
+            <span class="sr-only">Advanced Search</span>
+            <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
           </button>
-          <button
-            type="button"
-            class="inline-flex items-center justify-center rounded-r-full bg-neutral-900 text-neutral-300 text-xs py-1 px-2"
-            @click="handleClearAllFiltersClick">
-            <span class="sr-only">Clear All Filters</span>
-            <XIcon class="!h-3 !w-3" aria-hidden="true" />
-          </button>
+          <template v-else>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-l-full text-xs py-1 px-2 border"
+              @click="$emit('moreOptionClick')">
+              {{ searchStore.filteredByCount }}
+              {{ pluralize(searchStore.filteredByCount, "filter") }}
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-r-full text-xs py-1 px-2 border !border-l-0"
+              @click="handleClearAllFiltersClick">
+              <span class="sr-only">Clear All Filters</span>
+              <XIcon class="!h-3 !w-3" aria-hidden="true" />
+            </button>
+          </template>
         </div>
         <button
           class="inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
@@ -113,4 +121,36 @@ onUnmounted(() => {
   document.removeEventListener("keydown", removeFocusOnEscape);
 });
 </script>
-<style scoped></style>
+<style scoped>
+.search-bar__search-text-input-group .advanced-search-toggle-container {
+  transition: all 0.15s ease-in-out;
+  border-radius: calc(infinity * 1px);
+  background: var(--app-searchBar-advancedSearchToggle-backgroundColor);
+  color: var(--app-searchBar-advancedSearchToggle-textColor);
+
+  &:hover {
+    background: var(--app-searchBar-advancedSearchToggle-hover-backgroundColor);
+    color: var(--app-searchBar-advancedSearchToggle-hover-textColor);
+  }
+}
+
+.search-bar__search-text-input-group
+  .advanced-search-toggle-container.advanced-search-toggle-container--has-filters {
+  background: var(
+    --app-searchBar-advancedSearchToggle-hasFilters-backgroundColor
+  );
+  color: var(--app-searchBar-advancedSearchToggle-hasFilters-textColor);
+
+  & button {
+    color: currentColor;
+    border: none;
+  }
+
+  & button:hover {
+    background: var(
+      --app-searchBar-advancedSearchToggle-hasFilters-hover-backgroundColor
+    );
+    color: var(--app-searchBar-advancedSearchToggle-hasFilters-hover-textColor);
+  }
+}
+</style>
