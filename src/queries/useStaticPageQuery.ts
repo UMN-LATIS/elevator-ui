@@ -3,12 +3,15 @@ import { MaybeRefOrGetter, toValue } from "vue";
 import api from "@/api";
 
 export function useStaticPageQuery(
-  pageIdRef: MaybeRefOrGetter<number>,
+  pageIdRef: MaybeRefOrGetter<number | null>,
   options = {}
 ) {
   return useQuery({
     queryKey: ["staticPage", pageIdRef],
-    queryFn: ({ signal }) => api.getStaticPage(toValue(pageIdRef), { signal }),
+    queryFn: ({ signal }) => {
+      const pageId = toValue(pageIdRef);
+      return pageId ? api.getStaticPage(pageId, { signal }) : null;
+    },
     ...options,
   });
 }

@@ -93,11 +93,10 @@ const homePageId = computed(() => {
 
 // Fetch home page content (only when ready, can browse, and home page exists)
 const { data: pageData } = useStaticPageQuery(
-  computed(() => homePageId.value ?? 0),
+  homePageId, // Pass the computed directly
   {
     enabled: computed(
-      () =>
-        isReady.value && canSearchAndBrowse.value && homePageId.value !== null
+      () => isReady.value && canSearchAndBrowse.value && !!homePageId.value
     ),
   }
 );
@@ -131,7 +130,7 @@ const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
   window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
 };
 
-const cleanupFns = [] as Array<() => void>;
+const cleanupFns = new Set<() => void>();
 
 // Emit custom events when both page and featured asset (if any) are loaded
 watch(
@@ -140,7 +139,7 @@ watch(
     if (!isComplete) return;
 
     cleanupFns.forEach((fn) => fn());
-    cleanupFns.length = 0; // Clear the array
+    cleanupFns.clear();
 
     await nextTick();
 
@@ -164,7 +163,7 @@ watch(
           }),
         { timeout: 10000 }
       );
-      cleanupFns.push(cleanup);
+      cleanupFns.add(cleanup);
     });
   },
   { immediate: true }
