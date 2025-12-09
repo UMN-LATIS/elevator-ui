@@ -143,6 +143,7 @@ watch(
     cleanupFns.length = 0; // Clear the array
 
     await nextTick();
+
     dispatchEvent(CONTENT_LOADED, {
       homePageId: homePageId.value,
       featuredAssetId: featuredAssetId.value,
