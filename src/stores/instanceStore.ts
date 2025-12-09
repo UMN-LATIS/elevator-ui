@@ -49,7 +49,7 @@ const createState = () => ({
   customHeader: ref<string | null>(null),
   customFooter: ref<string | null>(null),
   customScripts: ref<HTMLScriptElement[]>([]),
-  hasExecutedCustomSripts: ref<boolean>(false),
+  hasExecutedCustomScripts: ref<boolean>(false),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
