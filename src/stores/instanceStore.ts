@@ -125,9 +125,6 @@ const actions = (state: ReturnType<typeof createState>) => ({
         apiResponse.customFooter
       );
 
-      console.log("original custom header:", apiResponse.customHeader);
-      console.log("sanitized custom header:", state.customHeader.value);
-
       // Extract scripts from custom header and footer
       const headerScripts = getScriptsFromHTML(apiResponse.customHeader);
       const footerScripts = getScriptsFromHTML(apiResponse.customFooter);

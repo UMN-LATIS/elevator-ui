@@ -17,9 +17,7 @@ export function getScriptsFromHTML(
 }
 
 export function executeScripts(scripts: HTMLScriptElement[]) {
-  console.log("Executing scripts:", scripts);
   scripts.forEach((script) => {
-    console.log("Executing custom script:", script);
     const scriptToAppend = document.createElement("script");
 
     // Copy attributes
