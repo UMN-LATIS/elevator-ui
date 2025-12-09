@@ -173,13 +173,21 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
         customHeaderMode: 1, // ShowCustomHeaderMode.ALWAYS
         customHeader: `
           <script>
+            // Track start time when script loads
+            const pageLoadStartTime = Date.now();
+
             // Listen for the images loaded event
             window.addEventListener('elevator:static-content-page:images-loaded', (event) => {
               const { pageId, images } = event.detail;
+              const eventTime = Date.now() - pageLoadStartTime;
 
               // Check if all images are actually loaded
               const allLoaded = images.every(img => img.complete && img.naturalWidth > 0);
               const loadedCount = images.filter(img => img.complete && img.naturalWidth > 0).length;
+
+              // Remove old test element if it exists
+              const oldTestEl = document.getElementById('test-images-loaded');
+              if (oldTestEl) oldTestEl.remove();
 
               // Add test element with results
               const testEl = document.createElement('div');
@@ -187,6 +195,7 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
               testEl.setAttribute('data-all-loaded', allLoaded.toString());
               testEl.setAttribute('data-loaded-count', loadedCount.toString());
               testEl.setAttribute('data-total-count', images.length.toString());
+              testEl.setAttribute('data-event-time', eventTime.toString());
               testEl.textContent = \`images loaded: \${loadedCount}/\${images.length}, all complete: \${allLoaded}\`;
               document.body.appendChild(testEl);
             });
@@ -288,14 +297,12 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
       page.getByRole("heading", { name: "Page with Timeout Test" })
     ).toBeVisible();
 
-    // Track when the event fires
-    const startTime = Date.now();
-
     // Wait for IMAGES_LOADED event - should fire after ~10 seconds (timeout)
     const testElement = page.locator("#test-images-loaded");
     await expect(testElement).toBeVisible({ timeout: 15000 });
 
-    const eventTime = Date.now() - startTime;
+    // Get the actual time when the event fired (stored in data attribute)
+    const eventTime = await testElement.getAttribute("data-event-time").then(val => parseInt(val || "0", 10));
 
     // Verify the event fired around the timeout period (10 seconds ± 2 seconds)
     // Not before images finish loading naturally (15 seconds)
