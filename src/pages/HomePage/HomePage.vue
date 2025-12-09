@@ -145,7 +145,7 @@ watch(
     await nextTick();
 
     dispatchEvent(CONTENT_LOADED, {
-      homePageId: homePageId.value,
+      pageId: homePageId.value,
       featuredAssetId: featuredAssetId.value,
     });
 
@@ -158,7 +158,7 @@ watch(
         selector,
         (images: HTMLImageElement[]) =>
           dispatchEvent(IMAGES_LOADED, {
-            homePageId: homePageId.value,
+            pageId: homePageId.value,
             featuredAssetId: featuredAssetId.value,
             images,
           }),
