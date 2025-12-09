@@ -35,10 +35,6 @@ export const ELEVATOR_EVENTS = {
     CONTENT_LOADED: "elevator:static-content-page:content-loaded",
     IMAGES_LOADED: "elevator:static-content-page:images-loaded",
   },
-  HOME_PAGE: {
-    CONTENT_LOADED: "elevator:home-page:content-loaded",
-    IMAGES_LOADED: "elevator:home-page:images-loaded",
-  },
 } as const;
 
 // these are ids for searchable fields that don't actually exist

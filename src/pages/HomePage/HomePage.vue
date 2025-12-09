@@ -125,7 +125,7 @@ const bothQueriesComplete = computed(() => {
   return true;
 });
 
-const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.HOME_PAGE;
+const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
 
 const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
   window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
