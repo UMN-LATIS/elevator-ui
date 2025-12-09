@@ -1,5 +1,5 @@
 import { ShowCustomHeaderMode } from "../../src/types";
-import { MockInstance, MockPage } from "../types";
+import { MockInstance } from "../types";
 import { createBaseTable } from "./baseTable";
 import { PagesTable } from "./pages";
 

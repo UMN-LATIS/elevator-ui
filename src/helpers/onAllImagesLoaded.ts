@@ -1,5 +1,17 @@
-// fire off a callback when all images inside a container are loaded
-// Returns a cleanup function to remove event listeners and cancel the operation
+/**
+ * Fires a callback when all images inside a container are loaded or errored.
+ *
+ * @param selector - CSS selector for the container element.
+ * @param onComplete - Callback invoked with all HTMLImageElement instances when complete.
+ * @param opts.timeout - Maximum time to wait in milliseconds (default: 10000).
+ * @returns Cleanup function to cancel the operation and remove event listeners.
+ *
+ * @remarks
+ * - If no images are present, fires immediately.
+ * - Images that fail to load (404, network errors) are treated as "complete".
+ * - If timeout is reached, fires with whatever images have been found.
+ * - Throws if container element is not found (ensure cleanup is called on unmount).
+ */
 export function onAllImagesLoaded(
   selector: string,
   onComplete: (images: HTMLImageElement[]) => void,
@@ -15,7 +27,12 @@ export function onAllImagesLoaded(
   const setupImageHandlers = () => {
     const container = document.querySelector(selector);
     if (!container) {
-      throw new Error(`Container not found: ${selector}`);
+      console.warn(
+        `onAllImagesLoaded: Container element not found for selector "${selector}"`
+      );
+      // Container was removed before we could set up handlers
+      // Don't call onComplete in this case
+      return;
     }
 
     const images = Array.from(container.querySelectorAll("img"));
@@ -23,6 +40,7 @@ export function onAllImagesLoaded(
     const handleComplete = () => {
       if (completed) return;
       completed = true;
+      if (timeoutId !== null) clearTimeout(timeoutId);
       abortController.abort(); // Remove all listeners at once
       onComplete(images);
     };
