@@ -2,7 +2,9 @@
   <footer
     v-if="instanceStore.customFooter"
     class="app-footer bg-transparent-black-100">
-    <SanitizedHTML :html="instanceStore.customFooter" :addTags="['style', 'link', 'script']" />
+    <SanitizedHTML
+      :html="instanceStore.customFooter"
+      :addTags="['style', 'link']" />
   </footer>
 </template>
 <script setup lang="ts">
