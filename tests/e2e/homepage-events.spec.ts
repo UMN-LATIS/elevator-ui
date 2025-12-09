@@ -26,14 +26,14 @@ test.describe("HomePage - CONTENT_LOADED Event", () => {
           <script>
             // Listen for the home page content loaded event
             window.addEventListener('elevator:static-content-page:content-loaded', (event) => {
-              const { homePageId, featuredAssetId } = event.detail;
+              const { pageId, featuredAssetId } = event.detail;
 
               // Add test element to verify event fired
               const testEl = document.createElement('div');
               testEl.id = 'test-content-loaded';
-              testEl.setAttribute('data-home-page-id', homePageId?.toString() || 'null');
+              testEl.setAttribute('data-page-id', pageId?.toString() || 'null');
               testEl.setAttribute('data-featured-asset-id', featuredAssetId || 'null');
-              testEl.textContent = \`home page loaded: homePageId=\${homePageId}, featuredAssetId=\${featuredAssetId}\`;
+              testEl.textContent = \`home page loaded: pageId=\${pageId}, featuredAssetId=\${featuredAssetId}\`;
               document.body.appendChild(testEl);
             });
           </script>
@@ -64,14 +64,14 @@ test.describe("HomePage - CONTENT_LOADED Event", () => {
     await expect(testElement).toBeVisible();
 
     // Verify the event includes both homePageId and featuredAssetId
-    await expect(testElement).toHaveAttribute("data-home-page-id", "1");
+    await expect(testElement).toHaveAttribute("data-page-id", "1");
     await expect(testElement).toHaveAttribute(
       "data-featured-asset-id",
       "687969fd9c90c709c1021d01"
     );
 
     // Verify the text content
-    await expect(testElement).toContainText("homePageId=1");
+    await expect(testElement).toContainText("pageId=1");
     await expect(testElement).toContainText(
       "featuredAssetId=687969fd9c90c709c1021d01"
     );
@@ -122,7 +122,7 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
 
             window.addEventListener('elevator:static-content-page:images-loaded', (event) => {
               eventCount++;
-              const { homePageId, featuredAssetId, images } = event.detail;
+              const { pageId, featuredAssetId, images } = event.detail;
 
               console.log(\`IMAGES_LOADED event #\${eventCount}: \${images.length} images\`);
 
@@ -152,7 +152,7 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
               testEl.setAttribute('data-event-loaded-images', totalLoadedFromEvents.toString());
               testEl.setAttribute('data-last-event-count', images.length.toString());
               testEl.setAttribute('data-last-event-loaded', loadedCount.toString());
-              testEl.setAttribute('data-home-page-id', homePageId?.toString() || 'null');
+              testEl.setAttribute('data-page-id', pageId?.toString() || 'null');
               testEl.setAttribute('data-featured-asset-id', featuredAssetId || 'null');
               testEl.setAttribute('data-home-content-images', homePageContentImages.toString());
               testEl.setAttribute('data-featured-asset-images', featuredAssetImages.toString());
@@ -194,17 +194,17 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
     const totalFromEvents = parseInt(eventTotalImages || "0");
     const loadedFromEvents = parseInt(eventLoadedImages || "0");
 
-    // Verify 2 events fired (one for .home-page-content, one for .featured-asset-block)
-    expect(actualEventCount).toBe(2);
+    // Verify only 1 event fired - main content and featured assets
+    // must both be loaded before a single event fires
+    expect(actualEventCount).toBe(1);
 
     // Verify we got at least the 2 images from the page content
-    // Note: The featured asset uses LazyLoadImage which may not be loaded yet when events fire,
     // so we might get 2-3 images total depending on timing
-    expect(totalFromEvents).toBeGreaterThanOrEqual(2);
-    expect(loadedFromEvents).toBeGreaterThanOrEqual(2);
+    expect(totalFromEvents).toBe(2);
+    expect(loadedFromEvents).toBe(2);
 
     // Verify the event includes the correct IDs
-    await expect(testElement).toHaveAttribute("data-home-page-id", "1");
+    await expect(testElement).toHaveAttribute("data-page-id", "1");
     await expect(testElement).toHaveAttribute(
       "data-featured-asset-id",
       "687969fd9c90c709c1021d01"

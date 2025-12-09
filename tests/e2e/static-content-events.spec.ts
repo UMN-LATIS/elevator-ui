@@ -72,7 +72,9 @@ test.describe("Static Content Page - Custom Events", () => {
 
     // Verify the correct image count and page ID
     await expect(testElement).toHaveAttribute("data-page-id", "2");
-    await expect(testElement).toHaveText("page 2: images in static content = 2");
+    await expect(testElement).toHaveText(
+      "page 2: images in static content = 2"
+    );
   });
 
   test("emits event for different pages with different image counts", async ({
@@ -89,7 +91,9 @@ test.describe("Static Content Page - Custom Events", () => {
     // Verify event was fired with correct count
     const testElement = page.locator("#test-event-received");
     await expect(testElement).toBeVisible();
-    await expect(testElement).toHaveText("page 1: images in static content = 2");
+    await expect(testElement).toHaveText(
+      "page 1: images in static content = 2"
+    );
   });
 
   test("emits CONTENT_LOADED event on each page navigation", async ({
@@ -106,7 +110,9 @@ test.describe("Static Content Page - Custom Events", () => {
     const testElement = page.locator("#test-event-received");
     await expect(testElement).toBeVisible();
     await expect(testElement).toHaveAttribute("data-page-id", "1");
-    await expect(testElement).toHaveText("page 1: images in static content = 2");
+    await expect(testElement).toHaveText(
+      "page 1: images in static content = 2"
+    );
 
     // Navigate to page 2 (About - 2 images)
     await page.goto("/page/view/2");
@@ -117,18 +123,22 @@ test.describe("Static Content Page - Custom Events", () => {
 
     // Verify event fired again with pageId = 2
     await expect(testElement).toHaveAttribute("data-page-id", "2");
-    await expect(testElement).toHaveText("page 2: images in static content = 2");
+    await expect(testElement).toHaveText(
+      "page 2: images in static content = 2"
+    );
 
     // Navigate to page 3 (Broken Images - 3 images)
     await page.goto("/page/view/3");
 
     await expect(
-      page.getByRole("heading", { name: "Page with Image Load Errors" })
+      page.getByRole("heading", { name: "Test Page with Broken Images" })
     ).toBeVisible();
 
     // Verify event fired again with pageId = 3
     await expect(testElement).toHaveAttribute("data-page-id", "3");
-    await expect(testElement).toHaveText("page 3: images in static content = 3");
+    await expect(testElement).toHaveText(
+      "page 3: images in static content = 3"
+    );
 
     // Navigate back to page 1 to verify it works in reverse
     await page.goto("/page/view/1");
@@ -139,7 +149,9 @@ test.describe("Static Content Page - Custom Events", () => {
 
     // Verify event fired again with pageId = 1
     await expect(testElement).toHaveAttribute("data-page-id", "1");
-    await expect(testElement).toHaveText("page 1: images in static content = 2");
+    await expect(testElement).toHaveText(
+      "page 1: images in static content = 2"
+    );
   });
 });
 
@@ -238,7 +250,7 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
     await page.goto("/page/view/3");
 
     await expect(
-      page.getByRole("heading", { name: "Page with Image Load Errors" })
+      page.getByRole("heading", { name: "Test Page with Broken Images" })
     ).toBeVisible();
 
     // Wait for IMAGES_LOADED event (should still fire despite broken images)
