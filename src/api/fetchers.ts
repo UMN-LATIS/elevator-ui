@@ -210,9 +210,12 @@ export async function fetchSearchIdForClickToSearch(
 }
 
 export async function fetchStaticPage(
-  pageId: number
+  pageId: number,
+  options?: { signal?: AbortSignal }
 ): Promise<ApiStaticPageResponse> {
-  const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`);
+  const res = await axios.get(`${BASE_URL}/page/view/${pageId}/true`, {
+    signal: options?.signal,
+  });
   return res.data;
 }
 

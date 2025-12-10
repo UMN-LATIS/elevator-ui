@@ -668,6 +668,7 @@ export interface AssetCollection {
 export interface Page {
   title: string;
   id: number;
+  includeInNav?: boolean;
   children?: Page[];
 }
 

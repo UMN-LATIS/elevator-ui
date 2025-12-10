@@ -32,12 +32,13 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
-import { computed, ref, watch } from "vue";
-import { ApiStaticPageResponse } from "@/types";
+import { computed, nextTick, onUnmounted, toRef, watch } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
-import api from "@/api";
 import config from "@/config";
 import { ShowCustomHeaderMode } from "@/types";
+import { ELEVATOR_EVENTS } from "@/constants/constants";
+import { onAllImagesLoaded } from "@/helpers/onAllImagesLoaded";
+import { useStaticPageQuery } from "@/queries/useStaticPageQuery";
 
 const instanceStore = useInstanceStore();
 
@@ -46,7 +47,7 @@ const props = defineProps<{
 }>();
 
 const BASE_URL = config.instance.base.path;
-const page = ref<ApiStaticPageResponse | null>(null);
+const pageIdRef = toRef(props, "pageId");
 
 const canCurrentUserEdit = computed(() => {
   return (
@@ -55,13 +56,39 @@ const canCurrentUserEdit = computed(() => {
   );
 });
 
+const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
+const { data: page } = useStaticPageQuery(pageIdRef);
+
+const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
+  window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
+};
+
+let cleanupOnAllImagesLoaded: (() => void) | null = null;
+
+// Emit custom events for external scripts (e.g. header/footer)
 watch(
-  () => props.pageId,
-  async () => {
-    page.value = await api.getStaticPage(props.pageId);
+  page,
+  async (newPage) => {
+    if (!newPage) return;
+
+    cleanupOnAllImagesLoaded?.();
+
+    await nextTick();
+    dispatchEvent(CONTENT_LOADED, { pageId: pageIdRef.value });
+
+    cleanupOnAllImagesLoaded = onAllImagesLoaded(
+      ".static-content-page__content",
+      (images: HTMLImageElement[]) =>
+        dispatchEvent(IMAGES_LOADED, { pageId: pageIdRef.value, images }),
+      { timeout: 10000 }
+    );
   },
   { immediate: true }
 );
+
+onUnmounted(() => {
+  cleanupOnAllImagesLoaded?.();
+});
 </script>
 <style scoped>
 .static-content-page__content {

@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import { createServer } from "node:https";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
@@ -126,6 +124,37 @@ app.post("/_tests/auth/login", async (c) => {
   });
 
   return c.json({ sessionId: session.id, user });
+});
+
+app.patch("/_tests/instance/update", async (c) => {
+  const db = c.get("db");
+  const updates = await c.req.json();
+
+  const instance = db.instances.getDefault();
+  if (!instance) {
+    return c.json({ error: "Instance not found" }, 404);
+  }
+
+  // Merge updates into existing instance
+  const updatedInstance = { ...instance, ...updates };
+  db.instances.set(instance.id, updatedInstance);
+
+  return c.json({ success: true, instance: updatedInstance });
+});
+
+// Endpoint that delays response to test timeout behavior
+app.get("/_tests/slow-image.jpg", async (c) => {
+  // Delay for 15 seconds (longer than the 10-second timeout in onAllImagesLoaded)
+  await new Promise((resolve) => setTimeout(resolve, 15000));
+
+  // Return a 1x1 transparent GIF
+  const gif = Buffer.from(
+    "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+    "base64"
+  );
+
+  c.header("Content-Type", "image/gif");
+  return c.body(gif);
 });
 
 // Health check

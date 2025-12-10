@@ -58,27 +58,24 @@
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
-import { ref, watch, computed } from "vue";
-import { StaticContentPage, Asset, ShowCustomHeaderMode } from "@/types";
+import { computed, nextTick, onUnmounted, watch } from "vue";
+import { ShowCustomHeaderMode } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
-import api from "@/api";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 import Notification from "@/components/Notification/Notification.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
+import { useStaticPageQuery } from "@/queries/useStaticPageQuery";
+import { useAssetQuery } from "@/queries/useAssetQuery";
+import { ELEVATOR_EVENTS } from "@/constants/constants";
+import { onAllImagesLoaded } from "@/helpers/onAllImagesLoaded";
 
-const page = ref<StaticContentPage | null>(null);
 const instanceStore = useInstanceStore();
 const canSearchAndBrowse = computed(
   () => instanceStore.instance?.userCanSearchAndBrowse ?? false
 );
 const isReady = computed(() => instanceStore.isReady);
-
-const fallbackHomePage: StaticContentPage = {
-  title: "No Home Page",
-  content: `<p>Update your instance to set a Home Page</p>`,
-};
 
 const featuredAssetId = computed(
   (): string | null => instanceStore.instance?.featuredAssetId ?? null
@@ -86,37 +83,89 @@ const featuredAssetId = computed(
 const featuredAssetText = computed(
   () => instanceStore.instance?.featuredAssetText ?? ""
 );
-const featuredAsset = ref<Asset | null>(null);
 
-// the Home Page is just the first page with a title of "Home Page"
-function findHomePageId() {
-  return instanceStore.pages.find((page) => page.title === "Home Page")?.id;
-}
+// Find home page ID from instance pages
+const homePageId = computed(() => {
+  return (
+    instanceStore.pages.find((page) => page.title === "Home Page")?.id ?? null
+  );
+});
 
-async function fetchHomePage(homePageId: number | undefined) {
-  if (!homePageId) return fallbackHomePage;
-  return api.getStaticPage(homePageId);
-}
+// Fetch home page content (only when ready, can browse, and home page exists)
+const { data: pageData } = useStaticPageQuery(
+  homePageId, // Pass the computed directly
+  {
+    enabled: computed(
+      () => isReady.value && canSearchAndBrowse.value && !!homePageId.value
+    ),
+  }
+);
 
-async function fetchFeaturedAsset(assetId): Promise<Asset | null> {
-  if (!assetId) return null;
-  return api.getAsset(assetId);
-}
+// Fetch featured asset (only when ready, can browse, and featured asset exists)
+const { data: featuredAsset } = useAssetQuery(featuredAssetId, {
+  enabled: computed(
+    () => isReady.value && canSearchAndBrowse.value && !!featuredAssetId.value
+  ),
+});
 
+// Provide fallback if no home page is configured
+const page = computed(() => {
+  return pageData.value ?? null;
+});
+
+// Determine when both queries are complete
+const bothQueriesComplete = computed(() => {
+  // Always wait for page
+  if (!page.value) return false;
+
+  // If there's a featured asset, wait for it too
+  if (featuredAssetId.value && !featuredAsset.value) return false;
+
+  return true;
+});
+
+const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
+
+const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
+  window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
+};
+
+const cleanupFns = new Set<() => void>();
+
+// Emit custom events when both page and featured asset (if any) are loaded
 watch(
-  () => instanceStore.fetchStatus,
-  async () => {
-    if (instanceStore.fetchStatus !== "success") return;
+  bothQueriesComplete,
+  async (isComplete) => {
+    if (!isComplete) return;
 
-    // if the can't search and browse, we're done
-    if (!canSearchAndBrowse.value) return;
+    cleanupFns.forEach((fn) => fn());
+    cleanupFns.clear();
 
-    const homePageId = findHomePageId();
-    page.value = await fetchHomePage(homePageId);
-    featuredAsset.value = await fetchFeaturedAsset(featuredAssetId.value);
+    await nextTick();
+
+    dispatchEvent(CONTENT_LOADED, {
+      pageId: homePageId.value,
+      featuredAssetId: featuredAssetId.value,
+    });
+
+    const cleanup = onAllImagesLoaded(
+      ".home-page-content, .featured-asset-block",
+      (images: HTMLImageElement[]) =>
+        dispatchEvent(IMAGES_LOADED, {
+          pageId: homePageId.value,
+          featuredAssetId: featuredAssetId.value,
+          images,
+        }),
+      { timeout: 10000 }
+    );
+    cleanupFns.add(cleanup);
   },
   { immediate: true }
 );
+
+onUnmounted(() => {
+  cleanupFns.forEach((fn) => fn());
+});
 </script>
 <style scoped>
 .home-page-content {

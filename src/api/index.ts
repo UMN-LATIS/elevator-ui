@@ -217,10 +217,14 @@ async function getSearchResultsById(
   return searchResults;
 }
 
-async function getStaticPage(pageId: number): Promise<ApiStaticPageResponse> {
+async function getStaticPage(
+  pageId: number,
+  options?: { signal?: AbortSignal }
+): Promise<ApiStaticPageResponse> {
   // check the cache first
   const page =
-    cache.staticPages.get(pageId) || (await fetchers.fetchStaticPage(pageId));
+    cache.staticPages.get(pageId) ||
+    (await fetchers.fetchStaticPage(pageId, options));
 
   // cache the page
   cache.staticPages.set(pageId, page);

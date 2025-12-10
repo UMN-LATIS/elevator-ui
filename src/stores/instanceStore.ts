@@ -2,6 +2,11 @@ import { defineStore } from "pinia";
 import api from "@/api";
 import { selectCurrentUserFromResponse } from "@/helpers/selectCurrentUserFromResponse";
 import { selectInstanceFromResponse } from "@/helpers/selectInstanceFromResponse";
+import {
+  getScriptsFromHTML,
+  executeScripts,
+  removeScriptsFromHtml,
+} from "@/helpers/customScriptHelpers";
 import { ref, computed } from "vue";
 import {
   FetchStatus,
@@ -43,6 +48,8 @@ const createState = () => ({
   customHeaderMode: ref<ShowCustomHeaderMode>(ShowCustomHeaderMode.NEVER),
   customHeader: ref<string | null>(null),
   customFooter: ref<string | null>(null),
+  customScripts: ref<HTMLScriptElement[]>([]),
+  hasExecutedCustomScripts: ref<boolean>(false),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
@@ -109,8 +116,21 @@ const actions = (state: ReturnType<typeof createState>) => ({
         apiResponse.collections
       );
       state.customHeaderMode.value = apiResponse.customHeaderMode;
-      state.customHeader.value = apiResponse.customHeader ?? null;
-      state.customFooter.value = apiResponse.customFooter ?? null;
+
+      // Store script-free HTML
+      state.customHeader.value = removeScriptsFromHtml(
+        apiResponse.customHeader
+      );
+      state.customFooter.value = removeScriptsFromHtml(
+        apiResponse.customFooter
+      );
+
+      // Extract scripts from custom header and footer
+      const headerScripts = getScriptsFromHTML(apiResponse.customHeader);
+      const footerScripts = getScriptsFromHTML(apiResponse.customFooter);
+
+      // store header and footer scripts
+      state.customScripts.value = [...headerScripts, ...footerScripts];
 
       // add id to searchable field object from api response
       state.searchableFields.value = Object.entries(
@@ -131,7 +151,12 @@ const actions = (state: ReturnType<typeof createState>) => ({
     if (["fetching", "success", "error"].includes(state.fetchStatus.value)) {
       return;
     }
-    return actions(state).refresh();
+    await actions(state).refresh();
+
+    // Execute custom scripts only on init,
+    // not on refresh
+    executeScripts(state.customScripts.value as HTMLScriptElement[]);
+    state.hasExecutedCustomSripts.value = true;
   },
 });
 
