@@ -49,7 +49,7 @@ const createState = () => ({
   customHeader: ref<string | null>(null),
   customFooter: ref<string | null>(null),
   customScripts: ref<HTMLScriptElement[]>([]),
-  hasExecutedCustomScripts: ref<boolean>(false),
+  hasExecutedCustomScripts: ref(false),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
@@ -156,7 +156,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
     // Execute custom scripts only on init,
     // not on refresh
     executeScripts(state.customScripts.value as HTMLScriptElement[]);
-    state.hasExecutedCustomSripts.value = true;
+    state.hasExecutedCustomScripts.value = true;
   },
 });
 
