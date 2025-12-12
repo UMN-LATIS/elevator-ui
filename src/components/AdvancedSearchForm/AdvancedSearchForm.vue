@@ -7,12 +7,19 @@
       <h1 class="sr-only">Advanced Search</h1>
 
       <SearchTextInputGroup class="mb-4" @moreOptionClick="$emit('close')" />
-      <Toggle
-        v-model="searchStore.filterBy.useBooleanOperators"
-        class="mb-2"
-        settingLabel="Use Boolean Operators"
-        onLabel="Use Boolean Operators"
-        onLabelClass="text-sm"></Toggle>
+      <div class="flex gap-4 items-center px-2 mb-4 flex-wrap">
+        <Toggle
+          v-model="searchStore.filterBy.useBooleanOperators"
+          settingLabel="Use Boolean Operators"
+          onLabel="Use Boolean Operators"
+          onLabelClass="text-sm"></Toggle>
+        <Toggle
+          v-if="instanceStore.currentUser?.isAdmin"
+          v-model="searchStore.filterBy.includeHiddenAssets"
+          settingLabel="Include Hidden Assets"
+          onLabel="Include Hidden"
+          onLabelClass="text-sm"></Toggle>
+      </div>
       <div class="px-2">
         <h2
           class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200">
@@ -25,31 +32,20 @@
       </div>
     </div>
     <div
-      class="flex bg-transparent-black-100 p-2 justify-between items-center gap-4">
-      <div>
-        <Toggle
-          v-if="instanceStore.currentUser?.isAdmin"
-          v-model="searchStore.filterBy.includeHiddenAssets"
-          class="ml-4"
-          settingLabel="Include Hidden Assets"
-          onLabel="Include Hidden"
-          onLabelClass="text-sm"></Toggle>
-      </div>
-      <div>
-        <Button
-          variant="tertiary"
-          type="button"
-          @click="searchStore.clearAllFilters">
-          Clear All
-        </Button>
-        <Button
-          variant="primary"
-          type="submit"
-          class="!rounded-full"
-          :disabled="!searchStore.isValidSearch">
-          Search
-        </Button>
-      </div>
+      class="flex bg-transparent-black-100 p-2 justify-end items-center gap-2">
+      <Button
+        variant="tertiary"
+        type="button"
+        @click="searchStore.clearAllFilters">
+        Clear All
+      </Button>
+      <Button
+        variant="primary"
+        type="submit"
+        class="!rounded-full text-sm !py-2 sm:!px-4"
+        :disabled="!searchStore.isValidSearch">
+        Search
+      </Button>
     </div>
   </form>
 </template>
