@@ -16,7 +16,7 @@
         <AppMenuButton />
       </div>
     </div>
-    <div class="app-header__secondary-nav">
+    <div v-if="$slots.default" class="app-header__secondary-nav">
       <slot />
     </div>
   </header>
