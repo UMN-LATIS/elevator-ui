@@ -13,35 +13,36 @@
           }
         " />
     </form>
-    <Teleport to="body" :disabled="isLargeScreen">
-      <TransitionFade>
-        <AdvancedSearchForm
-          v-if="isAdvancedSearchModalOpen"
-          :isOpen="isAdvancedSearchModalOpen"
-          class="advanced-search-form fixed left-4 right-4 top-1/2 -translate-y-1/2 z-40 max-w-screen-sm sm:absolute sm:-top-2 sm:translate-y-0 sm:-right-2 sm:left-auto sm:min-w-[30rem] sm:w-full"
-          @submit="handleSubmit"
-          @close="isAdvancedSearchModalOpen = false" />
-      </TransitionFade>
 
+    <!-- Always teleport to body for proper z-index -->
+    <Teleport to="body">
       <!-- overlay -->
       <TransitionFade>
         <div
           v-if="isAdvancedSearchModalOpen"
           class="fixed inset-0 bg-black/75 z-30" />
       </TransitionFade>
+
+      <!-- advanced search panel -->
+      <TransitionFade>
+        <AdvancedSearchForm
+          v-if="isAdvancedSearchModalOpen"
+          :isOpen="isAdvancedSearchModalOpen"
+          class="advanced-search-form fixed left-4 right-4 top-1/2 -translate-y-1/2 z-40 mx-auto max-w-screen-sm sm:left-1/2 sm:-translate-x-1/2 sm:right-auto sm:top-4 sm:translate-y-0 sm:w-full sm:max-w-2xl"
+          @submit="handleSubmit"
+          @close="isAdvancedSearchModalOpen = false" />
+      </TransitionFade>
     </Teleport>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { useMediaQuery } from "@vueuse/core";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter, useRoute } from "vue-router";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
 import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
 
-const isLargeScreen = useMediaQuery("(min-width: 640px)");
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();
 const router = useRouter();
