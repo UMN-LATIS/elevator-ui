@@ -1,5 +1,5 @@
 <template>
-  <header class="app-header flex flex-col gap-2">
+  <header class="app-header flex flex-col">
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
         <Link to="/" class="app-header__logo-link hover:no-underline mr-4">
@@ -16,7 +16,7 @@
         <AppMenuButton />
       </div>
     </div>
-    <div class="app-header__secondary-nav">
+    <div v-if="$slots.default" class="app-header__secondary-nav">
       <slot />
     </div>
   </header>
