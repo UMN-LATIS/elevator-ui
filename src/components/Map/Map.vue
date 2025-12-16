@@ -187,7 +187,9 @@ function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
     const totalMarkers = index + 1; // including this one
     const angleStep = (2 * Math.PI) / totalMarkers;
     const angle = angleStep * index;
-    const radius = 0.0002; // offset distance in degrees
+    // Use a larger offset (0.001 degrees ≈ 111 meters) to ensure
+    // markers are far enough apart to not be clustered together
+    const radius = 0.001;
 
     offset = [radius * Math.cos(angle), radius * Math.sin(angle)];
   }
