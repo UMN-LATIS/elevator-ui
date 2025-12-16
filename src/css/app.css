@@ -9,6 +9,9 @@ body {
   color: var(--app-textColor);
   background-color: var(--app-backgroundColor);
   border-color: var(--app-borderColor);
+  /* Support iOS safe area insets */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 a {
@@ -22,6 +25,31 @@ a:hover {
 }
 
 @layer utilities {
+  /* Safe area inset utilities for mobile devices (iOS notch, etc.) */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mt-safe {
+    margin-top: env(safe-area-inset-top);
+  }
+
   .text-orient-sideways {
     writing-mode: vertical-rl;
     text-orientation: mixed;

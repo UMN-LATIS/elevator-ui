@@ -25,7 +25,7 @@
 
     <div
       v-show="isOpen"
-      class="panel__body flex flex-col gap-6 px-4 md:p-8 flex-1">
+      class="panel__body flex flex-col gap-6 px-4 md:p-8 flex-1 pb-safe md:pb-8">
       <slot />
     </div>
   </section>
