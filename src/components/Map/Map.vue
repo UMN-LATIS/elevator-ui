@@ -63,7 +63,6 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
-import { calculateMarkerOffset } from "./calculateMarkerOffset";
 
 const props = withDefaults(
   defineProps<{
@@ -96,6 +95,10 @@ const mapContainerRef = useTemplateRef("mapContainerRef");
 const mapRef = ref<MapLibreMap | null>(null);
 const markers = reactive(new Map<string, GeoJSON.Feature>());
 const isLoaded = ref(false);
+
+// Track which location groups are spidered out
+// Key is "lng,lat" string, value is true if spidered
+const spideredLocations = reactive(new Map<string, boolean>());
 
 // see: https://developers.arcgis.com/documentation/mapping-apis-and-services/maps/services/basemap-layer-service/#default-styles
 
@@ -172,6 +175,29 @@ function getOtherMarkersWithSameCoords({
   });
 }
 
+// Generate a key for a location (for tracking spidered groups)
+function getLocationKey(lng: number, lat: number): string {
+  // Round to avoid floating point precision issues
+  return `${lng.toFixed(4)},${lat.toFixed(4)}`;
+}
+
+// Calculate circular offset for marker spider layout
+function calculateSpiderOffset(
+  index: number,
+  totalMarkers: number
+): [number, number] {
+  if (totalMarkers <= 1) {
+    return [0, 0];
+  }
+
+  const angleStep = (2 * Math.PI) / totalMarkers;
+  const angle = angleStep * index;
+  // Use offset of 0.001 degrees (~111 meters)
+  const radius = 0.001;
+
+  return [radius * Math.cos(angle), radius * Math.sin(angle)];
+}
+
 function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
   const otherMarkersWithSameCoords = getOtherMarkersWithSameCoords({
     id,
@@ -179,11 +205,13 @@ function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
     lat,
   });
 
-  // Calculate offset in a circular pattern (spider layout)
-  // so that markers at the same location are arranged in a circle
+  const locationKey = getLocationKey(lng, lat);
   const index = otherMarkersWithSameCoords.length;
-  const totalMarkers = index + 1; // including this one
-  const offset = calculateMarkerOffset(index, totalMarkers);
+  const totalMarkers = index + 1;
+
+  // Initially, markers at the same location have no offset
+  // Offset is only applied when the location is spidered out
+  const offset: [number, number] = [0, 0];
 
   // Create a new GeoJSON feature for this point
   const newFeature: GeoJSON.Feature<Point> & { properties } = {
@@ -196,6 +224,9 @@ function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
       ...properties,
       id,
       offset,
+      locationKey,
+      markerIndex: index,
+      totalMarkersAtLocation: totalMarkers,
     },
   };
 
@@ -227,17 +258,32 @@ function removeMarkerPopup(markerId: string) {
 function getFeaturesWithOffset(markersMap: Map<string, GeoJSON.Feature>) {
   const features = Array.from(markersMap.values()) as GeoJSON.Feature<Point>[];
 
-  // add an offset to the coordinates of the marker if needed
-  // this is to avoid markers with the same coordinates to overlap
+  // Apply offset to markers only if their location is spidered out
   const featuresWithOffset = features.map((feature) => {
-    if (!feature.properties?.offset) throw new Error("No offset");
+    const locationKey = feature.properties?.locationKey as string;
+    const isSpideredOut = spideredLocations.get(locationKey) || false;
+    
+    let offset: [number, number] = [0, 0];
+    
+    if (isSpideredOut) {
+      // Calculate spider offset for this marker
+      const markerIndex = feature.properties?.markerIndex as number;
+      const totalMarkers = feature.properties?.totalMarkersAtLocation as number;
+      offset = calculateSpiderOffset(markerIndex, totalMarkers);
+    }
+    
     return {
       ...feature,
+      properties: {
+        ...feature.properties,
+        offset,
+        isSpideredOut,
+      },
       geometry: {
         ...feature.geometry,
         coordinates: [
-          feature.geometry.coordinates[0] + feature.properties.offset[0],
-          feature.geometry.coordinates[1] + feature.properties.offset[1],
+          feature.geometry.coordinates[0] + offset[0],
+          feature.geometry.coordinates[1] + offset[1],
         ],
       },
     };
@@ -255,6 +301,12 @@ function renderMarkers() {
     type: "FeatureCollection",
     features: getFeaturesWithOffset(markers),
   });
+}
+
+function toggleSpiderLocation(locationKey: string) {
+  const isCurrentlySpideredOut = spideredLocations.get(locationKey) || false;
+  spideredLocations.set(locationKey, !isCurrentlySpideredOut);
+  renderMarkers();
 }
 
 watch(activeMapStyleKey, updateStyle);
@@ -351,6 +403,18 @@ onMounted(() => {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
 
+      const locationKey = point.properties?.locationKey as string;
+      const totalMarkersAtLocation = point.properties?.totalMarkersAtLocation as number;
+      const isSpideredOut = point.properties?.isSpideredOut as boolean;
+      
+      // If there are multiple markers at this location and they're not spidered out yet,
+      // spider them out instead of showing the popup
+      if (totalMarkersAtLocation > 1 && !isSpideredOut) {
+        toggleSpiderLocation(locationKey);
+        return;
+      }
+      
+      // If spidered out or only one marker, show the popup
       const markerId = point.properties?.id as string;
       const popupContainer = markerPopupContainerRefs.get(markerId)?.value;
 
@@ -459,6 +523,31 @@ onMounted(() => {
             "circle-radius": 8,
             "circle-stroke-width": 1,
             "circle-stroke-color": "#fff",
+          },
+        });
+      }
+      
+      // Add a layer to show count for stacked markers (multiple markers at same location)
+      const STACKED_COUNT_LAYER_ID = "stacked-count";
+      if (!map.getLayer(STACKED_COUNT_LAYER_ID)) {
+        map.addLayer({
+          id: STACKED_COUNT_LAYER_ID,
+          type: "symbol",
+          source: MARKERS_SOURCE_ID,
+          filter: [
+            "all",
+            ["!", ["has", "point_count"]], // not a cluster
+            [">", ["get", "totalMarkersAtLocation"], 1], // has multiple markers
+            ["!", ["get", "isSpideredOut"]], // not spidered out
+          ],
+          layout: {
+            "text-font": ["Arial Bold"],
+            "text-field": ["get", "totalMarkersAtLocation"],
+            "text-size": 12,
+            "text-offset": [0, 0.1],
+          },
+          paint: {
+            "text-color": "white",
           },
         });
       }
