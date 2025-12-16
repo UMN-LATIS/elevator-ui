@@ -178,8 +178,19 @@ function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
     lat,
   });
 
-  // add an offset if there are other coords in the same spot
-  const offset = otherMarkersWithSameCoords.length ? [0.0001, 0] : [0, 0];
+  // Calculate offset in a circular pattern (spider layout)
+  // so that markers at the same location are arranged in a circle
+  let offset: [number, number] = [0, 0];
+
+  if (otherMarkersWithSameCoords.length > 0) {
+    const index = otherMarkersWithSameCoords.length;
+    const totalMarkers = index + 1; // including this one
+    const angleStep = (2 * Math.PI) / totalMarkers;
+    const angle = angleStep * index;
+    const radius = 0.0002; // offset distance in degrees
+
+    offset = [radius * Math.cos(angle), radius * Math.sin(angle)];
+  }
 
   // Create a new GeoJSON feature for this point
   const newFeature: GeoJSON.Feature<Point> & { properties } = {
