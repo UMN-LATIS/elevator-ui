@@ -63,6 +63,7 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
+import { calculateMarkerOffset } from "./calculateMarkerOffset";
 
 const props = withDefaults(
   defineProps<{
@@ -180,19 +181,9 @@ function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
 
   // Calculate offset in a circular pattern (spider layout)
   // so that markers at the same location are arranged in a circle
-  let offset: [number, number] = [0, 0];
-
-  if (otherMarkersWithSameCoords.length > 0) {
-    const index = otherMarkersWithSameCoords.length;
-    const totalMarkers = index + 1; // including this one
-    const angleStep = (2 * Math.PI) / totalMarkers;
-    const angle = angleStep * index;
-    // Use a larger offset (0.001 degrees ≈ 111 meters) to ensure
-    // markers are far enough apart to not be clustered together
-    const radius = 0.001;
-
-    offset = [radius * Math.cos(angle), radius * Math.sin(angle)];
-  }
+  const index = otherMarkersWithSameCoords.length;
+  const totalMarkers = index + 1; // including this one
+  const offset = calculateMarkerOffset(index, totalMarkers);
 
   // Create a new GeoJSON feature for this point
   const newFeature: GeoJSON.Feature<Point> & { properties } = {
