@@ -63,6 +63,7 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
+import getBoundingBox from "./getBoundingBox";
 
 const props = withDefaults(
   defineProps<{
@@ -309,8 +310,41 @@ function renderMarkers() {
 
 function toggleSpiderLocation(locationKey: string) {
   const isCurrentlySpideredOut = spideredLocations.get(locationKey) || false;
-  spideredLocations.set(locationKey, !isCurrentlySpideredOut);
+  const willBeSpideredOut = !isCurrentlySpideredOut;
+  
+  spideredLocations.set(locationKey, willBeSpideredOut);
   renderMarkers();
+  
+  // If spidering out, zoom to show all the expanded markers
+  if (willBeSpideredOut && mapRef.value) {
+    // Get all markers at this location
+    const markersAtLocation = Array.from(markers.values()).filter(
+      (marker) => marker.properties?.locationKey === locationKey
+    ) as GeoJSON.Feature<Point>[];
+    
+    if (markersAtLocation.length > 1) {
+      // Get the original coordinates
+      const firstMarker = markersAtLocation[0];
+      const baseLng = firstMarker.geometry.coordinates[0];
+      const baseLat = firstMarker.geometry.coordinates[1];
+      
+      // Calculate all the spidered-out positions
+      const spideredPositions: LngLat[] = markersAtLocation.map((_, index) => {
+        const offset = calculateSpiderOffset(index, markersAtLocation.length);
+        return {
+          lng: baseLng + offset[0],
+          lat: baseLat + offset[1],
+        };
+      });
+      
+      // Create bounding box and fit map to it
+      const bounds = getBoundingBox(spideredPositions);
+      mapRef.value.fitBounds(bounds, {
+        padding: 80, // Add padding so markers aren't at the edge
+        duration: 500, // Smooth animation
+      });
+    }
+  }
 }
 
 watch(activeMapStyleKey, updateStyle);
