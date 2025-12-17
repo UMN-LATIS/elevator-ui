@@ -147,10 +147,16 @@ function selectFileObjectsWithinAsset(asset: Asset): ChildFileObject[] {
 function selectRelatedAssets(asset: Asset): RelatedAssetCacheItemWithId[] {
   return Object.entries(asset?.relatedAssetCache ?? {})
     .filter(([, relatedAsset]) => relatedAsset != null) // Filter out null/undefined values
-    .map(([id, relatedAsset]) => ({
-      ...relatedAsset,
-      id,
-    }) as RelatedAssetCacheItemWithId);
+    .map(([id, relatedAsset]) => {
+      // After filtering, relatedAsset is guaranteed to be RelatedAssetCacheItem
+      // We explicitly construct the return type to ensure type safety
+      return {
+        id,
+        primaryHandler: relatedAsset!.primaryHandler,
+        readyForDisplay: relatedAsset!.readyForDisplay,
+        relatedAssetTitle: relatedAsset!.relatedAssetTitle,
+      };
+    });
 }
 
 async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
