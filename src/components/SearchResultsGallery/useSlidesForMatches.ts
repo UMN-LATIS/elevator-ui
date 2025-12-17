@@ -215,21 +215,31 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
       });
 
       // If there are more child slides than placeholders (e.g., related assets),
-      // append them after the last placeholder for this match
+      // append them after the last placeholder (or main slide if no placeholders)
       if (childSlides.length > placeholdersForChildren.length) {
         const remainingChildSlides = childSlides.slice(
           placeholdersForChildren.length
         );
 
-        // Find the index of the last placeholder for this match
-        const lastPlaceholder =
-          placeholdersForChildren[placeholdersForChildren.length - 1];
-        const lastPlaceholderIndex = slides.findIndex(
-          (slide) => slide.id === lastPlaceholder.id
-        );
+        // Find the insertion index: after the last placeholder, or after the main slide if no placeholders
+        let insertionIndex;
+        if (placeholdersForChildren.length > 0) {
+          const lastPlaceholder =
+            placeholdersForChildren[placeholdersForChildren.length - 1];
+          insertionIndex = slides.findIndex(
+            (slide) => slide.id === lastPlaceholder.id
+          );
+        } else {
+          // No placeholders, insert after the main slide for this match
+          insertionIndex = slides.findIndex(
+            (slide) => slide.objectId === match.objectId && !slide.isChildSlide
+          );
+        }
 
-        // Insert remaining child slides after the last placeholder
-        slides.splice(lastPlaceholderIndex + 1, 0, ...remainingChildSlides);
+        // Insert remaining child slides after the insertion point
+        if (insertionIndex !== -1) {
+          slides.splice(insertionIndex + 1, 0, ...remainingChildSlides);
+        }
       }
     });
   }
