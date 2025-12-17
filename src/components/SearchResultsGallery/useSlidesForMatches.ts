@@ -145,12 +145,12 @@ function selectFileObjectsWithinAsset(asset: Asset): ChildFileObject[] {
 }
 
 function selectRelatedAssets(asset: Asset): RelatedAssetCacheItemWithId[] {
-  return Object.entries(asset?.relatedAssets ?? {}).map(
-    ([id, relatedAsset]) => ({
+  return Object.entries(asset?.relatedAssetCache ?? {})
+    .filter(([, relatedAsset]) => relatedAsset != null) // Filter out null/undefined values
+    .map(([id, relatedAsset]) => ({
       ...relatedAsset,
       id,
-    })
-  );
+    }) as RelatedAssetCacheItemWithId);
 }
 
 async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
@@ -196,9 +196,10 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
 
     slides.push(...placeholdersForChildren);
 
-    // now, we queue up a featch for child slide data
+    // now, we queue up a fetch for child slide data
     // which we'll use to replace the placeholder slides
     fetchChildSlides(match.objectId).then((childSlides) => {
+      // Replace placeholders with child files (first N slides where N = number of placeholders)
       placeholdersForChildren.forEach((placeholder, index) => {
         const childSlide = childSlides[index];
         if (!childSlide) {
@@ -212,6 +213,24 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
         );
         slides[indexOfPlaceholder] = childSlide;
       });
+
+      // If there are more child slides than placeholders (e.g., related assets),
+      // append them after the last placeholder for this match
+      if (childSlides.length > placeholdersForChildren.length) {
+        const remainingChildSlides = childSlides.slice(
+          placeholdersForChildren.length
+        );
+
+        // Find the index of the last placeholder for this match
+        const lastPlaceholder =
+          placeholdersForChildren[placeholdersForChildren.length - 1];
+        const lastPlaceholderIndex = slides.findIndex(
+          (slide) => slide.id === lastPlaceholder.id
+        );
+
+        // Insert remaining child slides after the last placeholder
+        slides.splice(lastPlaceholderIndex + 1, 0, ...remainingChildSlides);
+      }
     });
   }
 
