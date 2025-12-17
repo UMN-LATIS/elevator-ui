@@ -271,9 +271,12 @@ function getFeaturesWithOffset(markersMap: Map<string, GeoJSON.Feature>) {
     
     let offset: [number, number] = [0, 0];
     
-    if (isSpideredOut) {
-      // Calculate spider offset for this marker
-      offset = calculateSpiderOffset(markerIndex, totalMarkersAtLocation);
+    if (isSpideredOut && totalMarkersAtLocation > 1) {
+      // When spidered out, keep the first marker at center (markerIndex 0)
+      // so it can be clicked to collapse. Other markers get offset.
+      if (markerIndex > 0) {
+        offset = calculateSpiderOffset(markerIndex, totalMarkersAtLocation);
+      }
     }
     
     return {
@@ -321,7 +324,11 @@ function getSpiderLineFeatures(markersMap: Map<string, GeoJSON.Feature>): GeoJSO
       const baseLng = markersAtLocation[0].geometry.coordinates[0];
       const baseLat = markersAtLocation[0].geometry.coordinates[1];
       
+      // Skip index 0 since that marker stays at the center
+      // Only draw lines to markers with index > 0
       markersAtLocation.forEach((_, index) => {
+        if (index === 0) return; // Skip the center marker
+        
         const offset = calculateSpiderOffset(index, markersAtLocation.length);
         const endLng = baseLng + offset[0];
         const endLat = baseLat + offset[1];
@@ -474,15 +481,23 @@ onMounted(() => {
       const locationKey = point.properties?.locationKey as string;
       const totalMarkersAtLocation = point.properties?.totalMarkersAtLocation as number;
       const isSpideredOut = point.properties?.isSpideredOut as boolean;
+      const markerIndex = point.properties?.markerIndex as number;
       
-      // If there are multiple markers at this location and they're not spidered out yet,
-      // spider them out instead of showing the popup
-      if (totalMarkersAtLocation > 1 && !isSpideredOut) {
-        toggleSpiderLocation(locationKey);
-        return;
+      // If there are multiple markers at this location
+      if (totalMarkersAtLocation > 1) {
+        // If not spidered out yet, spider them out
+        if (!isSpideredOut) {
+          toggleSpiderLocation(locationKey);
+          return;
+        }
+        // If spidered out and clicking on the center marker (index 0), collapse
+        if (isSpideredOut && markerIndex === 0) {
+          toggleSpiderLocation(locationKey);
+          return;
+        }
       }
       
-      // If spidered out or only one marker, show the popup
+      // Otherwise, show the popup for this marker
       const markerId = point.properties?.id as string;
       const popupContainer = markerPopupContainerRefs.get(markerId)?.value;
 
