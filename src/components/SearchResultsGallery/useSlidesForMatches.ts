@@ -159,7 +159,10 @@ function selectRelatedAssets(asset: Asset): RelatedAssetCacheItemWithId[] {
     });
 }
 
-async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
+async function fetchChildSlides(
+  parentObjectId: string,
+  primaryHandlerId: string | null | undefined
+): Promise<Slide[]> {
   const asset = await api.getAsset(parentObjectId);
 
   if (!asset) {
@@ -170,8 +173,14 @@ async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
   const relatedAssetsWithId = selectRelatedAssets(asset);
 
   const childFilesWithParentInfo = filesWithinAsset
-    // filter out the primary file -- only children allows
-    .filter((file) => !file.isPrimary)
+    // filter out the primary file -- exclude by isPrimary flag OR by matching fileId
+    .filter((file) => {
+      // Exclude if explicitly marked as primary
+      if (file.isPrimary) return false;
+      // Exclude if this file's ID matches the primaryHandlerId from search results
+      if (primaryHandlerId && file.fileId === primaryHandlerId) return false;
+      return true;
+    })
     // add parent info to each file
     .map((file) => ({
       fileId: file.fileId,
@@ -204,7 +213,7 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
 
     // now, we queue up a fetch for child slide data
     // which we'll use to replace the placeholder slides
-    fetchChildSlides(match.objectId).then((childSlides) => {
+    fetchChildSlides(match.objectId, match.primaryHandlerId).then((childSlides) => {
       // Replace placeholders with child files (first N slides where N = number of placeholders)
       placeholdersForChildren.forEach((placeholder, index) => {
         const childSlide = childSlides[index];
