@@ -129,6 +129,8 @@ const MARKERS_SOURCE_ID = "markers";
 const UNCLUSTERED_LAYER_ID = "unclustered-points";
 const CLUSTER_LAYER_ID = "clusters";
 const CLUSTER_COUNT_LAYER_ID = "cluster-count";
+const SPIDER_LINES_SOURCE_ID = "spider-lines";
+const SPIDER_LINES_LAYER_ID = "spider-lines-layer";
 
 const getArcGISUrl = (styleKey: string) => {
   const baseUrl = `https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2`;
@@ -297,6 +299,54 @@ function getFeaturesWithOffset(markersMap: Map<string, GeoJSON.Feature>) {
   return featuresWithOffset;
 }
 
+function getSpiderLineFeatures(markersMap: Map<string, GeoJSON.Feature>): GeoJSON.Feature[] {
+  const features = Array.from(markersMap.values()) as GeoJSON.Feature<Point>[];
+  const lines: GeoJSON.Feature[] = [];
+  
+  // Group markers by location
+  const locationGroups = new Map<string, GeoJSON.Feature<Point>[]>();
+  features.forEach((feature) => {
+    const locationKey = feature.properties?.locationKey as string;
+    if (!locationGroups.has(locationKey)) {
+      locationGroups.set(locationKey, []);
+    }
+    locationGroups.get(locationKey)!.push(feature);
+  });
+  
+  // For each spidered-out location, create lines from center to each marker
+  locationGroups.forEach((markersAtLocation, locationKey) => {
+    const isSpideredOut = spideredLocations.get(locationKey) || false;
+    
+    if (isSpideredOut && markersAtLocation.length > 1) {
+      const baseLng = markersAtLocation[0].geometry.coordinates[0];
+      const baseLat = markersAtLocation[0].geometry.coordinates[1];
+      
+      markersAtLocation.forEach((_, index) => {
+        const offset = calculateSpiderOffset(index, markersAtLocation.length);
+        const endLng = baseLng + offset[0];
+        const endLat = baseLat + offset[1];
+        
+        // Create a LineString from center to the spidered marker
+        lines.push({
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [baseLng, baseLat], // start at center
+              [endLng, endLat],   // end at marker position
+            ],
+          },
+          properties: {
+            locationKey,
+          },
+        });
+      });
+    }
+  });
+  
+  return lines;
+}
+
 function renderMarkers() {
   const map = mapRef.value;
   if (!map) return;
@@ -305,6 +355,13 @@ function renderMarkers() {
   source?.setData({
     type: "FeatureCollection",
     features: getFeaturesWithOffset(markers),
+  });
+  
+  // Update spider lines
+  const spiderLinesSource = map.getSource(SPIDER_LINES_SOURCE_ID) as GeoJSONSource;
+  spiderLinesSource?.setData({
+    type: "FeatureCollection",
+    features: getSpiderLineFeatures(markers),
   });
 }
 
@@ -467,9 +524,34 @@ onMounted(() => {
           cluster: false, // Disable automatic clustering
         });
       }
+      
+      // Add source for spider lines (connecting center to spidered markers)
+      if (!map.getSource(SPIDER_LINES_SOURCE_ID)) {
+        map.addSource(SPIDER_LINES_SOURCE_ID, {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: getSpiderLineFeatures(markers),
+          },
+        });
+      }
 
       // Note: Cluster layers are not used since we disabled clustering
       // We handle stacked markers manually with spider-out behavior
+      
+      // Add layer for spider lines (draw before markers so they appear underneath)
+      if (!map.getLayer(SPIDER_LINES_LAYER_ID)) {
+        map.addLayer({
+          id: SPIDER_LINES_LAYER_ID,
+          type: "line",
+          source: SPIDER_LINES_SOURCE_ID,
+          paint: {
+            "line-color": "#999999",
+            "line-width": 2,
+            "line-opacity": 0.6,
+          },
+        });
+      }
       
       // Add a layer for individual points
       if (!map.getLayer(UNCLUSTERED_LAYER_ID)) {
