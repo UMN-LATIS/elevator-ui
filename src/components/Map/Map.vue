@@ -271,11 +271,22 @@ function getFeaturesWithOffset(markersMap: Map<string, GeoJSON.Feature>) {
     
     let offset: [number, number] = [0, 0];
     
-    if (isSpideredOut && totalMarkersAtLocation > 1) {
-      // When spidered out, keep the first marker at center (markerIndex 0)
-      // so it can be clicked to collapse. Other markers get offset.
-      if (markerIndex > 0) {
-        offset = calculateSpiderOffset(markerIndex, totalMarkersAtLocation);
+    if (totalMarkersAtLocation > 1) {
+      if (isSpideredOut) {
+        // When spidered out, keep the first marker at center (markerIndex 0)
+        // so it can be clicked to collapse. Other markers get full spider offset.
+        if (markerIndex > 0) {
+          offset = calculateSpiderOffset(markerIndex, totalMarkersAtLocation);
+        }
+      } else {
+        // When not spidered out, apply a TINY offset to prevent MapLibre clustering
+        // This offset is much smaller than cluster radius (50px) so they appear as one
+        // but prevents them from being clustered by the clustering algorithm
+        // Use 0.00001 degrees (~1.1 meters) - small enough to appear as single point
+        const tinyRadius = 0.00001;
+        const angleStep = (2 * Math.PI) / totalMarkersAtLocation;
+        const angle = angleStep * markerIndex;
+        offset = [tinyRadius * Math.cos(angle), tinyRadius * Math.sin(angle)];
       }
     }
     
@@ -453,6 +464,33 @@ onMounted(() => {
 
       emit("click", event, mapRef.value as unknown as MapLibreMap);
     })
+    .on("click", CLUSTER_LAYER_ID, function (e) {
+      // when a cluster is clicked, zoom in to it
+      // to show the markers inside
+      if (!mapRef.value) {
+        throw new Error(
+          "there was a click on the map, but no map. How is that even possible?"
+        );
+      }
+      const map = mapRef.value;
+
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [CLUSTER_LAYER_ID],
+      }) as GeoJSON.Feature<GeoJSON.Point>[];
+
+      const clusterId = features[0].properties?.cluster_id;
+      const source = map.getSource(MARKERS_SOURCE_ID) as GeoJSONSource;
+      source?.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err || zoom === null) return;
+
+        const center = features[0].geometry?.coordinates as [number, number];
+
+        map.easeTo({
+          center,
+          zoom,
+        });
+      });
+    })
     .on("click", UNCLUSTERED_LAYER_ID, function (e: MapMouseEvent) {
       if (!mapRef.value) {
         throw new Error(
@@ -511,6 +549,12 @@ onMounted(() => {
         .setDOMContent(popupContainer)
         .addTo(map);
     })
+    .on("mouseenter", CLUSTER_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "pointer";
+    })
+    .on("mouseleave", CLUSTER_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "";
+    })
     .on("mouseenter", UNCLUSTERED_LAYER_ID, function () {
       map.getCanvas().style.cursor = "pointer";
     })
@@ -527,8 +571,8 @@ onMounted(() => {
 
       const map = mapRef.value;
 
-      // Add a new GeoJSON source WITHOUT clustering
-      // We handle stacked markers manually with spider-out behavior
+      // Add a new GeoJSON source WITH clustering enabled
+      // Clustering works for nearby markers, spider-out handles exact same location
       if (!map.getSource(MARKERS_SOURCE_ID)) {
         map.addSource(MARKERS_SOURCE_ID, {
           type: "geojson",
@@ -536,7 +580,9 @@ onMounted(() => {
             type: "FeatureCollection",
             features: getFeaturesWithOffset(markers),
           },
-          cluster: false, // Disable automatic clustering
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 50,
         });
       }
       
@@ -551,8 +597,53 @@ onMounted(() => {
         });
       }
 
-      // Note: Cluster layers are not used since we disabled clustering
-      // We handle stacked markers manually with spider-out behavior
+      // Add cluster layers for nearby markers
+      if (!map.getLayer(CLUSTER_LAYER_ID)) {
+        map.addLayer({
+          id: CLUSTER_LAYER_ID,
+          type: "circle",
+          source: MARKERS_SOURCE_ID,
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              "#F54D94",
+              5,
+              "#F54D94",
+            ],
+            "circle-radius": [
+              "step",
+              ["get", "point_count"],
+              20,
+              10,
+              30,
+              100,
+              40,
+            ],
+            "circle-stroke-width": 8,
+            "circle-stroke-color": "rgba(245, 77, 148, 0.25)",
+          },
+        });
+      }
+
+      // Add layer for cluster count text
+      if (!map.getLayer(CLUSTER_COUNT_LAYER_ID)) {
+        map.addLayer({
+          id: CLUSTER_COUNT_LAYER_ID,
+          type: "symbol",
+          source: MARKERS_SOURCE_ID,
+          filter: ["has", "point_count"],
+          layout: {
+            "text-font": ["Arial Bold"],
+            "text-field": ["get", "point_count"],
+            "text-offset": [0, 0.1],
+          },
+          paint: {
+            "text-color": "white",
+          },
+        });
+      }
       
       // Add layer for spider lines (draw before markers so they appear underneath)
       if (!map.getLayer(SPIDER_LINES_LAYER_ID)) {
