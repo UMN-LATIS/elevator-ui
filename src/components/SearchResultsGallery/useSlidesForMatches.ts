@@ -172,16 +172,12 @@ async function fetchChildSlides(
   const filesWithinAsset = selectFileObjectsWithinAsset(asset);
   const relatedAssetsWithId = selectRelatedAssets(asset);
 
+  // Exclude primary file by isPrimary flag or by matching primaryHandlerId
+  const isNotPrimary = (file: ChildFileObject) =>
+    !file.isPrimary && file.fileId !== primaryHandlerId;
+
   const childFilesWithParentInfo = filesWithinAsset
-    // filter out the primary file -- exclude by isPrimary flag OR by matching fileId
-    .filter((file) => {
-      // Exclude if explicitly marked as primary
-      if (file.isPrimary) return false;
-      // Exclude if this file's ID matches the primaryHandlerId from search results
-      if (primaryHandlerId && file.fileId === primaryHandlerId) return false;
-      return true;
-    })
-    // add parent info to each file
+    .filter(isNotPrimary)
     .map((file) => ({
       fileId: file.fileId,
       parentObjectId,
@@ -206,15 +202,10 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
     // add the parent slide to the slides array
     slides.push(slide);
 
-    // if there are children, add a placeholder slide for each child
     const placeholdersForChildren = createPlaceholderSlidesForChildren(match);
-
     slides.push(...placeholdersForChildren);
 
-    // now, we queue up a fetch for child slide data
-    // which we'll use to replace the placeholder slides
     fetchChildSlides(match.objectId, match.primaryHandlerId).then((childSlides) => {
-      // Replace placeholders with child files (first N slides where N = number of placeholders)
       placeholdersForChildren.forEach((placeholder, index) => {
         const childSlide = childSlides[index];
         if (!childSlide) {
@@ -229,29 +220,20 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
         slides[indexOfPlaceholder] = childSlide;
       });
 
-      // If there are more child slides than placeholders (e.g., related assets),
-      // append them after the last placeholder (or main slide if no placeholders)
+      // Handle remaining child slides (e.g., related assets) that exceed placeholder count
       if (childSlides.length > placeholdersForChildren.length) {
         const remainingChildSlides = childSlides.slice(
           placeholdersForChildren.length
         );
 
-        // Find the insertion index: after the last placeholder, or after the main slide if no placeholders
-        let insertionIndex;
-        if (placeholdersForChildren.length > 0) {
-          const lastPlaceholder =
-            placeholdersForChildren[placeholdersForChildren.length - 1];
-          insertionIndex = slides.findIndex(
-            (slide) => slide.id === lastPlaceholder.id
-          );
-        } else {
-          // No placeholders, insert after the main slide for this match
-          insertionIndex = slides.findIndex(
-            (slide) => slide.objectId === match.objectId && !slide.isChildSlide
-          );
-        }
+        const insertionIndex = placeholdersForChildren.length > 0
+          ? slides.findIndex(
+              (slide) => slide.id === placeholdersForChildren[placeholdersForChildren.length - 1].id
+            )
+          : slides.findIndex(
+              (slide) => slide.objectId === match.objectId && !slide.isChildSlide
+            );
 
-        // Insert remaining child slides after the insertion point
         if (insertionIndex !== -1) {
           slides.splice(insertionIndex + 1, 0, ...remainingChildSlides);
         }
