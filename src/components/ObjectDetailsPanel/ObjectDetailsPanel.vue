@@ -1,6 +1,6 @@
 <template>
   <div class="object-details-panel">
-    <div v-if="!objectId" class="h-full flex justify-end">
+    <div v-if="!objectId" class="h-full hidden sm:flex justify-end">
       <ActiveFileViewToolbar
         :fileHandlerId="fileHandlerId"
         :assetId="assetId" />
@@ -15,6 +15,7 @@
       @toggle="$emit('toggle')">
       <template #header-utils>
         <ActiveFileViewToolbar
+          class="hidden sm:block"
           :fileHandlerId="fileHandlerId"
           :assetId="objectId" />
       </template>
