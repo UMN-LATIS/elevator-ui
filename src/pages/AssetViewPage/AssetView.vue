@@ -1,5 +1,5 @@
 <template>
-  <div class="asset-view-page__asset-view h-full relative">
+  <div class="asset-view-page__asset-view md:h-full relative">
     <ObjectViewer
       class="asset-view__object-viewer h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
       :class="{
