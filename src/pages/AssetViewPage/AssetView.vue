@@ -22,7 +22,7 @@
     <div class="flex justify-end md:hidden bg-[var(--app-panel-bgColor)]">
       <ActiveFileViewToolbar
         :fileHandlerId="assetStore.activeFileObjectId"
-        :assetId="assetId" />
+        :assetId="assetStore.activeObjectId ?? assetId" />
     </div>
     <AssetDetailsPanel
       class="asset-view__asset-panel md:absolute"
