@@ -659,6 +659,12 @@ onMounted(() => {
           },
         });
       }
+
+      // After style change, repopulate markers and regenerate spider data if needed
+      // Use setTimeout to ensure all sources are fully initialized
+      setTimeout(() => {
+        renderMarkers();
+      }, 0);
     })
     .on("load", () => {
       if (!mapRef.value) {
