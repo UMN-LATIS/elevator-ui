@@ -1,5 +1,21 @@
 <template>
   <div class="map-cluster-test p-8">
+    <div class="mb-6 p-4 bg-gray-100 rounded">
+      <p class="text-sm font-semibold mb-2">Test Pages:</p>
+      <div class="flex gap-4 text-sm">
+        <span class="font-bold text-blue-600">Cluster Test</span>
+        <router-link
+          to="/tests/map-single-cluster"
+          class="text-blue-500 hover:underline">
+          Single Cluster Test
+        </router-link>
+        <router-link
+          to="/tests/map-stress"
+          class="text-blue-500 hover:underline">
+          Stress Test
+        </router-link>
+      </div>
+    </div>
     <h1 class="text-3xl font-bold mb-4">Map Clustering Test</h1>
     <p class="mb-4 text-gray-600">
       This test page demonstrates the clustering behavior:

@@ -273,6 +273,17 @@ const router = createRouter({
       component: () => import("@/pages/TestPages/MapClusterTest.vue"),
     },
     {
+      name: "mapSingleClusterTest",
+      path: "/tests/map-single-cluster",
+      component: () =>
+        import("@/pages/TestPages/MapSingleClusterTest.vue"),
+    },
+    {
+      name: "mapStressTest",
+      path: "/tests/map-stress",
+      component: () => import("@/pages/TestPages/MapStressTest.vue"),
+    },
+    {
       name: "error",
       path: "/error/:errorCode",
       component: ErrorPage,
