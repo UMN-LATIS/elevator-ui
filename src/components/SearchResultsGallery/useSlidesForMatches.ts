@@ -145,15 +145,24 @@ function selectFileObjectsWithinAsset(asset: Asset): ChildFileObject[] {
 }
 
 function selectRelatedAssets(asset: Asset): RelatedAssetCacheItemWithId[] {
-  return Object.entries(asset?.relatedAssets ?? {}).map(
-    ([id, relatedAsset]) => ({
-      ...relatedAsset,
-      id,
-    })
-  );
+  return Object.entries(asset?.relatedAssetCache ?? {})
+    .filter(([, relatedAsset]) => relatedAsset != null) // Filter out null/undefined values
+    .map(([id, relatedAsset]) => {
+      // After filtering, relatedAsset is guaranteed to be RelatedAssetCacheItem
+      // We explicitly construct the return type to ensure type safety
+      return {
+        id,
+        primaryHandler: relatedAsset!.primaryHandler,
+        readyForDisplay: relatedAsset!.readyForDisplay,
+        relatedAssetTitle: relatedAsset!.relatedAssetTitle,
+      };
+    });
 }
 
-async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
+async function fetchChildSlides(
+  parentObjectId: string,
+  primaryHandlerId: string | null | undefined
+): Promise<Slide[]> {
   const asset = await api.getAsset(parentObjectId);
 
   if (!asset) {
@@ -163,10 +172,12 @@ async function fetchChildSlides(parentObjectId: string): Promise<Slide[]> {
   const filesWithinAsset = selectFileObjectsWithinAsset(asset);
   const relatedAssetsWithId = selectRelatedAssets(asset);
 
+  // Exclude primary file by isPrimary flag or by matching primaryHandlerId
+  const isNotPrimary = (file: ChildFileObject) =>
+    !file.isPrimary && file.fileId !== primaryHandlerId;
+
   const childFilesWithParentInfo = filesWithinAsset
-    // filter out the primary file -- only children allows
-    .filter((file) => !file.isPrimary)
-    // add parent info to each file
+    .filter(isNotPrimary)
     .map((file) => ({
       fileId: file.fileId,
       parentObjectId,
@@ -191,14 +202,10 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
     // add the parent slide to the slides array
     slides.push(slide);
 
-    // if there are children, add a placeholder slide for each child
     const placeholdersForChildren = createPlaceholderSlidesForChildren(match);
-
     slides.push(...placeholdersForChildren);
 
-    // now, we queue up a featch for child slide data
-    // which we'll use to replace the placeholder slides
-    fetchChildSlides(match.objectId).then((childSlides) => {
+    fetchChildSlides(match.objectId, match.primaryHandlerId).then((childSlides) => {
       placeholdersForChildren.forEach((placeholder, index) => {
         const childSlide = childSlides[index];
         if (!childSlide) {
@@ -212,6 +219,25 @@ export function useSlidesForMatches(matches: SearchResultMatch[]): {
         );
         slides[indexOfPlaceholder] = childSlide;
       });
+
+      // Handle remaining child slides (e.g., related assets) that exceed placeholder count
+      if (childSlides.length > placeholdersForChildren.length) {
+        const remainingChildSlides = childSlides.slice(
+          placeholdersForChildren.length
+        );
+
+        const insertionIndex = placeholdersForChildren.length > 0
+          ? slides.findIndex(
+              (slide) => slide.id === placeholdersForChildren[placeholdersForChildren.length - 1].id
+            )
+          : slides.findIndex(
+              (slide) => slide.objectId === match.objectId && !slide.isChildSlide
+            );
+
+        if (insertionIndex !== -1) {
+          slides.splice(insertionIndex + 1, 0, ...remainingChildSlides);
+        }
+      }
     });
   }
 
