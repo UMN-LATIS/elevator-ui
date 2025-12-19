@@ -157,7 +157,12 @@ function updateBounds() {
     throw new Error("Cannot update bounds: no map");
   }
 
-  mapRef.value.fitBounds(props.bounds, { padding: 64 });
+  // cap maxZoom to prevent zooming too close when
+  // all points are at same location so that spider points are visible
+  mapRef.value.fitBounds(props.bounds, {
+    padding: 64,
+    maxZoom: 16,
+  });
 }
 
 function addMarker({ id, lng, lat, ...properties }: AddMarkerArgs) {
