@@ -46,8 +46,10 @@ import {
   reactive,
   type Ref,
   useTemplateRef,
+  nextTick,
 } from "vue";
-import { useResizeObserver } from "@vueuse/core";
+import { useResizeObserver, useDebounceFn } from "@vueuse/core";
+import { memoizeWith } from "ramda";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   Map as MapLibreMap,
@@ -97,6 +99,9 @@ const markers = reactive(new Map<string, GeoJSON.Feature>());
 const isLoaded = ref(false);
 const previousZoom = ref<number>(props.zoom);
 
+// AbortController for cancelling in-flight spider generation
+let currentAbortController: AbortController | null = null;
+
 // see: https://developers.arcgis.com/documentation/mapping-apis-and-services/maps/services/basemap-layer-service/#default-styles
 
 const mapStyles = {
@@ -137,7 +142,7 @@ const SPIDER_ZOOM_THRESHOLD = 14;
 
 const getArcGISUrl = (styleKey: string) => {
   const baseUrl = `https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2`;
-  const { name, type, url } = mapStyles[styleKey];
+  const { name, url } = mapStyles[styleKey];
   return url || `${baseUrl}${name}?token=${props.apiKey}`;
 };
 
@@ -221,102 +226,189 @@ function calculateSpiderPositions(
 }
 
 /**
- * Generate spider data by querying clusters and positioning their children
+ * Memoized version of calculateSpiderPositions for performance
+ * Uses Ramda's memoizeWith with a cache key based on all parameters
  */
-function generateSpiderData() {
-  const map = mapRef.value;
-  if (!map) return null;
+const calculateSpiderPositionsMemoized = memoizeWith(
+  (
+    centerLng: number,
+    centerLat: number,
+    count: number,
+    radiusDegrees = 0.0005
+  ) => `${centerLng},${centerLat},${count},${radiusDegrees}`,
+  calculateSpiderPositions
+);
 
-  const source = map.getSource(MARKERS_SOURCE_ID) as GeoJSONSource;
-  if (!source) return null;
+/**
+ * Promise wrapper for GeoJSONSource.getClusterLeaves callback
+ */
+function getClusterLeavesAsync(
+  source: GeoJSONSource,
+  clusterId: number,
+  limit: number
+): Promise<GeoJSON.Feature<Point>[]> {
+  return new Promise((resolve, reject) => {
+    source.getClusterLeaves(clusterId, limit, 0, (err, leaves) => {
+      if (err) reject(err);
+      else resolve((leaves || []) as GeoJSON.Feature<Point>[]);
+    });
+  });
+}
 
-  const spiderFeatures: GeoJSON.Feature<Point>[] = [];
-  const spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[] = [];
-  const spiderCenters: GeoJSON.Feature<Point>[] = [];
+/**
+ * Calculate spider data for a single cluster with abort signal support
+ * Returns null if aborted or if cluster is invalid
+ */
+async function calculateSpiderDataForCluster(
+  source: GeoJSONSource,
+  cluster: GeoJSON.Feature<Point>,
+  signal: AbortSignal
+): Promise<{
+  spiderFeatures: GeoJSON.Feature<Point>[];
+  spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[];
+  spiderCenter: GeoJSON.Feature<Point>;
+} | null> {
+  // Check if cancelled before starting
+  if (signal.aborted) return null;
 
-  // Query all rendered cluster features
-  const clusterFeatures = map.querySourceFeatures(MARKERS_SOURCE_ID, {
-    filter: ["has", "point_count"],
-  }) as GeoJSON.Feature<Point>[];
+  const clusterId = cluster.properties?.cluster_id;
+  const clusterCoords = cluster.geometry.coordinates as [number, number];
 
-  let processedClusters = 0;
-  const totalClusters = clusterFeatures.length;
+  if (!clusterId) return null;
 
-  // Process each cluster
-  clusterFeatures.forEach((cluster) => {
-    const clusterId = cluster.properties?.cluster_id;
-    const clusterCoords = cluster.geometry.coordinates as [number, number];
+  // Create center marker for this cluster
+  const spiderCenter: GeoJSON.Feature<Point> = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: clusterCoords,
+    },
+    properties: {},
+  };
 
-    if (!clusterId) return;
+  try {
+    // Get cluster leaves with async/await
+    const leaves = await getClusterLeavesAsync(source, clusterId, 100);
 
-    // Add a center marker for this cluster
-    spiderCenters.push({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: clusterCoords,
-      },
-      properties: {},
+    // Check again after async operation
+    if (signal.aborted) return null;
+
+    // Calculate spider positions using memoized function
+    const spiderPositions = calculateSpiderPositionsMemoized(
+      clusterCoords[0],
+      clusterCoords[1],
+      leaves.length
+    );
+
+    const spiderFeatures: GeoJSON.Feature<Point>[] = [];
+    const spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+
+    // Create spider features for each leaf
+    leaves.forEach((leaf, index) => {
+      const spiderPos = spiderPositions[index];
+
+      // Create the spidered point feature
+      spiderFeatures.push({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: spiderPos,
+        },
+        properties: leaf.properties,
+      });
+
+      // Create a line from cluster center to spider point
+      spiderLegs.push({
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [clusterCoords, spiderPos],
+        },
+        properties: {},
+      });
     });
 
-    // Get the leaves (children) of this cluster
-    source.getClusterLeaves(
-      clusterId,
-      100, // limit - get up to 100 children
-      0, // offset
-      (err, leaves) => {
-        if (err || !leaves) {
-          processedClusters++;
-          return;
-        }
-
-        // Calculate spider positions for the leaves
-        const spiderPositions = calculateSpiderPositions(
-          clusterCoords[0],
-          clusterCoords[1],
-          leaves.length
-        );
-
-        // Create spider features for each leaf
-        leaves.forEach((leaf, index) => {
-          const spiderPos = spiderPositions[index];
-
-          // Create the spidered point feature
-          spiderFeatures.push({
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              coordinates: spiderPos,
-            },
-            properties: leaf.properties,
-          });
-
-          // Create a line from cluster center to spider point
-          spiderLegs.push({
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: [clusterCoords, spiderPos],
-            },
-            properties: {},
-          });
-        });
-
-        processedClusters++;
-
-        // Update spider layer when all clusters are processed
-        if (processedClusters === totalClusters) {
-          updateSpiderLayer(spiderFeatures, spiderLegs, spiderCenters);
-        }
-      }
-    );
-  });
-
-  // If there are no clusters, clear the spider layer
-  if (totalClusters === 0) {
-    updateSpiderLayer([], [], []);
+    return { spiderFeatures, spiderLegs, spiderCenter };
+  } catch (error) {
+    // If AbortError or any other error, return null
+    if (error instanceof Error && error.name === "AbortError") {
+      return null;
+    }
+    console.error("Error calculating spider data for cluster:", error);
+    return null;
   }
 }
+
+/**
+ * Generate spider data by querying clusters and positioning their children
+ * Now with async/await and AbortController support to prevent race conditions
+ */
+async function generateSpiderData() {
+  const map = mapRef.value;
+  if (!map) return;
+
+  const source = map.getSource(MARKERS_SOURCE_ID) as GeoJSONSource;
+  if (!source) return;
+
+  // Cancel any previous spider generation operation
+  currentAbortController?.abort();
+
+  // Create new AbortController for this operation
+  const abortController = new AbortController();
+  currentAbortController = abortController;
+  const { signal } = abortController;
+
+  try {
+    // Query all rendered cluster features
+    const clusterFeatures = map.querySourceFeatures(MARKERS_SOURCE_ID, {
+      filter: ["has", "point_count"],
+    }) as GeoJSON.Feature<Point>[];
+
+    // Check if aborted before processing
+    if (signal.aborted) return;
+
+    // Process all clusters in parallel
+    const results = await Promise.all(
+      clusterFeatures.map((cluster) =>
+        calculateSpiderDataForCluster(source, cluster, signal)
+      )
+    );
+
+    // Check if aborted after processing
+    if (signal.aborted) return;
+
+    // Aggregate results (filter out nulls from aborted/failed clusters)
+    const spiderFeatures: GeoJSON.Feature<Point>[] = [];
+    const spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+    const spiderCenters: GeoJSON.Feature<Point>[] = [];
+
+    results.forEach((result) => {
+      if (result) {
+        spiderFeatures.push(...result.spiderFeatures);
+        spiderLegs.push(...result.spiderLegs);
+        spiderCenters.push(result.spiderCenter);
+      }
+    });
+
+    // Final check before updating UI
+    if (signal.aborted) return;
+
+    // Update the spider layer with all results
+    updateSpiderLayer(spiderFeatures, spiderLegs, spiderCenters);
+  } catch (error) {
+    // Handle abort or other errors gracefully
+    if (error instanceof Error && error.name === "AbortError") {
+      return; // Silently return on abort
+    }
+    console.error("Error generating spider data:", error);
+  }
+}
+
+/**
+ * Debounced version of generateSpiderData for zoom events
+ * Reduces redundant calculations during rapid zoom changes
+ */
+const debouncedGenerateSpiderData = useDebounceFn(generateSpiderData, 150);
 
 /**
  * Update the spider layer with new features
@@ -358,12 +450,14 @@ function updateSpiderLayer(
   }
 }
 
-function renderMarkers() {
+async function renderMarkers() {
   const map = mapRef.value;
   if (!map) return;
 
   const source = map.getSource("markers") as GeoJSONSource;
-  source?.setData({
+  if (!source) return;
+
+  source.setData({
     type: "FeatureCollection",
     features: getFeaturesWithOffset(markers),
   });
@@ -371,10 +465,9 @@ function renderMarkers() {
   // If we're at spider zoom level, regenerate spider data
   const currentZoom = map.getZoom();
   if (currentZoom >= SPIDER_ZOOM_THRESHOLD) {
-    // Use setTimeout to ensure the source data is updated first
-    setTimeout(() => {
-      generateSpiderData();
-    }, 0);
+    // Wait for next tick to ensure source data is updated
+    await nextTick();
+    await generateSpiderData();
   }
 }
 
@@ -716,10 +809,10 @@ onMounted(() => {
       }
 
       // After style change, repopulate markers and regenerate spider data if needed
-      // Use setTimeout to ensure all sources are fully initialized
-      setTimeout(() => {
+      // Use async/await to ensure all sources are fully initialized
+      nextTick().then(() => {
         renderMarkers();
-      }, 0);
+      });
     })
     .on("load", () => {
       if (!mapRef.value) {
@@ -738,7 +831,8 @@ onMounted(() => {
         currentZoom >= SPIDER_ZOOM_THRESHOLD &&
         previousZoom.value < SPIDER_ZOOM_THRESHOLD
       ) {
-        generateSpiderData();
+        // Use debounced version to prevent redundant calculations
+        debouncedGenerateSpiderData();
       }
 
       // Crossing out of spider territory (zooming out below threshold)
@@ -746,7 +840,8 @@ onMounted(() => {
         currentZoom < SPIDER_ZOOM_THRESHOLD &&
         previousZoom.value >= SPIDER_ZOOM_THRESHOLD
       ) {
-        // Clear spider layer
+        // Cancel any pending spider generation and clear spider layer
+        currentAbortController?.abort();
         updateSpiderLayer([], [], []);
       }
 
