@@ -19,7 +19,7 @@
        so it appears below the object viewer. Otherwise it goes
        with the object details panel
        -->
-    <div class="flex justify-end sm:hidden bg-[var(--app-panel-bgColor)]">
+    <div class="flex justify-end md:hidden bg-[var(--app-panel-bgColor)]">
       <ActiveFileViewToolbar
         :fileHandlerId="assetStore.activeFileObjectId"
         :assetId="assetId" />
