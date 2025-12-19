@@ -268,6 +268,11 @@ const router = createRouter({
       }),
     },
     {
+      name: "mapClusterTest",
+      path: "/tests/map",
+      component: () => import("@/pages/TestPages/MapClusterTest.vue"),
+    },
+    {
       name: "error",
       path: "/error/:errorCode",
       component: ErrorPage,
