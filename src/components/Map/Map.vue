@@ -473,6 +473,50 @@ onMounted(() => {
     .on("mouseleave", UNCLUSTERED_LAYER_ID, function () {
       map.getCanvas().style.cursor = "";
     })
+    .on("click", SPIDER_LAYER_ID, function (e: MapMouseEvent) {
+      if (!mapRef.value) {
+        throw new Error(
+          "there was a click on the map, but no map. How is that even possible?"
+        );
+      }
+
+      // eslint-disable-next-line
+      // @ts-ignore - deep nested type conplaints
+      const map = mapRef.value as MapLibreMap;
+
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: [SPIDER_LAYER_ID],
+      }) as GeoJSON.Feature<GeoJSON.Point>[];
+      const point = features[0];
+
+      const coordinates = point.geometry.coordinates.slice();
+
+      // Ensure that if the map is zoomed out such that
+      // multiple copies of the feature are visible, the
+      // popup appears over the copy being pointed to.
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      const markerId = point.properties?.id as string;
+      const popupContainer = markerPopupContainerRefs.get(markerId)?.value;
+
+      if (!popupContainer) {
+        console.error(`no popup container for marker ${markerId}`);
+        return;
+      }
+
+      new Popup()
+        .setLngLat(coordinates as [number, number])
+        .setDOMContent(popupContainer)
+        .addTo(map);
+    })
+    .on("mouseenter", SPIDER_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "pointer";
+    })
+    .on("mouseleave", SPIDER_LAYER_ID, function () {
+      map.getCanvas().style.cursor = "";
+    })
     .on("styledata", () => {
       // add the source and layers for the markers and clusters
       // do this here instead of in the `load` event because the style
