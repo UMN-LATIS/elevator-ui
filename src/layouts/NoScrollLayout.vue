@@ -1,5 +1,5 @@
 <template>
-  <div class="no-scroll-layout h-screen flex flex-col">
+  <div class="no-scroll-layout h-dvh flex flex-col">
     <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
     <AppHeader class="top-0 w-full z-20 backdrop-blur-sm">
       <slot name="secondaryAppHeader" />

@@ -1,7 +1,7 @@
 <template>
-  <div class="asset-view-page__asset-view h-full relative">
+  <div class="asset-view-page__asset-view md:h-full relative pb-16 md:pb-0">
     <ObjectViewer
-      class="asset-view__object-viewer h-[75vh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
+      class="asset-view__object-viewer min-h-[50dvh] md:h-auto md:absolute md:top-0 border-t-0 border-b-asset-view"
       :class="{
         'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-l-asset-view':
           isAssetDetailsOpen && isObjectDetailsOpen, // both open
@@ -15,6 +15,15 @@
       }"
       :fileHandlerId="assetStore.activeFileObjectId"
       :parentAssetId="assetStore.activeAssetId" />
+    <!-- render file view toolbar here for mobile
+       so it appears below the object viewer. Otherwise it goes
+       with the object details panel
+       -->
+    <div class="flex justify-end md:hidden bg-[var(--app-panel-bgColor)]">
+      <ActiveFileViewToolbar
+        :fileHandlerId="assetStore.activeFileObjectId"
+        :assetId="assetStore.activeObjectId ?? assetId" />
+    </div>
     <AssetDetailsPanel
       class="asset-view__asset-panel md:absolute"
       :class="{
@@ -58,6 +67,7 @@ import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsPanel from "@/components/ObjectDetailsPanel/ObjectDetailsPanel.vue";
 import AssetDetailsPanel from "@/components/AssetDetailsPanel/AssetDetailsPanel.vue";
+import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
 import { useMediaQuery } from "@vueuse/core";
 
 defineProps<{
