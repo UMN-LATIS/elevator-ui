@@ -129,6 +129,8 @@ const SPIDER_SOURCE_ID = "spider-points";
 const SPIDER_LAYER_ID = "spider-layer";
 const SPIDER_LEGS_SOURCE_ID = "spider-legs";
 const SPIDER_LEG_LAYER_ID = "spider-leg-layer";
+const SPIDER_CENTER_SOURCE_ID = "spider-centers";
+const SPIDER_CENTER_LAYER_ID = "spider-center-layer";
 
 // Zoom threshold for switching between clusters and spiders
 const SPIDER_ZOOM_THRESHOLD = 14;
@@ -230,6 +232,7 @@ function generateSpiderData() {
 
   const spiderFeatures: GeoJSON.Feature<Point>[] = [];
   const spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[] = [];
+  const spiderCenters: GeoJSON.Feature<Point>[] = [];
 
   // Query all rendered cluster features
   const clusterFeatures = map.querySourceFeatures(MARKERS_SOURCE_ID, {
@@ -245,6 +248,16 @@ function generateSpiderData() {
     const clusterCoords = cluster.geometry.coordinates as [number, number];
 
     if (!clusterId) return;
+
+    // Add a center marker for this cluster
+    spiderCenters.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: clusterCoords,
+      },
+      properties: {},
+    });
 
     // Get the leaves (children) of this cluster
     source.getClusterLeaves(
@@ -293,7 +306,7 @@ function generateSpiderData() {
 
         // Update spider layer when all clusters are processed
         if (processedClusters === totalClusters) {
-          updateSpiderLayer(spiderFeatures, spiderLegs);
+          updateSpiderLayer(spiderFeatures, spiderLegs, spiderCenters);
         }
       }
     );
@@ -301,7 +314,7 @@ function generateSpiderData() {
 
   // If there are no clusters, clear the spider layer
   if (totalClusters === 0) {
-    updateSpiderLayer([], []);
+    updateSpiderLayer([], [], []);
   }
 }
 
@@ -310,7 +323,8 @@ function generateSpiderData() {
  */
 function updateSpiderLayer(
   spiderFeatures: GeoJSON.Feature<Point>[],
-  spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[]
+  spiderLegs: GeoJSON.Feature<GeoJSON.LineString>[],
+  spiderCenters: GeoJSON.Feature<Point>[]
 ) {
   const map = mapRef.value;
   if (!map) return;
@@ -330,6 +344,16 @@ function updateSpiderLayer(
     spiderLegsSource.setData({
       type: "FeatureCollection",
       features: spiderLegs,
+    });
+  }
+
+  const spiderCenterSource = map.getSource(
+    SPIDER_CENTER_SOURCE_ID
+  ) as GeoJSONSource;
+  if (spiderCenterSource) {
+    spiderCenterSource.setData({
+      type: "FeatureCollection",
+      features: spiderCenters,
     });
   }
 }
@@ -413,13 +437,17 @@ onMounted(() => {
       const clusterId = features[0].properties?.cluster_id;
       const source = map.getSource(MARKERS_SOURCE_ID) as GeoJSONSource;
       source?.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err || zoom === null) return;
+        if (err || zoom === null || zoom === undefined) return;
 
         const center = features[0].geometry?.coordinates as [number, number];
 
+        // Cap zoom at spider threshold + 1 to avoid overshooting
+        // and land at a level where spider points are visible
+        const targetZoom = Math.min(zoom, SPIDER_ZOOM_THRESHOLD + 1);
+
         map.easeTo({
           center,
-          zoom,
+          zoom: targetZoom,
         });
       });
     })
@@ -536,7 +564,7 @@ onMounted(() => {
             features: getFeaturesWithOffset(markers),
           },
           cluster: true,
-          clusterMaxZoom: 14,
+          clusterMaxZoom: 20,
           clusterRadius: 50,
         });
       }
@@ -637,8 +665,8 @@ onMounted(() => {
           source: SPIDER_LEGS_SOURCE_ID,
           minzoom: SPIDER_ZOOM_THRESHOLD,
           paint: {
-            "line-color": "#999",
-            "line-width": 1,
+            "line-color": "#FFB6D9",
+            "line-width": 2,
             "line-dasharray": [2, 2],
           },
         });
@@ -656,6 +684,33 @@ onMounted(() => {
             "circle-radius": 8,
             "circle-stroke-width": 1,
             "circle-stroke-color": "#fff",
+          },
+        });
+      }
+
+      // Add spider center source
+      if (!map.getSource(SPIDER_CENTER_SOURCE_ID)) {
+        map.addSource(SPIDER_CENTER_SOURCE_ID, {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [],
+          },
+        });
+      }
+
+      // Add spider center layer (transparent circle with pink outline at cluster centers)
+      if (!map.getLayer(SPIDER_CENTER_LAYER_ID)) {
+        map.addLayer({
+          id: SPIDER_CENTER_LAYER_ID,
+          type: "circle",
+          source: SPIDER_CENTER_SOURCE_ID,
+          minzoom: SPIDER_ZOOM_THRESHOLD,
+          paint: {
+            "circle-radius": 6,
+            "circle-color": "rgba(0, 0, 0, 0)",
+            "circle-stroke-width": 3,
+            "circle-stroke-color": "#F54D94",
           },
         });
       }
@@ -692,7 +747,7 @@ onMounted(() => {
         previousZoom.value >= SPIDER_ZOOM_THRESHOLD
       ) {
         // Clear spider layer
-        updateSpiderLayer([], []);
+        updateSpiderLayer([], [], []);
       }
 
       previousZoom.value = currentZoom;
