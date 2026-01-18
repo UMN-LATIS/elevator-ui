@@ -53,7 +53,6 @@
         </Tuple>
       </div>
       <EditUploadWidgetItemSidecars
-        v-if="Object.keys(item.sidecars).length"
         class="col-span-3"
         :item="item"
         :widgetDef="widgetDef"

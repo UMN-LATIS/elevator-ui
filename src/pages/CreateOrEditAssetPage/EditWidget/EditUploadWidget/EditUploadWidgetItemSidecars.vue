@@ -3,7 +3,7 @@
     <component
       :is="sidecarComponent"
       v-if="sidecarComponent"
-      :sidecars="item.sidecars"
+      :sidecars="item.sidecars || {}"
       :widgetDef="widgetDef"
       :fileMetaData="fileMetaData"
       @update:sidecars="$emit('update:item', { ...item, sidecars: $event })" />
