@@ -1,7 +1,7 @@
 <template>
   <div class="asset-view-page__asset-view md:h-full relative pb-16 md:pb-0">
     <ObjectViewer
-      class="asset-view__object-viewer min-h-[50dvh] md:min-h-[unset] md:absolute md:top-0 border-t-0 border-b-asset-view"
+      class="asset-view__object-viewer min-h-[50dvh] md:min-h-0 md:absolute md:top-0 border-t-0 border-b-asset-view"
       :class="{
         'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-l-asset-view':
           isAssetDetailsOpen && isObjectDetailsOpen, // both open
