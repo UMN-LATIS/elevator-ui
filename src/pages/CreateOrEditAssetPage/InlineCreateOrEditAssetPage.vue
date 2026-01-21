@@ -1,6 +1,11 @@
 <template>
   <div ref="containerRef" class="inline-edit-asset-page">
-    <Transition name="fade">
+    <div
+      v-if="depthExceeded"
+      class="text-neutral-500 italic p-2 bg-neutral-100 rounded text-sm">
+      Maximum nesting depth reached.
+    </div>
+    <Transition v-else name="fade">
       <div
         v-if="!assetEditor.localAsset || !assetEditor.template"
         class="flex justify-center items-center py-12">
@@ -68,7 +73,15 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
-import { computed, onMounted, reactive, useTemplateRef, watch } from "vue";
+import {
+  computed,
+  inject,
+  onMounted,
+  provide,
+  reactive,
+  useTemplateRef,
+  watch,
+} from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import {
   createAssetEditor,
@@ -79,12 +92,19 @@ import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
-import { provide } from "vue";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import {
   useAssetValidationProvider,
   useAssetValidation,
 } from "./useAssetEditor/useAssetValidation";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
+
+// Depth tracking to prevent infinite recursion with self-referencing templates
+const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";
+const MAX_DEPTH = 3;
+const currentDepth = inject<number>(INLINE_DEPTH_KEY, 0);
+const depthExceeded = currentDepth >= MAX_DEPTH;
+provide(INLINE_DEPTH_KEY, currentDepth + 1);
 
 const props = withDefaults(
   defineProps<{
@@ -122,6 +142,11 @@ useAssetValidationProvider(
 const { isBlank } = useAssetValidation();
 
 onMounted(async () => {
+  // Bail out early if depth limit exceeded to prevent infinite recursion
+  if (depthExceeded) {
+    return;
+  }
+
   invariant(parentAssetEditor);
 
   // register a hook to save the current asset whenever the parent asset is saved
