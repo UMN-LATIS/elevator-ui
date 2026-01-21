@@ -1,9 +1,11 @@
 <template>
   <slot
-    v-if="errors.length"
+    v-if="hasErrored"
     name="fallback"
     :errors="errors"
-    :clearErrors="clearErrors">
+    :clearErrors="clearErrors"
+    :clearError="clearError"
+    :hasErrored="hasErrored">
     <Notification
       v-for="(error, index) in errors"
       :key="index"
@@ -19,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { onErrorCaptured, reactive } from "vue";
+import { onErrorCaptured, reactive, ref } from "vue";
 import { useToastStore } from "@/stores/toastStore";
 import Notification from "@/components/Notification/Notification.vue";
 
@@ -41,11 +43,22 @@ defineOptions({
   inheritAttrs: false,
 });
 
+defineSlots<{
+  fallback(props: {
+    errors: Error[];
+    clearError: (index: number) => void;
+    clearErrors: () => void;
+    hasErrored: boolean;
+  }): unknown;
+  default(): unknown;
+}>();
+
 const emit = defineEmits<{
   (e: "error", error: Error): void;
 }>();
 
 const errors = reactive<Error[]>([]);
+const hasErrored = ref(false);
 const toastStore = useToastStore();
 
 onErrorCaptured((err, instance, info) => {
@@ -53,6 +66,11 @@ onErrorCaptured((err, instance, info) => {
     `Error captured in ErrorBoundary (${instance?.$options.name} ${info})\n`,
     err
   );
+
+  // track whether we've already errored to avoid infinite loops
+  // if errors are cleared
+  hasErrored.value = true;
+
   errors.push(err);
   emit("error", err);
 
