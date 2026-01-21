@@ -22,7 +22,6 @@
 
 <script setup lang="ts">
 import { onErrorCaptured, reactive, ref } from "vue";
-import { useToastStore } from "@/stores/toastStore";
 import Notification from "@/components/Notification/Notification.vue";
 
 withDefaults(
@@ -59,7 +58,6 @@ const emit = defineEmits<{
 
 const errors = reactive<Error[]>([]);
 const hasErrored = ref(false);
-const toastStore = useToastStore();
 
 onErrorCaptured((err, instance, info) => {
   console.error(
@@ -70,15 +68,9 @@ onErrorCaptured((err, instance, info) => {
   // track whether we've already errored to avoid infinite loops
   // if errors are cleared
   hasErrored.value = true;
-
   errors.push(err);
   emit("error", err);
 
-  toastStore.addToast({
-    variant: "error",
-    message: `An unexpected error occurred: ${err.message}`,
-    duration: 10_000,
-  });
   return false;
 });
 
