@@ -54,99 +54,137 @@
       :class="{
         'opacity-50': !isOpen,
       }">
-      <slot name="widgetContents">
-        <DragDropContainer :groupId="widgetInstanceId">
-          <DragDropList
-            :modelValue="widgetContents"
-            :listId="widgetDef.widgetId"
-            :showEmptyList="false"
-            :handleClass="['flex flex-col items-start px-1']"
-            listItemClass="bg-black/5 rounded-md mb-1 pr-1"
-            @update:modelValue="
-              (widgetContents) => {
-                $emit('update:widgetContents', widgetContents);
-              }
-            ">
-            <template #item="{ item }: { item: T }">
-              <div
-                class="grid grid-cols-[auto,1fr,auto] gap-2 py-2 items-start">
-                <div>
-                  <Tooltip tip="Set as Primary">
+      <ErrorBoundary>
+        <template #fallback>
+          <div class="p-4 bg-red-100 border border-red-500 rounded-md">
+            <h3 class="text-sm text-red-700 font-bold mb-2">Widget Error</h3>
+            <p class="text-sm text-red-700/90">
+              An error occurred while rendering this widget. It's possible that
+              the
+              <Link
+                :href="`${config.instance.base.url}/templates/edit/${parentAssetEditor.template?.templateId}`"
+                target="_blank"
+                class="inline-flex items-center gap-1">
+                {{ parentAssetEditor.template?.templateName }}
+                template
+                <ExternalLinkIcon class="inline-block !size-4" />
+              </Link>
+              used in this asset is misconfigured. Contact your administrator
+              for assistance.
+            </p>
+            <details>
+              <summary
+                class="mt-2 text-sm text-red-700 underline cursor-pointer">
+                View Widget Definition
+              </summary>
+              <code
+                class="bg-red-50 rounded border-white p-2 mt-2 block w-full overflow-x-auto">
+                <pre>{{ JSON.stringify(widgetDef, null, 2) }}</pre>
+              </code>
+            </details>
+          </div>
+        </template>
+        <slot name="widgetContents">
+          <DragDropContainer :groupId="widgetInstanceId">
+            <DragDropList
+              :modelValue="widgetContents"
+              :listId="widgetDef.widgetId"
+              :showEmptyList="false"
+              :handleClass="['flex flex-col items-start px-1']"
+              listItemClass="bg-black/5 rounded-md mb-1 pr-1"
+              @update:modelValue="
+                (widgetContents) => {
+                  $emit('update:widgetContents', widgetContents);
+                }
+              ">
+              <template #item="{ item }: { item: T }">
+                <div
+                  class="grid grid-cols-[auto,1fr,auto] gap-2 py-2 items-start">
+                  <div>
+                    <Tooltip tip="Set as Primary">
+                      <button
+                        type="button"
+                        class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
+                        :class="{
+                          // hide the button if there is only one item
+                          // using invisible instead of hidden to keep the layout
+                          // consistent with other widgets
+                          invisible: !isOpen || widgetContents.length < 2,
+                        }"
+                        @click="$emit('setPrimary', item.id)">
+                        <StarIcon
+                          class="w-4 h-4"
+                          :class="[
+                            item.isPrimary
+                              ? 'fill-amber-400 text-amber-400'
+                              : 'text-neutral-400',
+                          ]" />
+                        <span class="sr-only">Set as Primary</span>
+                      </button>
+                    </Tooltip>
+                  </div>
+                  <div class="py-1">
+                    <slot name="fieldContents" :item="item" />
+                  </div>
+                  <div>
                     <button
+                      v-if="
+                        // primarily we want to prevent users from deleting
+                        // an item if there's no way to add it back
+                        // if `allowMultiple` is false, they won't have a button
+                        // to add a new item
+                        widgetDef.allowMultiple ||
+                        // but it's possible that the widget previously
+                        // had multiple items, so we should let them delete
+                        // if there's more than one item
+                        widgetContents.length > 1 ||
+                        // for upload widget, the user will have access to
+                        // the upload input if they remove items
+                        // so it's fine to let them delete
+                        widgetDef.type === Types.WIDGET_TYPES.UPLOAD
+                      "
+                      :class="[
+                        'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
+                        {
+                          'sr-only': !isOpen,
+                        },
+                      ]"
                       type="button"
-                      class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
-                      :class="{
-                        // hide the button if there is only one item
-                        // using invisible instead of hidden to keep the layout
-                        // consistent with other widgets
-                        invisible: !isOpen || widgetContents.length < 2,
-                      }"
-                      @click="$emit('setPrimary', item.id)">
-                      <StarIcon
-                        class="w-4 h-4"
-                        :class="[
-                          item.isPrimary
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'text-neutral-400',
-                        ]" />
-                      <span class="sr-only">Set as Primary</span>
+                      @click="$emit('delete', item.id)">
+                      <XIcon class="!size-4" />
+                      <span class="sr-only">Delete</span>
                     </button>
-                  </Tooltip>
+                  </div>
                 </div>
-                <div class="py-1">
-                  <slot name="fieldContents" :item="item" />
-                </div>
-                <div>
-                  <button
-                    v-if="
-                      // primarily we want to prevent users from deleting
-                      // an item if there's no way to add it back
-                      // if `allowMultiple` is false, they won't have a button
-                      // to add a new item
-                      widgetDef.allowMultiple ||
-                      // but it's possible that the widget previously
-                      // had multiple items, so we should let them delete
-                      // if there's more than one item
-                      widgetContents.length > 1 ||
-                      // for upload widget, the user will have access to
-                      // the upload input if they remove items
-                      // so it's fine to let them delete
-                      widgetDef.type === Types.WIDGET_TYPES.UPLOAD
-                    "
-                    :class="[
-                      'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
-                      {
-                        'sr-only': !isOpen,
-                      },
-                    ]"
-                    type="button"
-                    @click="$emit('delete', item.id)">
-                    <XIcon class="!size-4" />
-                    <span class="sr-only">Delete</span>
-                  </button>
-                </div>
-              </div>
-            </template>
-            <template #footer>
-              <slot name="footer">
-                <div v-if="widgetDef.allowMultiple" class="flex justify-center">
-                  <Button variant="tertiary" @click="$emit('add')">
-                    <PlusIcon class="w-4 h-4" />
-                    {{ widgetDef.label }}
-                  </Button>
-                </div>
-              </slot>
-            </template>
-          </DragDropList>
-        </DragDropContainer>
-      </slot>
+              </template>
+              <template #footer>
+                <slot name="footer">
+                  <div
+                    v-if="widgetDef.allowMultiple"
+                    class="flex justify-center">
+                    <Button variant="tertiary" @click="$emit('add')">
+                      <PlusIcon class="w-4 h-4" />
+                      {{ widgetDef.label }}
+                    </Button>
+                  </div>
+                </slot>
+              </template>
+            </DragDropList>
+          </DragDropContainer>
+        </slot>
+      </ErrorBoundary>
     </div>
   </section>
 </template>
 <script setup lang="ts" generic="T extends Types.WithId<Types.WidgetContent>">
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
-import { PlusIcon, StarIcon, TriangleAlertIcon } from "lucide-vue-next";
+import {
+  ExternalLinkIcon,
+  PlusIcon,
+  StarIcon,
+  TriangleAlertIcon,
+} from "lucide-vue-next";
 import * as Types from "@/types";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { ChevronDownIcon, ChevronRightIcon, XIcon } from "@/icons";
@@ -157,6 +195,9 @@ import { useFocusWithin } from "@vueuse/core";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import config from "@/config";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
+import Link from "@/components/Link/Link.vue";
 
 const props = defineProps<{
   widgetContents: T[];
