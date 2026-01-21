@@ -1,6 +1,6 @@
 <template>
   <div
-    class="notification rounded-md max-w-lg mx-auto overflow-hidden relative">
+    class="notification rounded-md max-w-lg w-full mx-auto overflow-hidden relative">
     <button
       v-if="isDismissable"
       class="absolute top-0 right-0 p-4"
