@@ -70,9 +70,12 @@
                 <ExternalLinkIcon class="inline-block !size-4" />
               </Link>
               used in this asset is misconfigured.
-              <a :href="`${instanceStore.instance.contact}`">
+              <Link
+                :href="`${instanceStore.instance.contact}`"
+                target="_blank"
+                rel="noopener noreferrer">
                 Contact your administrator
-              </a>
+              </Link>
               for assistance.
             </p>
             <details>
