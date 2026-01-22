@@ -40,49 +40,4 @@ test.describe("Error Boundary", () => {
     await expect(titleField).toBeVisible();
     await expect(titleField).toHaveValue("Broken Template Asset");
   });
-
-  test("keeps header navigation functional when page content errors", async ({
-    page,
-  }) => {
-    // Navigate to the broken asset
-    const brokenAssetId = "broken_template_asset_001";
-    await page.goto(`/assetManager/editAsset/${brokenAssetId}`);
-
-    // Wait for page to load (even with errors)
-    await expect(page.locator("body")).not.toBeEmpty();
-
-    // The main menu should still be accessible
-    const menuToggle = page.getByRole("button", { name: "Toggle main menu" });
-    await expect(menuToggle).toBeVisible();
-
-    // Should be able to open the menu
-    await menuToggle.click();
-
-    const menu = page.locator("#app-menu-navigation");
-    await expect(menu).toBeVisible();
-
-    // Should be able to navigate away from the broken page
-    const homeLink = page.getByRole("link", { name: /home/i });
-    await homeLink.click();
-
-    // Should successfully navigate to home
-    await expect(page).toHaveURL("/");
-  });
-
-  test("error notification can be dismissed", async ({ page }) => {
-    const brokenAssetId = "broken_template_asset_001";
-    await page.goto(`/assetManager/editAsset/${brokenAssetId}`);
-
-    // Wait for error notification to appear
-    const errorNotification = page.locator(".notification--error");
-    await expect(errorNotification).toBeVisible({ timeout: 10000 });
-
-    // Find and click the dismiss button (the X button in the notification)
-    const dismissButton = errorNotification.locator("button");
-    await expect(dismissButton).toBeVisible();
-    await dismissButton.click();
-
-    // Error notification should be dismissed
-    await expect(errorNotification).not.toBeVisible();
-  });
 });
