@@ -114,6 +114,33 @@ const generateMockAssets = (count = 100): Asset[] => {
 
 const assetSeeds: Asset[] = [
   baseAsset,
+  // Asset with broken template for error boundary testing
+  {
+    ...baseAsset,
+    title_1: [
+      {
+        isPrimary: false,
+        fieldContents: "Broken Template Asset",
+      },
+    ],
+    brokenselect_1: [
+      {
+        isPrimary: false,
+        fieldContents: "some value",
+      },
+    ],
+    assetId: "broken_template_asset_001",
+    firstFileHandlerId: "handler_broken_template",
+    title: ["Broken Template Asset"],
+    templateId: 999, // Broken Template (for testing)
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Special test asset for multiselect cascade tests
   {
     ...baseAsset,

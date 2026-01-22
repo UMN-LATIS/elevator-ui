@@ -3,6 +3,63 @@ import { createBaseTable } from "./baseTable";
 import invariant from "tiny-invariant";
 
 const templateSeeds: Template[] = [
+  // Misconfigured template for error boundary testing
+  // The select widget is missing `selectGroup` in fieldData which will cause an error
+  {
+    templateId: 999,
+    templateName: "Broken Template (for testing)",
+    showCollection: false,
+    showTemplate: false,
+    showCollectionPosition: 1,
+    showTemplatePosition: 1,
+    widgetArray: [
+      {
+        widgetId: 9991,
+        type: "text",
+        allowMultiple: false,
+        attemptAutocomplete: false,
+        fieldTitle: "title_1",
+        label: "Title",
+        tooltip: "",
+        fieldData: [],
+        display: true,
+        displayInPreview: true,
+        required: true,
+        searchable: true,
+        directSearch: false,
+        clickToSearch: false,
+        clickToSearchType: 1,
+        viewOrder: 1,
+        templateOrder: 1,
+      },
+      {
+        widgetId: 9992,
+        type: "select",
+        allowMultiple: false,
+        attemptAutocomplete: false,
+        fieldTitle: "brokenselect_1",
+        label: "Broken Select",
+        tooltip: "This select widget is missing selectGroup data",
+        // Missing fieldData.selectGroup - this will cause an error when rendering
+        fieldData: {},
+        display: true,
+        displayInPreview: false,
+        required: false,
+        searchable: false,
+        directSearch: false,
+        clickToSearch: false,
+        clickToSearchType: 1,
+        viewOrder: 2,
+        templateOrder: 2,
+      },
+    ],
+    collections: {
+      "1": "Default Collection",
+    },
+    allowedCollections: {
+      "1": "Default Collection",
+    },
+  },
   {
     templateId: 1,
     templateName: "Some Fields",
