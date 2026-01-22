@@ -140,6 +140,109 @@ const assetSeeds: Asset[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Test assets for error handling - circular reference A -> B -> A
+  {
+    ...baseAsset,
+    assetId: "circular-ref-asset-a",
+    title: ["Circular Reference Asset A"],
+    title_1: [
+      {
+        isPrimary: false,
+        fieldContents: "Circular Reference Asset A",
+      },
+    ],
+    relatedstuff_1: [
+      {
+        isPrimary: false,
+        targetAssetId: "circular-ref-asset-b",
+        label: "Related to B",
+      },
+    ],
+    templateId: 68,
+    firstFileHandlerId: "handler_circular_a",
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+    relatedAssetCache: {
+      "circular-ref-asset-b": {
+        relatedAssetTitle: ["Circular Reference Asset B"],
+        templateName: "All Fields Test",
+      },
+    },
+  },
+  {
+    ...baseAsset,
+    assetId: "circular-ref-asset-b",
+    title: ["Circular Reference Asset B"],
+    title_1: [
+      {
+        isPrimary: false,
+        fieldContents: "Circular Reference Asset B",
+      },
+    ],
+    relatedstuff_1: [
+      {
+        isPrimary: false,
+        targetAssetId: "circular-ref-asset-a",
+        label: "Related back to A",
+      },
+    ],
+    templateId: 68,
+    firstFileHandlerId: "handler_circular_b",
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+    relatedAssetCache: {
+      "circular-ref-asset-a": {
+        relatedAssetTitle: ["Circular Reference Asset A"],
+        templateName: "All Fields Test",
+      },
+    },
+  },
+  // Test asset for deep nesting (chain of 12 assets)
+  ...Array.from({ length: 12 }, (_, i) => ({
+    ...baseAsset,
+    assetId: `deep-nesting-asset-${i}`,
+    title: [`Deep Nesting Asset ${i}`],
+    title_1: [
+      {
+        isPrimary: false,
+        fieldContents: `Deep Nesting Asset ${i}`,
+      },
+    ],
+    ...(i < 11 && {
+      relatedstuff_1: [
+        {
+          isPrimary: false,
+          targetAssetId: `deep-nesting-asset-${i + 1}`,
+          label: `Related to Asset ${i + 1}`,
+        },
+      ],
+      relatedAssetCache: {
+        [`deep-nesting-asset-${i + 1}`]: {
+          relatedAssetTitle: [`Deep Nesting Asset ${i + 1}`],
+          templateName: "All Fields Test",
+        },
+      },
+    }),
+    templateId: 68,
+    firstFileHandlerId: `handler_deep_${i}`,
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  })),
   ...generateMockAssets(),
 ];
 
