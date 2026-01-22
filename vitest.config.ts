@@ -11,6 +11,11 @@ export default defineConfig({
     },
   },
   test: {
+    environment: "happy-dom",
+    // Use UTC timezone for consistent date handling across environments
+    env: {
+      TZ: "UTC",
+    },
     // Exclude e2e tests from vitest
     exclude: [
       "tests/e2e/**",

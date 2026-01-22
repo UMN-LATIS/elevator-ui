@@ -1,5 +1,14 @@
 <template>
+  <!-- Stop rendering if we've detected a cycle or exceeded max depth -->
+  <div v-if="isCycle || isTooDeep" class="text-sm text-gray-500 italic p-2">
+    <span v-if="isCycle">
+      Circular reference detected - stopping to prevent infinite loop
+    </span>
+    <span v-else>Maximum nesting depth reached</span>
+  </div>
+
   <div
+    v-else
     class="related-asset-widget flex flex-wrap w-full"
     :class="{
       'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
@@ -7,7 +16,7 @@
     }">
     <component
       :is="widgetType"
-      v-for="relatedAsset in contentsWithAssetId"
+      v-for="relatedAsset in safeContents"
       :key="relatedAsset.targetAssetId"
       :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
       :assetId="relatedAsset.targetAssetId"
@@ -20,7 +29,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { type Component, computed, onMounted, onBeforeUnmount } from "vue";
+import {
+  type Component,
+  type InjectionKey,
+  computed,
+  inject,
+  onMounted,
+  onBeforeUnmount,
+  provide,
+} from "vue";
 import {
   Asset,
   RelatedAssetWidgetDef,
@@ -35,11 +52,32 @@ import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
 import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
 
+// Cycle detection: track which asset IDs are ancestors in the render tree
+const ANCESTOR_ASSET_IDS_KEY: InjectionKey<Set<string>> =
+  Symbol("ancestorAssetIds");
+const MAX_NESTING_DEPTH = 10;
+
 const props = defineProps<{
   widget: RelatedAssetWidgetDef;
   contents: RelatedAssetWidgetContent[];
   asset: Asset;
 }>();
+
+// Get ancestors from parent, or start with empty set at root level
+const ancestorAssetIds: Set<string> =
+  inject(ANCESTOR_ASSET_IDS_KEY) ?? new Set<string>();
+const currentAssetId = props.asset.assetId;
+
+// Detect if we've hit a cycle (current asset already rendered above us)
+const isCycle = ancestorAssetIds.has(currentAssetId);
+
+// Detect if we've gone too deep (safety net)
+const isTooDeep = ancestorAssetIds.size >= MAX_NESTING_DEPTH;
+
+// Provide updated ancestors to children (add current asset to the chain)
+const childAncestors = new Set<string>(ancestorAssetIds);
+childAncestors.add(currentAssetId);
+provide(ANCESTOR_ASSET_IDS_KEY, childAncestors);
 
 type WithTargetAssetId<T> = T & { targetAssetId: string };
 
@@ -82,6 +120,13 @@ const contentsWithAssetId = computed(() =>
         }),
       };
     })
+);
+
+// Filter out any related assets that would create a cycle
+const safeContents = computed(() =>
+  contentsWithAssetId.value.filter(
+    (item) => !childAncestors.has(item.targetAssetId)
+  )
 );
 
 const activeIndex = computed(() =>

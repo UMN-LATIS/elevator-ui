@@ -1,14 +1,16 @@
 <template>
-  <component
-    :is="getWidgetComponentByType(widgetDef.type)"
-    :widgetDef="widgetDef"
-    :widgetContents="widgetContents"
-    :collectionId="collectionId"
-    :assetId="assetId"
-    :isOpen="isOpen"
-    @update:isOpen="$emit('update:isOpen', $event)"
-    @update:widgetContents="$emit('update:widgetContents', $event)"
-    @save="$emit('save')" />
+  <ErrorBoundary>
+    <component
+      :is="getWidgetComponentByType(widgetDef.type)"
+      :widgetDef="widgetDef"
+      :widgetContents="widgetContents"
+      :collectionId="collectionId"
+      :assetId="assetId"
+      :isOpen="isOpen"
+      @update:isOpen="$emit('update:isOpen', $event)"
+      @update:widgetContents="$emit('update:widgetContents', $event)"
+      @save="$emit('save')" />
+  </ErrorBoundary>
 </template>
 <script setup lang="ts">
 import { type Component } from "vue";
@@ -24,6 +26,7 @@ import EditUploadWidget from "./EditUploadWidget/EditUploadWidget.vue";
 import EditTagWidget from "./EditTagWidget.vue";
 import EditRelatedAssetWidget from "./EditRelatedAssetWidget/EditRelatedAssetWidget.vue";
 import EditTextWidget from "./EditTextWidget.vue";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 
 defineProps<{
   widgetDef: WidgetDef;
@@ -54,7 +57,7 @@ const widgetMap: Record<WidgetType, Component> = {
 };
 
 function getWidgetComponentByType(type: string) {
-  return widgetMap[type] || null;
+  return widgetMap[type] || "div";
 }
 </script>
 <style scoped></style>

@@ -22,7 +22,9 @@
 
       <!-- All good -->
       <template v-else>
-        <slot />
+        <ErrorBoundary>
+          <slot />
+        </ErrorBoundary>
       </template>
     </main>
     <slot name="footer" />
@@ -47,6 +49,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { useRoute } from "vue-router";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import Button from "@/components/Button/Button.vue";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 
 const { y: scrollY } = useWindowScroll();
 

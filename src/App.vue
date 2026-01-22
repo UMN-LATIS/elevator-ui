@@ -14,7 +14,9 @@
       <ErrorModal />
       <ToastRoot />
     </Teleport>
-    <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
+    <ErrorBoundary>
+      <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
+    </ErrorBoundary>
   </div>
 </template>
 <script setup lang="ts">
@@ -26,6 +28,7 @@ import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
 import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
 import config from "@/config";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 
 // load instance store before mounting app
 // this prevents a race conditiion where the search store
