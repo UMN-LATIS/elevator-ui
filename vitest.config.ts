@@ -11,6 +11,7 @@ export default defineConfig({
     },
   },
   test: {
+    environment: "happy-dom",
     // Exclude e2e tests from vitest
     exclude: [
       "tests/e2e/**",
