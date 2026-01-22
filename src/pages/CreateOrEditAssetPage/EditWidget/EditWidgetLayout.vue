@@ -69,7 +69,10 @@
                 template
                 <ExternalLinkIcon class="inline-block !size-4" />
               </Link>
-              used in this asset is misconfigured. Contact your administrator
+              used in this asset is misconfigured.
+              <a :href="`${instanceStore.instance.contact}`">
+                Contact your administrator
+              </a>
               for assistance.
             </p>
             <details>
@@ -198,6 +201,7 @@ import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import Link from "@/components/Link/Link.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
   widgetContents: T[];
@@ -223,6 +227,7 @@ const { focused: isFocusedWithin } = useFocusWithin(
 );
 
 const parentAssetEditor = useAssetEditor();
+const instanceStore = useInstanceStore();
 
 const assetValidation = useAssetValidation();
 
