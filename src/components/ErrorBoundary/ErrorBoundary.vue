@@ -75,14 +75,14 @@ onErrorCaptured((err, instance, info) => {
 });
 
 function clearErrors() {
+  // do not reset `hasErrored` to avoid re-entering the default
+  // slot and  retriggering the errors
   errors.splice(0, errors.length);
 }
 
-// Note: we intentionally do not reset `hasErrored` here, even if this
-// clears the last error. Once an error has occurred, the boundary stays
-// in its fallback state to avoid re-entering the default slot and risk
-// infinite error loops.
 function clearError(index: number) {
+  // do not reset `hasErrored` to avoid re-entering the default
+  // slot and  retriggering the errors
   errors.splice(index, 1);
 }
 
