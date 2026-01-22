@@ -43,7 +43,7 @@ defineOptions({
 });
 
 defineSlots<{
-  fallback(props: {
+  fallback?(props: {
     errors: Error[];
     clearError: (index: number) => void;
     clearErrors: () => void;
