@@ -27,8 +27,8 @@ test.describe("Error Boundary", () => {
 
     // Should see an error notification about the misconfigured widget
     // The ErrorBoundary default fallback shows error messages in a Notification component
-    const errorNotification = page.locator(".notification--error");
-    await expect(errorNotification).toBeVisible({ timeout: 10000 });
+    const errorNotification = page.getByText("Widget Error");
+    await expect(errorNotification).toBeVisible();
 
     // The error message should be visible
     // (exact text depends on what error the select widget throws)

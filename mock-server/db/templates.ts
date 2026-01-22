@@ -41,7 +41,7 @@ const templateSeeds: Template[] = [
         label: "Broken Select",
         tooltip: "This select widget is missing selectGroup data",
         // Missing fieldData.selectGroup - this will cause an error when rendering
-        fieldData: {},
+        fieldData: null,
         display: true,
         displayInPreview: false,
         required: false,
