@@ -124,6 +124,7 @@ const emit = defineEmits<{
     }
   ];
   blur: [];
+  select: [selection: string];
 }>();
 
 // Component refs
@@ -240,7 +241,8 @@ async function commitSelection(selection: string) {
   highlightedIndex.value = -1;
 
   // set search term and update the modelValue
-  emit("update:modelValue", selection);
+  // emit("update:modelValue", selection);
+  emit("select", selection);
 
   if (props.blurOnSelect) {
     inputRef.value?.$el.blur(); // Remove focus from input
