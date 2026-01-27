@@ -7,46 +7,59 @@
       'cursor-pointer': !isOpen,
     }"
     @click="handleSectionClick">
-    <h2 class="sr-only">
-      {{ widgetDef.label }}
-    </h2>
-    <div
-      class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs mb-3 lg:mb-0 items-center bg-white/10 backdrop-blur-md"
-      :class="{
-        'sticky top-[4rem] z-10': isOpen,
-      }">
-      <button
-        type="button"
-        class="flex justify-start py-2 gap-2 text-base font-bold leading-none text-left"
-        :class="{
-          'text-red-700':
-            (widgetDef.required && !hasContents) ||
-            (hasContents && !isWidgetValid),
-        }"
-        :aria-expanded="isOpen"
-        :aria-controls="`${widgetInstanceId}-content`"
-        @click.stop="toggleExpand">
-        <ChevronDownIcon v-if="isOpen" class="!size-4" />
-        <ChevronRightIcon v-else class="!size-4" />
+    <div class="mb-3 lg:mb-0">
+      <h2 class="sr-only">
         {{ widgetDef.label }}
-        <span v-if="widgetDef.required" class="text-red-500">*</span>
-      </button>
-      <div class="flex items-center gap-2">
-        <slot name="moreWidgetActions"></slot>
-        <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
-          <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
-        </Tooltip>
-        <Tooltip
-          v-else-if="widgetDef.required && !hasContents"
-          tip="Required content missing">
-          <TriangleAlertIcon class="w-4 h-4 text-red-500" />
-        </Tooltip>
-        <Tooltip
-          v-else-if="hasContents && !isWidgetValid"
-          tip="Invalid content">
-          <TriangleAlertIcon class="w-4 h-4 text-red-500" />
-        </Tooltip>
+      </h2>
+      <div
+        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between mb-1 lg:w-48 xl:w-xs items-center bg-white/10 backdrop-blur-md"
+        :class="{
+          'sticky top-[4rem] z-10': isOpen,
+        }">
+        <button
+          type="button"
+          class="flex justify-start gap-2 text-base font-bold leading-none text-left"
+          :class="{
+            'text-red-700':
+              (widgetDef.required && !hasContents) ||
+              (hasContents && !isWidgetValid),
+          }"
+          :aria-expanded="isOpen"
+          :aria-controls="`${widgetInstanceId}-content`"
+          @click.stop="toggleExpand">
+          <ChevronDownIcon v-if="isOpen" class="!size-4" />
+          <ChevronRightIcon v-else class="!size-4" />
+          {{ widgetDef.label }}
+          <span v-if="widgetDef.required" class="text-red-500">*</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <slot name="moreWidgetActions"></slot>
+          <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
+            <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
+          </Tooltip>
+          <Tooltip
+            v-else-if="widgetDef.required && !hasContents"
+            tip="Required content missing">
+            <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+          </Tooltip>
+          <Tooltip
+            v-else-if="hasContents && !isWidgetValid"
+            tip="Invalid content">
+            <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+          </Tooltip>
+        </div>
       </div>
+      <small
+        v-show="isOpen"
+        class="block ml-6"
+        :class="[
+          (widgetDef.required && !hasContents) ||
+          (hasContents && !isWidgetValid)
+            ? 'text-red-700/75'
+            : 'text-neutral-500',
+        ]">
+        {{ widgetDef.tooltip }}
+      </small>
     </div>
     <div
       ref="editLayoutContents"
