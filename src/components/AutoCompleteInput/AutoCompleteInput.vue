@@ -240,8 +240,6 @@ async function commitSelection(selection: string) {
   isOpen.value = false;
   highlightedIndex.value = -1;
 
-  // set search term and update the modelValue
-  // emit("update:modelValue", selection);
   emit("select", selection);
 
   if (props.blurOnSelect) {
