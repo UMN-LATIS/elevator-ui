@@ -12,7 +12,7 @@
         {{ widgetDef.label }}
       </h2>
       <div
-        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between mb-1 lg:w-48 xl:w-xs items-center bg-white/10 backdrop-blur-md"
+        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs items-center bg-white/10 backdrop-blur-md"
         :class="{
           'sticky top-[4rem] z-10': isOpen,
         }">
@@ -51,7 +51,7 @@
       </div>
       <small
         v-show="isOpen"
-        class="block ml-6"
+        class="widget-tooltip block ml-6 my-1"
         :class="[
           (widgetDef.required && !hasContents) ||
           (hasContents && !isWidgetValid)

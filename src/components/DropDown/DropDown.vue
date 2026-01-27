@@ -14,7 +14,7 @@
       leaveTo="transform opacity-0 scale-95"
       tailwindcssOriginClass>
       <MenuButton
-        class="inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 p-2 placeholder:focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+        class="dropdown__menu-button inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 p-2 placeholder:focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
         :class="labelClass"
         @click="(event) => emit('trigger:click', event)">
         <slot name="label">
