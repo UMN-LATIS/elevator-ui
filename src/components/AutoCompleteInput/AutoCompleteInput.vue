@@ -27,7 +27,8 @@
             highlightedSuggestion: highlightedSuggestion,
             modelValue: modelValue,
           })
-        " />
+        "
+        @blur="$emit('blur')" />
     </PopoverAnchor>
 
     <PopoverPortal>
@@ -122,6 +123,7 @@ const emit = defineEmits<{
       modelValue: string;
     }
   ];
+  blur: [];
 }>();
 
 // Component refs
