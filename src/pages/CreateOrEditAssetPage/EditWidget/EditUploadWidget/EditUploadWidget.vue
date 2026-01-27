@@ -197,6 +197,5 @@ function handleRegenerateAllDerivatives() {
 .edit-upload-widget .widget-tooltip {
   position: relative;
   top: -0.5rem;
-  z-index: 10;
 }
 </style>
