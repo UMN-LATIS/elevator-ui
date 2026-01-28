@@ -226,6 +226,12 @@ const router = createRouter({
       }),
     },
     {
+      name: "editInstanceSettingsPage",
+      path: "/instances/edit/:instanceId",
+      component: () =>
+        import("@/pages/InstanceSettingsPage/InstanceSettingsPage.vue"),
+    },
+    {
       name: "search",
       path: "/search/s/:searchId",
       component: SearchResultsPage,
@@ -275,8 +281,7 @@ const router = createRouter({
     {
       name: "mapSingleClusterTest",
       path: "/tests/map-single-cluster",
-      component: () =>
-        import("@/pages/TestPages/MapSingleClusterTest.vue"),
+      component: () => import("@/pages/TestPages/MapSingleClusterTest.vue"),
     },
     {
       name: "mapStressTest",
