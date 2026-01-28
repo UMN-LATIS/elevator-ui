@@ -2,7 +2,7 @@
   <EditWidgetLayout
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
-    class="edit-upload-widget"
+    class="edit-upload-widget !pt-1"
     :isOpen="isOpen"
     @update:isOpen="$emit('update:isOpen', $event)"
     @setPrimary="
@@ -26,7 +26,7 @@
       <DropDown :showChevron="false">
         <template #label>
           <span class="sr-only">Toggle More Actions Menu</span>
-          <VerticalDotsIcon class="w-5 h-5" />
+          <VerticalDotsIcon class="size-5" />
         </template>
         <DropDownItem is="div">
           <button
@@ -188,4 +188,14 @@ function handleRegenerateAllDerivatives() {
 }
 </script>
 <style scoped></style>
-<style></style>
+<style>
+.edit-upload-widget .dropdown__menu-button {
+  padding: 0.25rem;
+}
+
+/* hacky fix to slide the tooltip up a bit. The size of the more actions button in the row above pushes it down otherwise, and makes it look like there's too much space between the widget label and the tooltip */
+.edit-upload-widget .widget-tooltip {
+  position: relative;
+  top: -0.5rem;
+}
+</style>
