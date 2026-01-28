@@ -1,6 +1,6 @@
 <template>
   <AppMenuGroup label="Admin">
-    <AppMenuItem :href="`${BASE_URL}/instances/edit/${instance.id}`">
+    <AppMenuItem :to="`/instances/edit/${instance.id}`">
       Instance Settings
     </AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
