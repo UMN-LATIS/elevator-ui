@@ -241,7 +241,6 @@ async function commitSelection(selection: string) {
   highlightedIndex.value = -1;
 
   emit("select", selection);
-  emit("update:modelValue", "");
 
   if (props.blurOnSelect) {
     inputRef.value?.$el.blur(); // Remove focus from input
