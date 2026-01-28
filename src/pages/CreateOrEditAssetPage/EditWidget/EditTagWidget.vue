@@ -39,7 +39,7 @@
           :templateId="templateId"
           inputClass="!py-0 flex-1 min-w-24"
           :blurOnSelect="false"
-          @blur="(value) => handleTagUpdate(item.id, value)"
+          @blur="handleTagUpdate(item.id, tagInput)"
           @select="(selection) => handleTagUpdate(item.id, selection)"
           @keydown="(event) => handleKeydown(item.id, event)" />
         <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
