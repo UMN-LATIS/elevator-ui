@@ -27,7 +27,8 @@
             highlightedSuggestion: highlightedSuggestion,
             modelValue: modelValue,
           })
-        " />
+        "
+        @blur="$emit('blur')" />
     </PopoverAnchor>
 
     <PopoverPortal>
@@ -122,6 +123,8 @@ const emit = defineEmits<{
       modelValue: string;
     }
   ];
+  blur: [];
+  select: [selection: string];
 }>();
 
 // Component refs
@@ -237,8 +240,8 @@ async function commitSelection(selection: string) {
   isOpen.value = false;
   highlightedIndex.value = -1;
 
-  // set search term and update the modelValue
-  emit("update:modelValue", selection);
+  emit("select", selection);
+  emit("update:modelValue", "");
 
   if (props.blurOnSelect) {
     inputRef.value?.$el.blur(); // Remove focus from input
