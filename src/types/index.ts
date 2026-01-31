@@ -656,7 +656,7 @@ export interface InstanceSettings {
 
   // Storage settings
   amazonS3Key: string | null;
-  // amazonS3Secret: string | null;
+  amazonS3Secret: string | null;
   defaultBucket: string | null;
   bucketRegion: string | null;
 

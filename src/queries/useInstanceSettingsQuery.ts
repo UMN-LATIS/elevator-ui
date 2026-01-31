@@ -54,7 +54,7 @@ export function getDefaultInstanceSettings(
     featuredAsset: null,
     featuredAssetText: null,
     amazonS3Key: null,
-    // amazonS3Secret: null,
+    amazonS3Secret: null,
     defaultBucket: null,
     bucketRegion: null,
     showCollectionInSearchResults: false,

@@ -38,6 +38,12 @@
             v-model="form.googleAnalyticsKey"
             label="Google Analytics Key"
             placeholder="UA-XXXXX-Y or G-XXXXXXX" />
+          <TextAreaGroup
+            :modelValue="form.notes ?? ''"
+            label="Instance Notes"
+            placeholder="Internal notes about this instance"
+            inputClass="h-24"
+            @update:modelValue="form.notes = $event || null" />
         </FormSection>
 
         <!-- Featured Asset -->
@@ -51,6 +57,99 @@
             label="Featured Asset Text"
             placeholder="Text to display above the featured asset"
             @update:modelValue="form.featuredAssetText = $event || null" />
+        </FormSection>
+
+        <!-- Storage Settings -->
+        <FormSection title="Storage Settings">
+          <InputGroup
+            v-model="form.amazonS3Key"
+            label="Amazon S3 Key"
+            placeholder="AWS access key ID" />
+          <InputGroup
+            v-model="form.amazonS3Secret"
+            label="Amazon S3 Secret"
+            :type="showS3Secret ? 'text' : 'password'"
+            placeholder="AWS secret access key">
+            <template #append>
+              <button
+                type="button"
+                class="p-1.5 text-neutral-500 hover:text-neutral-700 focus:outline-none"
+                @click="showS3Secret = !showS3Secret">
+                <EyeIcon v-if="showS3Secret" class="w-5 h-5" />
+                <EyeOffIcon v-else class="w-5 h-5" />
+              </button>
+            </template>
+          </InputGroup>
+          <InputGroup
+            v-model="form.defaultBucket"
+            label="Default Bucket"
+            placeholder="S3 bucket name" />
+          <InputGroup
+            v-model="form.bucketRegion"
+            label="Bucket Region"
+            placeholder="e.g., us-east-1" />
+        </FormSection>
+
+        <!-- Custom Styling and Display -->
+        <FormSection title="Custom Styling and Display">
+          <SelectGroup
+            v-model="form.useCustomHeader"
+            :options="customHeaderOptions"
+            label="Display Custom Header/Footer" />
+          <TextAreaGroup
+            v-if="form.useCustomHeader !== 0"
+            :modelValue="form.customHeaderText ?? ''"
+            label="Custom Header Content"
+            placeholder="HTML content for custom header"
+            inputClass="h-24 font-mono text-sm"
+            @update:modelValue="form.customHeaderText = $event || null" />
+          <TextAreaGroup
+            v-if="form.useCustomHeader !== 0"
+            :modelValue="form.customFooterText ?? ''"
+            label="Custom Footer Content"
+            placeholder="HTML content for custom footer"
+            inputClass="h-24 font-mono text-sm"
+            @update:modelValue="form.customFooterText = $event || null" />
+          <ToggleField v-model="form.useCustomCSS" label="Use Custom CSS" />
+          <TextAreaGroup
+            v-if="form.useCustomCSS"
+            :modelValue="form.customHeaderCSS ?? ''"
+            label="Custom CSS"
+            placeholder="Custom CSS styles"
+            inputClass="h-32 font-mono text-sm"
+            @update:modelValue="form.customHeaderCSS = $event || null" />
+          <ToggleField
+            v-model="form.enableInterstitial"
+            label="Show Interstitial When Embedding via API" />
+          <TextAreaGroup
+            v-if="form.enableInterstitial"
+            :modelValue="form.interstitialText ?? ''"
+            label="Interstitial Text"
+            placeholder="Text shown in embed interstitial"
+            inputClass="h-24"
+            @update:modelValue="form.interstitialText = $event || null" />
+          <ToggleField v-model="form.useHeaderLogo" label="Use Header Logo" />
+          <div v-if="form.useHeaderLogo" class="space-y-3">
+            <label class="block text-xs font-medium uppercase">
+              Header Image (PNG)
+            </label>
+            <div
+              v-if="headerImagePreview && !headerImageError"
+              class="border border-neutral-200 rounded-md p-2 bg-neutral-50">
+              <img
+                :src="headerImagePreview"
+                alt="Current header image"
+                class="max-h-24 object-contain"
+                @error="headerImageError = true"
+                @load="headerImageError = false" />
+            </div>
+            <input
+              ref="headerImageInput"
+              type="file"
+              accept="image/png"
+              class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              @change="handleHeaderImageChange" />
+          </div>
         </FormSection>
 
         <!-- Display Options -->
@@ -115,16 +214,6 @@
             type="number" />
         </FormSection>
 
-        <!-- Notes -->
-        <FormSection title="Notes">
-          <TextAreaGroup
-            :modelValue="form.notes ?? ''"
-            label="Instance Notes"
-            placeholder="Internal notes about this instance"
-            inputClass="h-32"
-            @update:modelValue="form.notes = $event || null" />
-        </FormSection>
-
         <!-- Form Actions -->
         <div class="flex justify-end gap-4 pt-4 border-t border-neutral-200">
           <Button type="submit" variant="primary" :disabled="isSaving">
@@ -145,9 +234,11 @@ import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
+import EyeIcon from "@/icons/EyeIcon.vue";
+import EyeOffIcon from "@/icons/EyeOffIcon.vue";
 import Toggle from "@/components/Toggle/Toggle.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import { useToastStore } from "@/stores/toastStore";
+import config from "@/config";
 import {
   useInstanceSettingsQuery,
   useUpdateInstanceSettingsMutation,
@@ -170,6 +261,30 @@ const {
 const updateMutation = useUpdateInstanceSettingsMutation();
 const isSaving = computed(() => updateMutation.isPending.value);
 
+// UI state for password visibility
+const showS3Secret = ref(false);
+
+// Header image state
+const selectedHeaderImage = ref<File | null>(null);
+const headerImageError = ref(false);
+const headerImagePreview = computed(() => {
+  if (selectedHeaderImage.value) {
+    return URL.createObjectURL(selectedHeaderImage.value);
+  }
+  // Show existing image if useHeaderLogo is enabled
+  if (form.value.useHeaderLogo) {
+    return `${config.instance.base.origin}/assets/instanceAssets/${props.instanceId}.png`;
+  }
+  return null;
+});
+
+function handleHeaderImageChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0] ?? null;
+  selectedHeaderImage.value = file;
+  headerImageError.value = false;
+}
+
 // Form state - initialized from query data
 const form = ref<InstanceSettings>(
   getDefaultInstanceSettings(props.instanceId)
@@ -190,6 +305,13 @@ watch(
 const themeOptions = computed((): SelectOption<string>[] => [
   { id: "default", label: "Default" },
   { id: "dark", label: "Dark" },
+]);
+
+// Custom header display options
+const customHeaderOptions = computed((): SelectOption<0 | 1 | 2>[] => [
+  { id: 0, label: "Never" },
+  { id: 1, label: "Always" },
+  { id: 2, label: "Only on Home Page" },
 ]);
 
 async function handleSave() {
