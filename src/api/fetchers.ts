@@ -37,6 +37,7 @@ import {
   type GetFileContainerApiResponse,
   CollectionDescription,
   ApiAssetSubmissionResponse,
+  InstanceSettings
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -840,6 +841,44 @@ export async function checkPreviewImages(fileIds: string[]) {
       status: "icon" | "true";
     }>
   >(`${BASE_URL}/fileManager/previewImageAvailable`, formData);
+
+  return res.data;
+}
+
+export async function fetchInstanceSettings(
+  instanceId: number
+): Promise<InstanceSettings> {
+  const res = await axios.get<InstanceSettings>(
+    `${BASE_URL}/instances/getInstance/${instanceId}`
+  );
+  return res.data;
+}
+
+export async function updateInstanceSettings(
+  settings: Partial<InstanceSettings> & { instanceId: number }
+): Promise<{ success: boolean; message: string }> {
+  const formData = new FormData();
+
+  // Append each setting to the form data
+  Object.entries(settings).forEach(([key, value]) => {
+    if (value === null || value === undefined) {
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => formData.append(`${key}[]`, String(item)));
+    } else if (typeof value === "boolean") {
+      formData.append(key, value ? "1" : "0");
+    } else {
+      formData.append(key, String(value));
+    }
+  });
+
+  // Use /true to get JSON response instead of redirect
+  const res = await axios.post<{ success: boolean; message: string }>(
+    `${BASE_URL}/instances/save/true`,
+    formData
+  );
 
   return res.data;
 }

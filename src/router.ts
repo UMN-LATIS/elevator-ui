@@ -230,6 +230,9 @@ const router = createRouter({
       path: "/instances/edit/:instanceId",
       component: () =>
         import("@/pages/InstanceSettingsPage/InstanceSettingsPage.vue"),
+      props: (route) => ({
+        instanceId: parseIntFromParam(route.params.instanceId),
+      }),
     },
     {
       name: "search",

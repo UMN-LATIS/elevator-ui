@@ -643,6 +643,60 @@ export interface ElevatorInstance {
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
 }
 
+export interface InstanceSettings {
+  instanceId: number;
+  name: string;
+  domain: string;
+  ownerHomepage: string | null;
+  googleAnalyticsKey: string | null;
+
+  // Featured asset
+  featuredAsset: string | null;
+  featuredAssetText: string | null;
+
+  // Storage settings
+  amazonS3Key: string | null;
+  // amazonS3Secret: string | null;
+  defaultBucket: string | null;
+  bucketRegion: string | null;
+
+  // Display options
+  showCollectionInSearchResults: boolean;
+  showTemplateInSearchResults: boolean;
+  showPreviousNextSearchResults: boolean;
+  hideVideoAudio: boolean;
+  allowIndexing: boolean;
+  useVoyagerViewer: boolean;
+  automaticAltText: boolean;
+  autoloadMaxSearchResults: boolean;
+
+  // Custom styling
+  useCustomHeader: 0 | 1 | 2; // 0 = none, 1 = header only, 2 = header and footer
+  customHeaderText: string | null;
+  customFooterText: string | null;
+  useCustomCSS: boolean;
+  customHeaderCSS: string | null;
+  useHeaderLogo: boolean;
+
+  // Interstitial
+  enableInterstitial: boolean;
+  interstitialText: string | null;
+
+  // Vue interface options
+  interfaceVersion: 0 | 1; // 0 = Classic, 1 = VueJS
+  useCentralAuth: boolean;
+  enableHLSStreaming: boolean;
+  enableThemes: boolean;
+  defaultTheme: string | null;
+  availableThemes: string[] | null;
+  customHomeRedirect: string | null;
+  maximumMoreLikeThis: number | null;
+  defaultTextTruncationHeight: number | null;
+
+  // Internal notes
+  notes: string | null;
+}
+
 export interface RawAssetCollection {
   id: number;
   title: string;
