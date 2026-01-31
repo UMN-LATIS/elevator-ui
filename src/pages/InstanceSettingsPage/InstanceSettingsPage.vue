@@ -2,10 +2,17 @@
   <DefaultLayout>
     <div class="p-4 md:p-8 max-w-4xl mx-auto w-full">
       <header class="mb-8">
-        <p class="text-sm md:text-base font-medium text-neutral-500 uppercase">
+        <p
+          class="text-sm md:text-base font-medium text-neutral-500 uppercase flex items-center gap-1">
           Admin
+          <template v-if="form.name">
+            <ChevronRightIcon class="!w-4 !h-4" />
+            Instance Settings
+          </template>
         </p>
-        <h1 class="text-2xl md:text-4xl font-bold">Instance Settings</h1>
+        <h1 class="text-2xl md:text-4xl font-bold">
+          {{ form.name || "Instance Settings" }}
+        </h1>
       </header>
 
       <div v-if="isLoading" class="flex justify-center items-center py-12">
@@ -245,6 +252,7 @@ import {
   getDefaultInstanceSettings,
 } from "@/queries/useInstanceSettingsQuery";
 import type { InstanceSettings, SelectOption } from "@/types";
+import { ChevronRightIcon } from "@/icons";
 
 const props = defineProps<{
   instanceId: number;
