@@ -854,9 +854,15 @@ export async function fetchInstanceSettings(
   return res.data;
 }
 
+export type UpdateInstanceSettingsParams = Partial<InstanceSettings> & {
+  instanceId: number;
+  customHeaderImage?: File | null;
+};
+
 export async function updateInstanceSettings(
-  settings: Partial<InstanceSettings> & { instanceId: number }
+  params: UpdateInstanceSettingsParams
 ): Promise<{ success: boolean; message: string }> {
+  const { customHeaderImage, ...settings } = params;
   const formData = new FormData();
 
   // Append each setting to the form data
@@ -873,6 +879,11 @@ export async function updateInstanceSettings(
       formData.append(key, String(value));
     }
   });
+
+  // Append header logo image if provided
+  if (customHeaderImage) {
+    formData.append("customHeaderImage", customHeaderImage);
+  }
 
   // Use /true to get JSON response instead of redirect
   const res = await axios.post<{ success: boolean; message: string }>(
