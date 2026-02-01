@@ -686,7 +686,7 @@ export interface InstanceSettings {
   interfaceVersion: 0 | 1; // 0 = Classic, 1 = VueJS
   useCentralAuth: boolean;
   enableHLSStreaming: boolean;
-  enableThemes: boolean;
+  enableTheming: boolean;
   defaultTheme: string | null;
   availableThemes: string[] | null;
   customHomeRedirect: string | null;
