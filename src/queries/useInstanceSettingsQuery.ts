@@ -18,6 +18,7 @@ export function useInstanceSettingsQuery(
       return fetchers.fetchInstanceSettings(id);
     },
     enabled: () => toValue(instanceId) !== null,
+    retry: false,
   });
 }
 
@@ -76,7 +77,7 @@ export function getDefaultInstanceSettings(
     interfaceVersion: 1,
     useCentralAuth: false,
     enableHLSStreaming: false,
-    enableThemes: false,
+    enableTheming: false,
     defaultTheme: null,
     availableThemes: null,
     customHomeRedirect: null,
