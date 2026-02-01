@@ -18,7 +18,7 @@
           Failed to load instance settings.
         </div>
 
-        <form v-else @submit.prevent="handleSave">
+        <form v-else id="instance-settings-form" @submit.prevent="handleSave">
           <!-- General Settings -->
           <FormSection id="general" title="General">
             <InputGroup
@@ -257,12 +257,26 @@
       <aside
         class="sidebar-container bg-[--app-sidebar-backgroundColor] text-[--app-sidebar-textColor] [border-left:var(--app-borderWidth)_solid_var(--app-borderColor)] p-6 fixed bottom-0 left-0 w-full lg:static">
         <div class="sticky top-20 flex flex-col gap-6">
-          <div class="grid grid-cols-2 gap-2">
-            <Button variant="secondary">Cancel</Button>
-            <Button type="submit" variant="primary" :disabled="isSaving">
+          <div v-if="!isLoading && !isError" class="grid grid-cols-2 gap-2">
+            <Button
+              variant="secondary"
+              :disabled="!hasUnsavedChanges"
+              @click="handleCancel">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="instance-settings-form"
+              variant="primary"
+              :disabled="isSaving">
               <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
               {{ isSaving ? "Saving..." : "Save" }}
             </Button>
+            <p
+              v-if="hasUnsavedChanges"
+              class="col-span-2 text-xs text-amber-600 text-center">
+              You have unsaved changes
+            </p>
           </div>
           <SettingsTableOfContents class="hidden lg:block" />
         </div>
@@ -272,7 +286,13 @@
 </template>
 
 <script setup lang="tsx">
-import { ref, watch, computed, type FunctionalComponent } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  onUnmounted,
+  type FunctionalComponent,
+} from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
@@ -312,9 +332,29 @@ const showS3Secret = ref(false);
 // Header image state
 const selectedHeaderImage = ref<File | null>(null);
 const headerImageError = ref(false);
+const headerImageObjectUrl = ref<string | null>(null);
+
+// Create object URL when file changes, revoking previous one to prevent memory leaks
+watch(selectedHeaderImage, (newFile, _oldFile) => {
+  if (headerImageObjectUrl.value) {
+    URL.revokeObjectURL(headerImageObjectUrl.value);
+    headerImageObjectUrl.value = null;
+  }
+  if (newFile) {
+    headerImageObjectUrl.value = URL.createObjectURL(newFile);
+  }
+});
+
+// Cleanup object URL on unmount
+onUnmounted(() => {
+  if (headerImageObjectUrl.value) {
+    URL.revokeObjectURL(headerImageObjectUrl.value);
+  }
+});
+
 const headerImagePreview = computed(() => {
-  if (selectedHeaderImage.value) {
-    return URL.createObjectURL(selectedHeaderImage.value);
+  if (headerImageObjectUrl.value) {
+    return headerImageObjectUrl.value;
   }
   // Show existing image if useHeaderLogo is enabled
   if (form.value.useHeaderLogo) {
@@ -345,6 +385,19 @@ watch(
   },
   { immediate: true }
 );
+
+// Track unsaved changes by comparing form to saved data
+const hasUnsavedChanges = computed(() => {
+  if (!settingsData.value) return false;
+  return JSON.stringify(form.value) !== JSON.stringify(settingsData.value);
+});
+
+// Reset form to saved state
+function handleCancel() {
+  if (!settingsData.value) return;
+  form.value = { ...settingsData.value };
+  selectedHeaderImage.value = null;
+}
 
 // Theme options for the select
 const themeOptions = computed(
