@@ -177,6 +177,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
         const instanceId = state.instance.value.id;
         if (!instanceId) {
           resolve();
+          return;
         }
 
         state.instance.value.logoImg = {
