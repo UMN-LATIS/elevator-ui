@@ -51,11 +51,14 @@ const createState = () => ({
   customFooter: ref<string | null>(null),
   customScripts: ref<HTMLScriptElement[]>([]),
   hasExecutedCustomScripts: ref(false),
+  hasInitialized: ref(false),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
   isLoggedIn: computed(() => !!state.currentUser.value),
   isReady: computed(() => state.fetchStatus.value === "success"),
+  // Use hasData for gating UI that shouldn't unmount during refresh
+  hasData: computed(() => state.hasInitialized.value),
   collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
   viewableCollections: computed((): AssetCollection[] =>
     filterCollections((col) => col.canView, state.collections.value)
@@ -149,6 +152,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
       }));
 
       state.fetchStatus.value = "success";
+      state.hasInitialized.value = true;
     } catch (error) {
       console.error(error);
       state.fetchStatus.value = "error";

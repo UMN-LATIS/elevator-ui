@@ -96,7 +96,7 @@ import Button from "@/components/Button/Button.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-import { ref, reactive, computed, onMounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useRouter } from "vue-router";
 import { EyeIcon, EyeOffIcon, SpinnerIcon } from "@/icons";
@@ -184,9 +184,15 @@ const encodedCallbackUrl = computed(() =>
   encodeURIComponent(props.redirectURL)
 );
 
-onMounted(() => {
-  // if user is logged in, redirect
-  if (instanceStore.isLoggedIn) {
+onMounted(async () => {
+  // Only verify with server if cache says we're logged in
+  // (to check if session is still valid)
+  if (!instanceStore.isLoggedIn) return;
+
+  await instanceStore.refresh();
+
+  // Redirect only if refresh confirmed user is still logged in
+  if (instanceStore.fetchStatus === "success" && instanceStore.isLoggedIn) {
     router.push(props.redirectURL);
   }
 });

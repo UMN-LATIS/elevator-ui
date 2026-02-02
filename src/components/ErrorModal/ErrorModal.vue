@@ -4,7 +4,7 @@
       <div
         v-if="error"
         class="fixed inset-0 z-40 bg-transparent-black-700 flex items-center justify-center">
-        <SignInRequiredNotice v-if="isCurrentUserUnauthorized" />
+        <SignInRequiredNotice v-if="isCurrentUserUnauthenticated" />
 
         <Notification
           v-else
@@ -31,13 +31,9 @@ import Button from "../Button/Button.vue";
 import { useErrorStore } from "@/stores/errorStore";
 import Notification from "../Notification/Notification.vue";
 import { ApiError } from "@/api/ApiError";
-import { useInstanceStore } from "@/stores/instanceStore";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
-import config from "@/config";
 
-const BASE_URL = config.instance.base.url;
 const errorStore = useErrorStore();
-const instanceStore = useInstanceStore();
 
 const error = computed(() => errorStore.error);
 const errorTitle = computed(() => {
@@ -51,12 +47,8 @@ const errorTitle = computed(() => {
 
   return `Error: ${error.value.statusCode}`;
 });
-const isCurrentUserUnauthorized = computed(() => {
-  return (
-    !instanceStore.isLoggedIn &&
-    error.value instanceof ApiError &&
-    error.value.statusCode === 401
-  );
+const isCurrentUserUnauthenticated = computed(() => {
+  return error.value instanceof ApiError && error.value.statusCode === 401;
 });
 
 const messages: Record<number | string, string> = {
