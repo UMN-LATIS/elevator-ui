@@ -23,6 +23,7 @@ import {
   flattenCollections,
   filterCollections,
 } from "@/helpers/collectionHelpers";
+import config from "@/config";
 
 const createState = () => ({
   fetchStatus: ref<FetchStatus>("idle"),
@@ -112,6 +113,13 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.currentUser.value = selectCurrentUserFromResponse(apiResponse);
       state.pages.value = apiResponse.pages;
       state.instance.value = selectInstanceFromResponse(apiResponse);
+
+      // add a timestamp to the logo URL to prevent caching issues
+      if (state.instance.value.logoImg) {
+        const timestamp = Date.now();
+        state.instance.value.logoImg.src += `?t=${timestamp}`;
+      }
+
       state.collections.value = normalizeAssetCollections(
         apiResponse.collections
       );
@@ -157,6 +165,26 @@ const actions = (state: ReturnType<typeof createState>) => ({
     // not on refresh
     executeScripts(state.customScripts.value as HTMLScriptElement[]);
     state.hasExecutedCustomScripts.value = true;
+  },
+
+  refreshLogoImage() {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const instanceId = state.instance.value.id;
+        if (!instanceId) {
+          resolve();
+        }
+
+        state.instance.value.logoImg = {
+          src: `${
+            config.instance.base.origin
+          }/assets/instanceAssets/${instanceId}.png?t=${Date.now()}`,
+          alt: "Instance Logo",
+        };
+
+        resolve();
+      }, 100);
+    });
   },
 });
 

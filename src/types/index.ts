@@ -695,7 +695,13 @@ export interface InstanceSettings {
 
   // Internal notes
   notes: string | null;
+
+  // timestamps
+  createdAt: ISODateTime | null; // legacy data may not have this
+  modifiedAt: ISODateTime | null; // legacy data may not have this
 }
+
+export type ISODateTime = string; // e.g. '2024-05-15T14:30:00+00:00'
 
 export interface RawAssetCollection {
   id: number;

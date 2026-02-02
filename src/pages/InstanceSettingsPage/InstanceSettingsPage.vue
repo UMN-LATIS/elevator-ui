@@ -82,16 +82,26 @@
             <ToggleGroup v-model="form.useHeaderLogo" label="Use Header Logo" />
 
             <template #details>
-              <label id="headerImageInput" class="sr-only">
-                Upload Header Image (PNG)
-              </label>
-              <input
-                id="headerImageInput"
-                ref="headerImageInput"
-                type="file"
-                accept="image/png"
-                class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-blue-500 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                @change="handleHeaderImageChange" />
+              <div class="flex gap-4 items-center">
+                <img
+                  v-if="headerImagePreview"
+                  :src="headerImagePreview"
+                  alt="Header Image Preview"
+                  class="size-16 mb-2 block object-cover" />
+                <ElevatorIcon v-else class="h-16 mb-2 text-neutral-400" />
+                <div>
+                  <label id="headerImageInput" class="sr-only">
+                    Upload Header Image (PNG)
+                  </label>
+                  <input
+                    id="headerImageInput"
+                    ref="headerImageInput"
+                    type="file"
+                    accept="image/png"
+                    class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-blue-500 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    @change="handleHeaderImageChange" />
+                </div>
+              </div>
             </template>
           </FormSubSection>
         </FormSection>
@@ -288,12 +298,17 @@ import {
 import type { InstanceSettings, SelectOption, TocItem } from "@/types";
 import { FormSection, FormToc } from "@/components/Form";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
+import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 
 const props = defineProps<{
   instanceId: number;
 }>();
 
 const toastStore = useToastStore();
+
+// for easier access to logo url
+const instanceStore = useInstanceStore();
 
 const {
   data: settingsData,
@@ -336,7 +351,7 @@ const headerImagePreview = computed(() => {
   }
   // Show existing image if useHeaderLogo is enabled
   if (form.value.useHeaderLogo) {
-    return `${config.instance.base.origin}/assets/instanceAssets/${props.instanceId}.png`;
+    return instanceStore.instance.logoImg?.src || null;
   }
   return null;
 });
@@ -438,7 +453,10 @@ async function handleSave() {
       customHeaderImage: selectedHeaderImage.value,
     });
 
+    await instanceStore.refreshLogoImage();
+
     // Clear the selected file after successful save
+    // do this after refresh to avoid broken image flicker
     selectedHeaderImage.value = null;
 
     toastStore.addToast({

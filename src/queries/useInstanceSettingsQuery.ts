@@ -84,5 +84,7 @@ export function getDefaultInstanceSettings(
     maximumMoreLikeThis: null,
     defaultTextTruncationHeight: null,
     notes: null,
+    createdAt: null,
+    modifiedAt: null,
   };
 }
