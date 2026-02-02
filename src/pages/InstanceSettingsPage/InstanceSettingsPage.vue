@@ -34,9 +34,6 @@
             placeholder="Internal notes about this instance"
             inputClass="h-24"
             @update:modelValue="form.notes = $event || null" />
-        </FormSection>
-
-        <FormSection id="authentication" title="Authentication">
           <ToggleGroup
             v-model="form.useCentralAuth"
             label="Use Central Authentication" />
@@ -80,30 +77,21 @@
                 @update:modelValue="form.customHeaderCSS = $event || null" />
             </template>
           </FormSubSection>
-          <FormSubSection :isOpen="form.useHeaderLogo">
+
+          <FormSubSection :isOpen="!!form.useHeaderLogo">
             <ToggleGroup v-model="form.useHeaderLogo" label="Use Header Logo" />
+
             <template #details>
-              <div v-if="form.useHeaderLogo" class="space-y-3">
-                <label class="block text-xs font-medium uppercase">
-                  Logo Image (PNG)
-                </label>
-                <div
-                  v-if="headerImagePreview && !headerImageError"
-                  class="border border-neutral-200 rounded-md p-2 bg-neutral-50">
-                  <img
-                    :src="headerImagePreview"
-                    alt="Current header image"
-                    class="max-h-24 object-contain"
-                    @error="headerImageError = true"
-                    @load="headerImageError = false" />
-                </div>
-                <input
-                  ref="headerImageInput"
-                  type="file"
-                  accept="image/png"
-                  class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  @change="handleHeaderImageChange" />
-              </div>
+              <label id="headerImageInput" class="sr-only">
+                Upload Header Image (PNG)
+              </label>
+              <input
+                id="headerImageInput"
+                ref="headerImageInput"
+                type="file"
+                accept="image/png"
+                class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-blue-500 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                @change="handleHeaderImageChange" />
             </template>
           </FormSubSection>
         </FormSection>
@@ -417,7 +405,6 @@ const allThemes = computed(() => config.instance.theming.availableThemes);
 // Table of contents sections
 const tocSections: TocItem[] = [
   { id: "general", label: "General" },
-  { id: "authentication", label: "Authentication" },
   { id: "customization", label: "Customization" },
   { id: "storage", label: "Storage" },
   { id: "featured-asset", label: "Featured Asset" },
