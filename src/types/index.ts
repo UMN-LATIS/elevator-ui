@@ -671,7 +671,7 @@ export interface InstanceSettings {
   autoloadMaxSearchResults: boolean;
 
   // Custom styling
-  useCustomHeader: 0 | 1 | 2; // 0 = none, 1 = header only, 2 = header and footer
+  useCustomHeader: 0 | 1 | 2; // 0 = none, 1 = header on all pages, 2 = header only on home page ("Only on Home Page")
   customHeaderText: string | null;
   customFooterText: string | null;
   useCustomCSS: boolean;
