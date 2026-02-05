@@ -1,6 +1,6 @@
-import { uniq } from "ramda";
 import deepmerge from "deepmerge";
 import { AppConfig } from "@/types";
+import { resolveThemingConfig } from "@/helpers/resolveThemingConfig";
 
 const defaultConfig: AppConfig = {
   instance: {
@@ -52,15 +52,9 @@ const mergedConfig: AppConfig = deepmerge(
   { arrayMerge: overwriteMerge }
 );
 
-// dedupe and filter empty strings from availableThemes, fallback to light
-const validThemes = uniq(
-  mergedConfig.instance.theming.availableThemes.filter(Boolean)
+// resolve theming config with fallbacks for empty/invalid values
+mergedConfig.instance.theming = resolveThemingConfig(
+  mergedConfig.instance.theming
 );
-mergedConfig.instance.theming.availableThemes =
-  validThemes.length > 0 ? validThemes : ["light"];
-
-// ensure defaultTheme has a value
-mergedConfig.instance.theming.defaultTheme =
-  mergedConfig.instance.theming.defaultTheme || "light";
 
 export default mergedConfig;
