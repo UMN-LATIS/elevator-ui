@@ -24,7 +24,7 @@ export function resolveThemingConfig(input: {
   const requestedDefault = input.defaultTheme || "light";
   const defaultTheme = availableThemes.includes(requestedDefault)
     ? requestedDefault
-    : "light";
+    : availableThemes[0];
 
   return {
     availableThemes,

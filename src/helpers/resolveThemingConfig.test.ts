@@ -68,31 +68,40 @@ describe("resolveThemingConfig", () => {
       expect(result.defaultTheme).toBe("dark");
     });
 
-    it("falls back to 'light' when defaultTheme is undefined", () => {
+    it("falls back to 'light' when defaultTheme is undefined and light is available", () => {
       const result = resolveThemingConfig({
-        availableThemes: ["dark"],
+        availableThemes: ["dark", "light"],
         enabled: true,
         defaultTheme: undefined,
       });
       expect(result.defaultTheme).toBe("light");
     });
 
-    it("falls back to 'light' when defaultTheme is empty string", () => {
+    it("falls back to first available theme when defaultTheme is undefined and light is not available", () => {
       const result = resolveThemingConfig({
-        availableThemes: ["dark"],
+        availableThemes: ["dark", "folwell"],
+        enabled: true,
+        defaultTheme: undefined,
+      });
+      expect(result.defaultTheme).toBe("dark");
+    });
+
+    it("falls back to 'light' when defaultTheme is empty string and light is available", () => {
+      const result = resolveThemingConfig({
+        availableThemes: ["dark", "light"],
         enabled: true,
         defaultTheme: "",
       });
       expect(result.defaultTheme).toBe("light");
     });
 
-    it("falls back to 'light' when defaultTheme is not in availableThemes", () => {
+    it("falls back to first available theme when defaultTheme is not in availableThemes", () => {
       const result = resolveThemingConfig({
         availableThemes: ["dark", "folwell"],
         enabled: true,
         defaultTheme: "hotdog",
       });
-      expect(result.defaultTheme).toBe("light");
+      expect(result.defaultTheme).toBe("dark");
     });
 
     it("keeps defaultTheme when it is in availableThemes", () => {
