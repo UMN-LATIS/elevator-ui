@@ -85,6 +85,24 @@ describe("resolveThemingConfig", () => {
       });
       expect(result.defaultTheme).toBe("light");
     });
+
+    it("falls back to 'light' when defaultTheme is not in availableThemes", () => {
+      const result = resolveThemingConfig({
+        availableThemes: ["dark", "folwell"],
+        enabled: true,
+        defaultTheme: "hotdog",
+      });
+      expect(result.defaultTheme).toBe("light");
+    });
+
+    it("keeps defaultTheme when it is in availableThemes", () => {
+      const result = resolveThemingConfig({
+        availableThemes: ["dark", "folwell"],
+        enabled: true,
+        defaultTheme: "folwell",
+      });
+      expect(result.defaultTheme).toBe("folwell");
+    });
   });
 
   describe("enabled", () => {

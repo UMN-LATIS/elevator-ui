@@ -20,9 +20,15 @@ export function resolveThemingConfig(input: {
     (input.availableThemes ?? []).filter(Boolean)
   ) as string[];
 
+  const availableThemes = validThemes.length > 0 ? validThemes : ["light"];
+  const requestedDefault = input.defaultTheme || "light";
+  const defaultTheme = availableThemes.includes(requestedDefault)
+    ? requestedDefault
+    : "light";
+
   return {
-    availableThemes: validThemes.length > 0 ? validThemes : ["light"],
+    availableThemes,
     enabled: input.enabled,
-    defaultTheme: input.defaultTheme || "light",
+    defaultTheme,
   };
 }
