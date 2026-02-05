@@ -236,8 +236,9 @@ function getArcGISUrl(styleKey: string) {
 }
 
 function handleActiveStyleChange(styleKey: keyof typeof mapStyles) {
-  invariant(map, "Map is not initialized");
+  invariant(map.value, "Map is not initialized");
   state.activeMapStyleKey = styleKey;
+  map.value.setStyle(getArcGISUrl(styleKey));
 }
 
 onMounted(() => {
