@@ -11,11 +11,11 @@ const defaultConfig: AppConfig = {
     },
     theming: {
       // list of themes
-      availableThemes: import.meta.env.VITE_AVAILABLE_THEMES?.split(",") ?? [
-        "light",
-      ],
+      availableThemes: (import.meta.env.VITE_AVAILABLE_THEMES || "light").split(
+        ","
+      ),
       enabled: import.meta.env.VITE_THEME_ENABLED?.toLowerCase() === "true",
-      defaultTheme: import.meta.env.VITE_DEFAULT_THEME ?? "light",
+      defaultTheme: import.meta.env.VITE_DEFAULT_THEME || "light",
     },
     moreLikeThis: {
       maxInlineResults: 3,
@@ -26,7 +26,8 @@ const defaultConfig: AppConfig = {
       defaultTextTruncationHeight: 72,
     },
     googleAnalyticsId: import.meta.env.VITE_GOOGLE_ANALYTICS_ID ?? null,
-    autoloadMaxSearchResults: import.meta.env.VITE_AUTO_LOAD_ALL_RESULTS?.toLowerCase() === "true",
+    autoloadMaxSearchResults:
+      import.meta.env.VITE_AUTO_LOAD_ALL_RESULTS?.toLowerCase() === "true",
   },
   arcgis: {
     apiKey:
@@ -51,9 +52,15 @@ const mergedConfig: AppConfig = deepmerge(
   { arrayMerge: overwriteMerge }
 );
 
-// dedupe the availableThemes array
-mergedConfig.instance.theming.availableThemes = uniq(
-  mergedConfig.instance.theming.availableThemes
+// dedupe and filter empty strings from availableThemes, fallback to light
+const validThemes = uniq(
+  mergedConfig.instance.theming.availableThemes.filter(Boolean)
 );
+mergedConfig.instance.theming.availableThemes =
+  validThemes.length > 0 ? validThemes : ["light"];
+
+// ensure defaultTheme has a value
+mergedConfig.instance.theming.defaultTheme =
+  mergedConfig.instance.theming.defaultTheme || "light";
 
 export default mergedConfig;
