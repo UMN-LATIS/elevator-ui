@@ -23,6 +23,7 @@ import {
   flattenCollections,
   filterCollections,
 } from "@/helpers/collectionHelpers";
+import config from "@/config";
 
 const createState = () => ({
   fetchStatus: ref<FetchStatus>("idle"),
@@ -50,11 +51,14 @@ const createState = () => ({
   customFooter: ref<string | null>(null),
   customScripts: ref<HTMLScriptElement[]>([]),
   hasExecutedCustomScripts: ref(false),
+  hasInitialized: ref(false),
 });
 
 const getters = (state: ReturnType<typeof createState>) => ({
   isLoggedIn: computed(() => !!state.currentUser.value),
   isReady: computed(() => state.fetchStatus.value === "success"),
+  // Use hasData for gating UI that shouldn't unmount during refresh
+  hasData: computed(() => state.hasInitialized.value),
   collectionIndex: computed(() => toCollectionIndex(state.collections.value)),
   viewableCollections: computed((): AssetCollection[] =>
     filterCollections((col) => col.canView, state.collections.value)
@@ -112,6 +116,13 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.currentUser.value = selectCurrentUserFromResponse(apiResponse);
       state.pages.value = apiResponse.pages;
       state.instance.value = selectInstanceFromResponse(apiResponse);
+
+      // add a timestamp to the logo URL to prevent caching issues
+      if (state.instance.value.logoImg) {
+        const timestamp = Date.now();
+        state.instance.value.logoImg.src += `?t=${timestamp}`;
+      }
+
       state.collections.value = normalizeAssetCollections(
         apiResponse.collections
       );
@@ -141,6 +152,7 @@ const actions = (state: ReturnType<typeof createState>) => ({
       }));
 
       state.fetchStatus.value = "success";
+      state.hasInitialized.value = true;
     } catch (error) {
       console.error(error);
       state.fetchStatus.value = "error";
@@ -157,6 +169,27 @@ const actions = (state: ReturnType<typeof createState>) => ({
     // not on refresh
     executeScripts(state.customScripts.value as HTMLScriptElement[]);
     state.hasExecutedCustomScripts.value = true;
+  },
+
+  refreshLogoImage() {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const instanceId = state.instance.value.id;
+        if (!instanceId) {
+          resolve();
+          return;
+        }
+
+        state.instance.value.logoImg = {
+          src: `${
+            config.instance.base.origin
+          }/assets/instanceAssets/${instanceId}.png?t=${Date.now()}`,
+          alt: "Instance Logo",
+        };
+
+        resolve();
+      }, 100);
+    });
   },
 });
 

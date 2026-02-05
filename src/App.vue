@@ -15,7 +15,7 @@
       <ToastRoot />
     </Teleport>
     <ErrorBoundary>
-      <RouterView v-if="instanceStore.isReady && drawerStore.isReady" />
+      <RouterView v-if="instanceStore.hasData && drawerStore.isReady" />
     </ErrorBoundary>
   </div>
 </template>
