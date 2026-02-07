@@ -10,7 +10,7 @@
         class="mb-4" />
       <div class="flex flex-col">
         <div
-          class="flex items-center justify-start gap-2 border-b border-outline pb-2">
+          class="flex items-center justify-start gap-2 border-b border-outline-variant">
           <Button variant="tertiary" @click="handleExpandAll">
             Expand All
           </Button>
