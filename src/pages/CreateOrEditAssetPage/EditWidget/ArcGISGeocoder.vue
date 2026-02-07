@@ -5,7 +5,7 @@
         :id="id"
         v-model="searchText"
         type="text"
-        class="w-full px-4 py-2 rounded-md bg-black/5 border-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        class="w-full px-4 py-2 rounded-md bg-surface-container-lowest border-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         :placeholder="placeholder"
         @input="handleInput"
         @keydown.down.prevent="handleKeyDown"

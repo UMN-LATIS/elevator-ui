@@ -241,7 +241,7 @@ uppy.on("error", (error) => {
     @apply flex items-center justify-center p-0 static;
 
     & .uppy-Dashboard-note {
-      @apply text-xs text-black/50;
+      @apply text-xs text-on-surface-variant;
     }
   }
 

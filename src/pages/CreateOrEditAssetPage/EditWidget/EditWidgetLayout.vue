@@ -110,7 +110,7 @@
               :listId="widgetDef.widgetId"
               :showEmptyList="false"
               :handleClass="['flex flex-col items-start px-1']"
-              listItemClass="bg-black/5 rounded-md mb-1 pr-1"
+              listItemClass="bg-surface-container-lowest rounded-md mb-1 pr-1"
               @update:modelValue="
                 (widgetContents) => {
                   $emit('update:widgetContents', widgetContents);

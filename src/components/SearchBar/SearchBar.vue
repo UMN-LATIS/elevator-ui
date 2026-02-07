@@ -20,7 +20,7 @@
       <TransitionFade>
         <div
           v-if="isAdvancedSearchModalOpen"
-          class="fixed inset-0 bg-black/75 z-30" />
+          class="fixed inset-0 bg-scrim z-30" />
       </TransitionFade>
 
       <!-- advanced search panel -->

@@ -2,7 +2,7 @@
   <div
     class="grid grid-cols-[1fr,auto] md:grid-cols-[auto,1fr] items-center md:items-start gap-4">
     <div
-      class="size-16 md:size-24 bg-black/5 rounded-lg overflow-hidden order-2 md:order-1 flex items-center justify-center border border-black/10">
+      class="size-16 md:size-24 bg-surface-container-lowest rounded-lg overflow-hidden order-2 md:order-1 flex items-center justify-center border border-outline-variant">
       <img
         v-if="typeof asset.firstFileHandlerId === 'string' && previewImageUrl"
         :src="previewImageUrl"
@@ -12,13 +12,13 @@
     <div class="order-1 md:order-2">
       <Transition name="fade" mode="out-in">
         <header v-if="isCreatingNewAsset" class="md:mb-4">
-          <h1 class="text-xs md:text-base font-bold uppercase text-black/25">
+          <h1 class="text-xs md:text-base font-bold uppercase text-on-surface-variant">
             Create Asset
           </h1>
           <h2 class="text-xl md:text-2xl font-bold">New Asset</h2>
         </header>
         <header v-else class="md:mb-4">
-          <h1 class="text-xs md:text-base font-bold uppercase text-black/25">
+          <h1 class="text-xs md:text-base font-bold uppercase text-on-surface-variant">
             Edit Asset
           </h1>
           <h2 class="text-xl md:text-2xl font-bold">

@@ -6,7 +6,7 @@
       :placeholder="placeholder"
       :inputClass="
         cn(
-          'bg-black/5 border-0 rounded-b-none placeholder:text-black/25 px-4 py-3',
+          'bg-surface-container-lowest border-0 rounded-b-none placeholder:text-on-surface-variant px-4 py-3',
           inputClass
         )
       "
@@ -14,7 +14,7 @@
       @update:modelValue="($event) => $emit('update:modelValue', $event)">
       <template #append>
         <FileReaderInputGroup
-          class="bg-black/5 rounded-b-md mt-0"
+          class="bg-surface-container-lowest rounded-b-md mt-0"
           label="Import"
           labelClass="sr-only"
           inputClass="px-4 py-3"

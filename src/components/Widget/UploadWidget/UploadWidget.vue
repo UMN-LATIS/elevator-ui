@@ -3,7 +3,7 @@
     <template v-if="contents.length > 1" #label-extra>
       <DropDown
         label="More actions"
-        labelClass="inline-flex items-center !p-1 bg-black/5 rounded-md"
+        labelClass="inline-flex items-center !p-1 bg-surface-container-lowest rounded-md"
         :showChevron="false"
         @trigger:click="checkIfCanDownloadOriginals">
         <template v-if="isDownloadingAll" #label>

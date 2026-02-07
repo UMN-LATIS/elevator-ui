@@ -12,7 +12,7 @@
           :class="{
             'text-primary font-medium border-primary bg-white/50 hover:bg-white/75 rounded-sm':
               activeId === item.id,
-            'text-black/50 hover:bg-transparent': activeId !== item.id,
+            'text-on-surface-variant hover:bg-transparent': activeId !== item.id,
           }"
           @click.prevent="scrollToSection(item.id)">
           <div

@@ -17,7 +17,12 @@
     <select
       :id="id"
       :value="modelValue ?? ''"
-      :class="cn(['rounded-md border-none bg-black/5 text-sm', selectClass])"
+      :class="
+        cn([
+          'rounded-md border-none bg-surface-container-lowest text-sm',
+          selectClass,
+        ])
+      "
       readonly
       required
       @change="
