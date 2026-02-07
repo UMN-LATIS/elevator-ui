@@ -52,19 +52,19 @@
       <!-- Icon Buttons Section -->
       <Section title="Icon Buttons">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <ComponentCard label="Primary">
-            <IconButton title="Add" class="bg-primary text-on-primary">
+          <ComponentCard label="Plus Icon">
+            <IconButton title="Add">
               <PlusIcon class="w-6 h-6" />
             </IconButton>
           </ComponentCard>
-          <ComponentCard label="Secondary">
-            <IconButton title="Edit" class="bg-secondary text-on-secondary">
-              <PlusIcon class="w-6 h-6" />
-            </IconButton>
-          </ComponentCard>
-          <ComponentCard label="Tertiary">
-            <IconButton title="More" class="bg-tertiary text-on-tertiary">
+          <ComponentCard label="Options Icon">
+            <IconButton title="More options">
               <OptionsIcon class="w-6 h-6" />
+            </IconButton>
+          </ComponentCard>
+          <ComponentCard label="Search Icon">
+            <IconButton title="Search">
+              <SearchIcon class="w-6 h-6" />
             </IconButton>
           </ComponentCard>
           <ComponentCard label="Disabled">
@@ -75,7 +75,7 @@
         </div>
       </Section>
 
-      <!-- Input Components Section -->
+      <!-- Input Components -->
       <Section title="Input Components">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ComponentCard label="TextInput">
@@ -111,8 +111,8 @@
         </div>
       </Section>
 
-      <!-- Select/Dropdown Components -->
-      <Section title="Select & Dropdown">
+      <!-- Select & Dropdown -->
+      <Section title="Selectors">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ComponentCard label="SelectGroup">
             <SelectGroup
@@ -120,7 +120,16 @@
               label="Select Option"
               :options="selectOptions" />
           </ComponentCard>
-          <ComponentCard label="DropDown">
+          <ComponentCard label="AutoCompleteInput">
+            <AutoCompleteInput
+              id="autocomplete"
+              v-model="autoCompleteValue"
+              fieldTitle="Search Fruits"
+              :options="fruitOptions"
+              placeholder="Type to search..."
+              :filterFn="filterFruits" />
+          </ComponentCard>
+          <ComponentCard label="DropDown Menu">
             <DropDown>
               <template #default>
                 <Button variant="secondary">Menu ▼</Button>
@@ -158,7 +167,7 @@
         </div>
       </Section>
 
-      <!-- Avatar & Media -->
+      <!-- Avatar -->
       <Section title="Avatar">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ComponentCard label="Avatar - Image">
@@ -178,19 +187,17 @@
         </div>
       </Section>
 
-      <!-- Panel -->
-      <Section title="Panel">
-        <Panel label="Panel Title" :isOpen="true">
-          <p class="text-on-surface">
-            This is the panel content. Panels provide a contained area for
-            content.
-          </p>
-        </Panel>
-      </Section>
-
-      <!-- Accordion -->
-      <Section title="Accordion">
-        <Accordion :items="accordionItems" />
+      <!-- Panel & Accordion -->
+      <Section title="Accordion & Panel">
+        <div class="space-y-4">
+          <Panel label="Panel Title" :isOpen="true">
+            <p class="text-on-surface">
+              This is the panel content. Panels provide a contained area for
+              content.
+            </p>
+          </Panel>
+          <Accordion :items="accordionItems" />
+        </div>
       </Section>
 
       <!-- Tabs -->
@@ -201,55 +208,121 @@
           :tabs="tabItems" />
       </Section>
 
+      <!-- Tooltip -->
+      <Section title="Tooltip">
+        <Tooltip content="Helpful information appears on hover">
+          <Button variant="secondary">Hover me</Button>
+        </Tooltip>
+      </Section>
+
+      <!-- Skeleto Loaders -->
+      <Section title="Skeleton Loaders">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ComponentCard label="Skeleton">
+            <Skeleton class="w-full h-12" />
+          </ComponentCard>
+          <ComponentCard label="SkeletonCard">
+            <SkeletonCard />
+          </ComponentCard>
+          <ComponentCard label="SkeletonResultRow">
+            <SkeletonResultRow />
+          </ComponentCard>
+        </div>
+      </Section>
+
+      <!-- Images -->
+      <Section title="Images & Media">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ComponentCard label="LazyLoadImage">
+            <LazyLoadImage
+              src="https://via.placeholder.com/300x200"
+              alt="Placeholder image" />
+          </ComponentCard>
+          <ComponentCard label="ThumbnailImage">
+            <ThumbnailImage
+              src="https://via.placeholder.com/150x150?text=Thumbnail"
+              alt="Placeholder thumbnail" />
+          </ComponentCard>
+          <ComponentCard label="ThumbnailGeneric">
+            <ThumbnailGeneric />
+          </ComponentCard>
+        </div>
+      </Section>
+
+      <!-- Utility Buttons -->
+      <Section title="Utility Buttons">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <ComponentCard label="XButton">
+            <XButton @click="() => {}" />
+          </ComponentCard>
+          <ComponentCard label="Arrow Right">
+            <ArrowButton direction="right" />
+          </ComponentCard>
+          <ComponentCard label="Arrow Left">
+            <ArrowButton direction="left" />
+          </ComponentCard>
+          <ComponentCard label="FullscreenButton">
+            <FullscreenButton :isFullscreen="false" @click="() => {}" />
+          </ComponentCard>
+        </div>
+      </Section>
+
       <!-- Links & Interactive -->
-      <Section title="Links & Interactive">
+      <Section title="Links & Notifications">
         <div class="space-y-4">
           <ComponentCard label="Link">
-            <Link href="#" class="text-primary hover:underline">
-              Click me (Link)
-            </Link>
+            <Link href="#" class="text-primary hover:underline">Click me</Link>
           </ComponentCard>
-
-          <ComponentCard label="Notification">
+          <ComponentCard label="Notification - Info">
             <Notification
               type="info"
               title="Information"
               message="This is an informational notification." />
           </ComponentCard>
+          <ComponentCard label="Notification - Success">
+            <Notification
+              type="success"
+              title="Success"
+              message="Operation completed successfully." />
+          </ComponentCard>
+          <ComponentCard label="Notification - Danger">
+            <Notification
+              type="danger"
+              title="Error"
+              message="Something went wrong." />
+          </ComponentCard>
         </div>
       </Section>
 
-      <!-- Modal Example -->
+      <!-- Modal -->
       <Section title="Modal">
-        <ComponentCard label="Modal">
-          <div class="space-y-2">
-            <Button variant="primary" @click="showModal = true">
-              Open Modal
-            </Button>
-            <Modal
-              :isOpen="showModal"
-              label="Modal Title"
-              @close="showModal = false">
-              <template #default>
-                <p class="text-on-surface mb-4">
-                  This is a modal dialog. Click outside or the close button to
-                  dismiss.
-                </p>
-              </template>
-              <template #footer>
-                <div class="flex gap-2 justify-end">
-                  <Button variant="tertiary" @click="showModal = false">
-                    Close
-                  </Button>
-                  <Button variant="primary">Save</Button>
-                </div>
-              </template>
-            </Modal>
-          </div>
+        <ComponentCard label="Modal Dialog">
+          <Button variant="primary" @click="showModal = true">
+            Open Modal
+          </Button>
+          <Modal
+            :isOpen="showModal"
+            label="Modal Title"
+            @close="showModal = false">
+            <template #default>
+              <p class="text-on-surface mb-4">
+                This is a modal dialog. Click outside or the close button to
+                dismiss.
+              </p>
+            </template>
+            <template #footer>
+              <div class="flex gap-2 justify-end">
+                <Button variant="tertiary" @click="showModal = false">
+                  Close
+                </Button>
+                <Button variant="primary">Save</Button>
+              </div>
+            </template>
+          </Modal>
         </ComponentCard>
       </Section>
 
-      <!-- Color Palette Reference -->
+      <!-- Color Palette -->
       <Section title="Color Palette">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <ColorBox label="Primary" class="bg-primary" />
@@ -285,6 +358,17 @@ import Tabs from "@/components/Tabs/Tabs.vue";
 import Link from "@/components/Link/Link.vue";
 import Notification from "@/components/Notification/Notification.vue";
 import Modal from "@/components/Modal/Modal.vue";
+import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
+import Tooltip from "@/components/Tooltip/Tooltip.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import SkeletonCard from "@/components/SkeletonCard/SkeletonCard.vue";
+import SkeletonResultRow from "@/components/SkeletonResultRow/SkeletonResultRow.vue";
+import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
+import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
+import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
+import XButton from "@/components/XButton/XButton.vue";
+import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
+import FullscreenButton from "@/components/FullscreenButton/FullscreenButton.vue";
 
 // Helper components
 import Section from "./Section.vue";
@@ -294,6 +378,7 @@ import ColorBox from "./ColorBox.vue";
 // Icons
 import PlusIcon from "@/icons/PlusIcon.vue";
 import OptionsIcon from "@/icons/OptionsIcon.vue";
+import SearchIcon from "@/icons/SearchIcon.vue";
 
 interface SelectOption {
   id: string | number;
@@ -315,18 +400,27 @@ interface AccordionItem {
 const currentTheme = ref("default");
 const textValue = ref("");
 const textAreaValue = ref("");
+const autoCompleteValue = ref("");
 const selectedValue = ref("option1");
 const toggleValue = ref(false);
 const activeTab = ref<TabItem>({ id: "tab-1", label: "Tab 1" });
 const showModal = ref(false);
-
 const chips = ref(["React", "Vue", "Angular"]);
 
-// Options for selectors
+// Options
 const selectOptions: SelectOption[] = [
   { id: 1, label: "Option 1", value: "option1" },
   { id: 2, label: "Option 2", value: "option2" },
   { id: 3, label: "Option 3", value: "option3" },
+];
+
+const fruitOptions = [
+  { label: "Apple", value: "apple" },
+  { label: "Banana", value: "banana" },
+  { label: "Cherry", value: "cherry" },
+  { label: "Date", value: "date" },
+  { label: "Elderberry", value: "elderberry" },
+  { label: "Fig", value: "fig" },
 ];
 
 const accordionItems: AccordionItem[] = [
@@ -352,13 +446,31 @@ const tabItems: TabItem[] = [
   { id: "tab-3", label: "Tab 3" },
 ];
 
-// Watch theme changes
+// Filter function
+function filterFruits(
+  options: Array<{ label: string; value: string }>,
+  query: string
+) {
+  return options.filter((opt) =>
+    opt.label.toLowerCase().includes(query.toLowerCase())
+  );
+}
+
+// Theme watcher
 watch(currentTheme, (newTheme) => {
-  document.documentElement.setAttribute("data-theme", newTheme);
+  if (newTheme === "default") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", newTheme);
+  }
 });
 
-// Set initial theme
-document.documentElement.setAttribute("data-theme", currentTheme.value);
+// Initialize theme on mount
+if (currentTheme.value === "default") {
+  document.documentElement.removeAttribute("data-theme");
+} else {
+  document.documentElement.setAttribute("data-theme", currentTheme.value);
+}
 </script>
 
 <style scoped>

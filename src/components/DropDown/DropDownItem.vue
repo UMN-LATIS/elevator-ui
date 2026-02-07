@@ -9,8 +9,7 @@
       :class="{
         'bg-primary-container !text-primary': active,
         'text-on-surface-variant': !active,
-        'font-bold border-l-2 border-neutral-900 bg-transparent-black-100':
-          current,
+        'font-bold border-l-2 border-outline bg-surface-container': current,
       }"
       :href="href"
       :to="to">

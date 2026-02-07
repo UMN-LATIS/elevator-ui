@@ -56,7 +56,7 @@ export default {
             900: "rgba(255, 255, 255, 0.92)",
           },
         },
-// Material Design 3 Semantic Tokens
+        // Material Design 3 Semantic Tokens
         // These reference CSS custom properties from default.css
         surface: {
           DEFAULT: "oklch(var(--surface))",

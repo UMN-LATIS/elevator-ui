@@ -7,14 +7,13 @@
  */
 
 [data-theme="dark"],
-[data-theme="m3"],
 .dark {
   /* Surface hierarchy - darker backgrounds with subtle purple tint */
   --surface: 14% 0.02 260;
   --surface-dim: 8% 0.015 260;
   --surface-bright: 28% 0.03 260;
 
-  --surface-container-lowest: 10% 0.01 260;
+  --surface-container-lowest: 2% 0.02 260;
   --surface-container-low: 22% 0.025 260;
   --surface-container: 28% 0.03 260;
   --surface-container-high: 34% 0.035 260;

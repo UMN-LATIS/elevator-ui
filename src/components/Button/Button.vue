@@ -84,72 +84,28 @@ const componentType = computed(() => {
   }
 }
 
-[data-theme="dark"] .button--primary {
-  color: oklch(var(--primary));
-  background: transparent;
-  border-color: oklch(var(--outline-variant));
-
-  &:hover {
-    color: oklch(var(--on-primary-container));
-    background: oklch(var(--primary-container));
-    border-color: oklch(var(--primary));
-  }
-
-  &:active {
-    color: oklch(var(--on-primary));
-    background: oklch(var(--primary));
-    border-color: oklch(var(--primary));
-  }
-
-  &:disabled {
-    color: oklch(var(--on-surface-variant));
-    background: transparent;
-    border-color: oklch(var(--outline-variant));
-  }
-}
-
 /* Secondary button: outlined */
 .button--secondary {
-  color: oklch(var(--primary));
+  color: oklch(var(--secondary));
   background: transparent;
-  border-color: oklch(var(--outline));
+  border-color: oklch(var(--secondary));
 
   &:hover {
-    color: oklch(var(--on-primary-container));
-    background: oklch(var(--primary-container));
-    border-color: oklch(var(--outline));
+    color: oklch(var(--on-secondary));
+    background: oklch(var(--secondary));
+    border-color: oklch(var(--secondary));
   }
 
   &:active {
-    color: oklch(var(--on-primary-container));
-    background: oklch(var(--primary-container) / 0.9);
-    border-color: oklch(var(--outline));
+    color: oklch(var(--on-secondary));
+    background: oklch(var(--secondary) / 0.9);
+    border-color: oklch(var(--secondary) / 0.9);
   }
 
   &:disabled {
     color: oklch(var(--on-surface) / 0.38);
     background: transparent;
-    border-color: oklch(var(--outline) / 0.12);
-  }
-}
-
-[data-theme="dark"] .button--secondary {
-  color: oklch(var(--on-surface));
-  border-color: oklch(var(--outline));
-
-  &:hover {
-    color: oklch(var(--on-surface));
-    background: oklch(var(--surface-container));
-  }
-
-  &:active {
-    color: oklch(var(--on-surface));
-    background: oklch(var(--surface-container-high));
-  }
-
-  &:disabled {
-    color: oklch(var(--on-surface-variant));
-    border-color: oklch(var(--outline-variant));
+    border-color: oklch(var(--on-surface) / 0.12);
   }
 }
 
@@ -173,24 +129,6 @@ const componentType = computed(() => {
     cursor: not-allowed;
     color: oklch(var(--on-surface) / 0.38);
     background: transparent;
-  }
-}
-
-[data-theme="dark"] .button--tertiary {
-  color: oklch(var(--warning));
-
-  &:hover {
-    color: oklch(var(--on-warning-container));
-    background: oklch(var(--warning-container));
-  }
-
-  &:active {
-    color: oklch(var(--on-warning));
-    background: oklch(var(--warning));
-  }
-
-  &:disabled {
-    color: oklch(var(--on-surface-variant));
   }
 }
 </style>

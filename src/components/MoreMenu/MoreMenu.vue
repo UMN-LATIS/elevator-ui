@@ -12,7 +12,7 @@
     <!-- Dropdown menu -->
     <div
       id="dropdownDots"
-      class="absolute bottom-full mb-2 -right-2 z-10 w-44 rounded-lg bg-transparent-black-800 backdrop-blur flex flex-col gap-2 p-4 text-xs"
+      class="absolute bottom-full mb-2 -right-2 z-10 w-44 rounded-lg bg-tertiary text-on-tertiary backdrop-blur flex flex-col gap-2 p-4 text-xs"
       :class="{
         'top-full mt-2': openDirection === 'down',
         hidden: !isOpen,

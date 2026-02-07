@@ -16,7 +16,7 @@
         <button
           v-if="searchStore.query.length"
           type="button"
-          class="text-transparent-black-500 hover:text-neutral-900"
+          class="text-on-tertiary hover:text-neutral-900"
           @click="searchStore.query = ''">
           <span class="sr-only">Clear Search</span>
           <CircleXIcon />
@@ -31,7 +31,7 @@
           <button
             v-if="!searchStore.hasFiltersApplied"
             type="button"
-            class="w-8 h-8 inline-flex items-center justify-center rounded-full"
+            class="w-8 h-8 inline-flex items-center justify-center rounded-full bg-surface-container text-on-surface"
             @click="$emit('moreOptionClick')">
             <span class="sr-only">Advanced Search</span>
             <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
@@ -54,7 +54,7 @@
           </template>
         </div>
         <button
-          class="inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
+          class="inline-flex items-center justify-center bg-surface-container w-8 h-8 text-sm rounded-full text-on-success-container gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
           type="submit">
           <SpinnerIcon
             v-if="searchStore.status === 'fetching'"

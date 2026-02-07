@@ -1,4 +1,8 @@
 @import url("themes/default.css");
+@import url("themes/dark.css");
+@import url("themes/folwell.css");
+@import url("themes/st-thomas.css");
+@import url("themes/hotdog.css");
 
 @tailwind base;
 @tailwind components;
