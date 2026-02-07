@@ -99,7 +99,6 @@ import {
   useAssetValidationProvider,
   useAssetValidation,
 } from "./useAssetEditor/useAssetValidation";
-import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 
 // Depth tracking to prevent infinite recursion with self-referencing templates
 const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";

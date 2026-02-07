@@ -91,8 +91,9 @@ const componentType = computed(() => {
 
 /* Secondary button: outlined */
 .button--secondary {
-  --bg: var(--secondary);
-  --on-bg: var(--on-secondary);
+  background: transparent;
+  border-color: var(--secondary);
+  color: var(--secondary);
 }
 
 /* Tertiary button: text only, uses warm accent in dark mode */

@@ -6,17 +6,24 @@
         :asset="asset"
         :template="template"
         :savedAssetTitle="savedAssetTitle"
-        :localAssetTitle="localAssetTitle"
-        class="mb-4" />
+        :localAssetTitle="localAssetTitle" />
       <div class="flex flex-col">
         <div
-          class="flex items-center justify-start gap-2 border-b border-outline-variant">
-          <Button variant="tertiary" @click="handleExpandAll">
-            Expand All
-          </Button>
-          <Button variant="tertiary" @click="handleCollapseAll">
-            Collapse All
-          </Button>
+          class="flex items-center justify-end gap-2 border-b border-outline-variant">
+          <IconButton
+            v-if="openWidgets.size === 0"
+            title="Expand All"
+            variant="tertiary"
+            @click="handleExpandAll">
+            <ChevronsUpDownIcon class="w-4 h-4" />
+          </IconButton>
+          <IconButton
+            v-else
+            title="Collapse All"
+            variant="tertiary"
+            @click="handleCollapseAll">
+            <ChevronsDownUpIcon class="w-4 h-4" />
+          </IconButton>
         </div>
         <EditWidget
           v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
@@ -72,6 +79,8 @@ import {
 } from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
+import { ChevronsDownUpIcon, ChevronsUpDownIcon, Icon } from "lucide-vue-next";
 
 const props = defineProps<{
   template: Template;
