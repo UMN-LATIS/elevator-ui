@@ -28,8 +28,8 @@
       </Button>
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
-        <p class="text-neutral-400">
-          <span v-if="parentAssetEditor.lastModified" class="text-neutral-400">
+        <p class="text-on-surface-variant">
+          <span v-if="parentAssetEditor.lastModified" class="text-on-surface-variant">
             {{ parentAssetEditor.lastModified }}
           </span>
         </p>
@@ -49,7 +49,7 @@
             {{ invalidFields.join(", ") }}
           </span>
         </div>
-        <p v-else-if="!hasUnsavedChanges" class="text-neutral-400">
+        <p v-else-if="!hasUnsavedChanges" class="text-on-surface-variant">
           No unsaved changes
         </p>
       </div>
@@ -59,7 +59,7 @@
         :selectClass="{
           '!bg-green-600 !text-white select-picker-light':
             !!asset.readyForDisplay,
-          'bg-transparent border border-solid border-neutral-900':
+          'bg-transparent border border-solid border-on-surface':
             !asset.readyForDisplay,
         }"
         :modelValue="asset.readyForDisplay ? 'ready' : 'draft'"
@@ -101,7 +101,7 @@
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
       <Tuple label="Asset ID" class="text-sm px-3" labelClass="font-normal">
-        <span class="text-neutral-500">{{ asset.assetId ?? "-" }}</span>
+        <span class="text-on-surface-variant">{{ asset.assetId ?? "-" }}</span>
       </Tuple>
 
       <TableOfContents />

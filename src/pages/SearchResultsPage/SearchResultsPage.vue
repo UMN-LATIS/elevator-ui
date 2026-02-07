@@ -22,7 +22,7 @@
           :searchTerm="searchStore.currentSearchTerm" />
 
         <Tabs
-          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-outline pt-4"
           :activeTabId="searchStore.resultsView"
           @tabChange="handleTabChange">
           <div

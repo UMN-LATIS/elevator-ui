@@ -13,7 +13,7 @@
         <div class="item-container relative rounded flex group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors bg-white">
+            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-m3-primary group-hover:border-m3-primary group-hover:text-on-primary transition-colors bg-surface">
             <DragIcon />
           </div>
           <SearchResultRow

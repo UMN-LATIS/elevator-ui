@@ -2,7 +2,7 @@
   <DefaultLayout>
     <form
       v-if="!assetId && !assetEditor.isInitialized"
-      class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
+      class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-surface rounded-md border border-on-surface p-4"
       @submit.prevent="handleInitNewAsset">
       <SelectGroup
         v-model="state.selectedTemplateId"

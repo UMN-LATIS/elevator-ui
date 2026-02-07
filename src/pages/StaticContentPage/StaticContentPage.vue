@@ -10,7 +10,7 @@
       <a
         v-if="canCurrentUserEdit"
         :href="`${BASE_URL}/instances/editPage/${pageId}`"
-        class="float-right uppercase text-xs font-medium bg-blue-100 px-2 py-1 rounded-md no-underline hover:bg-blue-600 hover:text-blue-100 hover:no-underline">
+        class="float-right uppercase text-xs font-medium bg-m3-primary-container px-2 py-1 rounded-md no-underline hover:bg-m3-primary hover:text-on-primary hover:no-underline">
         Edit Page
       </a>
       <div class="prose prose-neutral mx-auto">

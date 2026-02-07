@@ -34,7 +34,7 @@
 
       <Tabs
         v-if="drawer"
-        labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
+        labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-outline pt-4"
         :activeTabId="activeTabId"
         @tabChange="handleTabChange">
         <div
@@ -51,7 +51,7 @@
 
             <div
               v-else
-              class="flex items-center gap-2 text-neutral-500 text-sm">
+              class="flex items-center gap-2 text-on-surface-variant text-sm">
               <SpinnerIcon class="animate-spin h-5 w-5" />
               Loading...
             </div>
@@ -61,7 +61,7 @@
             <select
               id="sort"
               name="sort"
-              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-on-surface ring-1 ring-inset ring-outline focus:ring-2 focus:ring-m3-primary text-sm sm:leading-6 max-w-full bg-transparent-white-800"
               :value="selectedSortOption"
               @change="handleSortOptionChange">
               <option

@@ -8,7 +8,7 @@
 
       <div
         v-else-if="isError"
-        class="text-red-600 p-4 bg-red-50 rounded-md border border-red-200">
+        class="text-error p-4 bg-error-container rounded-md border border-outline">
         Failed to load instance settings.
       </div>
 
@@ -88,7 +88,7 @@
                   :src="headerImagePreview"
                   alt="Header Image Preview"
                   class="size-16 mb-2 block object-cover" />
-                <ElevatorIcon v-else class="h-16 mb-2 text-neutral-400" />
+                <ElevatorIcon v-else class="h-16 mb-2 text-on-surface-variant" />
                 <div>
                   <label id="headerImageInput" class="sr-only">
                     Upload Header Image (PNG)
@@ -98,7 +98,7 @@
                     ref="headerImageInput"
                     type="file"
                     accept="image/png"
-                    class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-blue-500 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-m3-primary file:text-sm file:font-medium file:bg-m3-primary-container file:text-m3-primary hover:file:bg-m3-primary hover:file:text-on-primary"
                     @change="handleHeaderImageChange" />
                 </div>
               </div>
@@ -119,7 +119,7 @@
             <template #append>
               <button
                 type="button"
-                class="p-1.5 text-neutral-500 hover:text-neutral-700 focus:outline-none"
+                class="p-1.5 text-on-surface-variant hover:text-on-surface focus:outline-none"
                 @click="showS3Secret = !showS3Secret">
                 <EyeIcon v-if="showS3Secret" class="w-5 h-5" />
                 <EyeOffIcon v-else class="w-5 h-5" />
@@ -229,7 +229,7 @@
                       type="checkbox"
                       :value="theme"
                       :checked="form.availableThemes?.includes(theme)"
-                      class="rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                      class="rounded border-outline text-m3-primary focus:ring-m3-primary"
                       @change="toggleTheme(theme)" />
                     {{ theme }}
                   </label>
@@ -482,7 +482,7 @@ const FormSubSection: FunctionalComponent<{
 }> = ({ isOpen = false }, { slots }) => (
   <section
     class={`flex flex-col gap-4 ${
-      isOpen ? "border border-neutral-300 p-2 rounded-md" : ""
+      isOpen ? "border border-outline p-2 rounded-md" : ""
     }`}>
     {slots.default?.()}
     {isOpen && slots.details?.()}

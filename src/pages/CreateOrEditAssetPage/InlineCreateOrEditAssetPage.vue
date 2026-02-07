@@ -2,7 +2,7 @@
   <div ref="containerRef" class="inline-edit-asset-page">
     <div
       v-if="depthExceeded"
-      class="text-neutral-500 italic p-2 bg-neutral-100 rounded text-sm">
+      class="text-on-surface-variant italic p-2 bg-surface-container rounded text-sm">
       Maximum nesting depth reached.
     </div>
     <Transition v-else name="fade">
@@ -15,9 +15,9 @@
       <section v-else class="max-w-screen-xl w-full mx-auto">
         <div class="flex flex-col">
           <div
-            class="flex items-center justify-between gap-2 border-b border-neutral-300">
+            class="flex items-center justify-between gap-2 border-b border-outline">
             <h3
-              class="text-xs uppercase font-bold text-neutral-400 mr-auto px-1">
+              class="text-xs uppercase font-bold text-on-surface-variant mr-auto px-1">>
               {{ assetEditor.template.templateName }}
             </h3>
             <div>

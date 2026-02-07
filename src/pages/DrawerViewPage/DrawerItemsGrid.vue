@@ -19,7 +19,7 @@
           class="item-container relative rounded flex items-start group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move h-full py-1 rounded-l border border-r-0 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors">
+            class="drag-handle cursor-move h-full py-1 rounded-l border border-r-0 group-hover:bg-m3-primary group-hover:border-m3-primary group-hover:text-on-primary transition-colors">
             <DragIcon />
           </div>
 
@@ -30,7 +30,7 @@
             :drawerId="drawerId"
             class="search-result-card h-full flex-1 !rounded-l-none"
             :mediaCardClass="[
-              'group-hover:bg-blue-50 group-hover:border-blue-600 group-hover:!text-blue-600',
+              'group-hover:bg-m3-primary-container group-hover:border-m3-primary group-hover:!text-m3-primary',
               isDraggable ? 'rounded-l-none !border-l-0 shadow-none' : '',
             ]" />
         </div>
