@@ -43,13 +43,13 @@
           '!text-error': radiusTouched && !isRadiusValid,
         }"
         :inputClass="{
-          'bg-white !border-neutral-200': true,
+          'bg-white !border-outline': true,
           'border-error text-error': radiusTouched && !isRadiusValid,
         }"
         @update:modelValue="handleRadiusUpdate">
         <template #append>
           <span
-            class="text-sm text-neutral-600 mr-2"
+            class="text-sm text-on-surface-variant mr-2"
             :class="{
               '!text-error': radiusTouched && !isRadiusValid,
             }">

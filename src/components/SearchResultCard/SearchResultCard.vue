@@ -20,12 +20,12 @@
               searchMatch.fileAssets &&
               searchMatch.fileAssets > 1
             "
-            class="!bg-neutral-900 !text-neutral-200 border !border-neutral-900">
+            class="!bg-inverse-surface !text-inverse-on-surface border !border-inverse-surface">
             {{ searchMatch.fileAssets }} files
           </Chip>
           <Chip
             v-if="searchMatch.excerpt"
-            class="!bg-neutral-50 !text-neutral-900 border !border-neutral-50">
+            class="!bg-surface !text-on-surface border !border-surface">
             Excerpt
           </Chip>
         </div>

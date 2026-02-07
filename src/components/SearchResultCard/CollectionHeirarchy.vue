@@ -5,7 +5,7 @@
       <span
         v-for="collection in collectionHierarchy"
         :key="collection.id"
-        class="after:content-['/'] after:mr-1 after:ml-1 after:text-neutral-400 after:last:content-none">
+        class="after:content-['/'] after:mr-1 after:ml-1 after:text-on-surface-variant after:last:content-none">
         {{ collection.title }}
       </span>
     </dd>

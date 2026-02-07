@@ -48,7 +48,7 @@
         class="text-xs font-bold uppercase text-center cursor-pointer leading-none block"
         :class="{
           'text-m3-primary': filter.isFuzzy,
-          'text-neutral-300': !filter.isFuzzy,
+          'text-on-surface-variant': !filter.isFuzzy,
         }">
         <input
           class="sr-only"

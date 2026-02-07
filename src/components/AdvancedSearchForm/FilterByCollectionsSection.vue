@@ -21,7 +21,7 @@
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
-        class="text-xs bg-white rounded-md border border-neutral-800 inline-flex items-center text-neutral-900 px-2 py-1">
+        class="text-xs bg-surface rounded-md border border-outline inline-flex items-center text-on-surface px-2 py-1\">
         {{ collection.title }}
 
         <button
