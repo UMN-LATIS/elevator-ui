@@ -21,7 +21,7 @@
     </InputGroup>
     <p
       v-if="!isTitleValid && modelValue.length > 0"
-      class="text-xs text-red-600 mt-1">
+      class="text-xs text-error mt-1">
       Drawer title must be unique.
     </p>
   </div>

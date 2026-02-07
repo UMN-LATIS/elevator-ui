@@ -16,10 +16,10 @@
         <Link
           v-if="activeSlide.objectId"
           :to="getAssetUrl(activeSlide.objectId)"
-          class="transition-colors hover:text-blue-600 !no-underline"
+          class="transition-colors hover:text-m3-primary !no-underline"
           :class="{
             'text-neutral-300 text-4xl ': isFullscreen,
-            'text-xl text-blue-700 ': !isFullscreen,
+            'text-xl text-m3-primary ': !isFullscreen,
           }">
           {{ activeSlide.title }}
         </Link>

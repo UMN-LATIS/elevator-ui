@@ -47,7 +47,7 @@
             <div
               v-for="(entry, index) in marker.entries"
               :key="index"
-              class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400 group-hover:text-blue-700 group-focus:text-blue-700">
+              class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400 group-hover:text-m3-primary group-focus:text-m3-primary">
               <dt class="text-xs uppercase">
                 {{ entry?.label || "Item" }}
               </dt>

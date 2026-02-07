@@ -2,9 +2,9 @@
   <button
     class="fullscreen-button inline-flex gap-1 p-2 md:px-4 items-center justify-center rounded-md text-xs uppercase tracking-wide whitespace-nowrap group transition-all"
     :class="{
-      ' text-neutral-900 bg-transparent-black-100 hover:bg-blue-600 hover:text-blue-100':
+      ' text-neutral-900 bg-transparent-black-100 hover:bg-m3-primary hover:text-on-primary':
         !isFullscreen,
-      'bg-transparent-white-300 text-neutral-500 hover:bg-blue-600 hover:text-blue-100':
+      'bg-transparent-white-300 text-neutral-500 hover:bg-m3-primary hover:text-on-primary':
         isFullscreen,
     }"
     @click="$emit('click', $event)">

@@ -5,7 +5,7 @@
     <Transition name="fade">
       <article
         v-if="asset"
-        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-blue-700">
+        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-m3-primary">
         <div
           class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 p-4">
           <LazyLoadImage
@@ -18,10 +18,10 @@
         </div>
         <div class="flex-1 p-4 flex justify-between items-center">
           <h1
-            class="search-result-card__title font-bold leading-tight group-hover:text-blue-700 text-center">
+            class="search-result-card__title font-bold leading-tight group-hover:text-m3-primary text-center">
             <SanitizedHTML :html="title" />
           </h1>
-          <ArrowForwardIcon class="group-hover:text-blue-700" />
+          <ArrowForwardIcon class="group-hover:text-m3-primary" />
         </div>
       </article>
     </Transition>

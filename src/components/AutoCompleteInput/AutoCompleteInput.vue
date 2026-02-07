@@ -64,8 +64,8 @@
             :class="[
               'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
               index === highlightedIndex
-                ? 'bg-blue-100 text-blue-700'
-                : 'hover:bg-blue-100/50',
+                ? 'bg-m3-primary-container text-m3-primary'
+                : 'hover:bg-m3-primary-container/50',
             ]"
             @mousedown.prevent="
               // use mousedown to prevent race condition with input blur

@@ -47,7 +47,7 @@
       <label
         class="text-xs font-bold uppercase text-center cursor-pointer leading-none block"
         :class="{
-          'text-blue-600': filter.isFuzzy,
+          'text-m3-primary': filter.isFuzzy,
           'text-neutral-300': !filter.isFuzzy,
         }">
         <input

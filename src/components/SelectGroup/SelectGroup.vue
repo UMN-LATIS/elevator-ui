@@ -12,7 +12,7 @@
         ])
       ">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span v-if="required" class="text-error">*</span>
     </label>
     <select
       :id="id"

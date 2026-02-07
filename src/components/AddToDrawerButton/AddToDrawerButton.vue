@@ -23,7 +23,7 @@
             v-model="selectedDrawer"
             class="border border-neutral-200 rounded w-full text-sm"
             :class="{
-              ' !border-red-500 text-red-700':
+              ' !border-error text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             }"
             @update:modelValue="isSelectDrawerTouched = true">
@@ -49,7 +49,7 @@
           :inputClass="[
             'bg-white placeholder-neutral-400 border !border-neutral-200 rounded border-solid',
             {
-              '!border !border-red-500 !text-red-700':
+              '!border !border-error !text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             },
           ]"
@@ -57,7 +57,7 @@
       </fieldset>
       <p
         v-if="!exactlyOneDrawerIsChosen && isSelectDrawerTouched"
-        class="text-xs italic text-red-500 my-2">
+        class="text-xs italic text-error my-2">
         Please select a drawer or enter a new drawer name.
       </p>
       <AddExcerptToDrawerSection
@@ -70,7 +70,7 @@
         class="mt-4" />
     </div>
     <template #footer>
-      <footer class="p-4 bg-neutral-200">
+      <footer class="p-4 bg-surface-container">
         <div class="flex justify-end gap-4">
           <Button variant="tertiary" @click="isModalOpen = false">
             Cancel

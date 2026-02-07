@@ -18,7 +18,7 @@
 
     <div
       v-if="isAddingExcerpt"
-      class="excerpt-details flex flex-col gap-4 mt-2 border border-neutral-300 bg-neutral-100 p-4 rounded-md">
+      class="excerpt-details flex flex-col gap-4 mt-2 border border-outline bg-surface-container-high p-4 rounded-md">
       <InputGroup
         id="excerpt-name"
         :modelValue="excerptName"
@@ -26,7 +26,7 @@
         placeholder="Excerpt Name"
         class="flex-1 text-sm"
         :inputClass="[
-          '!bg-white border !border-neutral-300',
+          '!bg-white border !border-outline-variant',
           {
             '!border !border-error': !excerptName && isNameTouched,
           },
@@ -47,7 +47,7 @@
           type="text"
           class="flex-1 text-sm"
           :inputClass="[
-            '!bg-white border !border-neutral-300',
+            '!bg-white border !border-outline-variant',
             {
               '!border !border-error': isStartTimeTouched && !startTimeString,
             },
@@ -81,7 +81,7 @@
           type="text"
           class="flex-1 text-sm"
           :inputClass="[
-            '!bg-white border !border-neutral-300',
+            '!bg-white border !border-outline-variant',
             {
               '!border !border-error': isEndTimeTouched && !endTimeString,
             },

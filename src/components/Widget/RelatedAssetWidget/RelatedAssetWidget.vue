@@ -1,6 +1,6 @@
 <template>
   <!-- Stop rendering if we've detected a cycle or exceeded max depth -->
-  <div v-if="isCycle || isTooDeep" class="text-sm text-gray-500 italic p-2">
+  <div v-if="isCycle || isTooDeep" class="text-sm text-on-surface-variant italic p-2">
     <span v-if="isCycle">
       Circular reference detected - stopping to prevent infinite loop
     </span>
