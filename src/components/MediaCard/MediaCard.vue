@@ -31,30 +31,33 @@ defineProps<{
 </script>
 <style scoped>
 .media-card {
-  background: var(--app-mediaCard-backgroundColor);
-  color: var(--app-mediaCard-textColor);
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
+  background: transparent;
+  color: oklch(var(--on-surface));
+  border: 1px solid oklch(var(--outline-variant));
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-textColor);
+    color: oklch(var(--on-surface));
   }
 }
 
+[data-theme="dark"] .media-card {
+  background: oklch(var(--surface-container));
+}
+
 .media-card__image {
-  background: var(--app-thumbnailImage-backgroundColor);
-  color: var(--app-thumbnailImage-textColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface-variant));
 }
 
 .media-card:has(.media-card__image:hover),
 .media-card:has(.media-card__body:hover),
 a:focus .media-card {
-  background: var(--app-mediaCard-hover-backgroundColor, oklch(var(--m3-primary-container)));
-  color: var(--app-mediaCard-hover-textColor, oklch(var(--m3-primary)));
-  border-color: var(--app-mediaCard-hover-borderColor, oklch(var(--m3-primary)));
+  background: oklch(var(--primary-container));
+  color: oklch(var(--primary));
+  border-color: oklch(var(--primary));
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-hover-textColor, oklch(var(--m3-primary)));
+    color: oklch(var(--primary));
   }
 }
 </style>

@@ -70,6 +70,6 @@ const isShowingFullListOfResults = ref(false);
 </script>
 <style scoped>
 .more-like-this__title {
-  color: var(--app-mediaCard-title-textColor);
+  color: oklch(var(--on-surface));
 }
 </style>

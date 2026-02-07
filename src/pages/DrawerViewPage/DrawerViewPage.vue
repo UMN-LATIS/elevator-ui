@@ -61,7 +61,7 @@
             <select
               id="sort"
               name="sort"
-              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-on-surface ring-1 ring-inset ring-outline focus:ring-2 focus:ring-m3-primary text-sm sm:leading-6 max-w-full bg-surface"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-on-surface ring-1 ring-inset ring-outline focus:ring-2 focus:ring-primary text-sm sm:leading-6 max-w-full bg-surface"
               :value="selectedSortOption"
               @change="handleSortOptionChange">
               <option
@@ -298,7 +298,7 @@ onMounted(async () => {
 <style scoped></style>
 <style>
 .drawer-view-page__tabs {
-  background: var(--app-backgroundColor);
+  background: oklch(var(--surface));
 }
 
 .drawer-view-page .app-header {

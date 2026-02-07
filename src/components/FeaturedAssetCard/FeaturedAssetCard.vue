@@ -5,7 +5,7 @@
     <Transition name="fade">
       <article
         v-if="asset"
-        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-m3-primary">
+        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-primary">
         <div
           class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-surface-container p-4">
           <LazyLoadImage
@@ -18,10 +18,10 @@
         </div>
         <div class="flex-1 p-4 flex justify-between items-center">
           <h1
-            class="search-result-card__title font-bold leading-tight group-hover:text-m3-primary text-center">
+            class="search-result-card__title font-bold leading-tight group-hover:text-primary text-center">
             <SanitizedHTML :html="title" />
           </h1>
-          <ArrowForwardIcon class="group-hover:text-m3-primary" />
+          <ArrowForwardIcon class="group-hover:text-primary" />
         </div>
       </article>
     </Transition>
@@ -68,14 +68,13 @@ const imgSrc = computed((): string | null => {
 </script>
 <style scoped>
 .search-result-card__title {
-  color: var(--app-mediaCard-title-textColor);
+  color: oklch(var(--on-surface));
 }
 
 .media-card {
-  background: var(--app-mediaCard-backgroundColor);
-  color: var(--app-mediaCard-textColor);
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface));
+  border: 1px solid oklch(var(--outline-variant));
 }
 
 img {

@@ -21,7 +21,7 @@
         :required="required"
         :class="
           cn([
-            'block w-full rounded-md border-none ring-1 ring-outline-variant focus-visible:ring-m3-primary focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-surface placeholder-on-surface-variant px-4',
+            'block w-full rounded-md border-none ring-1 ring-outline-variant focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-surface placeholder-on-surface-variant px-4',
             {
               'pl-10': $slots.prepend,
               'pr-10': $slots.append,
@@ -77,7 +77,7 @@ const model = defineModel<TModelValue>({
 </script>
 <style scoped>
 .input-group label {
-  color: var(--app-input-label-textColor, oklch(var(--on-surface)));
+  color: oklch(var(--on-surface));
 }
 
 /* hack to show placeholder text for safari date inputs.
@@ -91,7 +91,7 @@ safari will show the current date if no value is set, even if a placeholder is s
   /* then use a pseudo element to show the placeholder text */
   input[type="date"].input--is-blank:not(:focus)::before {
     content: attr(placeholder);
-    color: var(--app-placeholderColor, #a3a3a3);
+    color: oklch(var(--on-surface-variant));
   }
 }
 </style>

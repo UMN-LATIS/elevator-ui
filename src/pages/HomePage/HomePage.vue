@@ -168,20 +168,13 @@ onUnmounted(() => {
 });
 </script>
 <style scoped>
-.home-page-content {
-  --bg-color: var(--app-backgroundColor);
-  --text-color: var(--app-textColor);
-  --border-color: var(--app-borderColor);
-  --border-width: var(--app-borderWidth);
-}
-
 .featured-asset-block,
 .page-content-block {
-  background: var(--bg-color);
-  color: var(--text-color);
+  background: oklch(var(--surface));
+  color: oklch(var(--on-surface));
 }
 
 .featured-asset-block {
-  border-left: var(--border-width) solid var(--border-color);
+  border-left: 1px solid oklch(var(--outline));
 }
 </style>

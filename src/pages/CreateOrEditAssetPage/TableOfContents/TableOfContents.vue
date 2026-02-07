@@ -10,7 +10,7 @@
           :href="`#${item.id}`"
           class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 pl-3"
           :class="{
-            'text-m3-primary font-medium border-m3-primary bg-white/50 hover:bg-white/75 rounded-sm':
+            'text-primary font-medium border-primary bg-white/50 hover:bg-white/75 rounded-sm':
               activeId === item.id,
             'text-black/50 hover:bg-transparent': activeId !== item.id,
           }"

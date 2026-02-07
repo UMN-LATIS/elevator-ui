@@ -29,6 +29,6 @@ const { asset } = useAsset(assetIdRef);
 </script>
 <style scoped>
 .collapsed-inline-related-asset-widget-item {
-  gap: var(--app-panel-body-items-gap);
+  gap: 0.75rem;
 }
 </style>

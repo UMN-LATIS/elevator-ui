@@ -23,23 +23,18 @@ withDefaults(
 </script>
 <style scoped>
 .app-menu-item {
-  color: var(--app-appMenuItem-textColor);
+  color: oklch(var(--on-surface));
 
   &:hover,
   &:focus,
   &:focus-within {
-    background: var(
-      --app-appMenuItem-hover-backgroundColor,
-      oklch(var(--m3-primary-container))
-    );
-    color: var(--app-appMenuItem-hover-textColor, oklch(var(--m3-primary)));
+    background: oklch(var(--primary-container));
+    color: oklch(var(--on-primary-container));
   }
 }
+
 .app-menu-item.is-current-page {
-  background: var(
-    --app-appMenu-currentPage-backgroundColor,
-    oklch(var(--m3-primary-container))
-  );
-  color: var(--app-appMenu-currentPage-textColor, oklch(var(--m3-primary)));
+  background: oklch(var(--primary-container));
+  color: oklch(var(--primary));
 }
 </style>

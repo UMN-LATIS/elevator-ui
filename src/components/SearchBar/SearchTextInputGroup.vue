@@ -125,21 +125,19 @@ onUnmounted(() => {
 .search-bar__search-text-input-group .advanced-search-toggle-container {
   transition: all 0.15s ease-in-out;
   border-radius: calc(infinity * 1px);
-  background: var(--app-searchBar-advancedSearchToggle-backgroundColor);
-  color: var(--app-searchBar-advancedSearchToggle-textColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface-variant));
 
   &:hover {
-    background: var(--app-searchBar-advancedSearchToggle-hover-backgroundColor);
-    color: var(--app-searchBar-advancedSearchToggle-hover-textColor);
+    background: oklch(var(--surface-container-high));
+    color: oklch(var(--on-surface));
   }
 }
 
 .search-bar__search-text-input-group
   .advanced-search-toggle-container.advanced-search-toggle-container--has-filters {
-  background: var(
-    --app-searchBar-advancedSearchToggle-hasFilters-backgroundColor
-  );
-  color: var(--app-searchBar-advancedSearchToggle-hasFilters-textColor);
+  background: oklch(var(--primary-container));
+  color: oklch(var(--on-primary-container));
 
   & button {
     color: currentColor;
@@ -147,10 +145,8 @@ onUnmounted(() => {
   }
 
   & button:hover {
-    background: var(
-      --app-searchBar-advancedSearchToggle-hasFilters-hover-backgroundColor
-    );
-    color: var(--app-searchBar-advancedSearchToggle-hasFilters-hover-textColor);
+    background: oklch(var(--primary));
+    color: oklch(var(--on-primary));
   }
 }
 </style>

@@ -4,7 +4,7 @@
       ref="editor"
       :modelValue="modelValue"
       :options="options"
-      class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-m3-primary"
+      class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-primary"
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
   </div>
@@ -200,7 +200,7 @@ onMounted(() => {
     gap: 0.5rem;
 
     & button {
-      border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
+      border: 1px solid oklch(var(--outline));
       margin: 0;
       padding: 0.5rem 1rem;
       border-radius: 0.375rem; /* rounded-md */
@@ -209,25 +209,25 @@ onMounted(() => {
   }
 
   & .ql-html-buttonCancel {
-    background-color: var(--app-button-secondary-backgroundColor);
-    border-color: var(--app-button-secondary-borderColor);
-    color: var(--app-button-secondary-textColor);
+    background-color: oklch(var(--surface-container));
+    border-color: oklch(var(--outline));
+    color: oklch(var(--on-surface));
 
     &:hover {
-      background-color: var(--app-button-secondary-hover-backgroundColor);
-      border-color: var(--app-button-secondary-hover-borderColor);
-      color: var(--app-button-secondary-hover-textColor);
+      background-color: oklch(var(--surface-container-high));
+      border-color: oklch(var(--outline));
+      color: oklch(var(--on-surface));
     }
   }
   & .ql-html-buttonOk {
-    background-color: var(--app-button-primary-backgroundColor);
-    border-color: var(--app-button-primary-borderColor);
-    color: var(--app-button-primary-textColor);
+    background-color: oklch(var(--primary));
+    border-color: oklch(var(--primary));
+    color: oklch(var(--on-primary));
 
     &:hover {
-      background-color: var(--app-button-primary-hover-backgroundColor);
-      border-color: var(--app-button-primary-hover-borderColor);
-      color: var(--app-button-primary-hover-textColor);
+      background-color: oklch(var(--primary) / 0.9);
+      border-color: oklch(var(--primary));
+      color: oklch(var(--on-primary));
     }
   }
 }

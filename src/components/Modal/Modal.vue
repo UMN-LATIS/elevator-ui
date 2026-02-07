@@ -73,11 +73,20 @@ provide(
 </script>
 <style scoped>
 .modal-contents {
-  background: var(--app-modalContents-backgroundColor);
-  color: var(--app-modalContents-textColor);
+  background: oklch(var(--surface-container-low));
+  color: oklch(var(--on-surface));
 }
+
 .modal-contents__header {
-  background: var(--app-modalContents-header-backgroundColor);
-  color: var(--app-modalContents-header-textColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface));
+}
+
+[data-theme="dark"] .modal-contents {
+  background: oklch(var(--surface));
+}
+
+[data-theme="dark"] .modal-contents__header {
+  color: oklch(var(--warning));
 }
 </style>

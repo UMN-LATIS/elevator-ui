@@ -29,7 +29,7 @@
             ">
             <li class="flex justify-between">
               <span class="group-hover:underline">{{ download.filetype }}</span>
-              <Chip class="group-hover:bg-m3-primary-container group-hover:text-m3-primary">
+              <Chip class="group-hover:bg-primary-container group-hover:text-primary">
                 {{ download.extension }}
               </Chip>
             </li>

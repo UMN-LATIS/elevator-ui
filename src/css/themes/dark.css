@@ -1,204 +1,88 @@
 /**
- * Dark Theme - Material Design 3
- * Uses M3 semantic color tokens defined in m3.css
- * with [data-theme="dark"] media query selector
+ * DARK THEME - M3 Token Overrides
  *
- * All colors automatically adapt via CSS custom properties
- * defined in m3.css for dark mode
+ * This file overrides M3 semantic tokens for dark mode.
+ * Components use [data-theme="dark"] selectors for any
+ * styling differences beyond what the tokens provide.
+ */
+
+[data-theme="dark"],
+[data-theme="m3"],
+.dark {
+  /* Surface hierarchy - darker backgrounds with subtle purple tint */
+  --surface: 14% 0.02 260;
+  --surface-dim: 8% 0.015 260;
+  --surface-bright: 28% 0.03 260;
+
+  --surface-container-lowest: 10% 0.01 260;
+  --surface-container-low: 22% 0.025 260;
+  --surface-container: 28% 0.03 260;
+  --surface-container-high: 34% 0.035 260;
+  --surface-container-highest: 40% 0.04 260;
+
+  /* Text colors - high contrast for readability */
+  --on-surface: 90% 0.01 260;
+  --on-surface-variant: 72% 0.02 260;
+
+  /* Primary - lightened for dark backgrounds */
+  --primary: 80% 0.12 250;
+  --on-primary: 20% 0.05 250;
+  --primary-container: 28% 0.1 250;
+  --on-primary-container: 90% 0.05 250;
+
+  /* Secondary */
+  --secondary: 75% 0.02 260;
+  --on-secondary: 20% 0.02 260;
+  --secondary-container: 28% 0.02 260;
+  --on-secondary-container: 90% 0.01 260;
+
+  /* Tertiary */
+  --tertiary: 85% 0.15 330;
+  --on-tertiary: 25% 0.1 330;
+  --tertiary-container: 32% 0.12 330;
+  --on-tertiary-container: 90% 0.05 330;
+
+  /* Error - lighter red for visibility */
+  --error: 80% 0.15 25;
+  --on-error: 20% 0.05 25;
+  --error-container: 28% 0.1 25;
+  --on-error-container: 90% 0.05 25;
+
+  /* Success - lighter green */
+  --success: 80% 0.12 145;
+  --on-success: 20% 0.05 145;
+  --success-container: 28% 0.08 145;
+  --on-success-container: 90% 0.04 145;
+
+  /* Warning - lighter amber/yellow (also used as warm accent) */
+  --warning: 88% 0.1 85;
+  --on-warning: 20% 0.05 85;
+  --warning-container: 32% 0.08 85;
+  --on-warning-container: 90% 0.04 85;
+
+  /* Info - lighter cyan-blue */
+  --info: 75% 0.1 240;
+  --on-info: 20% 0.05 240;
+  --info-container: 28% 0.06 240;
+  --on-info-container: 90% 0.04 240;
+
+  /* Outline - lighter for visibility on dark backgrounds */
+  --outline: 58% 0.02 260;
+  --outline-variant: 40% 0.02 260;
+
+  /* Inverse colors */
+  --inverse-surface: 90% 0.01 260;
+  --inverse-on-surface: 20% 0.02 260;
+  --inverse-primary: 40% 0.2 250;
+}
+
+/**
+ * Component-specific dark mode tweaks
+ * These styles apply to specific components that need
+ * adjustments beyond what M3 tokens provide.
  */
 [data-theme="dark"] {
-  /* Custom warm accent using M3 warning token (amber/yellow) */
-  --accent-warm: oklch(var(--warning));
-  --accent-warm-container: oklch(var(--warning-container));
-  --accent-on-warm: oklch(var(--on-warning));
-
-  --app-fontFamily: "Helvetica Neue", sans-serif;
-  --app-textColor: oklch(var(--on-surface));
-  --app-headingColor: oklch(var(--on-surface));
-  --app-backgroundColor: oklch(var(--surface));
-  --app-borderColor: oklch(var(--outline-variant));
-  --app-borderWidth: 2px;
-
-  /**
-   * App Header
-   */
-  --app-appHeader-backgroundColor: oklch(var(--surface));
-  --app-appHeader-textColor: oklch(var(--on-surface));
-  --app-appHeader-wordmark-textColor: oklch(var(--on-surface));
-  --app-appHeader-logo-color: oklch(var(--on-surface));
-  --app-appHeader-borderBottomColor: oklch(var(--outline-variant));
-
-  /**
-   * App Menu
-   */
-  --app-appMenu-backgroundColor: oklch(var(--surface-container));
-  --app-appMenu-textColor: oklch(var(--on-surface-variant));
-  --app-appMenu-headingColor: oklch(var(--on-surface-variant));
-  --app-appMenu-currentPage-textColor: oklch(var(--primary));
-  --app-appMenu-currentPage-backgroundColor: oklch(var(--primary-container));
-
-  /**
-   * Link
-   */
-  --app-link-textColor: var(--accent-warm);
-  --app-link-textColor-inverse: oklch(var(--on-warning));
-  --app-link-hover-textColor: oklch(var(--on-warning-container));
-
-  /**
-   * Panel (Drawer)
-   */
-  --app-panel-borderColor: transparent;
-  --app-panel-borderWidth: 0;
-  --app-panel-header-textColor: var(--accent-warm);
-  --app-panel-header-backgroundColor: transparent;
-  --app-panel-body-top-borderColor: transparent;
-  --app-panel-body-textColor: oklch(var(--on-surface));
-  --app-panel-body-backgroundColor: transparent;
-  --app-panel-body-items-gap: 1.5rem;
-
-  /**
-   * Object Viewer
-   */
-  --app-objectViewer-backgroundColor: oklch(var(--surface-container));
-
-  /**
-   * Widget List
-   */
-  --app-widgetList-gap: var(--app-panel-body-items-gap);
-
-  /**
-   * Accordion
-   */
-  --app-accordion-header-backgroundColor: oklch(var(--surface-container));
-  --app-accordion-header-textColor: oklch(var(--on-surface));
-  --app-accordion-body-backgroundColor: oklch(var(--surface-container-low));
-  --app-accordion-body-textColor: oklch(var(--on-surface));
-  --app-accordion-outer-borderWidth: 1px;
-  --app-accordion-outer-borderColor: oklch(var(--outline-variant));
-  --app-accordion-inner-borderWidth: 1px;
-  --app-accordion-inner-borderColor: transparent;
-
-  /*************************BUTTONS*************************/
-
-  /* primary and secondary have borders*/
-  --app-button-borderWidth: 2px;
-  --app-button-fontWeight: 500;
-
-  /**
-   * Button Primary (default)
-   */
-  --app-button-primary-textColor: oklch(var(--primary));
-  --app-button-primary-borderColor: oklch(var(--outline-variant));
-  --app-button-primary-backgroundColor: transparent;
-
-  /* Button Primary :hover */
-  --app-button-primary-hover-borderColor: oklch(var(--primary));
-  --app-button-primary-hover-backgroundColor: oklch(var(--primary-container));
-  --app-button-primary-hover-textColor: oklch(var(--on-primary-container));
-
-  /* Button Primary :active */
-  --app-button-primary-active-borderColor: oklch(var(--primary));
-  --app-button-primary-active-backgroundColor: oklch(var(--primary));
-  --app-button-primary-active-textColor: oklch(var(--on-primary));
-
-  /* Button Primary :disabled */
-  --app-button-primary-disabled-borderColor: oklch(var(--outline-variant));
-  --app-button-primary-disabled-backgroundColor: transparent;
-  --app-button-primary-disabled-textColor: oklch(var(--on-surface-variant));
-
-  /**
-   * Button Secondary (default)
-   */
-  --app-button-secondary-borderColor: oklch(var(--outline));
-  --app-button-secondary-backgroundColor: transparent;
-  --app-button-secondary-textColor: oklch(var(--on-surface));
-
-  /* Button Secondary :hover */
-  --app-button-secondary-hover-borderColor: oklch(var(--outline));
-  --app-button-secondary-hover-backgroundColor: oklch(var(--surface-container));
-  --app-button-secondary-hover-textColor: oklch(var(--on-surface));
-
-  /* Button Secondary :active */
-  --app-button-secondary-active-borderColor: oklch(var(--outline));
-  --app-button-secondary-active-backgroundColor: oklch(var(--surface-container-high));
-  --app-button-secondary-active-textColor: oklch(var(--on-surface));
-
-  /* Button Secondary :disabled */
-  --app-button-secondary-disabled-borderColor: oklch(var(--outline-variant));
-  --app-button-secondary-disabled-backgroundColor: transparent;
-  --app-button-secondary-disabled-textColor: oklch(var(--on-surface-variant));
-
-  /**
-   * Button Tertiary (default)
-   */
-  --app-button-tertiary-borderColor: transparent;
-  --app-button-tertiary-backgroundColor: transparent;
-  --app-button-tertiary-textColor: var(--accent-warm);
-
-  /* Button Tertiary :hover */
-  --app-button-tertiary-hover-borderColor: transparent;
-  --app-button-tertiary-hover-backgroundColor: var(--accent-warm-container);
-  --app-button-tertiary-hover-textColor: oklch(var(--on-warning-container));
-
-  /* Button Tertiary :active */
-  --app-button-tertiary-active-borderColor: transparent;
-  --app-button-tertiary-active-backgroundColor: var(--accent-warm);
-  --app-button-tertiary-active-textColor: oklch(var(--on-warning));
-
-  /* Button Tertiary :disabled */
-  --app-button-tertiary-disabled-borderColor: transparent;
-  --app-button-tertiary-disabled-backgroundColor: transparent;
-  --app-button-tertiary-disabled-textColor: oklch(var(--on-surface-variant));
-
-  /* Tuple */
-  --app-tuple-label-textColor: oklch(var(--on-surface));
-  --app-tuple-value-textColor: oklch(var(--on-surface-variant));
-
-  /* Scrollbar */
-  --app-scrollbar-width: 0.5rem;
-  --app-scrollbar-thumb-backgroundColor: oklch(var(--outline));
-  --app-scrollbar-thumb-hover-backgroundColor: oklch(var(--primary));
-  --app-scrollbar-track-backgroundColor: oklch(var(--surface-dim));
-
-  /** Meta Data Only Page */
-  --app-metaDataOnlyView-backgroundColor: oklch(var(--surface));
-  --app-metaDataOnlyView-contentViewer-backgroundColor: oklch(var(--surface-container));
-  --app-metaDataOnlyView-contentViewer-textColor: var(--accent-warm);
-
-  /** Modal **/
-  --app-modalContents-backgroundColor: oklch(var(--surface));
-  --app-modalContents-textColor: oklch(var(--on-surface));
-  --app-modalContents-header-backgroundColor: oklch(var(--surface-container));
-  --app-modalContents-header-textColor: var(--accent-warm);
-
-  /** Notification **/
-  --app-notification-borderColor: oklch(var(--outline-variant));
-  --app-notification-backgroundColor: oklch(var(--surface-container));
-  --app-notification-textColor: oklch(var(--on-surface));
-  --app-notification-header-textColor: oklch(var(--on-surface));
-  --app-notification-icon-info-backgroundColor: transparent;
-  --app-notification-icon-info-textColor: oklch(var(--info));
-  --app-notification-icon-warning-backgroundColor: transparent;
-  --app-notification-icon-warning-textColor: oklch(var(--warning));
-  --app-notification-icon-error-backgroundColor: transparent;
-  --app-notification-icon-error-textColor: oklch(var(--error));
-  --app-notification-icon-success-backgroundColor: transparent;
-  --app-notification-icon-success-textColor: oklch(var(--success));
-
-  /* Thumbnail Image */
-  --app-thumbnailImage-borderColor: oklch(var(--outline-variant));
-  --app-thumbnailImage-active-ringColor: var(--accent-warm);
-  --app-thumbnailImage-backgroundColor: oklch(var(--surface-container));
-  --app-thumbnailImage-textColor: var(--accent-warm);
-
-  /* Media Card */
-  --app-mediaCard-backgroundColor: oklch(var(--surface-container));
-  --app-mediaCard-borderWidth: 1px;
-  --app-mediaCard-borderColor: oklch(var(--outline-variant));
-  --app-mediaCard-textColor: oklch(var(--on-surface));
-  --app-mediaCard-title-textColor: oklch(var(--on-surface));
-
-  /* Component-specific tweaks */
+  /* X/Close button styling */
   & .x-button {
     background: oklch(var(--surface-container));
     color: oklch(var(--on-surface-variant));

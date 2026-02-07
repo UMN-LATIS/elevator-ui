@@ -7,7 +7,7 @@
       :is="is || ($attrs.disabled ? 'div' : Link)"
       class="block px-4 py-2 text-sm !no-underline"
       :class="{
-        'bg-m3-primary-container !text-m3-primary': active,
+        'bg-primary-container !text-primary': active,
         'text-on-surface-variant': !active,
         'font-bold border-l-2 border-neutral-900 bg-transparent-black-100':
           current,

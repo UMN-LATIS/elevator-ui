@@ -129,9 +129,9 @@ function handleCollapseAll() {
 <style scoped>
 @media (min-width: 768px) {
   .sidebar-container {
-    border-left: var(--app-borderWidth) solid var(--app-borderColor);
-    background: var(--app-sidebar-backgroundColor);
-    color: var(--app-sidebar-textColor);
+    border-left: 1px solid oklch(var(--outline));
+    background: oklch(var(--surface-container));
+    color: oklch(var(--on-surface));
   }
 }
 </style>

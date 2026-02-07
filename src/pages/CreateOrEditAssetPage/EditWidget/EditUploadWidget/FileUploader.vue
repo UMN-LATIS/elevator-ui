@@ -234,7 +234,7 @@ uppy.on("error", (error) => {
     padding: 0;
   }
   & .uppy-Dashboard-AddFiles {
-    @apply border-2 border-m3-primary-container bg-m3-primary-container hover:border-m3-primary rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-m3-primary;
+    @apply border-2 border-primary-container bg-primary-container hover:border-primary rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-primary;
   }
 
   & .uppy-Dashboard-AddFiles-info {

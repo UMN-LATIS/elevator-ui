@@ -55,71 +55,142 @@ const componentType = computed(() => {
 </script>
 <style lang="postcss" scoped>
 .button {
-  border-width: var(--app-button-borderWidth);
+  border-width: 2px;
   border-style: solid;
 }
+
+/* Primary button: filled in light mode, outlined in dark mode */
 .button--primary {
-  color: var(--app-button-primary-textColor);
-  background: var(--app-button-primary-backgroundColor);
-  border-color: var(--app-button-primary-borderColor);
+  color: oklch(var(--on-primary));
+  background: oklch(var(--primary));
+  border-color: oklch(var(--primary));
+
   &:hover {
-    color: var(--app-button-primary-hover-textColor);
-    background: var(--app-button-primary-hover-backgroundColor);
-    border-color: var(--app-button-primary-hover-borderColor);
+    color: oklch(var(--on-primary));
+    background: oklch(var(--primary) / 0.9);
+    border-color: oklch(var(--primary) / 0.9);
   }
+
   &:active {
-    color: var(--app-button-primary-active-textColor);
-    background: var(--app-button-primary-active-backgroundColor);
-    border-color: var(--app-button-primary-active-borderColor);
+    color: oklch(var(--on-primary));
+    background: oklch(var(--primary) / 0.8);
+    border-color: oklch(var(--primary) / 0.8);
   }
+
   &:disabled {
-    color: var(--app-button-primary-disabled-textColor);
-    background: var(--app-button-primary-disabled-backgroundColor);
-    border-color: var(--app-button-primary-disabled-borderColor);
+    color: oklch(var(--on-surface-variant) / 0.38);
+    background: oklch(var(--surface-container-high));
+    border-color: oklch(var(--surface-container-high));
   }
 }
 
+[data-theme="dark"] .button--primary {
+  color: oklch(var(--primary));
+  background: transparent;
+  border-color: oklch(var(--outline-variant));
+
+  &:hover {
+    color: oklch(var(--on-primary-container));
+    background: oklch(var(--primary-container));
+    border-color: oklch(var(--primary));
+  }
+
+  &:active {
+    color: oklch(var(--on-primary));
+    background: oklch(var(--primary));
+    border-color: oklch(var(--primary));
+  }
+
+  &:disabled {
+    color: oklch(var(--on-surface-variant));
+    background: transparent;
+    border-color: oklch(var(--outline-variant));
+  }
+}
+
+/* Secondary button: outlined */
 .button--secondary {
-  color: var(--app-button-secondary-textColor);
-  background: var(--app-button-secondary-backgroundColor);
-  border-color: var(--app-button-secondary-borderColor);
+  color: oklch(var(--primary));
+  background: transparent;
+  border-color: oklch(var(--outline));
+
   &:hover {
-    color: var(--app-button-secondary-hover-textColor);
-    background: var(--app-button-secondary-hover-backgroundColor);
-    border-color: var(--app-button-secondary-hover-borderColor);
+    color: oklch(var(--on-primary-container));
+    background: oklch(var(--primary-container));
+    border-color: oklch(var(--outline));
   }
+
   &:active {
-    color: var(--app-button-secondary-active-textColor);
-    background: var(--app-button-secondary-active-backgroundColor);
-    border-color: var(--app-button-secondary-active-borderColor);
+    color: oklch(var(--on-primary-container));
+    background: oklch(var(--primary-container) / 0.9);
+    border-color: oklch(var(--outline));
   }
+
   &:disabled {
-    color: var(--app-button-secondary-disabled-textColor);
-    background: var(--app-button-secondary-disabled-backgroundColor);
-    border-color: var(--app-button-secondary-disabled-borderColor);
+    color: oklch(var(--on-surface) / 0.38);
+    background: transparent;
+    border-color: oklch(var(--outline) / 0.12);
   }
 }
 
-.button--tertiary {
-  color: var(--app-button-tertiary-textColor);
-  background: var(--app-button-tertiary-backgroundColor);
-  border-color: var(--app-button-tertiary-borderColor);
-  border: none;
+[data-theme="dark"] .button--secondary {
+  color: oklch(var(--on-surface));
+  border-color: oklch(var(--outline));
+
   &:hover {
-    color: var(--app-button-tertiary-hover-textColor);
-    background: var(--app-button-tertiary-hover-backgroundColor);
-    border-color: var(--app-button-tertiary-hover-borderColor);
+    color: oklch(var(--on-surface));
+    background: oklch(var(--surface-container));
   }
+
   &:active {
-    color: var(--app-button-tertiary-active-textColor);
-    background: var(--app-button-tertiary-active-backgroundColor);
-    border-color: var(--app-button-tertiary-active-borderColor);
+    color: oklch(var(--on-surface));
+    background: oklch(var(--surface-container-high));
   }
+
+  &:disabled {
+    color: oklch(var(--on-surface-variant));
+    border-color: oklch(var(--outline-variant));
+  }
+}
+
+/* Tertiary button: text only, uses warm accent in dark mode */
+.button--tertiary {
+  color: oklch(var(--primary));
+  background: transparent;
+  border: none;
+
+  &:hover {
+    color: oklch(var(--primary));
+    background: oklch(var(--primary-container) / 0.5);
+  }
+
+  &:active {
+    color: oklch(var(--primary));
+    background: oklch(var(--primary-container));
+  }
+
   &:disabled {
     cursor: not-allowed;
-    color: var(--app-button-tertiary-disabled-textColor);
-    background: var(--app-button-tertiary-disabled-backgroundColor);
-    border-color: var(--app-button-tertiary-disabled-borderColor);
+    color: oklch(var(--on-surface) / 0.38);
+    background: transparent;
+  }
+}
+
+[data-theme="dark"] .button--tertiary {
+  color: oklch(var(--warning));
+
+  &:hover {
+    color: oklch(var(--on-warning-container));
+    background: oklch(var(--warning-container));
+  }
+
+  &:active {
+    color: oklch(var(--on-warning));
+    background: oklch(var(--warning));
+  }
+
+  &:disabled {
+    color: oklch(var(--on-surface-variant));
   }
 }
 </style>

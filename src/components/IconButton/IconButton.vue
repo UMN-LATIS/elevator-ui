@@ -55,18 +55,25 @@ const componentType = computed(() => {
 </script>
 <style scoped>
 .icon-button :is(button, a, .router-link) {
-  background-color: var(--app-iconButton-backgroundColor, transparent);
-  color: var(--app-iconButton-color, oklch(var(--m3-primary)));
-  border-radius: var(--app-iconButton-borderRadius, 0.375rem);
-  border: var(--app-iconButton-border, 1px solid transparent);
+  background-color: transparent;
+  color: oklch(var(--primary));
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
 
   &:hover {
-    background-color: var(
-      --app-iconButton-hover-backgroundColor,
-      oklch(var(--m3-primary-container))
-    );
-    color: var(--app-iconButton-hover-color, oklch(var(--m3-primary)));
-    border: 1px solid var(--app-iconButton-hover-color, oklch(var(--m3-primary)));
+    background-color: oklch(var(--primary-container));
+    color: oklch(var(--primary));
+    border: 1px solid oklch(var(--primary));
+  }
+}
+
+[data-theme="dark"] .icon-button :is(button, a, .router-link) {
+  color: oklch(var(--warning));
+
+  &:hover {
+    background-color: oklch(var(--warning-container));
+    color: oklch(var(--on-warning-container));
+    border-color: oklch(var(--warning));
   }
 }
 </style>

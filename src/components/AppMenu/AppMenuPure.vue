@@ -51,11 +51,11 @@ defineEmits<{
 </script>
 <style scoped>
 .app-menu {
-  background: var(--app-appMenu-backgroundColor);
-  color: var(--app-appMenu-textColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface));
 }
 .app-menu__header a {
-  color: var(--app-headingColor);
+  color: oklch(var(--on-surface));
 }
 
 @media (max-height: 640px) {

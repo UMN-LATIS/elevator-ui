@@ -15,6 +15,6 @@ const instanceStore = useInstanceStore();
 </script>
 <style scoped>
 .app-footer {
-  border-top: var(--app-borderWidth) solid var(--app-borderColor);
+  border-top: 1px solid oklch(var(--outline));
 }
 </style>

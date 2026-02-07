@@ -62,7 +62,7 @@ onMounted(() => {
 </script>
 <style scoped>
 .lazy-load-image__placeholder {
-  background: var(--app-thumbnailImage-backgroundColor);
-  color: var(--app-thumbnailImage-textColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface-variant));
 }
 </style>

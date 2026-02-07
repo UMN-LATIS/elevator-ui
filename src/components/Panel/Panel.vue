@@ -53,14 +53,23 @@ defineEmits<{
 </script>
 <style scoped>
 .panel__header {
-  background: var(--app-panel-header-backgroundColor);
-  color: var(--app-panel-header-textColor);
+  background: oklch(var(--surface-container-low) / 0.5);
+  color: oklch(var(--on-surface));
+}
+
+[data-theme="dark"] .panel__header {
+  background: transparent;
+  color: oklch(var(--warning));
 }
 
 .panel__body {
-  background: var(--app-panel-body-backgroundColor);
-  color: var(--app-body-textColor);
-  border-top-color: var(--app-panel-body-top-borderColor);
-  gap: var(--app-panel-body-items-gap);
+  background: transparent;
+  color: oklch(var(--on-surface));
+  border-top-color: oklch(var(--surface-bright));
+  gap: 1.5rem;
+}
+
+[data-theme="dark"] .panel__body {
+  border-top-color: transparent;
 }
 </style>

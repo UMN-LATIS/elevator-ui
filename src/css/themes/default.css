@@ -1,0 +1,142 @@
+/**
+ * MATERIAL DESIGN 3 SEMANTIC COLOR TOKENS
+ *
+ * Color roles connect UI elements to their semantic purpose, creating a
+ * consistent visual language. Roles are grouped into:
+ *   - Accent colors (primary, secondary, tertiary)
+ *   - Surface colors (backgrounds, containers)
+ *   - Semantic states (error, success, warning, info)
+ *
+ * Naming conventions:
+ *   - "on-" prefix: text/icon color for use ON that background
+ *   - "-container": tonal (softer) variant for backgrounds
+ *   - "-variant": lower-emphasis alternative
+ *
+ * Values use OKLCH color space (lightness, chroma, hue) for perceptual uniformity.
+ *
+ * @see https://m3.material.io/styles/color/roles
+ */
+
+:root {
+  /* ============================================
+   * SURFACE - Background colors
+   *
+   * Surface colors form the backdrop of the UI. The hierarchy creates
+   * visual depth through tone rather than shadow, improving accessibility.
+   *   - surface: default page/app background
+   *   - surface-dim: for reduced emphasis backgrounds
+   *   - surface-bright: for elevated/highlighted backgrounds
+   * ============================================ */
+  --surface: 98% 0.005 260;
+  --surface-dim: 94% 0.008 260;
+  --surface-bright: 99% 0.003 260;
+
+  /* Surface containers create layered depth for component backgrounds.
+   * Use progressively higher levels to indicate elevation/prominence:
+   *   lowest → low → default → high → highest
+   */
+  --surface-container-lowest: 100% 0 0;
+  --surface-container-low: 96% 0.006 260;
+  --surface-container: 94% 0.008 260;
+  --surface-container-high: 92% 0.01 260;
+  --surface-container-highest: 90% 0.012 260;
+
+  --on-surface: 20% 0.02 260;           /* primary text on surface */
+  --on-surface-variant: 45% 0.02 260;   /* secondary/muted text, icons */
+
+  /* ============================================
+   * PRIMARY - Main accent color
+   *
+   * The most prominent interactive color. Use for key actions and
+   * elements that should draw immediate attention.
+   *   - CTAs, primary buttons
+   *   - Links, active navigation
+   *   - Checkboxes, toggles, focus rings
+   *   - FABs, progress indicators
+   * ============================================ */
+  --primary: 50% 0.2 250;
+  --on-primary: 100% 0 0;
+  --primary-container: 90% 0.05 250;        /* tonal bg for grouped primary content */
+  --on-primary-container: 25% 0.1 250;
+
+  /* ============================================
+   * SECONDARY - Supporting accent color
+   *
+   * For less prominent actions in complex/dense UI. Maintains visibility
+   * without overshadowing primary elements.
+   *   - Secondary buttons, filter chips
+   *   - Selection states, toggles in dense areas
+   *   - Supporting icons, tags
+   * ============================================ */
+  --secondary: 45% 0.03 260;
+  --on-secondary: 100% 0 0;
+  --secondary-container: 92% 0.01 260;      /* tonal bg for grouped secondary content */
+  --on-secondary-container: 25% 0.02 260;
+
+  /* ============================================
+   * TERTIARY - Contrasting accent color
+   *
+   * Balances primary/secondary or draws attention to special elements.
+   * Use sparingly for maximum impact.
+   *   - Badges, stickers, accent highlights
+   *   - Goal/milestone indicators
+   *   - Special callouts, promotional content
+   * ============================================ */
+  --tertiary: 65% 0.25 330;
+  --on-tertiary: 100% 0 0;
+  --tertiary-container: 92% 0.08 330;       /* tonal bg for grouped tertiary content */
+  --on-tertiary-container: 30% 0.15 330;
+
+  /* ============================================
+   * SEMANTIC STATES
+   *
+   * Communicate meaning regardless of cultural context.
+   * Each has base (for fills) and container (for backgrounds) variants.
+   * ============================================ */
+  --error: 55% 0.22 25;                     /* destructive actions, validation errors */
+  --on-error: 100% 0 0;
+  --error-container: 92% 0.05 25;
+  --on-error-container: 30% 0.15 25;
+
+  --success: 55% 0.18 145;                  /* completion, positive feedback */
+  --on-success: 100% 0 0;
+  --success-container: 92% 0.05 145;
+  --on-success-container: 25% 0.1 145;
+
+  --warning: 80% 0.15 85;                   /* caution, non-blocking issues */
+  --on-warning: 25% 0.05 85;                /* dark text for light warning bg */
+  --warning-container: 95% 0.05 85;
+  --on-warning-container: 30% 0.1 85;
+
+  --info: 60% 0.15 240;                     /* informational, neutral notices */
+  --on-info: 100% 0 0;
+  --info-container: 92% 0.04 240;
+  --on-info-container: 25% 0.1 240;
+
+  /* ============================================
+   * OUTLINE - Border colors
+   * ============================================ */
+  --outline: 55% 0.02 260;                  /* important borders: inputs, focused elements */
+  --outline-variant: 80% 0.01 260;          /* decorative: dividers, subtle separators */
+
+  /* ============================================
+   * INVERSE - Contrasting surfaces
+   *
+   * For elements that stand out from the main surface, like snackbars,
+   * tooltips, or overlays.
+   * ============================================ */
+  --inverse-surface: 20% 0.02 260;
+  --inverse-on-surface: 95% 0.005 260;
+  --inverse-primary: 75% 0.15 250;          /* interactive elements on inverse surfaces */
+
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: 0% 0 0;                          /* modal overlays (use with alpha) */
+  --shadow: 0% 0 0;                         /* elevation shadows (use with alpha) */
+
+  /* Typography */
+  --font-display: "Work Sans", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-code: "Fira Sans", monospace;
+}

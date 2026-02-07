@@ -98,7 +98,7 @@
                     ref="headerImageInput"
                     type="file"
                     accept="image/png"
-                    class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-m3-primary file:text-sm file:font-medium file:bg-m3-primary-container file:text-m3-primary hover:file:bg-m3-primary hover:file:text-on-primary"
+                    class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-primary file:text-sm file:font-medium file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-on-primary"
                     @change="handleHeaderImageChange" />
                 </div>
               </div>
@@ -229,7 +229,7 @@
                       type="checkbox"
                       :value="theme"
                       :checked="form.availableThemes?.includes(theme)"
-                      class="rounded border-outline text-m3-primary focus:ring-m3-primary"
+                      class="rounded border-outline text-primary focus:ring-primary"
                       @change="toggleTheme(theme)" />
                     {{ theme }}
                   </label>

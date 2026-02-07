@@ -261,7 +261,7 @@ watch(
 <style scoped></style>
 <style>
 .search-results-page__tabs {
-  background: var(--app-backgroundColor);
+  background: oklch(var(--surface));
 }
 
 .search-results-page .app-header {

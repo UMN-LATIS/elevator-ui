@@ -9,7 +9,7 @@
             :widget="widget">
             <Chip
               :class="{
-                'chip--is-clickable border border-m3-primary  bg-m3-primary-container text-m3-primary cursor-pointer hover:bg-m3-primary hover:text-on-primary transition-colors ease-in-out':
+                'chip--is-clickable border border-primary  bg-primary-container text-primary cursor-pointer hover:bg-primary hover:text-on-primary transition-colors ease-in-out':
                   isClickable,
               }">
               {{ tag }}

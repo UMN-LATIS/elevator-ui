@@ -19,7 +19,7 @@
           class="item-container relative rounded flex items-start group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move h-full py-1 rounded-l border border-r-0 group-hover:bg-m3-primary group-hover:border-m3-primary group-hover:text-on-primary transition-colors">
+            class="drag-handle cursor-move h-full py-1 rounded-l border border-r-0 group-hover:bg-primary group-hover:border-primary group-hover:text-on-primary transition-colors">
             <DragIcon />
           </div>
 
@@ -30,7 +30,7 @@
             :drawerId="drawerId"
             class="search-result-card h-full flex-1 !rounded-l-none"
             :mediaCardClass="[
-              'group-hover:bg-m3-primary-container group-hover:border-m3-primary group-hover:!text-m3-primary',
+              'group-hover:bg-primary-container group-hover:border-primary group-hover:!text-primary',
               isDraggable ? 'rounded-l-none !border-l-0 shadow-none' : '',
             ]" />
         </div>
@@ -103,9 +103,8 @@ const hasMoreResults = computed(() => {
 }
 
 .drag-handle {
-  background: white;
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
+  background: oklch(var(--surface));
+  border: 1px solid oklch(var(--outline-variant));
   border-right: none;
 }
 
@@ -120,17 +119,17 @@ const hasMoreResults = computed(() => {
   width: full;
   height: full;
   z-index: 20;
-  background: oklch(var(--m3-primary));
+  background: oklch(var(--primary));
   border-radius: 0.25rem 0.25rem 0 0;
   opacity: 0.5;
 }
 
 .draggable-ghost .drag-handle {
-  background: oklch(var(--m3-primary));
-  color: oklch(var(--m3-primary-container));
+  background: oklch(var(--primary));
+  color: oklch(var(--primary-container));
 }
 
 .is-dragging .search-result-card {
-  background: #fff;
+  background: oklch(var(--surface));
 }
 </style>

@@ -7,9 +7,8 @@
 <script setup lang="ts"></script>
 <style scoped>
 .more-like-this__count {
-  background-color: var(--app-mediaCard-backgroundColor);
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
-  color: var(--app-mediaCard-title-textColor);
+  background-color: oklch(var(--surface-container));
+  border: 1px solid oklch(var(--outline-variant));
+  color: oklch(var(--on-surface));
 }
 </style>

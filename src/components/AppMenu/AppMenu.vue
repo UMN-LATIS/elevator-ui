@@ -64,7 +64,11 @@ watch(
 </script>
 <style scoped>
 .app-menu {
-  background: var(--app-appMenu-backgroundColor);
-  color: var(--app-appMenu-textColor);
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface));
+}
+
+[data-theme="dark"] .app-menu {
+  color: oklch(var(--on-surface-variant));
 }
 </style>

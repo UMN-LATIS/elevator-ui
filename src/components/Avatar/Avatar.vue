@@ -20,8 +20,8 @@ const firstInitial = computed(() => {
 </script>
 <style scoped>
 .avatar {
-  color: var(--app-appHeader-avatar-textColor);
-  background: var(--app-appHeader-backgroundColor);
-  border-color: var(--app-appHeader-avatar-borderColor);
+  color: oklch(var(--on-surface));
+  background: oklch(var(--surface-container));
+  border-color: oklch(var(--outline-variant));
 }
 </style>

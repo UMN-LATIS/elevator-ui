@@ -36,41 +36,28 @@ const currentUser = computed(() => instanceStore.currentUser);
 </script>
 <style scoped>
 .app-header {
-  background: var(--app-appHeader-backgroundColor);
-  border-bottom: var(--app-borderWidth) solid
-    var(--app-appHeader-borderBottomColor);
-  color: var(--app-appHeader-textColor);
+  background: oklch(var(--surface-container-low));
+  border-bottom: 2px solid oklch(var(--outline-variant));
+  color: oklch(var(--on-surface));
 }
+
+[data-theme="dark"] .app-header {
+  background: oklch(var(--surface));
+}
+
 .app-header__logo-link {
-  color: var(--app-appHeader-logo-color);
+  color: oklch(var(--on-surface));
 }
 
 .app-header__wordmark {
-  color: var(--app-appHeader-wordmark-textColor);
+  color: oklch(var(--on-surface));
 }
 
 .app-header__icon {
-  color: var(--app-appHeader-logo-color);
-}
-
-.app-header__menu-button {
-  background: var(--app-appHeader-menuButton-backgroundColor);
-  color: var(--app-appHeader-menuButton-textColor);
-  border: var(--app-appHeader-menuButton-borderWidth) solid
-    var(--app-appHeader-menuButton-borderColor);
-  &:hover {
-    background: var(--app-appHeader-menuButton-hover-backgroundColor);
-    color: var(--app-appHeader-menuButton-hover-textColor);
-    border-color: var(--app-appHeader-menuButton-hover-borderColor);
-  }
-  &:active {
-    background: var(--app-appHeader-menuButton-active-backgroundColor);
-    color: var(--app-appHeader-menuButton-active-textColor);
-    border-color: var(--app-appHeader-menuButton-active-borderColor);
-  }
+  color: oklch(var(--on-surface));
 }
 
 .app-header__secondary-nav {
-  background: var(--app-appHeader-secondaryNav-backgroundColor);
+  background: transparent;
 }
 </style>

@@ -10,7 +10,7 @@
       <a
         v-if="canCurrentUserEdit"
         :href="`${BASE_URL}/instances/editPage/${pageId}`"
-        class="float-right uppercase text-xs font-medium bg-m3-primary-container px-2 py-1 rounded-md no-underline hover:bg-m3-primary hover:text-on-primary hover:no-underline">
+        class="float-right uppercase text-xs font-medium bg-primary-container px-2 py-1 rounded-md no-underline hover:bg-primary hover:text-on-primary hover:no-underline">
         Edit Page
       </a>
       <div class="prose prose-neutral mx-auto">
@@ -92,8 +92,8 @@ onUnmounted(() => {
 </script>
 <style scoped>
 .static-content-page__content {
-  background: var(--app-backgroundColor);
-  color: var(--app-textColor);
+  background: oklch(var(--surface));
+  color: oklch(var(--on-surface));
 }
 
 .prose :first-child {

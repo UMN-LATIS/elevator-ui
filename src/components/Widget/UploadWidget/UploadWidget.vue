@@ -276,17 +276,11 @@ onBeforeUnmount(() => {
 .upload-widget button:hover,
 .upload-widget button:focus,
 .upload-widget button.is-active {
-  --tw-ring-color: var(
-    --app-mediaCard-hover-borderColor,
-    oklch(var(--m3-primary))
-  );
+  --tw-ring-color: oklch(var(--primary));
 
   /* slightly darker bg on hover to indicate interactivity */
-  background-color: var(
-    --app-mediaCard-hover-backgroundColor,
-    oklch(var(--m3-primary-container))
-  );
+  background-color: oklch(var(--primary-container));
 
-  color: var(--app-mediaCard-hover-textColor, oklch(var(--m3-primary)));
+  color: oklch(var(--primary));
 }
 </style>

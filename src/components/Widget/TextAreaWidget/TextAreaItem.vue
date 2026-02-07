@@ -13,7 +13,7 @@
 
     <button
       v-if="isTruncateable"
-      class="flex items-center uppercase text-xs text-m3-primary"
+      class="flex items-center uppercase text-xs text-primary"
       @click="isExpanded = !isExpanded">
       {{ isExpanded ? "Show Less" : "Show More" }}
       <ChevronUpIcon v-if="isExpanded" />

@@ -11,7 +11,7 @@
     <div
       class="flex gap-4 p-4 border-l-8 items-start"
       :class="{
-        'notification--info border-l-m3-primary': type === 'info',
+        'notification--info border-l-primary': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
         'notification--error border-l-red-600': type === 'danger',
         'notification--success border-l-green-400': type === 'success',
@@ -56,29 +56,57 @@ defineEmits<{
 </script>
 <style scoped>
 .notification {
-  background: var(--app-notification-backgroundColor);
-  color: var(--app-notification-textColor);
-  border-color: var(--app-notification-borderColor);
+  background: oklch(var(--surface-container-low));
+  color: oklch(var(--on-surface));
+  border-color: oklch(var(--outline-variant));
+}
+
+[data-theme="dark"] .notification {
+  background: oklch(var(--surface-container));
 }
 
 .notification__title {
-  background: var(--app-notification-header-backgroundColor);
-  color: var(--app-notification-header-textColor);
+  color: oklch(var(--on-surface));
 }
+
 .notification__icon {
-  background: var(--app-notification-icon-info-backgroundColor);
-  color: var(--app-notification-icon-info-textColor);
+  background: oklch(var(--info-container));
+  color: oklch(var(--on-info-container));
 }
+
 .notification--warning .notification__icon {
-  background: var(--app-notification-icon-warning-backgroundColor);
-  color: var(--app-notification-icon-warning-textColor);
+  background: oklch(var(--warning-container));
+  color: oklch(var(--on-warning-container));
 }
+
 .notification--error .notification__icon {
-  background: var(--app-notification-icon-error-backgroundColor);
-  color: var(--app-notification-icon-error-textColor);
+  background: oklch(var(--error-container));
+  color: oklch(var(--on-error-container));
 }
+
 .notification--success .notification__icon {
-  background: var(--app-notification-icon-success-backgroundColor);
-  color: var(--app-notification-icon-success-textColor);
+  background: oklch(var(--success-container));
+  color: oklch(var(--on-success-container));
+}
+
+/* Dark mode: use transparent bg with colored text for icons */
+[data-theme="dark"] .notification__icon {
+  background: transparent;
+  color: oklch(var(--info));
+}
+
+[data-theme="dark"] .notification--warning .notification__icon {
+  background: transparent;
+  color: oklch(var(--warning));
+}
+
+[data-theme="dark"] .notification--error .notification__icon {
+  background: transparent;
+  color: oklch(var(--error));
+}
+
+[data-theme="dark"] .notification--success .notification__icon {
+  background: transparent;
+  color: oklch(var(--success));
 }
 </style>

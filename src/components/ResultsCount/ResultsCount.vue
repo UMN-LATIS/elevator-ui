@@ -20,7 +20,7 @@
         </slot>
         <SpinnerIcon
           v-show="fetchStatus === 'fetching'"
-          class="w-3 h-3 text-m3-primary ml-1" />
+          class="w-3 h-3 text-primary ml-1" />
       </Button>
     </div>
     <p

@@ -2,7 +2,7 @@
   <div
     class="thumbnail-generic aspect-square hover:shadow-md border-outline-variant hover:opacity-100 group relative inline-flex flex-col items-center justify-center w-24 transition-all border rounded shadow-sm opacity-75"
     :class="{
-      'thumbnail-generic--is-active ring ring-offset-1 ring-m3-primary': isActive,
+      'thumbnail-generic--is-active ring ring-offset-1 ring-primary': isActive,
     }">
     <div
       class="thumbnail-image__icon bg-surface backdrop-blur-sm top-1/2 left-1/2 group-hover:scale-100 absolute z-10 flex items-center justify-center w-12 h-12 transition-all scale-0 -translate-x-1/2 -translate-y-1/2 rounded-full">>
@@ -28,12 +28,12 @@ defineProps<{
 </script>
 <style scoped>
 .thumbnail-generic {
-  border-color: var(--app-thumbnailImage-borderColor);
-  background: var(--app-thumbnailImage-backgroundColor);
-  color: var(--app-thumbnailImage-textColor);
+  border-color: oklch(var(--outline-variant));
+  background: oklch(var(--surface-container));
+  color: oklch(var(--on-surface-variant));
 }
 
 .thumbnail-generic--is-active {
-  --tw-ring-color: var(--app-thumbnailImage-active-ringColor);
+  --tw-ring-color: oklch(var(--primary));
 }
 </style>

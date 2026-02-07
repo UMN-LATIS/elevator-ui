@@ -56,48 +56,8 @@ export default {
             900: "rgba(255, 255, 255, 0.92)",
           },
         },
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        chart: {
-          1: "hsl(var(--chart-1))",
-          2: "hsl(var(--chart-2))",
-          3: "hsl(var(--chart-3))",
-          4: "hsl(var(--chart-4))",
-          5: "hsl(var(--chart-5))",
-        },
-        // Material Design 3 Semantic Tokens
-        // These reference CSS custom properties from m3.css
+// Material Design 3 Semantic Tokens
+        // These reference CSS custom properties from default.css
         surface: {
           DEFAULT: "oklch(var(--surface))",
           dim: "oklch(var(--surface-dim))",
@@ -114,7 +74,7 @@ export default {
           DEFAULT: "oklch(var(--on-surface))",
           variant: "oklch(var(--on-surface-variant))",
         },
-        "m3-primary": {
+        primary: {
           DEFAULT: "oklch(var(--primary))",
           container: "oklch(var(--primary-container))",
         },
@@ -122,7 +82,7 @@ export default {
           DEFAULT: "oklch(var(--on-primary))",
           container: "oklch(var(--on-primary-container))",
         },
-        "m3-secondary": {
+        secondary: {
           DEFAULT: "oklch(var(--secondary))",
           container: "oklch(var(--secondary-container))",
         },
