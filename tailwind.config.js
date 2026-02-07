@@ -96,6 +96,89 @@ export default {
           4: "hsl(var(--chart-4))",
           5: "hsl(var(--chart-5))",
         },
+        // Material Design 3 Semantic Tokens
+        // These reference CSS custom properties from m3.css
+        surface: {
+          DEFAULT: "oklch(var(--surface))",
+          dim: "oklch(var(--surface-dim))",
+          bright: "oklch(var(--surface-bright))",
+          container: {
+            lowest: "oklch(var(--surface-container-lowest))",
+            low: "oklch(var(--surface-container-low))",
+            DEFAULT: "oklch(var(--surface-container))",
+            high: "oklch(var(--surface-container-high))",
+            highest: "oklch(var(--surface-container-highest))",
+          },
+        },
+        "on-surface": {
+          DEFAULT: "oklch(var(--on-surface))",
+          variant: "oklch(var(--on-surface-variant))",
+        },
+        "m3-primary": {
+          DEFAULT: "oklch(var(--primary))",
+          container: "oklch(var(--primary-container))",
+        },
+        "on-primary": {
+          DEFAULT: "oklch(var(--on-primary))",
+          container: "oklch(var(--on-primary-container))",
+        },
+        "m3-secondary": {
+          DEFAULT: "oklch(var(--secondary))",
+          container: "oklch(var(--secondary-container))",
+        },
+        "on-secondary": {
+          DEFAULT: "oklch(var(--on-secondary))",
+          container: "oklch(var(--on-secondary-container))",
+        },
+        tertiary: {
+          DEFAULT: "oklch(var(--tertiary))",
+          container: "oklch(var(--tertiary-container))",
+        },
+        "on-tertiary": {
+          DEFAULT: "oklch(var(--on-tertiary))",
+          container: "oklch(var(--on-tertiary-container))",
+        },
+        error: {
+          DEFAULT: "oklch(var(--error))",
+          container: "oklch(var(--error-container))",
+        },
+        "on-error": {
+          DEFAULT: "oklch(var(--on-error))",
+          container: "oklch(var(--on-error-container))",
+        },
+        success: {
+          DEFAULT: "oklch(var(--success))",
+          container: "oklch(var(--success-container))",
+        },
+        "on-success": {
+          DEFAULT: "oklch(var(--on-success))",
+          container: "oklch(var(--on-success-container))",
+        },
+        warning: {
+          DEFAULT: "oklch(var(--warning))",
+          container: "oklch(var(--warning-container))",
+        },
+        "on-warning": {
+          DEFAULT: "oklch(var(--on-warning))",
+          container: "oklch(var(--on-warning-container))",
+        },
+        info: {
+          DEFAULT: "oklch(var(--info))",
+          container: "oklch(var(--info-container))",
+        },
+        "on-info": {
+          DEFAULT: "oklch(var(--on-info))",
+          container: "oklch(var(--on-info-container))",
+        },
+        outline: {
+          DEFAULT: "oklch(var(--outline))",
+          variant: "oklch(var(--outline-variant))",
+        },
+        "inverse-surface": "oklch(var(--inverse-surface))",
+        "inverse-on-surface": "oklch(var(--inverse-on-surface))",
+        "inverse-primary": "oklch(var(--inverse-primary))",
+        scrim: "oklch(var(--scrim))",
+        shadow: "oklch(var(--shadow))",
       },
       borderRadius: {
         lg: "var(--radius)",

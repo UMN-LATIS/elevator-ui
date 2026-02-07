@@ -1,0 +1,181 @@
+/**
+ * MATERIAL DESIGN 3 SEMANTIC COLOR TOKENS
+ *
+ * Aligned with M3 conventions:
+ * - primary: THE interactive color (buttons, links, toggles, focus rings)
+ * - secondary: Supporting color for less prominent elements
+ * - tertiary: Accent/pop color for contrast and emphasis
+ * - surface hierarchy: Multiple elevation levels
+ * - "on-" prefix: Text/icon color to use ON that background
+ *
+ * Values use OKLCH color space for perceptual uniformity.
+ */
+
+:root {
+  /* ============================================
+   * SURFACES - Background hierarchy for elevation
+   * Lower numbers = lower elevation (further back)
+   * ============================================ */
+  --surface: 98% 0.005 260;                    /* page background */
+  --surface-dim: 94% 0.008 260;                /* dimmed surface */
+  --surface-bright: 99% 0.003 260;             /* brightened surface */
+  --surface-container-lowest: 100% 0 0;        /* white - cards, inputs */
+  --surface-container-low: 96% 0.006 260;      /* sidebar, slight elevation */
+  --surface-container: 94% 0.008 260;          /* default elevated */
+  --surface-container-high: 92% 0.01 260;      /* higher elevation */
+  --surface-container-highest: 90% 0.012 260;  /* highest elevation */
+
+  --on-surface: 20% 0.02 260;                  /* primary text */
+  --on-surface-variant: 45% 0.02 260;          /* secondary/muted text */
+
+  /* ============================================
+   * PRIMARY - The interactive color
+   * Used for: filled buttons, links, toggles,
+   * checkboxes, focus rings, active states
+   * ============================================ */
+  --primary: 50% 0.2 250;                      /* blue */
+  --on-primary: 100% 0 0;                      /* white */
+  --primary-container: 90% 0.05 250;           /* tonal/soft primary bg */
+  --on-primary-container: 25% 0.1 250;         /* text on tonal primary */
+
+  /* ============================================
+   * SECONDARY - Supporting color
+   * Used for: less prominent elements, filters,
+   * secondary actions
+   * ============================================ */
+  --secondary: 45% 0.03 260;                   /* neutral gray */
+  --on-secondary: 100% 0 0;                    /* white */
+  --secondary-container: 92% 0.01 260;         /* soft secondary bg */
+  --on-secondary-container: 25% 0.02 260;      /* text on soft secondary */
+
+  /* ============================================
+   * TERTIARY - Accent/pop color
+   * Used for: emphasis, highlights, special callouts
+   * ============================================ */
+  --tertiary: 65% 0.25 330;                    /* fuchsia */
+  --on-tertiary: 100% 0 0;                     /* white */
+  --tertiary-container: 92% 0.08 330;          /* soft tertiary bg */
+  --on-tertiary-container: 30% 0.15 330;       /* text on soft tertiary */
+
+  /* ============================================
+   * ERROR
+   * ============================================ */
+  --error: 55% 0.22 25;                        /* red */
+  --on-error: 100% 0 0;
+  --error-container: 92% 0.05 25;
+  --on-error-container: 30% 0.15 25;
+
+  /* ============================================
+   * SUCCESS (M3 extension)
+   * ============================================ */
+  --success: 55% 0.18 145;                     /* green */
+  --on-success: 100% 0 0;
+  --success-container: 92% 0.05 145;
+  --on-success-container: 25% 0.1 145;
+
+  /* ============================================
+   * WARNING (M3 extension)
+   * ============================================ */
+  --warning: 80% 0.15 85;                      /* amber/yellow */
+  --on-warning: 25% 0.05 85;                   /* dark text for contrast */
+  --warning-container: 95% 0.05 85;
+  --on-warning-container: 30% 0.1 85;
+
+  /* ============================================
+   * INFO (M3 extension)
+   * ============================================ */
+  --info: 60% 0.15 240;                        /* cyan-ish blue */
+  --on-info: 100% 0 0;
+  --info-container: 92% 0.04 240;
+  --on-info-container: 25% 0.1 240;
+
+  /* ============================================
+   * OUTLINE - Borders
+   * ============================================ */
+  --outline: 55% 0.02 260;                     /* default borders */
+  --outline-variant: 80% 0.01 260;             /* subtle borders */
+
+  /* ============================================
+   * INVERSE - For dark surfaces (e.g., header)
+   * ============================================ */
+  --inverse-surface: 20% 0.02 260;             /* dark background */
+  --inverse-on-surface: 95% 0.005 260;         /* light text on dark */
+  --inverse-primary: 75% 0.15 250;             /* primary on dark bg */
+
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: 0% 0 0;                             /* modal backdrop */
+  --shadow: 0% 0 0;                            /* shadows */
+}
+
+/**
+ * DARK THEME
+ * Based on M3 dark scheme principles
+ */
+[data-theme="dark"],
+.dark {
+  /* Surfaces - dark backgrounds */
+  --surface: 10% 0.02 260;
+  --surface-dim: 6% 0.015 260;
+  --surface-bright: 25% 0.025 260;
+  --surface-container-lowest: 4% 0.01 260;
+  --surface-container-low: 12% 0.02 260;
+  --surface-container: 15% 0.025 260;
+  --surface-container-high: 18% 0.03 260;
+  --surface-container-highest: 22% 0.035 260;
+
+  --on-surface: 90% 0.01 260;
+  --on-surface-variant: 65% 0.02 260;
+
+  /* Primary - lighter in dark mode for visibility */
+  --primary: 75% 0.15 250;
+  --on-primary: 20% 0.05 250;
+  --primary-container: 30% 0.12 250;
+  --on-primary-container: 90% 0.05 250;
+
+  /* Secondary */
+  --secondary: 70% 0.02 260;
+  --on-secondary: 20% 0.02 260;
+  --secondary-container: 30% 0.02 260;
+  --on-secondary-container: 90% 0.01 260;
+
+  /* Tertiary */
+  --tertiary: 80% 0.18 330;
+  --on-tertiary: 25% 0.1 330;
+  --tertiary-container: 35% 0.15 330;
+  --on-tertiary-container: 90% 0.05 330;
+
+  /* Error */
+  --error: 75% 0.18 25;
+  --on-error: 20% 0.05 25;
+  --error-container: 30% 0.12 25;
+  --on-error-container: 90% 0.05 25;
+
+  /* Success */
+  --success: 75% 0.15 145;
+  --on-success: 20% 0.05 145;
+  --success-container: 30% 0.1 145;
+  --on-success-container: 90% 0.04 145;
+
+  /* Warning */
+  --warning: 85% 0.12 85;
+  --on-warning: 20% 0.05 85;
+  --warning-container: 35% 0.1 85;
+  --on-warning-container: 90% 0.04 85;
+
+  /* Info */
+  --info: 70% 0.12 240;
+  --on-info: 20% 0.05 240;
+  --info-container: 30% 0.08 240;
+  --on-info-container: 90% 0.04 240;
+
+  /* Outline */
+  --outline: 50% 0.02 260;
+  --outline-variant: 35% 0.02 260;
+
+  /* Inverse */
+  --inverse-surface: 90% 0.01 260;
+  --inverse-on-surface: 20% 0.02 260;
+  --inverse-primary: 40% 0.2 250;
+}

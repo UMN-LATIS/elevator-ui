@@ -40,11 +40,11 @@
         type="text"
         label="Search Radius"
         :labelClass="{
-          '!text-red-700': radiusTouched && !isRadiusValid,
+          '!text-error': radiusTouched && !isRadiusValid,
         }"
         :inputClass="{
           'bg-white !border-neutral-200': true,
-          'border-red-600 text-red-700': radiusTouched && !isRadiusValid,
+          'border-error text-error': radiusTouched && !isRadiusValid,
         }"
         @update:modelValue="handleRadiusUpdate">
         <template #append>

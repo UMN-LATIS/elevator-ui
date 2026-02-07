@@ -28,7 +28,7 @@
         :inputClass="[
           '!bg-white border !border-neutral-300',
           {
-            '!border !border-red-500': !excerptName && isNameTouched,
+            '!border !border-error': !excerptName && isNameTouched,
           },
         ]"
         @update:modelValue="
@@ -49,7 +49,7 @@
           :inputClass="[
             '!bg-white border !border-neutral-300',
             {
-              '!border !border-red-500': isStartTimeTouched && !startTimeString,
+              '!border !border-error': isStartTimeTouched && !startTimeString,
             },
           ]"
           @update:modelValue="
@@ -83,7 +83,7 @@
           :inputClass="[
             '!bg-white border !border-neutral-300',
             {
-              '!border !border-red-500': isEndTimeTouched && !endTimeString,
+              '!border !border-error': isEndTimeTouched && !endTimeString,
             },
           ]"
           @update:modelValue="

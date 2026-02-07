@@ -7,7 +7,7 @@
       'button--secondary px-4 py-3': variant === 'secondary',
       'button--tertiary text-xs uppercase font-medium p-2':
         variant === 'tertiary',
-      'button--primary px-4 py-3 !bg-red-700 !border-red-700 text-red-50 hover:!bg-red-600 hover:!border-red-600':
+      'button--primary px-4 py-3 !bg-error !border-error !text-on-error hover:!bg-error/90 hover:!border-error/90':
         variant === 'danger',
     }"
     v-bind="$attrs"

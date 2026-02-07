@@ -5,7 +5,7 @@
       class="block text-xs font-medium uppercase mb-1"
       :class="[{ 'sr-only': labelHidden }, labelClass]">
       {{ label }}
-      <span v-if="required" class="text-red-600">*</span>
+      <span v-if="required" class="text-error">*</span>
     </label>
     <div class="relative rounded-md">
       <div
