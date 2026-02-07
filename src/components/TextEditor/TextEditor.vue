@@ -4,7 +4,7 @@
       ref="editor"
       :modelValue="modelValue"
       :options="options"
-      class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-blue-600"
+      class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-m3-primary"
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
   </div>

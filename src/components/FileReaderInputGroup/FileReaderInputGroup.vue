@@ -3,7 +3,7 @@
     <label
       :class="
         cn(
-          'block text-xs font-medium text-neutral-700 uppercase mb-1',
+          'block text-xs font-medium text-on-surface uppercase mb-1',
           labelClass
         )
       "
@@ -13,7 +13,7 @@
     <input
       :id="`file-${id}`"
       type="file"
-      :class="cn('block w-full text-sm text-neutral-500', inputClass)"
+      :class="cn('block w-full text-sm text-on-surface-variant', inputClass)"
       @change="handleFileChange" />
   </div>
 </template>

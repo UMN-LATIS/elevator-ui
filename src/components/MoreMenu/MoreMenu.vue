@@ -3,9 +3,9 @@
     <Button
       label="open more options menu"
       icon="more_vert"
-      class="inline-flex items-center text-center p-1 text-neutral-400 rounded-full"
+      class="inline-flex items-center text-center p-1 text-on-surface-variant rounded-full"
       :class="{
-        'bg-neutral-200 text-neutral-800 hover:!text-neutral-800': isOpen,
+        'bg-surface-container text-on-surface hover:!text-on-surface': isOpen,
       }"
       @click="isOpen = !isOpen" />
 

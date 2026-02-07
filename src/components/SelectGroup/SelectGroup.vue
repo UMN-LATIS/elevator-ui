@@ -4,7 +4,7 @@
       :for="id"
       :class="
         cn([
-          'text-xs uppercase font-medium text-neutral-700',
+          'text-xs uppercase font-medium text-on-surface',
           {
             'sr-only': !showLabel,
           },

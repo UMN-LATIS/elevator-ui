@@ -10,7 +10,7 @@
       </Button>
     </header>
 
-    <p class="text-neutral-400 text-xs mb-2 italic">
+    <p class="text-on-surface-variant text-xs mb-2 italic">
       To limit your search to specific collections, choose "Add Collection"
       below.
     </p>

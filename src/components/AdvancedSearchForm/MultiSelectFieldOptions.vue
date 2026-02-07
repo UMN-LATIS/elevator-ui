@@ -6,7 +6,7 @@
       :initialSelectedValues="props.filter.value.split(',')"
       class="!gap-1"
       labelClass="sr-only"
-      selectClass="text-sm border-neutral-200"
+      selectClass="text-sm border-outline"
       @change="handleCascadeSelectChange" />
   </div>
 </template>

@@ -7,8 +7,8 @@
       :is="is || ($attrs.disabled ? 'div' : Link)"
       class="block px-4 py-2 text-sm !no-underline"
       :class="{
-        'bg-blue-50 !text-blue-900': active,
-        'text-gray-700': !active,
+        'bg-m3-primary-container !text-m3-primary': active,
+        'text-on-surface-variant': !active,
         'font-bold border-l-2 border-neutral-900 bg-transparent-black-100':
           current,
       }"

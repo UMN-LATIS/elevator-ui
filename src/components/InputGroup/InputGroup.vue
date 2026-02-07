@@ -21,7 +21,7 @@
         :required="required"
         :class="
           cn([
-            'block w-full rounded-md border-none focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4',
+            'block w-full rounded-md border-none focus-visible:ring-m3-primary focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4',
             {
               'pl-10': $slots.prepend,
               'pr-10': $slots.append,

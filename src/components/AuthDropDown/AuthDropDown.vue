@@ -6,8 +6,8 @@
     </template>
     <template v-if="currentUser">
       <div
-        class="p-4 border-b border-neutral-300 text-xs flex items-center gap-1">
-        <span class="text-neutral-400">Signed in as</span>
+        class="p-4 border-b border-outline text-xs flex items-center gap-1">
+        <span class="text-on-surface-variant">Signed in as</span>
         <b class="font-normal">{{ currentUser.displayName }}</b>
       </div>
       <DropDownItem

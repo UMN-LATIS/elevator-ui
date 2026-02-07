@@ -7,7 +7,7 @@
       <div v-if="selected.options.length">
         <label
           :class="[
-            'uppercase text-xs font-medium tracking-wider text-neutral-700',
+            'uppercase text-xs font-medium tracking-wider text-on-surface',
             labelClass,
           ]">
           {{ selected.label }}

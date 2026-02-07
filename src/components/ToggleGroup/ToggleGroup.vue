@@ -2,7 +2,7 @@
   <div class="flex items-center justify-between gap-4 flex-wrap">
     <label
       :id="labelId"
-      class="text-sm text-neutral-700 cursor-pointer"
+      class="text-sm text-on-surface cursor-pointer"
       @click="$emit('update:modelValue', !modelValue)">
       {{ label }}
     </label>

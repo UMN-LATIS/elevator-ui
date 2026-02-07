@@ -16,7 +16,7 @@
       </div>
     </header>
     <div
-      class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto">
+      class="app-menu__items flex-1 py-4 border-y border-outline overflow-auto">
       <slot />
     </div>
     <footer class="app-menu__footer pt-4 flex flex-col items-center text-sm">
