@@ -292,6 +292,11 @@ const router = createRouter({
       component: () => import("@/pages/TestPages/MapStressTest.vue"),
     },
     {
+      name: "componentShowcase",
+      path: "/tests/components",
+      component: () => import("@/pages/TestPages/ComponentShowcase.vue"),
+    },
+    {
       name: "error",
       path: "/error/:errorCode",
       component: ErrorPage,
