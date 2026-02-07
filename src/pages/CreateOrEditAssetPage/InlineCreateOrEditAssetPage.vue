@@ -1,5 +1,7 @@
 <template>
-  <div ref="containerRef" class="inline-edit-asset-page">
+  <div
+    ref="containerRef"
+    class="inline-edit-asset-page bg-surface px-4 pb-4 rounded-md border border-outline-variant">
     <div
       v-if="depthExceeded"
       class="text-on-surface-variant italic p-2 bg-surface-container rounded text-sm">
@@ -17,7 +19,7 @@
           <div
             class="flex items-center justify-between gap-2 border-b border-outline">
             <h3
-              class="text-xs uppercase font-bold text-on-surface-variant mr-auto px-1">>
+              class="text-xs uppercase font-bold text-on-surface-variant mr-auto px-1">
               {{ assetEditor.template.templateName }}
             </h3>
             <div>
