@@ -119,7 +119,7 @@ onMounted(() => {
 }
 
 .ql-toolbar.ql-snow :is(button:hover, button:focus) {
-  @apply text-on-surface opacity-100 bg-on-surface/5 rounded;
+  @apply text-on-surface opacity-100 bg-surface-container rounded;
 }
 
 .ql-toolbar.ql-snow :is(button.ql-active) {
