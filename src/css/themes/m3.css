@@ -111,68 +111,72 @@
 
 /**
  * DARK THEME
- * Based on M3 dark scheme principles
+ * Based on M3 dark scheme principles with enhanced surface hierarchy
+ *
+ * Surface hierarchy with clear elevation overlays:
+ * - Base surface at 14% L (dark grey, not pure black)
+ * - Container levels increase 8-10% L with elevation
+ * - This creates PERCEPTIBLE surface differentiation for inputs, cards
+ * - On-surface text at 90% L for maximum contrast
  */
 [data-theme="dark"],
 .dark {
-  /* Surfaces - dark backgrounds */
-  --surface: 10% 0.02 260;
-  --surface-dim: 6% 0.015 260;
-  --surface-bright: 25% 0.025 260;
-  --surface-container-lowest: 4% 0.01 260;
-  --surface-container-low: 12% 0.02 260;
-  --surface-container: 15% 0.025 260;
-  --surface-container-high: 18% 0.03 260;
-  --surface-container-highest: 22% 0.035 260;
+  /* Surfaces - dark backgrounds with CLEAR elevation hierarchy */
+  --surface: 14% 0.02 260;                     /* page background - dark grey */
+  --surface-dim: 8% 0.015 260;                 /* sunken/recessed surface */
+  --surface-bright: 28% 0.03 260;              /* brightened surface */
+  --surface-container-lowest: 10% 0.01 260;    /* slightly raised from dim */
+  --surface-container-low: 22% 0.025 260;      /* subtle elevation - inputs start here */
+  --surface-container: 28% 0.03 260;           /* default elevation (cards, modals) */
+  --surface-container-high: 34% 0.035 260;     /* higher elevation (dialogs) */
+  --surface-container-highest: 40% 0.04 260;   /* highest elevation (floating panels) */
 
-  --on-surface: 90% 0.01 260;
-  --on-surface-variant: 65% 0.02 260;
+  --on-surface: 90% 0.01 260;                  /* bright white text for contrast */
+  --on-surface-variant: 72% 0.02 260;          /* secondary text (muted but readable) */
+  --primary: 80% 0.12 250;                     /* brighter, less saturated blue */
+  --on-primary: 20% 0.05 250;                  /* dark text on bright bg */
+  --primary-container: 28% 0.1 250;            /* very dark tonal container */
+  --on-primary-container: 90% 0.05 250;        /* bright text on dark container */
 
-  /* Primary - lighter in dark mode for visibility */
-  --primary: 75% 0.15 250;
-  --on-primary: 20% 0.05 250;
-  --primary-container: 30% 0.12 250;
-  --on-primary-container: 90% 0.05 250;
-
-  /* Secondary */
-  --secondary: 70% 0.02 260;
+  /* Secondary - lighter grey for contrast */
+  --secondary: 75% 0.02 260;                   /* lighter neutral */
   --on-secondary: 20% 0.02 260;
-  --secondary-container: 30% 0.02 260;
+  --secondary-container: 28% 0.02 260;         /* darker container */
   --on-secondary-container: 90% 0.01 260;
 
-  /* Tertiary */
-  --tertiary: 80% 0.18 330;
+  /* Tertiary - lighter accent */
+  --tertiary: 85% 0.15 330;                    /* brighter fuchsia */
   --on-tertiary: 25% 0.1 330;
-  --tertiary-container: 35% 0.15 330;
+  --tertiary-container: 32% 0.12 330;
   --on-tertiary-container: 90% 0.05 330;
 
-  /* Error */
-  --error: 75% 0.18 25;
+  /* Error - lighter red */
+  --error: 80% 0.15 25;                        /* brighter red */
   --on-error: 20% 0.05 25;
-  --error-container: 30% 0.12 25;
+  --error-container: 28% 0.1 25;
   --on-error-container: 90% 0.05 25;
 
-  /* Success */
-  --success: 75% 0.15 145;
+  /* Success - lighter green */
+  --success: 80% 0.12 145;                     /* brighter green */
   --on-success: 20% 0.05 145;
-  --success-container: 30% 0.1 145;
+  --success-container: 28% 0.08 145;
   --on-success-container: 90% 0.04 145;
 
-  /* Warning */
-  --warning: 85% 0.12 85;
+  /* Warning - lighter amber/yellow */
+  --warning: 88% 0.1 85;                       /* brighter amber/yellow */
   --on-warning: 20% 0.05 85;
-  --warning-container: 35% 0.1 85;
+  --warning-container: 32% 0.08 85;
   --on-warning-container: 90% 0.04 85;
 
-  /* Info */
-  --info: 70% 0.12 240;
+  /* Info - lighter cyan-blue */
+  --info: 75% 0.1 240;                         /* brighter cyan/blue */
   --on-info: 20% 0.05 240;
-  --info-container: 30% 0.08 240;
+  --info-container: 28% 0.06 240;
   --on-info-container: 90% 0.04 240;
 
-  /* Outline */
-  --outline: 50% 0.02 260;
-  --outline-variant: 35% 0.02 260;
+  /* Outline - lighter borders for visibility */
+  --outline: 58% 0.02 260;                     /* more visible in dark bg */
+  --outline-variant: 40% 0.02 260;             /* subtler variant */
 
   /* Inverse */
   --inverse-surface: 90% 0.01 260;
