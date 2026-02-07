@@ -20,7 +20,7 @@
           type="button"
           class="flex justify-start gap-2 text-base font-bold leading-none text-left"
           :class="{
-            'text-red-700':
+            'text-error':
               (widgetDef.required && !hasContents) ||
               (hasContents && !isWidgetValid),
           }"
@@ -163,7 +163,7 @@
                         widgetDef.type === Types.WIDGET_TYPES.UPLOAD
                       "
                       :class="[
-                        'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
+                        'text-neutral-400 hover:text-error p-2 rounded-sm -mt-2 -mr-1',
                         {
                           'sr-only': !isOpen,
                         },

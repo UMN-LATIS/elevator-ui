@@ -35,7 +35,7 @@
         </p>
         <div
           v-if="missingRequiredFields.length > 0"
-          class="font-medium mb-1 text-red-600">
+          class="font-medium mb-1 text-error">
           Missing required:
           <span class="italic">
             {{ missingRequiredFields.join(", ") }}
@@ -43,7 +43,7 @@
         </div>
         <div
           v-if="invalidFields.length > 0"
-          class="font-medium mb-1 text-red-600">
+          class="font-medium mb-1 text-error">
           Invalid:
           <span class="italic">
             {{ invalidFields.join(", ") }}
