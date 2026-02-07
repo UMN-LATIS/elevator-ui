@@ -32,7 +32,7 @@
       <a
         v-show="showScrollToTop"
         href="#top"
-        class="fixed bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 z-20">
+        class="fixed bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-m3-primary-container z-20">
         <ChevronUpIcon />
         <span class="sr-only">Top</span>
       </a>

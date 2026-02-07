@@ -4,7 +4,7 @@
     class="search-results-page__did-you-mean-suggestions">
     <p>Did you mean?</p>
     <button
-      class="text-blue-500 hover:underline italic"
+      class="text-m3-primary hover:underline italic"
       @click="handleSearchSuggestionClick">
       {{ suggestedSearch }}
     </button>

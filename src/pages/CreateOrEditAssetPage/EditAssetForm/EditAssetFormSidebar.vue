@@ -57,7 +57,7 @@
     <div class="flex flex-col gap-6 order-1 md:order-2">
       <SelectGroup
         :selectClass="{
-          '!bg-green-600 !text-white select-picker-light':
+          '!bg-success !text-white select-picker-light':
             !!asset.readyForDisplay,
           'bg-transparent border border-solid border-on-surface':
             !asset.readyForDisplay,

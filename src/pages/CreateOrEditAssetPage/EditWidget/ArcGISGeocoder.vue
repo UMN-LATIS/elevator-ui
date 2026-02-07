@@ -25,7 +25,7 @@
         :key="index"
         :class="[
           'px-4 py-2 cursor-pointer hover:bg-gray-100',
-          { 'bg-blue-50': index === selectedIndex },
+          { 'bg-m3-primary-container': index === selectedIndex },
         ]"
         @mousedown="selectSuggestion(index)"
         @mouseover="selectedIndex = index">
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div v-if="error" class="mt-1 text-sm text-red-500">
+    <div v-if="error" class="mt-1 text-sm text-error">
       {{ error }}
     </div>
   </div>

@@ -30,22 +30,22 @@
           <ChevronDownIcon v-if="isOpen" class="!size-4" />
           <ChevronRightIcon v-else class="!size-4" />
           {{ widgetDef.label }}
-          <span v-if="widgetDef.required" class="text-red-500">*</span>
+          <span v-if="widgetDef.required" class="text-error">*</span>
         </button>
         <div class="flex items-center gap-2">
           <slot name="moreWidgetActions"></slot>
           <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
-            <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
+            <CircleFilledCheckIcon class="w-4 h-4 text-success" />
           </Tooltip>
           <Tooltip
             v-else-if="widgetDef.required && !hasContents"
             tip="Required content missing">
-            <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+            <TriangleAlertIcon class="w-4 h-4 text-error" />
           </Tooltip>
           <Tooltip
             v-else-if="hasContents && !isWidgetValid"
             tip="Invalid content">
-            <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+            <TriangleAlertIcon class="w-4 h-4 text-error" />
           </Tooltip>
         </div>
       </div>
@@ -55,7 +55,7 @@
         :class="[
           (widgetDef.required && !hasContents) ||
           (hasContents && !isWidgetValid)
-            ? 'text-red-700/75'
+            ? 'text-error/75'
             : 'text-neutral-500',
         ]">
         {{ widgetDef.tooltip }}
@@ -69,9 +69,9 @@
       }">
       <ErrorBoundary>
         <template #fallback>
-          <div class="p-4 bg-red-100 border border-red-500 rounded-md">
-            <h3 class="text-sm text-red-700 font-bold mb-2">Widget Error</h3>
-            <p class="text-sm text-red-700/90">
+          <div class="p-4 bg-error-container border border-error rounded-md">
+            <h3 class="text-sm text-error font-bold mb-2">Widget Error</h3>
+            <p class="text-sm text-error/90">
               An error occurred while rendering this widget. It's possible that
               the
               <Link
@@ -93,11 +93,11 @@
             </p>
             <details>
               <summary
-                class="mt-2 text-sm text-red-700 underline cursor-pointer">
+                class="mt-2 text-sm text-error underline cursor-pointer">
                 View Widget Definition
               </summary>
               <code
-                class="bg-red-50 rounded border-white p-2 mt-2 block w-full overflow-x-auto">
+                class="bg-error-container rounded border-white p-2 mt-2 block w-full overflow-x-auto">
                 <pre>{{ JSON.stringify(widgetDef, null, 2) }}</pre>
               </code>
             </details>

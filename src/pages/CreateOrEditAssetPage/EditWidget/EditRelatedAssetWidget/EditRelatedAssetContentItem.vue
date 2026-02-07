@@ -37,7 +37,7 @@
         </ComboboxAnchor>
 
         <ComboboxList
-          class="focus-within:shadow-md focus-within:border-2 focus-within:border-blue-500 rounded-md overflow-hidden">
+          class="focus-within:shadow-md focus-within:border-2 focus-within:border-m3-primary rounded-md overflow-hidden">
           <div class="relative w-full items-center">
             <ComboboxInput
               v-model="searchInput"

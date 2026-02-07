@@ -16,7 +16,7 @@
         <form @submit.prevent="login">
           <p
             v-if="errors.form"
-            class="text-red-500 text-sm italic mb-6 capitalize bg-red-50 p-2 rounded-md border border-red-200 text-center">
+            class="text-error text-sm italic mb-6 capitalize bg-error-container p-2 rounded-md border border-error text-center">
             {{ errors.form }}
           </p>
           <div class="flex flex-col gap-6 mb-12">
@@ -26,13 +26,13 @@
                 v-model="username"
                 label="Username"
                 :inputClass="{
-                  '!border-red-500 !bg-red-50': !!errors.username,
+                  '!border-error !bg-error-container': !!errors.username,
                 }"
                 type="string"
                 aria-required="true" />
               <p
                 v-if="errors.username"
-                class="text-red-500 text-sm italic mt-2">
+                class="text-error text-sm italic mt-2">
                 {{ errors.username }}
               </p>
             </div>
@@ -42,7 +42,7 @@
                 v-model="password"
                 label="Password"
                 :inputClass="{
-                  '!border-red-500 !bg-red-50': !!errors.password,
+                  '!border-error !bg-error-container': !!errors.password,
                 }"
                 :type="showPassword ? 'text' : 'password'"
                 aria-required="true">
@@ -57,7 +57,7 @@
               </InputGroup>
               <p
                 v-if="errors.password"
-                class="text-red-600 text-sm italic mt-2">
+                class="text-error text-sm italic mt-2">
                 {{ errors.password }}
               </p>
             </div>

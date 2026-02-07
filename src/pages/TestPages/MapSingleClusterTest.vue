@@ -3,13 +3,13 @@
     <div class="mb-6 p-4 bg-gray-100 rounded">
       <p class="text-sm font-semibold mb-2">Test Pages:</p>
       <div class="flex gap-4 text-sm">
-        <router-link to="/tests/map" class="text-blue-500 hover:underline">
+        <router-link to="/tests/map" class="text-m3-primary hover:underline">
           Cluster Test
         </router-link>
-        <span class="font-bold text-blue-600">Single Cluster Test</span>
+        <span class="font-bold text-m3-primary">Single Cluster Test</span>
         <router-link
           to="/tests/map-stress"
-          class="text-blue-500 hover:underline">
+          class="text-m3-primary hover:underline">
           Stress Test
         </router-link>
       </div>
