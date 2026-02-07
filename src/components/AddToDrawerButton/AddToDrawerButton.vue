@@ -47,7 +47,7 @@
           class="flex-1"
           label="New Drawer"
           :inputClass="[
-            'bg-surface placeholder-on-surface-variant border !border-outline rounded border-solid',
+            'bg-surface placeholder-on-surface-variant border border-outline-variant rounded border-solid',
             {
               '!border !border-error !text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
