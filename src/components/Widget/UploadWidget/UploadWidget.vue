@@ -278,15 +278,15 @@ onBeforeUnmount(() => {
 .upload-widget button.is-active {
   --tw-ring-color: var(
     --app-mediaCard-hover-borderColor,
-    var(--color-blue-600)
+    oklch(var(--m3-primary))
   );
 
   /* slightly darker bg on hover to indicate interactivity */
   background-color: var(
     --app-mediaCard-hover-backgroundColor,
-    var(--color-blue-50)
+    oklch(var(--m3-primary-container))
   );
 
-  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+  color: var(--app-mediaCard-hover-textColor, oklch(var(--m3-primary)));
 }
 </style>

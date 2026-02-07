@@ -11,7 +11,7 @@
       allowfullscreen="true"></iframe>
     <div
       v-else
-      class="w-full h-full min-h-[20rem] bg-neutral-400 place-items-center p-8">
+      class="w-full h-full min-h-[20rem] bg-surface-container place-items-center p-8">
       <p>No asset file found.</p>
       <code class="text-sm">FileHandlerId: {{ fileHandlerId ?? "null" }}</code>
     </div>

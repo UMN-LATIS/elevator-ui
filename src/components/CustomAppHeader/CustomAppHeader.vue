@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-app-header bg-transparent-black-100">
+  <div class="custom-app-header bg-surface-container">
     <SanitizedHTML
       :html="instanceStore?.customHeader ?? ''"
       :addTags="['style', 'link']" />

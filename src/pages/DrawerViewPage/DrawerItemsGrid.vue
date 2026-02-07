@@ -120,14 +120,14 @@ const hasMoreResults = computed(() => {
   width: full;
   height: full;
   z-index: 20;
-  background: var(--color-blue-600);
+  background: oklch(var(--m3-primary));
   border-radius: 0.25rem 0.25rem 0 0;
   opacity: 0.5;
 }
 
 .draggable-ghost .drag-handle {
-  background: var(--color-blue-600);
-  color: var(--color-blue-100);
+  background: oklch(var(--m3-primary));
+  color: oklch(var(--m3-primary-container));
 }
 
 .is-dragging .search-result-card {

@@ -26,7 +26,7 @@
           :activeTabId="searchStore.resultsView"
           @tabChange="handleTabChange">
           <div
-            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap">
+            class="sm:flex justify-between items-center bg-outline-variant/20 rounded-md mb-4 p-2 flex-wrap">
             <ResultsCount
               class="mb-2 sm:mb-0"
               :fetchStatus="searchStore.status"

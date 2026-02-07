@@ -9,7 +9,7 @@
         class="text-sm"
         :class="{
           'font-bold': key === activeMapStyleKey,
-          'text-neutral-400': key !== activeMapStyleKey,
+          'text-on-surface-variant': key !== activeMapStyleKey,
         }"
         @click="activeMapStyleKey = key">
         {{ style.label }}

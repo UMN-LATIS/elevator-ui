@@ -115,15 +115,15 @@ onMounted(() => {
 }
 
 .ql-toolbar.ql-snow button {
-  @apply text-neutral-900 opacity-50;
+  @apply text-on-surface opacity-50;
 }
 
 .ql-toolbar.ql-snow :is(button:hover, button:focus) {
-  @apply text-neutral-900 opacity-100 bg-neutral-900/5 rounded;
+  @apply text-on-surface opacity-100 bg-on-surface/5 rounded;
 }
 
 .ql-toolbar.ql-snow :is(button.ql-active) {
-  @apply text-neutral-50 opacity-100 bg-neutral-900 rounded;
+  @apply text-on-surface opacity-100 bg-on-surface rounded;
 }
 
 .ql-toolbar.ql-snow :is(.ql-stroke, button:hover .ql-stroke) {

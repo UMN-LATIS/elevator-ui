@@ -17,7 +17,7 @@
 
     <ul
       v-if="selectedCollections.length"
-      class="flex flex-wrap gap-2 bg-transparent-black-50 p-4 mb-4 rounded-md">
+      class="flex flex-wrap gap-2 bg-outline-variant/20 p-4 mb-4 rounded-md">
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"

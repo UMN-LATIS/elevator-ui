@@ -12,7 +12,7 @@
         <button
           v-if="modelValue.length"
           type="button"
-          class="text-transparent-black-500 hover:text-neutral-900 float-right"
+          class="text-outline-variant hover:text-on-surface float-right"
           @click="resetForm">
           <span class="sr-only">Clear</span>
           <CircleXIcon />

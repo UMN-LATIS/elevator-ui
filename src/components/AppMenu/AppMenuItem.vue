@@ -30,16 +30,16 @@ withDefaults(
   &:focus-within {
     background: var(
       --app-appMenuItem-hover-backgroundColor,
-      var(--color-blue-50)
+      oklch(var(--m3-primary-container))
     );
-    color: var(--app-appMenuItem-hover-textColor, var(--color-blue-600));
+    color: var(--app-appMenuItem-hover-textColor, oklch(var(--m3-primary)));
   }
 }
 .app-menu-item.is-current-page {
   background: var(
     --app-appMenu-currentPage-backgroundColor,
-    var(--color-blue-100)
+    oklch(var(--m3-primary-container))
   );
-  color: var(--app-appMenu-currentPage-textColor, var(--color-blue-700));
+  color: var(--app-appMenu-currentPage-textColor, oklch(var(--m3-primary)));
 }
 </style>

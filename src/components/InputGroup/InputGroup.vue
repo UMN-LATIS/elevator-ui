@@ -21,7 +21,7 @@
         :required="required"
         :class="
           cn([
-            'block w-full rounded-md border-none focus-visible:ring-m3-primary focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4',
+            'block w-full rounded-md border-none focus-visible:ring-m3-primary focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-surface placeholder-on-surface-variant px-4',
             {
               'pl-10': $slots.prepend,
               'pr-10': $slots.append,
@@ -77,7 +77,7 @@ const model = defineModel<TModelValue>({
 </script>
 <style scoped>
 .input-group label {
-  color: var(--app-input-label-textColor, var(--color-neutral-900));
+  color: var(--app-input-label-textColor, oklch(var(--on-surface)));
 }
 
 /* hack to show placeholder text for safari date inputs.

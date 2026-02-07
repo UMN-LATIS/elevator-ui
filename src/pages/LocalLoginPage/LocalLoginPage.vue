@@ -5,12 +5,12 @@
     </template>
     <div class="px-4">
       <section
-        class="max-w-md border border-neutral-900 rounded-lg mx-auto my-12 p-8"
+        class="max-w-md border border-on-surface rounded-lg mx-auto my-12 p-8"
         :class="{
           'has-form-error': shakeForm,
         }">
         <header
-          class="font-bold text-center mb-8 pb-4 border-b border-neutral-900">
+          class="font-bold text-center mb-8 pb-4 border-b border-on-surface">
           <h2 class="text-2xl capitalize">Login</h2>
         </header>
         <form @submit.prevent="login">

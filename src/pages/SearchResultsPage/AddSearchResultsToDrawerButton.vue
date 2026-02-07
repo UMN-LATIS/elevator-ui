@@ -42,7 +42,7 @@
       </form>
 
       <p
-        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center">
+        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-outline-variant relative leading-none text-center">
         <span class="bg-surface relative z-10 px-2">or</span>
       </p>
 
@@ -52,7 +52,7 @@
         <DrawerTitleInput
           v-model="newDrawerName"
           class="flex-1 border border-outline rounded"
-          inputClass="bg-white placeholder-neutral-400"
+          inputClass="bg-surface placeholder-on-surface-variant"
           :labelHidden="true" />
 
         <Button type="submit" class="text-sm" :disabled="!isDrawerNameValid">

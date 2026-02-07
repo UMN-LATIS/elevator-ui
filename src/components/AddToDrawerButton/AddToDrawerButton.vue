@@ -21,7 +21,7 @@
           <label class="text-xs uppercase font-medium">Existing Drawer</label>
           <select
             v-model="selectedDrawer"
-            class="border border-neutral-200 rounded w-full text-sm"
+            class="border border-outline rounded w-full text-sm"
             :class="{
               ' !border-error text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
@@ -38,8 +38,8 @@
         </div>
 
         <p
-          class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center text-sm">
-          <span class="bg-neutral-50 relative z-10 px-2">or</span>
+          class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-outline-variant relative leading-none text-center text-sm">
+          <span class="bg-surface relative z-10 px-2">or</span>
         </p>
 
         <DrawerTitleInput
@@ -47,7 +47,7 @@
           class="flex-1"
           label="New Drawer"
           :inputClass="[
-            'bg-white placeholder-neutral-400 border !border-neutral-200 rounded border-solid',
+            'bg-surface placeholder-on-surface-variant border !border-outline rounded border-solid',
             {
               '!border !border-error !text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,

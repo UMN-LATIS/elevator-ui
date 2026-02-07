@@ -7,7 +7,7 @@
         v-if="asset"
         class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-m3-primary">
         <div
-          class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-transparent-black-200 p-4">
+          class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-surface-container p-4">
           <LazyLoadImage
             v-if="imgSrc"
             :src="imgSrc"

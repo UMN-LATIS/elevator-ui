@@ -22,7 +22,7 @@
       </div>
       <div class="px-2">
         <h2
-          class="font-bold text-xs uppercase pb-2 border-b border-b-neutral-200">
+          class="font-bold text-xs uppercase pb-2 border-b border-b-outline-variant">
           Filter By
         </h2>
         <div class="max-h-[60vh] overflow-y-auto px-2">
@@ -32,7 +32,7 @@
       </div>
     </div>
     <div
-      class="flex bg-transparent-black-100 p-2 justify-end items-center gap-2">
+      class="flex bg-surface-container p-2 justify-end items-center gap-2">
       <Button
         variant="tertiary"
         type="button"

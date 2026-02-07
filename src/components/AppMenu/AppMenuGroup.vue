@@ -32,9 +32,9 @@ defineProps<{
     &:focus-within {
       background: var(
         --app-appMenuItem-hover-backgroundColor,
-        var(--color-blue-50)
+        oklch(var(--m3-primary-container))
       );
-      color: var(--app-appMenuItem-hover-textColor, var(--color-blue-600));
+      color: var(--app-appMenuItem-hover-textColor, oklch(var(--m3-primary)));
     }
   }
 }

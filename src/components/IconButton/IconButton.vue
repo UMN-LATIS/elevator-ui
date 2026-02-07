@@ -56,17 +56,17 @@ const componentType = computed(() => {
 <style scoped>
 .icon-button :is(button, a, .router-link) {
   background-color: var(--app-iconButton-backgroundColor, transparent);
-  color: var(--app-iconButton-color, var(--color-blue-700));
+  color: var(--app-iconButton-color, oklch(var(--m3-primary)));
   border-radius: var(--app-iconButton-borderRadius, 0.375rem);
   border: var(--app-iconButton-border, 1px solid transparent);
 
   &:hover {
     background-color: var(
       --app-iconButton-hover-backgroundColor,
-      var(--color-blue-50)
+      oklch(var(--m3-primary-container))
     );
-    color: var(--app-iconButton-hover-color, var(--color-blue-600));
-    border: 1px solid var(--app-iconButton-hover-color, var(--color-blue-600));
+    color: var(--app-iconButton-hover-color, oklch(var(--m3-primary)));
+    border: 1px solid var(--app-iconButton-hover-color, oklch(var(--m3-primary)));
   }
 }
 </style>

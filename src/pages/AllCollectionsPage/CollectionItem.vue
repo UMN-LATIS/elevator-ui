@@ -71,12 +71,12 @@ const showMore = ref(false);
 }
 
 .collection-item:hover {
-  background: var(--app-mediaCard-hover-backgroundColor, var(--color-blue-50));
-  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
-  border-color: var(--app-mediaCard-hover-borderColor, var(--color-blue-600));
+  background: var(--app-mediaCard-hover-backgroundColor, oklch(var(--m3-primary-container)));
+  color: var(--app-mediaCard-hover-textColor, oklch(var(--m3-primary)));
+  border-color: var(--app-mediaCard-hover-borderColor, oklch(var(--m3-primary)));
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+    color: var(--app-mediaCard-hover-textColor, oklch(var(--m3-primary)));
   }
 }
 

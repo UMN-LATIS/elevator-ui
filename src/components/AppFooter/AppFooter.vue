@@ -1,7 +1,7 @@
 <template>
   <footer
     v-if="instanceStore.customFooter"
-    class="app-footer bg-transparent-black-100">
+    class="app-footer bg-surface-container">
     <SanitizedHTML
       :html="instanceStore.customFooter"
       :addTags="['style', 'link']" />

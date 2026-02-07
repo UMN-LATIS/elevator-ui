@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout class="error-page">
     <div class="p-8">
-      <h1 class="text-8xl font-bold text-neutral-200">{{ errorCode }}</h1>
+      <h1 class="text-8xl font-bold text-on-surface-variant">{{ errorCode }}</h1>
       <h2 class="text-4xl mb-8">{{ getMessage(errorCode) }}</h2>
       <p class="my-4">{{ getDetailedMessage(errorCode) }}</p>
       <Button :to="{ name: 'home' }" icon="home" iconPosition="start">

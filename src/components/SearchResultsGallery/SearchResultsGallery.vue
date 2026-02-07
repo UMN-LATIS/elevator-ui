@@ -18,7 +18,7 @@
           :to="getAssetUrl(activeSlide.objectId)"
           class="transition-colors hover:text-m3-primary !no-underline"
           :class="{
-            'text-neutral-300 text-4xl ': isFullscreen,
+            'text-on-surface-variant text-4xl ': isFullscreen,
             'text-xl text-m3-primary ': !isFullscreen,
           }">
           {{ activeSlide.title }}
@@ -70,10 +70,10 @@
       @scrollbarDragEnd="onThumbSlideChange">
       <SwiperSlide v-for="(slide, i) in slides" :key="slide.id">
         <div
-          class="border border-neutral-400 aspect-video flex items-center justify-center w-full relative">
+            class="border border-outline aspect-video flex items-center justify-center w-full relative">
           <div
             v-if="i !== activeSlideIndex"
-            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-transparent-white-800 text-neutral-900">
+            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-surface text-on-surface">
             {{ i + 1 }}
           </div>
           <LazyLoadImage
@@ -90,8 +90,8 @@
       v-if="mainSwiper"
       class="flex items-center justify-center mb-1 relative py-4"
       :class="{
-        'text-neutral-50': isFullscreen,
-        'text-neutral-900': !isFullscreen,
+        'text-on-surface': isFullscreen,
+        'text-on-surface': !isFullscreen,
       }">
       <Button
         variant="tertiary"
@@ -102,8 +102,8 @@
         @click="mainSwiper.slidePrev()">
         <ChevronLeftIcon
           :class="{
-            'text-neutral-50': isFullscreen,
-            'text-neutral-900': !isFullscreen,
+            'text-on-surface': isFullscreen,
+            'text-on-surface': !isFullscreen,
           }" />
       </Button>
       <div
@@ -117,8 +117,8 @@
         @click="mainSwiper.slideNext()">
         <ChevronRightIcon
           :class="{
-            'text-neutral-50 ': isFullscreen,
-            'text-neutral-900': !isFullscreen,
+            'text-on-surface ': isFullscreen,
+            'text-on-surface': !isFullscreen,
           }" />
       </Button>
     </div>

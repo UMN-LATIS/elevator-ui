@@ -12,7 +12,7 @@
 
       <!-- Not Authorized -->
       <div v-else-if="!canAccess" class="p-8">
-        <h1 class="text-8xl font-bold text-neutral-300">403</h1>
+        <h1 class="text-8xl font-bold text-on-surface-variant">403</h1>
         <h2 class="text-4xl mb-8">Forbidden</h2>
         <p class="my-4">You do not have permission to view this page.</p>
         <Button :to="{ name: 'home' }" icon="home" iconPosition="start">

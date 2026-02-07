@@ -11,7 +11,7 @@
     <div
       class="flex gap-4 p-4 border-l-8 items-start"
       :class="{
-        'notification--info border-l-blue-600': type === 'info',
+        'notification--info border-l-m3-primary': type === 'info',
         'notification--warning border-l-yellow-300': type === 'warning',
         'notification--error border-l-red-600': type === 'danger',
         'notification--success border-l-green-400': type === 'success',

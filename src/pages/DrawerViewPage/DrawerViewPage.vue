@@ -38,7 +38,7 @@
         :activeTabId="activeTabId"
         @tabChange="handleTabChange">
         <div
-          class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2">
+          class="bg-outline-variant/20 rounded-md mb-4 sm:flex justify-between items-center p-2">
           <div>
             <ResultsCount
               v-if="drawer.contents"
@@ -61,7 +61,7 @@
             <select
               id="sort"
               name="sort"
-              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-on-surface ring-1 ring-inset ring-outline focus:ring-2 focus:ring-m3-primary text-sm sm:leading-6 max-w-full bg-transparent-white-800"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-on-surface ring-1 ring-inset ring-outline focus:ring-2 focus:ring-m3-primary text-sm sm:leading-6 max-w-full bg-surface"
               :value="selectedSortOption"
               @change="handleSortOptionChange">
               <option

@@ -3,7 +3,7 @@
     <div
       ref="modal"
       :class="{
-        'modal flex bg-transparent-black-700 fixed inset-0 z-50 justify-center items-center p-4 min-h-dvh':
+        'modal flex bg-black/70 fixed inset-0 z-50 justify-center items-center p-4 min-h-dvh':
           isOpen,
         hidden: !isOpen,
       }"

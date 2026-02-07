@@ -1,6 +1,6 @@
 <template>
   <button
-    class="x-button inline-flex bg-transparent-black-50 text-neutral-700 w-8 h-8 rounded-full leading-none items-center justify-center transition ease-in-out hover:bg-transparent-black-900 hover:text-white"
+    class="x-button inline-flex bg-outline text-on-surface-variant w-8 h-8 rounded-full leading-none items-center justify-center transition ease-in-out hover:bg-outline-variant hover:text-on-surface"
     @click="$emit('click')">
     <XIcon />
     <slot>
