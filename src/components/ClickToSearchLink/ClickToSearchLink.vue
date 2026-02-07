@@ -46,18 +46,18 @@ async function handleClick() {
 </script>
 <style scoped>
 .click-to-search-link {
-  color: oklch(var(--primary));
+  color: var(--primary);
 }
 .click-to-search-link:hover,
 .click-to-search-link:focus {
-  color: oklch(var(--primary));
+  color: var(--primary);
 }
 
 [data-theme="dark"] .click-to-search-link {
-  color: oklch(var(--warning));
+  color: var(--warning);
 }
 [data-theme="dark"] .click-to-search-link:hover,
 [data-theme="dark"] .click-to-search-link:focus {
-  color: oklch(var(--on-warning-container));
+  color: var(--on-warning-container);
 }
 </style>

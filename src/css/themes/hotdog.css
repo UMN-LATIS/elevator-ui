@@ -15,66 +15,67 @@
   --black: #000;
 
   /* M3 Surface tokens - dark background (like dark mode) */
-  --surface: 0% 0 0;
-  --surface-dim: 5% 0 0;
-  --surface-bright: 15% 0 0;
-  --surface-container-lowest: 0% 0 0;
-  --surface-container-low: 8% 0 0;
-  --surface-container: 12% 0 0;
-  --surface-container-high: 18% 0 0;
-  --surface-container-highest: 24% 0 0;
+  --surface: oklch(8% 0 0);
+  --surface-dim: oklch(5% 0 0);
+  --surface-bright: oklch(20% 0 0);
+  /* Containers: lowest = closest to surface, highest = most elevated/brightest */
+  --surface-container-lowest: oklch(10% 0 0);
+  --surface-container-low: oklch(14% 0 0);
+  --surface-container: oklch(18% 0 0);
+  --surface-container-high: oklch(22% 0 0);
+  --surface-container-highest: oklch(28% 0 0);
 
   /* M3 On-surface tokens - white text on black */
-  --on-surface: 100% 0 0;
-  --on-surface-variant: 85% 0 0;
+  --on-surface: oklch(100% 0 0);
+  --on-surface-variant: oklch(85% 0 0);
 
   /* M3 Primary - Red */
-  --primary: 55% 0.35 25;
-  --on-primary: 100% 0 0;
-  --primary-container: 30% 0.2 25;
-  --on-primary-container: 90% 0.1 25;
+  --primary: oklch(55% 0.35 25);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(30% 0.2 25);
+  --on-primary-container: oklch(90% 0.1 25);
 
   /* M3 Secondary - Yellow */
-  --secondary: 95% 0.25 100;
-  --on-secondary: 0% 0 0;
-  --secondary-container: 40% 0.15 100;
-  --on-secondary-container: 95% 0.1 100;
+  --secondary: oklch(95% 0.25 100);
+  --on-secondary: oklch(0% 0 0);
+  --secondary-container: oklch(40% 0.15 100);
+  --on-secondary-container: oklch(95% 0.1 100);
 
   /* M3 Tertiary - Yellow accent */
-  --tertiary: 95% 0.25 100;
-  --on-tertiary: 0% 0 0;
-  --tertiary-container: 40% 0.15 100;
-  --on-tertiary-container: 95% 0.1 100;
+  --tertiary: oklch(95% 0.25 100);
+  --on-tertiary: oklch(0% 0 0);
+  --tertiary-container: oklch(40% 0.15 100);
+  --on-tertiary-container: oklch(95% 0.1 100);
 
   /* Semantic states - brighter for dark bg */
-  --error: 70% 0.25 25;
-  --on-error: 0% 0 0;
-  --error-container: 30% 0.15 25;
-  --on-error-container: 90% 0.1 25;
+  --error: oklch(70% 0.25 25);
+  --on-error: oklch(0% 0 0);
+  --error-container: oklch(30% 0.15 25);
+  --on-error-container: oklch(90% 0.1 25);
 
-  --success: 75% 0.2 145;
-  --on-success: 0% 0 0;
-  --success-container: 30% 0.1 145;
-  --on-success-container: 90% 0.08 145;
+  --success: oklch(75% 0.2 145);
+  --on-success: oklch(0% 0 0);
+  --success-container: oklch(30% 0.1 145);
+  --on-success-container: oklch(90% 0.08 145);
 
-  --warning: 95% 0.25 100;
-  --on-warning: 0% 0 0;
-  --warning-container: 40% 0.12 100;
-  --on-warning-container: 95% 0.1 100;
+  --warning: oklch(95% 0.25 100);
+  --on-warning: oklch(0% 0 0);
+  --warning-container: oklch(40% 0.12 100);
+  --on-warning-container: oklch(95% 0.1 100);
 
-  --info: 70% 0.15 240;
-  --on-info: 0% 0 0;
-  --info-container: 30% 0.1 240;
-  --on-info-container: 85% 0.08 240;
+  --info: oklch(70% 0.15 240);
+  --on-info: oklch(0% 0 0);
+  --info-container: oklch(30% 0.1 240);
+  --on-info-container: oklch(85% 0.08 240);
 
   /* Outline - red accent */
-  --outline: 55% 0.25 25;
-  --outline-variant: 35% 0.15 25;
+  --outline: oklch(55% 0.25 25);
+  --outline-variant: oklch(35% 0.15 25);
 
   /* Inverse */
-  --inverse-surface: 95% 0.02 100;
-  --inverse-on-surface: 10% 0 0;
-  --inverse-primary: 40% 0.25 25;
+  --inverse-surface: oklch(95% 0.02 100);
+  --inverse-on-surface: oklch(10% 0 0);
+  --inverse-primary: oklch(40% 0.25 25);
 
   /* Theme-specific styles */
   & .app-header {

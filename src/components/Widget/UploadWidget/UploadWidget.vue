@@ -276,11 +276,11 @@ onBeforeUnmount(() => {
 .upload-widget button:hover,
 .upload-widget button:focus,
 .upload-widget button.is-active {
-  --tw-ring-color: oklch(var(--primary));
+  --tw-ring-color: var(--primary);
 
   /* slightly darker bg on hover to indicate interactivity */
-  background-color: oklch(var(--primary-container));
+  background-color: var(--primary-container);
 
-  color: oklch(var(--primary));
+  color: var(--primary);
 }
 </style>

@@ -7,8 +7,8 @@
 <script setup lang="ts"></script>
 <style scoped>
 .more-like-this__count {
-  background-color: oklch(var(--surface-container));
-  border: 1px solid oklch(var(--outline-variant));
-  color: oklch(var(--on-surface));
+  background-color: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface);
 }
 </style>

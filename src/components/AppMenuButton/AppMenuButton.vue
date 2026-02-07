@@ -54,22 +54,22 @@ onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
 <style scoped lang="postcss">
 .app-menu-button {
   transition: all 0.1s;
-  color: oklch(var(--on-surface));
-  background: oklch(var(--surface-container-high));
+  color: var(--on-surface);
+  background: var(--surface-container-high);
 
   &:hover {
-    color: oklch(var(--surface));
-    background: oklch(var(--on-surface));
+    color: var(--surface);
+    background: var(--on-surface);
   }
 
   &:active {
-    color: oklch(var(--surface));
-    background: oklch(var(--on-surface));
+    color: var(--surface);
+    background: var(--on-surface);
   }
 
   &:disabled {
-    color: oklch(var(--on-surface-variant));
-    background: oklch(var(--surface-container));
+    color: var(--on-surface-variant);
+    background: var(--surface-container);
   }
 }
 </style>

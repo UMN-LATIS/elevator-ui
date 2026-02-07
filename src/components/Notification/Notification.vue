@@ -56,57 +56,57 @@ defineEmits<{
 </script>
 <style scoped>
 .notification {
-  background: oklch(var(--surface-container-low));
-  color: oklch(var(--on-surface));
-  border-color: oklch(var(--outline-variant));
+  background: var(--surface-container-low);
+  color: var(--on-surface);
+  border-color: var(--outline-variant);
 }
 
 [data-theme="dark"] .notification {
-  background: oklch(var(--surface-container));
+  background: var(--surface-container);
 }
 
 .notification__title {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 
 .notification__icon {
-  background: oklch(var(--info-container));
-  color: oklch(var(--on-info-container));
+  background: var(--info-container);
+  color: var(--on-info-container);
 }
 
 .notification--warning .notification__icon {
-  background: oklch(var(--warning-container));
-  color: oklch(var(--on-warning-container));
+  background: var(--warning-container);
+  color: var(--on-warning-container);
 }
 
 .notification--error .notification__icon {
-  background: oklch(var(--error-container));
-  color: oklch(var(--on-error-container));
+  background: var(--error-container);
+  color: var(--on-error-container);
 }
 
 .notification--success .notification__icon {
-  background: oklch(var(--success-container));
-  color: oklch(var(--on-success-container));
+  background: var(--success-container);
+  color: var(--on-success-container);
 }
 
 /* Dark mode: use transparent bg with colored text for icons */
 [data-theme="dark"] .notification__icon {
   background: transparent;
-  color: oklch(var(--info));
+  color: var(--info);
 }
 
 [data-theme="dark"] .notification--warning .notification__icon {
   background: transparent;
-  color: oklch(var(--warning));
+  color: var(--warning);
 }
 
 [data-theme="dark"] .notification--error .notification__icon {
   background: transparent;
-  color: oklch(var(--error));
+  color: var(--error);
 }
 
 [data-theme="dark"] .notification--success .notification__icon {
   background: transparent;
-  color: oklch(var(--success));
+  color: var(--success);
 }
 </style>

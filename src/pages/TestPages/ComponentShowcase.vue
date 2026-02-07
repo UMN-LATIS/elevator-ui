@@ -12,6 +12,7 @@
             class="px-3 py-2 rounded border border-outline bg-surface text-on-surface">
             <option value="default">Light (Default)</option>
             <option value="dark">Dark</option>
+            <option value="primary-tint">Primary Tint</option>
             <option value="folwell">Folwell (UMN)</option>
             <option value="st-thomas">St. Thomas</option>
             <option value="hotdog">Hotdog</option>
@@ -485,7 +486,7 @@ if (currentTheme.value === "default") {
 :deep(input),
 :deep(select),
 :deep(textarea) {
-  background-color: oklch(var(--surface));
+  background-color: var(--surface);
   color: var(--on-surface);
   border-color: var(--outline);
 }

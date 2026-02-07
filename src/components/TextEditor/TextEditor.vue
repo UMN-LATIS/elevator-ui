@@ -200,7 +200,7 @@ onMounted(() => {
     gap: 0.5rem;
 
     & button {
-      border: 1px solid oklch(var(--outline));
+      border: 1px solid var(--outline);
       margin: 0;
       padding: 0.5rem 1rem;
       border-radius: 0.375rem; /* rounded-md */
@@ -209,25 +209,25 @@ onMounted(() => {
   }
 
   & .ql-html-buttonCancel {
-    background-color: oklch(var(--surface-container));
-    border-color: oklch(var(--outline));
-    color: oklch(var(--on-surface));
+    background-color: var(--surface-container);
+    border-color: var(--outline);
+    color: var(--on-surface);
 
     &:hover {
-      background-color: oklch(var(--surface-container-high));
-      border-color: oklch(var(--outline));
-      color: oklch(var(--on-surface));
+      background-color: var(--surface-container-high);
+      border-color: var(--outline);
+      color: var(--on-surface);
     }
   }
   & .ql-html-buttonOk {
-    background-color: oklch(var(--primary));
-    border-color: oklch(var(--primary));
-    color: oklch(var(--on-primary));
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
 
     &:hover {
-      background-color: oklch(var(--primary) / 0.9);
-      border-color: oklch(var(--primary));
-      color: oklch(var(--on-primary));
+      background-color: var(--primary) / 0.9;
+      border-color: var(--primary);
+      color: var(--on-primary);
     }
   }
 }

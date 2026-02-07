@@ -381,6 +381,6 @@ onBeforeRouteUpdate(async (to, _from, next) => {
 </script>
 <style scoped>
 label {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 </style>

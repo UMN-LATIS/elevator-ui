@@ -14,6 +14,7 @@
             class="px-3 py-2 rounded border border-outline bg-surface text-on-surface">
             <option value="default">Light (Default)</option>
             <option value="dark">Dark</option>
+            <option value="primary-tint">Primary Tint (color-mix)</option>
             <option value="folwell">Folwell (UMN)</option>
             <option value="st-thomas">St. Thomas</option>
             <option value="hotdog">Hotdog</option>

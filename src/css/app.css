@@ -3,6 +3,7 @@
 @import url("themes/folwell.css");
 @import url("themes/st-thomas.css");
 @import url("themes/hotdog.css");
+@import url("themes/primary-tint.css");
 
 @tailwind base;
 @tailwind components;

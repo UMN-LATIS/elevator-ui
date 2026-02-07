@@ -1,8 +1,11 @@
 <template>
-  <header class="app-header flex flex-col">
+  <header
+    class="app-header flex flex-col bg-surface-container-low border-b-2 border-outline-variant text-on-surface">
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
-        <Link to="/" class="app-header__logo-link hover:no-underline mr-4">
+        <Link
+          to="/"
+          class="app-header__logo-link hover:no-underline mr-4 text-on-surface">
           <AppLogoMark />
         </Link>
       </div>
@@ -35,28 +38,6 @@ const instanceStore = useInstanceStore();
 const currentUser = computed(() => instanceStore.currentUser);
 </script>
 <style scoped>
-.app-header {
-  background: oklch(var(--surface-container-low));
-  border-bottom: 2px solid oklch(var(--outline-variant));
-  color: oklch(var(--on-surface));
-}
-
-[data-theme="dark"] .app-header {
-  background: oklch(var(--surface));
-}
-
-.app-header__logo-link {
-  color: oklch(var(--on-surface));
-}
-
-.app-header__wordmark {
-  color: oklch(var(--on-surface));
-}
-
-.app-header__icon {
-  color: oklch(var(--on-surface));
-}
-
 .app-header__secondary-nav {
   background: transparent;
 }

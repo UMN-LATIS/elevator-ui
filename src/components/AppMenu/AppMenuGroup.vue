@@ -24,14 +24,14 @@ defineProps<{
 </script>
 <style scoped>
 .app-menu-group {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 
   & .disclosure-button {
     &:hover,
     &:focus,
     &:focus-within {
-      background: oklch(var(--primary-container));
-      color: oklch(var(--primary));
+      background: var(--primary-container);
+      color: var(--primary);
     }
   }
 }

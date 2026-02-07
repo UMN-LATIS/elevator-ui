@@ -125,19 +125,19 @@ onUnmounted(() => {
 .search-bar__search-text-input-group .advanced-search-toggle-container {
   transition: all 0.15s ease-in-out;
   border-radius: calc(infinity * 1px);
-  background: oklch(var(--surface-container));
-  color: oklch(var(--on-surface-variant));
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
 
   &:hover {
-    background: oklch(var(--surface-container-high));
-    color: oklch(var(--on-surface));
+    background: var(--surface-container-high);
+    color: var(--on-surface);
   }
 }
 
 .search-bar__search-text-input-group
   .advanced-search-toggle-container.advanced-search-toggle-container--has-filters {
-  background: oklch(var(--primary-container));
-  color: oklch(var(--on-primary-container));
+  background: var(--primary-container);
+  color: var(--on-primary-container);
 
   & button {
     color: currentColor;
@@ -145,8 +145,8 @@ onUnmounted(() => {
   }
 
   & button:hover {
-    background: oklch(var(--primary));
-    color: oklch(var(--on-primary));
+    background: var(--primary);
+    color: var(--on-primary);
   }
 }
 </style>

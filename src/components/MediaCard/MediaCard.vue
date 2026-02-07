@@ -32,32 +32,32 @@ defineProps<{
 <style scoped>
 .media-card {
   background: transparent;
-  color: oklch(var(--on-surface));
-  border: 1px solid oklch(var(--outline-variant));
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: oklch(var(--on-surface));
+    color: var(--on-surface);
   }
 }
 
 [data-theme="dark"] .media-card {
-  background: oklch(var(--surface-container));
+  background: var(--surface-container);
 }
 
 .media-card__image {
-  background: oklch(var(--surface-container));
-  color: oklch(var(--on-surface-variant));
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
 }
 
 .media-card:has(.media-card__image:hover),
 .media-card:has(.media-card__body:hover),
 a:focus .media-card {
-  background: oklch(var(--primary-container));
-  color: oklch(var(--primary));
-  border-color: oklch(var(--primary));
+  background: var(--primary-container);
+  color: var(--primary);
+  border-color: var(--primary);
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: oklch(var(--primary));
+    color: var(--primary);
   }
 }
 </style>

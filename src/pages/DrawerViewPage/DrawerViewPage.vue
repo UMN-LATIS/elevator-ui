@@ -298,7 +298,7 @@ onMounted(async () => {
 <style scoped></style>
 <style>
 .drawer-view-page__tabs {
-  background: oklch(var(--surface));
+  background: var(--surface);
 }
 
 .drawer-view-page .app-header {

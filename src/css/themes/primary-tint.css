@@ -1,0 +1,88 @@
+/**
+ * PRIMARY TINT THEME - Material Design 3 with Primary-Tinted Surfaces
+ *
+ * This theme demonstrates the M3 pattern of tinting surface containers
+ * with the primary color to create branded, cohesive surfaces.
+ * Surface containers are created by mixing primary color with the base surface.
+ *
+ * @see https://m3.material.io/styles/color/the-color-system/color-roles
+ */
+
+[data-theme="primary-tint"] {
+  /* Base surface - neutral starting point */
+  --surface: oklch(96% 0.004 260);
+  --surface-dim: oklch(93% 0.006 260);
+  --surface-bright: oklch(99% 0.002 260);
+
+  /* Primary brand color - will be mixed into containers */
+  --primary: oklch(45% 0.25 270);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(90% 0.08 270);
+  --on-primary-container: oklch(20% 0.15 270);
+
+  /* Surface containers with primary tint using color-mix()
+   * This creates branded surfaces that feel cohesive with the primary color
+   * lowest = 3% primary (subtle hint of brand)
+   * highest = 10% primary (strong brand presence)
+   */
+  --surface-container-lowest: color-mix(in oklch, var(--primary) 3%, var(--surface));
+  --surface-container-low: color-mix(in oklch, var(--primary) 5%, var(--surface));
+  --surface-container: color-mix(in oklch, var(--primary) 7%, var(--surface));
+  --surface-container-high: color-mix(in oklch, var(--primary) 8%, var(--surface));
+  --surface-container-highest: color-mix(in oklch, var(--primary) 10%, var(--surface));
+
+  /* Text colors */
+  --on-surface: oklch(20% 0.02 260);
+  --on-surface-variant: oklch(45% 0.02 260);
+
+  /* Secondary - complementary to primary */
+  --secondary: oklch(50% 0.15 180);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(90% 0.05 180);
+  --on-secondary-container: oklch(25% 0.1 180);
+
+  /* Tertiary - accent */
+  --tertiary: oklch(60% 0.2 30);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(92% 0.06 30);
+  --on-tertiary-container: oklch(28% 0.12 30);
+
+  /* Semantic states */
+  --error: oklch(55% 0.22 25);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.05 25);
+  --on-error-container: oklch(30% 0.15 25);
+
+  --success: oklch(55% 0.18 145);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 145);
+  --on-success-container: oklch(25% 0.1 145);
+
+  --warning: oklch(80% 0.15 85);
+  --on-warning: oklch(25% 0.05 85);
+  --warning-container: oklch(95% 0.05 85);
+  --on-warning-container: oklch(30% 0.1 85);
+
+  --info: oklch(60% 0.15 240);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.04 240);
+  --on-info-container: oklch(25% 0.1 240);
+
+  /* Outline */
+  --outline: oklch(55% 0.02 260);
+  --outline-variant: oklch(80% 0.01 260);
+
+  /* Inverse */
+  --inverse-surface: oklch(20% 0.02 260);
+  --inverse-on-surface: oklch(95% 0.005 260);
+  --inverse-primary: oklch(80% 0.18 270);
+
+  /* Utility */
+  --scrim: oklch(0% 0 0);
+  --shadow: oklch(0% 0 0);
+
+  /* Typography */
+  --font-display: "Work Sans", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-code: "Fira Sans", monospace;
+}

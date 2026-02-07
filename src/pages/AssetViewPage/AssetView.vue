@@ -84,10 +84,10 @@ const permitPanelToggle = useMediaQuery("(min-width: 768px)");
 <style scoped lang="postcss">
 @media (min-width: 48rem) {
   .border-r-asset-view {
-    border-right: 1px solid oklch(var(--outline-variant));
+    border-right: 1px solid var(--outline-variant);
   }
   .border-l-asset-view {
-    border-left: 1px solid oklch(var(--outline-variant));
+    border-left: 1px solid var(--outline-variant);
   }
   .border-x-asset-view {
     @apply border-r-asset-view border-l-asset-view;
@@ -95,9 +95,9 @@ const permitPanelToggle = useMediaQuery("(min-width: 768px)");
 }
 
 .border-b-asset-view {
-  border-bottom: 1px solid oklch(var(--outline-variant));
+  border-bottom: 1px solid var(--outline-variant);
 }
 .border-t-asset-view {
-  border-top: 1px solid oklch(var(--outline-variant));
+  border-top: 1px solid var(--outline-variant);
 }
 </style>

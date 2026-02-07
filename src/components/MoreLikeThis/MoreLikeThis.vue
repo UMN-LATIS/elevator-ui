@@ -70,6 +70,6 @@ const isShowingFullListOfResults = ref(false);
 </script>
 <style scoped>
 .more-like-this__title {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 </style>

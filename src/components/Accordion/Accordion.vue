@@ -58,26 +58,26 @@ function handleAccordionToggle() {
 </script>
 <style scoped>
 .accordion {
-  color: oklch(var(--on-surface));
-  border: 1px solid oklch(var(--outline-variant));
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
 }
 
 .accordion__header {
   background: transparent;
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 
 [data-theme="dark"] .accordion__header {
-  background: oklch(var(--surface-container));
+  background: var(--surface-container);
 }
 
 .accordion__body {
   background: transparent;
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
   border-top: 1px solid transparent;
 }
 
 [data-theme="dark"] .accordion__body {
-  background: oklch(var(--surface-container-low));
+  background: var(--surface-container-low);
 }
 </style>

@@ -40,20 +40,20 @@ const delayDurationComputed = computed(() => {
 </script>
 <style scoped>
 .tooltip {
-  --color-tooltip-bg: oklch(var(--on-surface));
-  --color-tooltip-text: oklch(var(--surface));
+  --color-tooltip-bg: var(--on-surface);
+  --color-tooltip-text: var(--surface);
   --shadow-tooltip: 0 4px 6px -1px rgb(0 0 0 / 0.1),
     0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .tooltip.tooltip--light {
-  --color-tooltip-bg: oklch(var(--surface));
-  --color-tooltip-text: oklch(var(--on-surface));
+  --color-tooltip-bg: var(--surface);
+  --color-tooltip-text: var(--on-surface);
 }
 
 :deep(.popper) {
-  --color-tooltip-bg: oklch(var(--on-surface));
-  --color-tooltip-text: oklch(var(--surface));
+  --color-tooltip-bg: var(--on-surface);
+  --color-tooltip-text: var(--surface);
   background: var(--color-tooltip-bg);
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;

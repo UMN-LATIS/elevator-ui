@@ -92,8 +92,8 @@ onUnmounted(() => {
 </script>
 <style scoped>
 .static-content-page__content {
-  background: oklch(var(--surface));
-  color: oklch(var(--on-surface));
+  background: var(--surface);
+  color: var(--on-surface);
 }
 
 .prose :first-child {

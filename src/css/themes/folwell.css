@@ -17,66 +17,67 @@
   --maroon-light: #940422;
 
   /* M3 Surface tokens - light neutral background */
-  --surface: 97% 0.01 80;
-  --surface-dim: 93% 0.01 80;
-  --surface-bright: 99% 0.005 80;
-  --surface-container-lowest: 100% 0 0;
-  --surface-container-low: 96% 0.008 80;
-  --surface-container: 94% 0.01 80;
-  --surface-container-high: 91% 0.012 80;
-  --surface-container-highest: 88% 0.015 80;
+  --surface: oklch(95% 0.012 80);
+  --surface-dim: oklch(92% 0.014 80);
+  --surface-bright: oklch(99% 0.008 80);
+  /* Containers: lowest = closest to surface, highest = most elevated */
+  --surface-container-lowest: oklch(96% 0.011 80);
+  --surface-container-low: oklch(97% 0.01 80);
+  --surface-container: oklch(98% 0.009 80);
+  --surface-container-high: oklch(99% 0.008 80);
+  --surface-container-highest: oklch(100% 0.006 80);
 
   /* M3 On-surface tokens */
-  --on-surface: 20% 0.02 260;
-  --on-surface-variant: 40% 0.02 260;
+  --on-surface: oklch(20% 0.02 260);
+  --on-surface-variant: oklch(40% 0.02 260);
 
   /* M3 Primary - UMN Maroon */
-  --primary: 30% 0.15 15;
-  --on-primary: 100% 0 0;
-  --primary-container: 90% 0.05 15;
-  --on-primary-container: 25% 0.1 15;
+  --primary: oklch(30% 0.15 15);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(90% 0.05 15);
+  --on-primary-container: oklch(25% 0.1 15);
 
   /* M3 Secondary - UMN Gold */
-  --secondary: 80% 0.15 85;
-  --on-secondary: 25% 0.05 85;
-  --secondary-container: 92% 0.08 85;
-  --on-secondary-container: 30% 0.1 85;
+  --secondary: oklch(80% 0.15 85);
+  --on-secondary: oklch(25% 0.05 85);
+  --secondary-container: oklch(92% 0.08 85);
+  --on-secondary-container: oklch(30% 0.1 85);
 
   /* M3 Tertiary - Blue accent */
-  --tertiary: 50% 0.2 250;
-  --on-tertiary: 100% 0 0;
-  --tertiary-container: 90% 0.05 250;
-  --on-tertiary-container: 25% 0.1 250;
+  --tertiary: oklch(50% 0.2 250);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(90% 0.05 250);
+  --on-tertiary-container: oklch(25% 0.1 250);
 
   /* Semantic states */
-  --error: 55% 0.22 25;
-  --on-error: 100% 0 0;
-  --error-container: 92% 0.05 25;
-  --on-error-container: 30% 0.15 25;
+  --error: oklch(55% 0.22 25);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.05 25);
+  --on-error-container: oklch(30% 0.15 25);
 
-  --success: 55% 0.18 145;
-  --on-success: 100% 0 0;
-  --success-container: 92% 0.05 145;
-  --on-success-container: 25% 0.1 145;
+  --success: oklch(55% 0.18 145);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 145);
+  --on-success-container: oklch(25% 0.1 145);
 
-  --warning: 80% 0.15 85;
-  --on-warning: 25% 0.05 85;
-  --warning-container: 95% 0.05 85;
-  --on-warning-container: 30% 0.1 85;
+  --warning: oklch(80% 0.15 85);
+  --on-warning: oklch(25% 0.05 85);
+  --warning-container: oklch(95% 0.05 85);
+  --on-warning-container: oklch(30% 0.1 85);
 
-  --info: 60% 0.15 240;
-  --on-info: 100% 0 0;
-  --info-container: 92% 0.04 240;
-  --on-info-container: 25% 0.1 240;
+  --info: oklch(60% 0.15 240);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.04 240);
+  --on-info-container: oklch(25% 0.1 240);
 
   /* Outline */
-  --outline: 50% 0.02 80;
-  --outline-variant: 75% 0.01 80;
+  --outline: oklch(50% 0.02 80);
+  --outline-variant: oklch(75% 0.01 80);
 
   /* Inverse */
-  --inverse-surface: 25% 0.02 260;
-  --inverse-on-surface: 95% 0.005 260;
-  --inverse-primary: 75% 0.1 15;
+  --inverse-surface: oklch(25% 0.02 260);
+  --inverse-on-surface: oklch(95% 0.005 260);
+  --inverse-primary: oklch(75% 0.1 15);
 
   /* Theme-specific styles */
   & .app-header {

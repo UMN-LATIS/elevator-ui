@@ -132,7 +132,7 @@ const thumbnailImgSrc = computed(() => {
 </script>
 <style scoped>
 .search-result-card:has(.remove-from-drawer-btn:hover) {
-  border-color: oklch(var(--on-surface));
+  border-color: var(--on-surface);
 }
 
 img {

@@ -56,24 +56,24 @@ const componentType = computed(() => {
 <style scoped>
 .icon-button :is(button, a, .router-link) {
   background-color: transparent;
-  color: oklch(var(--primary));
+  color: var(--primary);
   border-radius: 0.375rem;
   border: 1px solid transparent;
 
   &:hover {
-    background-color: oklch(var(--primary-container));
-    color: oklch(var(--primary));
-    border: 1px solid oklch(var(--primary));
+    background-color: var(--primary-container);
+    color: var(--primary);
+    border: 1px solid var(--primary);
   }
 }
 
 [data-theme="dark"] .icon-button :is(button, a, .router-link) {
-  color: oklch(var(--warning));
+  color: var(--warning);
 
   &:hover {
-    background-color: oklch(var(--warning-container));
-    color: oklch(var(--on-warning-container));
-    border-color: oklch(var(--warning));
+    background-color: var(--warning-container);
+    color: var(--on-warning-container);
+    border-color: var(--warning);
   }
 }
 </style>

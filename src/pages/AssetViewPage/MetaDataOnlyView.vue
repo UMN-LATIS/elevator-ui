@@ -47,14 +47,14 @@ watch(
 </script>
 <style scoped>
 .meta-data-only-view__inner {
-  background: oklch(var(--surface-container-low));
+  background: var(--surface-container-low);
 }
 .meta-data-only-view__article {
-  background: oklch(var(--surface));
-  color: oklch(var(--on-surface));
+  background: var(--surface);
+  color: var(--on-surface);
 }
 
 .meta-data-only-view__article h2:after {
-  background: oklch(var(--on-surface));
+  background: var(--on-surface);
 }
 </style>

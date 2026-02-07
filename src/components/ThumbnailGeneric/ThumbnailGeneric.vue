@@ -28,12 +28,12 @@ defineProps<{
 </script>
 <style scoped>
 .thumbnail-generic {
-  border-color: oklch(var(--outline-variant));
-  background: oklch(var(--surface-container));
-  color: oklch(var(--on-surface-variant));
+  border-color: var(--outline-variant);
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
 }
 
 .thumbnail-generic--is-active {
-  --tw-ring-color: oklch(var(--primary));
+  --tw-ring-color: var(--primary);
 }
 </style>

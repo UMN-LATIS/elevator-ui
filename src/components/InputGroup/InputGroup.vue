@@ -77,7 +77,7 @@ const model = defineModel<TModelValue>({
 </script>
 <style scoped>
 .input-group label {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 
 /* hack to show placeholder text for safari date inputs.
@@ -91,7 +91,7 @@ safari will show the current date if no value is set, even if a placeholder is s
   /* then use a pseudo element to show the placeholder text */
   input[type="date"].input--is-blank:not(:focus)::before {
     content: attr(placeholder);
-    color: oklch(var(--on-surface-variant));
+    color: var(--on-surface-variant);
   }
 }
 </style>

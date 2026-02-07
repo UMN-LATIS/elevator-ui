@@ -73,20 +73,20 @@ provide(
 </script>
 <style scoped>
 .modal-contents {
-  background: oklch(var(--surface-container-low));
-  color: oklch(var(--on-surface));
+  background: var(--surface-container-low);
+  color: var(--on-surface);
 }
 
 .modal-contents__header {
-  background: oklch(var(--surface-container));
-  color: oklch(var(--on-surface));
+  background: var(--surface-container);
+  color: var(--on-surface);
 }
 
 [data-theme="dark"] .modal-contents {
-  background: oklch(var(--surface));
+  background: var(--surface);
 }
 
 [data-theme="dark"] .modal-contents__header {
-  color: oklch(var(--warning));
+  color: var(--warning);
 }
 </style>

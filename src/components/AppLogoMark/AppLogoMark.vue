@@ -20,6 +20,6 @@ const instanceStore = useInstanceStore();
 </script>
 <style scoped>
 .app-header__wordmark {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 </style>

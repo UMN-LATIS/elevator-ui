@@ -68,13 +68,13 @@ const imgSrc = computed((): string | null => {
 </script>
 <style scoped>
 .search-result-card__title {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 
 .media-card {
-  background: oklch(var(--surface-container));
-  color: oklch(var(--on-surface));
-  border: 1px solid oklch(var(--outline-variant));
+  background: var(--surface-container);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
 }
 
 img {

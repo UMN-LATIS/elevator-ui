@@ -28,9 +28,9 @@ withDefaults(
 </script>
 <style>
 :root {
-  --popper-theme-background-color: oklch(var(--inverse-surface));
-  --popper-theme-background-color-hover: oklch(var(--inverse-surface));
-  --popper-theme-text-color: oklch(var(--inverse-on-surface));
+  --popper-theme-background-color: var(--inverse-surface);
+  --popper-theme-background-color-hover: var(--inverse-surface);
+  --popper-theme-text-color: var(--inverse-on-surface);
   --popper-theme-border-width: 0px;
   --popper-theme-border-style: solid;
   --popper-theme-border-radius: 0.25rem;

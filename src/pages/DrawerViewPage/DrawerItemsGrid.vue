@@ -103,8 +103,8 @@ const hasMoreResults = computed(() => {
 }
 
 .drag-handle {
-  background: oklch(var(--surface));
-  border: 1px solid oklch(var(--outline-variant));
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
   border-right: none;
 }
 
@@ -119,17 +119,17 @@ const hasMoreResults = computed(() => {
   width: full;
   height: full;
   z-index: 20;
-  background: oklch(var(--primary));
+  background: var(--primary);
   border-radius: 0.25rem 0.25rem 0 0;
   opacity: 0.5;
 }
 
 .draggable-ghost .drag-handle {
-  background: oklch(var(--primary));
-  color: oklch(var(--primary-container));
+  background: var(--primary);
+  color: var(--primary-container);
 }
 
 .is-dragging .search-result-card {
-  background: oklch(var(--surface));
+  background: var(--surface);
 }
 </style>

@@ -22,23 +22,23 @@ withDefaults(
 </script>
 <style scoped lang="postcss">
 .chip--is-clickable {
-  border-color: oklch(var(--primary));
-  background: oklch(var(--inverse-primary));
-  color: oklch(var(--primary));
+  border-color: var(--primary);
+  background: var(--inverse-primary);
+  color: var(--primary);
 
   &:hover {
-    color: oklch(var(--inverse-primary));
-    background: oklch(var(--primary));
+    color: var(--inverse-primary);
+    background: var(--primary);
   }
 }
 
 [data-theme="dark"] .chip--is-clickable {
-  border-color: oklch(var(--warning));
-  color: oklch(var(--warning));
+  border-color: var(--warning);
+  color: var(--warning);
 
   &:hover {
-    background: oklch(var(--warning));
-    color: oklch(var(--on-warning));
+    background: var(--warning);
+    color: var(--on-warning);
   }
 }
 </style>

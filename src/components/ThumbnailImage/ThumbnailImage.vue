@@ -77,10 +77,10 @@ const isAudio = computed((): boolean => {
 </script>
 <style scoped>
 .thumbnail-image--is-active {
-  --tw-ring-color: oklch(var(--primary));
+  --tw-ring-color: var(--primary);
 }
 
 [data-theme="dark"] .thumbnail-image--is-active {
-  --tw-ring-color: oklch(var(--warning));
+  --tw-ring-color: var(--warning);
 }
 </style>

@@ -9,70 +9,72 @@
 [data-theme="dark"],
 .dark {
   /* Surface hierarchy - darker backgrounds with subtle purple tint */
-  --surface: 14% 0.02 260;
-  --surface-dim: 8% 0.015 260;
-  --surface-bright: 28% 0.03 260;
+  --surface: oklch(12% 0.02 260);
+  --surface-dim: oklch(8% 0.015 260);
+  --surface-bright: oklch(22% 0.025 260);
 
-  --surface-container-lowest: 2% 0.02 260;
-  --surface-container-low: 22% 0.025 260;
-  --surface-container: 28% 0.03 260;
-  --surface-container-high: 34% 0.035 260;
-  --surface-container-highest: 40% 0.04 260;
+  /* Containers sit ON surface. lowest = closest to surface, highest = most contrast
+   * In dark mode: elevation also = lighter/brighter */
+  --surface-container-lowest: oklch(14% 0.021 260);
+  --surface-container-low: oklch(17% 0.022 260);
+  --surface-container: oklch(20% 0.024 260);
+  --surface-container-high: oklch(24% 0.026 260);
+  --surface-container-highest: oklch(28% 0.028 260);
 
   /* Text colors - high contrast for readability */
-  --on-surface: 90% 0.01 260;
-  --on-surface-variant: 72% 0.02 260;
+  --on-surface: oklch(90% 0.01 260);
+  --on-surface-variant: oklch(72% 0.02 260);
 
   /* Primary - lightened for dark backgrounds */
-  --primary: 80% 0.12 250;
-  --on-primary: 20% 0.05 250;
-  --primary-container: 28% 0.1 250;
-  --on-primary-container: 90% 0.05 250;
+  --primary: oklch(80% 0.12 250);
+  --on-primary: oklch(20% 0.05 250);
+  --primary-container: oklch(28% 0.1 250);
+  --on-primary-container: oklch(90% 0.05 250);
 
   /* Secondary */
-  --secondary: 75% 0.02 260;
-  --on-secondary: 20% 0.02 260;
-  --secondary-container: 28% 0.02 260;
-  --on-secondary-container: 90% 0.01 260;
+  --secondary: oklch(75% 0.02 260);
+  --on-secondary: oklch(20% 0.02 260);
+  --secondary-container: oklch(28% 0.02 260);
+  --on-secondary-container: oklch(90% 0.01 260);
 
   /* Tertiary */
-  --tertiary: 85% 0.15 330;
-  --on-tertiary: 25% 0.1 330;
-  --tertiary-container: 32% 0.12 330;
-  --on-tertiary-container: 90% 0.05 330;
+  --tertiary: oklch(85% 0.15 330);
+  --on-tertiary: oklch(25% 0.1 330);
+  --tertiary-container: oklch(32% 0.12 330);
+  --on-tertiary-container: oklch(90% 0.05 330);
 
   /* Error - lighter red for visibility */
-  --error: 80% 0.15 25;
-  --on-error: 20% 0.05 25;
-  --error-container: 28% 0.1 25;
-  --on-error-container: 90% 0.05 25;
+  --error: oklch(80% 0.15 25);
+  --on-error: oklch(20% 0.05 25);
+  --error-container: oklch(28% 0.1 25);
+  --on-error-container: oklch(90% 0.05 25);
 
   /* Success - lighter green */
-  --success: 80% 0.12 145;
-  --on-success: 20% 0.05 145;
-  --success-container: 28% 0.08 145;
-  --on-success-container: 90% 0.04 145;
+  --success: oklch(80% 0.12 145);
+  --on-success: oklch(20% 0.05 145);
+  --success-container: oklch(28% 0.08 145);
+  --on-success-container: oklch(90% 0.04 145);
 
   /* Warning - lighter amber/yellow (also used as warm accent) */
-  --warning: 88% 0.1 85;
-  --on-warning: 20% 0.05 85;
-  --warning-container: 32% 0.08 85;
-  --on-warning-container: 90% 0.04 85;
+  --warning: oklch(88% 0.1 85);
+  --on-warning: oklch(20% 0.05 85);
+  --warning-container: oklch(32% 0.08 85);
+  --on-warning-container: oklch(90% 0.04 85);
 
   /* Info - lighter cyan-blue */
-  --info: 75% 0.1 240;
-  --on-info: 20% 0.05 240;
-  --info-container: 28% 0.06 240;
-  --on-info-container: 90% 0.04 240;
+  --info: oklch(75% 0.1 240);
+  --on-info: oklch(20% 0.05 240);
+  --info-container: oklch(28% 0.06 240);
+  --on-info-container: oklch(90% 0.04 240);
 
   /* Outline - lighter for visibility on dark backgrounds */
-  --outline: 58% 0.02 260;
-  --outline-variant: 40% 0.02 260;
+  --outline: oklch(58% 0.02 260);
+  --outline-variant: oklch(40% 0.02 260);
 
   /* Inverse colors */
-  --inverse-surface: 90% 0.01 260;
-  --inverse-on-surface: 20% 0.02 260;
-  --inverse-primary: 40% 0.2 250;
+  --inverse-surface: oklch(90% 0.01 260);
+  --inverse-on-surface: oklch(20% 0.02 260);
+  --inverse-primary: oklch(40% 0.2 250);
 }
 
 /**
@@ -81,6 +83,11 @@
  * adjustments beyond what M3 tokens provide.
  */
 [data-theme="dark"] {
+  /* App header - use base surface instead of container for dark mode */
+  & .app-header {
+    background: oklch(var(--surface));
+  }
+
   /* X/Close button styling */
   & .x-button {
     background: oklch(var(--surface-container));

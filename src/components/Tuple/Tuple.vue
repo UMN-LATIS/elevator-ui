@@ -52,10 +52,10 @@ export default {
 
 <style scoped>
 .tuple__label {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 
 .tuple__value {
-  color: oklch(var(--on-surface-variant));
+  color: var(--on-surface-variant);
 }
 </style>

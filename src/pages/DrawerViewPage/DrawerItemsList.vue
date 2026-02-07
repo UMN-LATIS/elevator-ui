@@ -98,14 +98,14 @@ const hasMoreResults = computed(() => {
   width: full;
   height: full;
   z-index: 20;
-  background: oklch(var(--primary));
+  background: var(--primary);
   border-radius: 0.25rem 0.25rem 0 0;
   opacity: 0.5;
 }
 
 .draggable-ghost .drag-handle {
-  background: oklch(var(--primary));
-  color: oklch(var(--primary-container));
+  background: var(--primary);
+  color: var(--primary-container);
 }
 
 .is-dragging .search-result-row {

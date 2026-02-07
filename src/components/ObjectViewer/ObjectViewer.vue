@@ -33,6 +33,6 @@ withDefaults(
 </script>
 <style scoped>
 .object-viewer {
-  background-color: oklch(var(--surface-container));
+  background-color: var(--surface-container);
 }
 </style>

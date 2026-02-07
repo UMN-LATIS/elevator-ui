@@ -170,11 +170,11 @@ onUnmounted(() => {
 <style scoped>
 .featured-asset-block,
 .page-content-block {
-  background: oklch(var(--surface));
-  color: oklch(var(--on-surface));
+  background: var(--surface);
+  color: var(--on-surface);
 }
 
 .featured-asset-block {
-  border-left: 1px solid oklch(var(--outline));
+  border-left: 1px solid var(--outline);
 }
 </style>
