@@ -53,7 +53,7 @@ defineEmits<{
 </script>
 <style scoped>
 .panel__header {
-  background: var(--surface-container-low) / 0.5;
+  background: color-mix(in oklch, var(--surface-container-low) 50%, transparent);
   color: var(--on-surface);
 }
 

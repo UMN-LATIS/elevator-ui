@@ -92,8 +92,7 @@
               for assistance.
             </p>
             <details>
-              <summary
-                class="mt-2 text-sm text-error underline cursor-pointer">
+              <summary class="mt-2 text-sm text-error underline cursor-pointer">
                 View Widget Definition
               </summary>
               <code

@@ -22,7 +22,7 @@
         @update:modelValue="handleSelectItem($event as string | null)">
         <ComboboxAnchor asChild>
           <ComboboxTrigger
-            class="w-full bg-surface-container-lowest h-full text-left flex items-center gap-4 justify-between px-4 py-3 hover:bg-surface-container rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-sm">
+            class="w-full bg-surface-container h-full text-left flex items-center gap-4 justify-between px-4 py-3 hover:bg-surface-container-high rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-sm">
             <EditRelatedAssetPreview
               v-if="targetAssetPreview"
               :assetPreview="targetAssetPreview"
@@ -37,7 +37,7 @@
         </ComboboxAnchor>
 
         <ComboboxList
-          class="focus-within:shadow-md focus-within:border-2 focus-within:border-primary rounded-md overflow-hidden">
+          class="focus-within:shadow-md focus-within:border-2 focus-within:border-primary rounded-md overflow-hidden bg-surface-bright">
           <div class="relative w-full items-center">
             <ComboboxInput
               v-model="searchInput"

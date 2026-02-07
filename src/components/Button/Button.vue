@@ -55,69 +55,54 @@ const componentType = computed(() => {
 </script>
 <style lang="postcss" scoped>
 .button {
+  /* using variables to derive different states for variants */
+  /* defaulting to secondary */
+  --bg: var(--secondary);
+  --on-bg: var(--on-secondary);
+  background: var(--bg);
+  color: var(--on-bg);
+  border-color: var(--bg);
   border-width: 2px;
   border-style: solid;
+
+  &:hover:not(:disabled) {
+    color: var(--on-bg);
+    background: color-mix(in oklch, var(--bg) 90%, transparent);
+    border-color: color-mix(in oklch, var(--bg) 90%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in oklch, var(--bg) 80%, transparent);
+    border-color: color-mix(in oklch, var(--bg) 80%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.37;
+    filter: saturate(0);
+    cursor: not-allowed;
+  }
 }
 
 /* Primary button: filled in light mode, outlined in dark mode */
 .button--primary {
-  color: var(--on-primary);
-  background: var(--primary);
-  border-color: var(--primary);
-
-  &:hover {
-    color: var(--on-primary);
-    background: var(--primary) / 0.9;
-    border-color: var(--primary) / 0.9;
-  }
-
-  &:active {
-    color: var(--on-primary);
-    background: var(--primary) / 0.8;
-    border-color: var(--primary) / 0.8;
-  }
-
-  &:disabled {
-    color: var(--on-surface-variant) / 0.38;
-    background: var(--surface-container-high);
-    border-color: var(--surface-container-high);
-  }
+  --bg: var(--primary);
+  --on-bg: var(--on-primary);
 }
 
 /* Secondary button: outlined */
 .button--secondary {
-  color: var(--secondary);
-  background: transparent;
-  border-color: var(--secondary);
-
-  &:hover {
-    color: var(--on-secondary);
-    background: var(--secondary);
-    border-color: var(--secondary);
-  }
-
-  &:active {
-    color: var(--on-secondary);
-    background: var(--secondary) / 0.9;
-    border-color: var(--secondary) / 0.9;
-  }
-
-  &:disabled {
-    color: var(--on-surface) / 0.38;
-    background: transparent;
-    border-color: var(--on-surface) / 0.12;
-  }
+  --bg: var(--secondary);
+  --on-bg: var(--on-secondary);
 }
 
 /* Tertiary button: text only, uses warm accent in dark mode */
 .button--tertiary {
-  color: var(--primary);
-  background: transparent;
-  border: none;
+  --bg: transparent;
+  --on-bg: var(--primary);
+  border-color: transparent;
 
   &:hover {
-    color: var(--primary);
-    background: var(--primary-container) / 0.5;
+    background: color-mix(in oklch, var(--bg) 50%, transparent);
   }
 
   &:active {
@@ -127,7 +112,7 @@ const componentType = computed(() => {
 
   &:disabled {
     cursor: not-allowed;
-    color: var(--on-surface) / 0.38;
+    color: color-mix(in oklch, var(--on-surface) 38%, transparent);
     background: transparent;
   }
 }

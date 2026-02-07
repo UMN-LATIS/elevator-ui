@@ -225,7 +225,7 @@ onMounted(() => {
     color: var(--on-primary);
 
     &:hover {
-      background-color: var(--primary) / 0.9;
+      background-color: color-mix(in oklch, var(--primary) 90%, transparent);
       border-color: var(--primary);
       color: var(--on-primary);
     }

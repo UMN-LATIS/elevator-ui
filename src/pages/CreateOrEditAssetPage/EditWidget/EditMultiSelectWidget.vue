@@ -77,8 +77,4 @@ const handleUpdateFieldContents = (
 };
 </script>
 
-<style>
-.edit-multiselect-widget .cascade-select select {
-  @apply bg-surface-container-lowest border-none;
-}
-</style>
+<style></style>

@@ -197,32 +197,32 @@ h6 {
 
 .el-btn {
   display: inline-block;
-  border: 2px solid oklch(var(--primary));
-  background: oklch(var(--primary));
-  color: oklch(var(--on-primary));
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
   cursor: pointer;
   text-decoration: none;
 
   &:hover {
-    border-color: oklch(var(--primary) / 0.9);
-    background: oklch(var(--primary) / 0.9);
-    color: oklch(var(--on-primary));
+    border-color: color-mix(in oklch, var(--primary) 90%, transparent);
+    background: color-mix(in oklch, var(--primary) 90%, transparent);
+    color: var(--on-primary);
     text-decoration: none;
   }
 
   &:active {
-    border-color: oklch(var(--primary) / 0.8);
-    background: oklch(var(--primary) / 0.8);
-    color: oklch(var(--on-primary));
+    border-color: color-mix(in oklch, var(--primary) 80%, transparent);
+    background: color-mix(in oklch, var(--primary) 80%, transparent);
+    color: var(--on-primary);
     text-decoration: none;
   }
 
   &:disabled {
-    border-color: oklch(var(--surface-container-high));
-    background: oklch(var(--surface-container-high));
-    color: oklch(var(--on-surface-variant) / 0.38);
+    border-color: var(--surface-container-high);
+    background: var(--surface-container-high);
+    color: color-mix(in oklch, var(--on-surface-variant) 38%, transparent);
     cursor: not-allowed;
   }
 }

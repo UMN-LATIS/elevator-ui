@@ -1,7 +1,7 @@
 <template>
   <form
     ref="advancedSearchForm"
-    class="advanced-search-form bg-white rounded-3xl shadow-md"
+    class="advanced-search-form bg-surface rounded-3xl shadow-md"
     @submit.prevent="handleSubmit">
     <div class="p-2">
       <h1 class="sr-only">Advanced Search</h1>
@@ -32,7 +32,7 @@
       </div>
     </div>
     <div
-      class="flex bg-surface-container p-2 justify-end items-center gap-2">
+      class="flex bg-surface-container p-2 justify-end items-center gap-2 rounded-b-3xl">
       <Button
         variant="tertiary"
         type="button"

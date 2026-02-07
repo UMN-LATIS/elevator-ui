@@ -44,7 +44,7 @@
             :placeholder="widgetDef.label"
             :fieldTitle="widgetDef.fieldTitle"
             :templateId="templateId"
-            inputClass="w-full bg-surface-container-lowest border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            inputClass="w-full bg-surface-container border-none rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             @update:modelValue="(value) => handleFieldUpdate(item, value)"
             @select="(value) => handleFieldUpdate(item, value)" />
         </div>
@@ -55,7 +55,7 @@
           :id="`${item.id}-input`"
           :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
           :placeholder="widgetDef.label"
-          class="bg-surface-container-lowest border-none"
+          class="bg-surface-container border-none"
           @update:modelValue="
             (value) =>
               $emit(

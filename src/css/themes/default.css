@@ -27,23 +27,23 @@
    *   - surface-dim: for reduced emphasis backgrounds
    *   - surface-bright: for elevated/highlighted backgrounds
    * ============================================ */
-  --surface: oklch(92% 0.006 260);
+  --surface: oklch(98% 0.006 260);
   --surface-dim: oklch(93% 0.008 260);
-  --surface-bright: oklch(99% 0.003 260);
+  --surface-bright: oklch(100% 0.003 260);
 
   /* Surface containers are for components placed ON the surface.
    * lowest = minimal contrast with surface (barely elevated)
    * highest = maximum contrast with surface (most elevated)
    * In light mode: elevation = lighter/brighter (catching more light)
    */
-  --surface-container-lowest: oklch(93% 0.0055 260);
-  --surface-container-low: oklch(94% 0.005 260);
-  --surface-container: oklch(96% 0.004 260);
-  --surface-container-high: oklch(98% 0.003 260);
-  --surface-container-highest: oklch(99% 0.003 260);
+  --surface-container-lowest: oklch(96% 0.0055 260);
+  --surface-container-low: oklch(95% 0.005 260);
+  --surface-container: oklch(94% 0.004 260);
+  --surface-container-high: oklch(93% 0.003 260);
+  --surface-container-highest: oklch(92% 0.003 260);
 
   --on-surface: oklch(20% 0.02 260);           /* primary text on surface */
-  --on-surface-variant: oklch(45% 0.02 260);   /* secondary/muted text, icons */
+  --on-surface-variant: oklch(0.55 0 0);   /* secondary/muted text, icons */
 
   /* ============================================
    * PRIMARY - Main accent color
@@ -133,8 +133,8 @@
   /* ============================================
    * UTILITY
    * ============================================ */
-  --scrim: oklch(0% 0 0);                          /* modal overlays (use with alpha) */
-  --shadow: oklch(0% 0 0);                         /* elevation shadows (use with alpha) */
+  --scrim: oklch(0% 0 0 / 0.5);                          /* modal overlays (use with alpha) */
+  --shadow: oklch(0% 0 0 / 0.5);                         /* elevation shadows (use with alpha) */
 
   /* Typography */
   --font-display: "Work Sans", sans-serif;

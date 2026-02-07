@@ -18,10 +18,7 @@
       :id="id"
       :value="modelValue ?? ''"
       :class="
-        cn([
-          'rounded-md border-none bg-surface-container-lowest text-sm',
-          selectClass,
-        ])
+        cn(['rounded-md border-none bg-surface-container text-sm', selectClass])
       "
       readonly
       required

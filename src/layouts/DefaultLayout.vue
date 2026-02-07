@@ -1,5 +1,7 @@
 <template>
-  <div id="top" class="default-layout min-h-screen pt-18 flex flex-col">
+  <div
+    id="top"
+    class="default-layout bg-surface min-h-screen pt-18 flex flex-col">
     <SkipNavLink href="#main" />
     <slot name="custom-header" />
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
