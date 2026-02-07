@@ -89,10 +89,7 @@
     <div
       v-if="mainSwiper"
       class="flex items-center justify-center mb-1 relative py-4"
-      :class="{
-        'text-on-surface': isFullscreen,
-        'text-on-surface': !isFullscreen,
-      }">
+      :class="{ 'text-on-surface': true }">
       <Button
         variant="tertiary"
         class="!m-0 bg-transparent hover:!bg-transparent-white-500"
@@ -100,11 +97,7 @@
           'opacity-30': activeSlideIndex === 0,
         }"
         @click="mainSwiper.slidePrev()">
-        <ChevronLeftIcon
-          :class="{
-            'text-on-surface': isFullscreen,
-            'text-on-surface': !isFullscreen,
-          }" />
+        <ChevronLeftIcon class="text-on-surface" />
       </Button>
       <div
         class="flex flex-col items-center justify-center text-xs text-center px-4 py-2">
