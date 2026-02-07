@@ -11,4 +11,3 @@
 import ArrowForwardIcon from "@/icons/ArrowForwardIcon.vue";
 import Button from "@/components/Button/Button.vue";
 </script>
-<style scoped></style>

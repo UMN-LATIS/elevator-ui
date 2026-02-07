@@ -1,6 +1,6 @@
 <template>
   <div
-    class="avatar inline-flex justify-center items-center rounded-full w-6 h-6 border text-xs font-sans">
+    class="avatar inline-flex justify-center items-center rounded-full w-6 h-6 border text-xs font-sans text-on-surface bg-surface-container border-outline-variant">
     {{ firstInitial }}
   </div>
 </template>
@@ -18,10 +18,3 @@ const firstInitial = computed(() => {
   return props.name[0].toUpperCase();
 });
 </script>
-<style scoped>
-.avatar {
-  color: var(--on-surface);
-  background: var(--surface-container);
-  border-color: var(--outline-variant);
-}
-</style>

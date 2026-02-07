@@ -76,5 +76,4 @@ function handleItemUpdate(
   emit("update:widgetContents", updatedContents);
 }
 </script>
-<style scoped></style>
 <style></style>

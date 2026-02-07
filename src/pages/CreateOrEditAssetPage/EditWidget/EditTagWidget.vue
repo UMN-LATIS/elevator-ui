@@ -181,5 +181,3 @@ async function handleKeydown(itemId: string, event: KeyboardEvent) {
   }
 }
 </script>
-
-<style scoped></style>

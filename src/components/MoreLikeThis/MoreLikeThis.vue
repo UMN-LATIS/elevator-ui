@@ -2,7 +2,7 @@
   <section v-if="items.length" class="more-like-this">
     <div v-if="inlineResultsList.length" class="pt-6 mt-6">
       <h3
-        class="more-like-this__title flex flex-wrap items-center gap-2 mb-4 text-xl font-bold">
+        class="more-like-this__title flex flex-wrap items-center gap-2 mb-4 text-xl font-bold text-on-surface">
         <span>More Like This</span>
         <CountChip>{{ items.length }}</CountChip>
       </h3>
@@ -68,8 +68,3 @@ const numOfSeeMoreResults = computed(() => {
 
 const isShowingFullListOfResults = ref(false);
 </script>
-<style scoped>
-.more-like-this__title {
-  color: var(--on-surface);
-}
-</style>

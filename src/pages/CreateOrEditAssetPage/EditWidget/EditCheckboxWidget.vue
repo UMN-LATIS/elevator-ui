@@ -75,5 +75,4 @@ defineEmits<{
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 </script>
-<style scoped></style>
 <style></style>

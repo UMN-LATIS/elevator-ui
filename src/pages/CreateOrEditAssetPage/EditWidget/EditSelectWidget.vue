@@ -89,5 +89,4 @@ const selectOptions = computed((): Type.SelectOption[] => {
   }));
 });
 </script>
-<style scoped></style>
 <style></style>

@@ -108,5 +108,3 @@ function handleFieldUpdate(
   );
 }
 </script>
-<style scoped></style>
-<style></style>

@@ -63,4 +63,3 @@ defineEmits<{
 
 const id = useId();
 </script>
-<style scoped></style>

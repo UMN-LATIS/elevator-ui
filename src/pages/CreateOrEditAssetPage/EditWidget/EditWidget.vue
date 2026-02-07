@@ -60,4 +60,3 @@ function getWidgetComponentByType(type: string) {
   return widgetMap[type] || "div";
 }
 </script>
-<style scoped></style>

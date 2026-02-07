@@ -7,7 +7,7 @@
       class="app-header__logo-img h-8" />
     <ElevatorIcon v-else class="h-full app-header__icon" />
     <div
-      class="app-header__wordmark font-bold text-lg hidden md:block sm:max-w-[16rem] lg:max-w-[32rem] overflow-hidden overflow-ellipsis">
+      class="app-header__wordmark font-bold text-lg hidden md:block sm:max-w-[16rem] lg:max-w-[32rem] overflow-hidden overflow-ellipsis text-on-surface">
       {{ instanceStore.instance.name }}
     </div>
   </div>
@@ -18,8 +18,3 @@ import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 
 const instanceStore = useInstanceStore();
 </script>
-<style scoped>
-.app-header__wordmark {
-  color: var(--on-surface);
-}
-</style>

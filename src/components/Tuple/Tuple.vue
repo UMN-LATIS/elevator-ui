@@ -5,7 +5,7 @@
       'w-full': variant === 'stacked',
       'inline-flex items-baseline gap-2': variant === 'inline',
     }">
-    <div class="tuple__label flex justify-between items-center">
+    <div class="tuple__label flex justify-between items-center text-on-surface">
       <slot name="label">
         <span
           :class="
@@ -23,7 +23,7 @@
         <slot name="label-extra"></slot>
       </slot>
     </div>
-    <span class="tuple__value block" v-bind="$attrs">
+    <span class="tuple__value block text-on-surface-variant" v-bind="$attrs">
       <slot>-</slot>
     </span>
   </div>
@@ -49,13 +49,3 @@ export default {
   inheritAttrs: false,
 };
 </script>
-
-<style scoped>
-.tuple__label {
-  color: var(--on-surface);
-}
-
-.tuple__value {
-  color: var(--on-surface-variant);
-}
-</style>

@@ -5,7 +5,7 @@
     <Transition name="fade">
       <article
         v-if="asset"
-        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-primary">
+        class="media-card flex flex-col overflow-hidden rounded-md shadow-sm max-w-xs group-hover:border-primary bg-surface-container text-on-surface border border-outline-variant">
         <div
           class="placeholder-image aspect-video flex items-center justify-center w-full overflow-hidden bg-surface-container p-4">
           <LazyLoadImage
@@ -18,7 +18,7 @@
         </div>
         <div class="flex-1 p-4 flex justify-between items-center">
           <h1
-            class="search-result-card__title font-bold leading-tight group-hover:text-primary text-center">
+            class="search-result-card__title font-bold leading-tight group-hover:text-primary text-center text-on-surface">
             <SanitizedHTML :html="title" />
           </h1>
           <ArrowForwardIcon class="group-hover:text-primary" />
@@ -66,22 +66,3 @@ const imgSrc = computed((): string | null => {
   return fileHandlerId ? getThumbURL(fileHandlerId) : null;
 });
 </script>
-<style scoped>
-.search-result-card__title {
-  color: var(--on-surface);
-}
-
-.media-card {
-  background: var(--surface-container);
-  color: var(--on-surface);
-  border: 1px solid var(--outline-variant);
-}
-
-img {
-  max-width: 100%;
-}
-
-.hyphens-auto {
-  hyphens: auto;
-}
-</style>

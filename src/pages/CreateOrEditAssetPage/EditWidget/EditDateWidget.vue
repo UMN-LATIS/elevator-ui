@@ -74,5 +74,3 @@ function handleItemUpdate(updatedItem: Type.WithId<Type.DateWidgetContent>) {
   emit("update:widgetContents", updatedWidgetContents);
 }
 </script>
-<style scoped></style>
-<style></style>

@@ -101,4 +101,3 @@ onMounted(() => {
   startTimer();
 });
 </script>
-<style scoped></style>
