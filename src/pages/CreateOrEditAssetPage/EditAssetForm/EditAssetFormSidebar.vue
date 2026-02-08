@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-20 p-4">
+  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-16 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
@@ -86,19 +86,19 @@
         label="Available After"
         type="date"
         placeholder="mm / dd / yyyy"
-        inputClass="text-sm pl-3 bg-surface-container-high"
+        inputClass="text-sm pl-3 bg-surface-container"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="displayTemplateId"
         :options="parentAssetEditor.templateOptions"
         label="Template"
-        selectClass="bg-surface-container-high"
+        selectClass="bg-surface-container"
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
         :options="parentAssetEditor.collectionOptions"
-        selectClass="bg-surface-container-high"
+        selectClass="bg-surface-container"
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />

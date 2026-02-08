@@ -173,8 +173,4 @@ onUnmounted(() => {
   background: var(--surface);
   color: var(--on-surface);
 }
-
-.featured-asset-block {
-  border-left: 1px solid var(--outline);
-}
 </style>

@@ -30,9 +30,7 @@
                 }"
                 type="string"
                 aria-required="true" />
-              <p
-                v-if="errors.username"
-                class="text-error text-sm italic mt-2">
+              <p v-if="errors.username" class="text-error text-sm italic mt-2">
                 {{ errors.username }}
               </p>
             </div>
@@ -55,9 +53,7 @@
                   </button>
                 </template>
               </InputGroup>
-              <p
-                v-if="errors.password"
-                class="text-error text-sm italic mt-2">
+              <p v-if="errors.password" class="text-error text-sm italic mt-2">
                 {{ errors.password }}
               </p>
             </div>

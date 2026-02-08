@@ -88,7 +88,9 @@
                   :src="headerImagePreview"
                   alt="Header Image Preview"
                   class="size-16 mb-2 block object-cover" />
-                <ElevatorIcon v-else class="h-16 mb-2 text-on-surface-variant" />
+                <ElevatorIcon
+                  v-else
+                  class="h-16 mb-2 text-on-surface-variant" />
                 <div>
                   <label id="headerImageInput" class="sr-only">
                     Upload Header Image (PNG)
@@ -229,7 +231,7 @@
                       type="checkbox"
                       :value="theme"
                       :checked="form.availableThemes?.includes(theme)"
-                      class="rounded border-outline text-primary focus:ring-primary"
+                      class="rounded border-outline text-primary focus:ring-m3-primary"
                       @change="toggleTheme(theme)" />
                     {{ theme }}
                   </label>

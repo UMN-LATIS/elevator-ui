@@ -1,7 +1,7 @@
 <template>
   <section
     :id="widgetInstanceId"
-    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-3 pb-1"
+    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-outline-variant pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
       'cursor-pointer': !isOpen,
@@ -55,8 +55,8 @@
         :class="[
           (widgetDef.required && !hasContents) ||
           (hasContents && !isWidgetValid)
-            ? 'text-error/75'
-            : 'text-neutral-500',
+            ? 'text-error'
+            : 'text-on-surface-variant',
         ]">
         {{ widgetDef.tooltip }}
       </small>
@@ -122,7 +122,7 @@
                     <Tooltip tip="Set as Primary">
                       <button
                         type="button"
-                        class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
+                        class="flex items-center justify-center p-1 rounded-sm hover:bg-surface-container-lowest"
                         :class="{
                           // hide the button if there is only one item
                           // using invisible instead of hidden to keep the layout
@@ -134,8 +134,8 @@
                           class="w-4 h-4"
                           :class="[
                             item.isPrimary
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-neutral-400',
+                              ? 'fill-tertiary text-tertiary'
+                              : 'text-on-surface-variant',
                           ]" />
                         <span class="sr-only">Set as Primary</span>
                       </button>
@@ -162,7 +162,7 @@
                         widgetDef.type === Types.WIDGET_TYPES.UPLOAD
                       "
                       :class="[
-                        'text-neutral-400 hover:text-error p-2 rounded-sm -mt-2 -mr-1',
+                        'text-on-surface-variant hover:text-error p-2 rounded-sm -mt-2 -mr-1',
                         {
                           'sr-only': !isOpen,
                         },

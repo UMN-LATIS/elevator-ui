@@ -34,7 +34,7 @@
         </p>
         <p
           v-else-if="modelValue.start.text"
-          class="text-neutral-500 text-xs my-1">
+          class="text-on-surface-variant text-xs my-1">
           {{ parsedStartDate }}
         </p>
       </div>
@@ -56,7 +56,7 @@
         </p>
         <p
           v-else-if="modelValue.end.text"
-          class="text-neutral-500 text-xs my-1">
+          class="text-on-surface-variant text-xs my-1">
           {{ parsedEndDate }}
         </p>
       </div>

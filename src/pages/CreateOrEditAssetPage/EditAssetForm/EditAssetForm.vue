@@ -134,12 +134,4 @@ function handleCollapseAll() {
   openWidgets.clear();
 }
 </script>
-<style scoped>
-@media (min-width: 768px) {
-  .sidebar-container {
-    border-left: 1px solid var(--outline);
-    background: var(--surface-container-low);
-    color: var(--on-surface);
-  }
-}
-</style>
+<style scoped></style>

@@ -1,6 +1,6 @@
 <template>
   <header
-    class="app-header flex flex-col bg-surface text-on-surface border-b border-outline">
+    class="app-header flex flex-col bg-primary text-on-primary border-0 border-b border-outline-variant">
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
         <Link

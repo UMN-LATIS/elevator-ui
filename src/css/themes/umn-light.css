@@ -1,0 +1,102 @@
+/**
+ * UNIVERSITY OF MINNESOTA LIGHT THEME
+ *
+ * Material Design 3 color scheme based on UMN brand colors.
+ * Seed colors: #FFCC33 (Maroon & Gold), #C08079 (tertiary)
+ *
+ * Generated from Material Theme Builder export: UMN.json
+ */
+
+[data-theme="umn-light"] {
+  /* ============================================
+   * SURFACE - Background colors
+   * Warm cream/beige tones reflecting UMN brand
+   * ============================================ */
+  --surface: oklch(98.26% 0.012 67.7);
+  --surface-dim: oklch(88.81% 0.024 82.1);
+  --surface-bright: oklch(98.26% 0.012 67.7);
+
+  /* Surface containers - elevation through lighter tones */
+  --surface-container-lowest: oklch(100% 0 0);
+  --surface-container-low: oklch(96.47% 0.024 79.7);
+  --surface-container: oklch(94.97% 0.024 79.7);
+  --surface-container-high: oklch(93.16% 0.024 79.7);
+  --surface-container-highest: oklch(91.34% 0.024 79.7);
+
+  --on-surface: oklch(22.34% 0.019 88.7);
+  --on-surface-variant: oklch(39.67% 0.032 87.8);
+
+  /* ============================================
+   * PRIMARY - UMN Gold accent
+   * Maroon & Gold brand color (#FFCC33)
+   * ============================================ */
+  --primary: oklch(48.4% 0.099 89.3);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(86.66% 0.165 88.7);
+  --on-primary-container: oklch(40.64% 0.083 88.1);
+
+  /* ============================================
+   * SECONDARY - Complementary accent
+   * Warm brown tone supporting primary
+   * ============================================ */
+  --secondary: oklch(48.29% 0.078 89.4);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(91.52% 0.093 87.7);
+  --on-secondary-container: oklch(40.61% 0.074 89.6);
+
+  /* ============================================
+   * TERTIARY - Contrasting accent
+   * Reddish-brown for special emphasis
+   * ============================================ */
+  --tertiary: oklch(48.28% 0.076 26.9);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(66.35% 0.081 26.3);
+  --on-tertiary-container: oklch(41.47% 0.073 26.6);
+
+  /* ============================================
+   * SEMANTIC STATES
+   * ============================================ */
+
+  /* Error - Material Design 3 default red */
+  --error: oklch(50.6% 0.193 27.7);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(91.83% 0.042 25.2);
+  --on-error-container: oklch(41.71% 0.17 27.4);
+
+  /* Success - Green tone harmonizing with UMN palette */
+  --success: oklch(55% 0.12 145);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 145);
+  --on-success-container: oklch(25% 0.08 145);
+
+  /* Warning - Amber matching UMN gold family */
+  --warning: oklch(70% 0.14 85);
+  --on-warning: oklch(15% 0.05 85);
+  --warning-container: oklch(92% 0.06 85);
+  --on-warning-container: oklch(28% 0.1 85);
+
+  /* Info - Muted blue complementing warm palette */
+  --info: oklch(55% 0.12 240);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.05 240);
+  --on-info-container: oklch(25% 0.08 240);
+
+  /* ============================================
+   * OUTLINES - Borders and dividers
+   * ============================================ */
+  --outline: oklch(56.9% 0.033 85.5);
+  --outline-variant: oklch(82.77% 0.036 82.9);
+
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: oklch(0% 0 0);
+  --shadow: oklch(0% 0 0);
+
+  /* ============================================
+   * INVERSE - For dark UI elements on light theme
+   * ============================================ */
+  --inverse-surface: oklch(31.09% 0.02 86.4);
+  --inverse-on-surface: oklch(95.84% 0.025 81.1);
+  --inverse-primary: oklch(82.96% 0.162 88.6);
+}

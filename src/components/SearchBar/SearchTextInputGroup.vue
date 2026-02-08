@@ -121,32 +121,4 @@ onUnmounted(() => {
   document.removeEventListener("keydown", removeFocusOnEscape);
 });
 </script>
-<style scoped>
-.search-bar__search-text-input-group .advanced-search-toggle-container {
-  transition: all 0.15s ease-in-out;
-  border-radius: calc(infinity * 1px);
-  background: var(--surface-container);
-  color: var(--on-surface-variant);
-
-  &:hover {
-    background: var(--surface-container-high);
-    color: var(--on-surface);
-  }
-}
-
-.search-bar__search-text-input-group
-  .advanced-search-toggle-container.advanced-search-toggle-container--has-filters {
-  background: var(--primary-container);
-  color: var(--on-primary-container);
-
-  & button {
-    color: currentColor;
-    border: none;
-  }
-
-  & button:hover {
-    background: var(--primary);
-    color: var(--on-primary);
-  }
-}
-</style>
+<style scoped></style>

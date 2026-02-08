@@ -1,6 +1,18 @@
 <template>
   <div
-    class="notification rounded-md max-w-lg w-full mx-auto overflow-hidden relative">
+    :class="[
+      'notification max-w-lg w-full mx-auto overflow-hidden relative shadow',
+      {
+        'notification--info bg-info-container text-on-info-container':
+          type === 'info',
+        'notification--warning bg-warning-container text-on-warning-container':
+          type === 'warning',
+        'notification--error bg-error-container text-on-error-container':
+          type === 'danger',
+        'notification--success bg-success-container text-on-success-container':
+          type === 'success',
+      },
+    ]">
     <button
       v-if="isDismissable"
       class="absolute top-0 right-0 p-4"
@@ -9,12 +21,12 @@
       <XIcon />
     </button>
     <div
-      class="flex gap-4 p-4 border-l-8 items-start"
+      class="flex gap-4 p-4 border border-l-8 items-start rounded-md"
       :class="{
-        'notification--info border-l-primary': type === 'info',
-        'notification--warning border-l-yellow-300': type === 'warning',
-        'notification--error border-l-red-600': type === 'danger',
-        'notification--success border-l-green-400': type === 'success',
+        'border-info': type === 'info',
+        'border-warning': type === 'warning',
+        'border-error': type === 'danger',
+        'border-success': type === 'success',
       }">
       <div class="notification__icon rounded-full p-2 -mt-1">
         <WarningIcon v-if="type === 'warning'" />
@@ -54,59 +66,4 @@ defineEmits<{
   (eventName: "dismiss"): void;
 }>();
 </script>
-<style scoped>
-.notification {
-  background: var(--surface-container-low);
-  color: var(--on-surface);
-  border-color: var(--outline-variant);
-}
-
-[data-theme="dark"] .notification {
-  background: var(--surface-container);
-}
-
-.notification__title {
-  color: var(--on-surface);
-}
-
-.notification__icon {
-  background: var(--info-container);
-  color: var(--on-info-container);
-}
-
-.notification--warning .notification__icon {
-  background: var(--warning-container);
-  color: var(--on-warning-container);
-}
-
-.notification--error .notification__icon {
-  background: var(--error-container);
-  color: var(--on-error-container);
-}
-
-.notification--success .notification__icon {
-  background: var(--success-container);
-  color: var(--on-success-container);
-}
-
-/* Dark mode: use transparent bg with colored text for icons */
-[data-theme="dark"] .notification__icon {
-  background: transparent;
-  color: var(--info);
-}
-
-[data-theme="dark"] .notification--warning .notification__icon {
-  background: transparent;
-  color: var(--warning);
-}
-
-[data-theme="dark"] .notification--error .notification__icon {
-  background: transparent;
-  color: var(--error);
-}
-
-[data-theme="dark"] .notification--success .notification__icon {
-  background: transparent;
-  color: var(--success);
-}
-</style>
+<style scoped></style>

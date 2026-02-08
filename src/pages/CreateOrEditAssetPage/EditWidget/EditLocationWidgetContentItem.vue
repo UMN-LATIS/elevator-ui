@@ -10,7 +10,7 @@
           type="button"
           :class="{
             'font-bold': key === state.activeMapStyleKey,
-            'text-neutral-500': key !== state.activeMapStyleKey,
+            'text-on-surface-variant': key !== state.activeMapStyleKey,
           }"
           @click="handleActiveStyleChange(key)">
           {{ style.label }}

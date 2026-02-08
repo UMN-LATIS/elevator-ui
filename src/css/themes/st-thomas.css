@@ -13,15 +13,15 @@
   --brand-purple-light: #9e28b5;
 
   /* M3 Surface tokens - clean white/gray */
-  --surface: oklch(95% 0.006 290);
-  --surface-dim: oklch(92% 0.008 290);
+  --surface: oklch(100% 0 0);
+  --surface-dim: oklch(93% 0 0);
   --surface-bright: oklch(100% 0 0);
   /* Containers: lowest = closest to surface, highest = most elevated */
-  --surface-container-lowest: oklch(96% 0.005 290);
-  --surface-container-low: oklch(97% 0.004 290);
-  --surface-container: oklch(98% 0.003 290);
-  --surface-container-high: oklch(99% 0.002 290);
-  --surface-container-highest: oklch(100% 0 0);
+  --surface-container-lowest: oklch(98% 0.005 310);
+  --surface-container-low: oklch(96% 0.005 310);
+  --surface-container: oklch(94% 0.005 310);
+  --surface-container-high: oklch(92% 0.005 310);
+  --surface-container-highest: oklch(90% 0.005 310);
 
   /* M3 On-surface tokens */
   --on-surface: oklch(25% 0.02 260);
@@ -76,10 +76,6 @@
   --inverse-primary: oklch(75% 0.12 310);
 
   /* Theme-specific styles */
-  & .app-header {
-    background: var(--brand-purple);
-    color: white;
-  }
 
   & .app-header__logo-link,
   & .app-header__wordmark {
@@ -92,8 +88,8 @@
   }
 
   /* Search bar adjustments */
-  & .search-bar #search {
+  /* & .search-bar #search {
     background: white;
     border: 1px solid oklch(var(--outline-variant));
-  }
+  } */
 }

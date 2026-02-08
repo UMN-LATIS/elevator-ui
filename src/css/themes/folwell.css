@@ -16,73 +16,159 @@
   --maroon: #7a0019;
   --maroon-light: #940422;
 
-  /* M3 Surface tokens - light neutral background */
-  --surface: oklch(95% 0.012 80);
-  --surface-dim: oklch(92% 0.014 80);
-  --surface-bright: oklch(99% 0.008 80);
-  /* Containers: lowest = closest to surface, highest = most elevated */
-  --surface-container-lowest: oklch(96% 0.011 80);
-  --surface-container-low: oklch(97% 0.01 80);
-  --surface-container: oklch(98% 0.009 80);
-  --surface-container-high: oklch(99% 0.008 80);
-  --surface-container-highest: oklch(100% 0.006 80);
+  /* ============================================
+   * SURFACE - Background colors
+   *
+   * Surface colors form the backdrop of the UI. The hierarchy creates
+   * visual depth through tone rather than shadow, improving accessibility.
+   *   - surface: default page/app background
+   *   - surface-dim: for reduced emphasis backgrounds
+   *   - surface-bright: for elevated/highlighted backgrounds
+   * ============================================ */
+  --surface: oklch(100% 0 0);
+  --surface-dim: oklch(93% 0 0);
+  --surface-bright: oklch(100% 0 0);
 
-  /* M3 On-surface tokens */
-  --on-surface: oklch(20% 0.02 260);
-  --on-surface-variant: oklch(40% 0.02 260);
+  /* Surface containers are for components placed ON the surface.
+   * lowest = minimal contrast with surface (barely elevated)
+   * highest = maximum contrast with surface (most elevated)
+   * In light mode: elevation = lighter/brighter (catching more light)
+   */
+  --surface-container-lowest: oklch(95% 0 0);
+  --surface-container-low: oklch(96% 0 0);
+  --surface-container: oklch(97% 0 0);
+  --surface-container-high: oklch(98% 0 0);
+  --surface-container-highest: oklch(99% 0 260);
 
-  /* M3 Primary - UMN Maroon */
-  --primary: oklch(30% 0.15 15);
+  --on-surface: oklch(20% 0.02 260); /* primary text on surface */
+  --on-surface-variant: oklch(0.55 0 0); /* secondary/muted text, icons */
+
+  /* ============================================
+   * PRIMARY - Main accent color
+   *
+   * The most prominent interactive color. Use for key actions and
+   * elements that should draw immediate attention.
+   *   - CTAs, primary buttons
+   *   - Links, active navigation
+   *   - Checkboxes, toggles, focus rings
+   *   - FABs, progress indicators
+   * ============================================ */
+  --primary: oklch(50% 0.2 250);
   --on-primary: oklch(100% 0 0);
-  --primary-container: oklch(90% 0.05 15);
-  --on-primary-container: oklch(25% 0.1 15);
+  --primary-container: oklch(
+    90% 0.05 250
+  ); /* tonal bg for grouped primary content */
+  --on-primary-container: oklch(0.47 0.19 254.8);
 
-  /* M3 Secondary - UMN Gold */
-  --secondary: oklch(80% 0.15 85);
-  --on-secondary: oklch(25% 0.05 85);
-  --secondary-container: oklch(92% 0.08 85);
-  --on-secondary-container: oklch(30% 0.1 85);
+  /* ============================================
+   * SECONDARY - Supporting accent color
+   *
+   * For less prominent actions in complex/dense UI. Maintains visibility
+   * without overshadowing primary elements.
+   *   - Secondary buttons, filter chips
+   *   - Selection states, toggles in dense areas
+   *   - Supporting icons, tags
+   * ============================================ */
+  --secondary: oklch(45% 0.03 260);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(
+    92% 0.01 260
+  ); /* tonal bg for grouped secondary content */
+  --on-secondary-container: oklch(25% 0.02 260);
 
-  /* M3 Tertiary - Blue accent */
-  --tertiary: oklch(50% 0.2 250);
+  /* ============================================
+   * TERTIARY - Contrasting accent color
+   *
+   * Balances primary/secondary or draws attention to special elements.
+   * Use sparingly for maximum impact.
+   *   - Badges, stickers, accent highlights
+   *   - Goal/milestone indicators
+   *   - Special callouts, promotional content
+   * ============================================ */
+  --tertiary: oklch(65% 0.25 330);
   --on-tertiary: oklch(100% 0 0);
-  --tertiary-container: oklch(90% 0.05 250);
-  --on-tertiary-container: oklch(25% 0.1 250);
+  --tertiary-container: oklch(
+    92% 0.08 330
+  ); /* tonal bg for grouped tertiary content */
+  --on-tertiary-container: oklch(30% 0.15 330);
 
-  /* Semantic states */
-  --error: oklch(55% 0.22 25);
+  /* ============================================
+   * SEMANTIC STATES
+   *
+   * Communicate meaning regardless of cultural context.
+   * Each has base (for fills) and container (for backgrounds) variants.
+   * ============================================ */
+  --error: oklch(55% 0.22 25); /* destructive actions, validation errors */
   --on-error: oklch(100% 0 0);
   --error-container: oklch(92% 0.05 25);
   --on-error-container: oklch(30% 0.15 25);
 
-  --success: oklch(55% 0.18 145);
+  --success: oklch(55% 0.18 145); /* completion, positive feedback */
   --on-success: oklch(100% 0 0);
   --success-container: oklch(92% 0.05 145);
   --on-success-container: oklch(25% 0.1 145);
 
-  --warning: oklch(80% 0.15 85);
-  --on-warning: oklch(25% 0.05 85);
+  --warning: oklch(80% 0.15 85); /* caution, non-blocking issues */
+  --on-warning: oklch(25% 0.05 85); /* dark text for light warning bg */
   --warning-container: oklch(95% 0.05 85);
   --on-warning-container: oklch(30% 0.1 85);
 
-  --info: oklch(60% 0.15 240);
+  --info: oklch(60% 0.15 240); /* informational, neutral notices */
   --on-info: oklch(100% 0 0);
   --info-container: oklch(92% 0.04 240);
   --on-info-container: oklch(25% 0.1 240);
 
-  /* Outline */
-  --outline: oklch(50% 0.02 80);
-  --outline-variant: oklch(75% 0.01 80);
+  /* ============================================
+   * OUTLINE - Border colors
+   * ============================================ */
+  --outline: oklch(
+    55% 0.02 260
+  ); /* important borders: inputs, focused elements */
+  --outline-variant: oklch(
+    90% 0.01 260
+  ); /* decorative: dividers, subtle separators */
 
-  /* Inverse */
-  --inverse-surface: oklch(25% 0.02 260);
+  /* ============================================
+   * INVERSE - Contrasting surfaces
+   *
+   * For elements that stand out from the main surface, like snackbars,
+   * tooltips, or overlays.
+   * ============================================ */
+  --inverse-surface: oklch(20% 0.02 260);
   --inverse-on-surface: oklch(95% 0.005 260);
-  --inverse-primary: oklch(75% 0.1 15);
+  --inverse-primary: oklch(
+    75% 0.15 250
+  ); /* interactive elements on inverse surfaces */
+
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: oklch(0% 0 0 / 0.5); /* modal overlays (use with alpha) */
+  --shadow: oklch(0% 0 0 / 0.5); /* elevation shadows (use with alpha) */
+
+  /* Typography */
+  --font-display: "Work Sans", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-code: "Fira Sans", monospace;
 
   /* Theme-specific styles */
-  & .app-header {
+  .app-header {
     border-top: 0.25rem solid var(--gold-dark);
     background: var(--gold-light);
+    border-bottom: 2px solid var(--outline-variant);
+  }
+
+  .app-header__secondary-nav {
+    background: var(--surface);
+  }
+  .app-menu-button {
+    background: hsla(0 0 0 / 0.1);
+    color: black;
+
+    &:hover {
+      background: var(--inverse-surface);
+      color: var(--inverse-on-surface);
+    }
   }
 
   /* Override font family */
