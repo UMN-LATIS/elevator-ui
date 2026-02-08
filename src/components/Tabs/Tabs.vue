@@ -7,7 +7,8 @@
         :class="[
           `tab-button tab-button--${tab.id} px-4 py-2 text-sm border-b-2`,
           {
-            'border-transparent text-on-surface-variant': tab.id !== activeTabId,
+            'border-transparent text-on-surface-variant':
+              tab.id !== activeTabId,
             'tab-button--is-active border-on-surface text-on-surface font-bold':
               tab.id === activeTabId,
           },

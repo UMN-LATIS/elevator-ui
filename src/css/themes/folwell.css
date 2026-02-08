@@ -151,7 +151,6 @@
   --font-body: "Work Sans", sans-serif;
   --font-code: "Fira Sans", monospace;
 
-  /* Theme-specific styles */
   .app-header {
     border-top: 0.25rem solid var(--gold-dark);
     background: var(--gold-light);
