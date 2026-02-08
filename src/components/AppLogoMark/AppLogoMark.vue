@@ -7,7 +7,7 @@
       class="app-header__logo-img h-8" />
     <ElevatorIcon v-else class="h-full app-header__icon" />
     <div
-      class="app-header__wordmark font-bold text-lg hidden md:block sm:max-w-[16rem] lg:max-w-[32rem] overflow-hidden overflow-ellipsis text-on-surface">
+      class="app-header__wordmark font-bold text-lg hidden md:block sm:max-w-[16rem] lg:max-w-[32rem] overflow-hidden overflow-ellipsis">
       {{ instanceStore.instance.name }}
     </div>
   </div>

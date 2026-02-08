@@ -86,10 +86,4 @@
   & body {
     font-family: Lato, "Helvetica Neue", sans-serif;
   }
-
-  /* Search bar adjustments */
-  /* & .search-bar #search {
-    background: white;
-    border: 1px solid oklch(var(--outline-variant));
-  } */
 }

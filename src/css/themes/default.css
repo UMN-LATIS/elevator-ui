@@ -153,3 +153,10 @@
   --font-body: "Work Sans", sans-serif;
   --font-code: "Fira Sans", monospace;
 }
+
+[data-theme="light"] {
+  .app-header {
+    background: var(--surface);
+    color: var(--on-surface);
+  }
+}

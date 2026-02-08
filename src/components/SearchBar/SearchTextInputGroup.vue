@@ -16,7 +16,6 @@
         <button
           v-if="searchStore.query.length"
           type="button"
-          class="text-on-tertiary hover:text-neutral-900"
           @click="searchStore.query = ''">
           <span class="sr-only">Clear Search</span>
           <CircleXIcon />

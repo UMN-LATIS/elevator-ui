@@ -8,71 +8,89 @@
 
 [data-theme="dark"],
 .dark {
-  /* Surface hierarchy - darker backgrounds with subtle purple tint */
-  --surface: oklch(12% 0.02 260);
-  --surface-dim: oklch(8% 0.015 260);
-  --surface-bright: oklch(22% 0.025 260);
+  color-scheme: dark;
 
-  /* Containers sit ON surface. lowest = closest to surface, highest = most contrast
-   * In dark mode: elevation also = lighter/brighter */
-  --surface-container-lowest: oklch(14% 0.021 260);
-  --surface-container-low: oklch(17% 0.022 260);
-  --surface-container: oklch(20% 0.024 260);
-  --surface-container-high: oklch(24% 0.026 260);
-  --surface-container-highest: oklch(28% 0.028 260);
+  /* ============================================
+   * SURFACE - Background colors
+   * In dark mode: brighter = more elevated
+   * ============================================ */
+  --surface: oklch(13% 0 0);
+  --surface-dim: oklch(13% 0 0);
+  --surface-bright: oklch(28% 0 0);
 
-  /* Text colors - high contrast for readability */
-  --on-surface: oklch(90% 0.01 260);
-  --on-surface-variant: oklch(72% 0.02 260);
+  /* Container hierarchy: highest is lightest (most elevated) */
+  --surface-container-lowest: oklch(10% 0 0);
+  --surface-container-low: oklch(16% 0 0);
+  --surface-container: oklch(18% 0 0);
+  --surface-container-high: oklch(22% 0 0);
+  --surface-container-highest: oklch(26% 0 0);
 
-  /* Primary - lightened for dark backgrounds */
-  --primary: oklch(42.049% 0.28237 264.897);
-  --on-primary: oklch(20% 0.05 250);
-  --primary-container: oklch(28% 0.1 250);
-  --on-primary-container: oklch(90% 0.05 250);
+  --on-surface: oklch(91% 0 0);
+  --on-surface-variant: oklch(81% 0.01 350);
 
-  /* Secondary */
-  --secondary: oklch(75% 0.02 260);
-  --on-secondary: oklch(20% 0.02 260);
-  --secondary-container: oklch(28% 0.02 260);
-  --on-secondary-container: oklch(90% 0.01 260);
+  /* ============================================
+   * PRIMARY - Neutral gray
+   * ============================================ */
+  --primary: oklch(81% 0 0);
+  --on-primary: oklch(24% 0 0);
+  --primary-container: oklch(0% 0 0);
+  --on-primary-container: oklch(52% 0 0);
 
-  /* Tertiary */
-  --tertiary: oklch(85% 0.15 330);
-  --on-tertiary: oklch(25% 0.1 330);
-  --tertiary-container: oklch(32% 0.12 330);
-  --on-tertiary-container: oklch(90% 0.05 330);
+  /* ============================================
+   * SECONDARY - Neutral gray
+   * ============================================ */
+  --secondary: oklch(81% 0 0);
+  --on-secondary: oklch(24% 0 0);
+  --secondary-container: oklch(34% 0 0);
+  --on-secondary-container: oklch(75% 0 0);
 
-  /* Error - lighter red for visibility */
-  --error: oklch(80% 0.15 25);
-  --on-error: oklch(20% 0.05 25);
-  --error-container: oklch(28% 0.1 25);
-  --on-error-container: oklch(90% 0.05 25);
+  /* ============================================
+   * TERTIARY - Neutral gray
+   * ============================================ */
+  --tertiary: oklch(81% 0 0);
+  --on-tertiary: oklch(24% 0 0);
+  --tertiary-container: oklch(0% 0 0);
+  --on-tertiary-container: oklch(52% 0 0);
 
-  /* Success - lighter green */
-  --success: oklch(80% 0.12 145);
-  --on-success: oklch(20% 0.05 145);
-  --success-container: oklch(28% 0.08 145);
-  --on-success-container: oklch(90% 0.04 145);
+  /* ============================================
+   * SEMANTIC STATES
+   * ============================================ */
+  --error: oklch(81% 0.1 20);
+  --on-error: oklch(28% 0.15 25);
+  --error-container: oklch(35% 0.18 25);
+  --on-error-container: oklch(91% 0.04 20);
 
-  /* Warning - lighter amber/yellow (also used as warm accent) */
-  --warning: oklch(88% 0.1 85);
+  --success: oklch(70% 0.15 145);
+  --on-success: oklch(15% 0.06 145);
+  --success-container: oklch(30% 0.1 145);
+  --on-success-container: oklch(85% 0.08 145);
+
+  --warning: oklch(75% 0.13 85);
   --on-warning: oklch(20% 0.05 85);
-  --warning-container: oklch(32% 0.08 85);
-  --on-warning-container: oklch(90% 0.04 85);
+  --warning-container: oklch(35% 0.1 85);
+  --on-warning-container: oklch(90% 0.08 85);
 
-  /* Info - lighter cyan-blue */
-  --info: oklch(75% 0.1 240);
+  --info: oklch(75% 0.12 240);
   --on-info: oklch(20% 0.05 240);
-  --info-container: oklch(28% 0.06 240);
-  --on-info-container: oklch(90% 0.04 240);
+  --info-container: oklch(32% 0.1 240);
+  --on-info-container: oklch(88% 0.06 240);
 
-  /* Outline - lighter for visibility on dark backgrounds */
-  --outline: oklch(58% 0.02 260);
-  --outline-variant: oklch(40% 0.02 260);
+  /* ============================================
+   * OUTLINE
+   * ============================================ */
+  --outline: oklch(62% 0.01 350);
+  --outline-variant: oklch(34% 0.01 350);
 
-  /* Inverse colors */
-  --inverse-surface: oklch(90% 0.01 260);
-  --inverse-on-surface: oklch(20% 0.02 260);
-  --inverse-primary: oklch(40% 0.2 250);
+  /* ============================================
+   * INVERSE - Light surfaces in dark mode
+   * ============================================ */
+  --inverse-surface: oklch(91% 0 0);
+  --inverse-on-surface: oklch(24% 0 0);
+  --inverse-primary: oklch(43% 0 0);
+
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: oklch(0% 0 0 / 0.7);
+  --shadow: oklch(0% 0 0 / 0.8);
 }
