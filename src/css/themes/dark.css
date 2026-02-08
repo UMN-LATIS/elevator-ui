@@ -31,10 +31,10 @@
   /* ============================================
    * PRIMARY - Neutral gray
    * ============================================ */
-  --primary: oklch(81% 0 0);
+  --primary: #ffb71e;
   --on-primary: oklch(24% 0 0);
-  --primary-container: oklch(0% 0 0);
-  --on-primary-container: oklch(52% 0 0);
+  --primary-container: #ffdba3;
+  --on-primary-container: oklch(25% 0.08 85);
 
   /* ============================================
    * SECONDARY - Neutral gray

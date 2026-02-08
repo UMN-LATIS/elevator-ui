@@ -66,14 +66,4 @@ const componentType = computed(() => {
     border: 1px solid var(--primary);
   }
 }
-
-[data-theme="dark"] .icon-button :is(button, a, .router-link) {
-  color: var(--warning);
-
-  &:hover {
-    background-color: var(--warning-container);
-    color: var(--on-warning-container);
-    border-color: var(--warning);
-  }
-}
 </style>

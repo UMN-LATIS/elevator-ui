@@ -28,10 +28,13 @@ defineProps<{
 
   & .disclosure-button {
     &:hover,
-    &:focus,
-    &:focus-within {
+    &:focus {
       background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    &:focus-within:not(:hover) {
       color: var(--primary);
+      background: none;
     }
   }
 }

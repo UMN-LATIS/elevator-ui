@@ -7,9 +7,10 @@
       :is="is || ($attrs.disabled ? 'div' : Link)"
       class="block px-4 py-2 text-sm !no-underline"
       :class="{
-        'bg-primary-container !text-primary': active,
-        'text-on-surface-variant': !active,
-        'font-bold border-l-2 border-outline bg-surface-container': current,
+        'bg-surface-container-high': active,
+        'text-on-surface': active || current,
+        'text-on-surface-variant': !active && !current,
+        'font-bold border-l-2 border-primary': current,
       }"
       :href="href"
       :to="to">

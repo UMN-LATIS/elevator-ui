@@ -63,10 +63,6 @@
             variant="primary"
             type="submit"
             class="w-full"
-            :class="{
-              'cursor-not-allowed opacity-50 !border-neutral-300':
-                !username || !password,
-            }"
             :disabled="!username || !password">
             Login
             <SpinnerIcon v-if="isLoggingIn" class="animate-spin ml-2 h-4 w-4" />

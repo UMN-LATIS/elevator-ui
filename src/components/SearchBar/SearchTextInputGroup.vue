@@ -53,7 +53,7 @@
           </template>
         </div>
         <button
-          class="inline-flex items-center justify-center bg-surface-container w-8 h-8 text-sm rounded-full text-on-success-container gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
+          class="inline-flex items-center justify-center bg-surface-container w-8 h-8 text-sm rounded-full text-on-surface-container gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
           type="submit">
           <SpinnerIcon
             v-if="searchStore.status === 'fetching'"

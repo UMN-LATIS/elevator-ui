@@ -20,21 +20,12 @@ body {
 
 a {
   text-decoration: none;
-  color: oklch(var(--primary));
+  color: var(--primary);
 }
 
 a:hover {
-  color: oklch(var(--primary));
+  color: color-mix(in oklch, var(--on-primary) 8%, var(--primary));
   text-decoration: underline;
-}
-
-/* Dark mode: use warm accent for links */
-[data-theme="dark"] a {
-  color: oklch(var(--warning));
-}
-
-[data-theme="dark"] a:hover {
-  color: oklch(var(--on-warning-container));
 }
 
 @layer utilities {

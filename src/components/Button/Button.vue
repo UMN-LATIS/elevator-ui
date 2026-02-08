@@ -3,7 +3,7 @@
     :is="componentType"
     :class="
       cn([
-        'button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group cursor-pointer px-4 py-3',
+        'button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group cursor-pointer px-4 py-3 disabled:cursor-not-allowed',
         {
           'button--primary bg-primary text-on-primary': variant === 'primary',
           'button--secondary bg-secondary-container text-on-secondary-container':
@@ -62,10 +62,10 @@ const componentType = computed(() => {
 </script>
 <style lang="postcss" scoped>
 .bg-primary {
-  &:hover {
+  &:hover:not(:disabled) {
     background: color-mix(in oklch, var(--on-primary) 8%, var(--primary));
   }
-  &:active {
+  &:active:not(:disabled) {
     background: color-mix(in oklch, var(--on-primary) 12%, var(--primary));
   }
   &:focus-visible {
@@ -73,14 +73,14 @@ const componentType = computed(() => {
   }
 }
 .bg-secondary-container {
-  &:hover {
+  &:hover:not(:disabled) {
     background: color-mix(
       in oklch,
       var(--on-secondary-container) 8%,
       var(--secondary-container)
     );
   }
-  &:active {
+  &:active:not(:disabled) {
     background: color-mix(
       in oklch,
       var(--on-secondary-container) 12%,
@@ -96,14 +96,14 @@ const componentType = computed(() => {
   }
 }
 .bg-primary-container {
-  &:hover {
+  &:hover:not(:disabled) {
     background: color-mix(
       in oklch,
       var(--on-primary-container) 8%,
       var(--primary-container)
     );
   }
-  &:active {
+  &:active:not(:disabled) {
     background: color-mix(
       in oklch,
       var(--on-primary-container) 12%,
@@ -119,14 +119,14 @@ const componentType = computed(() => {
   }
 }
 .bg-error-container {
-  &:hover {
+  &:hover:not(:disabled) {
     background: color-mix(
       in oklch,
       var(--on-error-container) 8%,
       var(--error-container)
     );
   }
-  &:active {
+  &:active:not(:disabled) {
     background: color-mix(
       in oklch,
       var(--on-error-container) 12%,
@@ -140,5 +140,23 @@ const componentType = computed(() => {
       var(--error-container)
     );
   }
+}
+
+.button--tertiary {
+  &:hover:not(:disabled) {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
+  }
+}
+
+/* Disabled state - works across all themes using M3 semantic tokens */
+.button:disabled {
+  background: color-mix(in oklch, var(--on-surface) 12%, transparent);
+  color: color-mix(in oklch, var(--on-surface) 38%, transparent);
+}
+
+/* Tertiary variant has different disabled background */
+.button--tertiary:disabled {
+  background: transparent;
 }
 </style>
