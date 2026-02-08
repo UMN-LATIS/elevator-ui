@@ -13,9 +13,8 @@
 
 body {
   font-family: "Work Sans", "Helvetica Neue", sans-serif;
-  color: oklch(var(--on-surface));
-  background-color: oklch(var(--surface));
-  border-color: oklch(var(--outline));
+  color: var(--on-surface);
+  background-color: var(--surface);
 }
 
 a {
@@ -53,6 +52,7 @@ a:hover {
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -78,35 +78,23 @@ a:hover {
   }
 
   ::-webkit-scrollbar-track {
-    background: oklch(var(--surface-container));
+    background: var(--surface-container);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: oklch(var(--outline));
+    background: var(--outline);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(var(--on-surface-variant));
-  }
-
-  [data-theme="dark"] ::-webkit-scrollbar-track {
-    background: oklch(var(--surface-dim));
-  }
-
-  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background: oklch(var(--primary));
+    background: var(--on-surface-variant);
   }
 }
 
 .prose {
-  --tw-prose-headings: oklch(var(--on-surface));
-  --tw-prose-links: oklch(var(--primary));
+  --tw-prose-headings: var(--on-surface);
+  --tw-prose-links: var(--primary);
   max-width: 90ch;
-  color: oklch(var(--on-surface));
-}
-
-[data-theme="dark"] .prose {
-  --tw-prose-links: oklch(var(--warning));
+  color: var(--on-surface);
 }
 
 .prose img,
@@ -131,7 +119,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: oklch(var(--on-surface));
+  color: var(--on-surface);
 }
 
 .fade-enter-active,
@@ -217,31 +205,6 @@ h6 {
     background: var(--surface-container-high);
     color: color-mix(in oklch, var(--on-surface-variant) 38%, transparent);
     cursor: not-allowed;
-  }
-}
-
-/* Dark mode: outlined button style */
-[data-theme="dark"] .el-btn {
-  border-color: oklch(var(--outline-variant));
-  background: transparent;
-  color: oklch(var(--primary));
-
-  &:hover {
-    border-color: oklch(var(--primary));
-    background: oklch(var(--primary-container));
-    color: oklch(var(--on-primary-container));
-  }
-
-  &:active {
-    border-color: oklch(var(--primary));
-    background: oklch(var(--primary));
-    color: oklch(var(--on-primary));
-  }
-
-  &:disabled {
-    border-color: oklch(var(--outline-variant));
-    background: transparent;
-    color: oklch(var(--on-surface-variant));
   }
 }
 

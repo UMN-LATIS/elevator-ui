@@ -14,43 +14,43 @@
    * SURFACE - Background colors
    * In dark mode: brighter = more elevated
    * ============================================ */
-  --surface: oklch(13% 0 0);
-  --surface-dim: oklch(13% 0 0);
-  --surface-bright: oklch(28% 0 0);
+  --surface: oklch(20% 0.02 245);
+  --surface-dim: oklch(22% 0.02 245);
+  --surface-bright: oklch(32% 0.03 245);
 
   /* Container hierarchy: highest is lightest (most elevated) */
-  --surface-container-lowest: oklch(10% 0 0);
-  --surface-container-low: oklch(16% 0 0);
-  --surface-container: oklch(18% 0 0);
-  --surface-container-high: oklch(22% 0 0);
-  --surface-container-highest: oklch(26% 0 0);
+  --surface-container-lowest: oklch(22% 0.02 245);
+  --surface-container-low: oklch(24% 0.02 245);
+  --surface-container: oklch(26% 0.02 245);
+  --surface-container-high: oklch(28% 0.025 245);
+  --surface-container-highest: oklch(30% 0.03 245);
 
-  --on-surface: oklch(91% 0 0);
-  --on-surface-variant: oklch(81% 0.01 350);
+  --on-surface: oklch(0.9 0.02 245);
+  --on-surface-variant: oklch(0.66 0.04 245.03);
 
   /* ============================================
    * PRIMARY - Neutral gray
    * ============================================ */
   --primary: #ffb71e;
-  --on-primary: oklch(24% 0 0);
+  --on-primary: oklch(0.2 0.02 245);
   --primary-container: #ffdba3;
   --on-primary-container: oklch(25% 0.08 85);
 
   /* ============================================
-   * SECONDARY - Neutral gray
+   * SECONDARY - Cool gray with blue tint
    * ============================================ */
-  --secondary: oklch(81% 0 0);
-  --on-secondary: oklch(24% 0 0);
-  --secondary-container: oklch(34% 0 0);
-  --on-secondary-container: oklch(75% 0 0);
+  --secondary: oklch(78% 0.03 245);
+  --on-secondary: oklch(24% 0.02 245);
+  --secondary-container: oklch(32% 0.03 245);
+  --on-secondary-container: oklch(82% 0.02 245);
 
   /* ============================================
-   * TERTIARY - Neutral gray
+   * TERTIARY - Lavender accent
    * ============================================ */
-  --tertiary: oklch(81% 0 0);
-  --on-tertiary: oklch(24% 0 0);
-  --tertiary-container: oklch(0% 0 0);
-  --on-tertiary-container: oklch(52% 0 0);
+  --tertiary: oklch(75% 0.12 280);
+  --on-tertiary: oklch(22% 0.03 280);
+  --tertiary-container: oklch(28% 0.08 280);
+  --on-tertiary-container: oklch(85% 0.08 280);
 
   /* ============================================
    * SEMANTIC STATES
@@ -78,15 +78,15 @@
   /* ============================================
    * OUTLINE
    * ============================================ */
-  --outline: oklch(62% 0.01 350);
-  --outline-variant: oklch(34% 0.01 350);
+  --outline: oklch(60% 0.03 245);
+  --outline-variant: oklch(35% 0.03 245);
 
   /* ============================================
    * INVERSE - Light surfaces in dark mode
    * ============================================ */
-  --inverse-surface: oklch(91% 0 0);
-  --inverse-on-surface: oklch(24% 0 0);
-  --inverse-primary: oklch(43% 0 0);
+  --inverse-surface: oklch(90% 0.01 245);
+  --inverse-on-surface: oklch(24% 0.02 245);
+  --inverse-primary: oklch(43% 0.08 245);
 
   /* ============================================
    * UTILITY
