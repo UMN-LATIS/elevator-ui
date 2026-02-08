@@ -77,8 +77,7 @@ const componentType = computed(() => {
   }
 
   &:disabled {
-    opacity: 0.37;
-    filter: saturate(0);
+    opacity: 0.25;
     cursor: not-allowed;
   }
 }
@@ -100,10 +99,11 @@ const componentType = computed(() => {
 .button--tertiary {
   --bg: transparent;
   --on-bg: var(--primary);
-  border-color: transparent;
+  border: 1px solid transparent;
 
-  &:hover {
-    background: color-mix(in oklch, var(--bg) 50%, transparent);
+  &:hover:not(:disabled) {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
   }
 
   &:active {

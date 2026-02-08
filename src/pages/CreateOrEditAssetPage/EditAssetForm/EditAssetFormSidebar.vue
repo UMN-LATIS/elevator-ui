@@ -86,19 +86,19 @@
         label="Available After"
         type="date"
         placeholder="mm / dd / yyyy"
-        inputClass="text-sm pl-3 bg-surface-container-highest"
+        inputClass="text-sm pl-3 bg-surface-container-high"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="displayTemplateId"
         :options="parentAssetEditor.templateOptions"
         label="Template"
-        selectClass="bg-surface-container-highest"
+        selectClass="bg-surface-container-high"
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
         :options="parentAssetEditor.collectionOptions"
-        selectClass="bg-surface-container-highest"
+        selectClass="bg-surface-container-high"
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />

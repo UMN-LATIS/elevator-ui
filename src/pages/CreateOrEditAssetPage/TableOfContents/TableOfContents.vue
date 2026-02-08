@@ -8,11 +8,10 @@
       <li v-for="item in tocItems" :key="item.id">
         <a
           :href="`#${item.id}`"
-          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 pl-3"
+          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 pl-3 border-0 border-l-2"
           :class="{
-            'text-primary font-medium border-primary bg-white/50 hover:bg-white/75 rounded-sm':
-              activeId === item.id,
-            'text-on-surface-variant hover:bg-transparent': activeId !== item.id,
+            'font-medium border-outline': activeId === item.id,
+            'text-on-surface-variant border-transparent': activeId !== item.id,
           }"
           @click.prevent="scrollToSection(item.id)">
           <div

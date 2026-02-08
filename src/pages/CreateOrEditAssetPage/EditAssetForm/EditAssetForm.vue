@@ -68,7 +68,6 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from "vue";
 import EditWidget from "../EditWidget/EditWidget.vue";
-import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
 import {
   Asset,
@@ -80,7 +79,7 @@ import {
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
-import { ChevronsDownUpIcon, ChevronsUpDownIcon, Icon } from "lucide-vue-next";
+import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 
 const props = defineProps<{
   template: Template;
@@ -139,7 +138,7 @@ function handleCollapseAll() {
 @media (min-width: 768px) {
   .sidebar-container {
     border-left: 1px solid var(--outline);
-    background: var(--surface-container);
+    background: var(--surface-container-low);
     color: var(--on-surface);
   }
 }
