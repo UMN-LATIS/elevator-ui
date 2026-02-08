@@ -12,11 +12,9 @@
         target="_blank">
         View
       </Button>
-
       <Button
         variant="primary"
         type="submit"
-        class="disabled:!border-outline-variant border-groove disabled:cursor-not-allowed"
         :disabled="!isAssetValid || saveStatus === 'pending'"
         @click="$emit('save')">
         Save
@@ -29,7 +27,9 @@
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
         <p class="text-on-surface-variant">
-          <span v-if="parentAssetEditor.lastModified" class="text-on-surface-variant">
+          <span
+            v-if="parentAssetEditor.lastModified"
+            class="text-on-surface-variant">
             {{ parentAssetEditor.lastModified }}
           </span>
         </p>
@@ -86,17 +86,19 @@
         label="Available After"
         type="date"
         placeholder="mm / dd / yyyy"
-        inputClass="text-sm pl-3"
+        inputClass="text-sm pl-3 bg-surface-container-highest"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="displayTemplateId"
         :options="parentAssetEditor.templateOptions"
         label="Template"
+        selectClass="bg-surface-container-highest"
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
         :options="parentAssetEditor.collectionOptions"
+        selectClass="bg-surface-container-highest"
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
