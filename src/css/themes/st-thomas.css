@@ -68,7 +68,7 @@
 
   /* Outline */
   --outline: oklch(55% 0.02 260);
-  --outline-variant: oklch(80% 0.01 260);
+  --outline-variant: oklch(90% 0.01 260);
 
   /* Inverse */
   --inverse-surface: oklch(25% 0.02 260);
