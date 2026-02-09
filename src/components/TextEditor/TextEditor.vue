@@ -107,6 +107,11 @@ onMounted(() => {
 </script>
 <style scoped></style>
 <style type="postcss">
+/* QuillJS Placeholder style */
+.ql-editor.ql-blank::before {
+  @apply text-on-surface-variant opacity-40;
+}
+
 .ql-toolbar.ql-snow {
   border: none;
 }
@@ -123,7 +128,7 @@ onMounted(() => {
 }
 
 .ql-toolbar.ql-snow :is(button.ql-active) {
-  @apply text-on-surface opacity-100 bg-on-surface rounded;
+  @apply text-secondary-container opacity-100 bg-on-secondary-container rounded;
 }
 
 .ql-toolbar.ql-snow :is(.ql-stroke, button:hover .ql-stroke) {
