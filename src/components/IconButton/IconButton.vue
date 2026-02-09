@@ -1,12 +1,12 @@
 <template>
-  <Popover :content="title" class="icon-button">
+  <Popover :content="title">
     <component
       :is="componentType"
       :href="resolvedHref"
       :type="type"
       :to="componentType === RouterLink ? to : undefined"
       v-bind="$attrs"
-      class="flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150"
+      class="icon-button flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150 text-primary hover:bg-primary-container hover:text-on-primary-container focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed"
       :title="title"
       @click="($event) => $emit('click', $event)">
       <slot />
@@ -54,16 +54,14 @@ const componentType = computed(() => {
 });
 </script>
 <style scoped>
-.icon-button :is(button, a, .router-link) {
-  background-color: transparent;
-  color: var(--primary);
-  border-radius: 0.375rem;
-  border: 1px solid transparent;
+/* Disabled state - works across all themes using M3 semantic tokens */
+.icon-button:disabled {
+  background: color-mix(in oklch, var(--on-surface) 12%, transparent);
+  color: color-mix(in oklch, var(--on-surface) 38%, transparent);
+}
 
-  &:hover {
-    background-color: var(--primary-container);
-    color: var(--primary);
-    border: 1px solid var(--primary);
-  }
+/* Tertiary variant has different disabled background */
+.icon-button.button--tertiary:disabled {
+  background: transparent;
 }
 </style>

@@ -12,6 +12,7 @@
         'notification--success bg-success-container text-on-success-container':
           type === 'success',
       },
+      $attrs.class,
     ]">
     <button
       v-if="isDismissable"
@@ -35,7 +36,8 @@
         <CircleXIcon v-if="type === 'danger'" />
       </div>
       <div class="flex-1">
-        <h3 class="notification__title text-sm font-bold uppercase pr-6">
+        <h3
+          class="notification__title text-sm font-bold uppercase pr-6 text-inherit">
           {{ title }}
         </h3>
         <div class="notification__contents mt-2 text-sm">

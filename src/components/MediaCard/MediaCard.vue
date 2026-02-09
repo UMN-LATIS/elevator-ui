@@ -40,24 +40,14 @@ defineProps<{
   }
 }
 
-[data-theme="dark"] .media-card {
-  background: var(--surface-container);
-}
-
 .media-card__image {
-  background: var(--surface-container);
+  background: var(--surface-container-lowest);
   color: var(--on-surface-variant);
 }
 
 .media-card:has(.media-card__image:hover),
 .media-card:has(.media-card__body:hover),
 a:focus .media-card {
-  background: var(--primary-container);
-  color: var(--primary);
   border-color: var(--primary);
-
-  & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--primary);
-  }
 }
 </style>

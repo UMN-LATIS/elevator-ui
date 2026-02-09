@@ -57,7 +57,7 @@
    * ============================================ */
   --error: oklch(81% 0.1 20);
   --on-error: oklch(28% 0.15 25);
-  --error-container: oklch(35% 0.18 25);
+  --error-container: oklch(0.2 0.06 20);
   --on-error-container: oklch(91% 0.04 20);
 
   --success: oklch(70% 0.15 145);

@@ -11,7 +11,10 @@
           'font-bold': key === activeMapStyleKey,
           'text-on-surface-variant': key !== activeMapStyleKey,
         }"
-        @click="activeMapStyleKey = key">
+        @click="
+          activeMapStyleKey = key;
+          isUserSelectedStyle = true;
+        ">
         {{ style.label }}
       </button>
     </div>
@@ -47,6 +50,7 @@ import {
   type Ref,
   useTemplateRef,
   nextTick,
+  computed,
 } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import { memoizeWith } from "ramda";
@@ -65,6 +69,7 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
+import { useTheming } from "@/helpers/useTheming";
 
 const props = withDefaults(
   defineProps<{
@@ -79,11 +84,11 @@ const props = withDefaults(
     mapOptions?: Partial<MapLibreMapOptions>;
   }>(),
   {
-    mapStyle: "light",
     labelsClass: "",
     bounds: undefined,
     mapContainerClass: "",
     fullscreenControl: true,
+    mapStyle: "streets",
     mapOptions: () => ({}),
   }
 );
@@ -123,7 +128,27 @@ const mapStyles = {
   },
 };
 
-const activeMapStyleKey = ref<keyof typeof mapStyles>(props.mapStyle);
+const { activeTheme } = useTheming();
+
+// Determine default map style based on theme
+const defaultMapStyle = computed<keyof typeof mapStyles>(() => {
+  // If theme name contains "dark", use dark map style
+  return activeTheme.value.includes("dark") ? "dark" : "light";
+});
+
+// Track whether user has manually selected a style
+const isUserSelectedStyle = ref(false);
+
+const activeMapStyleKey = ref<keyof typeof mapStyles>(
+  props.mapStyle ?? defaultMapStyle.value
+);
+
+// Watch for theme changes and update map style if user hasn't manually selected one
+watch(defaultMapStyle, (newDefaultStyle) => {
+  if (!isUserSelectedStyle.value && !props.mapStyle) {
+    activeMapStyleKey.value = newDefaultStyle;
+  }
+});
 
 // map source and layer ids as constants (to help catch typos)
 const MARKERS_SOURCE_ID = "markers";
@@ -885,6 +910,104 @@ provide<MapContext>(MapInjectionKey, {
   width: 100%;
   height: 100%;
   min-height: 25rem;
-  background: #ddd;
+  background: var(--surface-container);
+}
+</style>
+
+<style>
+/**
+ * MapLibre dark mode overrides
+ * These styles are not scoped so they can override the maplibre-gl.css
+ */
+[data-theme="dark"] .maplibregl-ctrl-group {
+  background: var(--surface-container-high) !important;
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 10%) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-group button + button {
+  border-top-color: var(--outline-variant) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-group button:not(:disabled):hover {
+  background-color: var(--surface-bright) !important;
+}
+
+/* Attribution control - all states */
+[data-theme="dark"] .maplibregl-ctrl-attrib {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface-variant) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-attrib.maplibregl-compact {
+  background-color: var(--surface-container-high) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-attrib-button {
+  background-color: var(--surface-container-high) !important;
+  filter: invert(0.85) hue-rotate(180deg);
+}
+
+[data-theme="dark"]
+  .maplibregl-ctrl-attrib.maplibregl-compact-show
+  .maplibregl-ctrl-attrib-button {
+  background-color: var(--surface-bright) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-attrib a {
+  color: var(--on-surface-variant) !important;
+}
+
+[data-theme="dark"] .maplibregl-ctrl-attrib a:hover {
+  color: var(--on-surface) !important;
+}
+
+/* Scale control */
+[data-theme="dark"] .maplibregl-ctrl-scale {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface) !important;
+  border-color: var(--outline) !important;
+}
+
+/* Popup styling */
+[data-theme="dark"] .maplibregl-popup-content {
+  background: var(--surface-container-high) !important;
+  color: var(--on-surface) !important;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 40%) !important;
+}
+
+[data-theme="dark"] .maplibregl-popup-close-button {
+  color: var(--on-surface-variant) !important;
+}
+
+[data-theme="dark"] .maplibregl-popup-close-button:hover {
+  background-color: var(--surface-bright) !important;
+}
+
+/* Popup tip colors for dark mode */
+[data-theme="dark"] .maplibregl-popup-anchor-top .maplibregl-popup-tip,
+[data-theme="dark"] .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+[data-theme="dark"] .maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+  border-bottom-color: var(--surface-container-high) !important;
+}
+
+[data-theme="dark"] .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+[data-theme="dark"] .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+[data-theme="dark"]
+  .maplibregl-popup-anchor-bottom-right
+  .maplibregl-popup-tip {
+  border-top-color: var(--surface-container-high) !important;
+}
+
+[data-theme="dark"] .maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: var(--surface-container-high) !important;
+}
+
+[data-theme="dark"] .maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: var(--surface-container-high) !important;
+}
+
+/* Control icons - invert for better visibility */
+[data-theme="dark"] .maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: invert(0.85) hue-rotate(180deg);
 }
 </style>
