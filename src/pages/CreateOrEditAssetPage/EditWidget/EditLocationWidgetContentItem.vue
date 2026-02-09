@@ -2,7 +2,7 @@
   <div class="location-picker rounded-md flex flex-col gap-2">
     <div class="map-container relative">
       <div
-        class="flex gap-4 sm:justify-end items-center flex-wrap absolute top-2 right-2 z-10 bg-surface-container-high/80 backdrop-blur-sm rounded-md px-3 py-1.5 shadow-md border border-outline-variant/30">
+        class="flex gap-4 sm:justify-end items-center flex-wrap absolute top-2 right-2 z-10 bg-surface-container-high rounded-md px-3 py-1.5 shadow-md border border-outline-variant">
         <button
           v-for="(style, key) in mapStyles"
           :key="key"
@@ -279,7 +279,10 @@ onMounted(() => {
   border-top-color: var(--outline-variant) !important;
 }
 
-[data-theme="dark"] .location-picker .maplibregl-ctrl-group button:not(:disabled):hover {
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl-group
+  button:not(:disabled):hover {
   background-color: var(--surface-bright) !important;
 }
 
@@ -289,7 +292,9 @@ onMounted(() => {
   color: var(--on-surface-variant) !important;
 }
 
-[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib.maplibregl-compact {
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl-attrib.maplibregl-compact {
   background-color: var(--surface-container-high) !important;
 }
 
@@ -313,7 +318,11 @@ onMounted(() => {
   border-color: var(--outline) !important;
 }
 
-[data-theme="dark"] .location-picker .maplibregl-ctrl button .maplibregl-ctrl-icon {
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl
+  button
+  .maplibregl-ctrl-icon {
   filter: invert(0.85) hue-rotate(180deg);
 }
 
