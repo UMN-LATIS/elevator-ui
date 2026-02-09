@@ -42,7 +42,7 @@
 
   --secondary: oklch(78% 0.03 245);
   --on-secondary: oklch(24% 0.02 245);
-  --secondary-container: oklch(0.34 0.03 205);
+  --secondary-container: oklch(0.34 0.03 245);
   --on-secondary-container: oklch(82% 0.02 245);
 
   /* ============================================
@@ -61,10 +61,10 @@
   --error-container: oklch(0.2 0.06 20);
   --on-error-container: oklch(91% 0.04 20);
 
-  --success: oklch(81% 0.1 145);
-  --on-success: oklch(28% 0.15 145);
-  --success-container: oklch(0.25 0.1 145);
-  --on-success-container: oklch(91% 0.08 145);
+  --success: oklch(70% 0.1 177);
+  --on-success: oklch(28% 0.15 177);
+  --success-container: oklch(0.26 0.03 177);
+  --on-success-container: oklch(91% 0.08 177);
 
   /* --success: oklch(0.35 0.11 144.75);
   --on-success: oklch(70% 0.15 145);
