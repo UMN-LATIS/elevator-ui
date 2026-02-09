@@ -100,3 +100,49 @@
   --scrim: oklch(0% 0 0 / 0.7);
   --shadow: oklch(0% 0 0 / 0.8);
 }
+
+
+/* Attribution control - all states */
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface-variant) !important;
+}
+
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl-attrib.maplibregl-compact {
+  background-color: var(--surface-container-high) !important;
+}
+
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib-button {
+  background-color: var(--surface-container-high) !important;
+  background-image: none !important;
+  filter: invert(0.85) hue-rotate(180deg);
+}
+
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib a {
+  color: var(--on-surface-variant) !important;
+}
+
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib a:hover {
+  color: var(--on-surface) !important;
+}
+
+[data-theme="dark"] .location-picker .maplibregl-ctrl-scale {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface) !important;
+  border-color: var(--outline) !important;
+}
+
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl
+  button
+  .maplibregl-ctrl-icon {
+  filter: invert(0.85) hue-rotate(180deg);
+}
+
+/* Marker styling for dark mode */
+[data-theme="dark"] .location-picker .maplibregl-marker svg path {
+  fill: var(--primary);
+}

@@ -53,13 +53,12 @@ defineEmits<{
 </script>
 <style scoped>
 .panel__header {
-  background: color-mix(in oklch, var(--surface-container-low) 50%, transparent);
+  background: color-mix(
+    in oklch,
+    var(--surface-container-low) 50%,
+    transparent
+  );
   color: var(--on-surface);
-}
-
-[data-theme="dark"] .panel__header {
-  background: transparent;
-  color: var(--warning);
 }
 
 .panel__body {
@@ -67,9 +66,5 @@ defineEmits<{
   color: var(--on-surface);
   border-top-color: var(--surface-bright);
   gap: 1.5rem;
-}
-
-[data-theme="dark"] .panel__body {
-  border-top-color: transparent;
 }
 </style>

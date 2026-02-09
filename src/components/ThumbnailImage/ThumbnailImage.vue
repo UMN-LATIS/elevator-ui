@@ -79,8 +79,4 @@ const isAudio = computed((): boolean => {
 .thumbnail-image--is-active {
   --tw-ring-color: var(--primary);
 }
-
-[data-theme="dark"] .thumbnail-image--is-active {
-  --tw-ring-color: var(--warning);
-}
 </style>

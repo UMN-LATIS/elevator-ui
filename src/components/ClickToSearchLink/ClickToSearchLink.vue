@@ -52,12 +52,4 @@ async function handleClick() {
 .click-to-search-link:focus {
   color: var(--primary);
 }
-
-[data-theme="dark"] .click-to-search-link {
-  color: var(--warning);
-}
-[data-theme="dark"] .click-to-search-link:hover,
-[data-theme="dark"] .click-to-search-link:focus {
-  color: var(--on-warning-container);
-}
 </style>

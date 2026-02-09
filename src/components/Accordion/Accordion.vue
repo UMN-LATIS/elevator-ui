@@ -67,17 +67,9 @@ function handleAccordionToggle() {
   color: var(--on-surface);
 }
 
-[data-theme="dark"] .accordion__header {
-  background: var(--surface-container);
-}
-
 .accordion__body {
   background: transparent;
   color: var(--on-surface);
   border-top: 1px solid transparent;
-}
-
-[data-theme="dark"] .accordion__body {
-  background: var(--surface-container-low);
 }
 </style>

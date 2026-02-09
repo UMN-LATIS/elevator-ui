@@ -31,14 +31,4 @@ withDefaults(
     background: var(--primary);
   }
 }
-
-[data-theme="dark"] .chip--is-clickable {
-  border-color: var(--warning);
-  color: var(--warning);
-
-  &:hover {
-    background: var(--warning);
-    color: var(--on-warning);
-  }
-}
 </style>

@@ -81,12 +81,4 @@ provide(
   background: var(--surface-container);
   color: var(--on-surface);
 }
-
-[data-theme="dark"] .modal-contents {
-  background: var(--surface);
-}
-
-[data-theme="dark"] .modal-contents__header {
-  color: var(--warning);
-}
 </style>
