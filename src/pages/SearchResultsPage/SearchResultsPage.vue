@@ -4,7 +4,9 @@
       <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
     </template>
     <div class="px-4">
-      <SearchErrorNotification v-if="searchStore.status === 'error'" />
+      <SearchErrorNotification
+        v-if="searchStore.status === 'error'"
+        class="my-8" />
       <template v-else>
         <div class="flex justify-between items-center my-8">
           <BrowseCollectionHeader

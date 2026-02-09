@@ -76,10 +76,14 @@
   --inverse-primary: oklch(75% 0.12 310);
 
   /* Theme-specific styles */
+  .app-header {
+    background-color: var(--primary);
+    color: var(--on-primary);
+  }
 
-  & .app-header__logo-link,
-  & .app-header__wordmark {
-    color: white;
+
+  & :is(.app-header__logo-link, .app-header__wordmark,.app-logo-mark) {
+    color: var(--on-primary);
   }
 
   /* Override font family */

@@ -12,7 +12,7 @@
           :message="error.name"
           type="danger"
           :isDismissable="true"
-          class="w-full max-w-md border-none max-h-[80vh] !overflow-auto"
+          class="w-full max-w-md border-none max-h-[80vh] !overflow-auto rounded-md"
           @dismiss="errorStore.clearError()">
           <p>{{ message }}</p>
 
