@@ -4,6 +4,7 @@
     <iframe
       v-if="fileHandlerId"
       class="object-viewer__iframe w-full flex-1"
+      :style="`background: ${iframeBackground}`"
       :src="`${config.instance.base.url}/asset/getEmbed/${fileHandlerId}/${
         parentAssetId ?? ''
       }`"
@@ -20,6 +21,8 @@
 
 <script setup lang="ts">
 import config from "@/config";
+import { useTheming } from "@/helpers/useTheming";
+import { computed, ref, watch } from "vue";
 
 withDefaults(
   defineProps<{
@@ -29,6 +32,22 @@ withDefaults(
   {
     parentAssetId: null,
   }
+);
+
+// use the same background color for the iframe as the current theme
+// to prevent jarring white background when loading assets in dark mode
+const theme = useTheming();
+const iframeBackground = ref("white");
+// recalcuate iframe background when theme changes
+watch(
+  theme.activeTheme,
+  () => {
+    const surfaceContainerColor = getComputedStyle(
+      document.documentElement
+    ).getPropertyValue("--surface-container");
+    iframeBackground.value = surfaceContainerColor || "white";
+  },
+  { immediate: true }
 );
 </script>
 <style scoped>
