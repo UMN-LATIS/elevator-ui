@@ -229,12 +229,13 @@ uppy.on("error", (error) => {
     /* prevent uppy z-index conflicts with our modals */
     isolation: isolate;
     border: 0;
+    background: transparent;
   }
   & .uppy-Dashboard-dropFilesHereHint {
     padding: 0;
   }
   & .uppy-Dashboard-AddFiles {
-    @apply border-2 border-outline-variant bg-surface-container-low hover:border-primary rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-primary;
+    @apply border-2 border-outline-variant bg-surface-container text-on-surface hover:border-primary hover:bg-surface-container rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-primary;
   }
 
   & .uppy-Dashboard-AddFiles-info {
@@ -251,6 +252,7 @@ uppy.on("error", (error) => {
 
   & .uppy-Dashboard-AddFiles-title {
     font-size: 0.825rem;
+    color: var(--on-surface);
   }
 }
 </style>

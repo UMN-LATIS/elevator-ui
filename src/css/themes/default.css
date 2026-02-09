@@ -27,7 +27,7 @@
    *   - surface-dim: for reduced emphasis backgrounds
    *   - surface-bright: for elevated/highlighted backgrounds
    * ============================================ */
-  --surface: oklch(97.5% 0.006 260);
+  --surface: oklch(98% 0.006 260);
   --surface-dim: oklch(93% 0.008 260);
   --surface-bright: oklch(100% 0.003 260);
 
@@ -36,11 +36,11 @@
    * highest = maximum contrast with surface (most elevated)
    * In light mode: elevation = lighter/brighter (catching more light)
    */
-  --surface-container-lowest: oklch(95% 0.005 260);
-  --surface-container-low: oklch(92.5% 0.005 260);
-  --surface-container: oklch(90% 0.004 260);
-  --surface-container-high: oklch(87.5% 0.004 260);
-  --surface-container-highest: oklch(85% 0.003 260);
+  --surface-container-lowest: oklch(96% 0.005 260);
+  --surface-container-low: oklch(95% 0.005 260);
+  --surface-container: oklch(94% 0.004 260);
+  --surface-container-high: oklch(93% 0.004 260);
+  --surface-container-highest: oklch(92% 0.003 260);
 
   --on-surface: oklch(20% 0.02 260); /* primary text on surface */
   --on-surface-variant: oklch(0.55 0 0); /* secondary/muted text, icons */
@@ -127,7 +127,7 @@
     55% 0.02 260
   ); /* important borders: inputs, focused elements */
   --outline-variant: oklch(
-    80% 0.01 260
+    90% 0.01 260
   ); /* decorative: dividers, subtle separators */
 
   /* ============================================

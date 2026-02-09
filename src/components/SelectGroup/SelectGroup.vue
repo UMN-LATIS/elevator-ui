@@ -19,7 +19,7 @@
       :value="modelValue ?? ''"
       :class="
         cn([
-          'rounded-md border-none bg-surface-container text-sm focus-visible:ring-2',
+          'rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2',
           selectClass,
         ])
       "

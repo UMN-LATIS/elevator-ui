@@ -20,13 +20,13 @@
 
   /* Container hierarchy: highest is lightest (most elevated) */
   --surface-container-lowest: oklch(22% 0.02 245);
-  --surface-container-low: oklch(24% 0.02 245);
-  --surface-container: oklch(26% 0.02 245);
-  --surface-container-high: oklch(28% 0.025 245);
-  --surface-container-highest: oklch(30% 0.03 245);
+  --surface-container-low: oklch(23% 0.02 245);
+  --surface-container: oklch(24% 0.02 245);
+  --surface-container-high: oklch(25% 0.025 245);
+  --surface-container-highest: oklch(36% 0.03 245);
 
-  --on-surface: oklch(0.9 0.02 245);
-  --on-surface-variant: oklch(0.66 0.04 245.03);
+  --on-surface: oklch(0.75 0.03 245);
+  --on-surface-variant: oklch(0.6 0.04 245.03);
 
   /* ============================================
    * PRIMARY - Neutral gray
@@ -39,9 +39,10 @@
   /* ============================================
    * SECONDARY - Cool gray with blue tint
    * ============================================ */
+
   --secondary: oklch(78% 0.03 245);
   --on-secondary: oklch(24% 0.02 245);
-  --secondary-container: oklch(32% 0.03 245);
+  --secondary-container: oklch(0.34 0.03 205);
   --on-secondary-container: oklch(82% 0.02 245);
 
   /* ============================================
@@ -60,10 +61,15 @@
   --error-container: oklch(0.2 0.06 20);
   --on-error-container: oklch(91% 0.04 20);
 
-  --success: oklch(70% 0.15 145);
-  --on-success: oklch(15% 0.06 145);
+  --success: oklch(81% 0.1 145);
+  --on-success: oklch(28% 0.15 145);
+  --success-container: oklch(0.25 0.1 145);
+  --on-success-container: oklch(91% 0.08 145);
+
+  /* --success: oklch(0.35 0.11 144.75);
+  --on-success: oklch(70% 0.15 145);
   --success-container: oklch(30% 0.1 145);
-  --on-success-container: oklch(85% 0.08 145);
+  --on-success-container: oklch(85% 0.08 145); */
 
   --warning: oklch(75% 0.13 85);
   --on-warning: oklch(20% 0.05 85);
@@ -79,7 +85,7 @@
    * OUTLINE
    * ============================================ */
   --outline: oklch(60% 0.03 245);
-  --outline-variant: oklch(35% 0.03 245);
+  --outline-variant: oklch(0.3 0.03 245);
 
   /* ============================================
    * INVERSE - Light surfaces in dark mode

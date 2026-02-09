@@ -57,9 +57,9 @@
     <div class="flex flex-col gap-6 order-1 md:order-2">
       <SelectGroup
         :selectClass="{
-          '!bg-success !text-white select-picker-light':
+          'bg-success-container text-on-success-container select-picker-light':
             !!asset.readyForDisplay,
-          'bg-transparent border border-solid border-on-surface':
+          'bg-transparent border border-solid border-outline':
             !asset.readyForDisplay,
         }"
         :modelValue="asset.readyForDisplay ? 'ready' : 'draft'"
@@ -221,6 +221,6 @@ function handleUpdateCollectionId(collectionId: number | string | null) {
 </script>
 <style>
 .select-picker-light {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 }
 </style>

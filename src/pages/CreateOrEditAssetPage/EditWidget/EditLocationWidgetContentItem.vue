@@ -270,21 +270,21 @@ onMounted(() => {
 
 <style>
 /* MapLibre dark mode overrides for location picker */
-[data-theme="dark"] .location-picker .maplibregl-ctrl-group {
+/* [data-theme="dark"] .location-picker .maplibregl-ctrl-group {
   background: var(--surface-container-high) !important;
   box-shadow: 0 0 0 2px rgb(255 255 255 / 10%) !important;
 }
 
 [data-theme="dark"] .location-picker .maplibregl-ctrl-group button + button {
   border-top-color: var(--outline-variant) !important;
-}
+} */
 
-[data-theme="dark"]
+/* [data-theme="dark"]
   .location-picker
   .maplibregl-ctrl-group
   button:not(:disabled):hover {
   background-color: var(--surface-bright) !important;
-}
+} */
 
 /* Attribution control - all states */
 [data-theme="dark"] .location-picker .maplibregl-ctrl-attrib {
