@@ -291,7 +291,7 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import EyeOffIcon from "@/icons/EyeOffIcon.vue";
 import { useToastStore } from "@/stores/toastStore";
-import config from "@/config";
+import config, { ALL_THEMES } from "@/config";
 import {
   useInstanceSettingsQuery,
   useUpdateInstanceSettingsMutation,
@@ -417,7 +417,7 @@ const interfaceVersionOptions = computed((): SelectOption<0 | 1>[] => [
 ]);
 
 // All available themes from config
-const allThemes = computed(() => config.instance.theming.availableThemes);
+const allThemes = computed(() => ALL_THEMES);
 
 // Table of contents sections
 const tocSections: TocItem[] = [

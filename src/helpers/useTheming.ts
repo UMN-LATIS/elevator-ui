@@ -22,14 +22,6 @@ export function useTheming() {
 
       // if the theme is light, we're done
       if (activeTheme.value === "light") return;
-
-      // otherwise load the theme css
-      import(`../css/themes/${activeTheme.value}.css`).catch((err) => {
-        console.error(
-          `Failed to load theme css for ${activeTheme.value}. falling back to light theme.`,
-          err
-        );
-      });
     },
     { immediate: true }
   );

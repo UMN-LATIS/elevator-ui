@@ -1,6 +1,7 @@
 import deepmerge from "deepmerge";
 import { AppConfig } from "@/types";
-import { resolveThemingConfig } from "@/helpers/resolveThemingConfig";
+
+export const ALL_THEMES = ["light", "dark", "folwell", "st-thomas"];
 
 const defaultConfig: AppConfig = {
   instance: {
@@ -10,10 +11,7 @@ const defaultConfig: AppConfig = {
       url: import.meta.env.VITE_BASE_URL ?? "http://localhost/",
     },
     theming: {
-      // list of themes
-      availableThemes: (import.meta.env.VITE_AVAILABLE_THEMES || "light").split(
-        ","
-      ),
+      availableThemes: ["light"],
       enabled: import.meta.env.VITE_THEME_ENABLED?.toLowerCase() === "true",
       defaultTheme: import.meta.env.VITE_DEFAULT_THEME || "light",
     },
@@ -44,17 +42,16 @@ const defaultConfig: AppConfig = {
     : false,
 };
 
-const overwriteMerge = (destArray, sourceArray) => sourceArray;
+const globalConfig = globalThis?.Elevator?.config ?? {};
 
-const mergedConfig: AppConfig = deepmerge(
-  defaultConfig,
-  globalThis?.Elevator?.config ?? {},
-  { arrayMerge: overwriteMerge }
-);
+const mergedConfig: AppConfig = deepmerge(defaultConfig, globalConfig);
 
-// resolve theming config with fallbacks for empty/invalid values
-mergedConfig.instance.theming = resolveThemingConfig(
-  mergedConfig.instance.theming
-);
+// Instance theming config takes priority over defaults — don't merge arrays
+if (globalConfig.instance?.theming) {
+  mergedConfig.instance.theming = {
+    ...defaultConfig.instance.theming,
+    ...globalConfig.instance.theming,
+  };
+}
 
 export default mergedConfig;
