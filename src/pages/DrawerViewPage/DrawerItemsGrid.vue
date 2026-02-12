@@ -30,7 +30,7 @@
             :drawerId="drawerId"
             class="search-result-card h-full flex-1 !rounded-l-none"
             :mediaCardClass="[
-              'group-hover:bg-primary-container group-hover:border-primary group-hover:!text-primary',
+              'group-hover:border-primary',
               isDraggable ? 'rounded-l-none !border-l-0 shadow-none' : '',
             ]" />
         </div>

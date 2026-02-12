@@ -26,7 +26,7 @@
         placeholder="Excerpt Name"
         class="flex-1 text-sm"
         :inputClass="[
-          '!bg-white border !border-outline-variant',
+          '!bg-surface-container border !border-outline-variant',
           {
             '!border !border-error': !excerptName && isNameTouched,
           },

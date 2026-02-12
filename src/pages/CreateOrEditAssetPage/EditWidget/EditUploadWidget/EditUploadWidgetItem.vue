@@ -9,7 +9,7 @@
           class="w-full h-full app-object-fit" />
         <div
           v-else
-          class="w-full h-full flex items-center justify-center bg-surface-container-lowest text-neutral-400">
+          class="w-full h-full flex items-center justify-center bg-surface-container-lowest text-on-surface-variant">
           <FileIcon class="size-8" />
           <span class="sr-only">
             No preview image for {{ item.fileDescription }}
@@ -25,7 +25,7 @@
           <Tooltip
             tip="Used by screen readers to describe the content of the file.">
             <div
-              class="inline-flex size-4 items-center justify-center bg-surface-container-lowest text-neutral-800 rounded-full text-xs">
+              class="inline-flex size-4 items-center justify-center bg-surface-container-lowest text-on-surface rounded-full text-xs">
               ?
             </div>
           </Tooltip>
@@ -33,7 +33,7 @@
         <textarea
           :id="`${item.id}-description`"
           :value="item.fileDescription"
-          class="bg-surface-container-lowest border-none rounded-md w-full text-sm font-mono flex-1 placeholder:text-neutral-400"
+          class="bg-surface-container-lowest border-none rounded-md w-full text-sm font-mono flex-1 placeholder:text-on-surface-variant"
           @input="handleDescriptionUpdate" />
       </div>
       <div class="col-span-3">
@@ -78,7 +78,7 @@
         </Tuple>
         <div class="flex justify-between gap-4 flex-wrap">
           <label
-            class="flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
+            class="flex items-center gap-2 text-sm text-on-surface-variant hover:text-on-surface transition-colors">
             <input
               type="checkbox"
               :checked="item.regenerate === 'On'"
@@ -99,7 +99,7 @@
     </div>
 
     <button
-      class="flex items-center justify-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 w-full p-2 rounded-md hover:bg-surface-container-lowest transition-colors"
+      class="flex items-center justify-center gap-2 text-sm text-on-surface-variant hover:text-on-surface w-full p-2 rounded-md hover:bg-surface-container-lowest transition-colors"
       @click="$emit('toggle:details')">
       <ChevronDownIcon
         class="w-4 h-4 transition-transform"

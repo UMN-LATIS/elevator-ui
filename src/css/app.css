@@ -213,7 +213,7 @@ h6 {
 }
 
 .el-alert {
-  @apply p-4 text-neutral-900 rounded-2xl border border-solid border-neutral-100 bg-neutral-100 text-sm;
+  @apply p-4 text-on-surface rounded-2xl border border-solid border-outline-variant bg-surface-container-lowest text-sm;
   background-image: url("/img/warning-icon.svg");
   background-position: 1rem 1.25rem;
   background-repeat: no-repeat;

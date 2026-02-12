@@ -22,7 +22,7 @@
         @update:modelValue="handleSelectItem($event as string | null)">
         <ComboboxAnchor asChild>
           <ComboboxTrigger
-            class="w-full bg-surface-container h-full text-left flex items-center gap-4 justify-between px-4 py-3 hover:bg-surface-container-high rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-sm">
+            class="w-full bg-surface-container h-full text-left flex items-center gap-4 justify-between px-4 py-3 hover:bg-surface-container-high rounded-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-sm">
             <EditRelatedAssetPreview
               v-if="targetAssetPreview"
               :assetPreview="targetAssetPreview"

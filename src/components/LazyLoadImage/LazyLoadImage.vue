@@ -2,7 +2,7 @@
   <div ref="imgContainer" class="lazy-load-image relative">
     <img
       v-if="isLoaded"
-      class="lazy-load-image__image bg-neutral-100 block transition-opacity opacity-0"
+      class="lazy-load-image__image bg-surface-container-lowest block transition-opacity opacity-0"
       :class="{
         'opacity-100': isImageLoadComplete,
       }"
@@ -12,7 +12,7 @@
       @load="isImageLoadComplete = true" />
     <div
       v-if="!isImageLoadComplete"
-      class="lazy-load-image__placeholder bg-neutral-200 text-neutral-400 absolute inset-0 z-10 flex items-center justify-center">
+      class="lazy-load-image__placeholder bg-surface-container-low text-on-surface-variant absolute inset-0 z-10 flex items-center justify-center">
       <ImageIcon />
     </div>
   </div>

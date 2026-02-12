@@ -39,7 +39,10 @@
 
         <p
           class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-outline-variant relative leading-none text-center text-sm">
-          <span class="bg-surface relative z-10 px-2">or</span>
+          <span
+            class="text-on-surface-variant bg-surface-container-low relative z-10 px-2">
+            or
+          </span>
         </p>
 
         <DrawerTitleInput

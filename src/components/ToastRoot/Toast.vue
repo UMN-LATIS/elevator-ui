@@ -4,7 +4,8 @@
     class="toast-root__toast pointer-events-auto shadow-md p-4 rounded-md relative overflow-hidden transition-all duration-300 ease-in-out"
     :class="{
       'bg-error-container text-on-error-container': toast.variant === 'error',
-      'bg-success-container text-on-success-container': toast.variant === 'success',
+      'bg-success-container text-on-success-container':
+        toast.variant === 'success',
       'bg-inverse-surface text-inverse-on-surface':
         toast.variant === 'default' || !toast.variant,
     }"
@@ -35,7 +36,8 @@
           :class="{
             'text-on-error-container': toast.variant === 'error',
             'text-on-success-container': toast.variant === 'success',
-            'text-inverse-on-surface': toast.variant === 'default' || !toast.variant,
+            'text-inverse-on-surface':
+              toast.variant === 'default' || !toast.variant,
           }">
           {{ toast.title }}
         </h3>
