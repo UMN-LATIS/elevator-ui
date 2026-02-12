@@ -16,7 +16,7 @@
         </h2>
         <div
           v-if="instanceStore.currentUser?.canManageDrawers"
-          class="flex items-center gap-2 bg-white p-1 rounded-md">
+          class="flex items-center gap-2 bg-surface-container-low p-1 rounded-md">
           <IconButton
             :href="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
             title="Edit Permissions">
