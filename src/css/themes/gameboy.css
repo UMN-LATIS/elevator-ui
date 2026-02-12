@@ -79,16 +79,6 @@
   --font-display: "Press Start 2P", monospace;
   --font-body: "VT323", monospace;
 
-  /* .app-header {
-    background: oklch(28% 0.07 145);
-    color: oklch(75% 0.14 115);
-    border-bottom: 3px solid oklch(38% 0.08 135);
-  } */
-
-  /* .app-header__secondary-nav {
-    background: oklch(35% 0.08 140);
-  } */
-
   & body {
     font-family: "VT323", monospace;
     font-size: 1.15rem;
@@ -99,5 +89,36 @@
   & h3 {
     font-family: "Press Start 2P", monospace;
     line-height: 1.6;
+  }
+
+  /* LCD scanline + pixel grid overlay */
+  & #app::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background:
+      /* horizontal scanlines */ repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 40, 0, 0.08) 2px,
+        rgba(0, 40, 0, 0.08) 4px
+      ),
+      /* subtle pixel grid */
+        repeating-linear-gradient(
+          to right,
+          transparent 0px,
+          transparent 2px,
+          rgba(0, 40, 0, 0.03) 2px,
+          rgba(0, 40, 0, 0.03) 4px
+        ),
+      /* soft vignette around edges like a real LCD */
+        radial-gradient(
+          ellipse at center,
+          transparent 60%,
+          rgba(0, 20, 0, 0.12) 100%
+        );
   }
 }
