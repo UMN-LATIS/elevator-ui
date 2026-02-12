@@ -1,5 +1,11 @@
 <template>
-  <div class="relative" data-cy="text-block-input-container">
+  <div
+    class="relative bg-surface-container border border-outline-variant rounded-lg"
+    :contentEditableAttrs="{
+      role: 'textbox',
+      'aria-multiline': 'true',
+    }"
+    data-cy="text-block-input-container">
     <QuillyEditor
       ref="editor"
       :modelValue="modelValue"
