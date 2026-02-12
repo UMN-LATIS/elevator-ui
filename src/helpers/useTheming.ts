@@ -7,9 +7,9 @@ export function useTheming() {
   const { data: instanceData } = useInstanceQuery();
   const availableThemes = computed(() => {
     const allThemes: readonly string[] = ALL_THEMES;
-    const validThemes = (
-      instanceData.value?.theming?.availableThemes ?? []
-    ).filter((theme) => allThemes.includes(theme));
+    const validThemes = (instanceData.value?.theming?.availableThemes ?? [])
+      .filter((theme) => allThemes.includes(theme))
+      .toSorted();
 
     return validThemes.length > 0 ? validThemes : ["dark", "light"];
   });

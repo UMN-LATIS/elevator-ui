@@ -7,7 +7,7 @@
 
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
-[data-theme="nord"] {
+[data-theme="nord-dark"] {
   /* Surface — Nord Polar Night (#2e3440 → #4c566a) */
   --surface: oklch(26% 0.02 245);
   --surface-dim: oklch(22% 0.02 245);
