@@ -18,6 +18,7 @@ export const ALL_THEMES = [
   "simple",
   "st-thomas",
   "tron",
+  "bucky",
   "vaporwave",
 ] as const;
 

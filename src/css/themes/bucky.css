@@ -1,0 +1,125 @@
+/**
+ * UW MADISON THEME
+ *
+ * Brand colors: Cardinal (#c5050c) and White (#ffffff)
+ * With warm grays and a touch of dark red depth.
+ * On, Wisconsin!
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&family=Red+Hat+Text:wght@300;400;500;600;700&display=swap");
+
+[data-theme="bucky"] {
+  /* Brand palette */
+  --badger-red: #c5050c;
+  --badger-dark: #9b0000;
+  --badger-light: #da3a3f;
+
+  /* Surface — clean white with warm undertone */
+  --surface: oklch(99% 0.005 15);
+  --surface-dim: oklch(94% 0.008 15);
+  --surface-bright: oklch(100% 0 0);
+  --surface-container-lowest: oklch(96% 0.004 15);
+  --surface-container-low: oklch(97% 0.004 15);
+  --surface-container: oklch(97.5% 0.003 15);
+  --surface-container-high: oklch(98% 0.003 15);
+  --surface-container-highest: oklch(99% 0.002 15);
+
+  /* On-surface — near-black with warm tint */
+  --on-surface: oklch(18% 0.02 20);
+  --on-surface-variant: oklch(45% 0.015 20);
+
+  /* Primary — Badger Red */
+  --primary: oklch(48% 0.2 25);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(92% 0.04 20);
+  --on-primary-container: oklch(30% 0.15 25);
+
+  /* Secondary — warm dark gray (like Bucky's shadow) */
+  --secondary: oklch(40% 0.02 20);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(93% 0.01 20);
+  --on-secondary-container: oklch(22% 0.02 20);
+
+  /* Tertiary — deep charcoal for subtle accents */
+  --tertiary: oklch(25% 0.01 20);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(90% 0.01 20);
+  --on-tertiary-container: oklch(20% 0.01 20);
+
+  /* Semantic states */
+  --error: oklch(55% 0.22 25);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.05 25);
+  --on-error-container: oklch(30% 0.15 25);
+
+  --success: oklch(55% 0.18 145);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 145);
+  --on-success-container: oklch(25% 0.1 145);
+
+  --warning: oklch(80% 0.15 85);
+  --on-warning: oklch(25% 0.05 85);
+  --warning-container: oklch(95% 0.05 85);
+  --on-warning-container: oklch(30% 0.1 85);
+
+  --info: oklch(60% 0.15 240);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.04 240);
+  --on-info-container: oklch(25% 0.1 240);
+
+  /* Outline — warm gray */
+  --outline: oklch(55% 0.015 20);
+  --outline-variant: oklch(88% 0.008 20);
+
+  /* Inverse */
+  --inverse-surface: oklch(20% 0.02 20);
+  --inverse-on-surface: oklch(95% 0.005 20);
+  --inverse-primary: oklch(72% 0.15 25);
+
+  --scrim: oklch(0% 0 0 / 0.5);
+  --shadow: oklch(0% 0 0 / 0.4);
+
+  /* Typography — Red Hat family: bold geometric display, clean body */
+  --font-display: "Red Hat Display", sans-serif;
+  --font-body: "Red Hat Text", sans-serif;
+
+  .app-header {
+    background: var(--badger-red);
+    color: white;
+    border-bottom: 3px solid var(--badger-dark);
+
+    & .app-header__logo-link {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--on-primary);
+
+      & .text-on-surface {
+        color: inherit;
+      }
+    }
+  }
+
+  .app-header__secondary-nav {
+    background: var(--badger-dark);
+  }
+
+  .app-menu-button {
+    color: white;
+    background: var(--badger-red);
+
+    &:hover {
+      background: var(--badger-dark);
+    }
+  }
+
+  & body {
+    font-family: "Red Hat Text", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Red Hat Display", sans-serif;
+    font-weight: 700;
+  }
+}

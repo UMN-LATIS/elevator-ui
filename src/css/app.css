@@ -15,6 +15,7 @@
 @import url("themes/simple.css");
 @import url("themes/neobrutalist.css");
 @import url("themes/natural.css");
+@import url("themes/bucky.css");
 
 @tailwind base;
 @tailwind components;
