@@ -20,6 +20,7 @@ export const ALL_THEMES = [
   "construction",
   "hotrod",
   "brutalist",
+  "neobrutalist",
   "natural",
 ] as const;
 

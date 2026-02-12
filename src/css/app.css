@@ -16,6 +16,7 @@
 @import url("themes/construction.css");
 @import url("themes/hotrod.css");
 @import url("themes/brutalist.css");
+@import url("themes/neobrutalist.css");
 @import url("themes/natural.css");
 
 @tailwind base;

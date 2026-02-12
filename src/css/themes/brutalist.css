@@ -6,11 +6,6 @@
  * Monochrome with harsh contrast and heavy type.
  */
 
-/* Archivo Black stands in for GT America / Nimbus Sans heavyweights.
-   Times New Roman is the signature brutalist body font per Typewolf —
-   deliberately "default", anti-design, used as-is from the system stack. */
-@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
-
 [data-theme="brutalist"] {
   /* Surface — raw concrete white */
   --surface: oklch(95% 0 0);
@@ -94,13 +89,13 @@
   }
 
   & body {
-    font-family: "Times New Roman", "Times", "Romana", serif;
+    font-family: monospace;
   }
 
   & h1,
   & h2,
   & h3 {
-    font-family: "Archivo Black", "Arial Black", sans-serif;
+    font-family: serif;
     text-transform: uppercase;
     letter-spacing: -0.02em;
   }

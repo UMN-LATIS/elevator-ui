@@ -29,6 +29,7 @@
             <option value="construction">Construction Zone</option>
             <option value="hotrod">Hot Rod</option>
             <option value="brutalist">Brutalist</option>
+            <option value="neobrutalist">Neobrutalist</option>
             <option value="natural">Natural</option>
           </select>
         </div>
