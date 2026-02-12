@@ -1,6 +1,6 @@
 <template>
   <div class="search-results-list">
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1 max-w-screen-md mx-auto">
       <SearchResultRow
         v-for="match in matches"
         :id="`object-${match.objectId}`"
