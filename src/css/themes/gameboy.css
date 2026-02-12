@@ -9,15 +9,16 @@
 
 [data-theme="gameboy"] {
   /* Surface — LCD yellow-green background (#9bbc0f) */
-  --surface: oklch(75% 0.14 115);
+  /* --surface: oklch(75% 0.14 115); */
+  --surface: oklch(0.85 0.1 115);
   --surface-dim: oklch(70% 0.14 115);
-  --surface-bright: oklch(80% 0.12 115);
+  --surface-bright: oklch(90% 0.12 115);
   /* Container shades step through the 4 Game Boy colors */
-  --surface-container-lowest: oklch(78% 0.13 115);
-  --surface-container-low: oklch(72% 0.14 115);
-  --surface-container: oklch(66% 0.13 115);
-  --surface-container-high: oklch(55% 0.1 115);
-  --surface-container-highest: oklch(45% 0.08 115);
+  --surface-container-lowest: oklch(69% 0.1 115);
+  --surface-container-low: oklch(72% 0.1 115);
+  --surface-container: oklch(75% 0.1 115);
+  --surface-container-high: oklch(78% 0.1 115);
+  --surface-container-highest: oklch(81% 0.08 115);
 
   /* On-surface — darkest Game Boy green (#0f380f) */
   --on-surface: oklch(22% 0.06 145);
@@ -78,15 +79,15 @@
   --font-display: "Press Start 2P", monospace;
   --font-body: "VT323", monospace;
 
-  .app-header {
+  /* .app-header {
     background: oklch(28% 0.07 145);
     color: oklch(75% 0.14 115);
     border-bottom: 3px solid oklch(38% 0.08 135);
-  }
+  } */
 
-  .app-header__secondary-nav {
+  /* .app-header__secondary-nav {
     background: oklch(35% 0.08 140);
-  }
+  } */
 
   & body {
     font-family: "VT323", monospace;
