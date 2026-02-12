@@ -104,11 +104,11 @@ const numRows = computed(() => {
 
 .drawer-list-item:hover {
   background: var(--primary-container);
-  color: var(--primary);
+  color: var(--on-primary-container);
   border-color: var(--primary);
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--primary);
+    color: var(--on-primary-container);
   }
 }
 </style>
