@@ -18,7 +18,7 @@
       <Button
         type="submit"
         variant="primary"
-        class="block my-4 w-full"
+        class="flex my-4 justify-center items-center"
         :disabled="!state.selectedCollectionId || !state.selectedTemplateId">
         Continue
         <SpinnerIcon

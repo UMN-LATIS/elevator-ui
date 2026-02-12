@@ -18,10 +18,27 @@
       <fieldset class="flex items-start justify-between gap-2 flex-1">
         <legend class="sr-only">Choose a drawer</legend>
         <div class="flex-1 flex flex-col gap-1">
+          <SelectGroup
+            v-model="selectedDrawer"
+            :options="
+              drawerStore.drawers.map((drawer) => ({
+                id: drawer.id,
+                label: drawer.title,
+                value: drawer.id,
+              }))
+            "
+            label="Existing Drawer"
+            placeholder="Select a drawer"
+            :class="{
+              ' !border-error text-error':
+                !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
+            }"
+            @update:modelValue="isSelectDrawerTouched = true" />
+
           <label class="text-xs uppercase font-medium">Existing Drawer</label>
           <select
             v-model="selectedDrawer"
-            class="border border-outline rounded w-full text-sm"
+            class="border border-outline-variant rounded w-full text-sm bg-surface-container-low"
             :class="{
               ' !border-error text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
@@ -103,6 +120,7 @@ import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import api from "@/api";
 import { useIframeMessaging, requestTypes } from "@/helpers/useiFrameMessaging";
+import SelectGroup from "../SelectGroup/SelectGroup.vue";
 
 const props = defineProps<{
   assetId: string;

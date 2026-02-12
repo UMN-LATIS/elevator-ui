@@ -85,12 +85,12 @@
    *   - Goal/milestone indicators
    *   - Special callouts, promotional content
    * ============================================ */
-  --tertiary: oklch(65% 0.25 330);
-  --on-tertiary: oklch(100% 0 0);
+  --tertiary: oklch(0.42 0.17 20);
+  --on-tertiary: oklch(100% 0.17 20);
   --tertiary-container: oklch(
-    92% 0.08 330
+    92% 0.08 20
   ); /* tonal bg for grouped tertiary content */
-  --on-tertiary-container: oklch(30% 0.15 330);
+  --on-tertiary-container: oklch(30% 0.15 20);
 
   /* ============================================
    * SEMANTIC STATES
