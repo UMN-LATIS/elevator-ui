@@ -606,6 +606,11 @@ export interface ApiInstanceNavResponse {
   customFooter?: string | null; // html
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
   useCustomCSS: boolean; // whether or not to use custom CSS
+  theming: {
+    enabled: boolean;
+    availableThemes: string[];
+    defaultTheme: string;
+  };
 }
 
 export interface StaticContentPage {
@@ -641,6 +646,11 @@ export interface ElevatorInstance {
   showCollectionInSearchResults: boolean; // whether or not to show collection in search results
   showTemplateInSearchResults: boolean; // whether or not to show template in search results
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
+  theming: {
+    enabled: boolean;
+    availableThemes: string[];
+    defaultTheme: string;
+  };
 }
 
 export interface InstanceSettings {
