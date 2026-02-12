@@ -113,12 +113,16 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
     cell: ({ row }: { row: { original: CustomPageSummary } }) => (
       <div class="flex gap-2 items-center justify-center">
         <IconButton
-          to={{ name: "editCustomPage", params: { pageId: row.original.id } }}>
+          to={{ name: "editCustomPage", params: { pageId: row.original.id } }}
+          showTooltip={false}
+          title="Edit">
           <PencilIcon class="size-4" />
         </IconButton>
         <IconButton
           onClick={() => onDelete(row.original.id)}
-          variant="danger-inverse">
+          variant="danger-inverse"
+          showTooltip={false}
+          title="Delete">
           <Trash2 class="size-4" />
         </IconButton>
       </div>

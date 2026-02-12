@@ -7,7 +7,7 @@
       placeholder="Filter pages..."
       :labelHidden="true"
       class="max-w-sm" />
-    <div class="border rounded-md">
+    <div class="border border-outline-variant rounded-md">
       <Table class="table-fixed w-full">
         <TableHeader>
           <TableRow
@@ -17,9 +17,9 @@
               v-for="header in headerGroup.headers"
               :key="header.id"
               :style="{ width: `${header.getSize()}px` }"
+              class="bg-surface-container-lowest"
               :class="{
-                'cursor-pointer select-none hover:bg-muted/50':
-                  header.column.getCanSort(),
+                'cursor-pointer select-none': header.column.getCanSort(),
               }"
               @click="header.column.getToggleSortingHandler()?.($event)">
               <div class="flex items-center gap-2">
@@ -67,8 +67,9 @@
 </template>
 
 <script setup lang="ts" generic="TData">
-import { ref } from "vue";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
+import { computed, ref } from "vue";
+import type { ColumnDef, SortingState, VisibilityState } from "@tanstack/vue-table";
+import { useMediaQuery } from "@vueuse/core";
 import {
   FlexRender,
   getCoreRowModel,
@@ -93,6 +94,17 @@ const props = defineProps<{
   data: TData[];
 }>();
 
+const isSmScreen = useMediaQuery("(min-width: 640px)");
+const isLgScreen = useMediaQuery("(min-width: 1024px)");
+
+const columnVisibility = computed<VisibilityState>(() => ({
+  parentTitle: isSmScreen.value,
+  includeInHeader: isSmScreen.value,
+  body: isLgScreen.value,
+  createdAt: isLgScreen.value,
+  modifiedAt: isLgScreen.value,
+}));
+
 const sorting = ref<SortingState>([{ id: "title", desc: false }]);
 const globalFilter = ref("");
 
@@ -116,6 +128,9 @@ const table = useVueTable({
     },
     get globalFilter() {
       return globalFilter.value;
+    },
+    get columnVisibility() {
+      return columnVisibility.value;
     },
   },
 });
