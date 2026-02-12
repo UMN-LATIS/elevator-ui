@@ -3,7 +3,13 @@ import type { InjectionKey, ComputedRef } from "vue";
 import { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 import { useAssetValidationProvider } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
 
-export const ALL_THEMES = ["light", "folwell", "st-thomas", "dark"] as const;
+export const ALL_THEMES = [
+  "light",
+  "folwell",
+  "st-thomas",
+  "dark",
+  "hotdog",
+] as const;
 
 export const UMN_LNGLAT: LngLat = {
   lat: 44.972109,

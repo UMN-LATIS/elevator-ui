@@ -1,118 +1,90 @@
 /**
- * HOTDOG THEME - Fun/Whimsical Theme
+ * HOTDOG STAND THEME
  *
- * Colors: Red, Yellow, Black (like a hot dog stand!)
- * This is a dark theme with high-contrast accent colors.
+ * Inspired by the legendary Windows 3.1 "Hot Dog Stand" color scheme —
+ * bright red backgrounds, yellow surfaces, black text. Gloriously garish.
+ * This is a LIGHT theme with maximum saturation.
  */
 
 @import url("https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,700;1,300;1,700&display=swap");
 
 [data-theme="hotdog"] {
-  /* Brand colors */
-  --yellow: #ff0;
-  --red: #f00;
-  --white: #fff;
-  --black: #000;
+  /* Surface tokens — yellow windows on red backgrounds */
+  --surface: oklch(90% 0.2 100);
+  --surface-dim: oklch(85% 0.22 100);
+  --surface-bright: oklch(95% 0.18 100);
+  --surface-container-lowest: oklch(92% 0.18 100);
+  --surface-container-low: oklch(88% 0.2 100);
+  --surface-container: oklch(85% 0.22 100);
+  --surface-container-high: oklch(80% 0.22 100);
+  --surface-container-highest: oklch(75% 0.2 100);
 
-  /* M3 Surface tokens - dark background (like dark mode) */
-  --surface: oklch(8% 0 0);
-  --surface-dim: oklch(5% 0 0);
-  --surface-bright: oklch(20% 0 0);
-  /* Containers: lowest = closest to surface, highest = most elevated/brightest */
-  --surface-container-lowest: oklch(10% 0 0);
-  --surface-container-low: oklch(14% 0 0);
-  --surface-container: oklch(18% 0 0);
-  --surface-container-high: oklch(22% 0 0);
-  --surface-container-highest: oklch(28% 0 0);
+  /* On-surface — black text on yellow */
+  --on-surface: oklch(15% 0 0);
+  --on-surface-variant: oklch(25% 0.02 25);
 
-  /* M3 On-surface tokens - white text on black */
-  --on-surface: oklch(100% 0 0);
-  --on-surface-variant: oklch(85% 0 0);
+  /* Primary — pure red, the star of the show */
+  --primary: oklch(55% 0.3 29);
+  --on-primary: oklch(97% 0.15 100);
+  --primary-container: oklch(60% 0.28 29);
+  --on-primary-container: oklch(97% 0.15 100);
 
-  /* M3 Primary - Red */
-  --primary: oklch(55% 0.35 25);
-  --on-primary: oklch(100% 0 0);
-  --primary-container: oklch(30% 0.2 25);
-  --on-primary-container: oklch(90% 0.1 25);
+  /* Secondary — yellow for interactive elements */
+  --secondary: oklch(88% 0.2 100);
+  --on-secondary: oklch(15% 0 0);
+  --secondary-container: oklch(92% 0.18 100);
+  --on-secondary-container: oklch(20% 0.05 25);
 
-  /* M3 Secondary - Yellow */
-  --secondary: oklch(95% 0.25 100);
-  --on-secondary: oklch(0% 0 0);
-  --secondary-container: oklch(40% 0.15 100);
-  --on-secondary-container: oklch(95% 0.1 100);
+  /* Tertiary — darker red accent for contrast */
+  --tertiary: oklch(45% 0.25 29);
+  --on-tertiary: oklch(97% 0.15 100);
+  --tertiary-container: oklch(50% 0.22 29);
+  --on-tertiary-container: oklch(95% 0.12 100);
 
-  /* M3 Tertiary - Yellow accent */
-  --tertiary: oklch(95% 0.25 100);
-  --on-tertiary: oklch(0% 0 0);
-  --tertiary-container: oklch(40% 0.15 100);
-  --on-tertiary-container: oklch(95% 0.1 100);
+  /* Semantic states */
+  --error: oklch(45% 0.28 29);
+  --on-error: oklch(97% 0.15 100);
+  --error-container: oklch(85% 0.1 29);
+  --on-error-container: oklch(30% 0.2 29);
 
-  /* Semantic states - brighter for dark bg */
-  --error: oklch(70% 0.25 25);
-  --on-error: oklch(0% 0 0);
-  --error-container: oklch(30% 0.15 25);
-  --on-error-container: oklch(90% 0.1 25);
+  --success: oklch(50% 0.18 145);
+  --on-success: oklch(97% 0 0);
+  --success-container: oklch(88% 0.08 145);
+  --on-success-container: oklch(25% 0.1 145);
 
-  --success: oklch(75% 0.2 145);
-  --on-success: oklch(0% 0 0);
-  --success-container: oklch(30% 0.1 145);
-  --on-success-container: oklch(90% 0.08 145);
+  --warning: oklch(82% 0.18 85);
+  --on-warning: oklch(20% 0.05 85);
+  --warning-container: oklch(92% 0.08 85);
+  --on-warning-container: oklch(25% 0.1 85);
 
-  --warning: oklch(95% 0.25 100);
-  --on-warning: oklch(0% 0 0);
-  --warning-container: oklch(40% 0.12 100);
-  --on-warning-container: oklch(95% 0.1 100);
+  --info: oklch(55% 0.15 240);
+  --on-info: oklch(97% 0 0);
+  --info-container: oklch(88% 0.06 240);
+  --on-info-container: oklch(25% 0.1 240);
 
-  --info: oklch(70% 0.15 240);
-  --on-info: oklch(0% 0 0);
-  --info-container: oklch(30% 0.1 240);
-  --on-info-container: oklch(85% 0.08 240);
+  /* Outline — red borders, keeping the theme cohesive */
+  --outline: oklch(55% 0.25 29);
+  --outline-variant: oklch(70% 0.15 29);
 
-  /* Outline - red accent */
-  --outline: oklch(55% 0.25 25);
-  --outline-variant: oklch(35% 0.15 25);
+  /* Inverse — flip to dark red surface */
+  --inverse-surface: oklch(30% 0.2 29);
+  --inverse-on-surface: oklch(95% 0.15 100);
+  --inverse-primary: oklch(88% 0.2 100);
 
-  /* Inverse */
-  --inverse-surface: oklch(95% 0.02 100);
-  --inverse-on-surface: oklch(10% 0 0);
-  --inverse-primary: oklch(40% 0.25 25);
+  --scrim: oklch(0% 0 0 / 0.5); /* modal overlays (use with alpha) */
+  --shadow: oklch(0% 0 0 / 0.5); /* elevation shadows (use with alpha) */
 
-  /* Theme-specific styles */
-  & .app-header {
-    background: var(--red);
-    border-bottom: 3px solid var(--yellow);
+  .app-header {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-bottom: 2px solid var(--outline-variant);
   }
 
-  & .app-header__wordmark,
-  & .app-header__logo-link {
-    color: var(--yellow);
+  .app-header__secondary-nav {
+    background: var(--surface);
   }
 
-  /* Override font family */
   & body {
-    font-family: "Comic Neue", "Comic Sans MS", "Chalkboard SE", sans-serif;
-  }
-
-  /* Panel headers in yellow */
-  & .panel__header {
-    background: var(--yellow);
-    color: var(--black);
-  }
-
-  /* Accordion styling */
-  & .accordion__header {
-    background: var(--red);
-    color: var(--yellow);
-  }
-
-  /* X button styling */
-  & .x-button {
-    background: oklch(var(--surface-container-high));
-    color: var(--yellow);
-  }
-
-  & .x-button:hover {
-    background: var(--yellow);
-    color: var(--black);
+    font-family: "Comic Sans", "Work Sans", "Helvetica Neue", sans-serif;
   }
 }
