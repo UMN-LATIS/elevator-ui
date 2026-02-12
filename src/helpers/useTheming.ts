@@ -5,7 +5,11 @@ import { useInstanceQuery } from "@/queries/useInstanceQuery";
 export function useTheming() {
   const { data: instanceData } = useInstanceQuery();
   const availableThemes = computed(
-    () => instanceData.value?.theming?.availableThemes || ["light", "dark"]
+    () =>
+      instanceData.value?.theming?.availableThemes.toSorted() || [
+        "dark",
+        "light",
+      ]
   );
   const defaultTheme = computed(
     () => instanceData.value?.theming?.defaultTheme || "light"

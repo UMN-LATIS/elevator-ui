@@ -2,26 +2,23 @@ import deepmerge from "deepmerge";
 import { AppConfig } from "@/types";
 
 export const ALL_THEMES = [
-  "light",
   "dark",
-  "folwell",
-  "st-thomas",
-  "hotdog",
-  "vaporwave",
-  "matrix",
+  "light",
   "barbie",
-  "ocean-sunset",
-  "dracula",
-  "solarized",
-  "nord",
-  "nord-light",
-  "gameboy",
-  "tron",
   "construction",
+  "folwell",
+  "gameboy",
+  "hotdog",
   "hotrod",
-  "brutalist",
-  "neobrutalist",
   "natural",
+  "neobrutalist",
+  "nord-dark",
+  "nord-light",
+  "matrix",
+  "simple",
+  "st-thomas",
+  "tron",
+  "vaporwave",
 ] as const;
 
 const defaultConfig: AppConfig = {

@@ -1,12 +1,12 @@
 /**
- * BRUTALIST THEME
+ * SIMPLE (classic brutalist) THEME
  *
  * Raw concrete, exposed structure, no decoration. Inspired by
  * brutalist architecture and brutalist web design. Function over form.
  * Monochrome with harsh contrast and heavy type.
  */
 
-[data-theme="brutalist"] {
+[data-theme="simple"] {
   /* Surface — raw concrete white */
   --surface: oklch(95% 0 0);
   --surface-dim: oklch(88% 0 0);
@@ -74,8 +74,8 @@
 
   /* Typography — heavy grotesque display, Times New Roman body (the
      quintessential brutalist choice: deliberately default, anti-design) */
-  --font-display: "Archivo Black", "Arial Black", sans-serif;
-  --font-body: "Times New Roman", "Times", "Romana", serif;
+  --font-display: "Arial Black", sans-serif;
+  --font-body: monospace;
 
   .app-header {
     background: oklch(0% 0 0);
@@ -86,17 +86,5 @@
   .app-header__secondary-nav {
     background: oklch(95% 0 0);
     border-bottom: 3px solid oklch(0% 0 0);
-  }
-
-  & body {
-    font-family: monospace;
-  }
-
-  & h1,
-  & h2,
-  & h3 {
-    font-family: serif;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
   }
 }
