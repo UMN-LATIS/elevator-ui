@@ -1,7 +1,13 @@
 import deepmerge from "deepmerge";
 import { AppConfig } from "@/types";
 
-export const ALL_THEMES = ["light", "dark", "folwell", "st-thomas"];
+export const ALL_THEMES = [
+  "light",
+  "dark",
+  "folwell",
+  "st-thomas",
+  "hotdog",
+] as const;
 
 const defaultConfig: AppConfig = {
   instance: {

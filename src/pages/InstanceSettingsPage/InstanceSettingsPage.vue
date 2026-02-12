@@ -291,7 +291,7 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import EyeOffIcon from "@/icons/EyeOffIcon.vue";
 import { useToastStore } from "@/stores/toastStore";
-import config, { ALL_THEMES } from "@/config";
+import { ALL_THEMES } from "@/config";
 import {
   useInstanceSettingsQuery,
   useUpdateInstanceSettingsMutation,
