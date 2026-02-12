@@ -18,13 +18,7 @@
           label="Title"
           required
           placeholder="Page title" />
-        <div class="space-y-1">
-          <label class="block text-sm font-medium">Body</label>
-          <TextEditor
-            ref="bodyEditorRef"
-            v-model="form.body"
-            class="rounded-md bg-black/5" />
-        </div>
+        <TextEditorGroup ref="bodyEditorRef" v-model="form.body" label="Body" />
       </FormSection>
 
       <FormSection id="options" title="Options">
@@ -72,7 +66,7 @@ import { ref, watch, computed, toRef } from "vue";
 import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import TextEditor from "@/components/TextEditor/TextEditor.vue";
+import TextEditorGroup from "@/components/TextEditorGroup/TextEditorGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
@@ -164,7 +158,7 @@ const tocSections: TocItem[] = [
   { id: "options", label: "Options" },
 ];
 
-const bodyEditorRef = ref<InstanceType<typeof TextEditor>>();
+const bodyEditorRef = ref<InstanceType<typeof TextEditorGroup>>();
 
 async function handleSave() {
   if (!form.value.title.trim()) {
