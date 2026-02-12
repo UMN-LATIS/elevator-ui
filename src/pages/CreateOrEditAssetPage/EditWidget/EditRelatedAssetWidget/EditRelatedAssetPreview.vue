@@ -8,13 +8,13 @@
       class="size-16 app-object-fit rounded-sm overflow-hidden" />
     <div
       v-else
-      class="h-8 w-8 sm:h-16 sm:w-16 border border-black/10 bg-black/5 rounded-sm" />
+      class="h-8 w-8 sm:h-16 sm:w-16 border border-outline-variant bg-surface-container-lowest rounded-sm" />
     <div>
       <h1 class="font-bold text-md sm:text-lg leading-tight">
         {{ title }}
       </h1>
       <p
-        class="text-xs text-neutral-400 font-mono max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+        class="text-xs font-mono max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
         {{ assetPreview.objectId }}
       </p>
 
@@ -24,7 +24,7 @@
         <div
           v-for="(entry, index) in props.assetPreview.entries"
           :key="index"
-          class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400">
+          class="inline-flex items-baseline gap-x-2 flex-wrap text-on-surface-variant">
           <dt class="text-xs uppercase">
             {{ entry?.label || "Item" }}
           </dt>

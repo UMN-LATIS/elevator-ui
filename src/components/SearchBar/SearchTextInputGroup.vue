@@ -16,7 +16,7 @@
         <button
           v-if="searchStore.query.length"
           type="button"
-          class="text-transparent-black-500 hover:text-neutral-900"
+          class="text-on-surface"
           @click="searchStore.query = ''">
           <span class="sr-only">Clear Search</span>
           <CircleXIcon />
@@ -31,7 +31,7 @@
           <button
             v-if="!searchStore.hasFiltersApplied"
             type="button"
-            class="w-8 h-8 inline-flex items-center justify-center rounded-full"
+            class="w-8 h-8 inline-flex items-center justify-center rounded-full text-on-surface hover:bg-primary-container hover:text-on-primary-container transition:ease-in-out duration-150"
             @click="$emit('moreOptionClick')">
             <span class="sr-only">Advanced Search</span>
             <VerticalDotsIcon class="h-4 w-4" aria-hidden="true" />
@@ -39,14 +39,14 @@
           <template v-else>
             <button
               type="button"
-              class="inline-flex items-center justify-center rounded-l-full text-xs py-1 px-2 border"
+              class="inline-flex items-center justify-center rounded-l-full text-xs py-1 px-2 border border-outline bg-inverse-surface text-inverse-on-surface"
               @click="$emit('moreOptionClick')">
               {{ searchStore.filteredByCount }}
               {{ pluralize(searchStore.filteredByCount, "filter") }}
             </button>
             <button
               type="button"
-              class="inline-flex items-center justify-center rounded-r-full text-xs py-1 px-2 border !border-l-0"
+              class="inline-flex items-center justify-center rounded-r-full text-xs py-1 px-2 border !border-l-0 border-outline bg-inverse-surface text-inverse-on-surface"
               @click="handleClearAllFiltersClick">
               <span class="sr-only">Clear All Filters</span>
               <XIcon class="!h-3 !w-3" aria-hidden="true" />
@@ -54,7 +54,7 @@
           </template>
         </div>
         <button
-          class="inline-flex items-center justify-center bg-transparent-black-100 w-8 h-8 text-sm rounded-full text-neutral-900 gap-1 hover:bg-neutral-900 hover:text-neutral-200 transition:ease-in-out duration-150"
+          class="inline-flex items-center justify-center text-on-surface hover:bg-primary-container hover:text-on-primary-container w-8 h-8 text-sm rounded-full gap-1 transition:ease-in-out duration-150"
           type="submit">
           <SpinnerIcon
             v-if="searchStore.status === 'fetching'"
@@ -121,36 +121,4 @@ onUnmounted(() => {
   document.removeEventListener("keydown", removeFocusOnEscape);
 });
 </script>
-<style scoped>
-.search-bar__search-text-input-group .advanced-search-toggle-container {
-  transition: all 0.15s ease-in-out;
-  border-radius: calc(infinity * 1px);
-  background: var(--app-searchBar-advancedSearchToggle-backgroundColor);
-  color: var(--app-searchBar-advancedSearchToggle-textColor);
-
-  &:hover {
-    background: var(--app-searchBar-advancedSearchToggle-hover-backgroundColor);
-    color: var(--app-searchBar-advancedSearchToggle-hover-textColor);
-  }
-}
-
-.search-bar__search-text-input-group
-  .advanced-search-toggle-container.advanced-search-toggle-container--has-filters {
-  background: var(
-    --app-searchBar-advancedSearchToggle-hasFilters-backgroundColor
-  );
-  color: var(--app-searchBar-advancedSearchToggle-hasFilters-textColor);
-
-  & button {
-    color: currentColor;
-    border: none;
-  }
-
-  & button:hover {
-    background: var(
-      --app-searchBar-advancedSearchToggle-hasFilters-hover-backgroundColor
-    );
-    color: var(--app-searchBar-advancedSearchToggle-hasFilters-hover-textColor);
-  }
-}
-</style>
+<style scoped></style>

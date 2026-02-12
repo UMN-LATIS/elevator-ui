@@ -1,12 +1,12 @@
 <template>
-  <Popover :content="title" class="icon-button">
+  <Popover :content="title">
     <component
       :is="componentType"
       :href="resolvedHref"
       :type="type"
       :to="componentType === RouterLink ? to : undefined"
       v-bind="$attrs"
-      class="flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150"
+      class="icon-button flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150 text-primary hover:bg-primary-container hover:text-on-primary-container focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed"
       :title="title"
       @click="($event) => $emit('click', $event)">
       <slot />
@@ -54,19 +54,14 @@ const componentType = computed(() => {
 });
 </script>
 <style scoped>
-.icon-button :is(button, a, .router-link) {
-  background-color: var(--app-iconButton-backgroundColor, transparent);
-  color: var(--app-iconButton-color, var(--color-blue-700));
-  border-radius: var(--app-iconButton-borderRadius, 0.375rem);
-  border: var(--app-iconButton-border, 1px solid transparent);
+/* Disabled state - works across all themes using M3 semantic tokens */
+.icon-button:disabled {
+  background: color-mix(in oklch, var(--on-surface) 12%, transparent);
+  color: color-mix(in oklch, var(--on-surface) 38%, transparent);
+}
 
-  &:hover {
-    background-color: var(
-      --app-iconButton-hover-backgroundColor,
-      var(--color-blue-50)
-    );
-    color: var(--app-iconButton-hover-color, var(--color-blue-600));
-    border: 1px solid var(--app-iconButton-hover-color, var(--color-blue-600));
-  }
+/* Tertiary variant has different disabled background */
+.icon-button.button--tertiary:disabled {
+  background: transparent;
 }
 </style>

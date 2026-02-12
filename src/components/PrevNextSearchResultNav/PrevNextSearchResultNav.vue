@@ -12,7 +12,7 @@
       </Button>
     </div>
 
-    <div class="flex justify-center text-xs text-gray-500 leading-none p-2">
+    <div class="flex justify-center text-xs text-on-surface-variant leading-none p-2">
       <Button
         :to="{
           name: 'search',

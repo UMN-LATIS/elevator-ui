@@ -1,35 +1,45 @@
-import { watch } from "vue";
+import { watch, computed } from "vue";
 import { useStorage } from "@vueuse/core";
-import config from "@/config";
+import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { ALL_THEMES } from "@/config";
 
 export function useTheming() {
-  const { availableThemes, defaultTheme } = config.instance.theming;
-  const { url: baseUrl } = config.instance.base;
-  const isEnabled = config.instance.theming.enabled;
+  const { data: instanceData } = useInstanceQuery();
+  const availableThemes = computed(() => {
+    const allThemes: readonly string[] = ALL_THEMES;
+    const validThemes = (instanceData.value?.theming?.availableThemes ?? [])
+      .filter((theme) => allThemes.includes(theme))
+      .toSorted();
 
-  const activeTheme = useStorage(`theme-${baseUrl}`, defaultTheme);
+    return validThemes.length > 0 ? validThemes : ["dark", "light"];
+  });
+  const defaultTheme = computed(
+    () => instanceData.value?.theming?.defaultTheme || "light"
+  );
+  const isEnabled = computed(
+    () => instanceData.value?.theming?.enabled ?? true
+  );
+
+  const activeTheme = useStorage<string | null>(
+    `theme-${window.location.hostname}`,
+    null
+  );
 
   watch(
-    activeTheme,
-    async () => {
-      // if available theme is set to a theme that isn't available, set it to the default theme
-      if (!availableThemes.includes(activeTheme.value)) {
-        activeTheme.value = defaultTheme;
-      }
+    [activeTheme, instanceData],
+    async (...args) => {
+      console.log("activeTheme or instanceData changed, applying theme", {
+        activeTheme: activeTheme.value,
+        instanceData: instanceData.value,
+        args,
+      });
+
+      if (!instanceData.value) return;
+
+      activeTheme.value = activeTheme.value || defaultTheme.value;
 
       // set theme on the body
       document.documentElement.setAttribute("data-theme", activeTheme.value);
-
-      // if the theme is light, we're done
-      if (activeTheme.value === "light") return;
-
-      // otherwise load the theme css
-      import(`../css/themes/${activeTheme.value}.css`).catch((err) => {
-        console.error(
-          `Failed to load theme css for ${activeTheme.value}. falling back to light theme.`,
-          err
-        );
-      });
     },
     { immediate: true }
   );

@@ -1,23 +1,39 @@
 @import url("themes/default.css");
+@import url("themes/dark.css");
+@import url("themes/folwell.css");
+@import url("themes/st-thomas.css");
+@import url("themes/hotdog.css");
+@import url("themes/vaporwave.css");
+@import url("themes/matrix.css");
+@import url("themes/barbie.css");
+@import url("themes/nord-dark.css");
+@import url("themes/nord-light.css");
+@import url("themes/gameboy.css");
+@import url("themes/tron.css");
+@import url("themes/construction.css");
+@import url("themes/hotrod.css");
+@import url("themes/simple.css");
+@import url("themes/neobrutalist.css");
+@import url("themes/natural.css");
+@import url("themes/bucky.css");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: var(--app-fontFamily);
-  color: var(--app-textColor);
-  background-color: var(--app-backgroundColor);
-  border-color: var(--app-borderColor);
+  font-family: "Work Sans", "Helvetica Neue", sans-serif;
+  color: var(--on-surface);
+  background-color: var(--surface);
 }
 
 a {
   text-decoration: none;
-  color: var(--app-link-textColor);
+  color: var(--primary);
 }
 
 a:hover {
-  color: var(--app-link-hover-textColor);
+  color: color-mix(in oklch, var(--on-primary) 8%, var(--primary));
   text-decoration: underline;
 }
 
@@ -46,6 +62,7 @@ a:hover {
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -67,33 +84,27 @@ a:hover {
   }
 
   ::-webkit-scrollbar {
-    width: var(--app-scrollbar-width, 0.5rem);
+    width: 0.5rem;
   }
 
-  /* Track */
   ::-webkit-scrollbar-track {
-    background: var(
-      --app-scrollbar-track-backgroundColor,
-      rgb(255 255 255 / 33%)
-    );
+    background: var(--surface-container);
   }
 
-  /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: var(--app-scrollbar-thumb-backgroundColor, #aaa);
+    background: var(--outline);
   }
 
-  /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--app-scrollbar-thumb-hover-backgroundColor, #555);
+    background: var(--on-surface-variant);
   }
 }
 
 .prose {
-  --tw-prose-headings: var(--app-headingColor);
-  --tw-prose-links: var(--app-link-textColor);
+  --tw-prose-headings: var(--on-surface);
+  --tw-prose-links: var(--primary);
   max-width: 90ch;
-  color: var(--app-textColor);
+  color: var(--on-surface);
 }
 
 .prose img,
@@ -118,7 +129,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--app-headingColor);
+  color: var(--on-surface);
 }
 
 .fade-enter-active,
@@ -167,7 +178,7 @@ h6 {
 }
 
 .app-object-fit {
-  object-fit: var(--app-object-fit, cover);
+  object-fit: var(--object-fit, contain);
 }
 
 /**
@@ -177,32 +188,32 @@ h6 {
 
 .el-btn {
   display: inline-block;
-  border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
-  background: var(--app-button-primary-backgroundColor);
-  color: var(--app-button-primary-textColor);
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
   cursor: pointer;
   text-decoration: none;
 
   &:hover {
-    border-color: var(--app-button-primary-hover-borderColor);
-    background: var(--app-button-primary-hover-backgroundColor);
-    color: var(--app-button-primary-hover-textColor);
+    border-color: color-mix(in oklch, var(--primary) 90%, transparent);
+    background: color-mix(in oklch, var(--primary) 90%, transparent);
+    color: var(--on-primary);
     text-decoration: none;
   }
 
   &:active {
-    border-color: var(--app-button-primary-active-borderColor);
-    background: var(--app-button-primary-active-backgroundColor);
-    color: var(--app-button-primary-active-textColor);
+    border-color: color-mix(in oklch, var(--primary) 80%, transparent);
+    background: color-mix(in oklch, var(--primary) 80%, transparent);
+    color: var(--on-primary);
     text-decoration: none;
   }
 
   &:disabled {
-    border-color: var(--app-button-primary-disabled-borderColor);
-    background: var(--app-button-primary-disabled-backgroundColor);
-    color: var(--app-button-primary-disabled-textColor);
+    border-color: var(--surface-container-high);
+    background: var(--surface-container-high);
+    color: color-mix(in oklch, var(--on-surface-variant) 38%, transparent);
     cursor: not-allowed;
   }
 }
@@ -212,7 +223,7 @@ h6 {
 }
 
 .el-alert {
-  @apply p-4 text-neutral-900 rounded-2xl border border-solid border-neutral-100 bg-neutral-100 text-sm;
+  @apply p-4 text-on-surface rounded-2xl border border-solid border-outline-variant bg-surface-container-lowest text-sm;
   background-image: url("/img/warning-icon.svg");
   background-position: 1rem 1.25rem;
   background-repeat: no-repeat;
@@ -262,65 +273,6 @@ h6 {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-  }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }

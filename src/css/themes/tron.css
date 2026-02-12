@@ -1,0 +1,100 @@
+/**
+ * TRON THEME
+ *
+ * Black surfaces with electric cyan/blue glowing accents.
+ * Dark and futuristic. Welcome to the Grid.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Exo+2:wght@300;400;500;600;700&display=swap");
+
+[data-theme="tron"] {
+  /* Surface — near-black with blue undertone */
+  --surface: oklch(8% 0.02 240);
+  --surface-dim: oklch(5% 0.01 240);
+  --surface-bright: oklch(18% 0.03 240);
+  --surface-container-lowest: oklch(6% 0.01 240);
+  --surface-container-low: oklch(10% 0.02 240);
+  --surface-container: oklch(14% 0.03 240);
+  --surface-container-high: oklch(18% 0.03 240);
+  --surface-container-highest: oklch(22% 0.04 240);
+
+  /* On-surface — cool white with cyan tint */
+  --on-surface: oklch(88% 0.03 210);
+  --on-surface-variant: oklch(62% 0.04 210);
+
+  /* Primary — electric cyan glow (#6fffe9 / #00f0ff feel) */
+  --primary: oklch(82% 0.14 195);
+  --on-primary: oklch(8% 0.03 195);
+  --primary-container: oklch(25% 0.08 195);
+  --on-primary-container: oklch(88% 0.1 195);
+
+  /* Secondary — muted blue-gray grid lines */
+  --secondary: oklch(55% 0.06 230);
+  --on-secondary: oklch(8% 0.01 230);
+  --secondary-container: oklch(20% 0.04 230);
+  --on-secondary-container: oklch(78% 0.05 230);
+
+  /* Tertiary — orange identity disc accent */
+  --tertiary: oklch(72% 0.18 55);
+  --on-tertiary: oklch(10% 0.03 55);
+  --tertiary-container: oklch(25% 0.08 55);
+  --on-tertiary-container: oklch(85% 0.1 55);
+
+  /* Semantic states */
+  --error: oklch(68% 0.18 20);
+  --on-error: oklch(8% 0 0);
+  --error-container: oklch(20% 0.08 20);
+  --on-error-container: oklch(85% 0.08 20);
+
+  --success: oklch(75% 0.12 165);
+  --on-success: oklch(8% 0 0);
+  --success-container: oklch(20% 0.06 165);
+  --on-success-container: oklch(85% 0.06 165);
+
+  --warning: oklch(78% 0.14 85);
+  --on-warning: oklch(12% 0.04 85);
+  --warning-container: oklch(22% 0.06 85);
+  --on-warning-container: oklch(85% 0.08 85);
+
+  --info: oklch(72% 0.1 220);
+  --on-info: oklch(8% 0 0);
+  --info-container: oklch(20% 0.06 220);
+  --on-info-container: oklch(85% 0.06 220);
+
+  /* Outline — cyan grid lines */
+  --outline: oklch(40% 0.06 210);
+  --outline-variant: oklch(22% 0.04 210);
+
+  /* Inverse */
+  --inverse-surface: oklch(90% 0.03 210);
+  --inverse-on-surface: oklch(10% 0.02 240);
+  --inverse-primary: oklch(45% 0.12 195);
+
+  --scrim: oklch(0% 0 0 / 0.85);
+  --shadow: oklch(60% 0.1 195 / 0.15);
+
+  /* Typography — futuristic geometric display, clean tech body */
+  --font-display: "Orbitron", sans-serif;
+  --font-body: "Exo 2", sans-serif;
+
+  .app-header {
+    background: oklch(6% 0.02 240);
+    color: oklch(82% 0.14 195);
+    border-bottom: 1px solid oklch(60% 0.12 195 / 0.6);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(8% 0.02 240);
+  }
+
+  & body {
+    font-family: "Exo 2", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Orbitron", sans-serif;
+    letter-spacing: 0.05em;
+  }
+}

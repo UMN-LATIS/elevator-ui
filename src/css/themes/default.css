@@ -1,251 +1,162 @@
 /**
-* ELEVATOR DEFAULT THEME
-* Note: tailwind color vars can be used as `--color-{palette}-{shade}`
-* e.g. `--color-blue-500`
-*/
+ * MATERIAL DESIGN 3 SEMANTIC COLOR TOKENS
+ *
+ * Color roles connect UI elements to their semantic purpose, creating a
+ * consistent visual language. Roles are grouped into:
+ *   - Accent colors (primary, secondary, tertiary)
+ *   - Surface colors (backgrounds, containers)
+ *   - Semantic states (error, success, warning, info)
+ *
+ * Naming conventions:
+ *   - "on-" prefix: text/icon color for use ON that background
+ *   - "-container": tonal (softer) variant for backgrounds
+ *   - "-variant": lower-emphasis alternative
+ *
+ * Values use OKLCH color space (lightness, chroma, hue) for perceptual uniformity.
+ *
+ * @see https://m3.material.io/styles/color/roles
+ */
+
 :root {
-  --app-fontFamily: "Work Sans", "Helvetica Neue", sans-serif;
-  --app-textColor: var(--color-neutral-900);
-  --app-headingColor: var(--color-neutral-900);
-  --app-backgroundColor: var(--color-neutral-100);
-  --app-placeholderColor: var(--color-neutral-400);
-  --app-borderColor: var(--color-neutral-900);
-  --app-borderWidth: 2px;
+  /* ============================================
+   * SURFACE - Background colors
+   *
+   * Surface colors form the backdrop of the UI. The hierarchy creates
+   * visual depth through tone rather than shadow, improving accessibility.
+   *   - surface: default page/app background
+   *   - surface-dim: for reduced emphasis backgrounds
+   *   - surface-bright: for elevated/highlighted backgrounds
+   * ============================================ */
+  --surface: oklch(98% 0.006 260);
+  --surface-dim: oklch(93% 0.008 260);
+  --surface-bright: oklch(100% 0.003 260);
 
-  /**
-  * App Header
-  */
-  --app-appHeader-backgroundColor: var(--app-backgroundColor);
-  --app-appHeader-secondaryNav-backgroundColor: transparent;
-  --app-wordmark-textColor: var(--app-textColor);
-  --app-appHeader-wordmark-textColor: var(--app-textColor);
-  --app-appHeader-logo-color: var(--app-textColor);
-  --app-appHeader-borderBottomColor: var(--app-borderColor);
-  --app-appHeader-avatar-textColor: var(--app-textColor);
-  --app-appHeader-avatar-borderColor: var(--app-appHeader-avatar-textColor);
-  --app-appMenu-backgroundColor: transparent;
+  /* Surface containers are for components placed ON the surface.
+   * lowest = minimal contrast with surface (barely elevated)
+   * highest = maximum contrast with surface (most elevated)
+   * In light mode: elevation = lighter/brighter (catching more light)
+   */
+  --surface-container-lowest: oklch(96% 0.005 260);
+  --surface-container-low: oklch(95% 0.005 260);
+  --surface-container: oklch(94% 0.004 260);
+  --surface-container-high: oklch(93% 0.004 260);
+  --surface-container-highest: oklch(92% 0.003 260);
 
-  /**
-  * App Menu
-  */
-  --app-appMenu-backgroundColor: var(--app-backgroundColor);
-  --app-appMenuItem-textColor: var(--app-textColor);
-  --app-appMenu-headingColor: var(--app-headingColor);
-  --app-appMenu-currentPage-textColor: var(--color-blue-600);
-  --app-appMenu-currentPage-backgroundColor: var(--color-neutral-200);
+  --on-surface: oklch(20% 0.02 260); /* primary text on surface */
+  --on-surface-variant: oklch(0.55 0 0); /* secondary/muted text, icons */
 
-  /**
-  * App Menu Button
-  */
-  --app-appMenuButton-backgroundColor: hsla(0 0% 0% / 0.07);
-  --app-appMenuButton-textColor: var(--app-textColor);
-  --app-appMenuButton-hover-backgroundColor: hsla(0 0% 0% / 0.9);
-  --app-appMenuButton-hover-textColor: hsla(0 0% 100% / 1);
+  /* ============================================
+   * PRIMARY - Main accent color
+   *
+   * The most prominent interactive color. Use for key actions and
+   * elements that should draw immediate attention.
+   *   - CTAs, primary buttons
+   *   - Links, active navigation
+   *   - Checkboxes, toggles, focus rings
+   *   - FABs, progress indicators
+   * ============================================ */
+  --primary: oklch(50% 0.2 250);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(
+    90% 0.05 250
+  ); /* tonal bg for grouped primary content */
+  --on-primary-container: oklch(0.47 0.19 254.8);
 
-  /**
-  * Link
-  */
-  --app-link-textColor: var(--color-blue-600);
-  --app-link-textColor-inverse: var(--app-backgroundColor);
-  --app-link-hover-textColor: var(--color-blue-700);
+  /* ============================================
+   * SECONDARY - Supporting accent color
+   *
+   * For less prominent actions in complex/dense UI. Maintains visibility
+   * without overshadowing primary elements.
+   *   - Secondary buttons, filter chips
+   *   - Selection states, toggles in dense areas
+   *   - Supporting icons, tags
+   * ============================================ */
+  --secondary: oklch(45% 0.03 260);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(
+    92% 0.01 260
+  ); /* tonal bg for grouped secondary content */
+  --on-secondary-container: oklch(25% 0.02 260);
 
-  /**
-  * Panel (Drawer)
-  */
-  --app-panel-borderColor: var(--app-borderColor);
-  --app-panel-borderWidth: 2px;
-  --app-panel-header-textColor: var(--app-textColor);
-  --app-panel-header-backgroundColor: rgba(255 255 255 / 0.5);
-  --app-panel-body-top-borderColor: white;
-  --app-panel-body-textColor: var(--app-textColor);
-  --app-panel-body-backgroundColor: transparent;
-  --app-panel-body-items-gap: 1.5rem;
+  /* ============================================
+   * TERTIARY - Contrasting accent color
+   *
+   * Balances primary/secondary or draws attention to special elements.
+   * Use sparingly for maximum impact.
+   *   - Badges, stickers, accent highlights
+   *   - Goal/milestone indicators
+   *   - Special callouts, promotional content
+   * ============================================ */
+  --tertiary: oklch(65% 0.25 330);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(
+    92% 0.08 330
+  ); /* tonal bg for grouped tertiary content */
+  --on-tertiary-container: oklch(30% 0.15 330);
 
-  /**
-  * Object Viewer
-  */
-  --app-objectViewer-backgroundColor: var(--color-neutral-300);
+  /* ============================================
+   * SEMANTIC STATES
+   *
+   * Communicate meaning regardless of cultural context.
+   * Each has base (for fills) and container (for backgrounds) variants.
+   * ============================================ */
+  --error: oklch(55% 0.22 25); /* destructive actions, validation errors */
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.05 25);
+  --on-error-container: oklch(30% 0.15 25);
 
-  /**
-  * Widget List
-  */
-  --app-widgetList-gap: var(--app-panel-body-items-gap);
+  --success: oklch(55% 0.18 145); /* completion, positive feedback */
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 145);
+  --on-success-container: oklch(25% 0.1 145);
 
-  /**
-  * Accordion
-  */
-  --app-accordion-header-backgroundColor: transparent;
-  --app-accordion-header-textColor: var(--app-textColor);
-  --app-accordion-body-backgroundColor: transparent;
-  --app-accordion-body-textColor: var(--app-textColor);
-  --app-accordion-outer-borderWidth: 1px;
-  --app-accordion-outer-borderColor: var(--color-neutral-500);
-  --app-accordion-inner-borderWidth: 1px;
-  --app-accordion-inner-borderColor: transparent;
+  --warning: oklch(80% 0.15 85); /* caution, non-blocking issues */
+  --on-warning: oklch(25% 0.05 85); /* dark text for light warning bg */
+  --warning-container: oklch(95% 0.05 85);
+  --on-warning-container: oklch(30% 0.1 85);
 
-  /*************************BUTTONS*************************/
+  --info: oklch(60% 0.15 240); /* informational, neutral notices */
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.04 240);
+  --on-info-container: oklch(25% 0.1 240);
 
-  /* primary and secondary have borders*/
-  --app-button-borderWidth: 2px;
+  /* ============================================
+   * OUTLINE - Border colors
+   * ============================================ */
+  --outline: oklch(
+    55% 0.02 260
+  ); /* important borders: inputs, focused elements */
+  --outline-variant: oklch(
+    90% 0.01 260
+  ); /* decorative: dividers, subtle separators */
 
-  /**
-  * Button Primary (default)
-  */
+  /* ============================================
+   * INVERSE - Contrasting surfaces
+   *
+   * For elements that stand out from the main surface, like snackbars,
+   * tooltips, or overlays.
+   * ============================================ */
+  --inverse-surface: oklch(20% 0.02 260);
+  --inverse-on-surface: oklch(95% 0.005 260);
+  --inverse-primary: oklch(
+    75% 0.15 250
+  ); /* interactive elements on inverse surfaces */
 
-  --app-button-primary-borderColor: var(--app-button-primary-backgroundColor);
-  --app-button-primary-backgroundColor: var(--color-neutral-900);
-  --app-button-primary-textColor: white;
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: oklch(0% 0 0 / 0.5); /* modal overlays (use with alpha) */
+  --shadow: oklch(0% 0 0 / 0.5); /* elevation shadows (use with alpha) */
 
-  /* Button Primary :hover */
-  --app-button-primary-hover-borderColor: var(
-    --app-button-primary-hover-backgroundColor
-  );
-  --app-button-primary-hover-backgroundColor: var(--app-link-hover-textColor);
-  --app-button-primary-hover-textColor: white;
+  /* Typography */
+  --font-display: "Work Sans", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-code: "Fira Sans", monospace;
+}
 
-  /* Button Primary :active */
-  --app-button-primary-active-borderColor: var(
-    --app-button-primary-active-backgroundColor
-  );
-  --app-button-primary-active-backgroundColor: var(--app-link-textColor);
-  --app-button-primary-active-textColor: white;
-
-  /* Button Primary :disabled */
-  --app-button-primary-disabled-borderColor: var(
-    --app-button-primary-disabled-backgroundColor
-  );
-  --app-button-primary-disabled-backgroundColor: var(--color-neutral-200);
-  --app-button-primary-disabled-textColor: var(--color-neutral-400);
-
-  /**
-  * Button Secondary (default)
-  */
-  --app-button-secondary-borderColor: var(--color-neutral-900);
-  --app-button-secondary-backgroundColor: transparent;
-  --app-button-secondary-textColor: var(--color-neutral-900);
-
-  /* Button Secondary :hover */
-  --app-button-secondary-hover-borderColor: var(--color-blue-700);
-  --app-button-secondary-hover-backgroundColor: transparent;
-  --app-button-secondary-hover-textColor: var(--color-blue-700);
-
-  /* Button Secondary :active */
-  --app-button-secondary-active-borderColor: var(--color-blue-700);
-  --app-button-secondary-active-backgroundColor: var(--color-blue-700);
-  --app-button-secondary-active-textColor: white;
-
-  /* Button Secondary :disabled */
-  --app-button-secondary-disabled-borderColor: var(--color-neutral-200);
-  --app-button-secondary-disabled-backgroundColor: var(--color-neutral-50);
-  --app-button-secondary-disabled-textColor: var(--color-neutral-400);
-
-  /**
-  * Button Tertiary (default)
-  */
-  --app-button-tertiary-borderColor: transparent;
-  --app-button-tertiary-backgroundColor: transparent;
-  --app-button-tertiary-textColor: var(--color-neutral-600);
-
-  /* Button Tertiary :hover */
-  --app-button-tertiary-hover-borderColor: transparent;
-  --app-button-tertiary-hover-backgroundColor: var(--color-neutral-50);
-  --app-button-tertiary-hover-textColor: var(--color-neutral-700);
-
-  /* Button Tertiary :active */
-  --app-button-tertiary-active-borderColor: tranparent;
-  --app-button-tertiary-active-backgroundColor: var(--color-fuchsia-50);
-  --app-button-tertiary-active-textColor: var(--color-fuchsia-500);
-
-  /* Button Tertiary :disabled */
-  --app-button-tertiary-disabled-borderColor: transparent;
-  --app-button-tertiary-disabled-backgroundColor: tranparent;
-  --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
-
-  /**
-  * Search Bar - Advanced Search Toggle
-  * Default state (no filters applied)
-  */
-  --app-searchBar-advancedSearchToggle-backgroundColor: transparent;
-  --app-searchBar-advancedSearchToggle-textColor: var(--app-textColor);
-  --app-searchBar-advancedSearchToggle-hover-backgroundColor: hsla(
-    0 0% 0% / 0.05
-  );
-  --app-searchBar-advancedSearchToggle-hover-textColor: var(--app-textColor);
-
-  /**
-  * Search Bar - Advanced Search Toggle with Filters Applied
-  */
-  --app-searchBar-advancedSearchToggle-hasFilters-backgroundColor: var(
-    --color-neutral-900
-  );
-  --app-searchBar-advancedSearchToggle-hasFilters-textColor: white;
-  --app-searchBar-advancedSearchToggle-hasFilters-hover-backgroundColor: var(
-    --color-neutral-700
-  );
-  --app-searchBar-advancedSearchToggle-hasFilters-hover-textColor: white;
-
-  /* Input */
-  --app-input-label-textColor: var(--color-neutral-900);
-
-  /* Tuple */
-  --app-tuple-label-textColor: var(--color-neutral-900);
-  --app-tuple-value-textColor: var(--color-neutral-700);
-
-  /* Scrollbar */
-  --app-scrollbar-width: 0.5rem;
-  --app-scrollbar-thumb-backgroundColor: #aaa;
-  --app-scrollbar-thumb-hover-backgroundColor: #555;
-  --app-scrollbar-track-backgroundColor: rgba(255, 255, 255, 33%);
-
-  /** Meta Data Only Page */
-  --app-metaDataOnlyView-backgroundColor: var(--color-neutral-300);
-  --app-metaDataOnlyView-contentViewer-backgroundColor: var(--color-neutral-50);
-  --app-metaDataOnlyView-contentViewer-textColor: var(--color-neutral-900);
-
-  /** Modal **/
-  --app-modalContents-backgroundColor: var(--color-neutral-50);
-  --app-modalContents-textColor: var(--color-nuetral-900);
-  --app-modalContents-header-backgroundColor: var(--color-neutral-200);
-  --app-modalContents-header-textColor: var(--color-neutral-900);
-
-  /** Notification **/
-  --app-notification-borderColor: var(--color-neutral-200);
-  --app-notification-backgroundColor: var(--color-neutral-50);
-  --app-notification-textColor: var(--color-neutral-900);
-  --app-notification-header-textColor: var(--color-neutral-900);
-  --app-notification-icon-info-backgroundColor: var(--color-blue-100);
-  --app-notification-icon-info-textColor: var(--color-blue-900);
-  --app-notification-icon-warning-backgroundColor: var(--color-yellow-100);
-  --app-notification-icon-warning-textColor: var(--color-yellow-500);
-  --app-notification-icon-error-backgroundColor: var(--color-red-100);
-  --app-notification-icon-error-textColor: var(--color-red-600);
-  --app-notification-icon-success-backgroundColor: var(--color-green-100);
-  --app-notification-icon-success-textColor: var(--color-green-600);
-
-  /* Thumbnail Image */
-  --app-thumbnailImage-borderColor: transparent;
-  --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
-  --app-thumbnailImage-backgroundColor: var(--color-neutral-200);
-  /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
-  --app-thumbnailImage-textColor: var(--color-neutral-400);
-
-  /* Media Card */
-  --app-mediaCard-backgroundColor: var(--app-accordion-body-backgroundColor);
-  --app-mediaCard-borderWidth: var(--app-accordion-outer-borderWidth);
-  --app-mediaCard-borderColor: var(--app-accordion-outer-borderColor);
-  --app-mediaCard-textColor: var(--app-accordion-body-textColor);
-  --app-mediaCard-title-textColor: var(--app-accordion-header-textColor);
-
-  /* App Menu */
-  --app-appMenu-backgroundColor: var(--color-neutral-50);
-  --app-appMenuItem-textColor: var(--color-neutral-900);
-  --app-appMenuItem-hover-backgroundColor: var(--color-blue-50);
-  --app-appMenuItem-hover-textColor: var(--color-blue-600);
-
-  /* sidebar on create/edit page */
-  --app-sidebar-backgroundColor: var(--color-neutral-200);
-  --app-sidebar-textColor: var(--color-neutral-900);
-  --app-sidebar-link-textColor: var(--color-neutral-900);
-
-  --app-object-fit: contain; /* cover or contain */
+[data-theme="light"] {
+  .app-header {
+    background: var(--surface);
+    color: var(--on-surface);
+  }
 }

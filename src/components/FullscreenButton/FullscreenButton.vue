@@ -2,18 +2,18 @@
   <button
     class="fullscreen-button inline-flex gap-1 p-2 md:px-4 items-center justify-center rounded-md text-xs uppercase tracking-wide whitespace-nowrap group transition-all"
     :class="{
-      ' text-neutral-900 bg-transparent-black-100 hover:bg-blue-600 hover:text-blue-100':
+      'text-on-surface bg-surface border-outline-variant hover:bg-primary hover:text-on-primary':
         !isFullscreen,
-      'bg-transparent-white-300 text-neutral-500 hover:bg-blue-600 hover:text-blue-100':
+      'bg-surface-container text-on-surface-variant hover:bg-primary hover:text-on-primary':
         isFullscreen,
     }"
     @click="$emit('click', $event)">
     <FullscreenIcon
       v-if="!isFullscreen"
-      class="fill-neutral-900 group-hover:fill-neutral-200 transition-all" />
+      class="fill-on-surface group-hover:fill-surface transition-all" />
     <ExitFullscreenIcon
       v-else
-      class="fill-neutral-500 group-hover:fill-neutral-100 transition-all" />
+      class="fill-on-surface-variant group-hover:fill-surface-container transition-all" />
     <span class="sr-only">Toggle fullscreen</span>
     <span class="not-sr-only hidden md:inline-block">
       {{ isFullscreen ? "Exit" : "" }} Fullscreen

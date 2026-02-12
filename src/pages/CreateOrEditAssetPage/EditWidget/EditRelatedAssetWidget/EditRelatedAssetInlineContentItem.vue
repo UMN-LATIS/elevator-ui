@@ -1,8 +1,8 @@
 <template>
   <div class="overflow-hidden">
-    <div v-if="!templateId" class="text-red-500">
+    <div v-if="!templateId" class="text-error">
       No template selected for this related asset widget. Please set
-      <code class="font-mono bg-black/5">defaultTemplate</code>
+      <code class="font-mono bg-surface-container-lowest">defaultTemplate</code>
       in the widget definition.
     </div>
     <InlineCreateOrEditAssetPage

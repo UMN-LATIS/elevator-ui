@@ -12,7 +12,7 @@
         <button
           v-if="modelValue.length"
           type="button"
-          class="text-transparent-black-500 hover:text-neutral-900 float-right"
+          class="text-outline-variant hover:text-on-surface float-right"
           @click="resetForm">
           <span class="sr-only">Clear</span>
           <CircleXIcon />
@@ -21,7 +21,7 @@
     </InputGroup>
     <p
       v-if="!isTitleValid && modelValue.length > 0"
-      class="text-xs text-red-600 mt-1">
+      class="text-xs text-error mt-1">
       Drawer title must be unique.
     </p>
   </div>
@@ -71,4 +71,3 @@ function resetForm() {
   emit("update:modelValue", "");
 }
 </script>
-<style scoped></style>

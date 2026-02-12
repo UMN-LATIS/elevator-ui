@@ -1,224 +1,147 @@
-[data-theme="dark"] {
-  --darktheme-blue-900: #01060c;
-  --darktheme-blue-800: #020f1d;
-  --darktheme-blue-700: #071727;
-  --darktheme-blue-650: #0a1f34;
-  --darktheme-blue-600: #1a3a5b;
-  --darktheme-blue-500: #70879e;
-  --darktheme-blue-400: #99aec2;
-  --darktheme-blue-300: #cadcee;
-  --darktheme-blue-200: #dce5ee;
-  --darktheme-blue-100: #e8f0f5;
+/**
+ * DARK THEME - M3 Token Overrides
+ *
+ * This file overrides M3 semantic tokens for dark mode.
+ * Components use [data-theme="dark"] selectors for any
+ * styling differences beyond what the tokens provide.
+ */
 
-  --darktheme-yellow-600: #f5c400;
-  --darktheme-yellow-500: #ffde7a;
-  --darktheme-yellow-400: #ffeaa3;
-  --darktheme-yellow-300: #fff5cc;
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
 
-  --app-fontFamily: "Helvetica Neue", sans-serif;
-  --app-textColor: var(--darktheme-blue-500);
-  --app-headingColor: var(--darktheme-blue-300);
-  --app-backgroundColor: var(--darktheme-blue-700);
-  --app-borderColor: var(--darktheme-blue-600);
-  --app-borderWidth: 2px;
+  /* ============================================
+   * SURFACE - Background colors
+   * In dark mode: brighter = more elevated
+   * ============================================ */
+  --surface: oklch(20% 0.02 245);
+  --surface-dim: oklch(22% 0.02 245);
+  --surface-bright: oklch(32% 0.03 245);
 
-  /**
-  * App Header
-  */
-  --app-appHeader-backgroundColor: var(--darktheme-blue-700);
-  --app-appHeader-textColor: var(--darktheme-blue-200);
-  --app-appHeader-wordmark-textColor: var(--darktheme-blue-400);
-  --app-appHeader-logo-color: var(--darktheme-blue-400);
-  --app-appHeader-borderBottomColor: transparent;
+  /* Container hierarchy: highest is lightest (most elevated) */
+  --surface-container-lowest: oklch(22% 0.02 245);
+  --surface-container-low: oklch(23% 0.02 245);
+  --surface-container: oklch(24% 0.02 245);
+  --surface-container-high: oklch(25% 0.025 245);
+  --surface-container-highest: oklch(36% 0.03 245);
 
-  /**
-  * App Menu
-  */
-  --app-appMenu-backgroundColor: var(--darktheme-blue-800);
-  --app-appMenu-textColor: var(--darktheme-blue-500);
-  --app-appMenu-headingColor: var(--darktheme-blue-500);
-  --app-appMenu-currentPage-textColor: var(--darktheme-blue-300);
-  --app-appMenu-currentPage-backgroundColor: var(--darktheme-blue-900);
+  --on-surface: oklch(0.75 0.03 245);
+  --on-surface-variant: oklch(0.6 0.04 245.03);
 
-  /**
-  * Link
-  */
-  --app-link-textColor: var(--darktheme-yellow-500);
-  --app-link-textColor-inverse: var(--app-backgroundColor);
-  --app-link-hover-textColor: var(--darktheme-yellow-600);
+  /* ============================================
+   * PRIMARY - Neutral gray
+   * ============================================ */
+  --primary: #ffb71e;
+  --on-primary: oklch(0.2 0.02 245);
+  --primary-container: #ffdba3;
+  --on-primary-container: oklch(25% 0.07 245);
 
-  /**
-  * Panel (Drawer)
-  */
-  --app-panel-borderColor: transparent;
-  --app-panel-borderWidth: 0;
-  --app-panel-header-textColor: var(--darktheme-yellow-500);
-  --app-panel-header-backgroundColor: tranparent;
-  --app-panel-body-top-borderColor: tranparent;
-  --app-panel-body-textColor: var(--app-textColor);
-  --app-panel-body-backgroundColor: transparent;
-  --app-panel-body-items-gap: 1.5rem;
+  /* ============================================
+   * SECONDARY - Cool gray with blue tint
+   * ============================================ */
 
-  /**
-  * Object Viewer
-  */
-  --app-objectViewer-backgroundColor: var(--darktheme-blue-800);
+  --secondary: oklch(78% 0.03 245);
+  --on-secondary: oklch(24% 0.02 245);
+  --secondary-container: oklch(0.34 0.03 245);
+  --on-secondary-container: oklch(82% 0.02 245);
 
-  /**
-  * Widget List
-  */
-  --app-widgetList-gap: var(--app-panel-body-items-gap);
+  /* ============================================
+   * TERTIARY - Lavender accent
+   * ============================================ */
+  --tertiary: oklch(75% 0.12 280);
+  --on-tertiary: oklch(22% 0.03 280);
+  --tertiary-container: oklch(28% 0.08 280);
+  --on-tertiary-container: oklch(85% 0.08 280);
 
-  /**
-  * Accordion
-  */
-  --app-accordion-header-backgroundColor: var(--darktheme-blue-800);
-  --app-accordion-header-textColor: var(--darktheme-blue-300);
-  --app-accordion-body-backgroundColor: var(--darktheme-blue-800);
-  --app-accordion-body-textColor: var(--app-textColor);
-  --app-accordion-outer-borderWidth: 1px;
-  --app-accordion-outer-borderColor: var(--darktheme-blue-800);
-  --app-accordion-inner-borderWidth: 1px;
-  --app-accordion-inner-borderColor: transparent;
+  /* ============================================
+   * SEMANTIC STATES
+   * ============================================ */
+  --error: oklch(81% 0.1 20);
+  --on-error: oklch(28% 0.15 25);
+  --error-container: oklch(0.2 0.06 20);
+  --on-error-container: oklch(91% 0.04 20);
 
-  /*************************BUTTONS*************************/
+  --success: oklch(70% 0.1 177);
+  --on-success: oklch(28% 0.15 177);
+  --success-container: oklch(0.26 0.03 177);
+  --on-success-container: oklch(91% 0.08 177);
 
-  /* primary and secondary have borders*/
-  --app-button-borderWidth: 2px;
-  --app-button-fontWeight: 500;
+  /* --success: oklch(0.35 0.11 144.75);
+  --on-success: oklch(70% 0.15 145);
+  --success-container: oklch(30% 0.1 145);
+  --on-success-container: oklch(85% 0.08 145); */
 
-  /**
-  * Button Primary (default)
-  */
+  --warning: oklch(75% 0.13 85);
+  --on-warning: oklch(20% 0.05 85);
+  --warning-container: oklch(35% 0.1 85);
+  --on-warning-container: oklch(90% 0.08 85);
 
-  --app-button-primary-textColor: var(--darktheme-blue-300);
-  --app-button-primary-borderColor: var(--app-button-primary-textColor);
-  --app-button-primary-backgroundColor: transparent;
+  --info: oklch(75% 0.12 240);
+  --on-info: oklch(20% 0.05 240);
+  --info-container: oklch(32% 0.1 240);
+  --on-info-container: oklch(88% 0.06 240);
 
-  /* Button Primary :hover */
-  --app-button-primary-hover-borderColor: var(
-    --app-button-primary-hover-backgroundColor
-  );
-  --app-button-primary-hover-backgroundColor: var(--darktheme-yellow-400);
-  --app-button-primary-hover-textColor: var(--darktheme-blue-700);
+  /* ============================================
+   * OUTLINE
+   * ============================================ */
+  --outline: oklch(60% 0.03 245);
+  --outline-variant: oklch(0.3 0.03 245);
 
-  /* Button Primary :active */
-  --app-button-primary-active-borderColor: var(
-    --app-button-primary-active-backgroundColor
-  );
-  --app-button-primary-active-backgroundColor: var(--color-blue-800);
-  --app-button-primary-active-textColor: white;
+  /* ============================================
+   * INVERSE - Light surfaces in dark mode
+   * ============================================ */
+  --inverse-surface: oklch(90% 0.01 245);
+  --inverse-on-surface: oklch(24% 0.02 245);
+  --inverse-primary: oklch(43% 0.08 245);
 
-  /* Button Primary :disabled */
-  --app-button-primary-disabled-borderColor: var(
-    --app-button-primary-disabled-backgroundColor
-  );
-  --app-button-primary-disabled-backgroundColor: var(--darktheme-blue-700);
-  --app-button-primary-disabled-textColor: var(--darktheme-blue-500);
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: oklch(0% 0 0 / 0.7);
+  --shadow: oklch(0% 0 0 / 0.8);
+}
 
-  /**
-  * Button Secondary (default)
-  */
-  --app-button-secondary-borderColor: var(--darktheme-blue-500);
-  --app-button-secondary-backgroundColor: transparent;
-  --app-button-secondary-textColor: var(--darktheme-blue-500);
+/* Attribution control - all states */
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface-variant) !important;
+}
 
-  /* Button Secondary :hover */
-  --app-button-secondary-hover-borderColor: var(--color-blue-700);
-  --app-button-secondary-hover-backgroundColor: transparent;
-  --app-button-secondary-hover-textColor: var(--color-blue-700);
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl-attrib.maplibregl-compact {
+  background-color: var(--surface-container-high) !important;
+}
 
-  /* Button Secondary :active */
-  --app-button-secondary-active-borderColor: var(--color-blue-700);
-  --app-button-secondary-active-backgroundColor: var(--color-blue-700);
-  --app-button-secondary-active-textColor: white;
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib-button {
+  background-color: var(--surface-container-high) !important;
+  background-image: none !important;
+  filter: invert(0.85) hue-rotate(180deg);
+}
 
-  /* Button Secondary :disabled */
-  --app-button-secondary-disabled-borderColor: var(--color-neutral-200);
-  --app-button-secondary-disabled-backgroundColor: var(--color-neutral-50);
-  --app-button-secondary-disabled-textColor: var(--color-neutral-400);
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib a {
+  color: var(--on-surface-variant) !important;
+}
 
-  /**
-  * Button Tertiary (default)
-  */
-  --app-button-tertiary-borderColor: transparent;
-  --app-button-tertiary-backgroundColor: transparent;
-  --app-button-tertiary-textColor: var(--color-blue-600);
+[data-theme="dark"] .location-picker .maplibregl-ctrl-attrib a:hover {
+  color: var(--on-surface) !important;
+}
 
-  /* Button Tertiary :hover */
-  --app-button-tertiary-hover-borderColor: transparent;
-  --app-button-tertiary-hover-backgroundColor: transparent;
-  --app-button-tertiary-hover-textColor: var(--color-purple-600);
+[data-theme="dark"] .location-picker .maplibregl-ctrl-scale {
+  background-color: var(--surface-container-high) !important;
+  color: var(--on-surface) !important;
+  border-color: var(--outline) !important;
+}
 
-  /* Button Tertiary :active */
-  --app-button-tertiary-active-borderColor: tranparent;
-  --app-button-tertiary-active-backgroundColor: tranparent;
-  --app-button-tertiary-active-textColor: var(--color-fuchsia-500);
+[data-theme="dark"]
+  .location-picker
+  .maplibregl-ctrl
+  button
+  .maplibregl-ctrl-icon {
+  filter: invert(0.85) hue-rotate(180deg);
+}
 
-  /* Button Tertiary :disabled */
-  --app-button-tertiary-disabled-borderColor: transparent;
-  --app-button-tertiary-disabled-backgroundColor: tranparent;
-  --app-button-tertiary-disabled-textColor: var(--color-neutral-400);
-
-  /* Tuple */
-  --app-tuple-label-textColor: var(--darktheme-blue-400);
-  --app-tuple-value-textColor: var(--app-textColor);
-
-  /* Scrollbar */
-  --app-scrollbar-width: 0.5rem;
-  --app-scrollbar-thumb-backgroundColor: var(--darktheme-yellow-600);
-  --app-scrollbar-thumb-hover-backgroundColor: var(--color-amber-700);
-  --app-scrollbar-track-backgroundColor: var(--darktheme-blue-900);
-
-  /** Meta Data Only Page */
-  --app-metaDataOnlyView-backgroundColor: var(--darktheme-blue-800);
-  --app-metaDataOnlyView-contentViewer-backgroundColor: var(
-    --darktheme-blue-650
-  );
-  --app-metaDataOnlyView-contentViewer-textColor: var(--darktheme-yellow-500);
-
-  /** Modal **/
-  --app-modalContents-backgroundColor: var(--darktheme-blue-700);
-  --app-modalContents-textColor: var(--darktheme-blue-500);
-  --app-modalContents-header-backgroundColor: var(--darktheme-blue-650);
-  --app-modalContents-header-textColor: var(--darktheme-yellow-500);
-
-  /** Notification **/
-  --app-notification-borderColor: var(--darktheme-blue-700);
-  --app-notification-backgroundColor: var(--darktheme-blue-800);
-  --app-notification-textColor: var(--darktheme-blue-500);
-  --app-notification-header-textColor: var(--darktheme-yellow-500);
-  --app-notification-icon-info-backgroundColor: transparent;
-  --app-notification-icon-info-textColor: var(--color-blue-600);
-  --app-notification-icon-warning-backgroundColor: transparent;
-  --app-notification-icon-warning-textColor: var(--color-yellow-400);
-  --app-notification-icon-error-backgroundColor: transparent;
-  --app-notification-icon-error-textColor: var(--color-red-600);
-  --app-notification-icon-success-backgroundColor: transparent;
-  --app-notification-icon-success-textColor: var(--color-green-600);
-
-  /* Thumbnail Image */
-  --app-thumbnailImage-borderColor: var(--darktheme-blue-700);
-  --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
-  --app-thumbnailImage-backgroundColor: var(--darktheme-blue-800);
-  /* used if alt text is rendered or for thumbnails without a defined primaryHander (and thus a defined src) */
-  --app-thumbnailImage-textColor: var(--app-link-textColor);
-
-  /* Media Card */
-  --app-mediaCard-backgroundColor: var(--app-accordion-body-backgroundColor);
-  --app-mediaCard-borderWidth: var(--app-accordion-outer-borderWidth);
-  --app-mediaCard-borderColor: var(--app-accordion-outer-borderColor);
-  --app-mediaCard-textColor: var(--app-accordion-body-textColor);
-  --app-mediaCard-title-textColor: var(--darktheme-blue-300);
-
-  /* We can also can tweak styles with plain old CSS selectors */
-  & .x-button {
-    background: var(--darktheme-blue-900);
-    color: var(--darktheme-blue-500);
-  }
-
-  /* assuming the image was created with light mode */
-  /* & .app-header__logo-img {
-    filter: invert(1);
-  } */
+/* Marker styling for dark mode */
+[data-theme="dark"] .location-picker .maplibregl-marker svg path {
+  fill: var(--primary);
 }

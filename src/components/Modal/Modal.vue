@@ -3,7 +3,7 @@
     <div
       ref="modal"
       :class="{
-        'modal flex bg-transparent-black-700 fixed inset-0 z-50 justify-center items-center p-4 min-h-dvh':
+        'modal flex bg-scrim fixed inset-0 z-50 justify-center items-center p-4 min-h-dvh':
           isOpen,
         hidden: !isOpen,
       }"
@@ -73,11 +73,12 @@ provide(
 </script>
 <style scoped>
 .modal-contents {
-  background: var(--app-modalContents-backgroundColor);
-  color: var(--app-modalContents-textColor);
+  background: var(--surface-container-low);
+  color: var(--on-surface);
 }
+
 .modal-contents__header {
-  background: var(--app-modalContents-header-backgroundColor);
-  color: var(--app-modalContents-header-textColor);
+  background: var(--surface-container);
+  color: var(--on-surface);
 }
 </style>

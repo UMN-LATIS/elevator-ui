@@ -16,7 +16,7 @@
         </h2>
         <div
           v-if="instanceStore.currentUser?.canManageDrawers"
-          class="flex items-center gap-2 bg-white p-1 rounded-md">
+          class="flex items-center gap-2 bg-surface-container-low p-1 rounded-md">
           <IconButton
             :href="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
             title="Edit Permissions">
@@ -34,11 +34,11 @@
 
       <Tabs
         v-if="drawer"
-        labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-neutral-200 pt-4"
+        labelsClass="drawer-view-page__tabs sticky top-14 z-20  -mx-4 px-4 border-b border-outline pt-4"
         :activeTabId="activeTabId"
         @tabChange="handleTabChange">
         <div
-          class="bg-transparent-black-50 rounded-md mb-4 sm:flex justify-between items-center p-2">
+          class="bg-outline-variant/20 rounded-md mb-4 sm:flex justify-between items-center p-2">
           <div>
             <ResultsCount
               v-if="drawer.contents"
@@ -51,7 +51,7 @@
 
             <div
               v-else
-              class="flex items-center gap-2 text-neutral-500 text-sm">
+              class="flex items-center gap-2 text-on-surface-variant text-sm">
               <SpinnerIcon class="animate-spin h-5 w-5" />
               Loading...
             </div>
@@ -61,7 +61,7 @@
             <select
               id="sort"
               name="sort"
-              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
+              class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-on-surface ring-1 ring-inset ring-outline focus:ring-2 focus:ring-primary text-sm sm:leading-6 max-w-full bg-surface"
               :value="selectedSortOption"
               @change="handleSortOptionChange">
               <option
@@ -298,7 +298,7 @@ onMounted(async () => {
 <style scoped></style>
 <style>
 .drawer-view-page__tabs {
-  background: var(--app-backgroundColor);
+  background: var(--surface);
 }
 
 .drawer-view-page .app-header {

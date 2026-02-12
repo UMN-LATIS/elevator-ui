@@ -1,0 +1,99 @@
+/**
+ * NATURAL THEME
+ *
+ * Earthy greens, warm browns, and soft cream. Organic textures,
+ * forest floors, and morning light through leaves. Calm and grounded.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Outfit:wght@300;400;500;600;700&display=swap");
+
+[data-theme="natural"] {
+  /* Surface — warm parchment cream */
+  --surface: oklch(95% 0.02 85);
+  --surface-dim: oklch(91% 0.03 85);
+  --surface-bright: oklch(98% 0.01 85);
+  --surface-container-lowest: oklch(97% 0.015 85);
+  --surface-container-low: oklch(93% 0.025 85);
+  --surface-container: oklch(91% 0.03 80);
+  --surface-container-high: oklch(88% 0.03 80);
+  --surface-container-highest: oklch(85% 0.04 80);
+
+  /* On-surface — rich dark brown */
+  --on-surface: oklch(25% 0.04 60);
+  --on-surface-variant: oklch(42% 0.04 60);
+
+  /* Primary — deep forest green */
+  --primary: oklch(42% 0.1 155);
+  --on-primary: oklch(97% 0.01 85);
+  --primary-container: oklch(88% 0.06 155);
+  --on-primary-container: oklch(25% 0.08 155);
+
+  /* Secondary — warm earthy brown */
+  --secondary: oklch(48% 0.06 60);
+  --on-secondary: oklch(97% 0.01 60);
+  --secondary-container: oklch(88% 0.04 60);
+  --on-secondary-container: oklch(28% 0.05 60);
+
+  /* Tertiary — muted sage / olive */
+  --tertiary: oklch(55% 0.06 130);
+  --on-tertiary: oklch(97% 0 0);
+  --tertiary-container: oklch(90% 0.04 130);
+  --on-tertiary-container: oklch(28% 0.05 130);
+
+  /* Semantic states */
+  --error: oklch(52% 0.18 25);
+  --on-error: oklch(97% 0 0);
+  --error-container: oklch(92% 0.04 25);
+  --on-error-container: oklch(30% 0.12 25);
+
+  --success: oklch(48% 0.12 155);
+  --on-success: oklch(97% 0 0);
+  --success-container: oklch(90% 0.05 155);
+  --on-success-container: oklch(25% 0.08 155);
+
+  --warning: oklch(75% 0.12 75);
+  --on-warning: oklch(25% 0.05 75);
+  --warning-container: oklch(93% 0.04 75);
+  --on-warning-container: oklch(30% 0.08 75);
+
+  --info: oklch(52% 0.08 230);
+  --on-info: oklch(97% 0 0);
+  --info-container: oklch(92% 0.03 230);
+  --on-info-container: oklch(28% 0.06 230);
+
+  /* Outline — warm stone gray */
+  --outline: oklch(55% 0.03 70);
+  --outline-variant: oklch(82% 0.03 70);
+
+  /* Inverse */
+  --inverse-surface: oklch(25% 0.04 60);
+  --inverse-on-surface: oklch(93% 0.02 85);
+  --inverse-primary: oklch(72% 0.08 155);
+
+  --scrim: oklch(0% 0 0 / 0.4);
+  --shadow: oklch(25% 0.03 60 / 0.2);
+
+  /* Typography — soft wonky serif display, clean geometric body */
+  --font-display: "Fraunces", serif;
+  --font-body: "Outfit", sans-serif;
+
+  .app-header {
+    background: oklch(30% 0.06 155);
+    color: oklch(93% 0.02 85);
+    border-bottom: 2px solid oklch(40% 0.05 130);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(92% 0.025 85);
+  }
+
+  & body {
+    font-family: "Outfit", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Fraunces", serif;
+  }
+}

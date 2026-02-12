@@ -53,14 +53,18 @@ defineEmits<{
 </script>
 <style scoped>
 .panel__header {
-  background: var(--app-panel-header-backgroundColor);
-  color: var(--app-panel-header-textColor);
+  background: color-mix(
+    in oklch,
+    var(--surface-container-low) 50%,
+    transparent
+  );
+  color: var(--on-surface);
 }
 
 .panel__body {
-  background: var(--app-panel-body-backgroundColor);
-  color: var(--app-body-textColor);
-  border-top-color: var(--app-panel-body-top-borderColor);
-  gap: var(--app-panel-body-items-gap);
+  background: transparent;
+  color: var(--on-surface);
+  border-top-color: var(--surface-bright);
+  gap: 1.5rem;
 }
 </style>

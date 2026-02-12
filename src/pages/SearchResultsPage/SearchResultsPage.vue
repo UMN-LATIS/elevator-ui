@@ -4,7 +4,9 @@
       <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
     </template>
     <div class="px-4">
-      <SearchErrorNotification v-if="searchStore.status === 'error'" />
+      <SearchErrorNotification
+        v-if="searchStore.status === 'error'"
+        class="my-8" />
       <template v-else>
         <div class="flex justify-between items-center my-8">
           <BrowseCollectionHeader
@@ -22,11 +24,11 @@
           :searchTerm="searchStore.currentSearchTerm" />
 
         <Tabs
-          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-neutral-200 pt-4"
+          labelsClass="sticky top-14 z-20 search-results-page__tabs -mx-4 px-4 border-b border-outline-variant pt-4"
           :activeTabId="searchStore.resultsView"
           @tabChange="handleTabChange">
           <div
-            class="sm:flex justify-between items-center bg-transparent-black-50 rounded-md mb-4 p-2 flex-wrap">
+            class="sm:flex justify-between items-center bg-outline-variant/20 rounded-md mb-4 p-2 flex-wrap">
             <ResultsCount
               class="mb-2 sm:mb-0"
               :fetchStatus="searchStore.status"
@@ -261,7 +263,7 @@ watch(
 <style scoped></style>
 <style>
 .search-results-page__tabs {
-  background: var(--app-backgroundColor);
+  background: var(--surface);
 }
 
 .search-results-page .app-header {

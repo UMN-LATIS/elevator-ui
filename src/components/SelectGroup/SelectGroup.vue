@@ -4,7 +4,7 @@
       :for="id"
       :class="
         cn([
-          'text-xs uppercase font-medium text-neutral-700',
+          'text-xs uppercase font-medium text-on-surface',
           {
             'sr-only': !showLabel,
           },
@@ -12,12 +12,17 @@
         ])
       ">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span v-if="required" class="text-error">*</span>
     </label>
     <select
       :id="id"
       :value="modelValue ?? ''"
-      :class="cn(['rounded-md border-none bg-black/5 text-sm', selectClass])"
+      :class="
+        cn([
+          'rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2',
+          selectClass,
+        ])
+      "
       readonly
       required
       @change="

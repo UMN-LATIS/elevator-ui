@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-20 p-4">
+  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-16 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
@@ -12,11 +12,9 @@
         target="_blank">
         View
       </Button>
-
       <Button
         variant="primary"
         type="submit"
-        class="disabled:!border-black/10 border-groove disabled:cursor-not-allowed"
         :disabled="!isAssetValid || saveStatus === 'pending'"
         @click="$emit('save')">
         Save
@@ -28,14 +26,16 @@
       </Button>
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
-        <p class="text-neutral-400">
-          <span v-if="parentAssetEditor.lastModified" class="text-neutral-400">
+        <p class="text-on-surface-variant">
+          <span
+            v-if="parentAssetEditor.lastModified"
+            class="text-on-surface-variant">
             {{ parentAssetEditor.lastModified }}
           </span>
         </p>
         <div
           v-if="missingRequiredFields.length > 0"
-          class="font-medium mb-1 text-red-600">
+          class="font-medium mb-1 text-error">
           Missing required:
           <span class="italic">
             {{ missingRequiredFields.join(", ") }}
@@ -43,13 +43,13 @@
         </div>
         <div
           v-if="invalidFields.length > 0"
-          class="font-medium mb-1 text-red-600">
+          class="font-medium mb-1 text-error">
           Invalid:
           <span class="italic">
             {{ invalidFields.join(", ") }}
           </span>
         </div>
-        <p v-else-if="!hasUnsavedChanges" class="text-neutral-400">
+        <p v-else-if="!hasUnsavedChanges" class="text-on-surface-variant">
           No unsaved changes
         </p>
       </div>
@@ -57,9 +57,9 @@
     <div class="flex flex-col gap-6 order-1 md:order-2">
       <SelectGroup
         :selectClass="{
-          '!bg-green-600 !text-white select-picker-light':
+          'bg-success-container text-on-success-container select-picker-light':
             !!asset.readyForDisplay,
-          'bg-transparent border border-solid border-neutral-900':
+          'bg-transparent border border-solid border-outline':
             !asset.readyForDisplay,
         }"
         :modelValue="asset.readyForDisplay ? 'ready' : 'draft'"
@@ -86,22 +86,24 @@
         label="Available After"
         type="date"
         placeholder="mm / dd / yyyy"
-        inputClass="text-sm pl-3"
+        inputClass="text-sm pl-3 bg-surface-container"
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="displayTemplateId"
         :options="parentAssetEditor.templateOptions"
         label="Template"
+        selectClass="bg-surface-container"
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
         :options="parentAssetEditor.collectionOptions"
+        selectClass="bg-surface-container"
         label="Collection"
         required
         @update:modelValue="handleUpdateCollectionId($event)" />
       <Tuple label="Asset ID" class="text-sm px-3" labelClass="font-normal">
-        <span class="text-neutral-500">{{ asset.assetId ?? "-" }}</span>
+        <span class="text-on-surface-variant">{{ asset.assetId ?? "-" }}</span>
       </Tuple>
 
       <TableOfContents />
@@ -219,6 +221,6 @@ function handleUpdateCollectionId(collectionId: number | string | null) {
 </script>
 <style>
 .select-picker-light {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 }
 </style>

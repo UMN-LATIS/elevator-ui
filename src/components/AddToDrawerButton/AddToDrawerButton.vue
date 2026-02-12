@@ -18,12 +18,29 @@
       <fieldset class="flex items-start justify-between gap-2 flex-1">
         <legend class="sr-only">Choose a drawer</legend>
         <div class="flex-1 flex flex-col gap-1">
+          <SelectGroup
+            v-model="selectedDrawer"
+            :options="
+              drawerStore.drawers.map((drawer) => ({
+                id: drawer.id,
+                label: drawer.title,
+                value: drawer.id,
+              }))
+            "
+            label="Existing Drawer"
+            placeholder="Select a drawer"
+            :class="{
+              ' !border-error text-error':
+                !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
+            }"
+            @update:modelValue="isSelectDrawerTouched = true" />
+
           <label class="text-xs uppercase font-medium">Existing Drawer</label>
           <select
             v-model="selectedDrawer"
-            class="border border-neutral-200 rounded w-full text-sm"
+            class="border border-outline-variant rounded w-full text-sm bg-surface-container-low"
             :class="{
-              ' !border-red-500 text-red-700':
+              ' !border-error text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             }"
             @update:modelValue="isSelectDrawerTouched = true">
@@ -38,8 +55,11 @@
         </div>
 
         <p
-          class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center text-sm">
-          <span class="bg-neutral-50 relative z-10 px-2">or</span>
+          class="mt-8 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-outline-variant relative leading-none text-center text-sm">
+          <span
+            class="text-on-surface-variant bg-surface-container-low relative z-10 px-2">
+            or
+          </span>
         </p>
 
         <DrawerTitleInput
@@ -47,9 +67,9 @@
           class="flex-1"
           label="New Drawer"
           :inputClass="[
-            'bg-white placeholder-neutral-400 border !border-neutral-200 rounded border-solid',
+            'bg-surface placeholder-on-surface-variant border border-outline-variant rounded border-solid',
             {
-              '!border !border-red-500 !text-red-700':
+              '!border !border-error !text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             },
           ]"
@@ -57,7 +77,7 @@
       </fieldset>
       <p
         v-if="!exactlyOneDrawerIsChosen && isSelectDrawerTouched"
-        class="text-xs italic text-red-500 my-2">
+        class="text-xs italic text-error my-2">
         Please select a drawer or enter a new drawer name.
       </p>
       <AddExcerptToDrawerSection
@@ -70,7 +90,7 @@
         class="mt-4" />
     </div>
     <template #footer>
-      <footer class="p-4 bg-neutral-200">
+      <footer class="p-4 bg-surface-container">
         <div class="flex justify-end gap-4">
           <Button variant="tertiary" @click="isModalOpen = false">
             Cancel
@@ -100,6 +120,7 @@ import AddExcerptToDrawerSection from "./AddExcerptToDrawerSection.vue";
 import { useAssetStore } from "@/stores/assetStore";
 import api from "@/api";
 import { useIframeMessaging, requestTypes } from "@/helpers/useiFrameMessaging";
+import SelectGroup from "../SelectGroup/SelectGroup.vue";
 
 const props = defineProps<{
   assetId: string;

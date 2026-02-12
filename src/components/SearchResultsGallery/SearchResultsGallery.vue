@@ -16,10 +16,10 @@
         <Link
           v-if="activeSlide.objectId"
           :to="getAssetUrl(activeSlide.objectId)"
-          class="transition-colors hover:text-blue-600 !no-underline"
+          class="transition-colors hover:text-primary !no-underline"
           :class="{
-            'text-neutral-300 text-4xl ': isFullscreen,
-            'text-xl text-blue-700 ': !isFullscreen,
+            'text-on-surface-variant text-4xl ': isFullscreen,
+            'text-xl text-primary ': !isFullscreen,
           }">
           {{ activeSlide.title }}
         </Link>
@@ -70,10 +70,10 @@
       @scrollbarDragEnd="onThumbSlideChange">
       <SwiperSlide v-for="(slide, i) in slides" :key="slide.id">
         <div
-          class="border border-neutral-400 aspect-video flex items-center justify-center w-full relative">
+          class="border border-outline aspect-video flex items-center justify-center w-full relative">
           <div
             v-if="i !== activeSlideIndex"
-            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-transparent-white-800 text-neutral-900">
+            class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-surface text-on-surface">
             {{ i + 1 }}
           </div>
           <LazyLoadImage
@@ -89,22 +89,15 @@
     <div
       v-if="mainSwiper"
       class="flex items-center justify-center mb-1 relative py-4"
-      :class="{
-        'text-neutral-50': isFullscreen,
-        'text-neutral-900': !isFullscreen,
-      }">
+      :class="{ 'text-on-surface': true }">
       <Button
         variant="tertiary"
-        class="!m-0 bg-transparent hover:!bg-transparent-white-500"
+        class="!m-0 bg-transparent"
         :class="{
           'opacity-30': activeSlideIndex === 0,
         }"
         @click="mainSwiper.slidePrev()">
-        <ChevronLeftIcon
-          :class="{
-            'text-neutral-50': isFullscreen,
-            'text-neutral-900': !isFullscreen,
-          }" />
+        <ChevronLeftIcon class="text-on-surface" />
       </Button>
       <div
         class="flex flex-col items-center justify-center text-xs text-center px-4 py-2">
@@ -113,12 +106,12 @@
 
       <Button
         variant="tertiary"
-        class="!m-0 bg-transparent hover:!bg-transparent-white-500"
+        class="!m-0 bg-transparent"
         @click="mainSwiper.slideNext()">
         <ChevronRightIcon
           :class="{
-            'text-neutral-50 ': isFullscreen,
-            'text-neutral-900': !isFullscreen,
+            'text-on-surface ': isFullscreen,
+            'text-on-surface': !isFullscreen,
           }" />
       </Button>
     </div>

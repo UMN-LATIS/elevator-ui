@@ -14,7 +14,7 @@
       leaveTo="transform opacity-0 scale-95"
       tailwindcssOriginClass>
       <MenuButton
-        class="dropdown__menu-button inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 p-2 placeholder:focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+        class="dropdown__menu-button inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface p-2"
         :class="labelClass"
         @click="(event) => emit('trigger:click', event)">
         <slot name="label">
@@ -26,7 +26,7 @@
           aria-hidden="true" />
       </MenuButton>
       <MenuItems
-        class="w-64 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none max-h-[50vh] overflow-y-auto">
+        class="w-64 divide-y divide-outline-variant rounded-md bg-surface-container text-on-surface shadow-lg ring-1 ring-outline-variant focus:outline-none max-h-[50vh] overflow-y-auto">
         <slot name="header" />
         <div class="py-1">
           <slot />
@@ -55,6 +55,7 @@ withDefaults(
     alignment: "right",
     showChevron: true,
     labelClass: "",
+    chevronClass: "",
   }
 );
 

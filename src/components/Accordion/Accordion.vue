@@ -58,19 +58,18 @@ function handleAccordionToggle() {
 </script>
 <style scoped>
 .accordion {
-  color: var(--app-accordion-textColor);
-  border: var(--app-accordion-outer-borderWidth) solid
-    var(--app-accordion-outer-borderColor);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
 }
+
 .accordion__header {
-  background: var(--app-accordion-header-backgroundColor);
-  color: var(--app-accordion-header-textColor);
+  background: transparent;
+  color: var(--on-surface);
 }
 
 .accordion__body {
-  background: var(--app-accordion-body-backgroundColor);
-  color: var(--app-accordion-body-textColor);
-  border-top: var(--app-accordion-inner-borderWidth) solid
-    var(--app-accordion-inner-borderColor);
+  background: transparent;
+  color: var(--on-surface);
+  border-top: 1px solid transparent;
 }
 </style>

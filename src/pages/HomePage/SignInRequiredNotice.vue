@@ -36,4 +36,3 @@ const encodedCallbackUrl = computed(() => {
   return encodeURIComponent(callbackUrl);
 });
 </script>
-<style scoped></style>

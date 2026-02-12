@@ -2,11 +2,11 @@
   <component
     :is="href ? 'a' : 'div'"
     :href="href"
-    class="thumbnail-image block rounded overflow-hidden w-24 aspect-square relative border border-transparent-black-200 shadow-sm group transition-all">
+    class="thumbnail-image block rounded overflow-hidden w-24 aspect-square relative border border-outline-variant shadow-sm group transition-all">
     <div
       v-if="showHoverIcon"
-      class="thumbnail-image__icon absolute z-10 bg-transparent-white-500 rounded-full w-12 h-12 flex justify-center items-center backdrop-blur-sm top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all">
-      <ArrowForwardIcon class="text-neutral-900" />
+      class="thumbnail-image__icon absolute z-10 rounded-full w-12 h-12 flex justify-center items-center bg-primary-container top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all">
+      <ArrowForwardIcon class="text-on-primary-container" />
     </div>
     <LazyLoadImage
       :src="src"
@@ -18,7 +18,7 @@
       }" />
     <div
       v-if="isVideo || isAudio"
-      class="backdrop-blur-md bg-transparent-white-500 text-neutral-900 flex absolute bottom-1 right-1 z-10 rounded-full justify-center items-center p-1 w-6 h-6">
+      class="bg-surface text-on-surface flex absolute bottom-1 right-1 z-10 rounded-full justify-center items-center p-1 w-6 h-6">
       <AudioIcon v-if="isAudio" />
       <VideoIcon v-if="isVideo" />
     </div>
@@ -77,6 +77,6 @@ const isAudio = computed((): boolean => {
 </script>
 <style scoped>
 .thumbnail-image--is-active {
-  --tw-ring-color: var(--app-thumbnailImage-active-ringColor);
+  --tw-ring-color: var(--primary);
 }
 </style>

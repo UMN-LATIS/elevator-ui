@@ -10,7 +10,7 @@
       <slot />
     </div>
     <aside
-      class="sidebar-container bg-[--app-sidebar-backgroundColor] text-[--app-sidebar-textColor] [border-left:var(--app-borderWidth)_solid_var(--app-borderColor)] p-6 fixed bottom-0 left-0 w-full lg:static">
+      class="sidebar-container bg-surface-container text-on-surface lg:border-l border-t lg:border-t-0 border-outline-variant p-6 fixed bottom-0 left-0 w-full lg:static">
       <div class="sticky top-20 flex flex-col gap-6">
         <slot name="sidebar-actions" />
         <slot name="sidebar-nav" />

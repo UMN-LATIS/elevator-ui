@@ -24,7 +24,7 @@
           v-for="tag in item.tags"
           :key="tag"
           :value="tag"
-          class="bg-neutral-900 text-neutral-100 h-auto"
+          class="bg-secondary-container text-on-secondary-container h-auto"
           data-testid="tag-item">
           <TagsInputItemText />
           <TagsInputItemDelete />
@@ -181,5 +181,3 @@ async function handleKeydown(itemId: string, event: KeyboardEvent) {
   }
 }
 </script>
-
-<style scoped></style>

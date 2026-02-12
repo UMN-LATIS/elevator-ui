@@ -1,0 +1,233 @@
+/**
+ * NEOBRUTALIST THEME
+ *
+ * Bold borders, hard shadows, bright colors, raw energy.
+ * Inspired by Gumroad, Figma marketing, and the new wave of
+ * "ugly on purpose" design. Functional, loud, unapologetic.
+ *
+ * Key traits: thick black borders, offset drop shadows with no blur,
+ * vivid accent colors on light backgrounds, chunky type.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+[data-theme="neobrutalist"] {
+  /* Surface — warm off-white, like cheap paper */
+  --surface: oklch(96% 0.015 85);
+  --surface-dim: oklch(92% 0.02 85);
+  --surface-bright: oklch(99% 0.005 85);
+  --surface-container-lowest: oklch(98% 0.01 85);
+  --surface-container-low: oklch(95% 0.015 85);
+  --surface-container: oklch(93% 0.02 85);
+  --surface-container-high: oklch(90% 0.02 85);
+  --surface-container-highest: oklch(86% 0.025 85);
+
+  /* On-surface — hard black */
+  --on-surface: oklch(8% 0 0);
+  --on-surface-variant: oklch(25% 0 0);
+
+  /* Primary — vivid violet-blue (Gumroad energy) */
+  --primary: oklch(58% 0.22 295);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(88% 0.08 295);
+  --on-primary-container: oklch(25% 0.15 295);
+
+  /* Secondary — punchy pink */
+  --secondary: oklch(65% 0.2 350);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(92% 0.06 350);
+  --on-secondary-container: oklch(30% 0.12 350);
+
+  /* Tertiary — electric lime */
+  --tertiary: oklch(82% 0.2 130);
+  --on-tertiary: oklch(10% 0.04 130);
+  --tertiary-container: oklch(92% 0.08 130);
+  --on-tertiary-container: oklch(25% 0.1 130);
+
+  /* Semantic states — vivid and unapologetic */
+  --error: oklch(60% 0.24 25);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.06 25);
+  --on-error-container: oklch(30% 0.15 25);
+
+  --success: oklch(58% 0.16 155);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 155);
+  --on-success-container: oklch(25% 0.1 155);
+
+  --warning: oklch(85% 0.16 85);
+  --on-warning: oklch(15% 0.04 85);
+  --warning-container: oklch(95% 0.05 85);
+  --on-warning-container: oklch(28% 0.1 85);
+
+  --info: oklch(60% 0.14 250);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.04 250);
+  --on-info-container: oklch(25% 0.1 250);
+
+  /* Outline — hard black, the defining trait */
+  --outline: oklch(8% 0 0);
+  --outline-variant: oklch(8% 0 0);
+
+  /* Inverse */
+  --inverse-surface: oklch(10% 0 0);
+  --inverse-on-surface: oklch(96% 0.015 85);
+  --inverse-primary: oklch(78% 0.15 295);
+
+  --scrim: oklch(0% 0 0 / 0.5);
+  --shadow: oklch(0% 0 0);
+
+  /* Typography — geometric grotesque display, clean body */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* ===========================================
+   * NEOBRUTALIST HARD SHADOW UTILITY
+   *
+   * The signature look: solid black offset shadow, no blur.
+   * Applied to interactive and container elements.
+   * =========================================== */
+
+  /* --- App Header --- */
+  .app-header {
+    background: oklch(85% 0.16 85);
+    color: oklch(8% 0 0);
+    border-bottom: 3px solid oklch(8% 0 0);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(96% 0.015 85);
+    border-bottom: 2px solid oklch(8% 0 0);
+  }
+
+  /* --- Buttons: thick borders + hard shadow --- */
+  .button {
+    border: 3px solid oklch(8% 0 0) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 4px 4px 0 oklch(8% 0 0);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    font-weight: 600;
+  }
+
+  .button:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 oklch(8% 0 0);
+  }
+
+  .button:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 oklch(8% 0 0);
+  }
+
+  /* --- Cards: chunky borders + hard shadow --- */
+  .media-card {
+    border: 3px solid oklch(8% 0 0) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 5px 5px 0 oklch(8% 0 0);
+    overflow: hidden;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .media-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 oklch(8% 0 0);
+  }
+
+  .search-result-card {
+    border: 3px solid oklch(8% 0 0) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 5px 5px 0 oklch(8% 0 0);
+    overflow: hidden;
+  }
+
+  /* --- Inputs: thick borders --- */
+  .input-group input,
+  .input-group textarea,
+  .input-group select {
+    border: 2px solid oklch(8% 0 0) !important;
+    border-radius: 0.5rem !important;
+    background: oklch(99% 0.005 85) !important;
+  }
+
+  .input-group input:focus,
+  .input-group textarea:focus,
+  .input-group select:focus {
+    box-shadow: 3px 3px 0 oklch(58% 0.22 295);
+  }
+
+  .tags-input-root {
+    border: 2px solid oklch(8% 0 0) !important;
+    border-radius: 0.5rem !important;
+  }
+
+  .tags-input-root:focus-within {
+    box-shadow: 3px 3px 0 oklch(58% 0.22 295);
+  }
+
+  /* --- Chips: bold pill borders --- */
+  .chip {
+    border: 2px solid oklch(8% 0 0) !important;
+    box-shadow: 2px 2px 0 oklch(8% 0 0);
+    font-weight: 600;
+  }
+
+  /* --- Tabs: thick active indicator --- */
+  .tab-button--is-active {
+    border-bottom: 4px solid oklch(8% 0 0) !important;
+    font-weight: 700;
+  }
+
+  /* --- Modal: heavy border + hard shadow --- */
+  .modal-contents {
+    border: 3px solid oklch(8% 0 0) !important;
+    border-radius: 1rem !important;
+    box-shadow: 8px 8px 0 oklch(8% 0 0) !important;
+  }
+
+  /* --- Icon buttons --- */
+  .icon-button {
+    border: 2px solid oklch(8% 0 0) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 3px 3px 0 oklch(8% 0 0);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .icon-button:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 oklch(8% 0 0);
+  }
+
+  .icon-button:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 oklch(8% 0 0);
+  }
+
+  /* --- Tables: strong grid lines --- */
+  & table {
+    border: 2px solid oklch(8% 0 0);
+  }
+
+  & th,
+  & td {
+    border-bottom: 2px solid oklch(8% 0 0);
+  }
+
+  & th {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* --- Typography --- */
+  & body {
+    font-family: "Inter", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+  }
+}

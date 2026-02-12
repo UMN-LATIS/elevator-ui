@@ -2,10 +2,10 @@
   <div class="input-group">
     <label
       :for="id"
-      class="block text-xs font-medium uppercase mb-1"
+      class="block text-xs font-medium uppercase mb-1 text-on-surface"
       :class="[{ 'sr-only': labelHidden }, labelClass]">
       {{ label }}
-      <span v-if="required" class="text-red-600">*</span>
+      <span v-if="required" class="text-error">*</span>
     </label>
     <div class="relative rounded-md">
       <div
@@ -21,7 +21,7 @@
         :required="required"
         :class="
           cn([
-            'block w-full rounded-md border-none focus-visible:ring-blue-600 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm py-2 bg-transparent-black-100 placeholder-transparent-black-400 px-4',
+            'block w-full rounded-md border border-outline-variant sm:text-sm py-2 bg-surface-container text-on-surface focus:bg-surface-bright px-4',
             {
               'pl-10': $slots.prepend,
               'pr-10': $slots.append,
@@ -76,10 +76,6 @@ const model = defineModel<TModelValue>({
 });
 </script>
 <style scoped>
-.input-group label {
-  color: var(--app-input-label-textColor, var(--color-neutral-900));
-}
-
 /* hack to show placeholder text for safari date inputs.
 safari will show the current date if no value is set, even if a placeholder is set. */
 @supports (font: -apple-system-body) and (-webkit-appearance: none) {
@@ -91,7 +87,7 @@ safari will show the current date if no value is set, even if a placeholder is s
   /* then use a pseudo element to show the placeholder text */
   input[type="date"].input--is-blank:not(:focus)::before {
     content: attr(placeholder);
-    color: var(--app-placeholderColor, #a3a3a3);
+    color: var(--on-surface-variant);
   }
 }
 </style>

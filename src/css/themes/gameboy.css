@@ -1,0 +1,124 @@
+/**
+ * GAMEBOY THEME
+ *
+ * Four shades of green on that iconic yellowish-green LCD background.
+ * Nostalgia in pixel form. Based on the original DMG-01 screen.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap");
+
+[data-theme="gameboy"] {
+  /* Surface — LCD yellow-green background (#9bbc0f) */
+  /* --surface: oklch(75% 0.14 115); */
+  --surface: oklch(0.85 0.1 115);
+  --surface-dim: oklch(70% 0.14 115);
+  --surface-bright: oklch(90% 0.12 115);
+  /* Container shades step through the 4 Game Boy colors */
+  --surface-container-lowest: oklch(69% 0.1 115);
+  --surface-container-low: oklch(72% 0.1 115);
+  --surface-container: oklch(75% 0.1 115);
+  --surface-container-high: oklch(78% 0.1 115);
+  --surface-container-highest: oklch(81% 0.08 115);
+
+  /* On-surface — darkest Game Boy green (#0f380f) */
+  --on-surface: oklch(22% 0.06 145);
+  --on-surface-variant: oklch(32% 0.06 135);
+
+  /* Primary — dark green (#306230) */
+  --primary: oklch(38% 0.08 145);
+  --on-primary: oklch(78% 0.13 115);
+  --primary-container: oklch(45% 0.1 135);
+  --on-primary-container: oklch(80% 0.12 115);
+
+  /* Secondary — medium green (#8bac0f) */
+  --secondary: oklch(68% 0.14 115);
+  --on-secondary: oklch(22% 0.06 145);
+  --secondary-container: oklch(60% 0.12 120);
+  --on-secondary-container: oklch(22% 0.06 145);
+
+  /* Tertiary — darkest green for accents */
+  --tertiary: oklch(28% 0.06 145);
+  --on-tertiary: oklch(75% 0.14 115);
+  --tertiary-container: oklch(35% 0.07 140);
+  --on-tertiary-container: oklch(78% 0.12 115);
+
+  /* Semantic states — all in shades of green (it's a Game Boy!) */
+  --error: oklch(28% 0.08 145);
+  --on-error: oklch(78% 0.13 115);
+  --error-container: oklch(60% 0.1 120);
+  --on-error-container: oklch(22% 0.06 145);
+
+  --success: oklch(68% 0.14 115);
+  --on-success: oklch(22% 0.06 145);
+  --success-container: oklch(72% 0.13 115);
+  --on-success-container: oklch(28% 0.06 145);
+
+  --warning: oklch(45% 0.08 130);
+  --on-warning: oklch(78% 0.13 115);
+  --warning-container: oklch(65% 0.12 118);
+  --on-warning-container: oklch(25% 0.06 145);
+
+  --info: oklch(55% 0.1 125);
+  --on-info: oklch(78% 0.13 115);
+  --info-container: oklch(65% 0.12 118);
+  --on-info-container: oklch(25% 0.06 145);
+
+  /* Outline — mid-dark green */
+  --outline: oklch(38% 0.08 135);
+  --outline-variant: oklch(55% 0.1 120);
+
+  /* Inverse — flip light/dark greens */
+  --inverse-surface: oklch(22% 0.06 145);
+  --inverse-on-surface: oklch(75% 0.14 115);
+  --inverse-primary: oklch(68% 0.14 115);
+
+  --scrim: oklch(15% 0.04 145 / 0.6);
+  --shadow: oklch(15% 0.04 145 / 0.4);
+
+  /* Typography — pixel fonts for maximum authenticity */
+  --font-display: "Press Start 2P", monospace;
+  --font-body: "VT323", monospace;
+
+  & body {
+    font-family: "VT323", monospace;
+    font-size: 1.15rem;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Press Start 2P", monospace;
+    line-height: 1.6;
+  }
+
+  /* LCD scanline + pixel grid overlay */
+  & #app::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background:
+      /* horizontal scanlines */ repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 40, 0, 0.08) 2px,
+        rgba(0, 40, 0, 0.08) 4px
+      ),
+      /* subtle pixel grid */
+        repeating-linear-gradient(
+          to right,
+          transparent 0px,
+          transparent 2px,
+          rgba(0, 40, 0, 0.03) 2px,
+          rgba(0, 40, 0, 0.03) 4px
+        ),
+      /* soft vignette around edges like a real LCD */
+        radial-gradient(
+          ellipse at center,
+          transparent 60%,
+          rgba(0, 20, 0, 0.12) 100%
+        );
+  }
+}

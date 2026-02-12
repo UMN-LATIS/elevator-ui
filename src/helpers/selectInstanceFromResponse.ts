@@ -18,6 +18,7 @@ export function selectInstanceFromResponse(
     userCanSearchAndBrowse,
     templates,
     useVoyagerViewer,
+    theming,
   } = apiResponse;
 
   const logoImg = instanceHasLogo
@@ -54,5 +55,6 @@ export function selectInstanceFromResponse(
     showCollectionInSearchResults: instanceShowCollectionInSearchResults,
     showTemplateInSearchResults: instanceShowTemplateInSearchResults,
     useVoyagerViewer, // whether or not to use the Voyager viewer
+    theming,
   };
 }

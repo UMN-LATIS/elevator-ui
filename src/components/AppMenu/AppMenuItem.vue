@@ -23,23 +23,18 @@ withDefaults(
 </script>
 <style scoped>
 .app-menu-item {
-  color: var(--app-appMenuItem-textColor);
+  color: var(--on-surface);
 
   &:hover,
   &:focus,
   &:focus-within {
-    background: var(
-      --app-appMenuItem-hover-backgroundColor,
-      var(--color-blue-50)
-    );
-    color: var(--app-appMenuItem-hover-textColor, var(--color-blue-600));
+    background: var(--primary-container);
+    color: var(--on-primary-container);
   }
 }
+
 .app-menu-item.is-current-page {
-  background: var(
-    --app-appMenu-currentPage-backgroundColor,
-    var(--color-blue-100)
-  );
-  color: var(--app-appMenu-currentPage-textColor, var(--color-blue-700));
+  background: var(--primary-container);
+  color: var(--primary);
 }
 </style>

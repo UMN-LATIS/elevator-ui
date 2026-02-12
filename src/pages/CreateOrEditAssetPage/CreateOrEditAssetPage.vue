@@ -2,7 +2,7 @@
   <DefaultLayout>
     <form
       v-if="!assetId && !assetEditor.isInitialized"
-      class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 bg-white rounded-md border border-neutral-900 p-4"
+      class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 rounded-md p-4 border border-outline-variant"
       @submit.prevent="handleInitNewAsset">
       <SelectGroup
         v-model="state.selectedTemplateId"
@@ -18,7 +18,7 @@
       <Button
         type="submit"
         variant="primary"
-        class="block my-4 w-full"
+        class="flex my-4 justify-center items-center"
         :disabled="!state.selectedCollectionId || !state.selectedTemplateId">
         Continue
         <SpinnerIcon
@@ -381,6 +381,6 @@ onBeforeRouteUpdate(async (to, _from, next) => {
 </script>
 <style scoped>
 label {
-  color: var(--app-input-label-textColor, var(--color-neutral-900));
+  color: var(--on-surface);
 }
 </style>

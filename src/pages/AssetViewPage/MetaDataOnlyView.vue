@@ -47,14 +47,14 @@ watch(
 </script>
 <style scoped>
 .meta-data-only-view__inner {
-  background: var(--app-metaDataOnlyView-backgroundColor);
+  background: var(--surface-container-low);
 }
 .meta-data-only-view__article {
-  background: var(--app-metaDataOnlyView-contentViewer-backgroundColor);
-  color: var(--app-metaDataOnlyView-contentViewer-textColor);
+  background: var(--surface);
+  color: var(--on-surface);
 }
 
 .meta-data-only-view__article h2:after {
-  background: var(--app-metaDataOnlyView-contentViewer-textColor);
+  background: var(--on-surface);
 }
 </style>

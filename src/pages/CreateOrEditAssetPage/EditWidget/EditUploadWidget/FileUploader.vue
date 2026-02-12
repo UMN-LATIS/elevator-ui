@@ -229,19 +229,20 @@ uppy.on("error", (error) => {
     /* prevent uppy z-index conflicts with our modals */
     isolation: isolate;
     border: 0;
+    background: transparent;
   }
   & .uppy-Dashboard-dropFilesHereHint {
     padding: 0;
   }
   & .uppy-Dashboard-AddFiles {
-    @apply border-2 border-blue-200 bg-blue-50 hover:border-blue-400 rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-blue-500;
+    @apply border-2 border-outline-variant bg-surface-container text-on-surface hover:border-primary hover:bg-surface-container rounded-lg flex flex-col items-center justify-center p-4 transition-colors focus-within:ring-2 focus-within:ring-primary;
   }
 
   & .uppy-Dashboard-AddFiles-info {
     @apply flex items-center justify-center p-0 static;
 
     & .uppy-Dashboard-note {
-      @apply text-xs text-black/50;
+      @apply text-xs text-on-surface-variant;
     }
   }
 
@@ -251,6 +252,7 @@ uppy.on("error", (error) => {
 
   & .uppy-Dashboard-AddFiles-title {
     font-size: 0.825rem;
+    color: var(--on-surface);
   }
 }
 </style>

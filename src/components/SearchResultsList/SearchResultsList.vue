@@ -1,6 +1,6 @@
 <template>
   <div class="search-results-list">
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1 max-w-screen-md mx-auto">
       <SearchResultRow
         v-for="match in matches"
         :id="`object-${match.objectId}`"
@@ -38,7 +38,16 @@ const { arrivedState } = useScroll(window, {
 watch(
   arrivedState,
   (arrived) => {
-    if (arrived.bottom && hasMoreResults.value && props.status !== "fetching") {
+    // Prevent infinite loop: don't trigger loadMore if we have no matches yet
+    // but totalResults > 0 (indicates bad/incomplete data from backend)
+    const hasInitialData = props.matches.length > 0 || props.totalResults === 0;
+
+    if (
+      arrived.bottom &&
+      hasMoreResults.value &&
+      props.status !== "fetching" &&
+      hasInitialData
+    ) {
       emits("loadMore");
     }
   },

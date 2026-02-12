@@ -27,4 +27,3 @@ import { useSearchStore } from "@/stores/searchStore";
 
 const searchStore = useSearchStore();
 </script>
-<style scoped></style>

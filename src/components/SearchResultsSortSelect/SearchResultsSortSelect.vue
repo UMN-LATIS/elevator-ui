@@ -4,7 +4,7 @@
     <select
       id="sort"
       name="sort"
-      class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-neutral-900 ring-1 ring-inset ring-neutral-300 focus:ring-2 focus:ring-indigo-600 text-sm sm:leading-6 max-w-full bg-transparent-white-800"
+      class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-on-surface ring-1 ring-outline-variant focus:ring-2 focus:ring-primary text-sm sm:leading-6 max-w-full bg-surface"
       :value="selectedSortOption"
       @change="handleOptionChange">
       <option

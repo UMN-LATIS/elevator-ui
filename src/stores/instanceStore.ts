@@ -45,6 +45,11 @@ const createState = () => ({
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: true,
     useVoyagerViewer: false, // whether or not to use the Voyager viewer
+    theming: {
+      enabled: true,
+      availableThemes: ["light", "folwell", "st-thomas", "dark"],
+      defaultTheme: "light",
+    },
   }),
   customHeaderMode: ref<ShowCustomHeaderMode>(ShowCustomHeaderMode.NEVER),
   customHeader: ref<string | null>(null),
@@ -150,6 +155,8 @@ const actions = (state: ReturnType<typeof createState>) => ({
         ...field,
         id: fieldId,
       }));
+
+      state.instance;
 
       state.fetchStatus.value = "success";
       state.hasInitialized.value = true;

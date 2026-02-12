@@ -3,7 +3,7 @@
     <template v-if="contents.length > 1" #label-extra>
       <DropDown
         label="More actions"
-        labelClass="inline-flex items-center !p-1 bg-black/5 rounded-md"
+        labelClass="inline-flex items-center !p-1 bg-surface-container-lowest rounded-md"
         :showChevron="false"
         @trigger:click="checkIfCanDownloadOriginals">
         <template v-if="isDownloadingAll" #label>
@@ -276,17 +276,11 @@ onBeforeUnmount(() => {
 .upload-widget button:hover,
 .upload-widget button:focus,
 .upload-widget button.is-active {
-  --tw-ring-color: var(
-    --app-mediaCard-hover-borderColor,
-    var(--color-blue-600)
-  );
+  --tw-ring-color: var(--primary);
 
   /* slightly darker bg on hover to indicate interactivity */
-  background-color: var(
-    --app-mediaCard-hover-backgroundColor,
-    var(--color-blue-50)
-  );
+  background-color: var(--primary-container);
 
-  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+  color: var(--primary);
 }
 </style>

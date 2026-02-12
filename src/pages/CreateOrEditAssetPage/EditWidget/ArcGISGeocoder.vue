@@ -5,7 +5,7 @@
         :id="id"
         v-model="searchText"
         type="text"
-        class="w-full px-4 py-2 rounded-md bg-black/5 border-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+        class="w-full px-4 py-2 rounded-md bg-surface-container border border-outline-variant focus:bg-surface-bright text-sm"
         :placeholder="placeholder"
         @input="handleInput"
         @keydown.down.prevent="handleKeyDown"
@@ -19,13 +19,13 @@
 
     <div
       v-if="suggestions.length > 0"
-      class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+      class="absolute z-10 w-full mt-1 border rounded-md shadow-lg max-h-60 overflow-y-auto">
       <div
         v-for="(suggestion, index) in suggestions"
         :key="index"
         :class="[
           'px-4 py-2 cursor-pointer hover:bg-gray-100',
-          { 'bg-blue-50': index === selectedIndex },
+          { 'bg-primary-container': index === selectedIndex },
         ]"
         @mousedown="selectSuggestion(index)"
         @mouseover="selectedIndex = index">
@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div v-if="error" class="mt-1 text-sm text-red-500">
+    <div v-if="error" class="mt-1 text-sm text-error">
       {{ error }}
     </div>
   </div>

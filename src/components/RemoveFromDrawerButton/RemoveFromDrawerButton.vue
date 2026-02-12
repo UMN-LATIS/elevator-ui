@@ -1,6 +1,6 @@
 <template>
   <button
-    class="bg-white w-6 h-6 text-neutral-500 inline-flex justify-center items-center rounded-full shadow-sm border border-neutral-200 hover:bg-neutral-900 hover:text-neutral-200 transition-all remove-from-drawer-button"
+    class="bg-surface w-6 h-6 text-on-surface-variant inline-flex justify-center items-center rounded-full shadow-sm border border-outline hover:bg-on-surface hover:text-surface transition-all remove-from-drawer-button"
     title="Remove"
     v-bind="$attrs"
     @click="isConfirmModalOpen = true">

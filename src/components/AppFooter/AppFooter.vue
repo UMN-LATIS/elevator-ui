@@ -1,7 +1,7 @@
 <template>
   <footer
     v-if="instanceStore.customFooter"
-    class="app-footer bg-transparent-black-100">
+    class="app-footer bg-surface-container border-t border-outline">
     <SanitizedHTML
       :html="instanceStore.customFooter"
       :addTags="['style', 'link']" />
@@ -13,8 +13,3 @@ import SanitizedHTML from "../SanitizedHTML/SanitizedHTML.vue";
 
 const instanceStore = useInstanceStore();
 </script>
-<style scoped>
-.app-footer {
-  border-top: var(--app-borderWidth) solid var(--app-borderColor);
-}
-</style>

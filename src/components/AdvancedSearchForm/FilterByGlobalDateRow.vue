@@ -9,7 +9,7 @@
         id="filter-by-date-range-start-date"
         v-model="searchStore.filterBy.globalDateRange.startDate"
         class="text-sm"
-        inputClass="!bg-white !border !border-neutral-200"
+        inputClass="!bg-white !border !border-outline"
         label="Start Date"
         :labelHidden="true"
         placeholder="Start Date" />
@@ -18,7 +18,7 @@
         id="filter-by-date-range-end-date"
         v-model="searchStore.filterBy.globalDateRange.endDate"
         class="text-sm"
-        inputClass="!bg-white !border !border-neutral-200"
+        inputClass="!bg-white !border !border-outline"
         label="End Date"
         :labelHidden="true"
         :placeholder="`End Date`" />

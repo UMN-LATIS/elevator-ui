@@ -21,20 +21,20 @@
 
   --dnd-indicator-strokeWidth: 0.125rem;
   --dnd-indicator-terminalSize: 0.25rem;
-  --dnd-indicator-color: var(--dnd-color-blue-600);
+  --dnd-indicator-color: var(--primary, --dnd-color-blue-600);
   --dnd-list-border: 0;
-  --dnd-dragHandle-bg: var(--dnd-color-neutral-200);
-  --dnd-dragHandle-bg-focus: var(--dnd-color-blue-100);
-  --dnd-dragHandle-shadow-focus: 0 0 0 0.125rem var(--dnd-color-blue-600);
-  --dnd-dragHandle-color: var(--dnd-color-neutral-600);
-  --dnd-dragHandle-color-focus: var(--dnd-color-blue-600);
-  --dnd-listItem-border: 1px solid var(--dnd-color-neutral-200);
-  --dnd-emptyList-bg: var(--dnd-color-neutral-100);
-  --dnd-emptyList-border: 1px dashed var(--dnd-color-neutral-300);
-  --dnd-emptyList-text: var(--dnd-color-neutral-400);
-  --dnd-emptyList-bg-draggingOver: var(--dnd-color-blue-100);
-  --dnd-emptyList-border-draggingOver: 1px dashed var(--dnd-color-blue-600);
-  --dnd-emptyList-text-draggingOver: var(--dnd-color-blue-600);
+  --dnd-dragHandle-bg: var(--secondary-container, --dnd-color-neutral-200);
+  --dnd-dragHandle-bg-focus: var(--primary-container, --dnd-color-blue-100);
+  --dnd-dragHandle-shadow-focus: 0 0 0 0.125rem var(--primary, --dnd-color-blue-600);
+  --dnd-dragHandle-color: var(--on-secondary-container, --dnd-color-neutral-600);
+  --dnd-dragHandle-color-focus: var(--primary, --dnd-color-blue-600);
+  --dnd-listItem-border: 1px solid var(--outline-variant, --dnd-color-neutral-200);
+  --dnd-emptyList-bg: var(--surface-container-lowest, --dnd-color-neutral-100);
+  --dnd-emptyList-border: 1px dashed var(--outline-variant, --dnd-color-neutral-300);
+  --dnd-emptyList-text: var(--on-surface-variant, --dnd-color-neutral-400);
+  --dnd-emptyList-bg-draggingOver: var(--primary-container, --dnd-color-blue-100);
+  --dnd-emptyList-border-draggingOver: 1px dashed var(--on-primary-container, --dnd-color-blue-600);
+  --dnd-emptyList-text-draggingOver: var(--on-primary-container, --dnd-color-blue-600);
 }
 
 .dnd-drag-drop-container {
@@ -63,7 +63,7 @@
 
 @keyframes post-move-flash {
   0% {
-    background: var(--dnd-color-blue-100);
+    background: var(--primary-container, --dnd-color-blue-100);
   }
   100% {
     background: inherit;

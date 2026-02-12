@@ -1,106 +1,177 @@
+/**
+ * FOLWELL THEME - University of Minnesota
+ *
+ * Brand colors: Maroon (#7a0019) and Gold (#ffcc33)
+ * This theme overrides M3 tokens with UMN brand colors.
+ */
+
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap");
 
 [data-theme="folwell"] {
+  /* Brand color palette */
   --gold-dark: #ffb71e;
   --gold: #ffcc33;
   --gold-light: #ffde7a;
-
   --maroon-dark: #5b0013;
   --maroon: #7a0019;
   --maroon-light: #940422;
 
-  --blue-dark: var(--color-blue-700);
-  --blue: var(--color-blue-500);
-  --blue-light: var(--color-blue-300);
+  /* ============================================
+   * SURFACE - Background colors
+   *
+   * Surface colors form the backdrop of the UI. The hierarchy creates
+   * visual depth through tone rather than shadow, improving accessibility.
+   *   - surface: default page/app background
+   *   - surface-dim: for reduced emphasis backgrounds
+   *   - surface-bright: for elevated/highlighted backgrounds
+   * ============================================ */
+  --surface: oklch(100% 0 0);
+  --surface-dim: oklch(93% 0 0);
+  --surface-bright: oklch(100% 0 0);
 
-  --black: var(--color-zinc-900);
-  --gray: var(--color-zinc-500);
-  --zinc-light: var(--color-zinc-100);
-  --white: var(--color-white);
+  /* Surface containers are for components placed ON the surface.
+   * lowest = minimal contrast with surface (barely elevated)
+   * highest = maximum contrast with surface (most elevated)
+   * In light mode: elevation = lighter/brighter (catching more light)
+   */
+  --surface-container-lowest: oklch(95% 0 0);
+  --surface-container-low: oklch(96% 0 0);
+  --surface-container: oklch(97% 0 0);
+  --surface-container-high: oklch(98% 0 0);
+  --surface-container-highest: oklch(99% 0 260);
 
-  --app-fontFamily: "Open Sans", "Work Sans", "Helvetica Neue", sans-serif;
-  --app-textColor: var(--color-zinc-900);
-  --app-placeholderColor: var(--color-zinc-400);
-  --app-backgroundColor: var(--color-zinc-100);
-  --app-borderColor: var(--color-zinc-300);
-  --app-borderWidth: 2px;
+  --on-surface: oklch(20% 0.02 260); /* primary text on surface */
+  --on-surface-variant: oklch(0.55 0 0); /* secondary/muted text, icons */
 
-  /**
-  * App Header
-  */
-  --app-appHeader-backgroundColor: var(--gold-light);
-  --app-appHeader-secondaryNav-backgroundColor: var(--white);
-  --app-appHeader-textColor: var(--black);
-  --app-appHeader-wordmark-textColor: var(--black);
-  --app-appHeader-logo-color: var(--black);
-  --app-appHeader-borderBottomColor: var(--app-borderColor);
+  /* ============================================
+   * PRIMARY - Main accent color
+   *
+   * The most prominent interactive color. Use for key actions and
+   * elements that should draw immediate attention.
+   *   - CTAs, primary buttons
+   *   - Links, active navigation
+   *   - Checkboxes, toggles, focus rings
+   *   - FABs, progress indicators
+   * ============================================ */
+  --primary: oklch(50% 0.2 250);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(
+    90% 0.05 250
+  ); /* tonal bg for grouped primary content */
+  --on-primary-container: oklch(0.47 0.19 254.8);
 
-  & .app-header {
+  /* ============================================
+   * SECONDARY - Supporting accent color
+   *
+   * For less prominent actions in complex/dense UI. Maintains visibility
+   * without overshadowing primary elements.
+   *   - Secondary buttons, filter chips
+   *   - Selection states, toggles in dense areas
+   *   - Supporting icons, tags
+   * ============================================ */
+  --secondary: oklch(45% 0.03 260);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(
+    92% 0.01 260
+  ); /* tonal bg for grouped secondary content */
+  --on-secondary-container: oklch(25% 0.02 260);
+
+  /* ============================================
+   * TERTIARY - Contrasting accent color
+   *
+   * Balances primary/secondary or draws attention to special elements.
+   * Use sparingly for maximum impact.
+   *   - Badges, stickers, accent highlights
+   *   - Goal/milestone indicators
+   *   - Special callouts, promotional content
+   * ============================================ */
+  --tertiary: oklch(0.42 0.17 20);
+  --on-tertiary: oklch(100% 0.17 20);
+  --tertiary-container: oklch(
+    92% 0.08 20
+  ); /* tonal bg for grouped tertiary content */
+  --on-tertiary-container: oklch(30% 0.15 20);
+
+  /* ============================================
+   * SEMANTIC STATES
+   *
+   * Communicate meaning regardless of cultural context.
+   * Each has base (for fills) and container (for backgrounds) variants.
+   * ============================================ */
+  --error: oklch(55% 0.22 25); /* destructive actions, validation errors */
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.05 25);
+  --on-error-container: oklch(30% 0.15 25);
+
+  --success: oklch(55% 0.18 145); /* completion, positive feedback */
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(92% 0.05 145);
+  --on-success-container: oklch(25% 0.1 145);
+
+  --warning: oklch(80% 0.15 85); /* caution, non-blocking issues */
+  --on-warning: oklch(25% 0.05 85); /* dark text for light warning bg */
+  --warning-container: oklch(95% 0.05 85);
+  --on-warning-container: oklch(30% 0.1 85);
+
+  --info: oklch(60% 0.15 240); /* informational, neutral notices */
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(92% 0.04 240);
+  --on-info-container: oklch(25% 0.1 240);
+
+  /* ============================================
+   * OUTLINE - Border colors
+   * ============================================ */
+  --outline: oklch(
+    55% 0.02 260
+  ); /* important borders: inputs, focused elements */
+  --outline-variant: oklch(
+    90% 0.01 260
+  ); /* decorative: dividers, subtle separators */
+
+  /* ============================================
+   * INVERSE - Contrasting surfaces
+   *
+   * For elements that stand out from the main surface, like snackbars,
+   * tooltips, or overlays.
+   * ============================================ */
+  --inverse-surface: oklch(20% 0.02 260);
+  --inverse-on-surface: oklch(95% 0.005 260);
+  --inverse-primary: oklch(
+    75% 0.15 250
+  ); /* interactive elements on inverse surfaces */
+
+  /* ============================================
+   * UTILITY
+   * ============================================ */
+  --scrim: oklch(0% 0 0 / 0.5); /* modal overlays (use with alpha) */
+  --shadow: oklch(0% 0 0 / 0.5); /* elevation shadows (use with alpha) */
+
+  /* Typography */
+  --font-display: "Work Sans", sans-serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-code: "Fira Sans", monospace;
+
+  .app-header {
     border-top: 0.25rem solid var(--gold-dark);
+    background: var(--gold-light);
+    border-bottom: 2px solid var(--outline-variant);
   }
 
-  /**
-  * Link
-  */
-  --app-link-textColor: var(--color-blue-600);
-  --app-link-textColor-inverse: var(--app-backgroundColor);
-  --app-link-hover-textColor: var(--color-blue-700);
+  .app-header__secondary-nav {
+    background: var(--surface);
+  }
+  .app-menu-button {
+    background: hsla(0 0 0 / 0.1);
+    color: black;
 
-  /**
-  * Panel (Drawer)
-  */
-  --app-panel-borderColor: var(--app-borderColor);
-  --app-panel-borderWidth: 2px;
-  --app-panel-header-textColor: var(--app-textColor);
-  --app-panel-header-backgroundColor: white;
-  --app-panel-body-top-borderColor: white;
-  --app-panel-body-textColor: var(--app-textColor);
-  --app-panel-body-backgroundColor: transparent;
-  --app-panel-body-items-gap: 1.5rem;
+    &:hover {
+      background: var(--inverse-surface);
+      color: var(--inverse-on-surface);
+    }
+  }
 
-  /**
-  * Object Viewer
-  */
-  --app-objectViewer-backgroundColor: var(--color-neutral-300);
-
-  /**
-  * Widget List
-  */
-  --app-widgetList-gap: var(--app-panel-body-items-gap);
-
-  /**
-  * Accordion
-  */
-  --app-accordion-header-backgroundColor: var(--color-zinc-200);
-  --app-accordion-header-textColor: var(--app-textColor);
-  --app-accordion-body-backgroundColor: var(--white);
-  --app-accordion-body-textColor: var(--app-textColor);
-  --app-accordion-outer-borderWidth: 1px;
-  --app-accordion-outer-borderColor: var(--color-neutral-200);
-  --app-accordion-inner-borderWidth: 1px;
-  --app-accordion-inner-borderColor: transparent;
-
-  /* Tuple */
-  --app-tuple-label-textColor: var(--color-neutral-900);
-  --app-tuple-value-textColor: var(--color-neutral-700);
-
-  /* Scrollbar */
-  --app-scrollbar-width: 0.5rem;
-  --app-scrollbar-thumb-backgroundColor: #aaa;
-  --app-scrollbar-thumb-hover-backgroundColor: #555;
-  --app-scrollbar-track-backgroundColor: rgba(255, 255, 255, 33%);
-
-  /** Meta Data Only Page */
-  --app-metaDataOnlyView-backgroundColor: var(--color-neutral-300);
-  --app-metaDataOnlyView-contentViewer-backgroundColor: var(--color-neutral-50);
-  --app-metaDataOnlyView-contentViewer-textColor: var(--color-neutral-900);
-
-  /** Modal **/
-  --app-modalContents-backgroundColor: var(--color-neutral-50);
-  --app-modalContents-textColor: var(--color-nuetral-900);
-  --app-modalContents-header-backgroundColor: var(--color-neutral-200);
-  --app-modalContents-header-textColor: var(--color-neutral-900);
-
-  /* Thumbnail Image */
-  --app-thumbnailImage-active-ringColor: var(--app-link-textColor);
+  /* Override font family */
+  & body {
+    font-family: "Open Sans", "Work Sans", "Helvetica Neue", sans-serif;
+  }
 }

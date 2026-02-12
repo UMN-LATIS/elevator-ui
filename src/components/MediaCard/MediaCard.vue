@@ -31,30 +31,23 @@ defineProps<{
 </script>
 <style scoped>
 .media-card {
-  background: var(--app-mediaCard-backgroundColor);
-  color: var(--app-mediaCard-textColor);
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
+  background: transparent;
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-textColor);
+    color: var(--on-surface);
   }
 }
 
 .media-card__image {
-  background: var(--app-thumbnailImage-backgroundColor);
-  color: var(--app-thumbnailImage-textColor);
+  background: var(--surface-container-lowest);
+  color: var(--on-surface-variant);
 }
 
 .media-card:has(.media-card__image:hover),
 .media-card:has(.media-card__body:hover),
 a:focus .media-card {
-  background: var(--app-mediaCard-hover-backgroundColor, var(--color-blue-50));
-  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
-  border-color: var(--app-mediaCard-hover-borderColor, var(--color-blue-600));
-
-  & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
-  }
+  border-color: var(--primary);
 }
 </style>

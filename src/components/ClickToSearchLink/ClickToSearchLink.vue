@@ -46,10 +46,10 @@ async function handleClick() {
 </script>
 <style scoped>
 .click-to-search-link {
-  color: var(--app-link-textColor);
+  color: var(--primary);
 }
 .click-to-search-link:hover,
 .click-to-search-link:focus {
-  color: var(--app-link-hover-textColor);
+  color: var(--primary);
 }
 </style>

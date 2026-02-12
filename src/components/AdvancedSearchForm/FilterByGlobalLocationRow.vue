@@ -19,7 +19,7 @@
       :center="mapCenter"
       :zoom="2"
       :apiKey="config.arcgis.apiKey"
-      class="my-2 border border-neutral-300 rounded-md"
+      class="my-2 border border-outline rounded-md"
       labelsClass="hidden"
       mapContainerClass="!h-[12rem] !min-h-[12rem]"
       :fullscreenControl="false"
@@ -40,26 +40,23 @@
         type="text"
         label="Search Radius"
         :labelClass="{
-          '!text-red-700': radiusTouched && !isRadiusValid,
+          '!text-error': radiusTouched && !isRadiusValid,
         }"
         :inputClass="{
-          'bg-white !border-neutral-200': true,
-          'border-red-600 text-red-700': radiusTouched && !isRadiusValid,
+          'border-error text-error': radiusTouched && !isRadiusValid,
         }"
         @update:modelValue="handleRadiusUpdate">
         <template #append>
           <span
-            class="text-sm text-neutral-600 mr-2"
+            class="text-sm text-on-surface-variant mr-2"
             :class="{
-              '!text-red-700': radiusTouched && !isRadiusValid,
+              '!text-error': radiusTouched && !isRadiusValid,
             }">
             miles
           </span>
         </template>
       </InputGroup>
-      <p
-        v-if="radiusTouched && !isRadiusValid"
-        class="text-xs text-red-700 mt-2">
+      <p v-if="radiusTouched && !isRadiusValid" class="text-xs text-error mt-2">
         Radius must be a number greater than 0.
       </p>
     </div>

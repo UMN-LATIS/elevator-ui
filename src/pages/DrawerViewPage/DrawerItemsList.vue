@@ -13,7 +13,7 @@
         <div class="item-container relative rounded flex group shadow-sm">
           <div
             v-if="isDraggable"
-            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-blue-100 transition-colors bg-white">
+            class="drag-handle cursor-move py-1 rounded-l group-hover:bg-primary group-hover:border-primary group-hover:text-on-primary transition-colors bg-surface">
             <DragIcon />
           </div>
           <SearchResultRow
@@ -98,14 +98,14 @@ const hasMoreResults = computed(() => {
   width: full;
   height: full;
   z-index: 20;
-  background: var(--color-blue-600);
+  background: var(--primary);
   border-radius: 0.25rem 0.25rem 0 0;
   opacity: 0.5;
 }
 
 .draggable-ghost .drag-handle {
-  background: var(--color-blue-600);
-  color: var(--color-blue-100);
+  background: var(--primary);
+  color: var(--primary-container);
 }
 
 .is-dragging .search-result-row {

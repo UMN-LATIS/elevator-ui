@@ -35,7 +35,7 @@ const widgets = computed(() =>
 </script>
 <style scoped>
 .widget-list {
-  gap: var(--app-widgetList-gap);
+  gap: 1rem;
 }
 
 .fade-enter-active,

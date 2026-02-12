@@ -1,6 +1,6 @@
 <template>
   <div
-    class="skeleton-result-row flex bg-white p-2 sm:p-4 gap-4 rounded-md border-2 border-transparent">
+    class="skeleton-result-row flex bg-surface-dim p-2 sm:p-4 gap-4 rounded-md border-2 border-transparent">
     <Skeleton width="4rem" height="4rem">
       <ImageIcon class="opacity-25" />
     </Skeleton>

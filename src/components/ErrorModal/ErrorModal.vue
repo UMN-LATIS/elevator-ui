@@ -3,7 +3,7 @@
     <Transition name="fade">
       <div
         v-if="error"
-        class="fixed inset-0 z-40 bg-transparent-black-700 flex items-center justify-center">
+        class="fixed inset-0 z-40 bg-scrim flex items-center justify-center">
         <SignInRequiredNotice v-if="isCurrentUserUnauthenticated" />
 
         <Notification
@@ -12,7 +12,7 @@
           :message="error.name"
           type="danger"
           :isDismissable="true"
-          class="w-full max-w-md border-none max-h-[80vh] !overflow-auto"
+          class="w-full max-w-md border-none max-h-[80vh] !overflow-auto rounded-md"
           @dismiss="errorStore.clearError()">
           <p>{{ message }}</p>
 

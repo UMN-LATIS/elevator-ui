@@ -11,7 +11,7 @@
         leave="duration-200 ease-in"
         leaveFrom="opacity-100"
         leaveTo="opacity-0">
-        <div class="fixed inset-0 z-40 bg-black/70" aria-hidden="true" />
+        <div class="fixed inset-0 z-40 bg-scrim" aria-hidden="true" />
       </TransitionChild>
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <TransitionChild

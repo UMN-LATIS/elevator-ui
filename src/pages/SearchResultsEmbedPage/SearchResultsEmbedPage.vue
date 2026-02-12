@@ -3,7 +3,7 @@
     <Transition name="fade" mode="out-in">
       <div
         v-if="!isReady"
-        class="flex items-center justify-center bg-neutral-200 p-4 gap-4 min-h-[480px]">
+        class="flex items-center justify-center bg-surface-container p-4 gap-4 min-h-[480px]">
         <Skeleton width="100%" height="100%" class="rounded-none">
           Loading...
         </Skeleton>

@@ -5,18 +5,18 @@
     </template>
     <div class="px-4">
       <section
-        class="max-w-md border border-neutral-900 rounded-lg mx-auto my-12 p-8"
+        class="max-w-md border border-on-surface rounded-lg mx-auto my-12 p-8"
         :class="{
           'has-form-error': shakeForm,
         }">
         <header
-          class="font-bold text-center mb-8 pb-4 border-b border-neutral-900">
+          class="font-bold text-center mb-8 pb-4 border-b border-on-surface">
           <h2 class="text-2xl capitalize">Login</h2>
         </header>
         <form @submit.prevent="login">
           <p
             v-if="errors.form"
-            class="text-red-500 text-sm italic mb-6 capitalize bg-red-50 p-2 rounded-md border border-red-200 text-center">
+            class="text-error text-sm italic mb-6 capitalize bg-error-container p-2 rounded-md border border-error text-center">
             {{ errors.form }}
           </p>
           <div class="flex flex-col gap-6 mb-12">
@@ -26,13 +26,11 @@
                 v-model="username"
                 label="Username"
                 :inputClass="{
-                  '!border-red-500 !bg-red-50': !!errors.username,
+                  '!border-error !bg-error-container': !!errors.username,
                 }"
                 type="string"
                 aria-required="true" />
-              <p
-                v-if="errors.username"
-                class="text-red-500 text-sm italic mt-2">
+              <p v-if="errors.username" class="text-error text-sm italic mt-2">
                 {{ errors.username }}
               </p>
             </div>
@@ -42,7 +40,7 @@
                 v-model="password"
                 label="Password"
                 :inputClass="{
-                  '!border-red-500 !bg-red-50': !!errors.password,
+                  '!border-error !bg-error-container': !!errors.password,
                 }"
                 :type="showPassword ? 'text' : 'password'"
                 aria-required="true">
@@ -55,9 +53,7 @@
                   </button>
                 </template>
               </InputGroup>
-              <p
-                v-if="errors.password"
-                class="text-red-600 text-sm italic mt-2">
+              <p v-if="errors.password" class="text-error text-sm italic mt-2">
                 {{ errors.password }}
               </p>
             </div>
@@ -67,10 +63,6 @@
             variant="primary"
             type="submit"
             class="w-full"
-            :class="{
-              'cursor-not-allowed opacity-50 !border-neutral-300':
-                !username || !password,
-            }"
             :disabled="!username || !password">
             Login
             <SpinnerIcon v-if="isLoggingIn" class="animate-spin ml-2 h-4 w-4" />

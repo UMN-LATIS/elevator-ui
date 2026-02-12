@@ -1,45 +1,44 @@
 <template>
   <nav class="toc-container">
     <h2
-      class="text-xs tracking-wide font-medium text-neutral-700 uppercase mb-2">
+      class="text-xs tracking-wide font-medium text-on-surface uppercase mb-2">
       {{ title }}
     </h2>
     <ol class="text-sm">
       <li v-for="item in tocItems" :key="item.id">
         <a
           :href="`#${item.id}`"
-          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 pl-3"
+          class="flex items-center justify-between transition-colors duration-200 no-underline hover:no-underline py-1 pl-3 border-0 border-l-2"
           :class="{
-            'text-blue-700 font-medium border-blue-700 bg-white/50 hover:bg-white/75 rounded-sm':
-              activeId === item.id,
-            'text-black/50 hover:bg-transparent': activeId !== item.id,
+            'font-medium border-outline': activeId === item.id,
+            'text-on-surface-variant border-transparent': activeId !== item.id,
           }"
           @click.prevent="scrollToSection(item.id)">
           <div
             :class="{
-              'text-red-700':
+              'text-error':
                 (item.isRequired && !item.hasContent) ||
                 (item.hasContent && !item.isValid),
             }">
             {{ item.label }}
-            <span v-if="item.isRequired" class="text-red-500">*</span>
+            <span v-if="item.isRequired" class="text-error">*</span>
           </div>
           <div>
             <Tooltip v-if="item.hasContent && item.isValid" tip="has content">
-              <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
+              <CircleFilledCheckIcon class="w-4 h-4 text-success" />
             </Tooltip>
             <Tooltip
               v-else-if="!item.hasContent && item.isRequired"
               tip="Required content missing">
-              <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+              <TriangleAlertIcon class="w-4 h-4 text-error" />
             </Tooltip>
             <Tooltip
               v-else-if="item.hasContent && !item.isRequired && !item.isValid"
               tip="content invalid">
-              <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+              <TriangleAlertIcon class="w-4 h-4 text-error" />
             </Tooltip>
             <Tooltip v-else tip="empty">
-              <CircleIcon class="size-4 text-neutral-300" />
+              <CircleIcon class="size-4 text-outline" />
             </Tooltip>
           </div>
         </a>

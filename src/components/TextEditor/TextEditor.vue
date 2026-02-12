@@ -4,7 +4,7 @@
       ref="editor"
       :modelValue="modelValue"
       :options="options"
-      class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-blue-600"
+      class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-primary"
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
   </div>
@@ -107,6 +107,11 @@ onMounted(() => {
 </script>
 <style scoped></style>
 <style type="postcss">
+/* QuillJS Placeholder style */
+.ql-editor.ql-blank::before {
+  @apply text-on-surface-variant opacity-40;
+}
+
 .ql-toolbar.ql-snow {
   border: none;
 }
@@ -115,15 +120,15 @@ onMounted(() => {
 }
 
 .ql-toolbar.ql-snow button {
-  @apply text-neutral-900 opacity-50;
+  @apply text-on-surface opacity-50;
 }
 
 .ql-toolbar.ql-snow :is(button:hover, button:focus) {
-  @apply text-neutral-900 opacity-100 bg-neutral-900/5 rounded;
+  @apply text-on-surface opacity-100 bg-surface-container rounded;
 }
 
 .ql-toolbar.ql-snow :is(button.ql-active) {
-  @apply text-neutral-50 opacity-100 bg-neutral-900 rounded;
+  @apply text-secondary-container opacity-100 bg-on-secondary-container rounded;
 }
 
 .ql-toolbar.ql-snow :is(.ql-stroke, button:hover .ql-stroke) {
@@ -200,7 +205,7 @@ onMounted(() => {
     gap: 0.5rem;
 
     & button {
-      border: var(--app-button-borderWidth) solid var(--app-button-borderColor);
+      border: 1px solid var(--outline);
       margin: 0;
       padding: 0.5rem 1rem;
       border-radius: 0.375rem; /* rounded-md */
@@ -209,25 +214,25 @@ onMounted(() => {
   }
 
   & .ql-html-buttonCancel {
-    background-color: var(--app-button-secondary-backgroundColor);
-    border-color: var(--app-button-secondary-borderColor);
-    color: var(--app-button-secondary-textColor);
+    background-color: var(--surface-container);
+    border-color: var(--outline);
+    color: var(--on-surface);
 
     &:hover {
-      background-color: var(--app-button-secondary-hover-backgroundColor);
-      border-color: var(--app-button-secondary-hover-borderColor);
-      color: var(--app-button-secondary-hover-textColor);
+      background-color: var(--surface-container-high);
+      border-color: var(--outline);
+      color: var(--on-surface);
     }
   }
   & .ql-html-buttonOk {
-    background-color: var(--app-button-primary-backgroundColor);
-    border-color: var(--app-button-primary-borderColor);
-    color: var(--app-button-primary-textColor);
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--on-primary);
 
     &:hover {
-      background-color: var(--app-button-primary-hover-backgroundColor);
-      border-color: var(--app-button-primary-hover-borderColor);
-      color: var(--app-button-primary-hover-textColor);
+      background-color: color-mix(in oklch, var(--primary) 90%, transparent);
+      border-color: var(--primary);
+      color: var(--on-primary);
     }
   }
 }

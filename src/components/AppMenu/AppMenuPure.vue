@@ -16,7 +16,7 @@
       </div>
     </header>
     <div
-      class="app-menu__items flex-1 py-4 border-y border-neutral-600 overflow-auto">
+      class="app-menu__items flex-1 py-4 border-y border-outline overflow-auto">
       <slot />
     </div>
     <footer class="app-menu__footer pt-4 flex flex-col items-center text-sm">
@@ -51,11 +51,11 @@ defineEmits<{
 </script>
 <style scoped>
 .app-menu {
-  background: var(--app-appMenu-backgroundColor);
-  color: var(--app-appMenu-textColor);
+  background: var(--surface-container);
+  color: var(--on-surface);
 }
 .app-menu__header a {
-  color: var(--app-headingColor);
+  color: var(--on-surface);
 }
 
 @media (max-height: 640px) {

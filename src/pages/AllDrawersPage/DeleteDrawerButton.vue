@@ -1,6 +1,6 @@
 <template>
   <button
-    class="all-drawers-page__delete-drawer-button px-2 py-4 inline-flex items-center justify-center text-transparent-black-400 hover:text-neutral-900"
+    class="all-drawers-page__delete-drawer-button px-2 py-4 inline-flex items-center justify-center"
     type="button"
     v-bind="$attrs"
     @click="isConfirmOpen = true">

@@ -1,6 +1,19 @@
 <template>
   <div
-    class="notification rounded-md max-w-lg w-full mx-auto overflow-hidden relative">
+    :class="[
+      'notification max-w-lg w-full mx-auto overflow-hidden relative shadow',
+      {
+        'notification--info bg-info-container text-on-info-container':
+          type === 'info',
+        'notification--warning bg-warning-container text-on-warning-container':
+          type === 'warning',
+        'notification--error bg-error-container text-on-error-container':
+          type === 'danger',
+        'notification--success bg-success-container text-on-success-container':
+          type === 'success',
+      },
+      $attrs.class,
+    ]">
     <button
       v-if="isDismissable"
       class="absolute top-0 right-0 p-4"
@@ -9,12 +22,12 @@
       <XIcon />
     </button>
     <div
-      class="flex gap-4 p-4 border-l-8 items-start"
+      class="flex gap-4 p-4 border border-l-8 items-start rounded-md"
       :class="{
-        'notification--info border-l-blue-600': type === 'info',
-        'notification--warning border-l-yellow-300': type === 'warning',
-        'notification--error border-l-red-600': type === 'danger',
-        'notification--success border-l-green-400': type === 'success',
+        'border-info': type === 'info',
+        'border-warning': type === 'warning',
+        'border-error': type === 'danger',
+        'border-success': type === 'success',
       }">
       <div class="notification__icon rounded-full p-2 -mt-1">
         <WarningIcon v-if="type === 'warning'" />
@@ -23,7 +36,8 @@
         <CircleXIcon v-if="type === 'danger'" />
       </div>
       <div class="flex-1">
-        <h3 class="notification__title text-sm font-bold uppercase pr-6">
+        <h3
+          class="notification__title text-sm font-bold uppercase pr-6 text-inherit">
           {{ title }}
         </h3>
         <div class="notification__contents mt-2 text-sm">
@@ -54,31 +68,4 @@ defineEmits<{
   (eventName: "dismiss"): void;
 }>();
 </script>
-<style scoped>
-.notification {
-  background: var(--app-notification-backgroundColor);
-  color: var(--app-notification-textColor);
-  border-color: var(--app-notification-borderColor);
-}
-
-.notification__title {
-  background: var(--app-notification-header-backgroundColor);
-  color: var(--app-notification-header-textColor);
-}
-.notification__icon {
-  background: var(--app-notification-icon-info-backgroundColor);
-  color: var(--app-notification-icon-info-textColor);
-}
-.notification--warning .notification__icon {
-  background: var(--app-notification-icon-warning-backgroundColor);
-  color: var(--app-notification-icon-warning-textColor);
-}
-.notification--error .notification__icon {
-  background: var(--app-notification-icon-error-backgroundColor);
-  color: var(--app-notification-icon-error-textColor);
-}
-.notification--success .notification__icon {
-  background: var(--app-notification-icon-success-backgroundColor);
-  color: var(--app-notification-icon-success-textColor);
-}
-</style>
+<style scoped></style>

@@ -23,7 +23,7 @@
             :class="{
               'mx-auto': !featuredAssetId,
             }" />
-          <section v-else class="bg-white p-8 my-8 shadow-sm">
+          <section v-else class="p-8 my-8 shadow-sm">
             <h1 class="text-4xl text-center font-bold">
               {{ instanceStore.instance?.name ?? "Elevator" }}
             </h1>
@@ -168,20 +168,9 @@ onUnmounted(() => {
 });
 </script>
 <style scoped>
-.home-page-content {
-  --bg-color: var(--app-backgroundColor);
-  --text-color: var(--app-textColor);
-  --border-color: var(--app-borderColor);
-  --border-width: var(--app-borderWidth);
-}
-
 .featured-asset-block,
 .page-content-block {
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
-.featured-asset-block {
-  border-left: var(--border-width) solid var(--border-color);
+  background: var(--surface);
+  color: var(--on-surface);
 }
 </style>

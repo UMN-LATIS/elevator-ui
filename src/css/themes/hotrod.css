@@ -1,0 +1,101 @@
+/**
+ * HOTROD THEME
+ *
+ * Classic American hot rod energy — glossy black paint, chrome accents,
+ * and flame-job orange/red. Muscle car meets UI. V8-powered.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;500;600;700&display=swap");
+
+[data-theme="hotrod"] {
+  /* Surface — glossy black paint */
+  --surface: oklch(12% 0.01 30);
+  --surface-dim: oklch(8% 0.01 30);
+  --surface-bright: oklch(22% 0.02 30);
+  --surface-container-lowest: oklch(10% 0.01 30);
+  --surface-container-low: oklch(15% 0.01 30);
+  --surface-container: oklch(18% 0.02 30);
+  --surface-container-high: oklch(22% 0.02 30);
+  --surface-container-highest: oklch(28% 0.02 30);
+
+  /* On-surface — chrome silver */
+  --on-surface: oklch(88% 0.01 80);
+  --on-surface-variant: oklch(65% 0.02 60);
+
+  /* Primary — flame orange */
+  --primary: oklch(72% 0.2 50);
+  --on-primary: oklch(10% 0.02 50);
+  --primary-container: oklch(30% 0.1 50);
+  --on-primary-container: oklch(90% 0.1 50);
+
+  /* Secondary — deep cherry red */
+  --secondary: oklch(52% 0.22 25);
+  --on-secondary: oklch(95% 0.02 50);
+  --secondary-container: oklch(25% 0.1 25);
+  --on-secondary-container: oklch(85% 0.1 25);
+
+  /* Tertiary — chrome / cool steel accent */
+  --tertiary: oklch(70% 0.02 250);
+  --on-tertiary: oklch(12% 0.01 250);
+  --tertiary-container: oklch(28% 0.02 250);
+  --on-tertiary-container: oklch(82% 0.02 250);
+
+  /* Semantic states */
+  --error: oklch(62% 0.22 20);
+  --on-error: oklch(10% 0 0);
+  --error-container: oklch(22% 0.1 20);
+  --on-error-container: oklch(85% 0.08 20);
+
+  --success: oklch(68% 0.14 145);
+  --on-success: oklch(10% 0 0);
+  --success-container: oklch(22% 0.06 145);
+  --on-success-container: oklch(85% 0.06 145);
+
+  --warning: oklch(82% 0.16 90);
+  --on-warning: oklch(15% 0.04 90);
+  --warning-container: oklch(28% 0.08 90);
+  --on-warning-container: oklch(88% 0.08 90);
+
+  --info: oklch(65% 0.08 240);
+  --on-info: oklch(10% 0 0);
+  --info-container: oklch(22% 0.04 240);
+  --on-info-container: oklch(82% 0.05 240);
+
+  /* Outline — warm metallic */
+  --outline: oklch(45% 0.04 50);
+  --outline-variant: oklch(25% 0.03 50);
+
+  /* Inverse */
+  --inverse-surface: oklch(90% 0.02 60);
+  --inverse-on-surface: oklch(15% 0.01 30);
+  --inverse-primary: oklch(52% 0.18 50);
+
+  --scrim: oklch(0% 0 0 / 0.8);
+  --shadow: oklch(0% 0 0 / 0.7);
+
+  /* Typography — bold blocky display, mechanical body */
+  --font-display: "Russo One", sans-serif;
+  --font-body: "Chakra Petch", sans-serif;
+
+  .app-header {
+    background: linear-gradient(135deg, oklch(10% 0.01 30), oklch(18% 0.06 35));
+    color: oklch(72% 0.2 50);
+    border-bottom: 3px solid oklch(52% 0.22 25);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(10% 0.01 30);
+  }
+
+  & body {
+    font-family: "Chakra Petch", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Russo One", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}

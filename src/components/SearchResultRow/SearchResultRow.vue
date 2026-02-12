@@ -1,7 +1,7 @@
 <template>
   <Link
     :to="getAssetUrl(searchMatch.objectId)"
-    class="search-result-row group hover:no-underline relative text-inherit group focus:outline-blue-600 focus:outline-offset-2 focus-within:outline-solid search-result-row flex bg-white p-2 sm:p-4 gap-4 group-hover:bg-blue-50 transition-all rounded-md border-2 border-transparent hover:border-blue-600 group-focus:bg-blue-50 group-focus:border-blue-600 items-center">
+    class="search-result-row group hover:no-underline relative group focus:outline-primary focus:outline-offset-2 focus-within:outline-solid search-result-row flex bg-surface-container-lowest text-on-surface p-2 sm:p-4 gap-4 group-hover:bg-primary-container transition-all rounded-md border-2 border-transparent hover:border-primary group-focus:bg-primary-container group-focus:border-primary items-center">
     <LazyLoadImage
       v-if="imgSrc"
       :src="imgSrc"
@@ -10,7 +10,7 @@
     <div v-else class="h-8 w-8 sm:h-16 sm:w-16" />
     <div class="flex-1">
       <h1
-        class="font-bold text-md sm:text-lg leading-tight sm:mb-2 group-hover:text-blue-700 group-focus:text-blue-700">
+        class="font-bold text-md sm:text-lg leading-tight sm:mb-2 group-hover:text-primary group-focus:text-primary">
         {{ title }}
       </h1>
 
@@ -20,7 +20,7 @@
         <div
           v-for="(entry, index) in props.searchMatch.entries"
           :key="index"
-          class="inline-flex items-baseline gap-x-2 flex-wrap text-neutral-400 group-hover:text-blue-700 group-focus:text-blue-700">
+          class="inline-flex items-baseline gap-x-2 flex-wrap text-on-surface-variant group-hover:text-primary group-focus:text-primary">
           <dt class="text-xs uppercase">
             {{ entry?.label || "Item" }}
           </dt>
@@ -31,9 +31,9 @@
       </dl>
     </div>
     <div
-      class="not-sr-only hidden sm:inline-flex self-center rounded-full w-10 h-10 items-center justify-center group-hover:bg-blue-700 transition-all">
+      class="not-sr-only hidden sm:inline-flex self-center rounded-full w-10 h-10 items-center justify-center group-hover:bg-primary transition-all">
       <ArrowForwardIcon
-        class="text-neutral-900 group-hover:text-white transition-all" />
+        class="text-on-surface group-hover:text-on-primary transition-all" />
     </div>
   </Link>
 </template>

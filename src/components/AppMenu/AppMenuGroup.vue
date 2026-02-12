@@ -24,17 +24,17 @@ defineProps<{
 </script>
 <style scoped>
 .app-menu-group {
-  color: var(--app-appMenuItem-textColor);
+  color: var(--on-surface);
 
   & .disclosure-button {
     &:hover,
-    &:focus,
-    &:focus-within {
-      background: var(
-        --app-appMenuItem-hover-backgroundColor,
-        var(--color-blue-50)
-      );
-      color: var(--app-appMenuItem-hover-textColor, var(--color-blue-600));
+    &:focus {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    &:focus-within:not(:hover) {
+      color: var(--primary);
+      background: none;
     }
   }
 }

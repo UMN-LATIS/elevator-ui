@@ -93,23 +93,22 @@ const numRows = computed(() => {
 }
 
 .drawer-list-item {
-  background: var(--app-mediaCard-backgroundColor);
-  color: var(--app-mediaCard-textColor);
-  border: var(--app-mediaCard-borderWidth) solid
-    var(--app-mediaCard-borderColor);
+  background: var(--surface-container);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-textColor);
+    color: var(--on-surface);
   }
 }
 
 .drawer-list-item:hover {
-  background: var(--app-mediaCard-hover-backgroundColor, var(--color-blue-50));
-  color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
-  border-color: var(--app-mediaCard-hover-borderColor, var(--color-blue-600));
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border-color: var(--primary);
 
   & :is(h1, h2, h3, h4, h5, a) {
-    color: var(--app-mediaCard-hover-textColor, var(--color-blue-600));
+    color: var(--on-primary-container);
   }
 }
 </style>

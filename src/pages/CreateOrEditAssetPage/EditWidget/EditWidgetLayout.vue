@@ -1,7 +1,7 @@
 <template>
   <section
     :id="widgetInstanceId"
-    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-neutral-300 pt-3 pb-1"
+    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-outline-variant pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
       'cursor-pointer': !isOpen,
@@ -12,7 +12,7 @@
         {{ widgetDef.label }}
       </h2>
       <div
-        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs items-center bg-white/10 backdrop-blur-md"
+        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs items-center backdrop-blur-md"
         :class="{
           'sticky top-[4rem] z-10': isOpen,
         }">
@@ -20,7 +20,7 @@
           type="button"
           class="flex justify-start gap-2 text-base font-bold leading-none text-left"
           :class="{
-            'text-red-700':
+            'text-error':
               (widgetDef.required && !hasContents) ||
               (hasContents && !isWidgetValid),
           }"
@@ -30,22 +30,22 @@
           <ChevronDownIcon v-if="isOpen" class="!size-4" />
           <ChevronRightIcon v-else class="!size-4" />
           {{ widgetDef.label }}
-          <span v-if="widgetDef.required" class="text-red-500">*</span>
+          <span v-if="widgetDef.required" class="text-error">*</span>
         </button>
         <div class="flex items-center gap-2">
           <slot name="moreWidgetActions"></slot>
           <Tooltip v-if="hasContents && isWidgetValid" tip="Content added">
-            <CircleFilledCheckIcon class="w-4 h-4 text-green-600" />
+            <CircleFilledCheckIcon class="w-4 h-4 text-success" />
           </Tooltip>
           <Tooltip
             v-else-if="widgetDef.required && !hasContents"
             tip="Required content missing">
-            <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+            <TriangleAlertIcon class="w-4 h-4 text-error" />
           </Tooltip>
           <Tooltip
             v-else-if="hasContents && !isWidgetValid"
             tip="Invalid content">
-            <TriangleAlertIcon class="w-4 h-4 text-red-500" />
+            <TriangleAlertIcon class="w-4 h-4 text-error" />
           </Tooltip>
         </div>
       </div>
@@ -55,8 +55,8 @@
         :class="[
           (widgetDef.required && !hasContents) ||
           (hasContents && !isWidgetValid)
-            ? 'text-red-700/75'
-            : 'text-neutral-500',
+            ? 'text-error'
+            : 'text-on-surface-variant',
         ]">
         {{ widgetDef.tooltip }}
       </small>
@@ -69,9 +69,9 @@
       }">
       <ErrorBoundary>
         <template #fallback>
-          <div class="p-4 bg-red-100 border border-red-500 rounded-md">
-            <h3 class="text-sm text-red-700 font-bold mb-2">Widget Error</h3>
-            <p class="text-sm text-red-700/90">
+          <div class="p-4 bg-error-container border border-error rounded-md">
+            <h3 class="text-sm text-error font-bold mb-2">Widget Error</h3>
+            <p class="text-sm text-error/90">
               An error occurred while rendering this widget. It's possible that
               the
               <Link
@@ -92,12 +92,11 @@
               for assistance.
             </p>
             <details>
-              <summary
-                class="mt-2 text-sm text-red-700 underline cursor-pointer">
+              <summary class="mt-2 text-sm text-error underline cursor-pointer">
                 View Widget Definition
               </summary>
               <code
-                class="bg-red-50 rounded border-white p-2 mt-2 block w-full overflow-x-auto">
+                class="bg-error-container rounded border-white p-2 mt-2 block w-full overflow-x-auto">
                 <pre>{{ JSON.stringify(widgetDef, null, 2) }}</pre>
               </code>
             </details>
@@ -110,7 +109,7 @@
               :listId="widgetDef.widgetId"
               :showEmptyList="false"
               :handleClass="['flex flex-col items-start px-1']"
-              listItemClass="bg-black/5 rounded-md mb-1 pr-1"
+              listItemClass="bg-surface-container-lowest rounded-md mb-1 pr-1"
               @update:modelValue="
                 (widgetContents) => {
                   $emit('update:widgetContents', widgetContents);
@@ -123,7 +122,7 @@
                     <Tooltip tip="Set as Primary">
                       <button
                         type="button"
-                        class="flex items-center justify-center p-1 rounded-sm hover:bg-neutral-100"
+                        class="flex items-center justify-center p-1 rounded-sm hover:bg-surface-container-lowest"
                         :class="{
                           // hide the button if there is only one item
                           // using invisible instead of hidden to keep the layout
@@ -135,8 +134,8 @@
                           class="w-4 h-4"
                           :class="[
                             item.isPrimary
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-neutral-400',
+                              ? 'fill-tertiary text-tertiary'
+                              : 'text-on-surface-variant',
                           ]" />
                         <span class="sr-only">Set as Primary</span>
                       </button>
@@ -163,7 +162,7 @@
                         widgetDef.type === Types.WIDGET_TYPES.UPLOAD
                       "
                       :class="[
-                        'text-neutral-400 hover:text-red-600 p-2 rounded-sm -mt-2 -mr-1',
+                        'text-on-surface-variant hover:text-error p-2 rounded-sm -mt-2 -mr-1',
                         {
                           'sr-only': !isOpen,
                         },

@@ -23,9 +23,9 @@
           <label class="sr-only">Add to Drawer</label>
           <select
             v-model="selectedDrawer"
-            class="border border-neutral-200 rounded w-full text-sm"
+            class="border border-outline rounded w-full text-sm"
             :class="{
-              'text-neutral-400': !selectedDrawer,
+              'text-on-surface-variant': !selectedDrawer,
             }">
             <option disabled value="">-- Select a Drawer --</option>
             <option
@@ -42,8 +42,11 @@
       </form>
 
       <p
-        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-transparent-black-100 relative leading-none text-center">
-        <span class="bg-neutral-50 relative z-10 px-2">or</span>
+        class="my-4 before:absolute before:top-1/2 before:-translate-y-1/2 before:block before:h-[1px] before:w-full before:left-0 before:bg-outline-variant relative leading-none text-center">
+        <span
+          class="text-on-surface-variant bg- bg-surface-container-low relative z-10 px-2">
+          or
+        </span>
       </p>
 
       <form
@@ -51,8 +54,8 @@
         @submit.prevent="handleCreateNewDrawerThenAdd">
         <DrawerTitleInput
           v-model="newDrawerName"
-          class="flex-1 border border-neutral-200 rounded"
-          inputClass="bg-white placeholder-neutral-400"
+          class="flex-1 border border-outline rounded"
+          inputClass="bg-surface placeholder-on-surface-variant"
           :labelHidden="true" />
 
         <Button type="submit" class="text-sm" :disabled="!isDrawerNameValid">

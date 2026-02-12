@@ -9,9 +9,12 @@
         class="text-sm"
         :class="{
           'font-bold': key === activeMapStyleKey,
-          'text-neutral-400': key !== activeMapStyleKey,
+          'text-on-surface-variant': key !== activeMapStyleKey,
         }"
-        @click="activeMapStyleKey = key">
+        @click="
+          activeMapStyleKey = key;
+          isUserSelectedStyle = true;
+        ">
         {{ style.label }}
       </button>
     </div>
@@ -47,6 +50,7 @@ import {
   type Ref,
   useTemplateRef,
   nextTick,
+  computed,
 } from "vue";
 import { useResizeObserver, useDebounceFn } from "@vueuse/core";
 import { memoizeWith } from "ramda";
@@ -65,6 +69,7 @@ import { LngLat, BoundingBox, MapContext, AddMarkerArgs } from "@/types";
 import { MapInjectionKey } from "@/constants/mapConstants";
 import Skeleton from "../Skeleton/Skeleton.vue";
 import { Point } from "geojson";
+import { useTheming } from "@/helpers/useTheming";
 
 const props = withDefaults(
   defineProps<{
@@ -79,11 +84,11 @@ const props = withDefaults(
     mapOptions?: Partial<MapLibreMapOptions>;
   }>(),
   {
-    mapStyle: "light",
     labelsClass: "",
     bounds: undefined,
     mapContainerClass: "",
     fullscreenControl: true,
+    mapStyle: "streets",
     mapOptions: () => ({}),
   }
 );
@@ -123,7 +128,27 @@ const mapStyles = {
   },
 };
 
-const activeMapStyleKey = ref<keyof typeof mapStyles>(props.mapStyle);
+const { activeTheme } = useTheming();
+
+// Determine default map style based on theme
+const defaultMapStyle = computed<keyof typeof mapStyles>(() => {
+  // If theme name contains "dark", use dark map style
+  return activeTheme.value.includes("dark") ? "dark" : "light";
+});
+
+// Track whether user has manually selected a style
+const isUserSelectedStyle = ref(false);
+
+const activeMapStyleKey = ref<keyof typeof mapStyles>(
+  props.mapStyle ?? defaultMapStyle.value
+);
+
+// Watch for theme changes and update map style if user hasn't manually selected one
+watch(defaultMapStyle, (newDefaultStyle) => {
+  if (!isUserSelectedStyle.value && !props.mapStyle) {
+    activeMapStyleKey.value = newDefaultStyle;
+  }
+});
 
 // map source and layer ids as constants (to help catch typos)
 const MARKERS_SOURCE_ID = "markers";
@@ -885,6 +910,8 @@ provide<MapContext>(MapInjectionKey, {
   width: 100%;
   height: 100%;
   min-height: 25rem;
-  background: #ddd;
+  background: var(--surface-container);
 }
 </style>
+
+<style></style>

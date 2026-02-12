@@ -49,7 +49,7 @@
       @swiper="setThumbsSwiper">
       <SwiperSlide v-for="(slide, i) in slides" :key="i">
         <div
-          class="border border-neutral-400 aspect-video flex items-center justify-center w-full">
+          class="border border-outline-variant aspect-video flex items-center justify-center w-full">
           <LazyLoadImage
             v-if="slide.thumb.src"
             :src="slide.thumb.src"

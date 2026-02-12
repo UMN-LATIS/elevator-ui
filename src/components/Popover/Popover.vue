@@ -28,12 +28,9 @@ withDefaults(
 </script>
 <style>
 :root {
-  --popper-theme-background-color: var(--app-background-color, #111);
-  --popper-theme-background-color-hover: var(
-    --app-background-color-hover,
-    #111
-  );
-  --popper-theme-text-color: var(--app-text-color, #ccc);
+  --popper-theme-background-color: var(--inverse-surface);
+  --popper-theme-background-color-hover: var(--inverse-surface);
+  --popper-theme-text-color: var(--inverse-on-surface);
   --popper-theme-border-width: 0px;
   --popper-theme-border-style: solid;
   --popper-theme-border-radius: 0.25rem;

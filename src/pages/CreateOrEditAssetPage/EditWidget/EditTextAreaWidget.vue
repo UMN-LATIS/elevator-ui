@@ -39,7 +39,7 @@
           :id="`${item.id}-input`"
           :modelValue="(item as Type.WithId<Type.TextAreaWidgetContent>).fieldContents ?? ''"
           :placeholder="widgetDef.label"
-          class="bg-black/5 border-none rounded-lg"
+          class="bg-surface-container border border-outline-variant rounded-lg"
           :contentEditableAttrs="{
             role: 'textbox',
             'aria-multiline': 'true',

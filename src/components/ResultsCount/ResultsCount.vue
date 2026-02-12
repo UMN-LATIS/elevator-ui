@@ -1,7 +1,7 @@
 <template>
   <div class="results-count">
     <div v-if="total > 0" class="flex gap-2 items-baseline">
-      <p class="text-sm text-neutral-500">
+      <p class="text-sm text-on-surface-variant">
         <b>{{ showingCount }}</b>
         of
         <b>{{ total }}</b>
@@ -20,12 +20,12 @@
         </slot>
         <SpinnerIcon
           v-show="fetchStatus === 'fetching'"
-          class="w-3 h-3 text-blue-600 ml-1" />
+          class="w-3 h-3 text-primary ml-1" />
       </Button>
     </div>
     <p
       v-if="fetchStatus !== 'fetching' && total === 0"
-      class="text-sm text-neutral-500">
+      class="text-sm text-on-surface-variant">
       No results found.
     </p>
   </div>

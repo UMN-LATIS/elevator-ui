@@ -10,18 +10,18 @@
       </Button>
     </header>
 
-    <p class="text-neutral-400 text-xs mb-2 italic">
+    <p class="text-on-surface-variant text-xs mb-2 italic">
       To limit your search to specific collections, choose "Add Collection"
       below.
     </p>
 
     <ul
       v-if="selectedCollections.length"
-      class="flex flex-wrap gap-2 bg-transparent-black-50 p-4 mb-4 rounded-md">
+      class="flex flex-wrap gap-2 bg-outline-variant/20 p-4 mb-4 rounded-md">
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
-        class="text-xs bg-white rounded-md border border-neutral-800 inline-flex items-center text-neutral-900 px-2 py-1">
+        class="text-xs bg-surface rounded-md border border-outline inline-flex items-center text-on-surface px-2 py-1\">
         {{ collection.title }}
 
         <button

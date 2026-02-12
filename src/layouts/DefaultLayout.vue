@@ -1,5 +1,7 @@
 <template>
-  <div id="top" class="default-layout min-h-screen pt-18 flex flex-col">
+  <div
+    id="top"
+    class="default-layout bg-surface min-h-screen pt-18 flex flex-col">
     <SkipNavLink href="#main" />
     <slot name="custom-header" />
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
@@ -12,7 +14,7 @@
 
       <!-- Not Authorized -->
       <div v-else-if="!canAccess" class="p-8">
-        <h1 class="text-8xl font-bold text-neutral-300">403</h1>
+        <h1 class="text-8xl font-bold text-on-surface-variant">403</h1>
         <h2 class="text-4xl mb-8">Forbidden</h2>
         <p class="my-4">You do not have permission to view this page.</p>
         <Button :to="{ name: 'home' }" icon="home" iconPosition="start">
@@ -32,7 +34,7 @@
       <a
         v-show="showScrollToTop"
         href="#top"
-        class="fixed bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-blue-100 z-20">
+        class="fixed bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary-container z-20">
         <ChevronUpIcon />
         <span class="sr-only">Top</span>
       </a>

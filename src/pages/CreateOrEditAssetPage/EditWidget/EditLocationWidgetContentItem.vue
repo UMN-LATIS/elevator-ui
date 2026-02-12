@@ -2,7 +2,7 @@
   <div class="location-picker rounded-md flex flex-col gap-2">
     <div class="map-container relative">
       <div
-        class="flex gap-4 sm:justify-end items-center flex-wrap absolute top-2 right-2 z-10 bg-white/80 rounded-md px-2 py-1 shadow-sm">
+        class="flex gap-4 sm:justify-end items-center flex-wrap absolute top-2 right-2 z-10 bg-surface-container-high rounded-md px-3 py-1.5 shadow-md border border-outline-variant">
         <button
           v-for="(style, key) in mapStyles"
           :key="key"
@@ -10,7 +10,7 @@
           type="button"
           :class="{
             'font-bold': key === state.activeMapStyleKey,
-            'text-neutral-500': key !== state.activeMapStyleKey,
+            'text-on-surface-variant': key !== state.activeMapStyleKey,
           }"
           @click="handleActiveStyleChange(key)">
           {{ style.label }}
@@ -48,7 +48,7 @@
     <div>
       <label
         :for="`${id}-address`"
-        class="text-xs font-medium text-gray-700 uppercase">
+        class="text-xs font-medium text-on-surface-variant uppercase">
         Address Search
       </label>
       <ArcGisGeocoder
@@ -91,6 +91,7 @@ import invariant from "tiny-invariant";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
 import { LocationWidgetContent, WithId, LngLat, Coordinates } from "@/types";
+import { useTheming } from "@/helpers/useTheming";
 
 const props = withDefaults(
   defineProps<{
@@ -103,6 +104,11 @@ const props = withDefaults(
 );
 
 const id = computed(() => props.modelValue.id || useId());
+
+const { activeTheme } = useTheming();
+
+const getDefaultMapStyle = (): keyof typeof mapStyles =>
+  activeTheme.value.includes("dark") ? "dark" : "light";
 
 const roundFloat = (value: number, decimalPlaces: number): number =>
   Number(value.toFixed(decimalPlaces));
@@ -137,7 +143,7 @@ const state = reactive({
   lngInput: props.modelValue.loc?.coordinates?.[0].toString() ?? "", // local state for text input
   latInput: props.modelValue.loc?.coordinates?.[1].toString() ?? "",
   locationLabel: props.modelValue.locationLabel,
-  activeMapStyleKey: "light" as keyof typeof mapStyles,
+  activeMapStyleKey: getDefaultMapStyle(),
 });
 
 const map = shallowRef<maplibregl.Map | null>(null);
@@ -256,4 +262,10 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.map-container :deep(.maplibregl-map) {
+  border-radius: 0.25rem;
+}
+</style>
+
+<style></style>

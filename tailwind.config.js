@@ -56,46 +56,89 @@ export default {
             900: "rgba(255, 255, 255, 0.92)",
           },
         },
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+        // Material Design 3 Semantic Tokens
+        // CSS variables now contain complete oklch() values
+        surface: {
+          DEFAULT: "var(--surface)",
+          dim: "var(--surface-dim)",
+          bright: "var(--surface-bright)",
+          container: {
+            lowest: "var(--surface-container-lowest)",
+            low: "var(--surface-container-low)",
+            DEFAULT: "var(--surface-container)",
+            high: "var(--surface-container-high)",
+            highest: "var(--surface-container-highest)",
+          },
         },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+        "on-surface": {
+          DEFAULT: "var(--on-surface)",
+          variant: "var(--on-surface-variant)",
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "var(--primary)",
+          container: "var(--primary-container)",
+        },
+        "on-primary": {
+          DEFAULT: "var(--on-primary)",
+          container: "var(--on-primary-container)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "var(--secondary)",
+          container: "var(--secondary-container)",
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+        "on-secondary": {
+          DEFAULT: "var(--on-secondary)",
+          container: "var(--on-secondary-container)",
         },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+        tertiary: {
+          DEFAULT: "var(--tertiary)",
+          container: "var(--tertiary-container)",
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+        "on-tertiary": {
+          DEFAULT: "var(--on-tertiary)",
+          container: "var(--on-tertiary-container)",
         },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        chart: {
-          1: "hsl(var(--chart-1))",
-          2: "hsl(var(--chart-2))",
-          3: "hsl(var(--chart-3))",
-          4: "hsl(var(--chart-4))",
-          5: "hsl(var(--chart-5))",
+        error: {
+          DEFAULT: "var(--error)",
+          container: "var(--error-container)",
         },
+        "on-error": {
+          DEFAULT: "var(--on-error)",
+          container: "var(--on-error-container)",
+        },
+        success: {
+          DEFAULT: "var(--success)",
+          container: "var(--success-container)",
+        },
+        "on-success": {
+          DEFAULT: "var(--on-success)",
+          container: "var(--on-success-container)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          container: "var(--warning-container)",
+        },
+        "on-warning": {
+          DEFAULT: "var(--on-warning)",
+          container: "var(--on-warning-container)",
+        },
+        info: {
+          DEFAULT: "var(--info)",
+          container: "var(--info-container)",
+        },
+        "on-info": {
+          DEFAULT: "var(--on-info)",
+          container: "var(--on-info-container)",
+        },
+        outline: {
+          DEFAULT: "var(--outline)",
+          variant: "var(--outline-variant)",
+        },
+        "inverse-surface": "var(--inverse-surface)",
+        "inverse-on-surface": "var(--inverse-on-surface)",
+        "inverse-primary": "var(--inverse-primary)",
+        scrim: "var(--scrim)",
+        shadow: "var(--shadow)",
       },
       borderRadius: {
         lg: "var(--radius)",

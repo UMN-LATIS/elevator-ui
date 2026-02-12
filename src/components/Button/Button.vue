@@ -1,15 +1,21 @@
 <template>
   <component
     :is="componentType"
-    class="button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group cursor-pointer"
-    :class="{
-      'button--primary px-4 py-3': variant === 'primary',
-      'button--secondary px-4 py-3': variant === 'secondary',
-      'button--tertiary text-xs uppercase font-medium p-2':
-        variant === 'tertiary',
-      'button--primary px-4 py-3 !bg-red-700 !border-red-700 text-red-50 hover:!bg-red-600 hover:!border-red-600':
-        variant === 'danger',
-    }"
+    :class="
+      cn([
+        'button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out group cursor-pointer px-4 py-3 disabled:cursor-not-allowed',
+        {
+          'button--primary bg-primary text-on-primary': variant === 'primary',
+          'button--secondary bg-secondary-container text-on-secondary-container':
+            variant === 'secondary',
+          'button--tertiary hover:bg-primary-container text-primary hover:text-on-primary-container text-xs uppercase font-medium p-2':
+            variant === 'tertiary',
+          'button--error bg-error-container text-on-error-container':
+            variant === 'danger',
+        },
+        $attrs.class,
+      ])
+    "
     v-bind="$attrs"
     :to="componentType === RouterLink ? to : undefined"
     :href="resolvedHref"
@@ -20,6 +26,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { RouterLink, type RouteLocationRaw, useRouter } from "vue-router";
+import { cn } from "@/lib/utils";
 
 const props = withDefaults(
   defineProps<{
@@ -54,72 +61,102 @@ const componentType = computed(() => {
 });
 </script>
 <style lang="postcss" scoped>
-.button {
-  border-width: var(--app-button-borderWidth);
-  border-style: solid;
-}
-.button--primary {
-  color: var(--app-button-primary-textColor);
-  background: var(--app-button-primary-backgroundColor);
-  border-color: var(--app-button-primary-borderColor);
-  &:hover {
-    color: var(--app-button-primary-hover-textColor);
-    background: var(--app-button-primary-hover-backgroundColor);
-    border-color: var(--app-button-primary-hover-borderColor);
+.bg-primary {
+  &:hover:not(:disabled) {
+    background: color-mix(in oklch, var(--on-primary) 8%, var(--primary));
   }
-  &:active {
-    color: var(--app-button-primary-active-textColor);
-    background: var(--app-button-primary-active-backgroundColor);
-    border-color: var(--app-button-primary-active-borderColor);
+  &:active:not(:disabled) {
+    background: color-mix(in oklch, var(--on-primary) 12%, var(--primary));
   }
-  &:disabled {
-    color: var(--app-button-primary-disabled-textColor);
-    background: var(--app-button-primary-disabled-backgroundColor);
-    border-color: var(--app-button-primary-disabled-borderColor);
+  &:focus-visible {
+    background: color-mix(in oklch, var(--on-primary) 12%, var(--primary));
   }
 }
-
-.button--secondary {
-  color: var(--app-button-secondary-textColor);
-  background: var(--app-button-secondary-backgroundColor);
-  border-color: var(--app-button-secondary-borderColor);
-  &:hover {
-    color: var(--app-button-secondary-hover-textColor);
-    background: var(--app-button-secondary-hover-backgroundColor);
-    border-color: var(--app-button-secondary-hover-borderColor);
+.bg-secondary-container {
+  &:hover:not(:disabled) {
+    background: color-mix(
+      in oklch,
+      var(--on-secondary-container) 8%,
+      var(--secondary-container)
+    );
   }
-  &:active {
-    color: var(--app-button-secondary-active-textColor);
-    background: var(--app-button-secondary-active-backgroundColor);
-    border-color: var(--app-button-secondary-active-borderColor);
+  &:active:not(:disabled) {
+    background: color-mix(
+      in oklch,
+      var(--on-secondary-container) 12%,
+      var(--secondary-container)
+    );
   }
-  &:disabled {
-    color: var(--app-button-secondary-disabled-textColor);
-    background: var(--app-button-secondary-disabled-backgroundColor);
-    border-color: var(--app-button-secondary-disabled-borderColor);
+  &:focus-visible {
+    background: color-mix(
+      in oklch,
+      var(--on-secondary-container) 12%,
+      var(--secondary-container)
+    );
+  }
+}
+.bg-primary-container {
+  &:hover:not(:disabled) {
+    background: color-mix(
+      in oklch,
+      var(--on-primary-container) 8%,
+      var(--primary-container)
+    );
+  }
+  &:active:not(:disabled) {
+    background: color-mix(
+      in oklch,
+      var(--on-primary-container) 12%,
+      var(--primary-container)
+    );
+  }
+  &:focus-visible {
+    background: color-mix(
+      in oklch,
+      var(--on-primary-container) 12%,
+      var(--primary-container)
+    );
+  }
+}
+.bg-error-container {
+  &:hover:not(:disabled) {
+    background: color-mix(
+      in oklch,
+      var(--on-error-container) 8%,
+      var(--error-container)
+    );
+  }
+  &:active:not(:disabled) {
+    background: color-mix(
+      in oklch,
+      var(--on-error-container) 12%,
+      var(--error-container)
+    );
+  }
+  &:focus-visible {
+    background: color-mix(
+      in oklch,
+      var(--on-error-container) 12%,
+      var(--error-container)
+    );
   }
 }
 
 .button--tertiary {
-  color: var(--app-button-tertiary-textColor);
-  background: var(--app-button-tertiary-backgroundColor);
-  border-color: var(--app-button-tertiary-borderColor);
-  border: none;
-  &:hover {
-    color: var(--app-button-tertiary-hover-textColor);
-    background: var(--app-button-tertiary-hover-backgroundColor);
-    border-color: var(--app-button-tertiary-hover-borderColor);
+  &:hover:not(:disabled) {
+    background: var(--primary-container);
+    color: var(--on-primary-container);
   }
-  &:active {
-    color: var(--app-button-tertiary-active-textColor);
-    background: var(--app-button-tertiary-active-backgroundColor);
-    border-color: var(--app-button-tertiary-active-borderColor);
-  }
-  &:disabled {
-    cursor: not-allowed;
-    color: var(--app-button-tertiary-disabled-textColor);
-    background: var(--app-button-tertiary-disabled-backgroundColor);
-    border-color: var(--app-button-tertiary-disabled-borderColor);
-  }
+}
+
+/* Disabled state - works across all themes using M3 semantic tokens */
+.button:disabled {
+  background: color-mix(in oklch, var(--on-surface) 12%, transparent);
+  color: color-mix(in oklch, var(--on-surface) 38%, transparent);
+}
+
+/* Tertiary variant has different disabled background */
+.button--tertiary:disabled {
+  background: transparent;
 }
 </style>

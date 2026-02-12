@@ -30,7 +30,7 @@
             {{ fileMetaData.height ?? "Unknonwn" }}
           </Tuple>
           <Tuple v-if="fileMetaData.coordinates" label="Location">
-            <div class="bg-neutral-200 p-4 rounded-xl">
+            <div class="bg-surface-container p-4 rounded-xl">
               <Map
                 :center="{
                   lng: fileMetaData.coordinates[0],

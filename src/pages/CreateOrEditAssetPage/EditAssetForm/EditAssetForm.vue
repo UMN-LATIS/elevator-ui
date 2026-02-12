@@ -6,17 +6,24 @@
         :asset="asset"
         :template="template"
         :savedAssetTitle="savedAssetTitle"
-        :localAssetTitle="localAssetTitle"
-        class="mb-4" />
+        :localAssetTitle="localAssetTitle" />
       <div class="flex flex-col">
         <div
-          class="flex items-center justify-start gap-2 border-b border-neutral-300 pb-2">
-          <Button variant="tertiary" @click="handleExpandAll">
-            Expand All
-          </Button>
-          <Button variant="tertiary" @click="handleCollapseAll">
-            Collapse All
-          </Button>
+          class="flex items-center justify-end gap-2 border-b border-outline-variant">
+          <IconButton
+            v-if="openWidgets.size === 0"
+            title="Expand All"
+            variant="tertiary"
+            @click="handleExpandAll">
+            <ChevronsUpDownIcon class="w-4 h-4" />
+          </IconButton>
+          <IconButton
+            v-else
+            title="Collapse All"
+            variant="tertiary"
+            @click="handleCollapseAll">
+            <ChevronsDownUpIcon class="w-4 h-4" />
+          </IconButton>
         </div>
         <EditWidget
           v-for="{ widgetDef, widgetContents } in widgetDefAndContents"
@@ -61,7 +68,6 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from "vue";
 import EditWidget from "../EditWidget/EditWidget.vue";
-import Button from "@/components/Button/Button.vue";
 import AssetSummary from "./AssetSummary.vue";
 import {
   Asset,
@@ -72,6 +78,8 @@ import {
 } from "@/types";
 import { MutationStatus } from "@tanstack/vue-query";
 import EditAssetFormSidebar from "./EditAssetFormSidebar.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
+import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 
 const props = defineProps<{
   template: Template;
@@ -126,12 +134,4 @@ function handleCollapseAll() {
   openWidgets.clear();
 }
 </script>
-<style scoped>
-@media (min-width: 768px) {
-  .sidebar-container {
-    border-left: var(--app-borderWidth) solid var(--app-borderColor);
-    background: var(--app-sidebar-backgroundColor);
-    color: var(--app-sidebar-textColor);
-  }
-}
-</style>
+<style scoped></style>

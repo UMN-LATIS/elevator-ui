@@ -14,7 +14,7 @@
       <Transition name="fade">
         <div
           v-show="isOpen"
-          class="fixed inset-0 transition-opacity z-20 bg-black opacity-50 pointer-events-auto"
+          class="fixed inset-0 transition-opacity z-20 bg-scrim pointer-events-auto"
           @click.self="handleClose" />
       </Transition>
       <Transition name="slide-right">
@@ -54,23 +54,22 @@ onUnmounted(() => document.removeEventListener("keydown", closeIfEsc));
 <style scoped lang="postcss">
 .app-menu-button {
   transition: all 0.1s;
-  color: var(--app-appMenuButton-textColor);
-  background: var(--app-appMenuButton-backgroundColor);
-  border-color: var(--app-appMenuButton-borderColor);
+  color: var(--on-surface);
+  background: var(--surface-container-high);
+
   &:hover {
-    color: var(--app-appMenuButton-hover-textColor);
-    background: var(--app-appMenuButton-hover-backgroundColor);
-    border-color: var(--app-appMenuButton-hover-borderColor);
+    color: var(--surface);
+    background: var(--on-surface);
   }
+
   &:active {
-    color: var(--app-appMenuButton-active-textColor);
-    background: var(--app-appMenuButton-active-backgroundColor);
-    border-color: var(--app-appMenuButton-active-borderColor);
+    color: var(--surface);
+    background: var(--on-surface);
   }
+
   &:disabled {
-    color: var(--app-appMenuButton-disabled-textColor);
-    background: var(--app-appMenuButton-disabled-backgroundColor);
-    border-color: var(--app-appMenuButton-disabled-borderColor);
+    color: var(--on-surface-variant);
+    background: var(--surface-container);
   }
 }
 </style>

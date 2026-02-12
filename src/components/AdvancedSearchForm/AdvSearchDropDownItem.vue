@@ -1,7 +1,7 @@
 <template>
   <DropDownItem
     class="!whitespace-nowrap overflow-ellipsis overflow-x-hidden"
-    :class="{ 'opacity-30 hover:text-neutral-700': disabled }"
+    :class="{ 'opacity-30 hover:text-on-surface-variant': disabled }"
     :disabled="disabled">
     <slot />
   </DropDownItem>

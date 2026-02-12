@@ -2,7 +2,7 @@
   <BaseFilterRow :rowIndex="rowIndex" @remove="handleRemoveFilter">
     <template #label>
       <select
-        class="rounded-md text-sm filter-row__name w-full border-neutral-200 bg-transparent"
+        class="rounded-md text-sm filter-row__name w-full border-outline bg-transparent"
         :value="currentField.id"
         @change="handleFieldChange">
         <option
@@ -22,7 +22,7 @@
       "
       :id="filter.id"
       class="text-sm"
-      inputClass="!bg-white !border !border-neutral-200 placeholder:capitalize"
+      inputClass="placeholder:capitalize"
       :label="currentField.label"
       :modelValue="filter.value"
       :labelHidden="true"
@@ -47,8 +47,8 @@
       <label
         class="text-xs font-bold uppercase text-center cursor-pointer leading-none block"
         :class="{
-          'text-blue-600': filter.isFuzzy,
-          'text-neutral-300': !filter.isFuzzy,
+          'text-primary': filter.isFuzzy,
+          'text-on-surface-variant': !filter.isFuzzy,
         }">
         <input
           class="sr-only"

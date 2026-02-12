@@ -24,17 +24,17 @@
         :label="isShowingRange ? 'Start Date' : 'Date'"
         :modelValue="modelValue.start.text ?? ''"
         :inputClass="{
-          'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
+          'border border-solid border-error focus:border-error !bg-error-container':
             hasStartDateError,
         }"
         @update:modelValue="handleUpdateStartDate($event as string)" />
       <div class="pl-4">
-        <p v-if="hasStartDateError" class="text-red-700 text-xs my-1">
+        <p v-if="hasStartDateError" class="text-error text-xs my-1">
           {{ startDateErrors.join(". ") }}
         </p>
         <p
           v-else-if="modelValue.start.text"
-          class="text-neutral-500 text-xs my-1">
+          class="text-on-surface-variant text-xs my-1">
           {{ parsedStartDate }}
         </p>
       </div>
@@ -46,17 +46,17 @@
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
         :inputClass="{
-          'border border-solid border-red-700 focus:border-red-700 !bg-red-100/50':
+          'border border-solid border-error focus:border-error !bg-error-container':
             hasEndDateError,
         }"
         @update:modelValue="handleUpdateEndDate($event as string)" />
       <div class="pl-4">
-        <p v-if="hasEndDateError" class="text-red-700 text-xs my-1">
+        <p v-if="hasEndDateError" class="text-error text-xs my-1">
           {{ endDateErrors.join(". ") }}
         </p>
         <p
           v-else-if="modelValue.end.text"
-          class="text-neutral-500 text-xs my-1">
+          class="text-on-surface-variant text-xs my-1">
           {{ parsedEndDate }}
         </p>
       </div>

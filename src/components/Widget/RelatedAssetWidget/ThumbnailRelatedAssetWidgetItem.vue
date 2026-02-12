@@ -1,10 +1,10 @@
 <template>
   <RouterLink
     :title="title"
-    class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline hover:bg-blue-50 hover:text-blue-600 w-24 text-neutral-600"
+    class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline hover:bg-primary-container hover:text-primary w-24 text-on-surface-variant"
     :class="{
-      'opacity-80 hover:opacity-100 hover:border-blue-600': !isActiveObject,
-      'ring ring-offset-1 ring-blue-600 hover:border-transparent opacity-100 bg-blue-50':
+      'opacity-80 hover:opacity-100 hover:border-primary': !isActiveObject,
+      'ring ring-offset-1 ring-primary hover:border-transparent opacity-100 bg-primary-container':
         isActiveObject,
     }"
     :to="`#${assetId}`">

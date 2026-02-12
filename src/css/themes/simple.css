@@ -1,0 +1,101 @@
+/**
+ * SIMPLE (classic brutalist) THEME
+ *
+ * Raw concrete, exposed structure, no decoration. Inspired by
+ * brutalist architecture and brutalist web design. Function over form.
+ * Monochrome with harsh contrast and heavy type.
+ */
+
+[data-theme="simple"] {
+  /* Surface — raw concrete white */
+  --surface: oklch(95% 0 0);
+  --surface-dim: oklch(88% 0 0);
+  --surface-bright: oklch(100% 0 0);
+  --surface-container-lowest: oklch(97% 0 0);
+  --surface-container-low: oklch(93% 0 0);
+  --surface-container: oklch(90% 0 0);
+  --surface-container-high: oklch(85% 0 0);
+  --surface-container-highest: oklch(78% 0 0);
+
+  /* On-surface — pure black ink */
+  --on-surface: oklch(0% 0 0);
+  --on-surface-variant: oklch(30% 0 0);
+
+  /* Primary — black. That's it. */
+  --primary: oklch(0% 0 0);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(15% 0 0);
+  --on-primary-container: oklch(100% 0 0);
+
+  /* Secondary — mid gray */
+  --secondary: oklch(45% 0 0);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(85% 0 0);
+  --on-secondary-container: oklch(10% 0 0);
+
+  /* Tertiary — also black, no decoration needed */
+  --tertiary: oklch(25% 0 0);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(75% 0 0);
+  --on-tertiary-container: oklch(0% 0 0);
+
+  /* Semantic states — monochrome with minimal color allowed */
+  --error: oklch(50% 0.25 25);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.03 25);
+  --on-error-container: oklch(30% 0.18 25);
+
+  --success: oklch(0% 0 0);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(90% 0 0);
+  --on-success-container: oklch(0% 0 0);
+
+  --warning: oklch(0% 0 0);
+  --on-warning: oklch(100% 0 0);
+  --warning-container: oklch(88% 0 0);
+  --on-warning-container: oklch(0% 0 0);
+
+  --info: oklch(0% 0 0);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(90% 0 0);
+  --on-info-container: oklch(0% 0 0);
+
+  /* Outline — hard black lines, no subtlety */
+  --outline: oklch(0% 0 0);
+  --outline-variant: oklch(65% 0 0);
+
+  /* Inverse */
+  --inverse-surface: oklch(0% 0 0);
+  --inverse-on-surface: oklch(100% 0 0);
+  --inverse-primary: oklch(100% 0 0);
+
+  --scrim: oklch(0% 0 0 / 0.6);
+  --shadow: oklch(0% 0 0 / 0.4);
+
+  /* Typography — heavy grotesque display, Times New Roman body (the
+     quintessential brutalist choice: deliberately default, anti-design) */
+  --font-display: "Arial Black", sans-serif;
+  --font-body: monospace;
+
+  .app-header {
+    background: var(--primary);
+    color: var(--on-primary);
+    border-bottom: 6px solid var(--primary);
+
+    & .app-header__logo-link {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      color: var(--on-primary);
+
+      & .text-on-surface {
+        color: inherit;
+      }
+    }
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(95% 0 0);
+    border-bottom: 3px solid oklch(0% 0 0);
+  }
+}

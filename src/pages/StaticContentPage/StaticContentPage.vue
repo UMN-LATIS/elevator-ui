@@ -7,19 +7,24 @@
     <div
       v-if="page"
       class="static-content-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">
-      <a
-        v-if="canCurrentUserEdit"
-        :href="`${BASE_URL}/instances/editPage/${pageId}`"
-        class="float-right uppercase text-xs font-medium bg-blue-100 px-2 py-1 rounded-md no-underline hover:bg-blue-600 hover:text-blue-100 hover:no-underline">
-        Edit Page
-      </a>
-      <div class="prose prose-neutral mx-auto">
-        <h1 class="text-4xl font-bold text-center">
-          {{ page.title || "Untitled" }}
-        </h1>
+      <article class="mx-auto">
+        <header class="flex items-center gap-4 justify-between mb-8">
+          <div />
+          <h1 class="text-4xl font-bold text-center">
+            {{ page.title || "Untitled" }}
+          </h1>
+          <a
+            v-if="canCurrentUserEdit"
+            :href="`${BASE_URL}/instances/editPage/${pageId}`"
+            class="uppercase text-xs font-medium bg-primary-container text-on-primary-container px-2 py-1 rounded-md no-underline hover:bg-primary hover:text-on-primary hover:no-underline">
+            Edit Page
+          </a>
+        </header>
 
-        <SanitizedHTML :html="page.content ?? ''" class="w-full" />
-      </div>
+        <SanitizedHTML
+          :html="page.content ?? ''"
+          class="w-full prose prose-neutral mx-auto" />
+      </article>
     </div>
     <template #footer>
       <AppFooter
@@ -92,8 +97,8 @@ onUnmounted(() => {
 </script>
 <style scoped>
 .static-content-page__content {
-  background: var(--app-backgroundColor);
-  color: var(--app-textColor);
+  background: var(--surface);
+  color: var(--on-surface);
 }
 
 .prose :first-child {

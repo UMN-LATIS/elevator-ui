@@ -18,7 +18,7 @@
           <a
             v-if="download.isReady || download.filetype === 'original'"
             :href="download.url"
-            class="py-2 hover:bg-transparent-black-50 border-t last:border-b block hover:no-underline group"
+            class="py-2 hover:bg-outline-variant/50 border-t last:border-b block hover:no-underline group"
             :download="`${download.originalFilename}-${download.filetype}.${download.extension}`"
             @click="
               analytics.trackDownloadEvent({
@@ -29,7 +29,8 @@
             ">
             <li class="flex justify-between">
               <span class="group-hover:underline">{{ download.filetype }}</span>
-              <Chip class="group-hover:bg-blue-100 group-hover:text-blue-600">
+              <Chip
+                class="group-hover:bg-primary-container group-hover:text-on-primary-container">
                 {{ download.extension }}
               </Chip>
             </li>

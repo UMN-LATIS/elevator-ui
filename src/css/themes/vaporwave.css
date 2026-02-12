@@ -1,0 +1,99 @@
+/**
+ * VAPORWAVE THEME
+ *
+ * Pastel pinks, teals, and purples. 90s internet aesthetics,
+ * sunset gradients, and retro-futurism. A E S T H E T I C.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Megrim&family=Quicksand:wght@300;400;500;600;700&display=swap");
+
+[data-theme="vaporwave"] {
+  /* Surface — deep purple-blue twilight */
+  --surface: oklch(18% 0.06 290);
+  --surface-dim: oklch(14% 0.05 290);
+  --surface-bright: oklch(28% 0.07 290);
+  --surface-container-lowest: oklch(16% 0.05 290);
+  --surface-container-low: oklch(20% 0.06 290);
+  --surface-container: oklch(24% 0.07 290);
+  --surface-container-high: oklch(28% 0.07 290);
+  --surface-container-highest: oklch(33% 0.08 290);
+
+  /* On-surface — soft lavender white */
+  --on-surface: oklch(90% 0.04 300);
+  --on-surface-variant: oklch(72% 0.06 300);
+
+  /* Primary — hot pink / magenta */
+  --primary: oklch(70% 0.22 340);
+  --on-primary: oklch(15% 0.04 340);
+  --primary-container: oklch(35% 0.15 340);
+  --on-primary-container: oklch(90% 0.1 340);
+
+  /* Secondary — teal / cyan */
+  --secondary: oklch(75% 0.15 190);
+  --on-secondary: oklch(15% 0.04 190);
+  --secondary-container: oklch(30% 0.1 190);
+  --on-secondary-container: oklch(88% 0.08 190);
+
+  /* Tertiary — warm peach / coral sunset */
+  --tertiary: oklch(78% 0.15 50);
+  --on-tertiary: oklch(15% 0 0);
+  --tertiary-container: oklch(35% 0.1 50);
+  --on-tertiary-container: oklch(90% 0.08 50);
+
+  /* Semantic states */
+  --error: oklch(72% 0.2 15);
+  --on-error: oklch(15% 0 0);
+  --error-container: oklch(28% 0.1 15);
+  --on-error-container: oklch(90% 0.08 15);
+
+  --success: oklch(72% 0.15 165);
+  --on-success: oklch(15% 0 0);
+  --success-container: oklch(28% 0.08 165);
+  --on-success-container: oklch(88% 0.06 165);
+
+  --warning: oklch(80% 0.15 85);
+  --on-warning: oklch(20% 0.05 85);
+  --warning-container: oklch(32% 0.08 85);
+  --on-warning-container: oklch(88% 0.06 85);
+
+  --info: oklch(72% 0.12 240);
+  --on-info: oklch(15% 0 0);
+  --info-container: oklch(28% 0.08 240);
+  --on-info-container: oklch(88% 0.06 240);
+
+  /* Outline — muted pink-purple */
+  --outline: oklch(55% 0.1 310);
+  --outline-variant: oklch(32% 0.08 310);
+
+  /* Inverse */
+  --inverse-surface: oklch(90% 0.04 300);
+  --inverse-on-surface: oklch(20% 0.06 290);
+  --inverse-primary: oklch(50% 0.2 340);
+
+  --scrim: oklch(0% 0 0 / 0.6);
+  --shadow: oklch(0% 0 0 / 0.6);
+
+  /* Typography — dreamy display font with clean body */
+  --font-display: "Megrim", cursive;
+  --font-body: "Quicksand", sans-serif;
+
+  .app-header {
+    background: linear-gradient(135deg, oklch(30% 0.15 340), oklch(25% 0.12 280));
+    color: var(--on-surface);
+    border-bottom: 2px solid oklch(60% 0.2 340 / 0.4);
+  }
+
+  .app-header__secondary-nav {
+    background: var(--surface-container);
+  }
+
+  & body {
+    font-family: "Quicksand", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Megrim", cursive;
+  }
+}

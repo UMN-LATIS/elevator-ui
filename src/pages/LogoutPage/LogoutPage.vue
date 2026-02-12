@@ -21,4 +21,3 @@ onMounted(async () => {
   router.push("/");
 });
 </script>
-<style scoped></style>

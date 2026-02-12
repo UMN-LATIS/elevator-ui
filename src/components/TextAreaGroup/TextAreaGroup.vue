@@ -6,7 +6,7 @@
           :for="`textarea-${id}`"
           :class="
             cn(
-              'block text-xs font-medium text-neutral-700 uppercase mb-1',
+              'block text-xs font-medium text-on-surface uppercase mb-1',
               labelClass
             )
           ">
@@ -23,7 +23,7 @@
         :name="`textarea-${id}`"
         :class="
           cn(
-            'text-area-input block w-full rounded-md border-none focus:border-blue-500 focus:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-2 sm:text-sm px-4  py-2 text-neutral-700 focus:text-neutral-900 h-24 bg-black/5 placeholder:text-black/25',
+            'text-area-input block w-full rounded-md border-outline-variant sm:text-sm px-4  py-2 text-on-surface focus:text-on-surface h-24 bg-surface-container focus:bg-surface-bright placeholder:text-on-surface-variant',
             inputClass
           )
         "
@@ -63,4 +63,3 @@ defineEmits<{
 
 const id = useId();
 </script>
-<style scoped></style>

@@ -1,0 +1,99 @@
+/**
+ * BARBIE THEME
+ *
+ * Hot pink primary, soft pink surfaces, white accents.
+ * Unapologetically, fabulously pink. Life in plastic, it's fantastic.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;500;600;700&display=swap");
+
+[data-theme="barbie"] {
+  /* Surface — soft blush pink */
+  --surface: oklch(94% 0.04 350);
+  --surface-dim: oklch(90% 0.05 350);
+  --surface-bright: oklch(97% 0.02 350);
+  --surface-container-lowest: oklch(96% 0.03 350);
+  --surface-container-low: oklch(93% 0.04 350);
+  --surface-container: oklch(90% 0.05 350);
+  --surface-container-high: oklch(87% 0.06 350);
+  --surface-container-highest: oklch(84% 0.07 350);
+
+  /* On-surface — deep magenta-black */
+  --on-surface: oklch(22% 0.06 340);
+  --on-surface-variant: oklch(38% 0.06 340);
+
+  /* Primary — Barbie hot pink */
+  --primary: oklch(58% 0.25 340);
+  --on-primary: oklch(98% 0.01 340);
+  --primary-container: oklch(85% 0.12 340);
+  --on-primary-container: oklch(30% 0.15 340);
+
+  /* Secondary — softer rose */
+  --secondary: oklch(65% 0.15 0);
+  --on-secondary: oklch(98% 0 0);
+  --secondary-container: oklch(90% 0.06 0);
+  --on-secondary-container: oklch(30% 0.1 0);
+
+  /* Tertiary — golden glam accent */
+  --tertiary: oklch(72% 0.15 85);
+  --on-tertiary: oklch(20% 0.05 85);
+  --tertiary-container: oklch(90% 0.06 85);
+  --on-tertiary-container: oklch(30% 0.1 85);
+
+  /* Semantic states */
+  --error: oklch(55% 0.22 25);
+  --on-error: oklch(98% 0 0);
+  --error-container: oklch(92% 0.05 25);
+  --on-error-container: oklch(30% 0.15 25);
+
+  --success: oklch(55% 0.15 165);
+  --on-success: oklch(98% 0 0);
+  --success-container: oklch(90% 0.05 165);
+  --on-success-container: oklch(28% 0.1 165);
+
+  --warning: oklch(80% 0.14 85);
+  --on-warning: oklch(22% 0.05 85);
+  --warning-container: oklch(93% 0.05 85);
+  --on-warning-container: oklch(28% 0.1 85);
+
+  --info: oklch(60% 0.12 260);
+  --on-info: oklch(98% 0 0);
+  --info-container: oklch(92% 0.04 260);
+  --on-info-container: oklch(28% 0.08 260);
+
+  /* Outline — pink tinted borders */
+  --outline: oklch(60% 0.1 340);
+  --outline-variant: oklch(85% 0.06 340);
+
+  /* Inverse */
+  --inverse-surface: oklch(25% 0.08 340);
+  --inverse-on-surface: oklch(93% 0.04 350);
+  --inverse-primary: oklch(80% 0.15 340);
+
+  --scrim: oklch(0% 0 0 / 0.4);
+  --shadow: oklch(50% 0.1 340 / 0.2);
+
+  /* Typography — playful script display with rounded body */
+  --font-display: "Pacifico", cursive;
+  --font-body: "Nunito", sans-serif;
+
+  .app-header {
+    background: linear-gradient(135deg, oklch(58% 0.25 340), oklch(62% 0.22 355));
+    color: oklch(98% 0.01 340);
+    border-bottom: 3px solid oklch(75% 0.15 340);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(90% 0.06 350);
+  }
+
+  & body {
+    font-family: "Nunito", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Pacifico", cursive;
+  }
+}
