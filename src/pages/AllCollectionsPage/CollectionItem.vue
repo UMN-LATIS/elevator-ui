@@ -4,7 +4,7 @@
     <div class="flex items-center gap-1">
       <button
         v-if="collection.children && collection.children.length > 0"
-        class="p-2 -ml-2 rounded-full inline-flex items-center justify-center hover:bg-white transition-colors duration-150"
+        class="p-2 -ml-2 rounded-full inline-flex items-center justify-center transition-colors duration-150"
         @click="showMore = !showMore">
         <ChevronDownIcon
           class="transform w-4 h-4"

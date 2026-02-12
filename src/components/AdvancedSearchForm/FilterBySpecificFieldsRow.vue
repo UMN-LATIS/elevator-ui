@@ -22,7 +22,7 @@
       "
       :id="filter.id"
       class="text-sm"
-      inputClass="!bg-white !border !border-outline placeholder:capitalize"
+      inputClass="placeholder:capitalize"
       :label="currentField.label"
       :modelValue="filter.value"
       :labelHidden="true"

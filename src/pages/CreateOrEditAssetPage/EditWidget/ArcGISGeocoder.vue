@@ -19,7 +19,7 @@
 
     <div
       v-if="suggestions.length > 0"
-      class="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
+      class="absolute z-10 w-full mt-1 border rounded-md shadow-lg max-h-60 overflow-y-auto">
       <div
         v-for="(suggestion, index) in suggestions"
         :key="index"

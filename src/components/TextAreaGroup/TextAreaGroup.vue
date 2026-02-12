@@ -23,7 +23,7 @@
         :name="`textarea-${id}`"
         :class="
           cn(
-            'text-area-input block w-full rounded-md border-none sm:text-sm px-4  py-2 text-on-surface focus:text-on-surface h-24 bg-surface-container-lowest placeholder:text-on-surface-variant',
+            'text-area-input block w-full rounded-md border-outline-variant sm:text-sm px-4  py-2 text-on-surface focus:text-on-surface h-24 bg-surface-container focus:bg-surface-bright placeholder:text-on-surface-variant',
             inputClass
           )
         "

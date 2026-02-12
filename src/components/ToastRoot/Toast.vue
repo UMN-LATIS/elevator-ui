@@ -12,7 +12,7 @@
     @mouseenter="isPaused = true"
     @mouseleave="isPaused = false">
     <div
-      class="timer absolute top-0 left-0 w-full h-1 transform bg-white/25"
+      class="timer absolute top-0 left-0 w-full h-1 transform"
       :style="{
         transform: `translateX(-${timerWidthPercent}%)`,
       }" />

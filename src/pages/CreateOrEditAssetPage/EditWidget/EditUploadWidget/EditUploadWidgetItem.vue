@@ -33,7 +33,7 @@
         <textarea
           :id="`${item.id}-description`"
           :value="item.fileDescription"
-          class="bg-surface-container-lowest border-none rounded-md w-full text-sm font-mono flex-1 placeholder:text-on-surface-variant"
+          class="bg-surface-container focus:bg-surface-bright border-outline-variant rounded-md w-full text-sm font-mono flex-1 placeholder:text-on-surface-variant"
           @input="handleDescriptionUpdate" />
       </div>
       <div class="col-span-3">

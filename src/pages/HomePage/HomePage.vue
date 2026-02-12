@@ -23,7 +23,7 @@
             :class="{
               'mx-auto': !featuredAssetId,
             }" />
-          <section v-else class="bg-white p-8 my-8 shadow-sm">
+          <section v-else class="p-8 my-8 shadow-sm">
             <h1 class="text-4xl text-center font-bold">
               {{ instanceStore.instance?.name ?? "Elevator" }}
             </h1>

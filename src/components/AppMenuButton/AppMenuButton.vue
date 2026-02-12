@@ -14,7 +14,7 @@
       <Transition name="fade">
         <div
           v-show="isOpen"
-          class="fixed inset-0 transition-opacity z-20 bg-black opacity-50 pointer-events-auto"
+          class="fixed inset-0 transition-opacity z-20 bg-scrim pointer-events-auto"
           @click.self="handleClose" />
       </Transition>
       <Transition name="slide-right">

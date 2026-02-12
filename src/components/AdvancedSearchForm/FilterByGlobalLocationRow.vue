@@ -43,7 +43,6 @@
           '!text-error': radiusTouched && !isRadiusValid,
         }"
         :inputClass="{
-          'bg-white !border-outline': true,
           'border-error text-error': radiusTouched && !isRadiusValid,
         }"
         @update:modelValue="handleRadiusUpdate">
@@ -57,9 +56,7 @@
           </span>
         </template>
       </InputGroup>
-      <p
-        v-if="radiusTouched && !isRadiusValid"
-        class="text-xs text-error mt-2">
+      <p v-if="radiusTouched && !isRadiusValid" class="text-xs text-error mt-2">
         Radius must be a number greater than 0.
       </p>
     </div>

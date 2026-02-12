@@ -70,7 +70,7 @@
       @scrollbarDragEnd="onThumbSlideChange">
       <SwiperSlide v-for="(slide, i) in slides" :key="slide.id">
         <div
-            class="border border-outline aspect-video flex items-center justify-center w-full relative">
+          class="border border-outline aspect-video flex items-center justify-center w-full relative">
           <div
             v-if="i !== activeSlideIndex"
             class="absolute bottom-0 left-0 w-6 h-6 text-xs z-10 flex items-center justify-center bg-surface text-on-surface">
@@ -92,7 +92,7 @@
       :class="{ 'text-on-surface': true }">
       <Button
         variant="tertiary"
-        class="!m-0 bg-transparent hover:!bg-transparent-white-500"
+        class="!m-0 bg-transparent"
         :class="{
           'opacity-30': activeSlideIndex === 0,
         }"
@@ -106,7 +106,7 @@
 
       <Button
         variant="tertiary"
-        class="!m-0 bg-transparent hover:!bg-transparent-white-500"
+        class="!m-0 bg-transparent"
         @click="mainSwiper.slideNext()">
         <ChevronRightIcon
           :class="{
