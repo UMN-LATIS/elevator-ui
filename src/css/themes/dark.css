@@ -34,7 +34,7 @@
   --primary: #ffb71e;
   --on-primary: oklch(0.2 0.02 245);
   --primary-container: #ffdba3;
-  --on-primary-container: oklch(25% 0.08 85);
+  --on-primary-container: oklch(25% 0.07 245);
 
   /* ============================================
    * SECONDARY - Cool gray with blue tint
@@ -100,7 +100,6 @@
   --scrim: oklch(0% 0 0 / 0.7);
   --shadow: oklch(0% 0 0 / 0.8);
 }
-
 
 /* Attribution control - all states */
 [data-theme="dark"] .location-picker .maplibregl-ctrl-attrib {
