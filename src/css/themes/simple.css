@@ -78,9 +78,20 @@
   --font-body: monospace;
 
   .app-header {
-    background: oklch(0% 0 0);
-    color: oklch(100% 0 0);
-    border-bottom: 6px solid oklch(0% 0 0);
+    background: var(--primary);
+    color: var(--on-primary);
+    border-bottom: 6px solid var(--primary);
+
+    & .app-header__logo-link {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      color: var(--on-primary);
+
+      & .text-on-surface {
+        color: inherit;
+      }
+    }
   }
 
   .app-header__secondary-nav {
