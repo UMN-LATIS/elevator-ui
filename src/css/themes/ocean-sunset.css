@@ -1,0 +1,99 @@
+/**
+ * OCEAN SUNSET THEME
+ *
+ * Deep navy waters fading into warm coral sky. Orange/coral primary
+ * on dark blue surfaces. Golden hour at the coast.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap");
+
+[data-theme="ocean-sunset"] {
+  /* Surface — deep ocean navy */
+  --surface: oklch(18% 0.04 250);
+  --surface-dim: oklch(14% 0.03 250);
+  --surface-bright: oklch(28% 0.05 250);
+  --surface-container-lowest: oklch(15% 0.03 250);
+  --surface-container-low: oklch(20% 0.04 250);
+  --surface-container: oklch(24% 0.05 250);
+  --surface-container-high: oklch(28% 0.05 250);
+  --surface-container-highest: oklch(33% 0.06 250);
+
+  /* On-surface — warm off-white like sand */
+  --on-surface: oklch(90% 0.03 65);
+  --on-surface-variant: oklch(72% 0.04 65);
+
+  /* Primary — warm coral / orange */
+  --primary: oklch(72% 0.18 45);
+  --on-primary: oklch(15% 0.03 45);
+  --primary-container: oklch(32% 0.1 45);
+  --on-primary-container: oklch(90% 0.1 45);
+
+  /* Secondary — muted teal sea */
+  --secondary: oklch(68% 0.1 200);
+  --on-secondary: oklch(15% 0.03 200);
+  --secondary-container: oklch(28% 0.06 200);
+  --on-secondary-container: oklch(85% 0.06 200);
+
+  /* Tertiary — golden amber sunlight */
+  --tertiary: oklch(78% 0.15 80);
+  --on-tertiary: oklch(15% 0 0);
+  --tertiary-container: oklch(32% 0.08 80);
+  --on-tertiary-container: oklch(88% 0.08 80);
+
+  /* Semantic states */
+  --error: oklch(70% 0.2 20);
+  --on-error: oklch(15% 0 0);
+  --error-container: oklch(25% 0.08 20);
+  --on-error-container: oklch(88% 0.08 20);
+
+  --success: oklch(70% 0.12 165);
+  --on-success: oklch(15% 0 0);
+  --success-container: oklch(25% 0.06 165);
+  --on-success-container: oklch(85% 0.06 165);
+
+  --warning: oklch(78% 0.14 85);
+  --on-warning: oklch(18% 0.05 85);
+  --warning-container: oklch(30% 0.08 85);
+  --on-warning-container: oklch(88% 0.06 85);
+
+  --info: oklch(70% 0.1 220);
+  --on-info: oklch(15% 0 0);
+  --info-container: oklch(25% 0.06 220);
+  --on-info-container: oklch(85% 0.06 220);
+
+  /* Outline — warm steel blue */
+  --outline: oklch(50% 0.06 240);
+  --outline-variant: oklch(30% 0.04 240);
+
+  /* Inverse */
+  --inverse-surface: oklch(92% 0.03 65);
+  --inverse-on-surface: oklch(20% 0.04 250);
+  --inverse-primary: oklch(50% 0.15 45);
+
+  --scrim: oklch(0% 0 0 / 0.6);
+  --shadow: oklch(10% 0.04 250 / 0.5);
+
+  /* Typography — elegant serif pairing for coastal sophistication */
+  --font-display: "Playfair Display", serif;
+  --font-body: "Lora", serif;
+
+  .app-header {
+    background: linear-gradient(135deg, oklch(22% 0.06 250), oklch(30% 0.1 30));
+    color: oklch(90% 0.03 65);
+    border-bottom: 2px solid oklch(65% 0.15 45 / 0.5);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(16% 0.04 250);
+  }
+
+  & body {
+    font-family: "Lora", serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Playfair Display", serif;
+  }
+}

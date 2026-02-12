@@ -1,0 +1,107 @@
+/**
+ * BRUTALIST THEME
+ *
+ * Raw concrete, exposed structure, no decoration. Inspired by
+ * brutalist architecture and brutalist web design. Function over form.
+ * Monochrome with harsh contrast and heavy type.
+ */
+
+/* Archivo Black stands in for GT America / Nimbus Sans heavyweights.
+   Times New Roman is the signature brutalist body font per Typewolf —
+   deliberately "default", anti-design, used as-is from the system stack. */
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
+
+[data-theme="brutalist"] {
+  /* Surface — raw concrete white */
+  --surface: oklch(95% 0 0);
+  --surface-dim: oklch(88% 0 0);
+  --surface-bright: oklch(100% 0 0);
+  --surface-container-lowest: oklch(97% 0 0);
+  --surface-container-low: oklch(93% 0 0);
+  --surface-container: oklch(90% 0 0);
+  --surface-container-high: oklch(85% 0 0);
+  --surface-container-highest: oklch(78% 0 0);
+
+  /* On-surface — pure black ink */
+  --on-surface: oklch(0% 0 0);
+  --on-surface-variant: oklch(30% 0 0);
+
+  /* Primary — black. That's it. */
+  --primary: oklch(0% 0 0);
+  --on-primary: oklch(100% 0 0);
+  --primary-container: oklch(15% 0 0);
+  --on-primary-container: oklch(100% 0 0);
+
+  /* Secondary — mid gray */
+  --secondary: oklch(45% 0 0);
+  --on-secondary: oklch(100% 0 0);
+  --secondary-container: oklch(85% 0 0);
+  --on-secondary-container: oklch(10% 0 0);
+
+  /* Tertiary — also black, no decoration needed */
+  --tertiary: oklch(25% 0 0);
+  --on-tertiary: oklch(100% 0 0);
+  --tertiary-container: oklch(75% 0 0);
+  --on-tertiary-container: oklch(0% 0 0);
+
+  /* Semantic states — monochrome with minimal color allowed */
+  --error: oklch(50% 0.25 25);
+  --on-error: oklch(100% 0 0);
+  --error-container: oklch(92% 0.03 25);
+  --on-error-container: oklch(30% 0.18 25);
+
+  --success: oklch(0% 0 0);
+  --on-success: oklch(100% 0 0);
+  --success-container: oklch(90% 0 0);
+  --on-success-container: oklch(0% 0 0);
+
+  --warning: oklch(0% 0 0);
+  --on-warning: oklch(100% 0 0);
+  --warning-container: oklch(88% 0 0);
+  --on-warning-container: oklch(0% 0 0);
+
+  --info: oklch(0% 0 0);
+  --on-info: oklch(100% 0 0);
+  --info-container: oklch(90% 0 0);
+  --on-info-container: oklch(0% 0 0);
+
+  /* Outline — hard black lines, no subtlety */
+  --outline: oklch(0% 0 0);
+  --outline-variant: oklch(65% 0 0);
+
+  /* Inverse */
+  --inverse-surface: oklch(0% 0 0);
+  --inverse-on-surface: oklch(100% 0 0);
+  --inverse-primary: oklch(100% 0 0);
+
+  --scrim: oklch(0% 0 0 / 0.6);
+  --shadow: oklch(0% 0 0 / 0.4);
+
+  /* Typography — heavy grotesque display, Times New Roman body (the
+     quintessential brutalist choice: deliberately default, anti-design) */
+  --font-display: "Archivo Black", "Arial Black", sans-serif;
+  --font-body: "Times New Roman", "Times", "Romana", serif;
+
+  .app-header {
+    background: oklch(0% 0 0);
+    color: oklch(100% 0 0);
+    border-bottom: 6px solid oklch(0% 0 0);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(95% 0 0);
+    border-bottom: 3px solid oklch(0% 0 0);
+  }
+
+  & body {
+    font-family: "Times New Roman", "Times", "Romana", serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Archivo Black", "Arial Black", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+}

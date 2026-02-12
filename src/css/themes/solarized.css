@@ -1,0 +1,95 @@
+/**
+ * SOLARIZED THEME (Dark variant)
+ *
+ * Ethan Schoonover's precision color scheme. Carefully selected
+ * to reduce contrast while maintaining readability. Every color
+ * has a specific L*a*b* relationship to every other.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+[data-theme="solarized"] {
+  /* Surface — Solarized base03/base02 (#002b36 / #073642) */
+  --surface: oklch(23% 0.04 220);
+  --surface-dim: oklch(20% 0.04 220);
+  --surface-bright: oklch(30% 0.04 220);
+  --surface-container-lowest: oklch(21% 0.04 220);
+  --surface-container-low: oklch(25% 0.04 220);
+  --surface-container: oklch(28% 0.04 220);
+  --surface-container-high: oklch(32% 0.04 220);
+  --surface-container-highest: oklch(36% 0.04 220);
+
+  /* On-surface — Solarized base0/base1 (#839496 / #93a1a1) */
+  --on-surface: oklch(70% 0.02 200);
+  --on-surface-variant: oklch(58% 0.03 200);
+
+  /* Primary — Solarized blue (#268bd2) */
+  --primary: oklch(60% 0.15 240);
+  --on-primary: oklch(15% 0.02 240);
+  --primary-container: oklch(28% 0.08 240);
+  --on-primary-container: oklch(82% 0.08 240);
+
+  /* Secondary — Solarized cyan (#2aa198) */
+  --secondary: oklch(65% 0.1 190);
+  --on-secondary: oklch(15% 0.02 190);
+  --secondary-container: oklch(28% 0.06 190);
+  --on-secondary-container: oklch(80% 0.06 190);
+
+  /* Tertiary — Solarized violet (#6c71c4) */
+  --tertiary: oklch(55% 0.14 280);
+  --on-tertiary: oklch(95% 0.01 280);
+  --tertiary-container: oklch(28% 0.08 280);
+  --on-tertiary-container: oklch(80% 0.08 280);
+
+  /* Semantic states — mapped to Solarized palette */
+  --error: oklch(58% 0.18 25); /* Solarized red (#dc322f) */
+  --on-error: oklch(15% 0 0);
+  --error-container: oklch(25% 0.08 25);
+  --on-error-container: oklch(82% 0.08 25);
+
+  --success: oklch(62% 0.12 145); /* Solarized green (#859900) */
+  --on-success: oklch(15% 0 0);
+  --success-container: oklch(25% 0.06 145);
+  --on-success-container: oklch(80% 0.06 145);
+
+  --warning: oklch(75% 0.14 80); /* Solarized yellow (#b58900) */
+  --on-warning: oklch(18% 0.04 80);
+  --warning-container: oklch(28% 0.06 80);
+  --on-warning-container: oklch(82% 0.08 80);
+
+  --info: oklch(65% 0.1 190); /* Solarized cyan */
+  --on-info: oklch(15% 0 0);
+  --info-container: oklch(25% 0.05 190);
+  --on-info-container: oklch(80% 0.06 190);
+
+  /* Outline — Solarized base01 (#586e75) */
+  --outline: oklch(48% 0.03 210);
+  --outline-variant: oklch(30% 0.03 210);
+
+  /* Inverse — Solarized light mode colors */
+  --inverse-surface: oklch(95% 0.02 90);
+  --inverse-on-surface: oklch(42% 0.03 200);
+  --inverse-primary: oklch(50% 0.14 240);
+
+  --scrim: oklch(0% 0 0 / 0.6);
+  --shadow: oklch(0% 0 0 / 0.6);
+
+  /* Typography — IBM Plex, a modern classic for technical clarity */
+  --font-display: "IBM Plex Sans", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-code: "IBM Plex Mono", monospace;
+
+  .app-header {
+    background: oklch(20% 0.04 220);
+    color: oklch(70% 0.02 200);
+    border-bottom: 1px solid oklch(48% 0.03 210);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(22% 0.04 220);
+  }
+
+  & body {
+    font-family: "IBM Plex Sans", sans-serif;
+  }
+}

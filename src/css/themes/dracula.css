@@ -1,0 +1,95 @@
+/**
+ * DRACULA THEME
+ *
+ * The beloved editor color scheme. Purple/pink accents on dark charcoal.
+ * Based on the canonical Dracula palette: draculatheme.com
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap");
+
+[data-theme="dracula"] {
+  /* Surface — Dracula background (#282a36) */
+  --surface: oklch(24% 0.02 270);
+  --surface-dim: oklch(20% 0.02 270);
+  --surface-bright: oklch(32% 0.03 270);
+  /* Current line (#44475a) → container hierarchy */
+  --surface-container-lowest: oklch(22% 0.02 270);
+  --surface-container-low: oklch(26% 0.02 270);
+  --surface-container: oklch(30% 0.03 270);
+  --surface-container-high: oklch(34% 0.03 270);
+  --surface-container-highest: oklch(38% 0.03 270);
+
+  /* On-surface — Dracula foreground (#f8f8f2) */
+  --on-surface: oklch(96% 0.01 100);
+  --on-surface-variant: oklch(72% 0.02 270);
+
+  /* Primary — Dracula purple (#bd93f9) */
+  --primary: oklch(72% 0.16 290);
+  --on-primary: oklch(15% 0.04 290);
+  --primary-container: oklch(32% 0.1 290);
+  --on-primary-container: oklch(88% 0.1 290);
+
+  /* Secondary — Dracula pink (#ff79c6) */
+  --secondary: oklch(72% 0.18 345);
+  --on-secondary: oklch(15% 0.04 345);
+  --secondary-container: oklch(30% 0.1 345);
+  --on-secondary-container: oklch(88% 0.1 345);
+
+  /* Tertiary — Dracula cyan (#8be9fd) */
+  --tertiary: oklch(85% 0.12 200);
+  --on-tertiary: oklch(15% 0.03 200);
+  --tertiary-container: oklch(30% 0.08 200);
+  --on-tertiary-container: oklch(88% 0.08 200);
+
+  /* Semantic states mapped to Dracula palette */
+  --error: oklch(68% 0.2 15); /* Dracula red (#ff5555) */
+  --on-error: oklch(15% 0 0);
+  --error-container: oklch(25% 0.08 15);
+  --on-error-container: oklch(88% 0.08 15);
+
+  --success: oklch(78% 0.16 135); /* Dracula green (#50fa7b) */
+  --on-success: oklch(15% 0 0);
+  --success-container: oklch(25% 0.08 135);
+  --on-success-container: oklch(88% 0.1 135);
+
+  --warning: oklch(88% 0.16 100); /* Dracula yellow (#f1fa8c) */
+  --on-warning: oklch(18% 0.04 100);
+  --warning-container: oklch(30% 0.08 100);
+  --on-warning-container: oklch(88% 0.1 100);
+
+  --info: oklch(72% 0.12 250); /* muted blue-purple */
+  --on-info: oklch(15% 0 0);
+  --info-container: oklch(25% 0.06 250);
+  --on-info-container: oklch(85% 0.06 250);
+
+  /* Outline — Dracula comment (#6272a4) */
+  --outline: oklch(52% 0.06 260);
+  --outline-variant: oklch(32% 0.04 260);
+
+  /* Inverse */
+  --inverse-surface: oklch(92% 0.01 270);
+  --inverse-on-surface: oklch(24% 0.02 270);
+  --inverse-primary: oklch(48% 0.15 290);
+
+  --scrim: oklch(0% 0 0 / 0.7);
+  --shadow: oklch(0% 0 0 / 0.7);
+
+  /* Typography — code-friendly with clean UI font */
+  --font-display: "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-code: "Fira Code", monospace;
+
+  .app-header {
+    background: oklch(20% 0.03 270);
+    color: oklch(96% 0.01 100);
+    border-bottom: 1px solid oklch(52% 0.06 260);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(22% 0.02 270);
+  }
+
+  & body {
+    font-family: "Inter", sans-serif;
+  }
+}

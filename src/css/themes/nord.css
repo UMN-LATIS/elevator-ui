@@ -1,0 +1,94 @@
+/**
+ * NORD THEME
+ *
+ * Arctic, cool-toned blues and grays inspired by the Nordic color palette.
+ * Clean, calm, and frost-kissed. Based on nordtheme.com.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+[data-theme="nord"] {
+  /* Surface — Nord Polar Night (#2e3440 → #4c566a) */
+  --surface: oklch(26% 0.02 245);
+  --surface-dim: oklch(22% 0.02 245);
+  --surface-bright: oklch(34% 0.02 245);
+  --surface-container-lowest: oklch(24% 0.02 245);
+  --surface-container-low: oklch(28% 0.02 245);
+  --surface-container: oklch(31% 0.02 245);
+  --surface-container-high: oklch(35% 0.02 245);
+  --surface-container-highest: oklch(40% 0.03 245);
+
+  /* On-surface — Nord Snow Storm (#eceff4 / #e5e9f0) */
+  --on-surface: oklch(92% 0.01 240);
+  --on-surface-variant: oklch(72% 0.02 240);
+
+  /* Primary — Nord Frost blue (#88c0d0) */
+  --primary: oklch(75% 0.08 210);
+  --on-primary: oklch(18% 0.02 210);
+  --primary-container: oklch(30% 0.05 210);
+  --on-primary-container: oklch(88% 0.05 210);
+
+  /* Secondary — Nord Frost teal (#8fbcbb) */
+  --secondary: oklch(73% 0.06 190);
+  --on-secondary: oklch(18% 0.02 190);
+  --secondary-container: oklch(30% 0.04 190);
+  --on-secondary-container: oklch(85% 0.04 190);
+
+  /* Tertiary — Nord Frost light blue (#81a1c1) */
+  --tertiary: oklch(67% 0.07 240);
+  --on-tertiary: oklch(18% 0.02 240);
+  --tertiary-container: oklch(28% 0.04 240);
+  --on-tertiary-container: oklch(85% 0.05 240);
+
+  /* Semantic states — mapped to Nord Aurora */
+  --error: oklch(65% 0.14 15); /* Nord red (#bf616a) */
+  --on-error: oklch(15% 0 0);
+  --error-container: oklch(25% 0.06 15);
+  --on-error-container: oklch(85% 0.06 15);
+
+  --success: oklch(72% 0.1 145); /* Nord green (#a3be8c) */
+  --on-success: oklch(15% 0 0);
+  --success-container: oklch(28% 0.05 145);
+  --on-success-container: oklch(85% 0.06 145);
+
+  --warning: oklch(80% 0.12 80); /* Nord yellow (#ebcb8b) */
+  --on-warning: oklch(20% 0.04 80);
+  --warning-container: oklch(30% 0.06 80);
+  --on-warning-container: oklch(85% 0.06 80);
+
+  --info: oklch(67% 0.07 240); /* Nord frost blue */
+  --on-info: oklch(15% 0 0);
+  --info-container: oklch(26% 0.04 240);
+  --on-info-container: oklch(85% 0.05 240);
+
+  /* Outline — Nord Polar Night lighter (#4c566a) */
+  --outline: oklch(45% 0.02 240);
+  --outline-variant: oklch(30% 0.02 240);
+
+  /* Inverse — Snow Storm */
+  --inverse-surface: oklch(92% 0.01 240);
+  --inverse-on-surface: oklch(26% 0.02 245);
+  --inverse-primary: oklch(50% 0.08 210);
+
+  --scrim: oklch(0% 0 0 / 0.6);
+  --shadow: oklch(0% 0 0 / 0.5);
+
+  /* Typography — clean geometric sans for Scandinavian minimalism */
+  --font-display: "DM Sans", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-code: "JetBrains Mono", monospace;
+
+  .app-header {
+    background: oklch(22% 0.02 245);
+    color: oklch(92% 0.01 240);
+    border-bottom: 1px solid oklch(35% 0.02 240);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(24% 0.02 245);
+  }
+
+  & body {
+    font-family: "DM Sans", sans-serif;
+  }
+}

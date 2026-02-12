@@ -7,6 +7,20 @@ export const ALL_THEMES = [
   "folwell",
   "st-thomas",
   "hotdog",
+  "vaporwave",
+  "matrix",
+  "barbie",
+  "ocean-sunset",
+  "dracula",
+  "solarized",
+  "nord",
+  "nord-light",
+  "gameboy",
+  "tron",
+  "construction",
+  "hotrod",
+  "brutalist",
+  "natural",
 ] as const;
 
 const defaultConfig: AppConfig = {

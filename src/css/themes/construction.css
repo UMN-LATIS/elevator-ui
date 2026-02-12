@@ -1,0 +1,101 @@
+/**
+ * CONSTRUCTION ZONE THEME
+ *
+ * Orange and black with yellow caution-stripe energy.
+ * Bold, industrial, high-visibility. Hard hat required.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&display=swap");
+
+[data-theme="construction"] {
+  /* Surface — dark asphalt gray */
+  --surface: oklch(20% 0.01 80);
+  --surface-dim: oklch(15% 0.01 80);
+  --surface-bright: oklch(30% 0.02 80);
+  --surface-container-lowest: oklch(17% 0.01 80);
+  --surface-container-low: oklch(22% 0.01 80);
+  --surface-container: oklch(26% 0.02 80);
+  --surface-container-high: oklch(30% 0.02 80);
+  --surface-container-highest: oklch(35% 0.02 80);
+
+  /* On-surface — high-vis yellow-white */
+  --on-surface: oklch(92% 0.04 90);
+  --on-surface-variant: oklch(70% 0.03 80);
+
+  /* Primary — safety orange */
+  --primary: oklch(72% 0.2 55);
+  --on-primary: oklch(10% 0.02 55);
+  --primary-container: oklch(30% 0.1 55);
+  --on-primary-container: oklch(90% 0.1 55);
+
+  /* Secondary — caution yellow */
+  --secondary: oklch(88% 0.18 95);
+  --on-secondary: oklch(15% 0.04 95);
+  --secondary-container: oklch(35% 0.08 95);
+  --on-secondary-container: oklch(90% 0.1 95);
+
+  /* Tertiary — steel blue for contrast */
+  --tertiary: oklch(60% 0.08 240);
+  --on-tertiary: oklch(95% 0 0);
+  --tertiary-container: oklch(25% 0.05 240);
+  --on-tertiary-container: oklch(82% 0.06 240);
+
+  /* Semantic states */
+  --error: oklch(65% 0.2 25);
+  --on-error: oklch(10% 0 0);
+  --error-container: oklch(22% 0.08 25);
+  --on-error-container: oklch(88% 0.08 25);
+
+  --success: oklch(68% 0.14 145);
+  --on-success: oklch(10% 0 0);
+  --success-container: oklch(22% 0.06 145);
+  --on-success-container: oklch(85% 0.06 145);
+
+  --warning: oklch(85% 0.18 90);
+  --on-warning: oklch(15% 0.04 90);
+  --warning-container: oklch(30% 0.08 90);
+  --on-warning-container: oklch(88% 0.1 90);
+
+  --info: oklch(65% 0.08 240);
+  --on-info: oklch(10% 0 0);
+  --info-container: oklch(22% 0.05 240);
+  --on-info-container: oklch(82% 0.05 240);
+
+  /* Outline — orange-tinted borders */
+  --outline: oklch(50% 0.08 55);
+  --outline-variant: oklch(30% 0.04 55);
+
+  /* Inverse */
+  --inverse-surface: oklch(92% 0.04 90);
+  --inverse-on-surface: oklch(18% 0.01 80);
+  --inverse-primary: oklch(52% 0.18 55);
+
+  --scrim: oklch(0% 0 0 / 0.7);
+  --shadow: oklch(0% 0 0 / 0.7);
+
+  /* Typography — industrial condensed display, utilitarian body */
+  --font-display: "Oswald", sans-serif;
+  --font-body: "Barlow", sans-serif;
+
+  .app-header {
+    background: oklch(12% 0.01 80);
+    color: oklch(88% 0.18 95);
+    border-bottom: 4px solid oklch(72% 0.2 55);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(15% 0.01 80);
+  }
+
+  & body {
+    font-family: "Barlow", sans-serif;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Oswald", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+}

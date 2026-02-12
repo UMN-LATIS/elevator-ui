@@ -3,6 +3,20 @@
 @import url("themes/folwell.css");
 @import url("themes/st-thomas.css");
 @import url("themes/hotdog.css");
+@import url("themes/vaporwave.css");
+@import url("themes/matrix.css");
+@import url("themes/barbie.css");
+@import url("themes/ocean-sunset.css");
+@import url("themes/dracula.css");
+@import url("themes/solarized.css");
+@import url("themes/nord.css");
+@import url("themes/nord-light.css");
+@import url("themes/gameboy.css");
+@import url("themes/tron.css");
+@import url("themes/construction.css");
+@import url("themes/hotrod.css");
+@import url("themes/brutalist.css");
+@import url("themes/natural.css");
 
 @tailwind base;
 @tailwind components;

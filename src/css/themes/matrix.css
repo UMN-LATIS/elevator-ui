@@ -1,0 +1,99 @@
+/**
+ * MATRIX THEME
+ *
+ * Black background, bright green text. Monospace everything.
+ * "I'm in." — every movie hacker, ever.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Source+Code+Pro:wght@300;400;500;600;700&display=swap");
+
+[data-theme="matrix"] {
+  /* Surface — pure black void */
+  --surface: oklch(5% 0.01 145);
+  --surface-dim: oklch(3% 0 0);
+  --surface-bright: oklch(15% 0.02 145);
+  --surface-container-lowest: oklch(4% 0 0);
+  --surface-container-low: oklch(8% 0.01 145);
+  --surface-container: oklch(12% 0.02 145);
+  --surface-container-high: oklch(16% 0.02 145);
+  --surface-container-highest: oklch(20% 0.03 145);
+
+  /* On-surface — green phosphor glow */
+  --on-surface: oklch(82% 0.2 145);
+  --on-surface-variant: oklch(60% 0.12 145);
+
+  /* Primary — bright matrix green */
+  --primary: oklch(78% 0.22 145);
+  --on-primary: oklch(5% 0.02 145);
+  --primary-container: oklch(25% 0.1 145);
+  --on-primary-container: oklch(85% 0.18 145);
+
+  /* Secondary — dimmer green */
+  --secondary: oklch(55% 0.12 145);
+  --on-secondary: oklch(5% 0 0);
+  --secondary-container: oklch(18% 0.06 145);
+  --on-secondary-container: oklch(75% 0.12 145);
+
+  /* Tertiary — cyan accent for variety */
+  --tertiary: oklch(70% 0.12 190);
+  --on-tertiary: oklch(5% 0 0);
+  --tertiary-container: oklch(22% 0.06 190);
+  --on-tertiary-container: oklch(82% 0.1 190);
+
+  /* Semantic states */
+  --error: oklch(65% 0.2 25);
+  --on-error: oklch(5% 0 0);
+  --error-container: oklch(20% 0.08 25);
+  --on-error-container: oklch(85% 0.1 25);
+
+  --success: oklch(78% 0.22 145);
+  --on-success: oklch(5% 0 0);
+  --success-container: oklch(20% 0.08 145);
+  --on-success-container: oklch(85% 0.15 145);
+
+  --warning: oklch(75% 0.15 100);
+  --on-warning: oklch(10% 0 0);
+  --warning-container: oklch(25% 0.08 100);
+  --on-warning-container: oklch(85% 0.1 100);
+
+  --info: oklch(65% 0.1 190);
+  --on-info: oklch(5% 0 0);
+  --info-container: oklch(20% 0.06 190);
+  --on-info-container: oklch(82% 0.08 190);
+
+  /* Outline — dark green borders */
+  --outline: oklch(40% 0.1 145);
+  --outline-variant: oklch(22% 0.06 145);
+
+  /* Inverse */
+  --inverse-surface: oklch(85% 0.15 145);
+  --inverse-on-surface: oklch(10% 0.02 145);
+  --inverse-primary: oklch(35% 0.15 145);
+
+  --scrim: oklch(0% 0 0 / 0.8);
+  --shadow: oklch(0% 0 0 / 0.8);
+
+  /* Typography — monospace everything */
+  --font-display: "Share Tech Mono", monospace;
+  --font-body: "Source Code Pro", monospace;
+
+  .app-header {
+    background: oklch(8% 0.02 145);
+    color: oklch(78% 0.22 145);
+    border-bottom: 1px solid oklch(40% 0.15 145);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(6% 0.01 145);
+  }
+
+  & body {
+    font-family: "Source Code Pro", monospace;
+  }
+
+  & h1,
+  & h2,
+  & h3 {
+    font-family: "Share Tech Mono", monospace;
+  }
+}

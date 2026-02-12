@@ -222,9 +222,9 @@
                 <label class="block text-xs font-medium uppercase">
                   Available Themes
                 </label>
-                <div class="flex flex-wrap gap-4">
+                <div class="grid grid-cols-3 gap-4">
                   <label
-                    v-for="theme in allThemes"
+                    v-for="theme in allThemes.toSorted()"
                     :key="theme"
                     class="flex items-center gap-2 text-sm">
                     <input

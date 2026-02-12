@@ -15,7 +15,21 @@
             <option value="primary-tint">Primary Tint</option>
             <option value="folwell">Folwell (UMN)</option>
             <option value="st-thomas">St. Thomas</option>
-            <option value="hotdog">Hotdog</option>
+            <option value="hotdog">Hotdog Stand</option>
+            <option value="vaporwave">Vaporwave</option>
+            <option value="matrix">Matrix</option>
+            <option value="barbie">Barbie</option>
+            <option value="ocean-sunset">Ocean Sunset</option>
+            <option value="dracula">Dracula</option>
+            <option value="solarized">Solarized</option>
+            <option value="nord">Nord</option>
+            <option value="nord-light">Nord Light</option>
+            <option value="gameboy">Game Boy</option>
+            <option value="tron">Tron</option>
+            <option value="construction">Construction Zone</option>
+            <option value="hotrod">Hot Rod</option>
+            <option value="brutalist">Brutalist</option>
+            <option value="natural">Natural</option>
           </select>
         </div>
       </div>

@@ -1,0 +1,94 @@
+/**
+ * NORD LIGHT THEME
+ *
+ * The Snow Storm side of the Nord palette. Bright, airy, and frost-white
+ * with the same cool-toned Frost and Aurora accents. Based on nordtheme.com.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+[data-theme="nord-light"] {
+  /* Surface — Nord Snow Storm (#eceff4 → #d8dee9) */
+  --surface: oklch(95% 0.005 240);
+  --surface-dim: oklch(91% 0.008 240);
+  --surface-bright: oklch(98% 0.003 240);
+  --surface-container-lowest: oklch(97% 0.004 240);
+  --surface-container-low: oklch(94% 0.006 240);
+  --surface-container: oklch(92% 0.008 240);
+  --surface-container-high: oklch(89% 0.01 240);
+  --surface-container-highest: oklch(86% 0.012 240);
+
+  /* On-surface — Nord Polar Night (#2e3440 / #3b4252) */
+  --on-surface: oklch(26% 0.02 245);
+  --on-surface-variant: oklch(40% 0.02 245);
+
+  /* Primary — Nord Frost deep blue (#5e81ac) */
+  --primary: oklch(56% 0.08 240);
+  --on-primary: oklch(97% 0.003 240);
+  --primary-container: oklch(90% 0.03 240);
+  --on-primary-container: oklch(32% 0.06 240);
+
+  /* Secondary — Nord Frost teal (#8fbcbb) */
+  --secondary: oklch(55% 0.06 190);
+  --on-secondary: oklch(97% 0.003 190);
+  --secondary-container: oklch(92% 0.025 190);
+  --on-secondary-container: oklch(30% 0.04 190);
+
+  /* Tertiary — Nord Frost blue (#88c0d0) */
+  --tertiary: oklch(58% 0.07 210);
+  --on-tertiary: oklch(97% 0.003 210);
+  --tertiary-container: oklch(92% 0.025 210);
+  --on-tertiary-container: oklch(30% 0.05 210);
+
+  /* Semantic states — Nord Aurora, tuned for light backgrounds */
+  --error: oklch(55% 0.14 15); /* Nord red (#bf616a) */
+  --on-error: oklch(97% 0 0);
+  --error-container: oklch(93% 0.03 15);
+  --on-error-container: oklch(32% 0.1 15);
+
+  --success: oklch(55% 0.1 145); /* Nord green (#a3be8c) */
+  --on-success: oklch(97% 0 0);
+  --success-container: oklch(93% 0.03 145);
+  --on-success-container: oklch(30% 0.06 145);
+
+  --warning: oklch(72% 0.12 80); /* Nord yellow (#ebcb8b) */
+  --on-warning: oklch(25% 0.04 80);
+  --warning-container: oklch(94% 0.03 80);
+  --on-warning-container: oklch(30% 0.06 80);
+
+  --info: oklch(56% 0.07 240); /* Nord frost blue */
+  --on-info: oklch(97% 0 0);
+  --info-container: oklch(93% 0.02 240);
+  --on-info-container: oklch(30% 0.05 240);
+
+  /* Outline — mid Polar Night / Snow Storm boundary */
+  --outline: oklch(55% 0.015 240);
+  --outline-variant: oklch(85% 0.01 240);
+
+  /* Inverse — Polar Night */
+  --inverse-surface: oklch(26% 0.02 245);
+  --inverse-on-surface: oklch(92% 0.005 240);
+  --inverse-primary: oklch(75% 0.08 210);
+
+  --scrim: oklch(0% 0 0 / 0.4);
+  --shadow: oklch(26% 0.02 245 / 0.15);
+
+  /* Typography — same DM Sans as dark Nord for consistency */
+  --font-display: "DM Sans", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-code: "JetBrains Mono", monospace;
+
+  .app-header {
+    background: oklch(97% 0.004 240);
+    color: oklch(26% 0.02 245);
+    border-bottom: 1px solid oklch(85% 0.01 240);
+  }
+
+  .app-header__secondary-nav {
+    background: oklch(94% 0.006 240);
+  }
+
+  & body {
+    font-family: "DM Sans", sans-serif;
+  }
+}
