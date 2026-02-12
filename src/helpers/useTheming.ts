@@ -1,16 +1,18 @@
 import { watch, computed } from "vue";
 import { useStorage } from "@vueuse/core";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { ALL_THEMES } from "@/config";
 
 export function useTheming() {
   const { data: instanceData } = useInstanceQuery();
-  const availableThemes = computed(
-    () =>
-      instanceData.value?.theming?.availableThemes.toSorted() || [
-        "dark",
-        "light",
-      ]
-  );
+  const availableThemes = computed(() => {
+    const allThemes: readonly string[] = ALL_THEMES;
+    const validThemes = (
+      instanceData.value?.theming?.availableThemes ?? []
+    ).filter((theme) => allThemes.includes(theme));
+
+    return validThemes.length > 0 ? validThemes : ["dark", "light"];
+  });
   const defaultTheme = computed(
     () => instanceData.value?.theming?.defaultTheme || "light"
   );
