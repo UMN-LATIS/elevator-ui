@@ -13,6 +13,7 @@
 import { QuillyEditor } from "vue-quilly";
 import Quill from "quill/quill";
 import { ref, onMounted, computed } from "vue";
+import { cleanHtml } from "@/helpers/htmlCleaningHelpers";
 import "quill-paste-smart";
 import htmlEditButton from "quill-html-edit-button";
 import "quill/dist/quill.core.css";
@@ -91,10 +92,18 @@ const options = computed(() => ({
   readOnly: false,
 }));
 
-// expose the quill instance so that parent can use
-// quill.getSemanticHTML() to get the semantic HTML
+/**
+ * Returns the editor content as cleaned semantic HTML.
+ * Call this at save time to get properly formatted content.
+ */
+function getCleanHtml(): string {
+  if (!quill) return "";
+  return cleanHtml(quill.root.innerHTML);
+}
+
 defineExpose({
   quill,
+  getCleanHtml,
 });
 
 onMounted(() => {
