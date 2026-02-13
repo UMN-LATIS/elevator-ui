@@ -4,7 +4,7 @@
       <div class="flex justify-between items-center">
         <h1 class="text-4xl font-bold my-8">Custom Pages</h1>
         <RouterLink :to="{ name: 'createCustomPage' }">
-          <Button variant="primary">Create New Page</Button>
+          <Button variant="primary">Create Page</Button>
         </RouterLink>
       </div>
       <Transition name="fade" mode="out-in">
