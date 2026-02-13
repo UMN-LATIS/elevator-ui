@@ -68,7 +68,11 @@
 
 <script setup lang="ts" generic="TData">
 import { computed, ref } from "vue";
-import type { ColumnDef, SortingState, VisibilityState } from "@tanstack/vue-table";
+import type {
+  ColumnDef,
+  SortingState,
+  VisibilityState,
+} from "@tanstack/vue-table";
 import { useMediaQuery } from "@vueuse/core";
 import {
   FlexRender,

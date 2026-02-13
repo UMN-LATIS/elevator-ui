@@ -1,14 +1,23 @@
 <template>
   <DefaultLayout class="all-custom-pages-page">
-    <div class="max-w-screen-xl py-10 px-4 mx-auto">
+    <div class="max-w-screen-xl w-full py-10 px-4 mx-auto">
       <div class="flex justify-between items-center">
         <h1 class="text-4xl font-bold my-8">Custom Pages</h1>
         <RouterLink :to="{ name: 'createCustomPage' }">
           <Button variant="primary">Create New Page</Button>
         </RouterLink>
       </div>
-      <p v-if="!customPages.length" class="text-lg">No pages found.</p>
-      <CustomPagesTable v-else :columns="columns" :data="customPages" />
+      <Transition name="fade" mode="out-in">
+        <Skeleton v-if="isLoading" height="10rem" />
+        <Notification
+          v-else-if="isError"
+          type="danger"
+          title="Error Loading Custom Pages">
+          An error occurred while loading custom pages.
+        </Notification>
+        <p v-else-if="!customPages?.length" class="text-lg">No pages found.</p>
+        <CustomPagesTable v-else :columns="columns" :data="customPages" />
+      </Transition>
     </div>
   </DefaultLayout>
 </template>
@@ -20,8 +29,12 @@ import { useDeleteCustomPageMutation } from "@/queries/useCustomPageQuery";
 import { useToastStore } from "@/stores/toastStore";
 import { createColumns } from "./CustomPagesTableColumns";
 import CustomPagesTable from "./CustomPagesTable.vue";
+import SpinnerIcon from "@/icons/SpinnerIcon.vue";
+import Notification from "@/components/Notification/Notification.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
-const { data: customPages } = useAllCustomPagesQuery();
+const { data: customPages, isLoading, isError } = useAllCustomPagesQuery();
+
 const deleteMutation = useDeleteCustomPageMutation();
 const toastStore = useToastStore();
 
