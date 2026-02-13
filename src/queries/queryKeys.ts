@@ -6,3 +6,5 @@ export const COLLECTIONS_QUERY_KEY = "collections";
 export const SEARCH_QUERY_ID = "search";
 export const RELATED_ASSETS_SEARCH_QUERY_ID = "relatedAssets";
 export const FILE_METADATA_QUERY_KEY = "fileMetadata";
+export const CUSTOM_PAGES_QUERY_KEY = "customPages";
+export const CUSTOM_PAGE_QUERY_KEY = "customPage";

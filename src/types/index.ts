@@ -1084,3 +1084,41 @@ export interface TocItem {
   hasContent?: boolean;
   isValid?: boolean;
 }
+
+export interface CustomPageSummary {
+  id: number;
+  title: string;
+  includeInHeader: boolean;
+  parentId: number | null;
+  parentTitle: string | null;
+  body: string;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
+export interface SaveCustomPageResult {
+  pageId: number;
+  title: string;
+  body: string;
+  includeInHeader: boolean;
+  parent: number | null;
+  modifiedAt: string | null;
+}
+
+export interface SavePageApiResponse {
+  id: number;
+  title: string;
+  body: string;
+  includeInHeader: boolean;
+  sortOrder: number | null;
+  parentId: number | null;
+  modifiedAt: string | null;
+}
+
+export interface SaveCustomPageParams {
+  id?: number;
+  title: string;
+  body: string;
+  parent: number | null;
+  includeInHeader: boolean;
+}
