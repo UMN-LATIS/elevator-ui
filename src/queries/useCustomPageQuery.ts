@@ -7,6 +7,7 @@ import {
 } from "@/api/fetchers";
 import { CUSTOM_PAGES_QUERY_KEY, INSTANCE_QUERY_KEY } from "./queryKeys";
 import type { SaveCustomPageParams } from "@/types";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useCustomPageQuery(
   pageIdRef: MaybeRefOrGetter<number | null>,
@@ -36,6 +37,16 @@ export function useSaveCustomPageMutation(options?: {
       // Invalidates both the list and all individual page queries
       queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+
+      // refresh instanceStore too
+      // this will double-fetch instance info when pages are deleted
+      // (once for the query invalidation above and once manually here)
+      // when we migrate instanceStore consumers to useInstanceQuery, we can
+      // remove this manual refresh and rely solely on the query invalidation
+      // to update instance info
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
+
       options?.onSuccess?.(data, variables);
     },
   });
@@ -49,6 +60,15 @@ export function useDeleteCustomPageMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+
+      // refresh instanceStore too
+      // this will double-fetch instance info when pages are deleted
+      // (once for the query invalidation above and once manually here)
+      // when we migrate instanceStore consumers to useInstanceQuery, we can
+      // remove this manual refresh and rely solely on the query invalidation
+      // to update instance info
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
     },
   });
 }
