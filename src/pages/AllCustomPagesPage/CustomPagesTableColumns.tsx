@@ -106,27 +106,4 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
     },
     maxSize: 96,
   }),
-  {
-    id: "actions",
-    header: () => <ColHeader text="Actions" class=" w-full text-center" />,
-    enableSorting: false,
-    cell: ({ row }: { row: { original: CustomPageSummary } }) => (
-      <div class="flex gap-2 items-center justify-center">
-        <IconButton
-          to={{ name: "editCustomPage", params: { pageId: row.original.id } }}
-          showTooltip={false}
-          title="Edit">
-          <PencilIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          onClick={() => onDelete(row.original.id)}
-          variant="danger-inverse"
-          showTooltip={false}
-          title="Delete">
-          <Trash2 class="size-4" />
-        </IconButton>
-      </div>
-    ),
-    maxSize: 64,
-  },
 ];
