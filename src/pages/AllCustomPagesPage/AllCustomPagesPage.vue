@@ -3,6 +3,9 @@
     <div class="max-w-screen-xl w-full py-10 px-4 mx-auto">
       <div class="flex justify-between items-center">
         <h1 class="text-4xl font-bold my-8">Custom Pages</h1>
+        <RouterLink :to="{ name: 'createCustomPage' }">
+          <Button variant="primary">Create New Page</Button>
+        </RouterLink>
       </div>
       <Transition name="fade" mode="out-in">
         <Skeleton v-if="isLoading" height="10rem" />
