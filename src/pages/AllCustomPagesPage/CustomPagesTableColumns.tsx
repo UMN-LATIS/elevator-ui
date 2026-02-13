@@ -120,7 +120,7 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
         </IconButton>
         <IconButton
           onClick={() => onDelete(row.original.id)}
-          variant="danger-inverse"
+          class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container"
           showTooltip={false}
           title="Delete">
           <Trash2 class="size-4" />
