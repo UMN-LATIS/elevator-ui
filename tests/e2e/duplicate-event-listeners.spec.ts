@@ -90,7 +90,7 @@ test.describe("Event Listener Duplication Bug", () => {
       page.getByRole("heading", { name: "Elevator Home Page" })
     ).toBeVisible();
 
-    // wait until contentLoaded gets called once
+    // wait until imagesLoaded gets called once
     await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 1);
 
     // each event should have been dispatched exactly once
