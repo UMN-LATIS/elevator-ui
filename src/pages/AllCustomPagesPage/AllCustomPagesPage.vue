@@ -30,6 +30,7 @@ import { createColumns } from "./CustomPagesTableColumns";
 import CustomPagesTable from "./CustomPagesTable.vue";
 import Notification from "@/components/Notification/Notification.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import Button from "@/components/Button/Button.vue";
 
 const { data: customPages, isLoading, isError } = useAllCustomPagesQuery();
 
