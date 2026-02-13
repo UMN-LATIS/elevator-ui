@@ -277,6 +277,12 @@ const router = createRouter({
       }),
     },
     {
+      name: "customPagesIndex",
+      path: "/instances/customPages",
+      component: () =>
+        import("@/pages/AllCustomPagesPage/AllCustomPagesPage.vue"),
+    },
+    {
       name: "mapClusterTest",
       path: "/tests/map",
       component: () => import("@/pages/TestPages/MapClusterTest.vue"),
