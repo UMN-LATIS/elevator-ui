@@ -900,7 +900,6 @@ export async function updateInstanceSettings(
   return res.data;
 }
 
-// API response uses parentId, frontend type uses parent
 interface CustomPageApiResponse {
   id: number;
   title: string;
