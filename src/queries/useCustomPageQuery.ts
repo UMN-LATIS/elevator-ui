@@ -13,7 +13,7 @@ export function useCustomPageQuery(
   options = {}
 ) {
   return useQuery({
-    queryKey: ["customPage", pageIdRef],
+    queryKey: [CUSTOM_PAGES_QUERY_KEY, pageIdRef],
     queryFn: () => {
       const pageId = toValue(pageIdRef);
       return pageId ? fetchCustomPage(pageId) : null;
@@ -33,13 +33,9 @@ export function useSaveCustomPageMutation(options?: {
   return useMutation({
     mutationFn: (params: SaveCustomPageParams) => saveCustomPage(params),
     onSuccess: (data, variables) => {
+      // Invalidates both the list and all individual page queries
       queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
-      if (variables.id) {
-        queryClient.invalidateQueries({
-          queryKey: ["customPage", variables.id],
-        });
-      }
       options?.onSuccess?.(data, variables);
     },
   });
