@@ -91,7 +91,7 @@ test.describe("Event Listener Duplication Bug", () => {
     ).toBeVisible();
 
     // wait until contentLoaded gets called once
-    await pollUntil(() => window.eventListenerCallCounts.contentLoaded, 1);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 1);
 
     // each event should have been dispatched exactly once
     expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
@@ -114,7 +114,7 @@ test.describe("Event Listener Duplication Bug", () => {
     await expect(aboutLink).toBeVisible();
     await aboutLink.click();
 
-    await pollUntil(() => window.eventListenerCallCounts.contentLoaded, 2);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 2);
 
     // exactly +1, not growing — no leaked dispatchers
     expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
@@ -130,7 +130,7 @@ test.describe("Event Listener Duplication Bug", () => {
     await expect(pageWithImagesLink).toBeVisible();
     await pageWithImagesLink.click();
 
-    await pollUntil(() => window.eventListenerCallCounts.contentLoaded, 3);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 3);
 
     // exactly +1, not growing — no leaked dispatchers
     expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
@@ -141,7 +141,7 @@ test.describe("Event Listener Duplication Bug", () => {
     // now back to homepage
     await page.getByRole("link", { name: "defaultinstance" }).click();
 
-    await pollUntil(() => window.eventListenerCallCounts.contentLoaded, 4);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 4);
 
     // exactly +1, not growing — no leaked dispatchers
     expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
