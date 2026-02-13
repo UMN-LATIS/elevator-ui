@@ -1,65 +1,72 @@
 <template>
   <DefaultLayout>
-  <FormPageLayout :title="isNewPage ? 'Create Page' : 'Edit Page'">
-    <div v-if="isLoading" class="flex justify-center items-center py-12">
-      <SpinnerIcon class="w-8 h-8 animate-spin" />
-      <span class="ml-2">Loading page...</span>
-    </div>
-
-    <div
-      v-else-if="isError"
-      class="text-red-600 p-4 bg-red-50 rounded-md border border-red-200">
-      Failed to load page.
-    </div>
-
-    <form v-else id="edit-page-form" @submit.prevent="handleSave">
-      <FormSection id="content" title="Page Content">
-        <InputGroup
-          v-model="form.title"
-          label="Title"
-          required
-          placeholder="Page title" />
-        <TextEditorGroup ref="bodyEditorRef" v-model="form.body" label="Body" />
-      </FormSection>
-
-      <FormSection id="options" title="Options">
-        <SelectGroup
-          :modelValue="form.parent ?? 0"
-          :options="parentPageOptions"
-          label="Parent Page"
-          @update:modelValue="form.parent = $event === 0 ? null : $event" />
-
-        <ToggleGroup v-model="form.includeInHeader" label="Include in Menu" />
-      </FormSection>
-    </form>
-
-    <template #sidebar-actions>
-      <div class="grid grid-cols-2 gap-2">
-        <Button variant="secondary" :to="`/page/view/${pageId}`">View</Button>
-        <Button
-          type="submit"
-          form="edit-page-form"
-          variant="primary"
-          :disabled="isSaving">
-          <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
-          {{ isSaving ? "Saving..." : "Save" }}
-        </Button>
+    <FormPageLayout :title="isNewPage ? 'Create Page' : 'Edit Page'">
+      <div v-if="isLoading" class="flex justify-center items-center py-12">
+        <SpinnerIcon class="w-8 h-8 animate-spin" />
+        <span class="ml-2">Loading page...</span>
       </div>
-      <Button
-        v-if="!isNewPage"
-        variant="danger"
-        :disabled="isDeleting"
-        class="w-full mt-4"
-        @click="handleDelete">
-        <SpinnerIcon v-if="isDeleting" class="w-4 h-4 animate-spin" />
-        {{ isDeleting ? "Deleting..." : "Delete Page" }}
-      </Button>
-    </template>
 
-    <template #sidebar-nav>
-      <FormToc :sections="tocSections" class="hidden lg:block" />
-    </template>
-  </FormPageLayout>
+      <div
+        v-else-if="isError"
+        class="text-red-600 p-4 bg-red-50 rounded-md border border-red-200">
+        Failed to load page.
+      </div>
+
+      <form v-else id="edit-page-form" @submit.prevent="handleSave">
+        <FormSection id="content" title="Page Content">
+          <InputGroup
+            v-model="form.title"
+            label="Title"
+            required
+            placeholder="Page title" />
+          <TextEditorGroup
+            ref="bodyEditorRef"
+            v-model="form.body"
+            label="Body" />
+        </FormSection>
+
+        <FormSection id="options" title="Options">
+          <SelectGroup
+            :modelValue="form.parent ?? 0"
+            :options="parentPageOptions"
+            label="Parent Page"
+            @update:modelValue="form.parent = $event === 0 ? null : $event" />
+
+          <ToggleGroup v-model="form.includeInHeader" label="Include in Menu" />
+        </FormSection>
+      </form>
+
+      <template #sidebar-actions>
+        <div class="grid grid-cols-2 gap-2 items-center grid-flow-row-dense">
+          <Button
+            type="submit"
+            form="edit-page-form"
+            variant="primary"
+            :class="{
+              // give save button its own line if there's 3 buttons (editing existing page)
+              'col-span-full': !isNewPage,
+              'col-start-2': isNewPage,
+            }"
+            :disabled="isSaving">
+            <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
+            {{ isSaving ? "Saving..." : "Save" }}
+          </Button>
+          <Button variant="secondary" :to="`/page/view/${pageId}`">View</Button>
+          <Button
+            v-if="!isNewPage"
+            variant="danger"
+            :disabled="isDeleting"
+            @click="handleDelete">
+            <SpinnerIcon v-if="isDeleting" class="w-4 h-4 animate-spin" />
+            {{ isDeleting ? "Deleting..." : "Delete" }}
+          </Button>
+        </div>
+      </template>
+
+      <template #sidebar-nav>
+        <FormToc :sections="tocSections" class="hidden lg:block" />
+      </template>
+    </FormPageLayout>
   </DefaultLayout>
 </template>
 
