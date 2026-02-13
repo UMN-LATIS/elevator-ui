@@ -26,8 +26,17 @@ test.describe("Event Listener Duplication Bug", () => {
 
     await refreshDatabase({ request, workerId });
 
-    // Update instance to include a custom header script that tracks listener call counts
-    // This script simulates what admins might write - a simple event listener
+    // Our page components dispatch custom DOM events (content-loaded,
+    // images-loaded) that admins can hook into via custom header scripts.
+    // If a component sets up an event dispatcher on mount but doesn't tear
+    // it down on navigation, dispatchers accumulate — after visiting 3 pages,
+    // the next navigation fires the event 3 times instead of once.
+    //
+    // To detect that, we inject a custom header script (like an admin would)
+    // that adds a single listener for each event and counts how many times
+    // it's called. The listener is added once and stays alive across SPA
+    // navigations. If dispatchers are leaking, the count will jump by more
+    // than 1 per navigation.
     await updateInstance({
       request,
       workerId,
@@ -64,9 +73,13 @@ test.describe("Event Listener Duplication Bug", () => {
   test("should NOT duplicate event listeners when navigating between different page types", async ({
     page,
   }) => {
-    const getCallCounts = async () => {
-      return page.evaluate(() => window.eventListenerCallCounts);
-    };
+    // create a helper to use `expect.poll` to wait for a value
+    // which is more reliable than a fixed timeout in CI
+    const pollUntil = async (
+      fn: () => number,
+      expectedValue: number,
+      timeout = 5000
+    ) => expect.poll(() => page.evaluate(fn), { timeout }).toBe(expectedValue);
 
     // Enable console logging for debugging
     page.on("console", (msg) => console.log("BROWSER:", msg.text()));
@@ -77,11 +90,11 @@ test.describe("Event Listener Duplication Bug", () => {
       page.getByRole("heading", { name: "Elevator Home Page" })
     ).toBeVisible();
 
-    // Wait for both events to fire on HomePage
-    await page.waitForTimeout(2000);
+    // wait until imagesLoaded gets called once
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 1);
 
-    // Each listener should have been called once
-    expect(await getCallCounts()).toEqual({
+    // each event should have been dispatched exactly once
+    expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
       contentLoaded: 1,
       imagesLoaded: 1,
     });
@@ -101,31 +114,26 @@ test.describe("Event Listener Duplication Bug", () => {
     await expect(aboutLink).toBeVisible();
     await aboutLink.click();
 
-    // Wait for both events
-    await page.waitForTimeout(2000);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 2);
 
-    // each listener should be called once more (not duplicated)
-    expect(await getCallCounts()).toEqual({
+    // exactly +1, not growing — no leaked dispatchers
+    expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
       contentLoaded: 2,
       imagesLoaded: 2,
     });
 
-    // now navigate to another static page with images
-    // i.e. the page component doesn't change, but we should
-    // still see exactly one additional call per listener
-    // Find menu toggle button or clickable menu element
+    // Navigate to a different static page. Both About and this page use the
+    // same Vue component (StaticContentPage), so Vue reuses it instead of
+    // unmounting. This tests that cleanup works even without an unmount.
     await menuToggle.click();
     const pageWithImagesLink = menu.getByText("Test Page with Broken Images");
     await expect(pageWithImagesLink).toBeVisible();
     await pageWithImagesLink.click();
 
-    // Wait for both events to fire
-    await page.waitForTimeout(2000);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 3);
 
-    // Check call counts
-
-    // each listener should be called once more (not duplicated)
-    expect(await getCallCounts()).toEqual({
+    // exactly +1, not growing — no leaked dispatchers
+    expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
       contentLoaded: 3,
       imagesLoaded: 3,
     });
@@ -133,10 +141,10 @@ test.describe("Event Listener Duplication Bug", () => {
     // now back to homepage
     await page.getByRole("link", { name: "defaultinstance" }).click();
 
-    await page.waitForTimeout(2000);
+    await pollUntil(() => window.eventListenerCallCounts.imagesLoaded, 4);
 
-    // each listener should be called once more (not duplicated)
-    expect(await getCallCounts()).toEqual({
+    // exactly +1, not growing — no leaked dispatchers
+    expect(await page.evaluate(() => window.eventListenerCallCounts)).toEqual({
       contentLoaded: 4,
       imagesLoaded: 4,
     });
