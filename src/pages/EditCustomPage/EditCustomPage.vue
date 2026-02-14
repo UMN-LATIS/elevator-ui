@@ -42,11 +42,7 @@
             type="submit"
             form="edit-page-form"
             variant="primary"
-            :class="{
-              // give save button its own line if there's 3 buttons (editing existing page)
-              'col-span-full': !isNewPage,
-              'col-start-2': isNewPage,
-            }"
+            :class="['col-span-full']"
             :disabled="isSaving">
             <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
             {{ isSaving ? "Saving..." : "Save" }}
