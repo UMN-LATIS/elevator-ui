@@ -116,9 +116,7 @@ const {
 
 const { data: allPages, isLoading: isLoadingPages } = useAllCustomPagesQuery();
 
-const isLoading = computed(
-  () => isLoadingPage.value || (isLoadingPages.value && !isNewPage.value)
-);
+const isLoading = computed(() => isLoadingPage.value || isLoadingPages.value);
 
 const saveMutation = useSaveCustomPageMutation();
 const isSaving = computed(() => saveMutation.isPending.value);
