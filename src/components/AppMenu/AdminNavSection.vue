@@ -6,9 +6,7 @@
     <AppMenuItem :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
       Instance Permissions
     </AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/instances/customPages`">
-      Instance Pages
-    </AppMenuItem>
+    <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/reports`">Reports</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/templates`">Edit Templates</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/collectionManager`">

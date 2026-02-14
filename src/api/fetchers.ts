@@ -37,7 +37,10 @@ import {
   type GetFileContainerApiResponse,
   CollectionDescription,
   ApiAssetSubmissionResponse,
-  InstanceSettings
+  InstanceSettings,
+  SaveCustomPageParams,
+  SaveCustomPageResult,
+  SavePageApiResponse,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -82,7 +85,10 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
 });
 
 // parentAssetId is needed to properly resolve permissions for related assets
-export async function fetchAsset(assetId: string, parentAssetId = ''): Promise<Asset | null> {
+export async function fetchAsset(
+  assetId: string,
+  parentAssetId = ""
+): Promise<Asset | null> {
   const res = await axios.get<Asset>(
     `${BASE_URL}/asset/viewAsset/${assetId}/true/${parentAssetId}`
   );
@@ -891,5 +897,68 @@ export async function updateInstanceSettings(
     formData
   );
 
+  return res.data;
+}
+
+interface CustomPageApiResponse {
+  id: number;
+  title: string;
+  body: string;
+  includeInHeader: boolean;
+  parentId: number | null;
+  parentTitle: string | null;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
+export async function fetchCustomPages() {
+  const res = await axios.get<CustomPageApiResponse[]>(
+    `${BASE_URL}/instances/customPages/true`
+  );
+  return res.data;
+}
+
+export async function fetchCustomPage(pageId: number) {
+  const res = await axios.get<CustomPageApiResponse>(
+    `${BASE_URL}/instances/getPage/${pageId}`
+  );
+  return res.data;
+}
+
+export async function saveCustomPage(
+  params: SaveCustomPageParams
+): Promise<SaveCustomPageResult> {
+  const formData = new FormData();
+
+  if (params.id) {
+    formData.append("pageId", String(params.id));
+  }
+  formData.append("title", params.title);
+  formData.append("body", params.body);
+  formData.append("includeInHeader", params.includeInHeader ? "1" : "0");
+
+  if (params.parent) {
+    formData.append("parent", String(params.parent));
+  }
+
+  const res = await axios.post<SavePageApiResponse>(
+    `${BASE_URL}/instances/savePage/true`,
+    formData
+  );
+
+  // Normalize API response field names
+  const { id, parentId, ...rest } = res.data;
+
+  return {
+    ...rest,
+    pageId: id,
+    parent: parentId,
+  };
+}
+
+export async function deleteCustomPage(pageId: number) {
+  const res = await axios.delete(
+    `${BASE_URL}/instances/deletePage/${pageId}/true`
+  );
   return res.data;
 }
