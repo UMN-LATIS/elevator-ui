@@ -39,7 +39,7 @@ export function useSaveCustomPageMutation(options?: {
       queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
 
       // refresh instanceStore too
-      // this will double-fetch instance info when pages are deleted
+      // this will double-fetch instance info when pages are saved
       // (once for the query invalidation above and once manually here)
       // when we migrate instanceStore consumers to useInstanceQuery, we can
       // remove this manual refresh and rely solely on the query invalidation
