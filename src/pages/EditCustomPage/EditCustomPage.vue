@@ -51,7 +51,12 @@
             <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
             {{ isSaving ? "Saving..." : "Save" }}
           </Button>
-          <Button variant="secondary" :to="`/page/view/${pageId}`">View</Button>
+          <Button
+            v-if="!isNewPage"
+            variant="secondary"
+            :to="`/page/view/${pageId}`">
+            View
+          </Button>
           <Button
             v-if="!isNewPage"
             variant="danger"
