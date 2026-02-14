@@ -13,12 +13,12 @@
           <h1 class="text-4xl font-bold text-center">
             {{ page.title || "Untitled" }}
           </h1>
-          <a
+          <Button
             v-if="canCurrentUserEdit"
-            :href="`${BASE_URL}/instances/editPage/${pageId}`"
-            class="uppercase text-xs font-medium bg-primary-container text-on-primary-container px-2 py-1 rounded-md no-underline hover:bg-primary hover:text-on-primary hover:no-underline">
+            :to="`/instances/editPage/${pageId}`"
+            variant="tertiary">
             Edit Page
-          </a>
+          </Button>
         </header>
 
         <SanitizedHTML
@@ -44,6 +44,7 @@ import { ShowCustomHeaderMode } from "@/types";
 import { ELEVATOR_EVENTS } from "@/constants/constants";
 import { onAllImagesLoaded } from "@/helpers/onAllImagesLoaded";
 import { useStaticPageQuery } from "@/queries/useStaticPageQuery";
+import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
 

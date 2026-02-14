@@ -2,6 +2,13 @@
   <div
     class="md:grid lg:grid-cols-[minmax(0,1fr),minmax(auto,20rem)] relative min-h-screen">
     <div class="p-4 md:p-8 max-w-4xl mx-auto w-full mb-20 lg:mb-0">
+      <Button
+        variant="tertiary"
+        class="mb-4 -ml-2 opacity-75 hover:opacity-100"
+        @click="$router.back()">
+        <ChevronLeftIcon class="w-5 h-5" />
+        Back
+      </Button>
       <header v-if="$slots.header || title" class="mb-8">
         <slot name="header">
           <h1 class="text-2xl md:text-4xl font-bold">{{ title }}</h1>
@@ -20,6 +27,9 @@
 </template>
 
 <script setup lang="ts">
+import Button from "@/components/Button/Button.vue";
+import { ChevronLeftIcon } from "@/icons";
+
 defineProps<{
   title?: string;
 }>();

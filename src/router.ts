@@ -283,6 +283,20 @@ const router = createRouter({
         import("@/pages/AllCustomPagesPage/AllCustomPagesPage.vue"),
     },
     {
+      name: "createCustomPage",
+      path: "/instances/createPage",
+      component: () => import("@/pages/EditCustomPage/EditCustomPage.vue"),
+      props: () => ({ pageId: null }),
+    },
+    {
+      name: "editCustomPage",
+      path: "/instances/editPage/:pageId",
+      component: () => import("@/pages/EditCustomPage/EditCustomPage.vue"),
+      props: (route) => ({
+        pageId: parseIntFromParam(route.params.pageId),
+      }),
+    },
+    {
       name: "mapClusterTest",
       path: "/tests/map",
       component: () => import("@/pages/TestPages/MapClusterTest.vue"),
