@@ -10,14 +10,14 @@
         <AppMenuItem
           v-if="currentUser || instanceStore.collections.length"
           :to="`/search/listCollections`"
-          class="app-menu__collections-nav-item">
+          class="app-menu__collections">
           Collections
         </AppMenuItem>
 
         <AppMenuItem
           v-if="currentUser"
           to="/drawers/listDrawers"
-          class="app-menu__drawers-nav-item">
+          class="app-menu__drawers">
           Drawers
         </AppMenuItem>
 
