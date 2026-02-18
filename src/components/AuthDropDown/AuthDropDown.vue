@@ -24,8 +24,9 @@
       </DropDownItem>
       <DropDownItem :to="`/loginManager/localLogin/?redirect=${route.path}`">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
-          Guest
-        </span>
+          <!--
+          The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
+        --></span>
         Login
       </DropDownItem>
     </template>
@@ -58,4 +59,8 @@ const menuLabel = computed(() =>
   props.currentUser ? props.currentUser.displayName : "Login"
 );
 </script>
-<style scoped></style>
+<style scoped>
+.guest-auth-label::before {
+  content: var(--guest-auth-label, "Guest");
+}
+</style>

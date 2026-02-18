@@ -10,8 +10,9 @@
         :to="`/loginManager/localLogin/?redirect=${$route.path}`"
         variant="tertiary">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
-          Guest
-        </span>
+          <!--
+          The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
+        --></span>
         Login
       </Button>
       <Button
@@ -39,3 +40,8 @@ const encodedCallbackUrl = computed(() => {
   return encodeURIComponent(callbackUrl);
 });
 </script>
+<style scoped>
+.guest-auth-label::before {
+  content: var(--guest-auth-label, "Guest");
+}
+</style>
