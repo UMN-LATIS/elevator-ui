@@ -2,15 +2,21 @@
   <Link
     :href="href"
     :to="to"
-    class="app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline focus:outline-none focus:ring-2"
-    :class="{
-      'is-current-page': isCurrentPage,
-    }">
+    :class="
+      cn(
+        'app-menu-item group w-full flex items-center pl-2 py-2 font-medium my-1 hover:no-underline focus:outline-none focus:ring-2',
+        {
+          'is-current-page': isCurrentPage,
+        },
+        $attrs.class as string | undefined
+      )
+    ">
     <slot />
   </Link>
 </template>
 <script setup lang="ts">
 import Link from "@/components/Link/Link.vue";
+import { cn } from "@/lib/utils";
 
 withDefaults(
   defineProps<{
