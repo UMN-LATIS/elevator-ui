@@ -27,13 +27,7 @@ export function useTheming() {
 
   watch(
     [activeTheme, instanceData],
-    async (...args) => {
-      console.log("activeTheme or instanceData changed, applying theme", {
-        activeTheme: activeTheme.value,
-        instanceData: instanceData.value,
-        args,
-      });
-
+    async () => {
       if (!instanceData.value) return;
 
       activeTheme.value = activeTheme.value || defaultTheme.value;
