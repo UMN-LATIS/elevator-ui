@@ -1,8 +1,5 @@
 <template>
   <NoScrollLayout class="excerpt-view-page">
-    <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
-    </template>
     <Transition name="fade">
       <div
         v-if="excerpt"

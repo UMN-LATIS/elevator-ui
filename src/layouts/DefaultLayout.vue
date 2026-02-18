@@ -3,7 +3,10 @@
     id="top"
     class="default-layout bg-surface min-h-screen pt-18 flex flex-col">
     <SkipNavLink href="#main" />
-    <slot name="custom-header" />
+    <slot name="custom-header">
+      <CustomAppHeader
+        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+    </slot>
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
 
     <main id="main" class="flex-1 flex flex-col" tabindex="-1">
@@ -52,6 +55,8 @@ import { useRoute } from "vue-router";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import Button from "@/components/Button/Button.vue";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
+import { ShowCustomHeaderMode } from "@/types";
+import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 
 const { y: scrollY } = useWindowScroll();
 

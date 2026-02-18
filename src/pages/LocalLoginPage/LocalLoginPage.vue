@@ -1,8 +1,5 @@
 <template>
   <DefaultLayout class="local-login-page">
-    <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
-    </template>
     <div class="px-4">
       <section
         class="max-w-md border border-on-surface rounded-lg mx-auto my-12 p-8"

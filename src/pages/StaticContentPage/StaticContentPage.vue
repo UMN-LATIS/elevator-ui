@@ -1,9 +1,5 @@
 <template>
   <DefaultLayout class="static-content-page">
-    <template #custom-header>
-      <CustomAppHeader
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
-    </template>
     <div
       v-if="page"
       class="static-content-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">

@@ -48,22 +48,27 @@
             v-model="form.googleAnalyticsKey"
             label="Google Analytics Key"
             placeholder="UA-XXXXX-Y or G-XXXXXXX" />
-          <SelectGroup
-            v-model="form.useCustomHeader"
-            :options="customHeaderOptions"
-            label="Display Custom Header/Footer" />
-          <TextAreaGroup
-            :modelValue="form.customHeaderText ?? ''"
-            label="Custom Header Content"
-            placeholder="HTML content for custom header"
-            inputClass="h-24 font-mono text-sm"
-            @update:modelValue="form.customHeaderText = $event || null" />
-          <TextAreaGroup
-            :modelValue="form.customFooterText ?? ''"
-            label="Custom Footer Content"
-            placeholder="HTML content for custom footer"
-            inputClass="h-24 font-mono text-sm"
-            @update:modelValue="form.customFooterText = $event || null" />
+          <FormSubSection
+            :isOpen="form.useCustomHeader !== ShowCustomHeaderMode.NEVER">
+            <SelectGroup
+              v-model="form.useCustomHeader"
+              :options="customHeaderOptions"
+              label="Display Custom Header/Footer" />
+            <template #details>
+              <TextAreaGroup
+                :modelValue="form.customHeaderText ?? ''"
+                label="Custom Header Content"
+                placeholder="HTML content for custom header"
+                inputClass="h-24 font-mono text-sm"
+                @update:modelValue="form.customHeaderText = $event || null" />
+              <TextAreaGroup
+                :modelValue="form.customFooterText ?? ''"
+                label="Custom Footer Content"
+                placeholder="HTML content for custom footer"
+                inputClass="h-24 font-mono text-sm"
+                @update:modelValue="form.customFooterText = $event || null" />
+            </template>
+          </FormSubSection>
 
           <FormSubSection :isOpen="!!form.useCustomCSS">
             <ToggleGroup v-model="form.useCustomCSS" label="Use Custom CSS" />
@@ -302,6 +307,7 @@ import { FormSection, FormToc } from "@/components/Form";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
+import { ShowCustomHeaderMode } from "@/types";
 
 const props = defineProps<{
   instanceId: number;
@@ -405,9 +411,9 @@ const themeOptions = computed(
 
 // Custom header display options
 const customHeaderOptions = computed((): SelectOption<0 | 1 | 2>[] => [
-  { id: 0, label: "Never" },
-  { id: 1, label: "Always" },
-  { id: 2, label: "Only on Home Page" },
+  { id: ShowCustomHeaderMode.NEVER, label: "Never" },
+  { id: ShowCustomHeaderMode.ALWAYS, label: "Always" },
+  { id: ShowCustomHeaderMode.HOME_PAGE_ONLY, label: "Only on Home Page" },
 ]);
 
 // Interface version options
