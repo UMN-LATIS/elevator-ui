@@ -5,15 +5,19 @@
       :currentUser="instanceStore.currentUser"
       @close="$emit('close')">
       <template v-if="instanceStore.instance.userCanSearchAndBrowse">
-        <PagesNavSection :pages="pages" />
+        <PagesNavSection :pages="pages" class="app-menu__pages-nav-section" />
 
         <AppMenuItem
           v-if="currentUser || instanceStore.collections.length"
-          :to="`/search/listCollections`">
-          Collections
+          :to="`/search/listCollections`"
+          class="app-menu__collections-nav-item">
+          > Collections
         </AppMenuItem>
 
-        <AppMenuItem v-if="currentUser" to="/drawers/listDrawers">
+        <AppMenuItem
+          v-if="currentUser"
+          to="/drawers/listDrawers"
+          class="app-menu__drawers-nav-item">
           Drawers
         </AppMenuItem>
 
@@ -21,14 +25,16 @@
           v-if="currentUser?.canManageAssets"
           :currentUser="currentUser"
           :instance="instance"
-          :assetId="activeAssetId" />
+          :assetId="activeAssetId"
+          class="app-menu__edit-nav-section" />
 
         <AdminNavSection
           v-if="currentUser?.isAdmin"
           :currentUser="currentUser"
-          :instance="instance" />
+          :instance="instance"
+          class="app-menu__admin-nav-section" />
       </template>
-      <HelpNavSection :instance="instance" />
+      <HelpNavSection :instance="instance" class="app-menu__help-nav-section" />
     </AppMenuPure>
   </nav>
 </template>
