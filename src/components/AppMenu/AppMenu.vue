@@ -11,7 +11,7 @@
           v-if="currentUser || instanceStore.collections.length"
           :to="`/search/listCollections`"
           class="app-menu__collections-nav-item">
-          > Collections
+          Collections
         </AppMenuItem>
 
         <AppMenuItem
