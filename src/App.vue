@@ -24,6 +24,7 @@ import { onMounted, onUnmounted } from "vue";
 import { useInstanceStore } from "./stores/instanceStore";
 import { useDrawerStore } from "./stores/drawerStore";
 import { useTheming } from "./helpers/useTheming";
+import { useCustomCSS } from "./helpers/useCustomCSS";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
 import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
@@ -49,6 +50,7 @@ onMounted(() => {
   }
 
   useTheming();
+  useCustomCSS();
 });
 
 onUnmounted(() => {
