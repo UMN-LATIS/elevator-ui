@@ -5,8 +5,7 @@
       <span v-else>Login</span>
     </template>
     <template v-if="currentUser">
-      <div
-        class="p-4 border-b border-outline text-xs flex items-center gap-1">
+      <div class="p-4 border-b border-outline text-xs flex items-center gap-1">
         <span class="text-on-surface-variant">Signed in as</span>
         <b class="font-normal">{{ currentUser.displayName }}</b>
       </div>
@@ -24,7 +23,10 @@
         {{ instance.centralAuthLabel }} Login
       </DropDownItem>
       <DropDownItem :to="`/loginManager/localLogin/?redirect=${route.path}`">
-        {{ instance.useCentralAuth ? "Guest" : "" }} Login
+        <span v-if="instance.useCentralAuth" class="guest-auth-label">
+          Guest
+        </span>
+        Login
       </DropDownItem>
     </template>
   </DropDown>

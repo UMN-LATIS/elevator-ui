@@ -2,14 +2,17 @@
   <Notification
     type="warning"
     title="Sign In Required"
-    class="ome-page__sign-in-required-notice my-4">
+    class="home-page__sign-in-required-notice my-4 rounded-md">
     <p>This site requires you to sign in to search or access assets.</p>
 
     <div class="flex gap-2 mt-2">
       <Button
         :to="`/loginManager/localLogin/?redirect=${$route.path}`"
         variant="tertiary">
-        {{ instance.useCentralAuth ? "Guest" : "" }} Login
+        <span v-if="instance.useCentralAuth" class="guest-auth-label">
+          Guest
+        </span>
+        Login
       </Button>
       <Button
         v-if="instance.useCentralAuth"
