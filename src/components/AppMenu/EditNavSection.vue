@@ -1,16 +1,30 @@
 <template>
   <AppMenuGroup v-if="currentUser?.canManageAssets" label="Manage Assets">
-    <AppMenuItem to="/assetManager/userAssets/">All My Assets</AppMenuItem>
-    <AppMenuItem to="/assetManager/addAsset">Add Asset</AppMenuItem>
+    <AppMenuItem
+      to="/assetManager/userAssets/"
+      class="edit-nav-section__all-my-assets">
+      All My Assets
+    </AppMenuItem>
+    <AppMenuItem
+      to="/assetManager/addAsset"
+      class="edit-nav-section__add-asset">
+      Add Asset
+    </AppMenuItem>
     <template v-if="activeAssetId">
       <AppMenuItem
         v-if="!isAssetEditPage"
-        :to="`/assetManager/editAsset/${activeAssetId}`">
+        :to="`/assetManager/editAsset/${activeAssetId}`"
+        class="edit-nav-section__edit-asset">
         Edit Asset
       </AppMenuItem>
-      <AppMenuItem @click="handleDeleteAssetClick">Delete Asset</AppMenuItem>
       <AppMenuItem
-        :href="`${BASE_URL}/assetManager/restoreAsset/${activeAssetId}`">
+        class="edit-nav-section__delete-asset"
+        @click="handleDeleteAssetClick">
+        Delete Asset
+      </AppMenuItem>
+      <AppMenuItem
+        :href="`${BASE_URL}/assetManager/restoreAsset/${activeAssetId}`"
+        class="edit-nav-section__restore-asset">
         Restore Asset
       </AppMenuItem>
       <Divider />

@@ -1,9 +1,14 @@
 <template>
   <AppMenuGroup label="Help">
-    <AppMenuItem href="http://umn-latis.github.io/elevator/">
+    <AppMenuItem
+      href="http://umn-latis.github.io/elevator/"
+      class="help-nav-section__documentation">
       Documentation
     </AppMenuItem>
-    <AppMenuItem v-if="instance.contact" :href="instance.contact">
+    <AppMenuItem
+      v-if="instance.contact"
+      :href="instance.contact"
+      class="help-nav-section__contact">
       Contact
     </AppMenuItem>
   </AppMenuGroup>
