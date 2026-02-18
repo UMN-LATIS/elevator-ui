@@ -1,21 +1,23 @@
 <template>
-  <template v-for="item in pageNavItems" :key="item.id">
-    <div v-if="!item.children">
-      <AppMenuItem :to="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
-        {{ item.name }}
-      </AppMenuItem>
-    </div>
+  <div :class="cn('pages-nav-section', $attrs.class as string | undefined)">
+    <template v-for="item in pageNavItems" :key="item.id">
+      <div v-if="!item.children">
+        <AppMenuItem :to="item.href ?? '#'" :isCurrentPage="item.isCurrentPage">
+          {{ item.name }}
+        </AppMenuItem>
+      </div>
 
-    <AppMenuGroup v-else :label="item.name">
-      <AppMenuItem
-        v-for="subItem in item.children"
-        :key="subItem.name"
-        :to="subItem.href ?? '#'"
-        :isCurrentPage="subItem.isCurrentPage">
-        {{ subItem.name }}
-      </AppMenuItem>
-    </AppMenuGroup>
-  </template>
+      <AppMenuGroup v-else :label="item.name">
+        <AppMenuItem
+          v-for="subItem in item.children"
+          :key="subItem.name"
+          :to="subItem.href ?? '#'"
+          :isCurrentPage="subItem.isCurrentPage">
+          {{ subItem.name }}
+        </AppMenuItem>
+      </AppMenuGroup>
+    </template>
+  </div>
 </template>
 <script setup lang="ts">
 import { ref, watch } from "vue";
@@ -24,6 +26,7 @@ import { NavItem, Page } from "@/types";
 import AppMenuGroup from "./AppMenuGroup.vue";
 import AppMenuItem from "./AppMenuItem.vue";
 import config from "@/config";
+import { cn } from "@/lib/utils";
 
 const props = defineProps<{
   pages: Page[];

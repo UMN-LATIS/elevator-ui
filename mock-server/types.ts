@@ -31,10 +31,11 @@ export interface MockInstance {
   centralAuthLabel: string;
   sortableFields: Record<string, RawSortableField>;
   customHeaderMode: ShowCustomHeaderMode;
-  customHeader: string | null; // HTML string
-  customFooter: string | null; // HTML string
+  customHeaderText: string | null; // HTML string
+  customFooterText: string | null; // HTML string
   useVoyagerViewer: boolean;
   useCustomCSS: boolean;
+  customHeaderCSS: string | null; // CSS string
   featuredAssetId: string | null;
   featuredAssetText: string | null;
   pages: MockPage[];

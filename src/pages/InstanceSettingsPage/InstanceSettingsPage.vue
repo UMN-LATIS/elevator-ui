@@ -455,7 +455,9 @@ async function handleSave() {
       customHeaderImage: selectedHeaderImage.value,
     });
 
-    await instanceStore.refreshLogoImage();
+    // manually refresh instance store to get new settings
+    // and trigger updates across the app (e.g. new header image, custom CSS)
+    await instanceStore.refresh();
 
     // Clear the selected file after successful save
     // do this after refresh to avoid broken image flicker

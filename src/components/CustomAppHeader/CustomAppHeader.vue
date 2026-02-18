@@ -1,7 +1,7 @@
 <template>
   <div class="custom-app-header bg-surface-container">
     <SanitizedHTML
-      :html="instanceStore?.customHeader ?? ''"
+      :html="instanceStore?.customHeaderText ?? ''"
       :addTags="['style', 'link']" />
   </div>
 </template>
