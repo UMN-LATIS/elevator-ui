@@ -1,7 +1,7 @@
 import { InstanceSettings } from "../../src/types";
 import { createBaseTable } from "./baseTable";
 import { PagesTable } from "./pages";
-import { getDefaultInstanceSettings } from "../../src/queries/useInstanceSettingsQuery";
+import { getDefaultInstanceSettings } from "../../src/helpers/getDefaultInstanceSettings";
 
 let lastInstanceId = 0;
 const makeInstanceId = () => {
@@ -16,6 +16,16 @@ export const makeInstance = (
 
   return {
     ...getDefaultInstanceSettings(instanceId),
+    useCentralAuth: true,
+    centralAuthLabel: "University",
+    defaultTheme: "light",
+    availableThemes: ["light", "dark", "folwell"],
+    showCollectionInSearchResults: true,
+    showTemplateInSearchResults: true,
+    showPreviousNextSearchResults: true,
+    allowIndexing: true,
+    useVoyagerViewer: true,
+    automaticAltText: true,
     ...instanceOverrides,
     instanceId,
   };
