@@ -1,12 +1,13 @@
 <template>
   <div
     :key="toast.id"
-    class="toast-root__toast pointer-events-auto shadow-md p-4 rounded-md relative overflow-hidden transition-all duration-300 ease-in-out"
+    class="toast-root__toast pointer-events-auto shadow-sm p-4 rounded-md relative overflow-hidden transition-all duration-300 ease-in-out border-2 border-outline-variant"
     :class="{
-      'bg-error-container text-on-error-container': toast.variant === 'error',
-      'bg-success-container text-on-success-container':
+      'bg-error-container text-on-error-container border-error':
+        toast.variant === 'error',
+      'bg-success-container text-on-success-container border-success':
         toast.variant === 'success',
-      'bg-inverse-surface text-inverse-on-surface':
+      'bg-inverse-surface text-inverse-on-surface border-inverse-surface':
         toast.variant === 'default' || !toast.variant,
     }"
     @mouseenter="isPaused = true"
