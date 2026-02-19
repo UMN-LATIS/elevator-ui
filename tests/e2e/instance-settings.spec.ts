@@ -106,6 +106,49 @@ test.describe("Instance Settings Page", () => {
       );
     });
 
+    test("persists custom CSS and applies it to instance nav settings on save", async ({
+      page,
+    }) => {
+      const customCSS = "body { --e2e-custom-css: persisted; }";
+      const customCSSVariableName = "--e2e-custom-css";
+
+      await page.goto("/instances/edit/1");
+
+      await page.getByRole("switch", { name: "Use Custom CSS" }).click();
+      await expect(
+        page.getByRole("switch", { name: "Use Custom CSS" })
+      ).toHaveAttribute("aria-checked", "true");
+      await page.getByLabel("Custom CSS").fill(customCSS);
+
+      await page.getByRole("button", { name: "Save" }).click();
+
+      await expect(
+        page.getByText("Instance settings saved successfully")
+      ).toBeVisible();
+
+      await page.reload();
+
+      await expect(
+        page.getByRole("switch", { name: "Use Custom CSS" })
+      ).toHaveAttribute("aria-checked", "true");
+      await expect(page.getByLabel("Custom CSS")).toHaveValue(customCSS);
+
+      // toHaveText uses innerText, which is empty for <head> elements — check textContent directly
+      const styleContent = await page.evaluate(
+        () => document.getElementById("elevator-custom-css")?.textContent ?? ""
+      );
+      expect(styleContent).toBe(customCSS);
+      await expect
+        .poll(async () =>
+          page.evaluate((cssVariableName) => {
+            return getComputedStyle(document.body)
+              .getPropertyValue(cssVariableName)
+              .trim();
+          }, customCSSVariableName)
+        )
+        .toBe("persisted");
+    });
+
     test("all form fields persist after save and reload", async ({ page }) => {
       await page.goto("/instances/edit/1");
 
