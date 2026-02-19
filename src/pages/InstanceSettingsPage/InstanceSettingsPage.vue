@@ -100,7 +100,7 @@
                     ref="headerImageInput"
                     type="file"
                     accept="image/png"
-                    class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-primary file:text-sm file:font-medium file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-on-primary"
+                    class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-none file:text-sm file:bg-secondary-container file:text-on-secondary-container hover:file:bg-primary hover:file:text-on-primary"
                     @change="handleHeaderImageChange" />
                 </div>
               </div>
