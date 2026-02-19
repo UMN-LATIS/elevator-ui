@@ -24,8 +24,8 @@ test.describe("Static Content Page - Custom Events", () => {
       request,
       workerId,
       updates: {
-        customHeaderMode: 1, // ShowCustomHeaderMode.ALWAYS
-        customHeader: `
+        useCustomHeader: 1, // ShowCustomHeaderMode.ALWAYS
+        customHeaderText: `
           <script>
             console.log('Custom header script loaded');
             // Listen for the static content page loaded event
@@ -170,8 +170,8 @@ test.describe("Static Content Page - IMAGES_LOADED Event", () => {
       request,
       workerId,
       updates: {
-        customHeaderMode: 1, // ShowCustomHeaderMode.ALWAYS
-        customHeader: `
+        useCustomHeader: 1, // ShowCustomHeaderMode.ALWAYS
+        customHeaderText: `
           <script>
             // Track start time when script loads
             const pageLoadStartTime = Date.now();

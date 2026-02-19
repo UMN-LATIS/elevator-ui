@@ -41,8 +41,8 @@ test.describe("Event Listener Duplication Bug", () => {
       request,
       workerId,
       updates: {
-        customHeaderMode: 1, // ShowCustomHeaderMode.ALWAYS
-        customHeader: `
+        useCustomHeader: 1, // ShowCustomHeaderMode.ALWAYS
+        customHeaderText: `
           <script>
             console.log('Custom header script loaded');
 

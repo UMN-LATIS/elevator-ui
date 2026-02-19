@@ -1,49 +1,75 @@
-import { ShowCustomHeaderMode } from "../../src/types";
-import { MockInstance } from "../types";
+import { InstanceSettings } from "../../src/types";
 import { createBaseTable } from "./baseTable";
 import { PagesTable } from "./pages";
+import { getDefaultInstanceSettings } from "../../src/helpers/getDefaultInstanceSettings";
 
-const instanceSeeds: MockInstance[] = [
-  {
-    id: 1,
-    name: "defaultinstance",
-    hasLogo: false,
-    logo: 0,
-    showCollectionInSearchResults: true,
-    showTemplateInSearchResults: true,
-    contact: "admin@example.com",
+let lastInstanceId = 0;
+const makeInstanceId = () => {
+  lastInstanceId += 1;
+  return lastInstanceId;
+};
+
+export const makeInstance = (
+  instanceOverrides: Partial<InstanceSettings> = {}
+): InstanceSettings => {
+  const instanceId = instanceOverrides.instanceId ?? makeInstanceId();
+
+  return {
+    ...getDefaultInstanceSettings(instanceId),
     useCentralAuth: true,
     centralAuthLabel: "University",
-    sortableFields: {},
-    customHeaderMode: ShowCustomHeaderMode.HOME_PAGE_ONLY,
-    customHeader: null,
-    customFooter: null,
+    defaultTheme: "light",
+    availableThemes: ["light", "dark", "folwell"],
+    showCollectionInSearchResults: true,
+    showTemplateInSearchResults: true,
+    showPreviousNextSearchResults: true,
+    allowIndexing: true,
     useVoyagerViewer: true,
-    useCustomCSS: false,
-    featuredAssetId: "687969fd9c90c709c1021d01",
+    automaticAltText: true,
+    ...instanceOverrides,
+    instanceId,
+  };
+};
+
+const instanceSeeds: InstanceSettings[] = [
+  makeInstance({
+    instanceId: 1,
+    name: "defaultinstance",
+    domain: "example.edu",
+    featuredAsset: "687969fd9c90c709c1021d01",
     featuredAssetText: "This is a featured asset",
-    pages: [],
-  },
+  }),
 ];
 
 export function createInstancesTable({ pages }: { pages: PagesTable }) {
   const baseTable = createBaseTable(
-    (instance: MockInstance) => instance.id,
+    (instance: InstanceSettings) => instance.instanceId,
     instanceSeeds
   );
 
   return {
     ...baseTable,
+    maxId() {
+      return Math.max(
+        ...baseTable.getAll().map((instance) => instance.instanceId),
+        0
+      );
+    },
+    create: (
+      instance: Omit<InstanceSettings, "instanceId">
+    ): InstanceSettings => {
+      const newInstance = makeInstance(instance);
+      baseTable.set(newInstance.instanceId, newInstance);
+      return newInstance;
+    },
     get pages() {
       return pages.getAll();
     },
-    getDefault: (): MockInstance => {
+    getDefault: (): InstanceSettings => {
       if (baseTable.size() === 0) {
         throw new Error("No instances available");
       }
-      // Get the instance from the store (which may have been updated)
-      // rather than returning the seed data directly
-      const instance = baseTable.get(instanceSeeds[0].id);
+      const instance = baseTable.get(instanceSeeds[0].instanceId);
       if (!instance) {
         throw new Error("Default instance not found");
       }

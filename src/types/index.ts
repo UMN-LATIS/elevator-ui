@@ -602,10 +602,11 @@ export interface ApiInstanceNavResponse {
   featuredAssetId: string; // featured asset for homepage
   featuredAssetText: string; // text appearing above the featured asset
   customHeaderMode: ShowCustomHeaderMode;
-  customHeader?: string | null; // html
-  customFooter?: string | null; // html
+  customHeaderText: string | null; // html
+  customFooterText: string | null; // html
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
   useCustomCSS: boolean; // whether or not to use custom CSS
+  customHeaderCSS: string | null; // custom CSS for header if useCustomCSS is true
   theming: {
     enabled: boolean;
     availableThemes: string[];
@@ -695,6 +696,7 @@ export interface InstanceSettings {
   // Vue interface options
   interfaceVersion: 0 | 1; // 0 = Classic, 1 = VueJS
   useCentralAuth: boolean;
+  centralAuthLabel: string;
   enableHLSStreaming: boolean;
   enableTheming: boolean;
   defaultTheme: string | null;

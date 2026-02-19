@@ -874,10 +874,9 @@ export async function updateInstanceSettings(
   // Append each setting to the form data
   Object.entries(settings).forEach(([key, value]) => {
     if (value === null || value === undefined) {
-      return;
-    }
-
-    if (Array.isArray(value)) {
+      // append empty string for null or undefined values to ensure the backend unsets these settings
+      formData.append(key, "");
+    } else if (Array.isArray(value)) {
       value.forEach((item) => formData.append(`${key}[]`, String(item)));
     } else if (typeof value === "boolean") {
       formData.append(key, value ? "1" : "0");
