@@ -106,6 +106,203 @@ test.describe("Instance Settings Page", () => {
       );
     });
 
+    test("all form fields persist after save and reload", async ({ page }) => {
+      await page.goto("/instances/edit/1");
+
+      // --- General ---
+      await page.getByLabel("Instance Name").fill("Updated Instance");
+      await page.getByLabel("Domain").fill("updated.example.edu");
+      await page.getByLabel("Owner Contact").fill("mailto:owner@example.edu");
+      await page.getByLabel("Instance Notes").fill("Internal notes here");
+      // "Use Central Authentication" starts on — toggle it off
+      await page
+        .getByRole("switch", { name: "Use Central Authentication" })
+        .click();
+
+      // --- Customization ---
+      await page.getByLabel("Custom Home Redirect").fill("/new-home");
+      await page.getByLabel("Google Analytics Key").fill("G-12345678");
+      await page.getByLabel("Display Custom Header/Footer").selectOption("1"); // Always
+      await page.getByLabel("Custom Header Content").fill("<b>Header</b>");
+      await page.getByLabel("Custom Footer Content").fill("<p>Footer</p>");
+      // Enable Custom CSS, then fill the revealed textarea
+      await page.getByRole("switch", { name: "Use Custom CSS" }).click();
+      await page.getByLabel("Custom CSS").fill("body { color: red; }");
+
+      // --- Storage ---
+      await page.getByLabel("Amazon S3 Key").fill("AKIAIOSFODNN7EXAMPLE");
+      await page.getByLabel("Amazon S3 Secret").fill("wJalrXUtnFEMI");
+      await page.getByLabel("Default Bucket").fill("my-s3-bucket");
+      await page.getByLabel("Bucket Region").fill("us-east-1");
+
+      // --- Featured Asset ---
+      await page.getByLabel("Featured Asset ID").fill("abc123");
+      await page.getByLabel("Featured Asset Text").fill("Check out this asset");
+
+      // --- Search ---
+      // All start on — toggle them off
+      await page
+        .getByRole("switch", { name: "Show Collection in Search Results" })
+        .click();
+      await page
+        .getByRole("switch", { name: "Show Template in Search Results" })
+        .click();
+      await page
+        .getByRole("switch", { name: "Allow Search Engine Indexing" })
+        .click();
+      // Autoload starts off — toggle it on
+      await page
+        .getByRole("switch", { name: "Autoload Search Results (under 1000)" })
+        .click();
+
+      // --- Assets ---
+      // Enable interstitial to reveal text field
+      await page
+        .getByRole("switch", {
+          name: "Show Interstitial When Embedding via API",
+        })
+        .click();
+      await page
+        .getByLabel("Interstitial Text")
+        .fill("Please read before embedding.");
+      await page
+        .getByRole("switch", { name: "Show Previous/Next in Asset View" })
+        .click(); // off
+      await page
+        .getByRole("switch", { name: "Hide Video/Audio Download Links" })
+        .click(); // on
+      await page
+        .getByRole("switch", { name: "Auto-generate Alt Text and Captions" })
+        .click(); // off
+      await page
+        .getByRole("switch", { name: "Use Smithsonian Voyager for 3D" })
+        .click(); // off
+      await page.getByRole("switch", { name: "Enable HLS Streaming" }).click(); // on
+      await page.getByLabel("More Like This Results").fill("5");
+      await page.getByLabel("Text Area Collapsed Height (px)").fill("200");
+
+      // --- User Interface ---
+      // Interface version is already 1 (VueJS) — enable theming
+      await page
+        .getByRole("switch", { name: "Enable Theme Selection" })
+        .click();
+      await page.getByLabel("Default Theme").selectOption("dark");
+      // Uncheck "folwell" from available themes
+      await page.getByRole("checkbox", { name: "folwell" }).uncheck();
+
+      await page.getByRole("button", { name: "Save" }).click();
+      await expect(
+        page.getByText("Instance settings saved successfully")
+      ).toBeVisible();
+
+      await page.reload();
+
+      // Verify all fields persisted
+      await expect(page.getByLabel("Instance Name")).toHaveValue(
+        "Updated Instance"
+      );
+      await expect(page.getByLabel("Domain")).toHaveValue(
+        "updated.example.edu"
+      );
+      await expect(page.getByLabel("Owner Contact")).toHaveValue(
+        "mailto:owner@example.edu"
+      );
+      await expect(page.getByLabel("Instance Notes")).toHaveValue(
+        "Internal notes here"
+      );
+      await expect(
+        page.getByRole("switch", { name: "Use Central Authentication" })
+      ).toHaveAttribute("aria-checked", "false");
+
+      await expect(page.getByLabel("Custom Home Redirect")).toHaveValue(
+        "/new-home"
+      );
+      await expect(page.getByLabel("Google Analytics Key")).toHaveValue(
+        "G-12345678"
+      );
+      await expect(page.getByLabel("Display Custom Header/Footer")).toHaveValue(
+        "1"
+      );
+      await expect(page.getByLabel("Custom Header Content")).toHaveValue(
+        "<b>Header</b>"
+      );
+      await expect(page.getByLabel("Custom Footer Content")).toHaveValue(
+        "<p>Footer</p>"
+      );
+      await expect(
+        page.getByRole("switch", { name: "Use Custom CSS" })
+      ).toHaveAttribute("aria-checked", "true");
+      await expect(page.getByLabel("Custom CSS")).toHaveValue(
+        "body { color: red; }"
+      );
+
+      await expect(page.getByLabel("Amazon S3 Key")).toHaveValue(
+        "AKIAIOSFODNN7EXAMPLE"
+      );
+      await expect(page.getByLabel("Default Bucket")).toHaveValue(
+        "my-s3-bucket"
+      );
+      await expect(page.getByLabel("Bucket Region")).toHaveValue("us-east-1");
+
+      await expect(page.getByLabel("Featured Asset ID")).toHaveValue("abc123");
+      await expect(page.getByLabel("Featured Asset Text")).toHaveValue(
+        "Check out this asset"
+      );
+
+      await expect(
+        page.getByRole("switch", { name: "Show Collection in Search Results" })
+      ).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.getByRole("switch", { name: "Show Template in Search Results" })
+      ).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.getByRole("switch", { name: "Allow Search Engine Indexing" })
+      ).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.getByRole("switch", {
+          name: "Autoload Search Results (under 1000)",
+        })
+      ).toHaveAttribute("aria-checked", "true");
+
+      await expect(
+        page.getByRole("switch", {
+          name: "Show Interstitial When Embedding via API",
+        })
+      ).toHaveAttribute("aria-checked", "true");
+      await expect(page.getByLabel("Interstitial Text")).toHaveValue(
+        "Please read before embedding."
+      );
+      await expect(
+        page.getByRole("switch", { name: "Show Previous/Next in Asset View" })
+      ).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.getByRole("switch", { name: "Hide Video/Audio Download Links" })
+      ).toHaveAttribute("aria-checked", "true");
+      await expect(
+        page.getByRole("switch", {
+          name: "Auto-generate Alt Text and Captions",
+        })
+      ).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.getByRole("switch", { name: "Use Smithsonian Voyager for 3D" })
+      ).toHaveAttribute("aria-checked", "false");
+      await expect(
+        page.getByRole("switch", { name: "Enable HLS Streaming" })
+      ).toHaveAttribute("aria-checked", "true");
+      await expect(page.getByLabel("More Like This Results")).toHaveValue("5");
+      await expect(
+        page.getByLabel("Text Area Collapsed Height (px)")
+      ).toHaveValue("200");
+
+      await expect(
+        page.getByRole("switch", { name: "Enable Theme Selection" })
+      ).toHaveAttribute("aria-checked", "true");
+      await expect(page.getByLabel("Default Theme")).toHaveValue("dark");
+      await expect(
+        page.getByRole("checkbox", { name: "folwell" })
+      ).not.toBeChecked();
+    });
+
     test("table of contents links scroll to the correct sections", async ({
       page,
     }) => {
