@@ -1098,6 +1098,13 @@ export interface CustomPageSummary {
   modifiedAt?: string;
 }
 
+export interface TemplateSummary {
+  id: number;
+  name: string;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
 export interface SaveCustomPageResult {
   pageId: number;
   title: string;

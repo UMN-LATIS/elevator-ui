@@ -21,3 +21,12 @@ export function useTemplateQuery(
     ...options,
   });
 }
+
+export function useAllTemplatesQuery(options = {}) {
+  return useQuery({
+    queryKey: [TEMPLATES_QUERY_KEY],
+    queryFn: () => fetchers.fetchAllTemplates(),
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+}

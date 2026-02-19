@@ -961,3 +961,8 @@ export async function deleteCustomPage(pageId: number) {
   );
   return res.data;
 }
+
+export async function fetchAllTemplates() {
+  const res = await axios.get(`${BASE_URL}/templates`);
+  return res.data;
+}

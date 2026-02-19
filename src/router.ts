@@ -321,6 +321,11 @@ const router = createRouter({
       }),
     },
     {
+      name: "templatesIndex",
+      path: "/templates",
+      component: () => import("@/pages/AllTemplatesPage/AllTemplatesPage.vue"),
+    },
+    {
       name: "mapClusterTest",
       path: "/tests/map",
       component: () => import("@/pages/TestPages/MapClusterTest.vue"),
