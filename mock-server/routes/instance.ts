@@ -43,8 +43,8 @@ app.get("/getInstanceNav", async (c) => {
     centralAuthLabel: instance.centralAuthLabel,
     sortableFields: {}, // not stored in InstanceSettings
     customHeaderMode: instance.useCustomHeader as ShowCustomHeaderMode,
-    customHeader: instance.customHeaderText,
-    customFooter: instance.customFooterText,
+    customHeaderText: instance.customHeaderText,
+    customFooterText: instance.customFooterText,
     useVoyagerViewer: instance.useVoyagerViewer,
     useCustomCSS: instance.useCustomCSS,
     customHeaderCSS: instance.customHeaderCSS,

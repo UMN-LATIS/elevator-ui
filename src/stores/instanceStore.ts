@@ -52,8 +52,10 @@ const createState = () => ({
     },
   }),
   customHeaderMode: ref<ShowCustomHeaderMode>(ShowCustomHeaderMode.NEVER),
-  customHeader: ref<string | null>(null),
-  customFooter: ref<string | null>(null),
+  customHeaderText: ref<string | null>(null),
+  customFooterText: ref<string | null>(null),
+  useCustomCSS: ref(false),
+  customHeaderCSS: ref<string | null>(null),
   customScripts: ref<HTMLScriptElement[]>([]),
   hasExecutedCustomScripts: ref(false),
   hasInitialized: ref(false),
@@ -134,19 +136,23 @@ const actions = (state: ReturnType<typeof createState>) => ({
       state.customHeaderMode.value = apiResponse.customHeaderMode;
 
       // Store script-free HTML
-      state.customHeader.value = removeScriptsFromHtml(
-        apiResponse.customHeader
+      state.customHeaderText.value = removeScriptsFromHtml(
+        apiResponse.customHeaderText
       );
-      state.customFooter.value = removeScriptsFromHtml(
-        apiResponse.customFooter
+      state.customFooterText.value = removeScriptsFromHtml(
+        apiResponse.customFooterText
       );
 
       // Extract scripts from custom header and footer
-      const headerScripts = getScriptsFromHTML(apiResponse.customHeader);
-      const footerScripts = getScriptsFromHTML(apiResponse.customFooter);
+      const headerScripts = getScriptsFromHTML(apiResponse.customHeaderText);
+      const footerScripts = getScriptsFromHTML(apiResponse.customFooterText);
 
       // store header and footer scripts
       state.customScripts.value = [...headerScripts, ...footerScripts];
+
+      // custom css
+      state.useCustomCSS.value = apiResponse.useCustomCSS;
+      state.customHeaderCSS.value = apiResponse.customHeaderCSS;
 
       // add id to searchable field object from api response
       state.searchableFields.value = Object.entries(

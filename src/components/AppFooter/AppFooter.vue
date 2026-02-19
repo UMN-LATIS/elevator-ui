@@ -1,9 +1,9 @@
 <template>
   <footer
-    v-if="instanceStore.customFooter"
+    v-if="instanceStore.customFooterText"
     class="app-footer bg-surface-container border-t border-outline">
     <SanitizedHTML
-      :html="instanceStore.customFooter"
+      :html="instanceStore.customFooterText"
       :addTags="['style', 'link']" />
   </footer>
 </template>
