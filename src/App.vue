@@ -29,6 +29,7 @@ import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
+import { useCustomCSS } from "./composables/useCustomCSS";
 
 // load instance store before mounting app
 // this prevents a race conditiion where the search store
@@ -49,6 +50,7 @@ onMounted(() => {
   }
 
   useTheming();
+  useCustomCSS();
 });
 
 onUnmounted(() => {

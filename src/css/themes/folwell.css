@@ -41,7 +41,7 @@
   --surface-container-highest: oklch(99% 0 260);
 
   --on-surface: oklch(20% 0.02 260); /* primary text on surface */
-  --on-surface-variant: oklch(0.55 0 0); /* secondary/muted text, icons */
+  --on-surface-variant: oklch(0.66 0 0); /* secondary/muted text, icons */
 
   /* ============================================
    * PRIMARY - Main accent color

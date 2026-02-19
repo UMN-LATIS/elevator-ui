@@ -21,8 +21,8 @@ test.describe("HomePage - CONTENT_LOADED Event", () => {
       request,
       workerId,
       updates: {
-        customHeaderMode: 2, // ShowCustomHeaderMode.HOME_PAGE_ONLY
-        customHeader: `
+        useCustomHeader: 2, // ShowCustomHeaderMode.HOME_PAGE_ONLY
+        customHeaderText: `
           <script>
             // Listen for the home page content loaded event
             window.addEventListener('elevator:static-content-page:content-loaded', (event) => {
@@ -112,8 +112,8 @@ test.describe("HomePage - IMAGES_LOADED Event", () => {
       request,
       workerId,
       updates: {
-        customHeaderMode: 2, // ShowCustomHeaderMode.HOME_PAGE_ONLY
-        customHeader: `
+        useCustomHeader: 2, // ShowCustomHeaderMode.HOME_PAGE_ONLY
+        customHeaderText: `
           <script>
             // Track IMAGES_LOADED event (HomePage fires once for all content areas)
             let eventCount = 0;

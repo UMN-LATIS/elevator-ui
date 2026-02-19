@@ -1,18 +1,41 @@
+function coerceFormValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    // Convert "true"/"false" to booleans
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+
+    // Convert numeric strings to numbers
+    const maybeNumber = Number(value);
+    if (!isNaN(maybeNumber)) return maybeNumber;
+
+    return value;
+  }
+  return value;
+}
+
 export function parseFormData(formData: FormData): Record<string, unknown> {
   const data: Record<string, unknown> = {};
 
   for (const [key, value] of Array.from(formData.entries())) {
-    // Handle JSON strings in form data
-    if (typeof value === "string") {
-      try {
-        // Try to parse as JSON first
-        data[key] = JSON.parse(value);
-      } catch {
-        // If not JSON, use as string
-        data[key] = value;
+    const coercedValue = coerceFormValue(value);
+
+    // parse arrays from form data (e.g. availableThemes[])
+    if (key.endsWith("[]")) {
+      const arrayKey = key.slice(0, -2);
+      if (!data[arrayKey]) {
+        data[arrayKey] = [];
       }
-    } else {
-      data[key] = value;
+      (data[arrayKey] as unknown[]).push(coercedValue);
+      continue;
+    }
+
+    try {
+      // Try to parse as JSON first
+      data[key] = JSON.parse(coercedValue as string);
+      continue;
+    } catch {
+      // If not JSON, use the coerced value
+      data[key] = coercedValue;
     }
   }
 

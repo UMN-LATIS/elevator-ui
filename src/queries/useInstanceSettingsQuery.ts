@@ -1,9 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { INSTANCE_SETTINGS_QUERY_KEY, INSTANCE_QUERY_KEY } from "./queryKeys";
-import type { InstanceSettings } from "@/types";
+import { getDefaultInstanceSettings } from "@/helpers/getDefaultInstanceSettings";
 import type { MaybeRefOrGetter } from "vue";
 import { toValue } from "vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useInstanceSettingsQuery(
   instanceId: MaybeRefOrGetter<number | null>
@@ -36,55 +37,17 @@ export function useUpdateInstanceSettingsMutation() {
       queryClient.invalidateQueries({
         queryKey: [INSTANCE_QUERY_KEY],
       });
+
+      // refresh instanceStore too
+      // this will double-fetch instance info when pages are saved
+      // (once for the query invalidation above and once manually here)
+      // when we migrate instanceStore consumers to useInstanceQuery, we can
+      // remove this manual refresh and rely solely on the query invalidation
+      // to update instance info
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
     },
   });
 }
 
-/**
- * Default/empty instance settings for form initialization
- */
-export function getDefaultInstanceSettings(
-  instanceId: number
-): InstanceSettings {
-  return {
-    instanceId,
-    name: "",
-    domain: "",
-    ownerHomepage: null,
-    googleAnalyticsKey: null,
-    featuredAsset: null,
-    featuredAssetText: null,
-    amazonS3Key: null,
-    amazonS3Secret: null,
-    defaultBucket: null,
-    bucketRegion: null,
-    showCollectionInSearchResults: false,
-    showTemplateInSearchResults: false,
-    showPreviousNextSearchResults: false,
-    hideVideoAudio: false,
-    allowIndexing: true,
-    useVoyagerViewer: false,
-    automaticAltText: false,
-    autoloadMaxSearchResults: false,
-    useCustomHeader: 0,
-    customHeaderText: null,
-    customFooterText: null,
-    useCustomCSS: false,
-    customHeaderCSS: null,
-    useHeaderLogo: false,
-    enableInterstitial: false,
-    interstitialText: null,
-    interfaceVersion: 1,
-    useCentralAuth: false,
-    enableHLSStreaming: false,
-    enableTheming: false,
-    defaultTheme: null,
-    availableThemes: null,
-    customHomeRedirect: null,
-    maximumMoreLikeThis: null,
-    defaultTextTruncationHeight: null,
-    notes: null,
-    createdAt: null,
-    modifiedAt: null,
-  };
-}
+export { getDefaultInstanceSettings };
