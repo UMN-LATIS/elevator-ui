@@ -1,49 +1,95 @@
-import { ShowCustomHeaderMode } from "../../src/types";
-import { MockInstance } from "../types";
+import { InstanceSettings, ShowCustomHeaderMode } from "../../src/types";
 import { createBaseTable } from "./baseTable";
 import { PagesTable } from "./pages";
 
-const instanceSeeds: MockInstance[] = [
+const instanceSeeds: InstanceSettings[] = [
   {
-    id: 1,
+    instanceId: 1,
     name: "defaultinstance",
-    hasLogo: false,
-    logo: 0,
+    domain: "example.edu",
+    ownerHomepage: null,
+    googleAnalyticsKey: null,
+
+    // featured asset
+    featuredAsset: "687969fd9c90c709c1021d01",
+    featuredAssetText: "This is a featured asset",
+
+    // storage
+    amazonS3Key: null,
+    amazonS3Secret: null,
+    defaultBucket: null,
+    bucketRegion: null,
+
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: true,
-    contact: "admin@example.com",
+    showPreviousNextSearchResults: true,
+    hideVideoAudio: false,
+    allowIndexing: true,
+    useVoyagerViewer: true,
+    automaticAltText: true,
+    autoloadMaxSearchResults: false,
+
+    useCustomHeader: ShowCustomHeaderMode.HOME_PAGE_ONLY,
+    customHeaderText: null,
+    customFooterText: null,
+    customHeaderCSS: null,
+    useCustomCSS: false,
+    useHeaderLogo: false,
+
+    enableInterstitial: false,
+    interstitialText: null,
+
+    interfaceVersion: 1,
     useCentralAuth: true,
     centralAuthLabel: "University",
-    sortableFields: {},
-    customHeaderMode: ShowCustomHeaderMode.HOME_PAGE_ONLY,
-    customHeader: null,
-    customFooter: null,
-    useVoyagerViewer: true,
-    useCustomCSS: false,
-    featuredAssetId: "687969fd9c90c709c1021d01",
-    featuredAssetText: "This is a featured asset",
-    pages: [],
+    enableHLSStreaming: false,
+    enableTheming: false,
+    defaultTheme: "light",
+    availableThemes: ["light", "dark", "folwell"],
+
+    customHomeRedirect: null,
+    maximumMoreLikeThis: null,
+    defaultTextTruncationHeight: null,
+    notes: null,
+    createdAt: null,
+    modifiedAt: null,
   },
 ];
 
+let nextId = instanceSeeds.length + 1;
+
 export function createInstancesTable({ pages }: { pages: PagesTable }) {
   const baseTable = createBaseTable(
-    (instance: MockInstance) => instance.id,
+    (instance: InstanceSettings) => instance.instanceId,
     instanceSeeds
   );
 
   return {
     ...baseTable,
+    maxId() {
+      return Math.max(
+        ...baseTable.getAll().map((instance) => instance.instanceId),
+        0
+      );
+    },
+    create: (
+      instance: Omit<InstanceSettings, "instanceId">
+    ): InstanceSettings => {
+      const newInstance = {
+        ...instance,
+        instanceId: nextId++,
+      };
+      baseTable.set(newInstance.instanceId, newInstance);
+      return newInstance;
+    },
     get pages() {
       return pages.getAll();
     },
-    getDefault: (): MockInstance => {
+    getDefault: (): InstanceSettings => {
       if (baseTable.size() === 0) {
         throw new Error("No instances available");
       }
-      // Get the instance from the store (which may have been updated)
-      // rather than returning the seed data directly
-      const instance = baseTable.get(instanceSeeds[0].id);
+      const instance = baseTable.get(instanceSeeds[0].instanceId);
       if (!instance) {
         throw new Error("Default instance not found");
       }

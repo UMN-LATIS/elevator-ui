@@ -695,6 +695,7 @@ export interface InstanceSettings {
   // Vue interface options
   interfaceVersion: 0 | 1; // 0 = Classic, 1 = VueJS
   useCentralAuth: boolean;
+  centralAuthLabel: string;
   enableHLSStreaming: boolean;
   enableTheming: boolean;
   defaultTheme: string | null;
