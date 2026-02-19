@@ -76,6 +76,7 @@ export function getDefaultInstanceSettings(
     interstitialText: null,
     interfaceVersion: 1,
     useCentralAuth: false,
+    centralAuthLabel: "University",
     enableHLSStreaming: false,
     enableTheming: false,
     defaultTheme: null,
