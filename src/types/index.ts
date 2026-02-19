@@ -606,6 +606,7 @@ export interface ApiInstanceNavResponse {
   customFooter?: string | null; // html
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
   useCustomCSS: boolean; // whether or not to use custom CSS
+  customHeaderCSS: string | null; // custom CSS for header if useCustomCSS is true
   theming: {
     enabled: boolean;
     availableThemes: string[];

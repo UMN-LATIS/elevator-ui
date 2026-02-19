@@ -1,10 +1,7 @@
 import { Hono } from "hono";
 import { delay } from "../utils";
 import type { MockServerContext } from "../types.js";
-import {
-  ApiInstanceNavResponse,
-  ShowCustomHeaderMode,
-} from "../../src/types";
+import { ApiInstanceNavResponse, ShowCustomHeaderMode } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
@@ -38,7 +35,8 @@ app.get("/getInstanceNav", async (c) => {
     instanceName: instance.name,
     instanceHasLogo: instance.useHeaderLogo,
     instanceLogo: 0, // no numeric logo ID in InstanceSettings
-    instanceShowCollectionInSearchResults: instance.showCollectionInSearchResults,
+    instanceShowCollectionInSearchResults:
+      instance.showCollectionInSearchResults,
     instanceShowTemplateInSearchResults: instance.showTemplateInSearchResults,
     contact: instance.ownerHomepage ?? "",
     useCentralAuth: instance.useCentralAuth,
@@ -49,6 +47,7 @@ app.get("/getInstanceNav", async (c) => {
     customFooter: instance.customFooterText,
     useVoyagerViewer: instance.useVoyagerViewer,
     useCustomCSS: instance.useCustomCSS,
+    customHeaderCSS: instance.customHeaderCSS,
     featuredAssetId: instance.featuredAsset ?? "",
     featuredAssetText: instance.featuredAssetText ?? "",
     theming: {
