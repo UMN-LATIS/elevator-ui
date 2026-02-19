@@ -73,6 +73,7 @@ export default {
         "on-surface": {
           DEFAULT: "var(--on-surface)",
           variant: "var(--on-surface-variant)",
+          muted: "color-mix(in oklch, var(--on-surface) 20%, transparent)",
         },
         primary: {
           DEFAULT: "var(--primary)",
@@ -136,6 +137,8 @@ export default {
         },
         "inverse-surface": "var(--inverse-surface)",
         "inverse-on-surface": "var(--inverse-on-surface)",
+        "inverse-on-surface-muted":
+          "color-mix(in oklch, var(--on-surface) 38%, transparent)",
         "inverse-primary": "var(--inverse-primary)",
         scrim: "var(--scrim)",
         shadow: "var(--shadow)",
