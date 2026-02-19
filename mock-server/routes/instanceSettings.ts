@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { MockServerContext } from "../types";
 import { InstanceSettings } from "../../src/types/index";
 import { parseFormData } from "../utils";
+import { makeInstance } from "../db/instances";
 
 const app = new Hono<MockServerContext>({ strict: false });
 
@@ -9,6 +10,10 @@ const app = new Hono<MockServerContext>({ strict: false });
 app.get("/getInstance/:instanceId", (c) => {
   const db = c.get("db");
   const user = c.get("user");
+
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
 
   if (!user?.isInstanceAdmin && !user?.isSuperAdmin) {
     return c.json({ error: "Forbidden" }, 403);
@@ -23,63 +28,51 @@ app.post("/save/:json", async (c) => {
   const db = c.get("db");
   const user = c.get("user");
 
-  if (!user?.isInstanceAdmin && !user?.isSuperAdmin) {
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  if (!user.isInstanceAdmin && !user.isSuperAdmin) {
     return c.json({ error: "Forbidden" }, 403);
   }
 
-  const rawFormData = await c.req.formData();
-  const formData = parseFormData(rawFormData);
-  const instanceId = Number(formData.instanceId);
+  // convert form data to object
+  const formRaw = await c.req.formData();
+  const form = parseFormData(formRaw);
 
+  const instanceId = form.instanceId;
+  if (typeof instanceId !== "number") {
+    return c.json({ error: "Invalid instanceId" }, 400);
+  }
+
+  // get instance by id
   const instance = db.instances.get(instanceId);
-  if (!instance) return c.json({ error: "Instance not found" }, 404);
 
-  const updated: InstanceSettings = { ...instance };
+  if (!instance) {
+    return c.json({ error: "Instance not found" }, 404);
+  }
 
-  const name = rawFormData.get("name");
-  if (typeof name === "string") updated.name = name;
+  const defaults = makeInstance();
+  const updated: InstanceSettings = {
+    ...defaults,
+    ...instance,
+    ...form,
 
-  const featuredAsset = rawFormData.get("featuredAsset");
-  if (typeof featuredAsset === "string")
-    updated.featuredAsset = featuredAsset || null;
-
-  const featuredAssetText = rawFormData.get("featuredAssetText");
-  if (typeof featuredAssetText === "string")
-    updated.featuredAssetText = featuredAssetText || null;
-
-  const useCustomHeader = rawFormData.get("useCustomHeader");
-  if (useCustomHeader !== null)
-    updated.useCustomHeader = Number(useCustomHeader) as 0 | 1 | 2;
-
-  const customHeaderText = rawFormData.get("customHeaderText");
-  if (customHeaderText !== null)
-    updated.customHeaderText =
-      typeof customHeaderText === "string" ? customHeaderText || null : null;
-
-  const customFooterText = rawFormData.get("customFooterText");
-  if (customFooterText !== null)
-    updated.customFooterText =
-      typeof customFooterText === "string" ? customFooterText || null : null;
-
-  const showCollectionInSearchResults = rawFormData.get(
-    "showCollectionInSearchResults"
-  );
-  if (showCollectionInSearchResults !== null)
-    updated.showCollectionInSearchResults =
-      showCollectionInSearchResults === "1";
-
-  const showTemplateInSearchResults = rawFormData.get(
-    "showTemplateInSearchResults"
-  );
-  if (showTemplateInSearchResults !== null)
-    updated.showTemplateInSearchResults = showTemplateInSearchResults === "1";
-
-  const useVoyagerViewer = rawFormData.get("useVoyagerViewer");
-  if (useVoyagerViewer !== null)
-    updated.useVoyagerViewer = useVoyagerViewer === "1";
-
-  const useCustomCSS = rawFormData.get("useCustomCSS");
-  if (useCustomCSS !== null) updated.useCustomCSS = useCustomCSS === "1";
+    // handle booleans
+    showPreviousNextSearchResults: Boolean(form.showPreviousNextSearchResults),
+    showCollectionInSearchResults: Boolean(form.showCollectionInSearchResults),
+    showTemplateInSearchResults: Boolean(form.showTemplateInSearchResults),
+    useVoyagerViewer: Boolean(form.useVoyagerViewer),
+    useCustomCSS: Boolean(form.useCustomCSS),
+    allowIndexing: Boolean(form.allowIndexing),
+    hideVideoAudio: Boolean(form.hideVideoAudio),
+    autoloadMaxSearchResults: Boolean(form.autoloadMaxSearchResults),
+    enableInterstitial: Boolean(form.enableInterstitial),
+    enableHLSStreaming: Boolean(form.enableHLSStreaming),
+    enableTheming: Boolean(form.enableTheming),
+    useCentralAuth: Boolean(form.useCentralAuth),
+    automaticAltText: Boolean(form.automaticAltText),
+  };
 
   db.instances.set(updated.instanceId, updated);
 

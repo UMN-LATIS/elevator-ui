@@ -115,9 +115,13 @@ test.describe("Instance Settings Page", () => {
       await page.getByLabel("Owner Contact").fill("mailto:owner@example.edu");
       await page.getByLabel("Instance Notes").fill("Internal notes here");
       // "Use Central Authentication" starts on — toggle it off
+
       await page
         .getByRole("switch", { name: "Use Central Authentication" })
         .click();
+      await expect(
+        page.getByRole("switch", { name: "Use Central Authentication" })
+      ).toHaveAttribute("aria-checked", "false");
 
       // --- Customization ---
       await page.getByLabel("Custom Home Redirect").fill("/new-home");
@@ -125,8 +129,12 @@ test.describe("Instance Settings Page", () => {
       await page.getByLabel("Display Custom Header/Footer").selectOption("1"); // Always
       await page.getByLabel("Custom Header Content").fill("<b>Header</b>");
       await page.getByLabel("Custom Footer Content").fill("<p>Footer</p>");
+
       // Enable Custom CSS, then fill the revealed textarea
       await page.getByRole("switch", { name: "Use Custom CSS" }).click();
+      await expect(
+        page.getByRole("switch", { name: "Use Custom CSS" })
+      ).toHaveAttribute("aria-checked", "true");
       await page.getByLabel("Custom CSS").fill("body { color: red; }");
 
       // --- Storage ---
@@ -144,53 +152,113 @@ test.describe("Instance Settings Page", () => {
       await page
         .getByRole("switch", { name: "Show Collection in Search Results" })
         .click();
+      await expect(
+        page.getByRole("switch", {
+          name: "Show Collection in Search Results",
+        })
+      ).toHaveAttribute("aria-checked", "false");
+
       await page
         .getByRole("switch", { name: "Show Template in Search Results" })
         .click();
+      await expect(
+        page.getByRole("switch", { name: "Show Template in Search Results" })
+      ).toHaveAttribute("aria-checked", "false");
+
       await page
         .getByRole("switch", { name: "Allow Search Engine Indexing" })
         .click();
+      await expect(
+        page.getByRole("switch", { name: "Allow Search Engine Indexing" })
+      ).toHaveAttribute("aria-checked", "false");
+
       // Autoload starts off — toggle it on
+      await expect(
+        page.getByRole("switch", {
+          name: "Autoload Search Results (under 1000)",
+        })
+      ).toHaveAttribute("aria-checked", "false");
       await page
         .getByRole("switch", { name: "Autoload Search Results (under 1000)" })
         .click();
 
       // --- Assets ---
-      // Enable interstitial to reveal text field
+      // Enable interstitial to reveal text field (starts off)
+
       await page
         .getByRole("switch", {
           name: "Show Interstitial When Embedding via API",
         })
         .click();
+      await expect(
+        page.getByRole("switch", {
+          name: "Show Interstitial When Embedding via API",
+        })
+      ).toHaveAttribute("aria-checked", "true");
       await page
         .getByLabel("Interstitial Text")
         .fill("Please read before embedding.");
+
       await page
         .getByRole("switch", { name: "Show Previous/Next in Asset View" })
         .click(); // off
+      await expect(
+        page.getByRole("switch", {
+          name: "Show Previous/Next in Asset View",
+        })
+      ).toHaveAttribute("aria-checked", "false");
+
       await page
         .getByRole("switch", { name: "Hide Video/Audio Download Links" })
         .click(); // on
+      await expect(
+        page.getByRole("switch", {
+          name: "Hide Video/Audio Download Links",
+        })
+      ).toHaveAttribute("aria-checked", "true");
+
       await page
         .getByRole("switch", { name: "Auto-generate Alt Text and Captions" })
         .click(); // off
+      await expect(
+        page.getByRole("switch", {
+          name: "Auto-generate Alt Text and Captions",
+        })
+      ).toHaveAttribute("aria-checked", "false");
+
       await page
         .getByRole("switch", { name: "Use Smithsonian Voyager for 3D" })
         .click(); // off
+      await expect(
+        page.getByRole("switch", {
+          name: "Use Smithsonian Voyager for 3D",
+        })
+      ).toHaveAttribute("aria-checked", "false");
+
       await page.getByRole("switch", { name: "Enable HLS Streaming" }).click(); // on
+      await expect(
+        page.getByRole("switch", { name: "Enable HLS Streaming" })
+      ).toHaveAttribute("aria-checked", "true");
+
       await page.getByLabel("More Like This Results").fill("5");
       await page.getByLabel("Text Area Collapsed Height (px)").fill("200");
 
       // --- User Interface ---
-      // Interface version is already 1 (VueJS) — enable theming
+      // Interface version is already 1 (VueJS) — enable theming (starts off)
       await page
         .getByRole("switch", { name: "Enable Theme Selection" })
         .click();
+      await expect(
+        page.getByRole("switch", { name: "Enable Theme Selection" })
+      ).toHaveAttribute("aria-checked", "true");
+
       await page.getByLabel("Default Theme").selectOption("dark");
+
       // Uncheck "folwell" from available themes
       await page.getByRole("checkbox", { name: "folwell" }).uncheck();
 
       await page.getByRole("button", { name: "Save" }).click();
+
       await expect(
         page.getByText("Instance settings saved successfully")
       ).toBeVisible();
