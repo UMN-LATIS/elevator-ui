@@ -1,6 +1,7 @@
 <template>
   <Button
     class="all-drawers-page__create-drawer-button"
+    variant="primary"
     @click="isCreateDrawerModalOpen = true">
     Create Drawer
   </Button>

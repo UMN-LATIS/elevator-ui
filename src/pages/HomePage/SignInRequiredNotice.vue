@@ -8,13 +8,15 @@
     <div class="flex gap-2 mt-2">
       <Button
         :to="`/loginManager/localLogin/?redirect=${$route.path}`"
-        variant="tertiary">
+        variant="tertiary"
+        class="border border-primary py-2 px-4">
         {{ instance.useCentralAuth ? "Guest" : "" }} Login
       </Button>
       <Button
         v-if="instance.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
-        variant="tertiary">
+        variant="tertiary"
+        class="border border-primary py-2 px-4">
         {{ instance.centralAuthLabel }} Login
       </Button>
     </div>
