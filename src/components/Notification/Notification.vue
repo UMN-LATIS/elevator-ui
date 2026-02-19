@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'notification max-w-lg w-full mx-auto overflow-hidden relative shadow',
+      'notification max-w-lg w-full mx-auto overflow-hidden relative shadow rounded-md',
       {
         'notification--info bg-info-container text-on-info-container':
           type === 'info',
