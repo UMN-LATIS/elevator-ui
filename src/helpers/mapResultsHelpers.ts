@@ -12,10 +12,11 @@ export function convertSearchResultToLngLats(
       return location.entries.map((locationEntry) => {
         if (!locationEntry.loc) return null;
 
-        return {
-          lng: locationEntry.loc.coordinates[0],
-          lat: locationEntry.loc.coordinates[1],
-        };
+        const lng = locationEntry.loc.coordinates[0];
+        const lat = locationEntry.loc.coordinates[1];
+        if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+
+        return { lng, lat };
       });
     })
     .filter((lngLat): lngLat is LngLat => lngLat !== null);
