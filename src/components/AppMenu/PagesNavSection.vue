@@ -52,8 +52,12 @@ function toNavItem(page: Page): NavItem {
   };
 }
 
+const byTitle = (a: { name: string }, b: { name: string }) =>
+  a.name.localeCompare(b.name);
+
 function convertPagesToNavItems(pages: Page[]): NavItem[] {
-  return pages.map((page) => {
+  return pages
+.map((page) => {
     const parentNavItem = toNavItem(page);
 
     if (!page.children || page.children.length === 0) {
@@ -64,12 +68,13 @@ function convertPagesToNavItems(pages: Page[]): NavItem[] {
       ...parentNavItem,
       children: [
         // the first page of the children group should be
-        // the parent page, then all the child pages follow
+        // the parent page, then all the child pages follow sorted
         parentNavItem,
-        ...page.children.map(toNavItem),
+        ...page.children.map(toNavItem).sort(byTitle),
       ],
     };
-  });
+  })
+    .sort(byTitle);
 }
 
 // if pages or route change, recompute the nav items
