@@ -1,5 +1,6 @@
 import { MockDrawer } from "../types";
 import { createBaseTable } from "./baseTable";
+import { LOCATION_ASSET_IDS } from "./assets";
 
 const drawerSeeds: MockDrawer[] = [
   {
@@ -7,7 +8,7 @@ const drawerSeeds: MockDrawer[] = [
     name: "My Drawer",
     description: "A sample drawer",
     userId: 1,
-    assetIds: ["6875871d4eb080a4880a0f44"],
+    assetIds: ["6875871d4eb080a4880a0f44", ...LOCATION_ASSET_IDS],
     isPublic: false,
     createdAt: new Date(),
     updatedAt: new Date(),
