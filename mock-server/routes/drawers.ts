@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { delay } from "../utils/index";
+import { delay, assetToSearchResultMatch } from "../utils/index";
 import type { MockServerContext } from "../types";
 
 const app = new Hono<MockServerContext>();
@@ -36,15 +36,21 @@ app.get("/getDrawer/:drawerId", async (c) => {
   if (!drawer) {
     return c.json({ error: "Drawer not found" }, 404);
   }
-  // just return an empty drawer for now
+  const matches = drawer.assetIds.flatMap((assetId) => {
+    const asset = db.assets.get(assetId);
+    if (!asset) return [];
+    const collection = db.collections.get(asset.collectionId);
+    const template = db.templates.get(asset.templateId);
+    if (!collection || !template) return [];
+    return [assetToSearchResultMatch({ asset, collection, template })];
+  });
+
   const response = {
-    searchResults: ["searchId"],
-    matches: [],
+    searchResults: matches.map((m) => m.objectId),
+    matches,
     success: true,
-    searchEntry: {
-      searchText: "",
-    },
-    totalResults: 0,
+    searchEntry: { searchText: "" },
+    totalResults: matches.length,
     drawerId: drawer.id,
     drawerTitle: drawer.name,
     drawerDescription: drawer.description || "",
