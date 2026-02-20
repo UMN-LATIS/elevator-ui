@@ -71,7 +71,7 @@
                 {{ sortOptionLabel }}
               </option>
             </select>
-            <ShareButton :url="embedUrl" />
+            <ShareButton v-if="isCurrentViewEmbeddable" :url="embedUrl" />
           </div>
         </div>
         <Tab id="grid" label="Grid">
@@ -178,9 +178,20 @@ const props = withDefaults(
 
 const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
-const embedUrl = computed(
-  () => `${BASE_URL}/drawers/viewDrawer/${props.drawerId}`
+
+const isEmbeddableView = (view: string) =>
+  ["map", "timeline", "gallery"].includes(view);
+
+const isCurrentViewEmbeddable = computed(() =>
+  isEmbeddableView(activeTabId.value)
 );
+
+const embedUrl = computed(() => {
+  const embedType = isEmbeddableView(activeTabId.value)
+    ? activeTabId.value
+    : "map";
+  return `${BASE_URL}/drawers/${props.drawerId}/embed/${embedType}`;
+});
 
 const isValidResultsView = (view: string): view is SearchResultsView => {
   return SEARCH_RESULTS_VIEWS.includes(view as SearchResultsView);

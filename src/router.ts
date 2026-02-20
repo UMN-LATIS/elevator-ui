@@ -253,6 +253,16 @@ const router = createRouter({
       props: true,
     },
     {
+      name: "drawerResultsMapEmbed",
+      path: "/drawers/:drawerId/embed/:embedType",
+      component: () =>
+        import("@/pages/DrawerResultsEmbedPage/DrawerResultsEmbedPage.vue"),
+      props: (route) => ({
+        drawerId: parseIntFromParam(route.params.drawerId),
+        embedType: route.params.embedType,
+      }),
+    },
+    {
       name: "localLogin",
       path: "/loginManager/localLogin",
       component: LocalLoginPage,
