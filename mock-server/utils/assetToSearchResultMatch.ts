@@ -10,20 +10,6 @@ import {
   Template,
 } from "../../src/types";
 
-// Helper function to safely convert to bigint
-function safeBigInt(value: unknown): bigint {
-  if (typeof value === 'bigint') return value;
-  if (typeof value === 'number') return BigInt(value);
-  if (typeof value === 'string' && value !== '') {
-    try {
-      return BigInt(value);
-    } catch {
-      return BigInt(0);
-    }
-  }
-  return BigInt(0);
-}
-
 function extractDatesFromAsset(asset: Asset): DateResult[] {
   const dates: DateResult[] = [];
   Object.keys(asset).forEach((key) => {
@@ -34,12 +20,14 @@ function extractDatesFromAsset(asset: Asset): DateResult[] {
           dates.push({
             start: {
               text: dateWidget.start.text || "",
-              numeric: safeBigInt(dateWidget.start.numeric),
+              // Use Number instead of BigInt so the value can be JSON-serialized.
+              // The real backend returns numeric timestamps as numbers over the wire.
+              numeric: Number(dateWidget.start.numeric) as unknown as bigint,
             },
             end: dateWidget.end
               ? {
                   text: dateWidget.end.text || "",
-                  numeric: safeBigInt(dateWidget.end.numeric),
+                  numeric: Number(dateWidget.end.numeric) as unknown as bigint,
                 }
               : undefined,
             label: dateWidget.label,
@@ -75,9 +63,17 @@ function extractLocationsFromAsset(asset: Asset): LocationObject[] {
       const locationWidgets = asset[key] as LocationWidgetContent[];
       locationWidgets.forEach((locationWidget) => {
         if (locationWidget.loc) {
+          // convertSearchResultToLngLats expects LocationObject.entries[].loc.coordinates
           locations.push({
             label: locationWidget.locationLabel || undefined,
-            ...locationWidget.loc,
+            entries: [
+              {
+                loc: locationWidget.loc as {
+                  type: string;
+                  coordinates: [number, number];
+                },
+              },
+            ],
           });
         }
       });
