@@ -56,7 +56,7 @@
               Loading...
             </div>
           </div>
-          <div class="flex items-baseline gap-2">
+          <div class="flex items-center gap-2">
             <label for="location" class="sr-only">Sort</label>
             <select
               id="sort"
@@ -71,6 +71,7 @@
                 {{ sortOptionLabel }}
               </option>
             </select>
+            <ShareButton :url="embedUrl" />
           </div>
         </div>
         <Tab id="grid" label="Grid">
@@ -162,6 +163,7 @@ import DrawerItemsList from "./DrawerItemsList.vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import ShareButton from "@/components/ShareButton/ShareButton.vue";
 import config from "@/config";
 
 const props = withDefaults(
@@ -176,6 +178,9 @@ const props = withDefaults(
 
 const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
+const embedUrl = computed(
+  () => `${BASE_URL}/drawers/viewDrawer/${props.drawerId}`
+);
 
 const isValidResultsView = (view: string): view is SearchResultsView => {
   return SEARCH_RESULTS_VIEWS.includes(view as SearchResultsView);
