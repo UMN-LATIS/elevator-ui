@@ -1,5 +1,6 @@
 import deepmerge from "deepmerge";
 import { AppConfig } from "@/types";
+import { resolveThemingConfig } from "@/helpers/resolveThemingConfig";
 
 export const ALL_THEMES = [
   "dark",
