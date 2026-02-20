@@ -14,7 +14,7 @@
       </Button>
     </div>
     <Map
-      v-show="markers.length > 0"
+      v-else
       :zoom="10"
       mapStyle="light"
       :apiKey="config.arcgis.apiKey"
