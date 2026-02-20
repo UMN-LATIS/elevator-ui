@@ -10,7 +10,8 @@
       <article class="mx-auto">
         <header class="flex items-center gap-4 justify-between mb-8">
           <div />
-          <h1 class="text-4xl font-bold text-center">
+          <h1
+            class="static-content-page__page-title text-4xl font-bold text-center">
             {{ page.title || "Untitled" }}
           </h1>
           <Button
