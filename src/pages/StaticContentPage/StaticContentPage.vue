@@ -14,7 +14,8 @@
         Edit Page
       </a>
       <div class="prose prose-neutral mx-auto">
-        <h1 class="text-4xl font-bold text-center">
+        <h1
+          class="static-content-page__page-title text-4xl font-bold text-center">
           {{ page.title || "Untitled" }}
         </h1>
 
