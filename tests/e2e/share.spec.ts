@@ -50,6 +50,16 @@ test.describe("Share Button", () => {
       await page.keyboard.press("Escape");
       await expect(modal).toBeHidden();
     });
+
+    test("the embed link for a drawer map actually shows a map", async ({
+      page,
+    }) => {
+      await page.goto("/drawers/1/embed/map");
+
+      // check that aria-label="Map" is visible, which indicates the map has rendered
+      await expect(page.getByRole("region", { name: "Map" })).toBeVisible();
+    });
+
   });
 
   test.describe("on the search results page (map view)", () => {
