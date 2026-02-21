@@ -37,7 +37,7 @@ test.describe("Share Button", () => {
       await page.getByRole("button", { name: "Share" }).click();
 
       await expect(page.getByRole("textbox", { name: "Embed" })).toHaveValue(
-        /\/drawers\/viewDrawer\/1/
+        /\/drawers\/1\/embed\/map/
       );
     });
 
