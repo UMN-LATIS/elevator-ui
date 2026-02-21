@@ -53,7 +53,6 @@ const baseAsset: Asset = {
 };
 
 const generateMockAssets = (count = 100): Asset[] => {
-
   const assets: Asset[] = [];
   const fileTypes = ["txt", "pdf", "docx", "jpg", "png", "mp4", "wav"];
 
@@ -61,7 +60,7 @@ const generateMockAssets = (count = 100): Asset[] => {
     const fileType = fileTypes[i % fileTypes.length];
     const title = `Asset ${i}`;
 
-    const assetId =`asset_${crypto.randomUUID()}`;
+    const assetId = `asset_${crypto.randomUUID()}`;
     const fileId = `file_${crypto.randomUUID()}`;
     const handlerId = `handler_${crypto.randomUUID()}`;
 
@@ -112,7 +111,100 @@ const generateMockAssets = (count = 100): Asset[] => {
   return assets;
 };
 
+// Assets with location + date data for map/timeline/drawer share testing
+const locationAssetSeeds: Asset[] = [
+  {
+    ...baseAsset,
+    title_1: [
+      { isPrimary: true, fieldContents: "Minneapolis Institute of Arts" },
+    ],
+    assetId: "location_asset_minneapolis",
+    firstFileHandlerId: "handler_location_mpls",
+    title: ["Minneapolis Institute of Arts"],
+    location_1: [
+      {
+        isPrimary: true,
+        locationLabel: "Minneapolis",
+        address: "2400 3rd Ave S, Minneapolis, MN 55404",
+        loc: { type: "Point", coordinates: [-93.2733, 44.9584] },
+      },
+    ],
+    date_1: [
+      {
+        isPrimary: true,
+        label: "",
+        start: { text: "1883", numeric: "-2745964800" },
+        end: { text: "", numeric: null },
+      },
+    ],
+    modified: {
+      date: "2021-01-01 00:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: true, fieldContents: "Art Institute of Chicago" }],
+    assetId: "location_asset_chicago",
+    firstFileHandlerId: "handler_location_chi",
+    title: ["Art Institute of Chicago"],
+    location_1: [
+      {
+        isPrimary: true,
+        locationLabel: "Chicago",
+        address: "111 S Michigan Ave, Chicago, IL 60603",
+        loc: { type: "Point", coordinates: [-87.6237, 41.8796] },
+      },
+    ],
+    date_1: [
+      {
+        isPrimary: true,
+        label: "",
+        start: { text: "1879", numeric: "-2871964800" },
+        end: { text: "", numeric: null },
+      },
+    ],
+    modified: {
+      date: "2022-06-15 00:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: true, fieldContents: "SFMOMA" }],
+    assetId: "location_asset_sf",
+    firstFileHandlerId: "handler_location_sf",
+    title: ["SFMOMA"],
+    location_1: [
+      {
+        isPrimary: true,
+        locationLabel: "San Francisco",
+        address: "151 3rd St, San Francisco, CA 94103",
+        loc: { type: "Point", coordinates: [-122.4009, 37.7857] },
+      },
+    ],
+    date_1: [
+      {
+        isPrimary: true,
+        label: "",
+        start: { text: "1935", numeric: "-1104537600" },
+        end: { text: "", numeric: null },
+      },
+    ],
+    modified: {
+      date: "2023-03-20 00:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
+];
+
+export const LOCATION_ASSET_IDS = locationAssetSeeds.map((a) => a.assetId);
+
 const assetSeeds: Asset[] = [
+  ...locationAssetSeeds,
   baseAsset,
   // Asset with broken template for error boundary testing
   {
@@ -151,9 +243,9 @@ const assetSeeds: Asset[] = [
           country: "usa",
           stateorprovince: "minnesota",
           city: "St. Paul",
-          neighborhood: "Summit Hill"
-        }
-      }
+          neighborhood: "Summit Hill",
+        },
+      },
     ],
     assetId: "687969fd9c90c709c1021d01",
     firstFileHandlerId: "handler_cascade_test",
