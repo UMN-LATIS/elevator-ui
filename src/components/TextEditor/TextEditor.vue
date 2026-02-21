@@ -125,6 +125,8 @@ onMounted(() => {
 
 .ql-toolbar.ql-snow {
   border: none;
+  background: var(--surface-container-high);
+  border-bottom: 1px solid var(--outline-variant);
 }
 .ql-container.ql-snow {
   border: none;
@@ -172,18 +174,21 @@ onMounted(() => {
 }
 
 .ql-html-overlayContainer {
+  background: var(--scrim);
+
   & .ql-html-popupContainer {
     width: 90dvw;
     height: 80dvh;
+    max-width: 50rem;
     position: absolute;
     top: 50%;
     right: initial;
     bottom: initial;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    background-color: var(--surface);
+    color: var(--on-surface);
+    border: 1px solid var(--outline-variant);
     border-radius: 0.375rem; /* rounded-md */
     z-index: 10;
     display: flex;
@@ -197,13 +202,20 @@ onMounted(() => {
   }
 
   & .ql-html-textArea.ql-container {
+    margin: 1rem 0;
     position: static;
     left: 0;
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--surface-container);
     border-radius: 0.375rem; /* rounded-md */
     height: auto;
     width: auto;
     flex: 1;
+    border: 1px solid var(--outline);
+
+    &:focus-within {
+      @apply ring-2 ring-outline;
+      background: var(--surface-container-high);
+    }
   }
 
   & .ql-html-buttonGroup {
@@ -225,19 +237,17 @@ onMounted(() => {
   }
 
   & .ql-html-buttonCancel {
-    background-color: var(--surface-container);
     border-color: var(--outline);
     color: var(--on-surface);
 
     &:hover {
-      background-color: var(--surface-container-high);
-      border-color: var(--outline);
-      color: var(--on-surface);
+      border-color: var(--primary);
+      color: var(--primary);
     }
   }
   & .ql-html-buttonOk {
-    background-color: var(--primary);
     border-color: var(--primary);
+    background-color: var(--primary);
     color: var(--on-primary);
 
     &:hover {
@@ -246,5 +256,18 @@ onMounted(() => {
       color: var(--on-primary);
     }
   }
+}
+
+.ql-editor p,
+.ql-editor ol,
+.ql-editor pre,
+.ql-editor blockquote,
+.ql-editor h1,
+.ql-editor h2,
+.ql-editor h3,
+.ql-editor h4,
+.ql-editor h5,
+.ql-editor h6 {
+  margin-bottom: 1rem;
 }
 </style>
