@@ -11,7 +11,7 @@ test.describe("Share Button", () => {
 
   test.describe("on the drawer page", () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto("/drawers/viewDrawer/1");
+      await page.goto("/drawers/viewDrawer/1?resultsView=map");
     });
 
     test("share button is visible", async ({ page }) => {
