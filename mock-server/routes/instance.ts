@@ -1,9 +1,27 @@
 import { Hono } from "hono";
 import { delay } from "../utils";
 import type { MockServerContext } from "../types.js";
-import { ApiInstanceNavResponse, ShowCustomHeaderMode } from "../../src/types";
+import {
+  ApiInstanceNavResponse,
+  Page,
+  ShowCustomHeaderMode,
+} from "../../src/types";
+import type { MockCustomPage } from "../types";
 
 const app = new Hono<MockServerContext>();
+
+// Build the nested Page[] tree expected by the nav from the flat customPages list.
+// Only top-level pages (no parentId) are included at root; children are nested.
+function buildNavPages(pages: MockCustomPage[]): Page[] {
+  const toNavPage = (page: MockCustomPage): Page => ({
+    id: page.id,
+    title: page.title,
+    includeInNav: page.includeInHeader,
+    children: pages.filter((p) => p.parentId === page.id).map(toNavPage),
+  });
+
+  return pages.filter((p) => p.parentId === null).map(toNavPage);
+}
 
 // GET /home/getInstanceNav
 app.get("/getInstanceNav", async (c) => {
@@ -58,7 +76,7 @@ app.get("/getInstanceNav", async (c) => {
 
     // relational data
     templates,
-    pages: db.pages.getAllWithoutContent(),
+    pages: buildNavPages(db.customPages.getAll()),
     collections: db.collections.getAllAsRawAssetCollections(),
   };
 
