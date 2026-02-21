@@ -251,6 +251,20 @@ const router = createRouter({
       path: "/search/:embedType/:searchId",
       component: SearchResultsEmbedPage,
       props: true,
+      // The classic interface used /search/{embedType}/{drawerId} for
+      // drawer embeds. Redirect those legacy URLs to the canonical drawer
+      // embed route.
+      beforeEnter: (to) => {
+        const { searchId, embedType } = to.params;
+        // searchId's that are purely numeric are legacy drawer embeds
+        // (actual searches use UUIDs with hyphens and letter)
+        if (/^\d+$/.test(searchId as string)) {
+          return {
+            name: "drawerResultsMapEmbed",
+            params: { drawerId: searchId, embedType },
+          };
+        }
+      },
     },
     {
       name: "drawerResultsMapEmbed",
