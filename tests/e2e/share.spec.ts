@@ -60,6 +60,19 @@ test.describe("Share Button", () => {
       await expect(page.getByRole("region", { name: "Map" })).toBeVisible();
     });
 
+    test("verify the legacy embed url for a drawer map still works", async ({
+      page,
+    }) => {
+      // in classic ui, drawers used the drawer number for search id
+      const drawerId = 1;
+      await page.goto(`/search/map/${drawerId}`);
+
+      // page should redirect to the new drawer embed url
+      await expect(page).toHaveURL(/\/drawers\/1\/embed\/map/);
+
+      // map should be visible
+      await expect(page.getByRole("region", { name: "Map" })).toBeVisible();
+    });
   });
 
   test.describe("on the search results page (map view)", () => {
