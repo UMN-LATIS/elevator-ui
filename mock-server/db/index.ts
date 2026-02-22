@@ -1,5 +1,6 @@
 import { createAssetsTable } from "./assets";
 import { createCollectionsTable } from "./collections";
+import { createCustomPagesTable } from "./customPages";
 import { createDrawersTable } from "./drawers";
 import { createFilesTable } from "./files";
 import { createInstancesTable } from "./instances";
@@ -20,6 +21,7 @@ const makeDb = () => {
     templates,
     assets,
     pages,
+    customPages: createCustomPagesTable(),
     searches: createSearchesTable({ assets, collections, templates }),
     users: createUsersTable(),
     sessions: createSessionsTable(),
