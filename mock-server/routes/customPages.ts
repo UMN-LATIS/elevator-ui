@@ -5,15 +5,13 @@ import type { CustomPageSummary, SavePageApiResponse } from "../../src/types";
 
 const app = new Hono<MockServerContext>({ strict: false });
 
-const requireAdmin = (user: MockServerContext["Variables"]["user"]) =>
-  !user?.isInstanceAdmin && !user?.isSuperAdmin;
-
 // GET /instances/customPages/true
 app.get("/customPages/:json", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (requireAdmin(user)) return c.json({ error: "Forbidden" }, 403);
+  if (!user?.isInstanceAdmin && !user?.isSuperAdmin)
+    return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const pages = db.customPages.getAll();
@@ -37,7 +35,8 @@ app.get("/getPage/:pageId", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (requireAdmin(user)) return c.json({ error: "Forbidden" }, 403);
+  if (!user?.isInstanceAdmin && !user?.isSuperAdmin)
+    return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const pageId = Number(c.req.param("pageId"));
@@ -64,7 +63,8 @@ app.post("/savePage/:json", async (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (requireAdmin(user)) return c.json({ error: "Forbidden" }, 403);
+  if (!user?.isInstanceAdmin && !user?.isSuperAdmin)
+    return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const formRaw = await c.req.formData();
@@ -117,7 +117,8 @@ app.delete("/deletePage/:pageId/:json", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (requireAdmin(user)) return c.json({ error: "Forbidden" }, 403);
+  if (!user?.isInstanceAdmin && !user?.isSuperAdmin)
+    return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const pageId = Number(c.req.param("pageId"));
