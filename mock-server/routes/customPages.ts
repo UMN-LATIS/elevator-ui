@@ -126,6 +126,12 @@ app.delete("/deletePage/:pageId/:json", (c) => {
 
   if (!page) return c.json({ error: "Page not found" }, 404);
 
+  // Re-parent any children to null so they aren't left orphaned
+  db.customPages
+    .getAll()
+    .filter((p) => p.parentId === pageId)
+    .forEach((child) => db.customPages.update(child.id, { parentId: null }));
+
   db.customPages.delete(pageId);
 
   return c.json({ success: true });
