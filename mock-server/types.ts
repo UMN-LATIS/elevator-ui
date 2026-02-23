@@ -55,6 +55,17 @@ export interface MockPage {
   children?: MockPage[];
 }
 
+export interface MockCustomPage {
+  id: number;
+  title: string;
+  body: string;
+  includeInHeader: boolean;
+  parentId: number | null;
+  sortOrder: number | null;
+  createdAt: string;
+  modifiedAt: string | null;
+}
+
 export interface MockDrawer {
   id: number;
   name: string;

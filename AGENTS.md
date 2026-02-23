@@ -42,6 +42,20 @@ Guidelines for AI assistants working with the Elevator UI codebase.
 - Don't waste time with excessive unit testing. Save the effort for exercising complex utility functions or composables that may not be covered by e2e tests.
 - When a feature or bug fix may impact existing functionality, **begin by adding an e2e test for existing functionality** to ensure we don't introduce regressions.
 
+**⚠️ IMPORTANT: How to Run E2E Tests**
+
+Playwright does NOT auto-start the dev server. You must start it manually first, then run the tests in a separate step:
+
+```bash
+# Step 1 — start dev + mock server (keep running in background)
+yarn dev:mock
+
+# Step 2 — run e2e tests (in a separate terminal, once the server is up)
+yarn test:e2e
+```
+
+Never run `yarn test:e2e` without first confirming `yarn dev:mock` is running on ports 5173 and 3001. If those ports are already occupied, kill the existing processes before starting.
+
 **Mock Server for Testing**
 
 - Use `yarn dev:mock` to run the development server with the mock backend. This allows you to test without needing the actual backend running.
@@ -125,11 +139,17 @@ yarn vue-tsc:watch        # Watch mode
 
 # Development
 yarn dev                  # Start dev server (localhost:5173)
-yarn dev:mock             # Start dev server with mock backend
+yarn dev:mock             # Start dev server with mock backend (ports 5173 + 3001)
 
 # Testing
 yarn test                 # Run Vitest unit tests (for utilities/composables only)
-yarn test:e2e             # e2e testing command
+
+# E2E Testing — TWO STEPS REQUIRED:
+#   1. Start the server first (keep it running):
+#      yarn dev:mock
+#   2. Then in a separate terminal run:
+#      yarn test:e2e
+# Playwright does NOT auto-start the server!
 
 # Build
 yarn build                # Production build

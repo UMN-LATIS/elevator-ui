@@ -1,6 +1,5 @@
 import { InstanceSettings } from "../../src/types";
 import { createBaseTable } from "./baseTable";
-import { PagesTable } from "./pages";
 import { getDefaultInstanceSettings } from "../../src/helpers/getDefaultInstanceSettings";
 
 let lastInstanceId = 0;
@@ -41,7 +40,7 @@ const instanceSeeds: InstanceSettings[] = [
   }),
 ];
 
-export function createInstancesTable({ pages }: { pages: PagesTable }) {
+export function createInstancesTable() {
   const baseTable = createBaseTable(
     (instance: InstanceSettings) => instance.instanceId,
     instanceSeeds
@@ -61,9 +60,6 @@ export function createInstancesTable({ pages }: { pages: PagesTable }) {
       const newInstance = makeInstance(instance);
       baseTable.set(newInstance.instanceId, newInstance);
       return newInstance;
-    },
-    get pages() {
-      return pages.getAll();
     },
     getDefault: (): InstanceSettings => {
       if (baseTable.size() === 0) {

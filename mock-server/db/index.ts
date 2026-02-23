@@ -1,9 +1,9 @@
 import { createAssetsTable } from "./assets";
 import { createCollectionsTable } from "./collections";
+import { createCustomPagesTable } from "./customPages";
 import { createDrawersTable } from "./drawers";
 import { createFilesTable } from "./files";
 import { createInstancesTable } from "./instances";
-import { createPagesTable } from "./pages";
 import { createSessionsTable } from "./sessions";
 import { createTemplatesTable } from "./templates";
 import { createUsersTable } from "./users";
@@ -13,17 +13,16 @@ import { createUploadsTable } from "./uploads";
 const makeDb = () => {
   const collections = createCollectionsTable();
   const templates = createTemplatesTable();
-  const pages = createPagesTable();
   const assets = createAssetsTable({ collections, templates });
   const tables = {
     collections,
     templates,
     assets,
-    pages,
+    customPages: createCustomPagesTable(),
     searches: createSearchesTable({ assets, collections, templates }),
     users: createUsersTable(),
     sessions: createSessionsTable(),
-    instances: createInstancesTable({ pages }),
+    instances: createInstancesTable(),
     files: createFilesTable(),
     drawers: createDrawersTable(),
     uploads: createUploadsTable(),

@@ -11,12 +11,16 @@ app.get("/view/:pageId/true", async (c) => {
 
   const pageId = Number(c.req.param("pageId"));
 
-  const page = db.pages.get(pageId);
+  const page = db.customPages.get(pageId);
   if (!page) {
     return c.json({ error: "Page not found" }, 404);
   }
 
-  return c.json<StaticContentPage>(page);
+  return c.json<StaticContentPage>({
+    id: page.id,
+    title: page.title,
+    content: page.body,
+  });
 });
 
 export default app;
