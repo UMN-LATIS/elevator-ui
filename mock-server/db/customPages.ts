@@ -89,7 +89,7 @@ export function createCustomPagesTable() {
         id: nextId++,
         ...data,
         createdAt: new Date().toISOString(),
-        modifiedAt: new Date().toISOString(),
+        modifiedAt: null,
       };
       baseTable.set(page.id, page);
       return page;
