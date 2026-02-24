@@ -3,7 +3,6 @@ import type { CSSClass, TemplateSummary } from "@/types";
 import { RouterLink } from "vue-router";
 import {
   ArrowUpDownIcon,
-  CopyIcon,
   CopyPlusIcon,
   PencilIcon,
   RefreshCcwDotIcon,
