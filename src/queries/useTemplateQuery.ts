@@ -27,6 +27,10 @@ export function useAllTemplatesQuery(options = {}) {
   return useQuery<TemplateSummary[]>({
     queryKey: [TEMPLATES_QUERY_KEY],
     queryFn: () => fetchers.fetchAllTemplates(),
+    // Sort here so components always receive an alphabetically ordered list
+    // regardless of what order the API returns them in.
+    select: (templates) =>
+      templates.toSorted((a, b) => a.name.localeCompare(b.name)),
     refetchOnWindowFocus: false,
     ...options,
   });
