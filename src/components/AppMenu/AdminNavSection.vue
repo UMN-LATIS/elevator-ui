@@ -8,7 +8,7 @@
     </AppMenuItem>
     <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/reports`">Reports</AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/templates`">Edit Templates</AppMenuItem>
+    <AppMenuItem to="/templates">Edit Templates</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/collectionManager`">
       Edit Collections
     </AppMenuItem>

@@ -1,7 +1,9 @@
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
-import { TEMPLATES_QUERY_KEY } from "./queryKeys";
+import { INSTANCE_QUERY_KEY, TEMPLATES_QUERY_KEY } from "./queryKeys";
+import type { TemplateSummary } from "@/types";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useTemplateQuery(
   templateId: MaybeRefOrGetter<string | number | null>,
@@ -19,5 +21,35 @@ export function useTemplateQuery(
     },
     refetchOnWindowFocus: false,
     ...options,
+  });
+}
+
+export function useAllTemplatesQuery(options = {}) {
+  return useQuery<TemplateSummary[]>({
+    queryKey: [TEMPLATES_QUERY_KEY],
+    queryFn: () => fetchers.fetchAllTemplates(),
+    // Sort here so components always receive an alphabetically ordered list
+    // regardless of what order the API returns them in.
+    select: (templates) =>
+      templates.toSorted((a, b) => a.name.localeCompare(b.name)),
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+}
+
+export function useDeleteTemplateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (templateId: number) => fetchers.deleteTemplate(templateId),
+    onSuccess: () => {
+      // invalidate template list
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
+
+      // invalidate instanceNav data too since it contains template info
+      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
+    },
   });
 }

@@ -41,6 +41,7 @@ import {
   SaveCustomPageParams,
   SaveCustomPageResult,
   SavePageApiResponse,
+  type TemplateSummary,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -958,6 +959,23 @@ export async function saveCustomPage(
 export async function deleteCustomPage(pageId: number) {
   const res = await axios.delete(
     `${BASE_URL}/instances/deletePage/${pageId}/true`
+  );
+  return res.data;
+}
+
+export async function fetchAllTemplates(): Promise<TemplateSummary[]> {
+  const res = await axios.get<TemplateSummary[]>(`${BASE_URL}/templates`);
+  return res.data;
+}
+
+interface DeleteTemplateResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function deleteTemplate(templateId: number) {
+  const res = await axios.delete<DeleteTemplateResponse>(
+    `${BASE_URL}/templates/delete/${templateId}`
   );
   return res.data;
 }
