@@ -4,6 +4,7 @@ import { RouterLink } from "vue-router";
 import { PencilIcon, Trash2 } from "lucide-vue-next";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { cn } from "@/lib/utils";
+import config from "@/config";
 
 const columnHelper = createColumnHelper<TemplateSummary>();
 
@@ -56,12 +57,12 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
     enableSorting: false,
     cell: ({ row }: { row: { original: TemplateSummary } }) => (
       <div class="flex gap-2 items-center justify-center">
-        {/* <IconButton
-          to={{ name: "editTemplate", params: { pageId: row.original.id } }}
+        <IconButton
+          href={`${config.instance.base.url}/templates/edit/${row.original.id}`}
           showTooltip={false}
           title="Edit">
           <PencilIcon class="size-4" />
-        </IconButton> */}
+        </IconButton>
         <IconButton
           onClick={() => onDelete(row.original.id)}
           class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container"
