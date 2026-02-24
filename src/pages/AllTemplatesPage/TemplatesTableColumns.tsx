@@ -1,7 +1,14 @@
 import { createColumnHelper } from "@tanstack/vue-table";
 import type { CSSClass, TemplateSummary } from "@/types";
 import { RouterLink } from "vue-router";
-import { PencilIcon, Trash2 } from "lucide-vue-next";
+import {
+  ArrowUpDownIcon,
+  CopyIcon,
+  CopyPlusIcon,
+  PencilIcon,
+  RefreshCcwDotIcon,
+  Trash2,
+} from "lucide-vue-next";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { cn } from "@/lib/utils";
 import config from "@/config";
@@ -64,6 +71,33 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
           <PencilIcon class="size-4" />
         </IconButton>
         <IconButton
+          href={`${config.instance.base.url}/templates/sort/${row.original.id}`}
+          showTooltip={false}
+          title="Reorder Widgets">
+          <ArrowUpDownIcon class="size-4" />
+        </IconButton>
+        <IconButton
+          href={`${config.instance.base.url}/templates/copy/${row.original.id}`}
+          showTooltip={false}
+          title="Duplicate">
+          <CopyPlusIcon class="size-4" />
+        </IconButton>
+        <IconButton
+          onClick={() => {
+            if (
+              !window.confirm(
+                "Are you sure you wish to reindex this template and any related templates?"
+              )
+            ) {
+              return;
+            }
+            window.location.href = `${config.instance.base.url}/templates/forceRecache/${row.original.id}`;
+          }}
+          showTooltip={false}
+          title="Reindex">
+          <RefreshCcwDotIcon class="size-4" />
+        </IconButton>
+        <IconButton
           onClick={() => onDelete(row.original.id)}
           class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container"
           showTooltip={false}
@@ -72,6 +106,6 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
         </IconButton>
       </div>
     ),
-    maxSize: 64,
+    maxSize: 128,
   },
 ];
