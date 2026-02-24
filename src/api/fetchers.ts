@@ -967,3 +967,15 @@ export async function fetchAllTemplates(): Promise<TemplateSummary[]> {
   const res = await axios.get<TemplateSummary[]>(`${BASE_URL}/templates`);
   return res.data;
 }
+
+interface DeleteTemplateResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function deleteTemplate(templateId: number) {
+  const res = await axios.delete<DeleteTemplateResponse>(
+    `${BASE_URL}/templates/delete/${templateId}`
+  );
+  return res.data;
+}

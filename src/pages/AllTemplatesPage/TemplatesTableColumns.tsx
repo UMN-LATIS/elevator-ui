@@ -62,13 +62,13 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
           title="Edit">
           <PencilIcon class="size-4" />
         </IconButton> */}
-        {/* <IconButton
+        <IconButton
           onClick={() => onDelete(row.original.id)}
           class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container"
           showTooltip={false}
           title="Delete">
           <Trash2 class="size-4" />
-        </IconButton> */}
+        </IconButton>
       </div>
     ),
     maxSize: 64,
