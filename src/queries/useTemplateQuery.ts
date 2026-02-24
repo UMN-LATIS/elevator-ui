@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import { TEMPLATES_QUERY_KEY } from "./queryKeys";
+import type { TemplateSummary } from "@/types";
 
 export function useTemplateQuery(
   templateId: MaybeRefOrGetter<string | number | null>,
@@ -23,7 +24,7 @@ export function useTemplateQuery(
 }
 
 export function useAllTemplatesQuery(options = {}) {
-  return useQuery({
+  return useQuery<TemplateSummary[]>({
     queryKey: [TEMPLATES_QUERY_KEY],
     queryFn: () => fetchers.fetchAllTemplates(),
     refetchOnWindowFocus: false,
