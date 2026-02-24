@@ -14,10 +14,12 @@
         <Notification
           v-else-if="isError"
           type="danger"
-          title="Error Loading Custom Pages">
+          title="Error Loading Templates">
           An error occurred while loading templates.
         </Notification>
-        <p v-else-if="!templates?.length" class="text-lg">No pages found.</p>
+        <p v-else-if="!templates?.length" class="text-lg">
+          No templates found.
+        </p>
         <TemplatesTable v-else :columns="columns" :data="templates" />
       </Transition>
     </div>
@@ -63,7 +65,7 @@ const handleDelete = async (templateId: number) => {
   try {
     await deleteTemplate(templateId);
     toastStore.addToast({
-      title: "Page Deleted",
+      title: "Template Deleted",
       message: `The template "${template.name}" has been deleted successfully.`,
       variant: "success",
       duration: 3000,

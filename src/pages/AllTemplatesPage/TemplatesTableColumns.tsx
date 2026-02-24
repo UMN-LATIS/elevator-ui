@@ -1,6 +1,5 @@
 import { createColumnHelper } from "@tanstack/vue-table";
 import type { CSSClass, TemplateSummary } from "@/types";
-import { RouterLink } from "vue-router";
 import {
   ArrowUpDownIcon,
   CopyPlusIcon,
@@ -18,7 +17,7 @@ const ColHeader = (props: { text: string; class?: CSSClass }) => (
   <div class={cn(["font-medium", props.class])}>{props.text}</div>
 );
 
-export const createColumns = (onDelete: (pageId: number) => void) => [
+export const createColumns = (onDelete: (templateId: number) => void) => [
   columnHelper.accessor("id", {
     header: () => <ColHeader text="ID" />,
     cell: (ctx) => (
@@ -28,10 +27,9 @@ export const createColumns = (onDelete: (pageId: number) => void) => [
   }),
   columnHelper.accessor("name", {
     header: () => <ColHeader text="Name" />,
-    cell: (ctx) => {
-      const id = ctx.row.original.id;
-      return <div class="text-sm text-muted-foreground">{ctx.getValue()}</div>;
-    },
+    cell: (ctx) => (
+      <div class="text-sm text-muted-foreground">{ctx.getValue()}</div>
+    ),
   }),
   columnHelper.accessor("createdAt", {
     header: () => <ColHeader text="Created" />,

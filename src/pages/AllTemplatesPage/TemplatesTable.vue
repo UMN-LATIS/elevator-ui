@@ -4,7 +4,7 @@
       v-model="globalFilter"
       label="Search table"
       type="text"
-      placeholder="Filter pages..."
+      placeholder="Filter templates..."
       :labelHidden="true"
       class="max-w-sm" />
     <div class="border border-outline-variant rounded-md">
@@ -98,18 +98,14 @@ const props = defineProps<{
   data: TData[];
 }>();
 
-const isSmScreen = useMediaQuery("(min-width: 640px)");
 const isLgScreen = useMediaQuery("(min-width: 1024px)");
 
 const columnVisibility = computed<VisibilityState>(() => ({
-  parentTitle: isSmScreen.value,
-  includeInHeader: isSmScreen.value,
-  body: isLgScreen.value,
   createdAt: isLgScreen.value,
   modifiedAt: isLgScreen.value,
 }));
 
-const sorting = ref<SortingState>([{ id: "title", desc: false }]);
+const sorting = ref<SortingState>([{ id: "name", desc: false }]);
 const globalFilter = ref("");
 
 const table = useVueTable({
