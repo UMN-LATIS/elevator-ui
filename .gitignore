@@ -36,3 +36,9 @@ node_modules
 # Mock server temporary files
 /mock-server/tmp/
 /mock-server/files/
+
+# Override global gitignore to commit CLAUDE.md (imports AGENTS.md as single source of truth)
+!CLAUDE.md
+
+# ignore local CLAUDE or AGENTS md files
+*.local.md

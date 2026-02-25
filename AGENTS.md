@@ -2,6 +2,54 @@
 
 Guidelines for AI assistants working with the Elevator UI codebase.
 
+## Research & Planning Docs
+
+Feature research, implementation plans, and technical analyses live in `vibes/`. Before starting work on any non-trivial feature, check whether a relevant doc exists.
+
+1. Read `vibes/README.md` to understand the conventions
+2. Glob `vibes/*.md` and scan each file's front matter (`status`, `feature`, `type`)
+3. Skip `status: implemented` docs unless doing archaeology
+4. Read the `## Summary` section to confirm relevance before loading the full doc
+
+---
+
+## Backend Repository
+
+The backend is a **CodeIgniter 3 / Doctrine ORM** PHP application backed by PostgreSQL. Its local path varies per developer — set it in your `CLAUDE.local.md` (gitignored).
+
+**When a feature requires backend changes, read and modify the backend code directly.** Don't work around missing endpoints with mock-only solutions when the real backend needs to change.
+
+### Key Backend Paths
+
+```
+<backend-root>/
+  application/controllers/api/v1/  # RESTful API endpoints — add new endpoints here
+  application/models/Entity/       # Doctrine ORM entities (generated from XML mappings)
+  application/models/              # Business logic
+  application/libraries/           # Shared application libraries
+  assets/elevator-ui/              # The Vue SPA also lives here as a submodule
+```
+
+### Backend Patterns
+
+- Controllers extend `MY_Controller` (handles auth, permissions, common setup)
+- Use Doctrine entities and repositories for data access — no raw SQL
+- Follow Laravel conventions where possible, even though the framework is CodeIgniter
+- After schema changes: regenerate entities, preview SQL, apply it, then flush Redis (`redis-cli flushdb`)
+
+### Full-Stack Development Flow
+
+When a feature touches both repos:
+
+1. Check `<backend-root>/AGENTS.md` for backend-specific conventions and Docker commands
+2. Add or modify the API endpoint in `<backend-root>/application/controllers/api/v1/`
+3. Update TypeScript types in `src/types/` to match
+4. Update fetchers in `src/api/fetchers.ts`
+5. Add a mock handler in `mock-server/` mirroring the real endpoint
+6. Implement the frontend feature and write e2e tests
+
+---
+
 ## Core Principles
 
 ### Code Style & Quality
