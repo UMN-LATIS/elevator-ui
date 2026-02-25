@@ -37,8 +37,8 @@ node_modules
 /mock-server/tmp/
 /mock-server/files/
 
-# Override global gitignore to commit CLAUDE.md (imports AGENTS.md as single source of truth)
+# Claude should defer to AGENTS.md
 !CLAUDE.md
 
-# ignore local CLAUDE or AGENTS md files
+# Permit local overrides of AGENTS, CLAUDE, and other documentation
 *.local.md

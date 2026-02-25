@@ -2,6 +2,10 @@
 
 Guidelines for AI assistants working with the Elevator UI codebase.
 
+## Local Overrides
+
+Local machine-specific overrides (not checked in) go in [`AGENTS.local.md`](./AGENTS.local.md). If it exists, please read and treat those instructions as overrides to this document.
+
 ## Research & Planning Docs
 
 Feature research, implementation plans, and technical analyses live in `vibes/`. Before starting work on any non-trivial feature, check whether a relevant doc exists.
@@ -10,45 +14,6 @@ Feature research, implementation plans, and technical analyses live in `vibes/`.
 2. Glob `vibes/*.md` and scan each file's front matter (`status`, `feature`, `type`)
 3. Skip `status: implemented` docs unless doing archaeology
 4. Read the `## Summary` section to confirm relevance before loading the full doc
-
----
-
-## Backend Repository
-
-The backend is a **CodeIgniter 3 / Doctrine ORM** PHP application backed by PostgreSQL. Its local path varies per developer — set it in your `CLAUDE.local.md` (gitignored).
-
-**When a feature requires backend changes, read and modify the backend code directly.** Don't work around missing endpoints with mock-only solutions when the real backend needs to change.
-
-### Key Backend Paths
-
-```
-<backend-root>/
-  application/controllers/api/v1/  # RESTful API endpoints — add new endpoints here
-  application/models/Entity/       # Doctrine ORM entities (generated from XML mappings)
-  application/models/              # Business logic
-  application/libraries/           # Shared application libraries
-  assets/elevator-ui/              # The Vue SPA also lives here as a submodule
-```
-
-### Backend Patterns
-
-- Controllers extend `MY_Controller` (handles auth, permissions, common setup)
-- Use Doctrine entities and repositories for data access — no raw SQL
-- Follow Laravel conventions where possible, even though the framework is CodeIgniter
-- After schema changes: regenerate entities, preview SQL, apply it, then flush Redis (`redis-cli flushdb`)
-
-### Full-Stack Development Flow
-
-When a feature touches both repos:
-
-1. Check `<backend-root>/AGENTS.md` for backend-specific conventions and Docker commands
-2. Add or modify the API endpoint in `<backend-root>/application/controllers/api/v1/`
-3. Update TypeScript types in `src/types/` to match
-4. Update fetchers in `src/api/fetchers.ts`
-5. Add a mock handler in `mock-server/` mirroring the real endpoint
-6. Implement the frontend feature and write e2e tests
-
----
 
 ## Core Principles
 
@@ -234,7 +199,51 @@ This approach:
 - [ ] No `any` types used
 - [ ] Run `yarn vue-tsc` - no TypeScript errors
 - [ ] Run `yarn test` - unit tests pass
-- [ ] E2E tests written for new features/bug fixes
-- [ ] PR is focused and < 400 lines (break into multiple PRs if needed)
+- [ ] Verify that the mock dev server is started, if not start mock dev server with `yarn dev:mock`, then test with `yarn test:e2e`.
+- [ ] Write new E2E tests written for new features/bug fixes
+- [ ] Keep PR focused and < 400 lines (break into multiple PRs if needed)
 - [ ] Only changed files in scope (no unnecessary linting/refactoring)
-- [ ] Tested with `yarn test:e2e`
+
+---
+
+## Backend Repository
+
+Many new features will require backedn The backend is a **CodeIgniter 3 / Doctrine ORM** PHP application backed by PostgreSQL. Its local path varies per developer — set it in your `AGENTS.local.md` (gitignored). If it is not set, but needed, prompt the user to clarify.
+
+**When a feature requires backend changes**:
+- Your goal is to first understand the existing backend code deeply before planning and implementing any changes.
+- RESEARCH PHASE:
+  - Review the backend `<backend-root>/AGENTS.md` and `<backend-root>/vibes/README.md` document. Review any other relevant `vibes` documents to get context.
+  - Review any backend code related to the proposed feature, then detail your findings and learnings in `<backend-root>/vibes` for reference. Be sure to follow the conventions in the vibes README.
+  - If any of the backend `vibes` documents appear out of date, or have conflicting information take time to verify, reconcile the differences, and update the documents before proceeding. DO NOT COMMIT ANY CHANGES so that they can be reviewed by the developer for accuracy.
+- PLAN PHASE:
+  - Develop a plan for changes to the backend. Follow existing patterns whenever possible.
+  - The backend code does not have much/any tests, so it's prudent to minimize changes.
+  - For complex changes, suggest a series of independent waypoint PR's to make review easier.
+  - DO NOT IMPLEMENT ANY BACKEND CHANGES. Instead, refer the developer to your plan and ask for edit/feedback. Only once given the overhead, implement the plan.
+- IMPLEMENTATION PHASE:
+  - Begin by developing tests using Pest for any endpoints we will be modifying.
+  - The first tests should be pinning tests to verify that legacy backend behavior does not change after our modifications.
+  - Then, add tests for new planned behavior. Verify that these tests fail (RED), as is typical in RED-GREEN-REFACTOR TDD.
+  - Implement the plan until all the tests pass (GREEN).
+  - Refactor the implementation for clarity, maintainability, and simplicity. **Avoid unnecessary abstraction.** **Avoid changing legacy code if possible** Add comments to clarify code intent.
+- IMPLEMENTING MOCK ENDPOINT
+  - After implementing the backend change, update our mock-server code to replicate the endpoint functionality.
+
+### Key Backend Paths
+
+```
+<backend-root>/
+  application/controllers/api/v1/  # RESTful API endpoints — add new endpoints here
+  application/models/Entity/       # Doctrine ORM entities (generated from XML mappings)
+  application/models/              # Business logic
+  application/libraries/           # Shared application libraries
+  assets/elevator-ui/              # The Vue SPA also lives here as a submodule
+```
+
+### Backend Patterns
+
+- Controllers extend `MY_Controller` (handles auth, permissions, common setup)
+- Use Doctrine entities and repositories for data access — no raw SQL
+- Follow Laravel conventions where possible, even though the framework is CodeIgniter
+- After schema changes: regenerate entities, preview SQL, apply it, then flush Redis (`redis-cli flushdb`)
