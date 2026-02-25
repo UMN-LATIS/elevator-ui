@@ -233,6 +233,23 @@ const assetSeeds: Asset[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Metadata-only asset (no file uploads)
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Metadata Only Asset" }],
+    upload_1: [],
+    assetId: "metadata_only_asset_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Metadata Only Asset"],
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Special test asset for multiselect cascade tests
   {
     ...baseAsset,
