@@ -42,6 +42,8 @@ import {
   SaveCustomPageResult,
   SavePageApiResponse,
   type TemplateSummary,
+  type AdminTemplate,
+  type TemplatePayload,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -976,6 +978,33 @@ interface DeleteTemplateResponse {
 export async function deleteTemplate(templateId: number) {
   const res = await axios.delete<DeleteTemplateResponse>(
     `${BASE_URL}/templates/delete/${templateId}`
+  );
+  return res.data;
+}
+
+export async function fetchAdminTemplate(
+  templateId: number
+): Promise<AdminTemplate> {
+  const res = await axios.get<AdminTemplate>(
+    `${BASE_URL}/templates/getTemplate/${templateId}`
+  );
+  return res.data;
+}
+
+export async function createTemplate(
+  payload: TemplatePayload
+): Promise<AdminTemplate> {
+  const res = await axios.post<AdminTemplate>(`${BASE_URL}/templates`, payload);
+  return res.data;
+}
+
+export async function updateTemplate(
+  templateId: number,
+  payload: TemplatePayload
+): Promise<AdminTemplate> {
+  const res = await axios.put<AdminTemplate>(
+    `${BASE_URL}/templates/${templateId}`,
+    payload
   );
   return res.data;
 }
