@@ -1,4 +1,4 @@
-import { Asset, LngLat } from "@/types";
+import { Asset, LngLat, type WidgetType } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
 import { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 import { useAssetValidationProvider } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
@@ -49,6 +49,20 @@ export const GLOBAL_FIELD_IDS = {
 export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   BOTTOM: 0,
   TOP: 1,
+} as const;
+
+// Maps widget type names to the backend `field_types` DB table IDs.
+export const FIELD_TYPE_IDS: Record<WidgetType, number> = {
+  text: 1,
+  "text area": 2,
+  select: 3,
+  checkbox: 4,
+  date: 5,
+  "tag list": 6,
+  multiselect: 7,
+  location: 8,
+  upload: 9,
+  "related asset": 10,
 } as const;
 
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
