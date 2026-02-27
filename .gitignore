@@ -39,6 +39,3 @@ node_modules
 
 # Claude should defer to AGENTS.md
 !CLAUDE.md
-
-# Permit local overrides of AGENTS, CLAUDE, and other documentation
-*.local.md

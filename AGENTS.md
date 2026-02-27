@@ -2,19 +2,6 @@
 
 Guidelines for AI assistants working with the Elevator UI codebase.
 
-## Local Overrides
-
-Local machine-specific overrides (not checked in) go in [`AGENTS.local.md`](./AGENTS.local.md). If it exists, please read and treat those instructions as overrides to this document.
-
-## Research & Planning Docs
-
-Feature research, implementation plans, and technical analyses live in `vibes/`. Before starting work on any non-trivial feature, check whether a relevant doc exists.
-
-1. Read `vibes/README.md` to understand the conventions
-2. Glob `vibes/*.md` and scan each file's front matter (`status`, `feature`, `type`)
-3. Skip `status: implemented` docs unless doing archaeology
-4. Read the `## Summary` section to confirm relevance before loading the full doc
-
 ## Core Principles
 
 ### Code Style & Quality
