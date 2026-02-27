@@ -1,8 +1,23 @@
-import { Template } from "../../src/types";
+import type { Template } from "../../src/types";
+import { FIELD_TYPE_IDS } from "../../src/constants/constants";
 import { createBaseTable } from "./baseTable";
 import invariant from "tiny-invariant";
 
-const templateSeeds: Template[] = [
+export { FIELD_TYPE_IDS };
+
+// AdminTemplateSeed extends the asset-editor Template with fields
+// needed for the admin template editor. Lives in the mock layer only.
+export interface AdminTemplateSeed extends Template {
+  createdAt: string;
+  modifiedAt: string;
+  includeInSearch: boolean;
+  indexForSearching: boolean;
+  isHidden: boolean;
+  recursiveIndexDepth: 0 | 1 | 2;
+  templateColor: number;
+}
+
+const templateSeeds: AdminTemplateSeed[] = [
   // Misconfigured template for error boundary testing
   // The select widget is missing `selectGroup` in fieldData which will cause an error
   {
@@ -12,6 +27,13 @@ const templateSeeds: Template[] = [
     showTemplate: false,
     showCollectionPosition: 1,
     showTemplatePosition: 1,
+    createdAt: "2024-01-10T08:00:00+00:00",
+    modifiedAt: "2024-01-10T08:00:00+00:00",
+    includeInSearch: true,
+    indexForSearching: true,
+    isHidden: true,
+    recursiveIndexDepth: 1,
+    templateColor: 0,
     widgetArray: [
       {
         widgetId: 9991,
@@ -67,6 +89,13 @@ const templateSeeds: Template[] = [
     showTemplate: false,
     showCollectionPosition: 1,
     showTemplatePosition: 1,
+    createdAt: "2024-01-15T10:00:00+00:00",
+    modifiedAt: "2024-03-20T14:30:00+00:00",
+    includeInSearch: true,
+    indexForSearching: true,
+    isHidden: false,
+    recursiveIndexDepth: 1,
+    templateColor: 0,
     widgetArray: [
       {
         widgetId: 19,
@@ -183,10 +212,17 @@ const templateSeeds: Template[] = [
   {
     templateId: 68,
     templateName: "All Fields Test",
-    showCollection: false,
-    showTemplate: false,
-    showCollectionPosition: 1,
-    showTemplatePosition: 1,
+    showCollection: true,
+    showTemplate: true,
+    showCollectionPosition: 0,
+    showTemplatePosition: 0,
+    createdAt: "2023-11-01T09:00:00+00:00",
+    modifiedAt: "2025-12-10T16:45:00+00:00",
+    includeInSearch: true,
+    indexForSearching: true,
+    isHidden: false,
+    recursiveIndexDepth: 2,
+    templateColor: 3,
     widgetArray: [
       {
         widgetId: 45306,
@@ -479,6 +515,13 @@ const templateSeeds: Template[] = [
     showTemplate: false,
     showCollectionPosition: 1,
     showTemplatePosition: 1,
+    createdAt: "2024-02-01T12:00:00+00:00",
+    modifiedAt: "2024-06-15T09:20:00+00:00",
+    includeInSearch: true,
+    indexForSearching: true,
+    isHidden: false,
+    recursiveIndexDepth: 1,
+    templateColor: 0,
     widgetArray: [
       {
         widgetId: 3001,
@@ -609,6 +652,13 @@ const templateSeeds: Template[] = [
     showTemplate: false,
     showCollectionPosition: 1,
     showTemplatePosition: 1,
+    createdAt: "2024-03-05T14:00:00+00:00",
+    modifiedAt: "2025-01-22T11:10:00+00:00",
+    includeInSearch: true,
+    indexForSearching: true,
+    isHidden: false,
+    recursiveIndexDepth: 1,
+    templateColor: 0,
     widgetArray: [
       {
         widgetId: 4001,
@@ -849,12 +899,32 @@ type TemplateComparison = Record<WidgetDefKey, ComparisonResult>;
 
 export function createTemplatesTable() {
   const baseTable = createBaseTable(
-    (template: Template) => template.templateId,
+    (template: AdminTemplateSeed) => template.templateId,
     templateSeeds
   );
 
   return {
     ...baseTable,
+
+    create(data: Omit<AdminTemplateSeed, "templateId">): AdminTemplateSeed {
+      const id =
+        Math.max(0, ...baseTable.getAllKeys().map((k) => Number(k))) + 1;
+      const created: AdminTemplateSeed = { ...data, templateId: id };
+      baseTable.set(id, created);
+      return created;
+    },
+
+    update(
+      id: number,
+      data: Omit<AdminTemplateSeed, "templateId">
+    ): AdminTemplateSeed | undefined {
+      const existing = baseTable.get(id);
+      if (!existing) return undefined;
+      const updated: AdminTemplateSeed = { ...data, templateId: id };
+      baseTable.set(id, updated);
+      return updated;
+    },
+
     compare(
       sourceTemplate: Template,
       destTemplate: Template
