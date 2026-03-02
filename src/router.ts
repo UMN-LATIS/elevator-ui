@@ -326,6 +326,24 @@ const router = createRouter({
       component: () => import("@/pages/AllTemplatesPage/AllTemplatesPage.vue"),
     },
     {
+      name: "templatesEdit",
+      path: "/templates/edit/:id",
+      component: () =>
+        import(
+          "@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"
+        ),
+      props: (route) => ({ templateId: parseIntFromParam(route.params.id) }),
+    },
+    {
+      name: "templatesCreate",
+      path: "/templates/edit",
+      component: () =>
+        import(
+          "@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"
+        ),
+      props: { templateId: null },
+    },
+    {
       name: "mapClusterTest",
       path: "/tests/map",
       component: () => import("@/pages/TestPages/MapClusterTest.vue"),
