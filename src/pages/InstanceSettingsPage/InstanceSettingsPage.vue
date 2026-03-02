@@ -279,10 +279,10 @@ import {
   watch,
   computed,
   onUnmounted,
-  type FunctionalComponent,
 } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
+import FormSubSection from "@/components/Form/FormSubSection.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
@@ -478,18 +478,7 @@ async function handleSave() {
   }
 }
 
-// FormSubSection component - kept inline as it's only used here
-const FormSubSection: FunctionalComponent<{
-  isOpen: boolean;
-}> = ({ isOpen = false }, { slots }) => (
-  <section
-    class={`flex flex-col gap-4 ${
-      isOpen ? "border border-outline p-2 rounded-md" : ""
-    }`}>
-    {slots.default?.()}
-    {isOpen && slots.details?.()}
-  </section>
-);
+
 </script>
 
 <style scoped></style>
