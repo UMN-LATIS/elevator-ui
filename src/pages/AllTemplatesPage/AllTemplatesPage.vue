@@ -9,19 +9,15 @@
           Create Template
         </Button>
       </div>
-      <Transition name="fade" mode="out-in">
-        <Skeleton v-if="isLoading" height="10rem" />
-        <Notification
-          v-else-if="isError"
-          type="danger"
-          title="Error Loading Templates">
-          An error occurred while loading templates.
-        </Notification>
-        <p v-else-if="!templates?.length" class="text-lg">
-          No templates found.
-        </p>
-        <TemplatesTable v-else :columns="columns" :data="templates" />
-      </Transition>
+      <Skeleton v-if="isPending" height="10rem" />
+      <Notification
+        v-else-if="isError"
+        type="danger"
+        title="Error Loading Templates">
+        An error occurred while loading templates.
+      </Notification>
+      <p v-else-if="!templates?.length" class="text-lg">No templates found.</p>
+      <TemplatesTable v-else :columns="columns" :data="templates" />
     </div>
   </DefaultLayout>
 </template>
@@ -39,7 +35,7 @@ import {
 } from "@/queries/useTemplateQuery";
 import config from "@/config";
 
-const { data: templates, isLoading, isError } = useAllTemplatesQuery();
+const { data: templates, isPending, isError } = useAllTemplatesQuery();
 const { mutateAsync: deleteTemplate } = useDeleteTemplateMutation();
 
 const toastStore = useToastStore();
