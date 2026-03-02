@@ -4,7 +4,6 @@ import type {
   TemplateSummary,
   AdminTemplate,
   AdminWidgetDef,
-  TemplatePayload,
   WidgetType,
 } from "../../src/types";
 import { FIELD_TYPE_IDS, type AdminTemplateSeed } from "../db/templates";
@@ -112,23 +111,82 @@ app.get("/getTemplate/:id", (c) => {
   return c.json(toAdminTemplateResponse(template));
 });
 
-// POST /templates — create a new template
-app.post("/", async (c) => {
+/**
+ * Parse a widget array from URLSearchParams-style FormData.
+ * Entries like widget[0][label]=Title, widget[0][fieldType]=3, etc.
+ * Boolean flags (display, required, etc.) use presence semantics:
+ * key present in form data → true; absent → false.
+ */
+function parseWidgetsFromFormData(formData: FormData) {
+  const byIndex: Record<number, Record<string, string>> = {};
+
+  for (const [key, value] of formData.entries()) {
+    const match = key.match(/^widget\[(\d+)\]\[(\w+)\]$/);
+    if (!match) continue;
+    const index = Number(match[1]);
+    const field = match[2];
+    byIndex[index] ??= {};
+    byIndex[index][field] = value as string;
+  }
+
+  const boolFlag = (row: Record<string, string>, field: string) =>
+    field in row;
+
+  return Object.keys(byIndex)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((i) => {
+      const row = byIndex[i];
+      let fieldData: unknown = null;
+      try {
+        fieldData = row.fieldData ? JSON.parse(row.fieldData) : null;
+      } catch {
+        fieldData = null;
+      }
+      return {
+        fieldTitle: row.fieldTitle ?? "",
+        label: row.label ?? "",
+        tooltip: row.tooltip ?? "",
+        fieldTypeId: Number(row.fieldType ?? 1),
+        templateOrder: Number(row.templateOrder ?? i + 1),
+        viewOrder: Number(row.viewOrder ?? i + 1),
+        clickToSearchType: Number(row.clickToSearchType ?? 0),
+        fieldData,
+        display: boolFlag(row, "display"),
+        displayInPreview: boolFlag(row, "displayInPreview"),
+        required: boolFlag(row, "required"),
+        searchable: boolFlag(row, "searchable"),
+        allowMultiple: boolFlag(row, "allowMultiple"),
+        attemptAutocomplete: boolFlag(row, "attemptAutocomplete"),
+        directSearch: boolFlag(row, "directSearch"),
+        clickToSearch: boolFlag(row, "clickToSearch"),
+      };
+    });
+}
+
+// POST /templates/update — create or update (mirrors Templates::update())
+// Presence of a numeric templateId in the body → update; absence → create.
+app.post("/update", async (c) => {
   const user = c.get("user");
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   if (!user.isInstanceAdmin && !user.isSuperAdmin)
     return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
-  const payload = await c.req.json<TemplatePayload>();
+  const formData = await c.req.formData();
   const now = new Date().toISOString();
 
-  // Track generated fieldTitles within this request to avoid collisions.
-  const generatedTitles: string[] = [];
+  const rawTemplateId = formData.get("templateId");
+  const isUpdate =
+    rawTemplateId !== null && /^\d+$/.test(String(rawTemplateId).trim());
+  const templateId = isUpdate ? Number(rawTemplateId) : null;
 
+  const parsedWidgets = parseWidgetsFromFormData(formData);
+  const generatedTitles: string[] = [];
   let nextWidgetId = Date.now();
-  const widgets = payload.widgetArray.map((w) => {
-    let fieldTitle = w.fieldTitle?.trim() ?? "";
+
+  const widgets = parsedWidgets.map((w) => {
+    let fieldTitle = w.fieldTitle.trim();
     if (!fieldTitle) {
       const base = generateFieldTitle(w.label);
       fieldTitle = base;
@@ -140,7 +198,7 @@ app.post("/", async (c) => {
     generatedTitles.push(fieldTitle);
 
     return {
-      widgetId: w.widgetId ?? nextWidgetId++,
+      widgetId: nextWidgetId++,
       fieldTitle,
       type: fieldTypeFromId(w.fieldTypeId),
       label: w.label,
@@ -160,90 +218,70 @@ app.post("/", async (c) => {
     };
   });
 
-  const created = (
-    db.templates as ReturnType<typeof createTemplatesTable>
-  ).create({
-    templateName: payload.name,
-    showCollection: payload.showCollection,
-    showCollectionPosition: payload.showCollectionPosition,
-    showTemplate: payload.showTemplate,
-    showTemplatePosition: payload.showTemplatePosition,
-    includeInSearch: payload.includeInSearch,
-    indexForSearching: payload.indexForSearching,
-    isHidden: payload.isHidden,
-    templateColor: payload.templateColor,
-    recursiveIndexDepth: payload.recursiveIndexDepth,
+  const templateData = {
+    templateName: String(formData.get("name") ?? ""),
+    showCollection: formData.has("showCollection"),
+    showCollectionPosition: Number(
+      formData.get("collectionPosition") ?? 0
+    ) as 0 | 1,
+    showTemplate: formData.has("showTemplate"),
+    showTemplatePosition: Number(
+      formData.get("templatePosition") ?? 0
+    ) as 0 | 1,
+    includeInSearch: formData.has("includeInSearch"),
+    indexForSearching: formData.has("indexforSearching"),
+    isHidden: formData.has("isHidden"),
+    templateColor: Number(formData.get("templateColor") ?? 0),
+    recursiveIndexDepth: Number(
+      formData.get("recursiveIndexDepth") ?? 1
+    ) as 0 | 1 | 2,
     widgetArray: widgets,
-    collections: {},
-    allowedCollections: {},
-    createdAt: now,
-    modifiedAt: now,
-  });
+  };
 
-  return c.json(toAdminTemplateResponse(created), 201);
-});
+  if (isUpdate) {
+    const existing = db.templates.get(templateId!) as
+      | AdminTemplateSeed
+      | undefined;
+    if (!existing) return c.json({ error: "Template not found" }, 404);
 
-// PUT /templates/:id — update an existing template
-app.put("/:id", async (c) => {
-  const user = c.get("user");
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+    const updated = (
+      db.templates as ReturnType<typeof createTemplatesTable>
+    ).update(templateId!, {
+      ...templateData,
+      collections: existing.collections ?? {},
+      allowedCollections: existing.allowedCollections ?? {},
+      createdAt: existing.createdAt,
+      modifiedAt: now,
+    });
 
-  const db = c.get("db");
-  const id = Number(c.req.param("id"));
-  const existing = db.templates.get(id) as AdminTemplateSeed | undefined;
+    if (!updated) return c.json({ error: "Template not found" }, 404);
 
-  if (!existing) return c.json({ error: "Template not found" }, 404);
+    const summary: TemplateSummary = {
+      id: updated.templateId,
+      name: updated.templateName,
+      createdAt: updated.createdAt,
+      modifiedAt: updated.modifiedAt,
+    };
+    return c.json(summary);
+  } else {
+    const created = (
+      db.templates as ReturnType<typeof createTemplatesTable>
+    ).create({
+      ...templateData,
+      collections: {},
+      allowedCollections: {},
+      createdAt: now,
+      modifiedAt: now,
+    });
 
-  const payload = await c.req.json<TemplatePayload>();
-  const now = new Date().toISOString();
-
-  let nextWidgetId = Date.now();
-  const widgets = payload.widgetArray.map((w) => ({
-    widgetId: w.widgetId ?? nextWidgetId++,
-    fieldTitle: w.fieldTitle?.trim() || generateFieldTitle(w.label),
-    type: fieldTypeFromId(w.fieldTypeId),
-    label: w.label,
-    tooltip: w.tooltip,
-    templateOrder: w.templateOrder,
-    viewOrder: w.viewOrder,
-    display: w.display,
-    displayInPreview: w.displayInPreview,
-    required: w.required,
-    searchable: w.searchable,
-    allowMultiple: w.allowMultiple,
-    attemptAutocomplete: w.attemptAutocomplete,
-    directSearch: w.directSearch,
-    clickToSearch: w.clickToSearch,
-    clickToSearchType: w.clickToSearchType,
-    fieldData: w.fieldData,
-  }));
-
-  const updated = (
-    db.templates as ReturnType<typeof createTemplatesTable>
-  ).update(id, {
-    templateName: payload.name,
-    showCollection: payload.showCollection,
-    showCollectionPosition: payload.showCollectionPosition,
-    showTemplate: payload.showTemplate,
-    showTemplatePosition: payload.showTemplatePosition,
-    includeInSearch: payload.includeInSearch,
-    indexForSearching: payload.indexForSearching,
-    isHidden: payload.isHidden,
-    templateColor: payload.templateColor,
-    recursiveIndexDepth: payload.recursiveIndexDepth,
-    widgetArray: widgets,
-    // Preserve fields needed by the asset-editor GET route
-    collections: existing.collections ?? {},
-    allowedCollections: existing.allowedCollections ?? {},
-    createdAt: existing.createdAt,
-    modifiedAt: now,
-  });
-
-  if (!updated) return c.json({ error: "Template not found" }, 404);
-
-  return c.json(toAdminTemplateResponse(updated));
+    const summary: TemplateSummary = {
+      id: created.templateId,
+      name: created.templateName,
+      createdAt: created.createdAt,
+      modifiedAt: created.modifiedAt,
+    };
+    return c.json(summary, 201);
+  }
 });
 
 // DELETE /templates/delete/:templateId — mirrors Templates::delete() JSON path

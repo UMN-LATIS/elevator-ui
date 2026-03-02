@@ -991,20 +991,86 @@ export async function fetchAdminTemplate(
   return res.data;
 }
 
+/**
+ * Serialize a TemplatePayload to URLSearchParams matching the form-encoded
+ * contract of Templates::update() — field names and boolean presence flags
+ * must match exactly what $this->input->post() expects.
+ *
+ * Key differences from the TemplatePayload type:
+ *   - showCollectionPosition → collectionPosition
+ *   - showTemplatePosition   → templatePosition
+ *   - indexForSearching      → indexforSearching  (lowercase 'f' — matches controller)
+ *   - boolean template flags  → "On" when true, omitted when false
+ *   - boolean widget flags    → any value when true, omitted when false
+ *   - fieldData              → JSON string
+ *   - fieldTypeId            → widget[n][fieldType]
+ */
+function serializeTemplatePayload(
+  payload: TemplatePayload,
+  templateId?: number
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  if (templateId !== undefined) params.append("templateId", String(templateId));
+
+  params.append("name", payload.name);
+  params.append("templateColor", String(payload.templateColor));
+  params.append("recursiveIndexDepth", String(payload.recursiveIndexDepth));
+  params.append("collectionPosition", String(payload.showCollectionPosition));
+  params.append("templatePosition", String(payload.showTemplatePosition));
+
+  if (payload.includeInSearch) params.append("includeInSearch", "On");
+  if (payload.indexForSearching) params.append("indexforSearching", "On");
+  if (payload.isHidden) params.append("isHidden", "On");
+  if (payload.showCollection) params.append("showCollection", "On");
+  if (payload.showTemplate) params.append("showTemplate", "On");
+
+  payload.widgetArray.forEach((widget, i) => {
+    const p = (field: string, value: string) =>
+      params.append(`widget[${i}][${field}]`, value);
+
+    p("fieldTitle", widget.fieldTitle ?? "");
+    p("label", widget.label);
+    p("tooltip", widget.tooltip);
+    p("fieldType", String(widget.fieldTypeId));
+    p("templateOrder", String(widget.templateOrder));
+    p("viewOrder", String(widget.viewOrder));
+    p("clickToSearchType", String(widget.clickToSearchType));
+    p(
+      "fieldData",
+      widget.fieldData != null ? JSON.stringify(widget.fieldData) : ""
+    );
+
+    if (widget.display) p("display", "On");
+    if (widget.displayInPreview) p("displayInPreview", "On");
+    if (widget.required) p("required", "On");
+    if (widget.searchable) p("searchable", "On");
+    if (widget.allowMultiple) p("allowMultiple", "On");
+    if (widget.attemptAutocomplete) p("attemptAutocomplete", "On");
+    if (widget.directSearch) p("directSearch", "On");
+    if (widget.clickToSearch) p("clickToSearch", "On");
+  });
+
+  return params;
+}
+
 export async function createTemplate(
   payload: TemplatePayload
-): Promise<AdminTemplate> {
-  const res = await axios.post<AdminTemplate>(`${BASE_URL}/templates`, payload);
+): Promise<TemplateSummary> {
+  const res = await axios.post<TemplateSummary>(
+    `${BASE_URL}/templates/update`,
+    serializeTemplatePayload(payload)
+  );
   return res.data;
 }
 
 export async function updateTemplate(
   templateId: number,
   payload: TemplatePayload
-): Promise<AdminTemplate> {
-  const res = await axios.put<AdminTemplate>(
-    `${BASE_URL}/templates/${templateId}`,
-    payload
+): Promise<TemplateSummary> {
+  const res = await axios.post<TemplateSummary>(
+    `${BASE_URL}/templates/update`,
+    serializeTemplatePayload(payload, templateId)
   );
   return res.data;
 }
