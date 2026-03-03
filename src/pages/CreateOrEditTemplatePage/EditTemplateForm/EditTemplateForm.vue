@@ -94,8 +94,12 @@
           </DragDropList>
         </DragDropContainer>
 
-        <Button type="button" variant="secondary" @click="handleAddWidget()">
-          + Add field
+        <Button
+          type="button"
+          variant="secondary"
+          class="w-full bg-transparent justify-center border-dashed border-2 border-outline-variant text-on-surface-variant hover:border-secondary hover:bg-secondary-container hover:text-on-secondary-container transition-colors"
+          @click="handleAddWidget()">
+          + Add Widget
         </Button>
       </FormSection>
     </form>
