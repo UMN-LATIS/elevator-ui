@@ -16,7 +16,12 @@
       </button>
     </div>
 
-    <InputGroup v-model="widget.label" label="Label" required />
+    <InputGroup
+      v-model="widget.label"
+      label="Label"
+      :labelHidden="true"
+      placeholder="Field label"
+      required />
 
     <template v-if="hasFieldData">
       <TextAreaGroup
