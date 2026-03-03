@@ -122,6 +122,7 @@ import { FIELD_TYPE_IDS } from "@/constants/constants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
 import type { SelectOption, WidgetType } from "@/types";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{ index: number }>();
 
@@ -135,6 +136,21 @@ if (!editor)
 const widget = editor.form.widgetArray[props.index];
 
 defineEmits<{ remove: [] }>();
+
+const instanceStore = useInstanceStore();
+
+// Mirror the legacy editor behavior: derive fieldTitle from label for new widgets.
+// Existing widgets (widgetId set) already have a locked fieldTitle — never overwrite it.
+watch(
+  () => widget.label,
+  (label) => {
+    if (widget.widgetId !== undefined) return;
+    const instanceId = instanceStore.instance.id;
+    if (!instanceId) return;
+    widget.fieldTitle =
+      label.replace(/[^a-z0-9_]/gi, "").toLowerCase() + "_" + instanceId;
+  }
+);
 
 const showOptions = ref(false);
 
