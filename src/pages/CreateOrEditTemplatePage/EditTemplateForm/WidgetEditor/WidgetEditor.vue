@@ -11,9 +11,24 @@
         type="button"
         class="shrink-0 text-error hover:text-on-error-container p-1 rounded"
         aria-label="Remove field"
-        @click="$emit('remove')">
+        @click="showConfirm = true">
         <Trash2Icon class="w-4 h-4" />
       </button>
+
+      <ConfirmModal
+        :isOpen="showConfirm"
+        title="Remove field?"
+        type="danger"
+        confirmLabel="Remove"
+        @confirm="$emit('remove')"
+        @close="showConfirm = false">
+        <p>
+          This will remove
+          <strong>{{ widget.label || "this field" }}</strong>
+          from the template. Any data already saved to this field will no longer
+          be visible or editable.
+        </p>
+      </ConfirmModal>
     </div>
 
     <InputGroup
@@ -122,6 +137,7 @@ import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import FieldTypeSelect from "./FieldTypeSelect.vue";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { ChevronRightIcon } from "@/icons";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
@@ -142,6 +158,8 @@ if (!editor)
 const widget = computed(() => editor.form.widgetArray[props.index]);
 
 defineEmits<{ remove: [] }>();
+
+const showConfirm = ref(false);
 
 const instanceStore = useInstanceStore();
 

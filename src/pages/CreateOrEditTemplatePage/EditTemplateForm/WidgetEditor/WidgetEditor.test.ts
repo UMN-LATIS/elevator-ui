@@ -1,19 +1,18 @@
 /**
  * WidgetEditor component tests.
  *
- * The key scenario tested here is a rendering bug:
+ * The key scenario tested here is a rendering bug (now fixed):
  *
- *   WidgetEditor captures its widget reference at setup time:
- *     const widget = editor.form.widgetArray[props.index]
+ *   WidgetEditor previously captured its widget reference at setup time:
+ *     const widget = editor.form.widgetArray[props.index]  // stale
  *
- *   This is a one-time read — not a computed. When the parent deletes a
- *   widget and re-uses the same component instance (same v-for key), the
- *   stale reference keeps showing the removed widget's data.
+ *   When the parent deleted a widget and Vue re-used the same component
+ *   instance (same v-for key), the stale reference kept showing the removed
+ *   widget's data. Fixed by making `widget` a computed ref.
  *
- *   Symptoms: deleting widget 1 from a list [A, B, C, D] leaves the editor
- *   showing [A, B, C] instead of [B, C, D]. The last widget appears to vanish
- *   because the DragDropList keys on array indices — Vue removes key=3 and
- *   updates keys 0-2 in place without re-running setup.
+ *   Symptoms: deleting widget 1 from [A, B, C, D] showed [A, B, C] instead
+ *   of [B, C, D]. The last widget appeared to vanish because DragDropList
+ *   keys on array indices — Vue removed key=3 and updated keys 0-2 in place.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -85,6 +84,42 @@ describe("WidgetEditor", () => {
     expect(labelOf(wrapper)).toBe("Alpha");
   });
 
+  it("clicking Remove field opens the confirm modal", async () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+
+    const wrapper = mountWidgetEditor(editor, 0);
+    const modal = () => wrapper.findComponent({ name: "ConfirmModal" });
+
+    expect(modal().props("isOpen")).toBe(false);
+
+    await wrapper.find('[aria-label="Remove field"]').trigger("click");
+
+    expect(modal().props("isOpen")).toBe(true);
+  });
+
+  it("emits remove when the confirm modal is confirmed", async () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+
+    const wrapper = mountWidgetEditor(editor, 0);
+    await wrapper.find('[aria-label="Remove field"]').trigger("click");
+    await wrapper.findComponent({ name: "ConfirmModal" }).trigger("confirm");
+
+    expect(wrapper.emitted("remove")).toHaveLength(1);
+  });
+
+  it("does not emit remove when the confirm modal is closed", async () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+
+    const wrapper = mountWidgetEditor(editor, 0);
+    await wrapper.find('[aria-label="Remove field"]').trigger("click");
+    await wrapper.findComponent({ name: "ConfirmModal" }).trigger("close");
+
+    expect(wrapper.emitted("remove")).toBeFalsy();
+  });
+
   it("reflects the widget now at index 0 after the original first widget is removed", async () => {
     const editor = useTemplateEditor(() => null);
     editor.addWidget();
@@ -100,10 +135,6 @@ describe("WidgetEditor", () => {
     await nextTick();
 
     // The component at index 0 must show "Beta", not the stale "Alpha".
-    //
-    // BUG: this assertion currently FAILS because `widget` in WidgetEditor's
-    // setup() is a one-time capture — it still holds the removed widget's
-    // reference and never updates when the array changes.
     expect(labelOf(wrapper)).toBe("Beta");
   });
 });
