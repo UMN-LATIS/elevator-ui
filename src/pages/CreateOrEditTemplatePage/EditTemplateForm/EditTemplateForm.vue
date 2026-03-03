@@ -73,6 +73,7 @@
         <SegmentedControl
           v-model="sortMode"
           label="Field order"
+          class="justify-end"
           :options="sortModeOptions" />
 
         <DragDropContainer groupId="widgets">
