@@ -1106,6 +1106,14 @@ export interface TemplateSummary {
   modifiedAt?: string;
 }
 
+/** Field type record returned by GET /templates/getFieldTypes. */
+export interface FieldType {
+  id: number;
+  name: string;
+  modelName: string;
+  sampleFieldData: unknown;
+}
+
 /**
  * Widget shape returned by GET /templates/getTemplate/:id.
  * Distinct from WidgetDef, which is used for asset rendering.

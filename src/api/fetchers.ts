@@ -44,6 +44,7 @@ import {
   type TemplateSummary,
   type AdminTemplate,
   type TemplatePayload,
+  type FieldType,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -962,6 +963,11 @@ export async function deleteCustomPage(pageId: number) {
   const res = await axios.delete(
     `${BASE_URL}/instances/deletePage/${pageId}/true`
   );
+  return res.data;
+}
+
+export async function fetchFieldTypes(): Promise<FieldType[]> {
+  const res = await axios.get<FieldType[]>(`${BASE_URL}/templates/getFieldTypes`);
   return res.data;
 }
 

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
-import { INSTANCE_QUERY_KEY, TEMPLATES_QUERY_KEY } from "./queryKeys";
-import type { TemplateSummary, AdminTemplate, TemplatePayload } from "@/types";
+import { INSTANCE_QUERY_KEY, TEMPLATES_QUERY_KEY, FIELD_TYPES_QUERY_KEY } from "./queryKeys";
+import type { TemplateSummary, AdminTemplate, TemplatePayload, FieldType } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useTemplateQuery(
@@ -50,6 +50,15 @@ export function useDeleteTemplateMutation() {
       const instanceStore = useInstanceStore();
       instanceStore.refresh();
     },
+  });
+}
+
+export function useFieldTypesQuery() {
+  return useQuery<FieldType[]>({
+    queryKey: [FIELD_TYPES_QUERY_KEY],
+    queryFn: fetchers.fetchFieldTypes,
+    // Field types are static — defined in the DB and never change at runtime.
+    staleTime: Infinity,
   });
 }
 
