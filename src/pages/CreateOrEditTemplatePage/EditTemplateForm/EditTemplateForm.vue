@@ -33,22 +33,6 @@
             <ToggleGroup
               v-model="form.includeInSearch"
               label="Include in public search results" />
-            <!-- <div class="grid grid-cols-2 gap-4 items-center">
-              <label class="text-sm whitespace-nowrap">
-                Recursive index depth
-              </label>
-              <select
-                v-model.number="form.recursiveIndexDepth"
-                class="max-w-full text-xs bg-surface-container rounded border border-outline-variant px-2 py-1">
-                <option disabled value="">-- Select depth --</option>
-                <option
-                  v-for="option in recursiveIndexDepthOptions"
-                  :key="option.id"
-                  :value="option.id">
-                  {{ option.label }}
-                </option>
-              </select>
-            </div> -->
 
             <SegmentedControl
               v-model="form.recursiveIndexDepth"
@@ -69,11 +53,26 @@
       </FormSection>
 
       <FormSection id="widgets" title="Widgets">
-        <WidgetEditor
-          v-for="(_, index) in form.widgetArray"
-          :key="index"
-          :index="index"
-          @remove="editor.removeWidget(index)" />
+        <SegmentedControl
+          v-model="sortMode"
+          label="Field order"
+          :options="sortModeOptions" />
+
+        <DragDropContainer group-id="widgets">
+          <DragDropList
+            list-id="widgets"
+            :modelValue="dragItems"
+            listClass="flex flex-col gap-4"
+            listItemClass=""
+            :showEmptyList="false"
+            @update:modelValue="onReorder">
+            <template #item="{ item }">
+              <WidgetEditor
+                :index="item.id"
+                @remove="editor.removeWidget(item.id)" />
+            </template>
+          </DragDropList>
+        </DragDropContainer>
 
         <Button type="button" variant="secondary" @click="editor.addWidget()">
           + Add field
@@ -102,39 +101,26 @@
       <div v-if="form.widgetArray.length" class="lg:flex flex-col gap-2 hidden">
         <p
           class="text-xs font-medium uppercase tracking-wide text-on-surface-variant opacity-60">
-          Field order (user view)
+          Viewer order
         </p>
-        <Draggable
-          v-model="sidebarItems"
-          itemKey="id"
-          handle=".drag-handle"
-          ghostClass="opacity-40"
-          @end="onDragEnd">
-          <template #item="{ element }">
-            <div class="flex items-center gap-2 py-1.5 text-sm group">
-              <span
-                class="drag-handle cursor-move text-on-surface-variant opacity-40 group-hover:opacity-80 transition-opacity">
-                <DragIcon class="w-4 h-4" />
-              </span>
-              <component
-                :is="
-                  fieldTypeIcon(form.widgetArray[element.id]?.fieldTypeId ?? 1)
-                "
-                class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
-              <span class="truncate text-on-surface-variant">
-                {{ form.widgetArray[element.id]?.label || "(new field)" }}
-              </span>
-            </div>
-          </template>
-        </Draggable>
+        <div
+          v-for="w in viewerOrderedWidgets"
+          :key="w.widgetId ?? w.label"
+          class="flex items-center gap-2 py-1 text-sm">
+          <component
+            :is="fieldTypeIcon(w.fieldTypeId)"
+            class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
+          <span class="truncate text-on-surface-variant">
+            {{ w.label || "(new field)" }}
+          </span>
+        </div>
       </div>
     </template>
   </FormPageLayout>
 </template>
 
 <script setup lang="ts">
-import { inject, ref, computed, watch, type Component } from "vue";
-import Draggable from "vuedraggable";
+import { inject, ref, computed, type Component } from "vue";
 import {
   TypeIcon,
   AlignLeftIcon,
@@ -154,7 +140,9 @@ import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { ChevronRightIcon, DragIcon } from "@/icons";
+import { ChevronRightIcon } from "@/icons";
+import DragDropContainer from "@/components/DragDropList/DragDropContainer.vue";
+import DragDropList from "@/components/DragDropList/DragDropList.vue";
 import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
@@ -226,32 +214,35 @@ function fieldTypeIcon(typeId: number): Component {
   return FIELD_TYPE_ICONS[typeId] ?? TypeIcon;
 }
 
-// --- Sidebar drag-and-drop (viewOrder) ---
+// --- Field ordering ---
 
-// Each item holds the index of the corresponding widget in form.widgetArray.
-// The display label and icon are read reactively from form.widgetArray[item.id].
-const sidebarItems = ref<{ id: number }[]>([]);
+const sortMode = ref<"editor" | "viewer">("editor");
 
-// Re-derive sidebar order from viewOrder whenever widgets are added or removed.
-watch(
-  () => form.widgetArray.length,
-  () => {
-    const indices = Array.from(
-      { length: form.widgetArray.length },
-      (_, i) => i
-    );
-    indices.sort(
-      (a, b) => form.widgetArray[a].viewOrder - form.widgetArray[b].viewOrder
-    );
-    sidebarItems.value = indices.map((i) => ({ id: i }));
-  },
-  { immediate: true }
+const sortModeOptions: SelectOption<"editor" | "viewer">[] = [
+  { id: "editor", label: "Editor" },
+  { id: "viewer", label: "Viewer" },
+];
+
+const sortedWidgetIndices = computed(() => {
+  const indices = form.widgetArray.map((_, i) => i);
+  const orderKey = sortMode.value === "editor" ? "templateOrder" : "viewOrder";
+  return [...indices].sort(
+    (a, b) => form.widgetArray[a][orderKey] - form.widgetArray[b][orderKey]
+  );
+});
+
+const dragItems = computed(() =>
+  sortedWidgetIndices.value.map((i) => ({ id: i }))
 );
 
-// After a drag, write the new visual order back as viewOrder values.
-function onDragEnd() {
-  sidebarItems.value.forEach(({ id }, pos) => {
-    form.widgetArray[id].viewOrder = pos + 1;
+function onReorder(newItems: { id: number }[]) {
+  const orderKey = sortMode.value === "editor" ? "templateOrder" : "viewOrder";
+  newItems.forEach(({ id }, pos) => {
+    form.widgetArray[id][orderKey] = pos + 1;
   });
 }
+
+const viewerOrderedWidgets = computed(() =>
+  [...form.widgetArray].sort((a, b) => a.viewOrder - b.viewOrder)
+);
 </script>
