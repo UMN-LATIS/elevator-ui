@@ -98,6 +98,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue";
+import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
 import {
   TypeIcon,
   AlignLeftIcon,
@@ -206,45 +207,21 @@ const clickToSearchMode = computed({
   },
 });
 
-const FIELD_DATA_TYPES = new Set([
-  FIELD_TYPE_IDS.select,
-  FIELD_TYPE_IDS.multiselect,
-  FIELD_TYPE_IDS.upload,
-  FIELD_TYPE_IDS["related asset"],
-]);
+const { data: fieldTypes } = useFieldTypesQuery();
 
-const hasFieldData = computed(() => FIELD_DATA_TYPES.has(widget.fieldTypeId));
+// Build a lookup map from fieldTypeId → sampleFieldData for use in handleTypeChange.
+const sampleFieldDataByTypeId = computed(() => {
+  if (!fieldTypes.value) return {} as Record<number, unknown>;
+  return Object.fromEntries(
+    fieldTypes.value.map((ft) => [ft.id, ft.sampleFieldData])
+  ) as Record<number, unknown>;
+});
 
-// Default fieldData JSON per widget type — mirrors legacy editor auto-fill.
-// Keyed by numeric field type id so handleTypeChange needs no reverse lookup.
-const FIELD_DATA_DEFAULTS: Partial<Record<number, unknown>> = {
-  [FIELD_TYPE_IDS.select]: { multiSelect: false, selectGroup: [] },
-  // Hierarchical category tree: { "Category": { "Subcategory": {} } }
-  [FIELD_TYPE_IDS.multiselect]: {},
-  [FIELD_TYPE_IDS.upload]: {
-    extractDate: false,
-    extractLocation: false,
-    enableTiling: false,
-    enableIframe: false,
-    interactiveTranscript: false,
-    ignoreForDigitalAsset: false,
-    forceTiling: false,
-    enableDendro: false,
-    enableAnnotation: false,
-  },
-  [FIELD_TYPE_IDS["related asset"]]: {
-    defaultTemplate: null,
-    matchAgainst: [],
-    nestData: false,
-    displayInline: false,
-    collapseNestedChildren: false,
-    thumbnailView: false,
-    showLabel: false,
-    ignoreForDigitalAsset: false,
-    ignoreForLocationSearch: false,
-    ignoreForDateSearch: false,
-  },
-};
+// Show the fieldData JSON editor only for types that carry structured config.
+// Derived from the API: types with non-null sampleFieldData have a config schema.
+const hasFieldData = computed(
+  () => sampleFieldDataByTypeId.value[widget.fieldTypeId] != null
+);
 
 const isFieldDataInvalid = ref(false);
 const isFocused = ref(false);
@@ -290,6 +267,6 @@ function handleFieldDataBlur() {
 function handleTypeChange(newTypeId: number) {
   // Only pre-fill fieldData when empty — don't overwrite existing config.
   if (widget.fieldData != null) return;
-  widget.fieldData = FIELD_DATA_DEFAULTS[newTypeId] ?? null;
+  widget.fieldData = sampleFieldDataByTypeId.value[newTypeId] ?? null;
 }
 </script>
