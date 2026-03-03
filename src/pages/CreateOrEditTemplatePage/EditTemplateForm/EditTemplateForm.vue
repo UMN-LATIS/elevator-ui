@@ -58,11 +58,11 @@
           label="Field order"
           :options="sortModeOptions" />
 
-        <DragDropContainer group-id="widgets">
+        <DragDropContainer groupId="widgets">
           <DragDropList
-            list-id="widgets"
+            listId="widgets"
             :modelValue="dragItems"
-            listClass="flex flex-col gap-4"
+            listClass="flex flex-col"
             listItemClass=""
             :showEmptyList="false"
             @update:modelValue="onReorder">
@@ -98,22 +98,31 @@
     </template>
 
     <template #sidebar-nav>
-      <div v-if="form.widgetArray.length" class="lg:flex flex-col gap-2 hidden">
-        <p
-          class="text-xs font-medium uppercase tracking-wide text-on-surface-variant opacity-60">
-          Viewer order
-        </p>
-        <div
-          v-for="w in viewerOrderedWidgets"
-          :key="w.widgetId ?? w.label"
-          class="flex items-center gap-2 py-1 text-sm">
-          <component
-            :is="fieldTypeIcon(w.fieldTypeId)"
-            class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
-          <span class="truncate text-on-surface-variant">
-            {{ w.label || "(new field)" }}
-          </span>
-        </div>
+      <div v-if="form.widgetArray.length" class="lg:flex flex-col hidden gap-2">
+        <SegmentedControl
+          v-model="sortMode"
+          label="Field order"
+          :options="sortModeOptions" />
+        <DragDropContainer groupId="widgets-sidebar">
+          <DragDropList
+            listId="widgets-sidebar"
+            :modelValue="dragItems"
+            listClass="flex flex-col"
+            listItemClass=""
+            :showEmptyList="false"
+            @update:modelValue="onReorder">
+            <template #item="{ item }">
+              <div class="flex items-center gap-1.5 py-0.5 text-sm">
+                <component
+                  :is="fieldTypeIcon(form.widgetArray[item.id].fieldTypeId)"
+                  class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
+                <span class="truncate text-on-surface-variant text-xs">
+                  {{ form.widgetArray[item.id].label || "(new field)" }}
+                </span>
+              </div>
+            </template>
+          </DragDropList>
+        </DragDropContainer>
       </div>
     </template>
   </FormPageLayout>
@@ -240,8 +249,4 @@ function onReorder(newItems: { id: number }[]) {
     form.widgetArray[id][orderKey] = pos + 1;
   });
 }
-
-const viewerOrderedWidgets = computed(() =>
-  [...form.widgetArray].sort((a, b) => a.viewOrder - b.viewOrder)
-);
 </script>
