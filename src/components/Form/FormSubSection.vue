@@ -2,7 +2,7 @@
   <section
     :class="[
       'flex flex-col gap-4',
-      isOpen && 'border-y border-outline-variant py-2',
+      isOpen && 'border border-outline-variant p-2 rounded-md',
     ]">
     <slot />
     <template v-if="isOpen">
