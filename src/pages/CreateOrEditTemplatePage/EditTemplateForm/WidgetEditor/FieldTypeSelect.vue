@@ -22,19 +22,27 @@
         tailwindcssOriginClass>
         <ListboxButton
           class="flex items-center gap-2 w-full rounded-md text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary px-3 py-2 bg-surface-container hover:bg-surface-container-high text-primary">
-          <component
-            :is="selectedOption.icon"
-            class="w-4 h-4 shrink-0 text-primary" />
-          <span class="flex-1 truncate">{{ selectedOption.label }}</span>
+          <template v-if="selectedOption">
+            <component
+              :is="selectedOption.icon"
+              class="w-4 h-4 shrink-0 text-primary" />
+            <span class="flex-1 truncate">{{ selectedOption.label }}</span>
+          </template>
+          <template v-else>
+            <CircleHelpIcon class="w-4 h-4 shrink-0 text-on-surface-variant" />
+            <span class="flex-1 truncate text-on-surface-variant">
+              Unknown type
+            </span>
+          </template>
           <ChevronsUpDownIcon class="w-4 h-4 shrink-0 text-primary" />
         </ListboxButton>
         <ListboxOptions
           class="rounded-md bg-surface-container shadow-lg ring-1 ring-outline-variant focus:outline-none max-h-64 overflow-y-auto py-1">
           <ListboxOption
             v-for="opt in options"
+            v-slot="{ active, selected }"
             :key="opt.id"
-            :value="opt.id"
-            v-slot="{ active, selected }">
+            :value="opt.id">
             <li
               :class="[
                 'flex items-center gap-2 px-3 py-2 text-sm cursor-default select-none',
@@ -65,7 +73,7 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 import { Float } from "@headlessui-float/vue";
-import { ChevronsUpDownIcon, CheckIcon } from "lucide-vue-next";
+import { ChevronsUpDownIcon, CheckIcon, CircleHelpIcon } from "lucide-vue-next";
 
 export interface FieldTypeOption {
   id: number;
