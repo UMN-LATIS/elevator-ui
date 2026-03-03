@@ -12,8 +12,8 @@ import {
   useAdminTemplateQuery,
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
+  useFieldTypesQuery,
 } from "@/queries/useTemplateQuery";
-import { FIELD_TYPE_IDS } from "@/constants/constants";
 import type {
   AdminTemplate,
   AdminWidgetDef,
@@ -75,10 +75,10 @@ function emptyPayload(): TemplatePayload {
   };
 }
 
-export function newWidget(order: number): AdminWidgetPayload {
+export function newWidget(order: number, textTypeId: number): AdminWidgetPayload {
   return {
     // No widgetId or fieldTitle — server assigns both for new widgets.
-    fieldTypeId: FIELD_TYPE_IDS["text"],
+    fieldTypeId: textTypeId,
     label: "",
     tooltip: "",
     templateOrder: order,
@@ -121,6 +121,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     { immediate: true }
   );
 
+  const { data: fieldTypes } = useFieldTypesQuery();
   const createMutation = useCreateTemplateMutation();
   const updateMutation = useUpdateTemplateMutation();
 
@@ -156,7 +157,8 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   }
 
   function addWidget() {
-    form.widgetArray.push(newWidget(form.widgetArray.length + 1));
+    const textTypeId = fieldTypes.value?.find((ft) => ft.name === "text")?.id ?? 1;
+    form.widgetArray.push(newWidget(form.widgetArray.length + 1, textTypeId));
   }
 
   function removeWidget(index: number) {

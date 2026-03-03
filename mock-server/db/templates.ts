@@ -1,9 +1,21 @@
 import type { Template } from "../../src/types";
-import { FIELD_TYPE_IDS } from "../../src/constants/constants";
 import { createBaseTable } from "./baseTable";
 import invariant from "tiny-invariant";
 
-export { FIELD_TYPE_IDS };
+// Local copy — mirrors the IDs returned by the mock GET /templates/getFieldTypes endpoint.
+// These must stay in sync with that endpoint; they are NOT imported from src/constants.
+export const FIELD_TYPE_IDS: Record<string, number> = {
+  text: 1,
+  "text area": 2,
+  select: 3,
+  checkbox: 4,
+  date: 5,
+  "tag list": 6,
+  multiselect: 7,
+  location: 8,
+  upload: 9,
+  "related asset": 10,
+};
 
 // AdminTemplateSeed extends the asset-editor Template with fields
 // needed for the admin template editor. Lives in the mock layer only.

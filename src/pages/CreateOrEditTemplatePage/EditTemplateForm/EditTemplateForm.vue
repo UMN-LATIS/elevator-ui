@@ -97,7 +97,7 @@
         <Button
           type="button"
           variant="secondary"
-          class="w-full bg-transparent justify-center border-dashed border-2 border-outline-variant text-on-surface-variant hover:border-secondary hover:bg-secondary-container hover:text-on-secondary-container transition-colors"
+          class="w-full justify-center border-secondary bg-secondary-container text-on-secondary-container transition-colors"
           @click="handleAddWidget()">
           + Add Field
         </Button>
@@ -202,20 +202,7 @@
 
 <script setup lang="ts">
 import { inject, provide, ref, computed, nextTick, type Component } from "vue";
-import {
-  TypeIcon,
-  AlignLeftIcon,
-  ListIcon,
-  CheckSquareIcon,
-  CalendarIcon,
-  TagIcon,
-  ListChecksIcon,
-  MapPinIcon,
-  PaperclipIcon,
-  LinkIcon,
-  TriangleAlertIcon,
-  CheckCircle2Icon,
-} from "lucide-vue-next";
+import { TypeIcon, TriangleAlertIcon, CheckCircle2Icon } from "lucide-vue-next";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import FormSection from "@/components/Form/FormSection.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
@@ -226,9 +213,10 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { ChevronRightIcon } from "@/icons";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
+import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
-import { FIELD_TYPE_IDS } from "@/constants/constants";
+import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeIcons";
 import type { SelectOption } from "@/types";
 
 defineEmits<{ save: [] }>();
@@ -292,21 +280,11 @@ const recursiveIndexDepthOptions: SelectOption<number>[] = [
 
 // --- Field type icons ---
 
-const FIELD_TYPE_ICONS: Record<number, Component> = {
-  [FIELD_TYPE_IDS.text]: TypeIcon,
-  [FIELD_TYPE_IDS["text area"]]: AlignLeftIcon,
-  [FIELD_TYPE_IDS.select]: ListIcon,
-  [FIELD_TYPE_IDS.checkbox]: CheckSquareIcon,
-  [FIELD_TYPE_IDS.date]: CalendarIcon,
-  [FIELD_TYPE_IDS["tag list"]]: TagIcon,
-  [FIELD_TYPE_IDS.multiselect]: ListChecksIcon,
-  [FIELD_TYPE_IDS.location]: MapPinIcon,
-  [FIELD_TYPE_IDS.upload]: PaperclipIcon,
-  [FIELD_TYPE_IDS["related asset"]]: LinkIcon,
-};
+const { data: fieldTypes } = useFieldTypesQuery();
 
 function fieldTypeIcon(typeId: number): Component {
-  return FIELD_TYPE_ICONS[typeId] ?? TypeIcon;
+  const name = fieldTypes.value?.find((ft) => ft.id === typeId)?.name;
+  return (name ? FIELD_TYPE_NAME_ICONS[name] : undefined) ?? TypeIcon;
 }
 
 function formatDate(iso: string): string {

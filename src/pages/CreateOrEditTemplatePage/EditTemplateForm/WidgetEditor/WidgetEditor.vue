@@ -119,19 +119,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue";
 import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
-import {
-  TypeIcon,
-  AlignLeftIcon,
-  ListIcon,
-  CheckSquareIcon,
-  CalendarIcon,
-  TagIcon,
-  ListChecksIcon,
-  MapPinIcon,
-  PaperclipIcon,
-  LinkIcon,
-  Trash2Icon,
-} from "lucide-vue-next";
+import { Trash2Icon, TypeIcon } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
@@ -139,7 +127,7 @@ import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import FieldTypeSelect from "./FieldTypeSelect.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { ChevronRightIcon } from "@/icons";
-import { FIELD_TYPE_IDS } from "@/constants/constants";
+import { FIELD_TYPE_NAME_ICONS } from "../fieldTypeIcons";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
 import type { SelectOption } from "@/types";
@@ -193,26 +181,13 @@ watch(showTooltip, (value) => {
   if (!value) widget.value.tooltip = "";
 });
 
-const fieldTypeOptions = [
-  { id: FIELD_TYPE_IDS.text, label: "text", icon: TypeIcon },
-  { id: FIELD_TYPE_IDS["text area"], label: "text area", icon: AlignLeftIcon },
-  { id: FIELD_TYPE_IDS.select, label: "select", icon: ListIcon },
-  { id: FIELD_TYPE_IDS.checkbox, label: "checkbox", icon: CheckSquareIcon },
-  { id: FIELD_TYPE_IDS.date, label: "date", icon: CalendarIcon },
-  { id: FIELD_TYPE_IDS["tag list"], label: "tag list", icon: TagIcon },
-  {
-    id: FIELD_TYPE_IDS.multiselect,
-    label: "multiselect",
-    icon: ListChecksIcon,
-  },
-  { id: FIELD_TYPE_IDS.location, label: "location", icon: MapPinIcon },
-  { id: FIELD_TYPE_IDS.upload, label: "upload", icon: PaperclipIcon },
-  {
-    id: FIELD_TYPE_IDS["related asset"],
-    label: "related asset",
-    icon: LinkIcon,
-  },
-];
+const fieldTypeOptions = computed(() =>
+  (fieldTypes.value ?? []).map((ft) => ({
+    id: ft.id,
+    label: ft.name,
+    icon: FIELD_TYPE_NAME_ICONS[ft.name] ?? TypeIcon,
+  }))
+);
 
 const clickToSearchOptions: SelectOption<string>[] = [
   { id: "off", label: "Off" },

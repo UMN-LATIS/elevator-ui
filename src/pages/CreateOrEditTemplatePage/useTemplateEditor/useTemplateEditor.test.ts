@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref, nextTick } from "vue";
 import type { AdminTemplate } from "@/types";
-import { FIELD_TYPE_IDS } from "@/constants/constants";
 
 // These refs are shared with the mock factory below.
 // Variables starting with "mock" are accessible in hoisted vi.mock factories.
@@ -14,6 +13,9 @@ vi.mock("@/queries/useTemplateQuery", () => ({
     data: mockTemplateData,
     isLoading: ref(false),
     isError: ref(false),
+  }),
+  useFieldTypesQuery: () => ({
+    data: ref([{ id: 1, name: "text", modelName: "TextField", sampleFieldData: null }]),
   }),
   useCreateTemplateMutation: () => ({
     mutateAsync: mockCreateMutateAsync,
@@ -45,25 +47,25 @@ const makeAdminTemplate = (overrides: Partial<AdminTemplate> = {}): AdminTemplat
 });
 
 describe("newWidget", () => {
-  it("sets fieldTypeId to text (1) by default", () => {
-    expect(newWidget(1).fieldTypeId).toBe(FIELD_TYPE_IDS["text"]);
+  it("uses the provided textTypeId as fieldTypeId", () => {
+    expect(newWidget(1, 42).fieldTypeId).toBe(42);
   });
 
   it("uses the provided order for templateOrder and viewOrder", () => {
-    const w = newWidget(4);
+    const w = newWidget(4, 1);
     expect(w.templateOrder).toBe(4);
     expect(w.viewOrder).toBe(4);
   });
 
   it("enables display, searchable, and directSearch by default", () => {
-    const w = newWidget(1);
+    const w = newWidget(1, 1);
     expect(w.display).toBe(true);
     expect(w.searchable).toBe(true);
     expect(w.directSearch).toBe(true);
   });
 
   it("leaves widgetId and fieldTitle undefined so the server assigns them", () => {
-    const w = newWidget(1);
+    const w = newWidget(1, 1);
     expect(w.widgetId).toBeUndefined();
     expect(w.fieldTitle).toBeUndefined();
   });
@@ -152,7 +154,7 @@ describe("useTemplateEditor", () => {
           widgetId: 100,
           fieldTitle: "title_1",
           fieldType: "text",
-          fieldTypeId: FIELD_TYPE_IDS["text"],
+          fieldTypeId: 1,
           label: "Title",
           tooltip: "",
           templateOrder: 1,
