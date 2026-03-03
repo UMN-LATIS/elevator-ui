@@ -1,7 +1,7 @@
 <template>
   <li
     ref="listItemRef"
-    class="drag-drop-list-item"
+    :class="['drag-drop-list-item', { 'is-dragging': isDragging }]"
     :data-simple-dnd-id="
       getDataId({
         groupId,
@@ -59,6 +59,7 @@ invariant(groupId, "groupId is not defined");
 
 const listItemRef = useTemplateRef("listItemRef");
 const closestEdge = ref<dnd.Edge | null>(null);
+const isDragging = ref(false);
 
 const dragDropStore = useDragDropStore(groupId);
 
@@ -105,6 +106,7 @@ function setupDraggable() {
       });
     },
     onDragStart: () => {
+      isDragging.value = true;
       // store the source index for later use
       dragDropStore.setSourceData(
         makeDragData({
@@ -119,6 +121,7 @@ function setupDraggable() {
       dnd.announce(`Item ${props.item.id} picked up`);
     },
     onDrop: () => {
+      isDragging.value = false;
       // clear the dragged item
       dragDropStore.setSourceData(null);
     },
