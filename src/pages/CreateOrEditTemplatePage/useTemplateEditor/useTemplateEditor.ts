@@ -2,6 +2,7 @@ import {
   reactive,
   computed,
   watch,
+  ref,
   type InjectionKey,
   type Ref,
   MaybeRefOrGetter,
@@ -106,10 +107,16 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
 
   const form = reactive<TemplatePayload>(emptyPayload());
 
+  // Snapshot of the last saved/loaded form state, used to detect unsaved changes.
+  const savedSnapshot = ref(JSON.stringify(emptyPayload()));
+
   watch(
     template,
     (t) => {
-      if (t) Object.assign(form, adminTemplateToPayload(t));
+      if (t) {
+        Object.assign(form, adminTemplateToPayload(t));
+        savedSnapshot.value = JSON.stringify(form);
+      }
     },
     { immediate: true }
   );
@@ -121,9 +128,22 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     () => createMutation.isPending.value || updateMutation.isPending.value
   );
 
+  // Reflects the most recently completed (or in-flight) save operation.
+  const saveStatus = computed(() =>
+    isEditMode.value ? updateMutation.status.value : createMutation.status.value
+  );
+
+  const hasUnsavedChanges = computed(
+    () => JSON.stringify(form) !== savedSnapshot.value
+  );
+
+  // ISO date string of the template's last server-side modification, if known.
+  const lastModifiedAt = computed(() => template.value?.modifiedAt ?? null);
+
   async function save(): Promise<number> {
     if (!isEditMode.value) {
       const summary = await createMutation.mutateAsync(form);
+      savedSnapshot.value = JSON.stringify(form);
       return summary.id;
     }
 
@@ -131,6 +151,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
       templateId: toValue(templateId) as number,
       payload: form,
     });
+    savedSnapshot.value = JSON.stringify(form);
     return summary.id;
   }
 
@@ -148,6 +169,9 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     isLoading,
     isError,
     isSaving,
+    saveStatus,
+    hasUnsavedChanges,
+    lastModifiedAt,
     save,
     addWidget,
     removeWidget,
