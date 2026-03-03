@@ -123,6 +123,8 @@ test.describe("Template Editor", () => {
       expect(countBefore).toBeGreaterThan(0);
 
       await removeButtons.first().click();
+      // Confirm the deletion in the modal
+      await page.getByRole("button", { name: "Remove" }).click();
       await page.getByRole("button", { name: "Save" }).click();
       await page.waitForResponse((r) => r.url().includes("/templates/update"));
 

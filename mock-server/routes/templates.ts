@@ -73,6 +73,60 @@ function generateFieldTitle(label: string): string {
   return `${slug}_${MOCK_INSTANCE_ID}`;
 }
 
+// GET /templates/getFieldTypes — mirrors Templates::getFieldTypes() JSON path
+app.get("/getFieldTypes", (c) => {
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
+  return c.json([
+    { id: 1, name: "text", modelName: "TextField", sampleFieldData: null },
+    {
+      id: 2,
+      name: "text area",
+      modelName: "TextAreaField",
+      sampleFieldData: null,
+    },
+    {
+      id: 3,
+      name: "select",
+      modelName: "SelectField",
+      sampleFieldData: { selectGroup: "" },
+    },
+    {
+      id: 4,
+      name: "checkbox",
+      modelName: "CheckboxField",
+      sampleFieldData: null,
+    },
+    { id: 5, name: "date", modelName: "DateField", sampleFieldData: null },
+    {
+      id: 6,
+      name: "tag list",
+      modelName: "TagListField",
+      sampleFieldData: null,
+    },
+    {
+      id: 7,
+      name: "multiselect",
+      modelName: "MultiSelectField",
+      sampleFieldData: { selectGroup: "" },
+    },
+    {
+      id: 8,
+      name: "location",
+      modelName: "LocationField",
+      sampleFieldData: null,
+    },
+    { id: 9, name: "upload", modelName: "UploadField", sampleFieldData: null },
+    {
+      id: 10,
+      name: "related asset",
+      modelName: "RelatedAssetField",
+      sampleFieldData: null,
+    },
+  ]);
+});
+
 // GET /templates — mirrors Templates::index() JSON path
 app.get("/", (c) => {
   const user = c.get("user");
@@ -129,8 +183,7 @@ function parseWidgetsFromFormData(formData: FormData) {
     byIndex[index][field] = value as string;
   }
 
-  const boolFlag = (row: Record<string, string>, field: string) =>
-    field in row;
+  const boolFlag = (row: Record<string, string>, field: string) => field in row;
 
   return Object.keys(byIndex)
     .map(Number)
@@ -221,20 +274,21 @@ app.post("/update", async (c) => {
   const templateData = {
     templateName: String(formData.get("name") ?? ""),
     showCollection: formData.has("showCollection"),
-    showCollectionPosition: Number(
-      formData.get("collectionPosition") ?? 0
-    ) as 0 | 1,
+    showCollectionPosition: Number(formData.get("collectionPosition") ?? 0) as
+      | 0
+      | 1,
     showTemplate: formData.has("showTemplate"),
-    showTemplatePosition: Number(
-      formData.get("templatePosition") ?? 0
-    ) as 0 | 1,
+    showTemplatePosition: Number(formData.get("templatePosition") ?? 0) as
+      | 0
+      | 1,
     includeInSearch: formData.has("includeInSearch"),
     indexForSearching: formData.has("indexforSearching"),
     isHidden: formData.has("isHidden"),
     templateColor: Number(formData.get("templateColor") ?? 0),
-    recursiveIndexDepth: Number(
-      formData.get("recursiveIndexDepth") ?? 1
-    ) as 0 | 1 | 2,
+    recursiveIndexDepth: Number(formData.get("recursiveIndexDepth") ?? 1) as
+      | 0
+      | 1
+      | 2,
     widgetArray: widgets,
   };
 
