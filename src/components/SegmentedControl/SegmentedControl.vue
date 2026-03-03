@@ -9,7 +9,7 @@
         v-for="opt in options"
         :key="opt.id"
         :class="[
-          'relative flex items-center px-3 py-1 text-sm cursor-pointer select-none transition-colors',
+          'relative flex items-center px-3 py-1 text-xs cursor-pointer select-none transition-colors',
           'not-first:border-l not-first:border-outline-variant',
           modelValue === opt.id
             ? 'bg-primary text-on-primary font-medium'

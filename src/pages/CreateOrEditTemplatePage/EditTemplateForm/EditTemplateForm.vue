@@ -13,17 +13,17 @@
         <div>
           <button
             type="button"
-            class="flex items-center gap-1 text-sm text-on-surface-variant hover:text-on-surface"
+            class="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface uppercase tracking-wide font-medium"
             @click="showAdvanced = !showAdvanced">
             <ChevronRightIcon
               :class="[
-                'w-4 h-4 transition-transform duration-150',
+                '!size-4 transition-transform duration-150',
                 showAdvanced && 'rotate-90',
               ]" />
             Advanced options
           </button>
 
-          <div v-if="showAdvanced" class="mt-4 flex flex-col gap-4 pl-6">
+          <div v-if="showAdvanced" class="mt-4 flex flex-col gap-3 pl-5">
             <ToggleGroup
               v-model="form.isHidden"
               label="Hide from 'Add new asset' menu" />
@@ -106,6 +106,7 @@
         </p>
         <Draggable
           v-model="sidebarItems"
+          itemKey="id"
           handle=".drag-handle"
           ghostClass="opacity-40"
           @end="onDragEnd">
