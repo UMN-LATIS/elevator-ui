@@ -273,9 +273,24 @@ function handleFieldDataBlur() {
   }
 }
 
+// [] is a legacy backend artifact on simple-type widgets, not user-entered config.
+function isEmptyFieldData(value: unknown): boolean {
+  if (value === null) return true;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === "object") return Object.keys(value).length === 0;
+  return false;
+}
+
 function handleTypeChange(newTypeId: number) {
-  // Only pre-fill fieldData when empty — don't overwrite existing config.
-  if (widget.value.fieldData != null) return;
-  widget.value.fieldData = sampleFieldDataByTypeId.value[newTypeId] ?? null;
+  const sample = sampleFieldDataByTypeId.value[newTypeId] ?? null;
+  if (sample === null) {
+    // New type has no configurable field data — clear any stale config.
+    widget.value.fieldData = null;
+    return;
+  }
+  // Pre-fill with sample only when there's no real user-entered config.
+  if (isEmptyFieldData(widget.value.fieldData)) {
+    widget.value.fieldData = sample;
+  }
 }
 </script>
