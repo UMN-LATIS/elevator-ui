@@ -127,7 +127,10 @@ import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import FieldTypeSelect from "./FieldTypeSelect.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { ChevronRightIcon } from "@/icons";
-import { FIELD_TYPE_NAME_ICONS } from "../fieldTypeIcons";
+import {
+  FIELD_TYPE_NAME_ICONS,
+  FIELD_TYPE_SAMPLE_DATA,
+} from "../fieldTypeConstants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
 import type { SelectOption } from "@/types";
@@ -208,11 +211,16 @@ const clickToSearchMode = computed({
 
 const { data: fieldTypes } = useFieldTypesQuery();
 
-// Build a lookup map from fieldTypeId → sampleFieldData for use in handleTypeChange.
+// Build a lookup map from fieldTypeId → effective sample field data.
+// Server's sampleFieldData takes precedence; falls back to client-side defaults
+// for types that have configurable field data but where the server returns null.
 const sampleFieldDataByTypeId = computed(() => {
   if (!fieldTypes.value) return {} as Record<number, unknown>;
   return Object.fromEntries(
-    fieldTypes.value.map((ft) => [ft.id, ft.sampleFieldData])
+    fieldTypes.value.map((ft) => [
+      ft.id,
+      ft.sampleFieldData ?? FIELD_TYPE_SAMPLE_DATA[ft.name] ?? null,
+    ])
   ) as Record<number, unknown>;
 });
 

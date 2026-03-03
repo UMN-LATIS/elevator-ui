@@ -216,7 +216,7 @@ import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
 import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
-import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeIcons";
+import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";
 import type { SelectOption } from "@/types";
 
 defineEmits<{ save: [] }>();
