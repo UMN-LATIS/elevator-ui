@@ -21,7 +21,7 @@
         leaveTo="transform opacity-0 scale-95"
         tailwindcssOriginClass>
         <ListboxButton
-          class="flex items-center gap-2 w-full rounded-md text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary px-3 py-2 bg-surface-container hover:bg-surface-container-high text-primary">
+          class="flex items-center gap-2 w-full rounded-md text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary px-3 py-2 hover:bg-surface-container-high text-primary">
           <template v-if="selectedOption">
             <component
               :is="selectedOption.icon"

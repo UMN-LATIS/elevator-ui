@@ -1,7 +1,7 @@
 <template>
-  <div class="p-4 flex flex-col gap-4">
+  <div class="px-4 py-2 flex flex-col">
     <!-- Header: type icon + label + remove -->
-    <div class="flex justify-between items-center gap-2">
+    <div class="flex justify-between items-center gap-2 mb-2">
       <FieldTypeSelect
         v-model="widget.fieldTypeId"
         class="flex-1"
@@ -33,6 +33,7 @@
 
     <InputGroup
       v-model="widget.label"
+      class="mb-2"
       label="Label"
       :labelHidden="true"
       placeholder="Field label"
@@ -41,6 +42,7 @@
     <template v-if="hasFieldData">
       <TextAreaGroup
         :modelValue="rawFieldDataString"
+        class="mb-4"
         label="Field data (JSON)"
         :inputClass="[
           'font-mono text-sm h-24',
@@ -56,7 +58,7 @@
     </template>
 
     <!-- Options accordion -->
-    <div>
+    <div class="mb-2">
       <button
         type="button"
         class="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface uppercase tracking-wide font-medium"
