@@ -74,6 +74,7 @@
           v-model="sortMode"
           label="Field order"
           class="justify-end"
+          labelClass="text-xs uppercase font-medium text-on-surface-variant"
           :options="sortModeOptions" />
 
         <DragDropContainer groupId="widgets">

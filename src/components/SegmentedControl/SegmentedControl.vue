@@ -2,10 +2,16 @@
   <div
     :class="cn('flex items-center justify-between gap-4 flex-wrap', $attrs.class as CSSClass)">
     <span
-      class="text-xs text-on-surface uppercase font-medium"
-      :class="{
-        'sr-only': !showLabel,
-      }">
+      class="text-sm text-on-surface"
+      :class="
+        cn([
+          'text-sm text-on-surface',
+          {
+            'sr-only': !showLabel,
+          },
+          labelClass,
+        ])
+      ">
       {{ label }}
     </span>
     <div
@@ -47,9 +53,11 @@ withDefaults(
     modelValue: TValue | null;
     label: string;
     options: SelectOption<TValue>[];
+    labelClass?: CSSClass;
     showLabel?: boolean;
   }>(),
   {
+    labelClass: "",
     showLabel: true,
   }
 );
