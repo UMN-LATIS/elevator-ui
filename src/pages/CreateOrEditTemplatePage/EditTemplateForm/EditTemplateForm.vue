@@ -99,19 +99,35 @@
     </form>
 
     <template #sidebar-actions>
-      <div class="grid grid-cols-2 gap-4">
-        <Button type="button">Cancel</Button>
-        <Button
-          type="submit"
-          form="template-form"
-          variant="primary"
-          class="w-full justify-center"
-          :disabled="editor.isSaving.value">
-          <SpinnerIcon
-            v-if="editor.isSaving.value"
-            class="w-4 h-4 mr-2 animate-spin" />
-          Save
-        </Button>
+      <div class="flex flex-col gap-2">
+        <div class="grid grid-cols-2 gap-4">
+          <Button type="button">Cancel</Button>
+          <Button
+            type="submit"
+            form="template-form"
+            variant="primary"
+            class="w-full justify-center"
+            :disabled="editor.isSaving.value">
+            <SpinnerIcon
+              v-if="editor.isSaving.value"
+              class="w-4 h-4 mr-2 animate-spin" />
+            <TriangleAlertIcon
+              v-else-if="editor.saveStatus.value === 'error'"
+              class="w-4 h-4 mr-2" />
+            <CheckCircle2Icon
+              v-else-if="editor.saveStatus.value === 'success'"
+              class="w-4 h-4 mr-2" />
+            Save
+          </Button>
+        </div>
+        <div class="text-xs text-right text-on-surface-variant">
+          <p
+            v-if="editor.lastModifiedAt.value"
+            data-testid="last-modified">
+            {{ formatDate(editor.lastModifiedAt.value) }}
+          </p>
+          <p v-if="!editor.hasUnsavedChanges.value">No unsaved changes</p>
+        </div>
       </div>
     </template>
 
@@ -159,6 +175,8 @@ import {
   MapPinIcon,
   PaperclipIcon,
   LinkIcon,
+  TriangleAlertIcon,
+  CheckCircle2Icon,
 } from "lucide-vue-next";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import FormSection from "@/components/Form/FormSection.vue";
@@ -251,6 +269,10 @@ const FIELD_TYPE_ICONS: Record<number, Component> = {
 
 function fieldTypeIcon(typeId: number): Component {
   return FIELD_TYPE_ICONS[typeId] ?? TypeIcon;
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleString();
 }
 
 // --- Field ordering ---
