@@ -3,9 +3,11 @@
     <!-- Header: type icon + label + remove -->
     <div class="flex justify-between items-center gap-2">
       <div class="flex items-center gap-2 min-w-0">
-        <component :is="currentTypeIcon" class="w-4 h-4 shrink-0 text-primary" />
+        <component
+          :is="currentTypeIcon"
+          class="w-4 h-4 shrink-0 text-primary" />
         <span class="font-medium text-sm text-on-surface-variant truncate">
-          {{ widget.label || '(new field)' }}
+          {{ widget.label || "(new field)" }}
         </span>
       </div>
       <Button
@@ -31,7 +33,10 @@
     <TextAreaGroup
       :modelValue="fieldDataString"
       label="Field data (JSON)"
-      :inputClass="['font-mono text-sm h-24', isFieldDataInvalid ? 'border-error' : '']"
+      :inputClass="[
+        'font-mono text-sm h-24',
+        isFieldDataInvalid ? 'border-error' : '',
+      ]"
       placeholder="null"
       @update:modelValue="handleFieldDataChange" />
     <p v-if="isFieldDataInvalid" class="text-error text-xs -mt-3">
@@ -39,15 +44,22 @@
     </p>
 
     <!-- 4. Options -->
-    <InputGroup v-model="widget.tooltip" label="Tooltip" placeholder="Optional help text" />
+    <InputGroup
+      v-model="widget.tooltip"
+      label="Tooltip"
+      placeholder="Optional help text" />
 
     <div class="grid grid-cols-2 gap-x-8 gap-y-2">
       <ToggleGroup v-model="widget.display" label="Display on asset page" />
-      <ToggleGroup v-model="widget.displayInPreview" label="Display in preview" />
+      <ToggleGroup
+        v-model="widget.displayInPreview"
+        label="Display in preview" />
       <ToggleGroup v-model="widget.required" label="Required" />
       <ToggleGroup v-model="widget.searchable" label="Searchable" />
       <ToggleGroup v-model="widget.allowMultiple" label="Allow multiple" />
-      <ToggleGroup v-model="widget.attemptAutocomplete" label="Attempt autocomplete" />
+      <ToggleGroup
+        v-model="widget.attemptAutocomplete"
+        label="Attempt autocomplete" />
       <ToggleGroup v-model="widget.directSearch" label="Direct search" />
       <ToggleGroup v-model="widget.clickToSearch" label="Click to search" />
     </div>
@@ -77,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type Component } from "vue";
+import { computed, inject, ref, type Component } from "vue";
 import {
   TypeIcon,
   AlignLeftIcon,
@@ -97,18 +109,25 @@ import FormSubSection from "@/components/Form/FormSubSection.vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
-import type { AdminWidgetPayload, SelectOption, WidgetType } from "@/types";
+import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
+import type { SelectOption, WidgetType } from "@/types";
 
-const props = defineProps<{
-  widget: AdminWidgetPayload;
-  index: number;
-}>();
+const props = defineProps<{ index: number }>();
+
+const editor = inject(TEMPLATE_EDITOR_KEY);
+if (!editor)
+  throw new Error(
+    "WidgetEditor must be used inside a template editor provider"
+  );
+// widget is the reactive object owned by the composable — not a prop,
+// so direct mutations here are legitimate reactive state updates.
+const widget = editor.form.widgetArray[props.index];
 
 defineEmits<{ remove: [] }>();
 
-const fieldTypeOptions: SelectOption<number>[] = Object.entries(FIELD_TYPE_IDS).map(
-  ([label, id]) => ({ id, label })
-);
+const fieldTypeOptions: SelectOption<number>[] = Object.entries(
+  FIELD_TYPE_IDS
+).map(([label, id]) => ({ id, label }));
 
 const clickToSearchTypeOptions: SelectOption<number>[] = [
   { id: 0, label: "Global search" },
@@ -129,7 +148,7 @@ const FIELD_TYPE_ICONS: Record<number, Component> = {
 };
 
 const currentTypeIcon = computed(
-  () => FIELD_TYPE_ICONS[props.widget.fieldTypeId] ?? TypeIcon
+  () => FIELD_TYPE_ICONS[widget.fieldTypeId] ?? TypeIcon
 );
 
 // Default fieldData JSON per widget type — mirrors legacy editor auto-fill.
@@ -163,19 +182,17 @@ const FIELD_DATA_DEFAULTS: Partial<Record<WidgetType, unknown>> = {
 const isFieldDataInvalid = ref(false);
 
 const fieldDataString = computed(() =>
-  props.widget.fieldData != null
-    ? JSON.stringify(props.widget.fieldData, null, 2)
-    : ""
+  widget.fieldData != null ? JSON.stringify(widget.fieldData, null, 2) : ""
 );
 
 function handleFieldDataChange(value: string) {
   if (!value.trim()) {
-    props.widget.fieldData = null;
+    widget.fieldData = null;
     isFieldDataInvalid.value = false;
     return;
   }
   try {
-    props.widget.fieldData = JSON.parse(value);
+    widget.fieldData = JSON.parse(value);
     isFieldDataInvalid.value = false;
   } catch {
     isFieldDataInvalid.value = true;
@@ -184,14 +201,14 @@ function handleFieldDataChange(value: string) {
 
 function handleTypeChange(newTypeId: number) {
   // Only pre-fill fieldData when empty — don't overwrite existing config.
-  if (props.widget.fieldData != null) return;
+  if (widget.fieldData != null) return;
 
   const typeName = Object.entries(FIELD_TYPE_IDS).find(
     ([, id]) => id === newTypeId
   )?.[0] as WidgetType | undefined;
 
   if (typeName && typeName in FIELD_DATA_DEFAULTS) {
-    props.widget.fieldData = FIELD_DATA_DEFAULTS[typeName] ?? null;
+    widget.fieldData = FIELD_DATA_DEFAULTS[typeName] ?? null;
   }
 }
 </script>

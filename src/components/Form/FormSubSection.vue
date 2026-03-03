@@ -1,5 +1,9 @@
 <template>
-  <section :class="['flex flex-col gap-4', isOpen && 'border border-outline p-2 rounded-md']">
+  <section
+    :class="[
+      'flex flex-col gap-4',
+      isOpen && 'border-y border-outline-variant py-2',
+    ]">
     <slot />
     <template v-if="isOpen">
       <slot name="details" />

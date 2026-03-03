@@ -1,11 +1,24 @@
-import { reactive, computed, watch, type InjectionKey, type Ref } from "vue";
+import {
+  reactive,
+  computed,
+  watch,
+  type InjectionKey,
+  type Ref,
+  MaybeRefOrGetter,
+  toValue,
+} from "vue";
 import { useAdminTemplateQuery } from "@/queries/useTemplateQuery";
 import {
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
 } from "@/queries/useTemplateQuery";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
-import type { AdminTemplate, AdminWidgetDef, AdminWidgetPayload, TemplatePayload } from "@/types";
+import type {
+  AdminTemplate,
+  AdminWidgetDef,
+  AdminWidgetPayload,
+  TemplatePayload,
+} from "@/types";
 
 function adminWidgetToPayload(w: AdminWidgetDef): AdminWidgetPayload {
   return {
@@ -82,10 +95,14 @@ export function newWidget(order: number): AdminWidgetPayload {
   };
 }
 
-export function useTemplateEditor(templateId: Ref<number | null>) {
-  const isEditMode = computed(() => templateId.value !== null);
+export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
+  const isEditMode = computed(() => toValue(templateId) !== null);
 
-  const { data: template, isLoading, isError } = useAdminTemplateQuery(templateId);
+  const {
+    data: template,
+    isLoading,
+    isError,
+  } = useAdminTemplateQuery(templateId);
 
   const form = reactive<TemplatePayload>(emptyPayload());
 
@@ -106,16 +123,18 @@ export function useTemplateEditor(templateId: Ref<number | null>) {
   );
 
   async function save(): Promise<number> {
-    if (isEditMode.value) {
-      const summary = await updateMutation.mutateAsync({
-        templateId: templateId.value!,
-        payload: form,
-      });
-      return summary.id;
-    } else {
+    // creating a new template
+    if (!isEditMode.value) {
       const summary = await createMutation.mutateAsync(form);
       return summary.id;
     }
+
+    // saving an existing template
+    const summary = await updateMutation.mutateAsync({
+      templateId: toValue(templateId) as number,
+      payload: form,
+    });
+    return summary.id;
   }
 
   function addWidget() {

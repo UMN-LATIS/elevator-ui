@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-1">
+  <div :class="cn('flex flex-col gap-1', $attrs.class as CSSClass)">
     <label
       :for="id"
       :class="

@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRef, provide } from "vue";
+import { provide } from "vue";
 import { useRouter } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
@@ -30,7 +30,7 @@ import {
 
 const props = defineProps<{ templateId: number | null }>();
 
-const editor = useTemplateEditor(toRef(props, "templateId"));
+const editor = useTemplateEditor(() => props.templateId);
 provide(TEMPLATE_EDITOR_KEY, editor);
 
 const router = useRouter();
