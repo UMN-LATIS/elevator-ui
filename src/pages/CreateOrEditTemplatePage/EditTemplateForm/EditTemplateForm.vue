@@ -53,6 +53,23 @@
       </FormSection>
 
       <FormSection id="widgets" title="Widgets">
+        <template #header>
+          <div class="flex gap-1 mt-1 -ml-2">
+            <Button
+              type="button"
+              variant="tertiary"
+              @click="setAllWidgetOptions(true)">
+              Expand all
+            </Button>
+            <Button
+              type="button"
+              variant="tertiary"
+              @click="setAllWidgetOptions(false)">
+              Collapse all
+            </Button>
+          </div>
+        </template>
+
         <SegmentedControl
           v-model="sortMode"
           label="Field order"
@@ -129,7 +146,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, computed, type Component } from "vue";
+import { inject, provide, ref, computed, type Component } from "vue";
 import {
   TypeIcon,
   AlignLeftIcon,
@@ -153,6 +170,7 @@ import { ChevronRightIcon } from "@/icons";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
+import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
 import type { SelectOption } from "@/types";
 
@@ -162,6 +180,18 @@ const editor = inject(TEMPLATE_EDITOR_KEY)!;
 const form = editor.form;
 
 const showAdvanced = ref(false);
+
+// Broadcast expand/collapse to all WidgetEditor instances via provide/inject.
+// The `trigger` counter lets "expand all" re-fire even if `open` hasn't changed.
+const widgetOptionsState = ref({ open: false, trigger: 0 });
+provide(WIDGET_OPTIONS_KEY, widgetOptionsState);
+
+function setAllWidgetOptions(open: boolean) {
+  widgetOptionsState.value = {
+    open,
+    trigger: widgetOptionsState.value.trigger + 1,
+  };
+}
 
 type DisplayPosition = "off" | "bottom" | "top";
 

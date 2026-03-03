@@ -7,7 +7,7 @@
       <Switch
         :modelValue="modelValue"
         :class="[
-          modelValue ? 'bg-primary' : 'bg-surface-container-highest',
+          modelValue ? 'bg-primary' : 'bg-surface-container',
           'relative inline-flex items-center h-5 w-9 flex-shrink-0 cursor-pointer rounded-full p-[3px] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
           toggleClass,
           modelValue ? toggleOnClass : toggleOffClass,

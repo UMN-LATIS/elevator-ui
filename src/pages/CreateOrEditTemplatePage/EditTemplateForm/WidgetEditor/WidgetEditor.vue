@@ -1,6 +1,5 @@
 <template>
-  <div
-    class="border border-outline-variant rounded-md p-4 flex flex-col gap-4 bg-surface-container-lowest">
+  <div class="p-4 flex flex-col gap-4">
     <!-- Header: type icon + label + remove -->
     <div class="flex justify-between items-center gap-2">
       <FieldTypeSelect
@@ -119,6 +118,7 @@ import FieldTypeSelect from "./FieldTypeSelect.vue";
 import { ChevronRightIcon } from "@/icons";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
+import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
 import type { SelectOption, WidgetType } from "@/types";
 
 const props = defineProps<{ index: number }>();
@@ -135,6 +135,15 @@ const widget = editor.form.widgetArray[props.index];
 defineEmits<{ remove: [] }>();
 
 const showOptions = ref(false);
+
+const widgetOptionsState = inject(WIDGET_OPTIONS_KEY);
+watch(
+  () => widgetOptionsState?.value.trigger,
+  () => {
+    if (widgetOptionsState) showOptions.value = widgetOptionsState.value.open;
+  }
+);
+
 const showTooltip = ref(!!widget.tooltip);
 watch(showTooltip, (value) => {
   if (!value) widget.tooltip = "";
