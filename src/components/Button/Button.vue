@@ -8,13 +8,14 @@
           ? 'p-2 text-xs uppercase font-medium'
           : 'px-4 py-3',
         {
-          'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container':
+          'bg-primary text-on-primary hover:bg-[--btn-primary-hover]':
             variant === 'primary',
-          'bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary':
+          'bg-secondary-container text-on-secondary-container hover:bg-[--btn-secondary-hover]':
             variant === 'secondary',
           'text-primary hover:text-on-primary-container hover:bg-primary-container text-xs uppercase font-medium px-2 py-1':
             variant === 'tertiary',
-          'bg-error-container text-on-error-container': variant === 'danger',
+          'bg-error-container text-on-error-container hover:bg-[--btn-danger-hover]':
+            variant === 'danger',
         },
         $attrs.class,
       ])
@@ -64,4 +65,23 @@ const componentType = computed(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+/* M3 filled button hover: on-X color mixed into bg at 8% opacity */
+.button {
+  --btn-primary-hover: color-mix(
+    in oklch,
+    var(--on-primary) 8%,
+    var(--primary)
+  );
+  --btn-secondary-hover: color-mix(
+    in oklch,
+    var(--on-secondary-container) 8%,
+    var(--secondary-container)
+  );
+  --btn-danger-hover: color-mix(
+    in oklch,
+    var(--on-error-container) 8%,
+    var(--error-container)
+  );
+}
+</style>
