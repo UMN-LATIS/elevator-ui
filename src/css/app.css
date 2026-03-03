@@ -27,14 +27,14 @@ body {
   background-color: var(--surface);
 }
 
-a {
-  text-decoration: none;
-  color: var(--primary);
-}
+@layer base {
+  a {
+    color: var(--primary);
+  }
 
-a:hover {
-  color: color-mix(in oklch, var(--on-primary) 8%, var(--primary));
-  text-decoration: underline;
+  a:hover {
+    text-decoration: underline;
+  }
 }
 
 @layer utilities {
@@ -275,4 +275,12 @@ h6 {
   :root {
     --radius: 0.5rem;
   }
+}
+
+/* Unlayered, after @tailwind utilities — source order beats equal-specificity utility classes */
+:disabled,
+[disabled] {
+  pointer-events: none;
+  background-color: color-mix(in oklch, var(--on-surface) 12%, transparent);
+  color: color-mix(in oklch, var(--on-surface) 38%, transparent);
 }
