@@ -121,9 +121,7 @@
           </Button>
         </div>
         <div class="text-xs text-right text-on-surface-variant">
-          <p
-            v-if="editor.lastModifiedAt.value"
-            data-testid="last-modified">
+          <p v-if="editor.lastModifiedAt.value" data-testid="last-modified">
             {{ formatDate(editor.lastModifiedAt.value) }}
           </p>
           <p v-if="!editor.hasUnsavedChanges.value">No unsaved changes</p>
@@ -132,31 +130,59 @@
     </template>
 
     <template #sidebar-nav>
-      <div v-if="form.widgetArray.length" class="lg:flex flex-col hidden gap-2">
-        <SegmentedControl
-          v-model="sortMode"
-          label="Field order"
-          :options="sortModeOptions" />
-        <DragDropContainer groupId="widgets-sidebar">
-          <DragDropList
-            listId="widgets-sidebar"
-            :modelValue="dragItems"
-            listClass="flex flex-col"
-            listItemClass=""
-            :showEmptyList="false"
-            @update:modelValue="onReorder">
-            <template #item="{ item }">
-              <div class="flex items-center gap-1.5 py-0.5 text-sm">
-                <component
-                  :is="fieldTypeIcon(form.widgetArray[item.id].fieldTypeId)"
-                  class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
-                <span class="truncate text-on-surface-variant text-xs">
-                  {{ form.widgetArray[item.id].label || "(new field)" }}
-                </span>
-              </div>
-            </template>
-          </DragDropList>
-        </DragDropContainer>
+      <div v-if="form.widgetArray.length" class="lg:flex flex-col hidden gap-3">
+        <p
+          class="text-xs font-medium uppercase tracking-wide text-on-surface-variant">
+          Field order
+        </p>
+
+        <div class="flex flex-col gap-1">
+          <p class="text-xs text-on-surface-variant">Editor</p>
+          <DragDropContainer groupId="widgets-sidebar-editor">
+            <DragDropList
+              listId="widgets-sidebar-editor"
+              :modelValue="editorDragItems"
+              listClass="flex flex-col"
+              listItemClass=""
+              :showEmptyList="false"
+              @update:modelValue="onReorderEditor">
+              <template #item="{ item }">
+                <div class="flex items-center gap-1.5 py-0.5">
+                  <component
+                    :is="fieldTypeIcon(form.widgetArray[item.id].fieldTypeId)"
+                    class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
+                  <span class="truncate text-on-surface-variant text-xs">
+                    {{ form.widgetArray[item.id].label || "(new field)" }}
+                  </span>
+                </div>
+              </template>
+            </DragDropList>
+          </DragDropContainer>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <p class="text-xs text-on-surface-variant">Viewer</p>
+          <DragDropContainer groupId="widgets-sidebar-viewer">
+            <DragDropList
+              listId="widgets-sidebar-viewer"
+              :modelValue="viewerDragItems"
+              listClass="flex flex-col"
+              listItemClass=""
+              :showEmptyList="false"
+              @update:modelValue="onReorderViewer">
+              <template #item="{ item }">
+                <div class="flex items-center gap-1.5 py-0.5">
+                  <component
+                    :is="fieldTypeIcon(form.widgetArray[item.id].fieldTypeId)"
+                    class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
+                  <span class="truncate text-on-surface-variant text-xs">
+                    {{ form.widgetArray[item.id].label || "(new field)" }}
+                  </span>
+                </div>
+              </template>
+            </DragDropList>
+          </DragDropContainer>
+        </div>
       </div>
     </template>
   </FormPageLayout>
@@ -300,6 +326,37 @@ function onReorder(newItems: { id: number }[]) {
   const orderKey = sortMode.value === "editor" ? "templateOrder" : "viewOrder";
   newItems.forEach(({ id }, pos) => {
     form.widgetArray[id][orderKey] = pos + 1;
+  });
+}
+
+const editorDragItems = computed(() => {
+  const indices = form.widgetArray.map((_, i) => i);
+  return [...indices]
+    .sort(
+      (a, b) =>
+        form.widgetArray[a].templateOrder - form.widgetArray[b].templateOrder
+    )
+    .map((i) => ({ id: i }));
+});
+
+const viewerDragItems = computed(() => {
+  const indices = form.widgetArray.map((_, i) => i);
+  return [...indices]
+    .sort(
+      (a, b) => form.widgetArray[a].viewOrder - form.widgetArray[b].viewOrder
+    )
+    .map((i) => ({ id: i }));
+});
+
+function onReorderEditor(newItems: { id: number }[]) {
+  newItems.forEach(({ id }, pos) => {
+    form.widgetArray[id].templateOrder = pos + 1;
+  });
+}
+
+function onReorderViewer(newItems: { id: number }[]) {
+  newItems.forEach(({ id }, pos) => {
+    form.widgetArray[id].viewOrder = pos + 1;
   });
 }
 </script>

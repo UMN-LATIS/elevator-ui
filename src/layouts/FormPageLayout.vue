@@ -17,8 +17,8 @@
       <slot />
     </div>
     <aside
-      class="sidebar-container bg-surface-container text-on-surface lg:border-l border-t-2 lg:border-t-0 border-outline-variant pt-2 px-4 pb-6 fixed bottom-0 left-0 w-full lg:static">
-      <div class="sticky top-20 flex flex-col gap-6">
+      class="sidebar-container bg-surface-container text-on-surface lg:border-l border-t-2 lg:border-t-0 border-outline-variant pt-2 px-4 pb-6 fixed bottom-0 left-0 w-full lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
+      <div class="flex flex-col gap-6">
         <slot name="sidebar-actions" />
         <slot name="sidebar-nav" />
       </div>
