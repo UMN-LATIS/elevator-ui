@@ -136,9 +136,10 @@ if (!editor)
   throw new Error(
     "WidgetEditor must be used inside a template editor provider"
   );
-// widget is the reactive object owned by the composable — not a prop,
-// so direct mutations here are legitimate reactive state updates.
-const widget = editor.form.widgetArray[props.index];
+// Computed so the reference stays live when the parent array is spliced.
+// Vue auto-unwraps computed refs in the template, so template bindings
+// like `v-model="widget.label"` work without `.value`.
+const widget = computed(() => editor.form.widgetArray[props.index]);
 
 defineEmits<{ remove: [] }>();
 
@@ -147,12 +148,12 @@ const instanceStore = useInstanceStore();
 // Mirror the legacy editor behavior: derive fieldTitle from label for new widgets.
 // Existing widgets (widgetId set) already have a locked fieldTitle — never overwrite it.
 watch(
-  () => widget.label,
+  () => widget.value.label,
   (label) => {
-    if (widget.widgetId !== undefined) return;
+    if (widget.value.widgetId !== undefined) return;
     const instanceId = instanceStore.instance.id;
     if (!instanceId) return;
-    widget.fieldTitle =
+    widget.value.fieldTitle =
       label.replace(/[^a-z0-9_]/gi, "").toLowerCase() + "_" + instanceId;
   }
 );
@@ -169,9 +170,9 @@ if (widgetOptionsState) {
   );
 }
 
-const showTooltip = ref(!!widget.tooltip);
+const showTooltip = ref(!!widget.value.tooltip);
 watch(showTooltip, (value) => {
-  if (!value) widget.tooltip = "";
+  if (!value) widget.value.tooltip = "";
 });
 
 const fieldTypeOptions = [
@@ -203,12 +204,12 @@ const clickToSearchOptions: SelectOption<string>[] = [
 
 const clickToSearchMode = computed({
   get: () => {
-    if (!widget.clickToSearch) return "off";
-    return widget.clickToSearchType === 1 ? "field" : "global";
+    if (!widget.value.clickToSearch) return "off";
+    return widget.value.clickToSearchType === 1 ? "field" : "global";
   },
   set: (value: string) => {
-    widget.clickToSearch = value !== "off";
-    widget.clickToSearchType = value === "field" ? 1 : 0;
+    widget.value.clickToSearch = value !== "off";
+    widget.value.clickToSearchType = value === "field" ? 1 : 0;
   },
 });
 
@@ -225,19 +226,21 @@ const sampleFieldDataByTypeId = computed(() => {
 // Show the fieldData JSON editor only for types that carry structured config.
 // Derived from the API: types with non-null sampleFieldData have a config schema.
 const hasFieldData = computed(
-  () => sampleFieldDataByTypeId.value[widget.fieldTypeId] != null
+  () => sampleFieldDataByTypeId.value[widget.value.fieldTypeId] != null
 );
 
 const isFieldDataInvalid = ref(false);
 const isFocused = ref(false);
 
 const rawFieldDataString = ref(
-  widget.fieldData != null ? JSON.stringify(widget.fieldData, null, 2) : ""
+  widget.value.fieldData != null
+    ? JSON.stringify(widget.value.fieldData, null, 2)
+    : ""
 );
 
 // Sync when fieldData is changed externally (e.g. type change auto-fills defaults)
 watch(
-  () => widget.fieldData,
+  () => widget.value.fieldData,
   (newVal) => {
     if (!isFocused.value) {
       rawFieldDataString.value =
@@ -250,12 +253,12 @@ watch(
 function handleFieldDataChange(value: string) {
   rawFieldDataString.value = value;
   if (!value.trim()) {
-    widget.fieldData = null;
+    widget.value.fieldData = null;
     isFieldDataInvalid.value = false;
     return;
   }
   try {
-    widget.fieldData = JSON.parse(value);
+    widget.value.fieldData = JSON.parse(value);
     isFieldDataInvalid.value = false;
   } catch {
     isFieldDataInvalid.value = true;
@@ -264,14 +267,14 @@ function handleFieldDataChange(value: string) {
 
 function handleFieldDataBlur() {
   isFocused.value = false;
-  if (!isFieldDataInvalid.value && widget.fieldData != null) {
-    rawFieldDataString.value = JSON.stringify(widget.fieldData, null, 2);
+  if (!isFieldDataInvalid.value && widget.value.fieldData != null) {
+    rawFieldDataString.value = JSON.stringify(widget.value.fieldData, null, 2);
   }
 }
 
 function handleTypeChange(newTypeId: number) {
   // Only pre-fill fieldData when empty — don't overwrite existing config.
-  if (widget.fieldData != null) return;
-  widget.fieldData = sampleFieldDataByTypeId.value[newTypeId] ?? null;
+  if (widget.value.fieldData != null) return;
+  widget.value.fieldData = sampleFieldDataByTypeId.value[newTypeId] ?? null;
 }
 </script>
