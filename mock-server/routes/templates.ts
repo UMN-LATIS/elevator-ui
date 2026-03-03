@@ -90,7 +90,10 @@ app.get("/getFieldTypes", (c) => {
       id: 3,
       name: "select",
       modelName: "SelectField",
-      sampleFieldData: { selectGroup: "" },
+      sampleFieldData: {
+        multiSelect: false,
+        selectGroup: ["option 1", "option 2", "option 3"],
+      },
     },
     {
       id: 4,
@@ -109,7 +112,27 @@ app.get("/getFieldTypes", (c) => {
       id: 7,
       name: "multiselect",
       modelName: "MultiSelectField",
-      sampleFieldData: { selectGroup: "" },
+      sampleFieldData: {
+        country: {
+          usa: {
+            state: {
+              wisconsin: { city: ["madison", "milwaukee"] },
+              minnesota: {
+                city: {
+                  minneapolis: { neighborhood: ["uptown", "downtown"] },
+                  mankato: { neighborhood: ["campus", "downtown"] },
+                },
+              },
+            },
+          },
+          canada: {
+            state: {
+              alberta: { city: ["fakeville", "faketown"] },
+              quebec: { city: ["montreal"] },
+            },
+          },
+        },
+      },
     },
     {
       id: 8,
@@ -117,12 +140,37 @@ app.get("/getFieldTypes", (c) => {
       modelName: "LocationField",
       sampleFieldData: null,
     },
-    { id: 9, name: "upload", modelName: "UploadField", sampleFieldData: null },
+    {
+      id: 9,
+      name: "upload",
+      modelName: "UploadField",
+      sampleFieldData: {
+        extractLocation: true,
+        extractDate: true,
+        enableTiling: true,
+        enableDendro: false,
+        enableIframe: false,
+        enableAnnotation: false,
+        forceTiling: false,
+        interactiveTranscript: false,
+      },
+    },
     {
       id: 10,
       name: "related asset",
       modelName: "RelatedAssetField",
-      sampleFieldData: null,
+      sampleFieldData: {
+        nestData: true,
+        showLabel: true,
+        collapseNestedChildren: false,
+        thumbnailView: false,
+        defaultTemplate: 0,
+        matchAgainst: [0],
+        displayInline: false,
+        ignoreForDigitalAsset: false,
+        ignoreForLocationSearch: false,
+        ignoreForDateSearch: false,
+      },
     },
   ]);
 });
