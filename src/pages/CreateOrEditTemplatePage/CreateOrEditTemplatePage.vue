@@ -36,7 +36,11 @@ provide(TEMPLATE_EDITOR_KEY, editor);
 const router = useRouter();
 
 async function handleSave() {
-  await editor.save();
-  router.push({ name: "templatesIndex" });
+  const id = await editor.save();
+  // After creating a new template, replace the create route with the edit
+  // route so the URL reflects the now-persisted id without adding a history entry.
+  if (!props.templateId) {
+    router.replace({ name: "templatesEdit", params: { id } });
+  }
 }
 </script>
