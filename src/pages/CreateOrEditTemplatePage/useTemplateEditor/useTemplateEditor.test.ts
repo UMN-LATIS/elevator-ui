@@ -120,6 +120,25 @@ describe("useTemplateEditor", () => {
     expect(editor.form.widgetArray[1].label).toBe("C");
   });
 
+  it("removeWidget at index 0 shifts remaining widgets to the front", () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+    editor.addWidget();
+    editor.addWidget();
+    editor.addWidget();
+    editor.form.widgetArray[0].label = "A";
+    editor.form.widgetArray[1].label = "B";
+    editor.form.widgetArray[2].label = "C";
+    editor.form.widgetArray[3].label = "D";
+
+    editor.removeWidget(0);
+
+    expect(editor.form.widgetArray).toHaveLength(3);
+    expect(editor.form.widgetArray[0].label).toBe("B");
+    expect(editor.form.widgetArray[1].label).toBe("C");
+    expect(editor.form.widgetArray[2].label).toBe("D");
+  });
+
   it("populates the form reactively when AdminTemplate data loads", async () => {
     const editor = useTemplateEditor(() => 5);
     expect(editor.form.name).toBe("");
