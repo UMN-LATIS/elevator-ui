@@ -21,14 +21,16 @@
 
     <template v-if="hasFieldData">
       <TextAreaGroup
-        :modelValue="fieldDataString"
+        :modelValue="rawFieldDataString"
         label="Field data (JSON)"
         :inputClass="[
           'font-mono text-sm h-24',
           isFieldDataInvalid ? 'border-error' : '',
         ]"
         placeholder="null"
-        @update:modelValue="handleFieldDataChange" />
+        @update:modelValue="handleFieldDataChange"
+        @focus="isFocused = true"
+        @blur="handleFieldDataBlur" />
       <p v-if="isFieldDataInvalid" class="text-error text-xs -mt-3">
         Invalid JSON
       </p>
@@ -232,12 +234,26 @@ const FIELD_DATA_DEFAULTS: Partial<Record<WidgetType, unknown>> = {
 };
 
 const isFieldDataInvalid = ref(false);
+const isFocused = ref(false);
 
-const fieldDataString = computed(() =>
+const rawFieldDataString = ref(
   widget.fieldData != null ? JSON.stringify(widget.fieldData, null, 2) : ""
 );
 
+// Sync when fieldData is changed externally (e.g. type change auto-fills defaults)
+watch(
+  () => widget.fieldData,
+  (newVal) => {
+    if (!isFocused.value) {
+      rawFieldDataString.value =
+        newVal != null ? JSON.stringify(newVal, null, 2) : "";
+      isFieldDataInvalid.value = false;
+    }
+  }
+);
+
 function handleFieldDataChange(value: string) {
+  rawFieldDataString.value = value;
   if (!value.trim()) {
     widget.fieldData = null;
     isFieldDataInvalid.value = false;
@@ -248,6 +264,13 @@ function handleFieldDataChange(value: string) {
     isFieldDataInvalid.value = false;
   } catch {
     isFieldDataInvalid.value = true;
+  }
+}
+
+function handleFieldDataBlur() {
+  isFocused.value = false;
+  if (!isFieldDataInvalid.value && widget.fieldData != null) {
+    rawFieldDataString.value = JSON.stringify(widget.fieldData, null, 2);
   }
 }
 

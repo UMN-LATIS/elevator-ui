@@ -3,11 +3,7 @@
     <div class="max-w-screen-xl w-full py-10 px-4 mx-auto">
       <div class="flex justify-between items-center">
         <h1 class="text-4xl font-bold my-8">Templates</h1>
-        <Button
-          variant="primary"
-          :href="`${config.instance.base.url}/templates/edit`">
-          Create Template
-        </Button>
+        <Button variant="primary" to="/templates/edit">Create Template</Button>
       </div>
       <Skeleton v-if="isPending" height="10rem" />
       <Notification

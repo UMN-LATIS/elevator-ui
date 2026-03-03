@@ -110,7 +110,7 @@
           <SpinnerIcon
             v-if="editor.isSaving.value"
             class="w-4 h-4 mr-2 animate-spin" />
-          {{ editor.isEditMode.value ? "Save" : "Create template" }}
+          Save
         </Button>
       </div>
     </template>

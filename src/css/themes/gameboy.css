@@ -18,7 +18,7 @@
   --surface-container-low: oklch(72% 0.1 115);
   --surface-container: oklch(75% 0.1 115);
   --surface-container-high: oklch(78% 0.1 115);
-  --surface-container-highest: oklch(81% 0.08 115);
+  --surface-container-highest: oklch(73% 0.1 115);
 
   /* On-surface — darkest Game Boy green (#0f380f) */
   --on-surface: oklch(22% 0.06 145);

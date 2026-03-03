@@ -2,7 +2,7 @@
   <div
     :class="cn('flex items-center justify-between gap-4 flex-wrap', $attrs.class as CSSClass)">
     <span
-      class="text-sm text-on-surface"
+      class="text-xs text-on-surface uppercase font-medium"
       :class="{
         'sr-only': !showLabel,
       }">
