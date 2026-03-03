@@ -86,13 +86,14 @@
             @update:modelValue="onReorder">
             <template #item="{ item }">
               <WidgetEditor
+                :id="`widget-${item.id}`"
                 :index="item.id"
                 @remove="editor.removeWidget(item.id)" />
             </template>
           </DragDropList>
         </DragDropContainer>
 
-        <Button type="button" variant="secondary" @click="editor.addWidget()">
+        <Button type="button" variant="secondary" @click="handleAddWidget()">
           + Add field
         </Button>
       </FormSection>
@@ -147,14 +148,17 @@
               :showEmptyList="false"
               @update:modelValue="onReorderEditor">
               <template #item="{ item }">
-                <div class="flex items-center gap-1.5 py-0.5">
+                <button
+                  type="button"
+                  class="flex items-center gap-1.5 py-0.5 w-full text-left hover:text-on-surface transition-colors"
+                  @click="scrollToWidget(item.id)">
                   <component
                     :is="fieldTypeIcon(form.widgetArray[item.id].fieldTypeId)"
                     class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
                   <span class="truncate text-on-surface-variant text-xs">
                     {{ form.widgetArray[item.id].label || "(new field)" }}
                   </span>
-                </div>
+                </button>
               </template>
             </DragDropList>
           </DragDropContainer>
@@ -171,14 +175,17 @@
               :showEmptyList="false"
               @update:modelValue="onReorderViewer">
               <template #item="{ item }">
-                <div class="flex items-center gap-1.5 py-0.5">
+                <button
+                  type="button"
+                  class="flex items-center gap-1.5 py-0.5 w-full text-left hover:text-on-surface transition-colors"
+                  @click="scrollToWidget(item.id)">
                   <component
                     :is="fieldTypeIcon(form.widgetArray[item.id].fieldTypeId)"
                     class="w-3.5 h-3.5 shrink-0 text-primary opacity-70" />
                   <span class="truncate text-on-surface-variant text-xs">
                     {{ form.widgetArray[item.id].label || "(new field)" }}
                   </span>
-                </div>
+                </button>
               </template>
             </DragDropList>
           </DragDropContainer>
@@ -189,7 +196,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, provide, ref, computed, type Component } from "vue";
+import { inject, provide, ref, computed, nextTick, type Component } from "vue";
 import {
   TypeIcon,
   AlignLeftIcon,
@@ -358,5 +365,31 @@ function onReorderViewer(newItems: { id: number }[]) {
   newItems.forEach(({ id }, pos) => {
     form.widgetArray[id].viewOrder = pos + 1;
   });
+}
+
+async function handleAddWidget() {
+  editor.addWidget();
+  const newIndex = form.widgetArray.length - 1;
+  await nextTick();
+  scrollToWidget(newIndex);
+}
+
+function scrollToWidget(index: number) {
+  const el = document.getElementById(`widget-${index}`);
+  if (!el) return;
+
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  // Reuse the DnD flash animation on the list item wrapper after scrolling arrives.
+  const listItem = el.closest(".drag-drop-list-item");
+  if (listItem) {
+    setTimeout(() => {
+      listItem.classList.add("drag-drop-list-item--flash");
+      setTimeout(
+        () => listItem.classList.remove("drag-drop-list-item--flash"),
+        1000
+      );
+    }, 300);
+  }
 }
 </script>
