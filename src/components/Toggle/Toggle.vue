@@ -7,8 +7,8 @@
       <Switch
         :modelValue="modelValue"
         :class="[
-          modelValue ? 'bg-primary-container' : 'bg-surface-container',
-          'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-outline-variant transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+          modelValue ? 'bg-primary' : 'bg-surface-container-highest',
+          'relative inline-flex items-center h-5 w-9 flex-shrink-0 cursor-pointer rounded-full p-[3px] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
           toggleClass,
           modelValue ? toggleOnClass : toggleOffClass,
         ]"
@@ -17,10 +17,8 @@
         <span
           aria-hidden="true"
           :class="[
-            'pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out',
-            modelValue
-              ? 'translate-x-5 bg-on-primary-container'
-              : 'translate-x-0 bg-on-surface-variant',
+            'pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+            modelValue ? 'translate-x-4' : 'translate-x-0',
           ]" />
       </Switch>
       <SwitchLabel v-if="onLabel" :class="onLabelClass">
