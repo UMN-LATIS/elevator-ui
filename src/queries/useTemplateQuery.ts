@@ -10,7 +10,6 @@ export function useTemplateQuery(
   options = {}
 ) {
   return useQuery({
-    // use reactive query keys to avoid stale data
     queryKey: [TEMPLATES_QUERY_KEY, templateId],
     enabled: () => !!toValue(templateId),
     initialData: () => null,

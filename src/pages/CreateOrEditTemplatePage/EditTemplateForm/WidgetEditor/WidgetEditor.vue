@@ -4,7 +4,6 @@
     <div class="flex justify-between items-center gap-2">
       <FieldTypeSelect
         v-model="widget.fieldTypeId"
-        :showLabel="false"
         class="flex-1"
         :options="fieldTypeOptions"
         @update:modelValue="handleTypeChange" />
@@ -121,7 +120,7 @@ import { ChevronRightIcon } from "@/icons";
 import { FIELD_TYPE_IDS } from "@/constants/constants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
-import type { SelectOption, WidgetType } from "@/types";
+import type { SelectOption } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{ index: number }>();
@@ -155,12 +154,14 @@ watch(
 const showOptions = ref(false);
 
 const widgetOptionsState = inject(WIDGET_OPTIONS_KEY);
-watch(
-  () => widgetOptionsState?.value.trigger,
-  () => {
-    if (widgetOptionsState) showOptions.value = widgetOptionsState.value.open;
-  }
-);
+if (widgetOptionsState) {
+  watch(
+    () => widgetOptionsState.value.trigger,
+    () => {
+      showOptions.value = widgetOptionsState.value.open;
+    }
+  );
+}
 
 const showTooltip = ref(!!widget.tooltip);
 watch(showTooltip, (value) => {
@@ -214,17 +215,13 @@ const FIELD_DATA_TYPES = new Set([
 
 const hasFieldData = computed(() => FIELD_DATA_TYPES.has(widget.fieldTypeId));
 
-const currentTypeIcon = computed(
-  () =>
-    fieldTypeOptions.find((o) => o.id === widget.fieldTypeId)?.icon ?? TypeIcon
-);
-
 // Default fieldData JSON per widget type — mirrors legacy editor auto-fill.
-const FIELD_DATA_DEFAULTS: Partial<Record<WidgetType, unknown>> = {
-  select: { multiSelect: false, selectGroup: [] },
+// Keyed by numeric field type id so handleTypeChange needs no reverse lookup.
+const FIELD_DATA_DEFAULTS: Partial<Record<number, unknown>> = {
+  [FIELD_TYPE_IDS.select]: { multiSelect: false, selectGroup: [] },
   // Hierarchical category tree: { "Category": { "Subcategory": {} } }
-  multiselect: {},
-  upload: {
+  [FIELD_TYPE_IDS.multiselect]: {},
+  [FIELD_TYPE_IDS.upload]: {
     extractDate: false,
     extractLocation: false,
     enableTiling: false,
@@ -235,7 +232,7 @@ const FIELD_DATA_DEFAULTS: Partial<Record<WidgetType, unknown>> = {
     enableDendro: false,
     enableAnnotation: false,
   },
-  "related asset": {
+  [FIELD_TYPE_IDS["related asset"]]: {
     defaultTemplate: null,
     matchAgainst: [],
     nestData: false,
@@ -293,13 +290,6 @@ function handleFieldDataBlur() {
 function handleTypeChange(newTypeId: number) {
   // Only pre-fill fieldData when empty — don't overwrite existing config.
   if (widget.fieldData != null) return;
-
-  const typeName = Object.entries(FIELD_TYPE_IDS).find(
-    ([, id]) => id === newTypeId
-  )?.[0] as WidgetType | undefined;
-
-  if (typeName && typeName in FIELD_DATA_DEFAULTS) {
-    widget.fieldData = FIELD_DATA_DEFAULTS[typeName] ?? null;
-  }
+  widget.fieldData = FIELD_DATA_DEFAULTS[newTypeId] ?? null;
 }
 </script>

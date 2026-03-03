@@ -7,8 +7,8 @@ import {
   MaybeRefOrGetter,
   toValue,
 } from "vue";
-import { useAdminTemplateQuery } from "@/queries/useTemplateQuery";
 import {
+  useAdminTemplateQuery,
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
 } from "@/queries/useTemplateQuery";
@@ -106,7 +106,6 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
 
   const form = reactive<TemplatePayload>(emptyPayload());
 
-  // Sync server data into form once loaded (edit mode only).
   watch(
     template,
     (t) => {
@@ -123,13 +122,11 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   );
 
   async function save(): Promise<number> {
-    // creating a new template
     if (!isEditMode.value) {
       const summary = await createMutation.mutateAsync(form);
       return summary.id;
     }
 
-    // saving an existing template
     const summary = await updateMutation.mutateAsync({
       templateId: toValue(templateId) as number,
       payload: form,

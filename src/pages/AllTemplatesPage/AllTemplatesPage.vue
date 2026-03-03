@@ -29,8 +29,6 @@ import {
   useAllTemplatesQuery,
   useDeleteTemplateMutation,
 } from "@/queries/useTemplateQuery";
-import config from "@/config";
-
 const { data: templates, isPending, isError } = useAllTemplatesQuery();
 const { mutateAsync: deleteTemplate } = useDeleteTemplateMutation();
 
