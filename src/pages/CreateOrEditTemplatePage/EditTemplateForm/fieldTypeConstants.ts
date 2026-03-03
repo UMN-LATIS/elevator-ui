@@ -68,6 +68,12 @@ export const FIELD_TYPE_SAMPLE_DATA: Record<string, unknown> = {
   },
 };
 
+/** Display name overrides for field types whose API names are confusing or misleading. */
+export const FIELD_TYPE_DISPLAY_NAMES: Record<string, string> = {
+  // Backend calls this "multiselect" but it's actually a cascading/hierarchical select.
+  multiselect: "Cascade Select",
+};
+
 /** Maps field type names (from the getFieldTypes API) to their display icons. */
 export const FIELD_TYPE_NAME_ICONS: Record<string, Component> = {
   text: TypeIcon,

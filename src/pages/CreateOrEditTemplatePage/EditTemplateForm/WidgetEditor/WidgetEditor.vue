@@ -130,6 +130,7 @@ import { ChevronRightIcon } from "@/icons";
 import {
   FIELD_TYPE_NAME_ICONS,
   FIELD_TYPE_SAMPLE_DATA,
+  FIELD_TYPE_DISPLAY_NAMES,
 } from "../fieldTypeConstants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
@@ -184,10 +185,12 @@ watch(showTooltip, (value) => {
   if (!value) widget.value.tooltip = "";
 });
 
+const toTitleCase = (s: string) => s.replace(/\b\w/g, (c) => c.toUpperCase());
+
 const fieldTypeOptions = computed(() =>
   (fieldTypes.value ?? []).map((ft) => ({
     id: ft.id,
-    label: ft.name,
+    label: FIELD_TYPE_DISPLAY_NAMES[ft.name] ?? toTitleCase(ft.name),
     icon: FIELD_TYPE_NAME_ICONS[ft.name] ?? TypeIcon,
   }))
 );
