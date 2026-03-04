@@ -71,6 +71,7 @@ export function useAdminTemplateQuery(
     enabled: () => toValue(templateId) !== null,
     queryFn: () => fetchers.fetchAdminTemplate(toValue(templateId)!),
     refetchOnWindowFocus: false,
+    retry: false,
     ...options,
   });
 }
