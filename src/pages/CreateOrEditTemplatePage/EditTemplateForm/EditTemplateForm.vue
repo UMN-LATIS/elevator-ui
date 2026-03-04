@@ -107,7 +107,7 @@
     <template #sidebar-actions>
       <div class="flex flex-col gap-2">
         <div class="grid grid-cols-2 gap-4">
-          <Button type="button">Cancel</Button>
+          <Button type="button" @click="$emit('cancel')">Cancel</Button>
           <Button
             type="submit"
             form="template-form"
@@ -219,7 +219,7 @@ import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
 import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";
 import type { SelectOption } from "@/types";
 
-defineEmits<{ save: [] }>();
+defineEmits<{ save: []; cancel: [] }>();
 
 const editor = inject(TEMPLATE_EDITOR_KEY)!;
 const form = editor.form;

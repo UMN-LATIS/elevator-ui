@@ -13,7 +13,10 @@
       Failed to load template.
     </div>
 
-    <EditTemplateForm v-else @save="handleSave" />
+    <EditTemplateForm
+      v-else
+      @save="handleSave"
+      @cancel="router.push({ name: 'templatesIndex' })" />
   </DefaultLayout>
 </template>
 
