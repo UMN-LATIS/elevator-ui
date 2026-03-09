@@ -4,9 +4,7 @@
     :class="
       cn([
         'button inline-flex items-center gap-1 no-underline hover:no-underline rounded justify-center leading-none transition-colors ease-in-out cursor-pointer ',
-        variant === 'tertiary'
-          ? 'p-2 text-xs uppercase font-medium'
-          : 'px-4 py-3',
+        variant !== 'tertiary' ? 'px-4 py-3' : '',
         {
           'bg-primary text-on-primary hover:bg-[--btn-primary-hover]':
             variant === 'primary',
