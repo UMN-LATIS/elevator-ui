@@ -1,8 +1,11 @@
 <template>
   <div
     id="top"
-    ref="topSentinel"
     class="default-layout bg-surface min-h-screen pt-18 flex flex-col">
+    <!-- 1px sentinel at the very top of the page. When it leaves the viewport
+         (user scrolled down), showScrollToTop flips true. The full-page wrapper
+         cannot serve this role — it always intersects the viewport. -->
+    <div ref="topSentinel" class="h-0 w-0" aria-hidden="true" />
     <SkipNavLink href="#main" />
     <slot name="custom-header" />
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
