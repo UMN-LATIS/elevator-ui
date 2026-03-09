@@ -165,8 +165,8 @@ watch(
     if (widget.value.widgetId !== undefined) return;
     const instanceId = instanceStore.instance.id;
     if (!instanceId) return;
-    widget.value.fieldTitle =
-      label.replace(/[^a-z0-9_]/gi, "").toLowerCase() + "_" + instanceId;
+    const slug = label.replace(/[^a-z0-9_]/gi, "").toLowerCase() || "field";
+    widget.value.fieldTitle = slug + "_" + instanceId;
   }
 );
 
