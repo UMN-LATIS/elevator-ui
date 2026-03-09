@@ -40,7 +40,7 @@
   --surface-container-low: oklch(95% 0.005 260);
   --surface-container: oklch(94% 0.004 260);
   --surface-container-high: oklch(93% 0.004 260);
-  --surface-container-highest: oklch(92% 0.003 260);
+  --surface-container-highest: oklch(87% 0.005 260);
 
   --on-surface: oklch(20% 0.02 260); /* primary text on surface */
   --on-surface-variant: oklch(0.55 0 0); /* secondary/muted text, icons */

@@ -1,8 +1,11 @@
 <template>
   <section
     :id="id"
-    class="border-t border-outline-variant py-6 grid sm:grid-cols-[15rem,1fr] gap-4 items-start">
-    <h2 class="text-lg font-semibold">{{ title }}</h2>
+    class="border-t border-outline-variant py-3 grid sm:grid-cols-[15rem,1fr] gap-4 items-start">
+    <header>
+      <h2 class="text-lg font-semibold">{{ title }}</h2>
+      <slot name="header" />
+    </header>
     <div class="space-y-4">
       <slot />
     </div>

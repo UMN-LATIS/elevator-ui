@@ -62,7 +62,7 @@ export const createColumns = (onDelete: (templateId: number) => void) => [
     cell: ({ row }: { row: { original: TemplateSummary } }) => (
       <div class="flex gap-2 items-center justify-center">
         <IconButton
-          href={`${config.instance.base.url}/templates/edit/${row.original.id}`}
+          to={{ name: "templatesEdit", params: { id: row.original.id } }}
           showTooltip={false}
           title="Edit">
           <PencilIcon class="size-4" />

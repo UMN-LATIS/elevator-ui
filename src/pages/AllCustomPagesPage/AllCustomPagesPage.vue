@@ -7,17 +7,15 @@
           <Button variant="primary">Create Page</Button>
         </RouterLink>
       </div>
-      <Transition name="fade" mode="out-in">
-        <Skeleton v-if="isLoading" height="10rem" />
-        <Notification
-          v-else-if="isError"
-          type="danger"
-          title="Error Loading Custom Pages">
-          An error occurred while loading custom pages.
-        </Notification>
-        <p v-else-if="!customPages?.length" class="text-lg">No pages found.</p>
-        <CustomPagesTable v-else :columns="columns" :data="customPages" />
-      </Transition>
+      <Skeleton v-if="isPending" height="10rem" />
+      <Notification
+        v-else-if="isError"
+        type="danger"
+        title="Error Loading Custom Pages">
+        An error occurred while loading custom pages.
+      </Notification>
+      <p v-else-if="!customPages?.length" class="text-lg">No pages found.</p>
+      <CustomPagesTable v-else :columns="columns" :data="customPages" />
     </div>
   </DefaultLayout>
 </template>
@@ -32,7 +30,7 @@ import Notification from "@/components/Notification/Notification.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import Button from "@/components/Button/Button.vue";
 
-const { data: customPages, isLoading, isError } = useAllCustomPagesQuery();
+const { data: customPages, isPending, isError } = useAllCustomPagesQuery();
 
 const deleteMutation = useDeleteCustomPageMutation();
 const toastStore = useToastStore();

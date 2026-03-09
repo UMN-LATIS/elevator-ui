@@ -219,9 +219,17 @@
                 :options="themeOptions"
                 label="Default Theme" />
               <div v-if="form.enableTheming" class="space-y-2">
-                <label class="block text-xs font-medium uppercase">
-                  Available Themes
-                </label>
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-medium uppercase">
+                    Available Themes
+                  </label>
+                  <Button
+                    variant="tertiary"
+                    type="button"
+                    @click="toggleAllThemes">
+                    Toggle All
+                  </Button>
+                </div>
                 <div class="grid grid-cols-3 gap-4">
                   <label
                     v-for="theme in allThemes.toSorted()"
@@ -274,15 +282,10 @@
 </template>
 
 <script setup lang="tsx">
-import {
-  ref,
-  watch,
-  computed,
-  onUnmounted,
-  type FunctionalComponent,
-} from "vue";
+import { ref, watch, computed, onUnmounted } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
+import FormSubSection from "@/components/Form/FormSubSection.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
@@ -438,6 +441,16 @@ function toggleTheme(theme: string) {
     : [...current, theme];
 }
 
+const allThemesSelected = computed(() =>
+  allThemes.value.every((t) => form.value.availableThemes?.includes(t))
+);
+
+function toggleAllThemes() {
+  form.value.availableThemes = allThemesSelected.value
+    ? []
+    : [...allThemes.value];
+}
+
 async function handleSave() {
   if (!props.instanceId) {
     toastStore.addToast({
@@ -477,19 +490,6 @@ async function handleSave() {
     });
   }
 }
-
-// FormSubSection component - kept inline as it's only used here
-const FormSubSection: FunctionalComponent<{
-  isOpen: boolean;
-}> = ({ isOpen = false }, { slots }) => (
-  <section
-    class={`flex flex-col gap-4 ${
-      isOpen ? "border border-outline p-2 rounded-md" : ""
-    }`}>
-    {slots.default?.()}
-    {isOpen && slots.details?.()}
-  </section>
-);
 </script>
 
 <style scoped></style>

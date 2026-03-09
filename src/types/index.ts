@@ -516,7 +516,7 @@ export type UnsavedAsset = Omit<BaseAsset, "assetId"> & {
   assetId: null;
 } & AssetWidgetFields;
 
-type TemplateShowPropertyPosition =
+export type TemplateShowPropertyPosition =
   (typeof TEMPLATE_SHOW_PROPERTY_POSITIONS)[keyof typeof TEMPLATE_SHOW_PROPERTY_POSITIONS];
 
 export interface Template {
@@ -1005,6 +1005,7 @@ export interface AssetSummary {
 export interface SelectOption<idType = string> {
   id: idType;
   label: string;
+  description?: string;
   disabled?: boolean;
 }
 
@@ -1103,6 +1104,111 @@ export interface TemplateSummary {
   name: string;
   createdAt?: string;
   modifiedAt?: string;
+}
+
+/** Field type record returned by GET /templates/getFieldTypes. */
+export interface FieldType {
+  id: number;
+  name: string;
+  modelName: string;
+  sampleFieldData: unknown;
+}
+
+/**
+ * Widget shape returned by GET /templates/getTemplate/:id.
+ * Distinct from WidgetDef, which is used for asset rendering.
+ *
+ * Key differences:
+ *   - `fieldType` instead of `type` (same string values as WidgetType)
+ *   - `fieldTypeId` added (integer DB ID for the field type, used in write payloads)
+ *   - `widgetId` is optional (absent for new, unsaved widgets)
+ *   - `fieldTitle` is optional (new widgets send empty; server generates)
+ */
+export interface AdminWidgetDef {
+  widgetId?: number;
+  fieldTitle?: string;
+  fieldType: WidgetType;
+  fieldTypeId: number;
+  label: string;
+  tooltip: string;
+  templateOrder: number;
+  viewOrder: number;
+  display: boolean;
+  displayInPreview: boolean;
+  required: boolean;
+  searchable: boolean;
+  allowMultiple: boolean;
+  attemptAutocomplete: boolean;
+  directSearch: boolean;
+  clickToSearch: boolean;
+  clickToSearchType: number;
+  fieldData: unknown;
+}
+
+/**
+ * Full template entity returned by GET /templates/getTemplate/:id.
+ * Used in the template editor. Distinct from `Template`,
+ * which is the asset-editor-facing shape from /assetManager/getTemplate/:id.
+ */
+export interface AdminTemplate {
+  id: number;
+  name: string;
+  createdAt?: string;
+  modifiedAt?: string;
+  showCollection: boolean;
+  showCollectionPosition: TemplateShowPropertyPosition;
+  showTemplate: boolean;
+  showTemplatePosition: TemplateShowPropertyPosition;
+  includeInSearch: boolean;
+  indexForSearching: boolean;
+  isHidden: boolean;
+  // Included for round-trip safety; not exposed in the editor UI.
+  templateColor: number;
+  recursiveIndexDepth: 0 | 1 | 2;
+  widgetArray: AdminWidgetDef[];
+}
+
+/**
+ * Widget within a TemplatePayload.
+ * New widgets: omit widgetId and fieldTitle; server assigns both.
+ * Existing widgets: include widgetId and fieldTitle (send the locked value back unchanged).
+ */
+export interface AdminWidgetPayload {
+  widgetId?: number;
+  fieldTitle?: string;
+  fieldTypeId: number;
+  label: string;
+  tooltip: string;
+  templateOrder: number;
+  viewOrder: number;
+  display: boolean;
+  displayInPreview: boolean;
+  required: boolean;
+  searchable: boolean;
+  allowMultiple: boolean;
+  attemptAutocomplete: boolean;
+  directSearch: boolean;
+  clickToSearch: boolean;
+  clickToSearchType: number;
+  fieldData: unknown;
+}
+
+/**
+ * Payload for POST /templates (create) and PUT /templates/:id (update).
+ * The template ID is passed as a URL param for updates, not in the body.
+ */
+export interface TemplatePayload {
+  name: string;
+  showCollection: boolean;
+  showCollectionPosition: TemplateShowPropertyPosition;
+  showTemplate: boolean;
+  showTemplatePosition: TemplateShowPropertyPosition;
+  includeInSearch: boolean;
+  indexForSearching: boolean;
+  isHidden: boolean;
+  templateColor: number;
+  recursiveIndexDepth: 0 | 1 | 2;
+  widgetArray: AdminWidgetPayload[];
 }
 
 export interface SaveCustomPageResult {

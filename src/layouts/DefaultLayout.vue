@@ -2,6 +2,10 @@
   <div
     id="top"
     class="default-layout bg-surface min-h-screen pt-18 flex flex-col">
+    <!-- 1px sentinel at the very top of the page. When it leaves the viewport
+         (user scrolled down), showScrollToTop flips true. The full-page wrapper
+         cannot serve this role — it always intersects the viewport. -->
+    <div ref="topSentinel" class="h-0 w-0" aria-hidden="true" />
     <SkipNavLink href="#main" />
     <slot name="custom-header" />
     <AppHeader class="app-header top-0 w-full z-20 sticky left-0" />
@@ -34,7 +38,7 @@
       <a
         v-show="showScrollToTop"
         href="#top"
-        class="fixed bottom-2 right-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary-container z-20">
+        class="fixed bottom-24 right-2 lg:bottom-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-primary-container z-20">
         <ChevronUpIcon />
         <span class="sr-only">Top</span>
       </a>
@@ -42,10 +46,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import AppHeader from "@/components/AppHeader/AppHeader.vue";
 import { ChevronUpIcon } from "@/icons";
-import { useWindowScroll } from "@vueuse/core";
+import { useIntersectionObserver } from "@vueuse/core";
 import SkipNavLink from "@/components/SkipNavLink/SkipNavLink.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useRoute } from "vue-router";
@@ -53,10 +57,12 @@ import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import Button from "@/components/Button/Button.vue";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 
-const { y: scrollY } = useWindowScroll();
-
-const showScrollToTop = computed(() => {
-  return scrollY.value > 0;
+// IntersectionObserver fires only when the sentinel enters/leaves the viewport —
+// no per-scroll-tick reactive updates, unlike useWindowScroll().
+const topSentinel = ref<HTMLElement | null>(null);
+const showScrollToTop = ref(false);
+useIntersectionObserver(topSentinel, ([entry]) => {
+  showScrollToTop.value = !entry.isIntersecting;
 });
 
 const instanceStore = useInstanceStore();

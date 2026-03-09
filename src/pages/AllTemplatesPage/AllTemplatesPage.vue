@@ -3,25 +3,17 @@
     <div class="max-w-screen-xl w-full py-10 px-4 mx-auto">
       <div class="flex justify-between items-center">
         <h1 class="text-4xl font-bold my-8">Templates</h1>
-        <Button
-          variant="primary"
-          :href="`${config.instance.base.url}/templates/edit`">
-          Create Template
-        </Button>
+        <Button variant="primary" to="/templates/edit">Create Template</Button>
       </div>
-      <Transition name="fade" mode="out-in">
-        <Skeleton v-if="isLoading" height="10rem" />
-        <Notification
-          v-else-if="isError"
-          type="danger"
-          title="Error Loading Templates">
-          An error occurred while loading templates.
-        </Notification>
-        <p v-else-if="!templates?.length" class="text-lg">
-          No templates found.
-        </p>
-        <TemplatesTable v-else :columns="columns" :data="templates" />
-      </Transition>
+      <Skeleton v-if="isPending" height="10rem" />
+      <Notification
+        v-else-if="isError"
+        type="danger"
+        title="Error Loading Templates">
+        An error occurred while loading templates.
+      </Notification>
+      <p v-else-if="!templates?.length" class="text-lg">No templates found.</p>
+      <TemplatesTable v-else :columns="columns" :data="templates" />
     </div>
   </DefaultLayout>
 </template>
@@ -37,9 +29,7 @@ import {
   useAllTemplatesQuery,
   useDeleteTemplateMutation,
 } from "@/queries/useTemplateQuery";
-import config from "@/config";
-
-const { data: templates, isLoading, isError } = useAllTemplatesQuery();
+const { data: templates, isPending, isError } = useAllTemplatesQuery();
 const { mutateAsync: deleteTemplate } = useDeleteTemplateMutation();
 
 const toastStore = useToastStore();

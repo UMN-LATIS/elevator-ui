@@ -118,7 +118,7 @@ test.describe("Instance Settings Page", () => {
       await expect(
         page.getByRole("switch", { name: "Use Custom CSS" })
       ).toHaveAttribute("aria-checked", "true");
-      await page.getByLabel("Custom CSS").fill(customCSS);
+      await page.getByRole("textbox", { name: "Custom CSS" }).fill(customCSS);
 
       await page.getByRole("button", { name: "Save" }).click();
 
@@ -131,7 +131,7 @@ test.describe("Instance Settings Page", () => {
       await expect(
         page.getByRole("switch", { name: "Use Custom CSS" })
       ).toHaveAttribute("aria-checked", "true");
-      await expect(page.getByLabel("Custom CSS")).toHaveValue(customCSS);
+      await expect(page.getByRole("textbox", { name: "Custom CSS" })).toHaveValue(customCSS);
 
       // toHaveText uses innerText, which is empty for <head> elements — check textContent directly
       const styleContent = await page.evaluate(
@@ -178,7 +178,7 @@ test.describe("Instance Settings Page", () => {
       await expect(
         page.getByRole("switch", { name: "Use Custom CSS" })
       ).toHaveAttribute("aria-checked", "true");
-      await page.getByLabel("Custom CSS").fill("body { color: red; }");
+      await page.getByRole("textbox", { name: "Custom CSS" }).fill("body { color: red; }");
 
       // --- Storage ---
       await page.getByLabel("Amazon S3 Key").fill("AKIAIOSFODNN7EXAMPLE");
@@ -343,7 +343,7 @@ test.describe("Instance Settings Page", () => {
       await expect(
         page.getByRole("switch", { name: "Use Custom CSS" })
       ).toHaveAttribute("aria-checked", "true");
-      await expect(page.getByLabel("Custom CSS")).toHaveValue(
+      await expect(page.getByRole("textbox", { name: "Custom CSS" })).toHaveValue(
         "body { color: red; }"
       );
 

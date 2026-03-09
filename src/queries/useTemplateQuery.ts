@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
-import { INSTANCE_QUERY_KEY, TEMPLATES_QUERY_KEY } from "./queryKeys";
-import type { TemplateSummary } from "@/types";
+import { INSTANCE_QUERY_KEY, TEMPLATES_QUERY_KEY, FIELD_TYPES_QUERY_KEY } from "./queryKeys";
+import type { TemplateSummary, AdminTemplate, TemplatePayload, FieldType } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useTemplateQuery(
@@ -10,7 +10,6 @@ export function useTemplateQuery(
   options = {}
 ) {
   return useQuery({
-    // use reactive query keys to avoid stale data
     queryKey: [TEMPLATES_QUERY_KEY, templateId],
     enabled: () => !!toValue(templateId),
     initialData: () => null,
@@ -47,6 +46,67 @@ export function useDeleteTemplateMutation() {
       queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
 
       // invalidate instanceNav data too since it contains template info
+      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
+    },
+  });
+}
+
+export function useFieldTypesQuery() {
+  return useQuery<FieldType[]>({
+    queryKey: [FIELD_TYPES_QUERY_KEY],
+    queryFn: fetchers.fetchFieldTypes,
+    // Field types are static — defined in the DB and never change at runtime.
+    staleTime: Infinity,
+  });
+}
+
+export function useAdminTemplateQuery(
+  templateId: MaybeRefOrGetter<number | null>,
+  options = {}
+) {
+  return useQuery<AdminTemplate>({
+    queryKey: [TEMPLATES_QUERY_KEY, "admin", templateId] as const,
+    enabled: () => toValue(templateId) !== null,
+    queryFn: () => fetchers.fetchAdminTemplate(toValue(templateId)!),
+    refetchOnWindowFocus: false,
+    retry: false,
+    ...options,
+  });
+}
+
+export function useCreateTemplateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: TemplatePayload) => fetchers.createTemplate(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
+    },
+  });
+}
+
+export function useUpdateTemplateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      templateId,
+      payload,
+    }: {
+      templateId: number;
+      payload: TemplatePayload;
+    }) => fetchers.updateTemplate(templateId, payload),
+    onSuccess: (_data, { templateId }) => {
+      // Invalidate both the admin detail cache and the summary list
+      queryClient.invalidateQueries({
+        queryKey: [TEMPLATES_QUERY_KEY, "admin", templateId],
+      });
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
       const instanceStore = useInstanceStore();
       instanceStore.refresh();

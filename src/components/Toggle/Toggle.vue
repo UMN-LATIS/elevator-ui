@@ -1,37 +1,20 @@
 <template>
-  <SwitchGroup class="toggle">
-    <div class="inline-flex items-center gap-1.5">
-      <SwitchLabel v-if="offLabel" :class="offLabelClass">
-        {{ offLabel }}
-      </SwitchLabel>
-      <Switch
-        :modelValue="modelValue"
-        :class="[
-          modelValue ? 'bg-primary-container' : 'bg-surface-container',
-          'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-outline-variant transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-          toggleClass,
-          modelValue ? toggleOnClass : toggleOffClass,
-        ]"
-        @update:modelValue="(val) => $emit('update:modelValue', val)">
-        <span class="sr-only">{{ settingLabel }}</span>
-        <span
-          aria-hidden="true"
-          :class="[
-            'pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out',
-            modelValue
-              ? 'translate-x-5 bg-on-primary-container'
-              : 'translate-x-0 bg-on-surface-variant',
-          ]" />
-      </Switch>
-      <SwitchLabel v-if="onLabel" :class="onLabelClass">
-        {{ onLabel }}
-      </SwitchLabel>
-    </div>
-  </SwitchGroup>
+  <label class="toggle inline-flex items-center gap-1.5 cursor-pointer">
+    <span v-if="offLabel" class="text-sm">{{ offLabel }}</span>
+    <SwitchRoot
+      :modelValue="modelValue"
+      :aria-label="settingLabel"
+      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full p-[3px] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 data-[state=checked]:bg-primary data-[state=unchecked]:bg-surface-container-highest"
+      @update:modelValue="(val) => $emit('update:modelValue', val)">
+      <SwitchThumb
+        class="pointer-events-none block h-3.5 w-3.5 rounded-full shadow ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=checked]:bg-on-primary data-[state=unchecked]:translate-x-0 data-[state=unchecked]:bg-outline" />
+    </SwitchRoot>
+    <span v-if="onLabel" :class="onLabelClass">{{ onLabel }}</span>
+  </label>
 </template>
 
 <script setup lang="ts">
-import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
+import { SwitchRoot, SwitchThumb } from "reka-ui";
 
 type CSSClass = Record<string, boolean> | string[] | string;
 
@@ -40,11 +23,7 @@ defineProps<{
   settingLabel: string;
   offLabel?: string;
   onLabel?: string;
-  toggleClass?: CSSClass;
-  toggleOnClass?: CSSClass;
-  toggleOffClass?: CSSClass;
   onLabelClass?: CSSClass;
-  offLabelClass?: CSSClass;
 }>();
 
 defineEmits<{

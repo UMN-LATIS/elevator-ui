@@ -51,6 +51,7 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   TOP: 1,
 } as const;
 
+
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
 
 export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<

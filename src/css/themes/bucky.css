@@ -22,7 +22,7 @@
   --surface-container-low: oklch(97% 0.004 15);
   --surface-container: oklch(97.5% 0.003 15);
   --surface-container-high: oklch(98% 0.003 15);
-  --surface-container-highest: oklch(99% 0.002 15);
+  --surface-container-highest: oklch(88% 0.005 15);
 
   /* On-surface — near-black with warm tint */
   --on-surface: oklch(18% 0.02 20);

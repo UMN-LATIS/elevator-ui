@@ -108,8 +108,9 @@ test.describe("Templates Index Page", () => {
       "All Fields Test"
     );
 
-    // Created and Modified columns show "—" since seeds have no dates
-    await expect(allFieldsRow.locator("td:nth-child(3)")).toHaveText("—");
-    await expect(allFieldsRow.locator("td:nth-child(4)")).toHaveText("—");
+    // Created and Modified columns show formatted dates from seed data.
+    // Accept any separator (/, ., -) so the assertion holds across locales.
+    await expect(allFieldsRow.locator("td:nth-child(3)")).toHaveText(/\d+[/.\-]\d+[/.\-]\d+/);
+    await expect(allFieldsRow.locator("td:nth-child(4)")).toHaveText(/\d+[/.\-]\d+[/.\-]\d+/);
   });
 });

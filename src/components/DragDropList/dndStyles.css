@@ -21,20 +21,36 @@
 
   --dnd-indicator-strokeWidth: 0.125rem;
   --dnd-indicator-terminalSize: 0.25rem;
-  --dnd-indicator-color: var(--primary, --dnd-color-blue-600);
+  --dnd-indicator-color: var(--secondary, --dnd-color-blue-600);
   --dnd-list-border: 0;
   --dnd-dragHandle-bg: var(--secondary-container, --dnd-color-neutral-200);
-  --dnd-dragHandle-bg-focus: var(--primary-container, --dnd-color-blue-100);
-  --dnd-dragHandle-shadow-focus: 0 0 0 0.125rem var(--primary, --dnd-color-blue-600);
-  --dnd-dragHandle-color: var(--on-secondary-container, --dnd-color-neutral-600);
-  --dnd-dragHandle-color-focus: var(--primary, --dnd-color-blue-600);
-  --dnd-listItem-border: 1px solid var(--outline-variant, --dnd-color-neutral-200);
+  --dnd-dragHandle-bg-focus: var(--secondary-container, --dnd-color-blue-100);
+  --dnd-dragHandle-shadow-focus: 0 0 0 0.125rem
+    var(--secondary, --dnd-color-blue-600);
+  --dnd-dragHandle-color: var(
+    --on-secondary-container,
+    --dnd-color-neutral-600
+  );
+  --dnd-dragHandle-color-focus: var(
+    --on-secondary-container,
+    --dnd-color-blue-600
+  );
+  --dnd-listItem-border: 1px solid
+    var(--outline-variant, --dnd-color-neutral-200);
   --dnd-emptyList-bg: var(--surface-container-lowest, --dnd-color-neutral-100);
-  --dnd-emptyList-border: 1px dashed var(--outline-variant, --dnd-color-neutral-300);
+  --dnd-emptyList-border: 1px dashed
+    var(--outline-variant, --dnd-color-neutral-300);
   --dnd-emptyList-text: var(--on-surface-variant, --dnd-color-neutral-400);
-  --dnd-emptyList-bg-draggingOver: var(--primary-container, --dnd-color-blue-100);
-  --dnd-emptyList-border-draggingOver: 1px dashed var(--on-primary-container, --dnd-color-blue-600);
-  --dnd-emptyList-text-draggingOver: var(--on-primary-container, --dnd-color-blue-600);
+  --dnd-emptyList-bg-draggingOver: var(
+    --secondary-container,
+    --dnd-color-blue-100
+  );
+  --dnd-emptyList-border-draggingOver: 1px dashed
+    var(--on-secondary-container, --dnd-color-blue-600);
+  --dnd-emptyList-text-draggingOver: var(
+    --on-secondary-container,
+    --dnd-color-blue-600
+  );
 }
 
 .dnd-drag-drop-container {
@@ -58,14 +74,18 @@
 }
 
 .drag-drop-list-item.drag-drop-list-item--flash {
-  animation: post-move-flash 1s;
+  animation: post-move-flash 0.8s ease-out;
 }
 
 @keyframes post-move-flash {
   0% {
-    background: var(--primary-container, --dnd-color-blue-100);
+    box-shadow: 0 0 0 3px var(--secondary, #2563eb);
   }
   100% {
-    background: inherit;
+    box-shadow: none;
   }
+}
+
+.drag-drop-list-item.is-dragging {
+  opacity: 0.4;
 }

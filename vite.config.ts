@@ -43,7 +43,11 @@ export default defineConfig(({ mode }) => {
       // },
       // proxy: false,
       proxy: {
-        "/assets": env.VITE_API_PROXY_TARGET,
+        "/assets": {
+          target: env.VITE_API_PROXY_TARGET,
+          changeOrigin: true,
+          secure: false,
+        },
         "/api": {
           target: env.VITE_API_PROXY_TARGET,
           changeOrigin: true,

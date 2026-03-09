@@ -30,7 +30,9 @@
         :placeholder="placeholder"
         :value="modelValue"
         :readonly="readonly"
-        @input="(event) => $emit('update:modelValue', (event.target as HTMLTextAreaElement).value)" />
+        @input="(event) => $emit('update:modelValue', (event.target as HTMLTextAreaElement).value)"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')" />
     </div>
     <slot name="append" />
   </div>
@@ -59,6 +61,8 @@ withDefaults(
 
 defineEmits<{
   (eventName: "update:modelValue", value: string): void;
+  (eventName: "focus"): void;
+  (eventName: "blur"): void;
 }>();
 
 const id = useId();
