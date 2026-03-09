@@ -33,7 +33,7 @@
 
     <PopoverPortal>
       <PopoverContent
-        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-popover p-0 text-popover-foreground shadow-md z-10 max-w-sm"
+        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-inverse-surface p-0 text-inverse-on-surface shadow-md z-10 max-w-sm"
         role="listbox"
         :aria-labelledby="id"
         align="start"
@@ -62,10 +62,8 @@
             role="option"
             :aria-selected="suggestion === modelValue"
             :class="[
-              'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors',
-              index === highlightedIndex
-                ? 'bg-primary-container text-primary'
-                : 'hover:bg-primary-container/50',
+              'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-primary-container hover:text-on-primary-container',
+              index === highlightedIndex && 'bg-primary text-on-primary',
             ]"
             @mousedown.prevent="
               // use mousedown to prevent race condition with input blur
