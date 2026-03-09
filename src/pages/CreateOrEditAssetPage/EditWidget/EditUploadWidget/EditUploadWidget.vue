@@ -64,7 +64,7 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
@@ -100,8 +100,28 @@ const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-const debouncedEmitSave = useDebounceFn(() => emit("save"), 2000, {
-  maxWait: 4_000,
+const hasPendingSave = ref(false);
+
+const debouncedEmitSave = useDebounceFn(
+  () => {
+    emit("save");
+    hasPendingSave.value = false;
+  },
+  2000,
+  {
+    maxWait: 4_000,
+  }
+);
+
+function scheduleSave() {
+  hasPendingSave.value = true;
+  debouncedEmitSave();
+}
+
+onBeforeUnmount(() => {
+  if (hasPendingSave.value) {
+    emit("save");
+  }
 });
 
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
@@ -121,7 +141,7 @@ async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   ] as Type.WithId<Type.UploadWidgetContent>[]);
 
   await nextTick();
-  debouncedEmitSave();
+  scheduleSave();
 }
 
 async function handleDeleteContent(id: string) {
@@ -150,7 +170,7 @@ async function handleDeleteContent(id: string) {
   );
 
   await nextTick();
-  debouncedEmitSave();
+  scheduleSave();
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
