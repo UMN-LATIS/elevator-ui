@@ -1,7 +1,7 @@
 <template>
   <section
     :id="widgetInstanceId"
-    class="edit-widget-layout lg:grid lg:grid-cols-[auto,1fr] lg:gap-4 items-start border-b border-outline-variant pt-3 pb-1"
+    class="edit-widget-layout lg:grid lg:grid-cols-[14rem,1fr] xl:grid-cols-[20rem,1fr] lg:gap-4 items-start border-b border-outline-variant pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
       'cursor-pointer': !isOpen,
@@ -12,7 +12,7 @@
         {{ widgetDef.label }}
       </h2>
       <div
-        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-xs items-center backdrop-blur-md"
+        class="edit-widget-layout__accordion-button-wrapper flex gap-2 justify-between lg:w-48 xl:w-80 items-center backdrop-blur-md"
         :class="{
           'sticky top-[4rem] z-10': isOpen,
         }">
@@ -51,7 +51,7 @@
       </div>
       <small
         v-show="isOpen"
-        class="widget-tooltip block ml-6 my-1"
+        class="widget-tooltip block ml-6 my-1 text-on-surface-variant"
         :class="[
           (widgetDef.required && !hasContents) ||
           (hasContents && !isWidgetValid)
