@@ -158,7 +158,8 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
 
   function addWidget() {
     const textTypeId = fieldTypes.value?.find((ft) => ft.name === "text")?.id ?? 1;
-    form.widgetArray.push(newWidget(form.widgetArray.length + 1, textTypeId));
+    const maxOrder = Math.max(0, ...form.widgetArray.map((w) => w.templateOrder));
+    form.widgetArray.push(newWidget(maxOrder + 1, textTypeId));
   }
 
   function removeWidget(index: number) {

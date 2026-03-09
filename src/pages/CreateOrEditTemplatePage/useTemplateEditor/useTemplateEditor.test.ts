@@ -106,6 +106,20 @@ describe("useTemplateEditor", () => {
     expect(editor.form.widgetArray[2].templateOrder).toBe(3);
   });
 
+  it("addWidget after removing a middle widget assigns a unique templateOrder", () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+    editor.addWidget();
+    editor.addWidget(); // orders: [1, 2, 3]
+    editor.removeWidget(1); // remove order 2; remaining: [1, 3]
+    editor.addWidget(); // must get order 4, not 3 (which is already taken)
+
+    const orders = editor.form.widgetArray.map((w) => w.templateOrder);
+    const uniqueOrders = new Set(orders);
+    expect(uniqueOrders.size).toBe(orders.length);
+    expect(Math.max(...orders)).toBe(4);
+  });
+
   it("removeWidget removes the widget at the given index and leaves others intact", () => {
     const editor = useTemplateEditor(() => null);
     editor.addWidget();
