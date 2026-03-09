@@ -20,15 +20,18 @@
     <template v-else>
       <DropDownItem
         v-if="instance.useCentralAuth && instance.centralAuthLabel"
+        class="auth-drop-down__remote-login"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`">
         {{ instance.centralAuthLabel }} Login
       </DropDownItem>
-      <DropDownItem :to="`/loginManager/localLogin/?redirect=${route.path}`">
+      <DropDownItem
+        class="auth-drop-down__local-login"
+        :to="`/loginManager/localLogin/?redirect=${route.path}`">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
           <!--
           The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
         --></span>
-Login
+        Login
       </DropDownItem>
     </template>
   </DropDown>

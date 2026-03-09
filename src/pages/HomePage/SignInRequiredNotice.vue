@@ -9,7 +9,7 @@
       <Button
         :to="`/loginManager/localLogin/?redirect=${$route.path}`"
         variant="tertiary"
-        class="border border-primary py-2 px-4">
+        class="sign-in-required__local-login border border-primary py-2 px-4">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
           <!--
           The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
@@ -20,7 +20,7 @@
         v-if="instance.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
         variant="tertiary"
-        class="border border-primary py-2 px-4">
+        class="sign-in-required__remote-login border border-primary py-2 px-4">
         {{ instance.centralAuthLabel }} Login
       </Button>
     </div>
