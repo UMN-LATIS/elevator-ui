@@ -24,7 +24,6 @@ defineProps<{
   offLabel?: string;
   onLabel?: string;
   onLabelClass?: CSSClass;
-  offLabelClass?: CSSClass;
 }>();
 
 defineEmits<{
