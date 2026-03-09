@@ -1035,6 +1035,7 @@ function serializeTemplatePayload(
     const p = (field: string, value: string) =>
       params.append(`widget[${i}][${field}]`, value);
 
+    if (widget.widgetId !== undefined) p("widgetId", String(widget.widgetId));
     p("fieldTitle", widget.fieldTitle ?? "");
     p("label", widget.label);
     p("tooltip", widget.tooltip);
