@@ -39,7 +39,7 @@
         :asset="assetEditor.localAsset!"
         :savedAssetTitle="assetEditor.savedAssetTitle"
         :localAssetTitle="assetEditor.localAssetTitle"
-        :saveStatus="assetEditor.saveAssetStatus"
+        :saveStatus="assetEditor.saveAssetIndicator"
         :hasUnsavedChanges="assetEditor.hasAssetChanged"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
