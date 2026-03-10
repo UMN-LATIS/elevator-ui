@@ -59,12 +59,13 @@
         v-show="widgetDef.allowMultiple || !hasContents"
         :collectionId="props.collectionId"
         :maxNumberOfFiles="widgetDef.allowMultiple ? undefined : 1"
-        @complete="handleCompleteUpload" />
+        @complete="handleCompleteUpload"
+        @allComplete="handleAllComplete" />
     </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, ref } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
@@ -100,8 +101,37 @@ const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-const debouncedEmitSave = useDebounceFn(() => emit("save"), 500, {
-  maxWait: 2000,
+const hasPendingSave = ref(false);
+
+const debouncedEmitSave = useDebounceFn(
+  () => {
+    // Guard against double-save: handleAllComplete may have already saved
+    if (!hasPendingSave.value) return;
+    emit("save");
+    hasPendingSave.value = false;
+  },
+  2000,
+  {
+    maxWait: 4_000,
+  }
+);
+
+function scheduleSave() {
+  hasPendingSave.value = true;
+  debouncedEmitSave();
+}
+
+function handleAllComplete() {
+  if (!hasPendingSave.value) return;
+  // Clear the flag first so the still-pending debounce becomes a no-op
+  hasPendingSave.value = false;
+  emit("save");
+}
+
+onBeforeUnmount(() => {
+  if (hasPendingSave.value) {
+    emit("save");
+  }
 });
 
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
@@ -121,7 +151,7 @@ async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   ] as Type.WithId<Type.UploadWidgetContent>[]);
 
   await nextTick();
-  debouncedEmitSave();
+  scheduleSave();
 }
 
 async function handleDeleteContent(id: string) {
@@ -150,7 +180,7 @@ async function handleDeleteContent(id: string) {
   );
 
   await nextTick();
-  debouncedEmitSave();
+  scheduleSave();
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
