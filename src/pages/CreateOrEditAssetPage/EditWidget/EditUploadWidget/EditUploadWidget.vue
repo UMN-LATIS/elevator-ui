@@ -59,7 +59,8 @@
         v-show="widgetDef.allowMultiple || !hasContents"
         :collectionId="props.collectionId"
         :maxNumberOfFiles="widgetDef.allowMultiple ? undefined : 1"
-        @complete="handleCompleteUpload" />
+        @complete="handleCompleteUpload"
+        @allComplete="handleAllComplete" />
     </template>
   </EditWidgetLayout>
 </template>
@@ -104,6 +105,8 @@ const hasPendingSave = ref(false);
 
 const debouncedEmitSave = useDebounceFn(
   () => {
+    // Guard against double-save: handleAllComplete may have already saved
+    if (!hasPendingSave.value) return;
     emit("save");
     hasPendingSave.value = false;
   },
@@ -116,6 +119,13 @@ const debouncedEmitSave = useDebounceFn(
 function scheduleSave() {
   hasPendingSave.value = true;
   debouncedEmitSave();
+}
+
+function handleAllComplete() {
+  if (!hasPendingSave.value) return;
+  // Clear the flag first so the still-pending debounce becomes a no-op
+  hasPendingSave.value = false;
+  emit("save");
 }
 
 onBeforeUnmount(() => {
