@@ -1,6 +1,6 @@
 import * as T from "@/types";
-import { MutationStatus } from "@tanstack/vue-query";
-import { computed, inject, nextTick, reactive, toRefs } from "vue";
+import { type MutationStatus } from "@tanstack/vue-query";
+import { computed, inject, nextTick, reactive, ref, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
@@ -10,6 +10,7 @@ import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
@@ -17,7 +18,6 @@ interface AssetEditorState {
   savedAsset: T.Asset | null;
   template: T.Template | null;
   isInitialized: boolean;
-  saveAssetStatus: MutationStatus;
   modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
   isTemplateLoading?: boolean;
 }
@@ -28,7 +28,6 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
   savedAsset: null,
   template: null,
   isInitialized: false,
-  saveAssetStatus: "idle",
   isTemplateLoading: false,
 
   // inline related assets are part of this local asset
@@ -53,6 +52,13 @@ export const createAssetEditor = () => {
   );
 
   const instanceStore = useInstanceStore();
+  const updateAssetMutation = useUpdateAssetMutation();
+
+  // Mirrors mutation status but delays the "idle" reset so the success/error
+  // indicator stays visible for a few seconds after a save completes.
+  const saveAssetIndicator = ref<MutationStatus>("idle");
+  let successResetTimer: ReturnType<typeof setTimeout> | null = null;
+  let errorResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   ////////////////////////////////////////////////
   // COMPUTED
@@ -198,10 +204,51 @@ export const createAssetEditor = () => {
     return initExistingAsset(state.localAsset.assetId, { force: true });
   }
 
+  // Coalescing save queue: any number of concurrent saveAsset() callers share
+  // a single loop that runs at most one save at a time. A 2s cooldown between
+  // saves prevents rapid-fire requests while still persisting data promptly.
+  // This ensures the assetId from the first CREATE is always written back to
+  // localAsset before any subsequent save reads it, preventing duplicate assets.
+  const SAVE_COOLDOWN_MS = 2000;
+  const sleep = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+  let saveLoopPromise: Promise<void> | null = null;
+  let hasPendingSave = false;
+
+  async function runSaveLoop(): Promise<void> {
+    try {
+      while (hasPendingSave) {
+        hasPendingSave = false;
+        await doSave();
+        if (hasPendingSave) {
+          console.debug("[useAssetEditor] save cooldown before next save");
+          await sleep(SAVE_COOLDOWN_MS);
+        }
+      }
+    } finally {
+      saveLoopPromise = null;
+    }
+  }
+
   /**
-   * Save the current local asset to the backend
+   * Save the current local asset to the backend.
+   *
+   * Coalescing: concurrent callers all share the same in-flight loop and
+   * receive the same promise. The loop runs one save at a time with a 2s
+   * cooldown between saves, collapsing any number of queued requests into
+   * at most one pending save.
    */
-  async function saveAsset(): Promise<void> {
+  function saveAsset(): Promise<void> {
+    if (successResetTimer) clearTimeout(successResetTimer);
+    if (errorResetTimer) clearTimeout(errorResetTimer);
+    saveAssetIndicator.value = "pending";
+
+    hasPendingSave = true;
+    saveLoopPromise ??= runSaveLoop();
+    return saveLoopPromise;
+  }
+
+  async function doSave(): Promise<void> {
     invariant(state.localAsset, "Cannot save: no local asset");
     invariant(state.template, "Cannot save: no template");
     invariant(
@@ -209,66 +256,75 @@ export const createAssetEditor = () => {
       "Cannot save: localAsset.templateId !== template.templateId"
     );
 
-    if (state.saveAssetStatus === "pending") {
-      // TODO: if already saving, wait until the current save is done? and return that promise?
-      // For now, just log a warning
-      console.warn("Already saving asset, waiting for current save to finish.");
-    }
+    await runBeforeSaveCallbacks();
 
-    state.saveAssetStatus = "pending";
+    // toSaveableFormData uses state.localAsset.assetId (not the route prop) to
+    // decide create vs. update: empty string = create, non-empty = update.
+    // localAsset.assetId is the editor's source of truth — after the first save
+    // populates it, all subsequent saves (including auto-saves from upload
+    // widgets before the URL has been updated) correctly send an update.
+    const formData = toSaveableFormData(state.localAsset, state.template);
+    const isCreate = !state.localAsset.assetId;
+
+    console.debug("[useAssetEditor] doSave: saving asset", {
+      operation: isCreate ? "CREATE" : "UPDATE",
+      assetId: state.localAsset.assetId || "(new)",
+      templateId: state.template.templateId,
+      collectionId: state.localAsset.collectionId,
+    });
+
+    if (successResetTimer) clearTimeout(successResetTimer);
+    if (errorResetTimer) clearTimeout(errorResetTimer);
+    saveAssetIndicator.value = "pending";
+
+    let objectId: string;
     try {
-      await runBeforeSaveCallbacks();
-
-      const formData = toSaveableFormData(state.localAsset, state.template);
-
-      const { objectId } = await fetchers.updateAsset(formData);
-      invariant(objectId, "Expected objectId to be defined after saveAsset");
-
-      const savedAsset = await fetchers.fetchAsset(objectId);
-      invariant(
-        savedAsset,
-        "Expected saved asset to be defined after saveAsset"
-      );
-
-      state.savedAsset = savedAsset;
-
-      // make some targeted updates to the local asset to avoid unnecessary reactivity
-      state.localAsset.assetId = savedAsset.assetId;
-      state.localAsset.title = savedAsset.title;
-      state.localAsset.modified = savedAsset.modified;
-      state.localAsset.modifiedBy = savedAsset.modifiedBy;
-      state.localAsset.firstFileHandlerId = savedAsset.firstFileHandlerId;
-
-      // clear any upload widget `regenerate` flags
-      const uploadWidgetItems = state.template.widgetArray
-        .filter((w) => w.type === T.WIDGET_TYPES.UPLOAD)
-        .flatMap(
-          (w) =>
-            state.localAsset?.[
-              w.fieldTitle
-            ] as T.WithId<T.UploadWidgetContent>[]
-        )
-        .filter(Boolean);
-
-      uploadWidgetItems.forEach((item) => {
-        item.regenerate = undefined;
+      ({ objectId } = await updateAssetMutation.mutateAsync(formData));
+      console.debug("[useAssetEditor] doSave: save succeeded", {
+        objectId,
+        operation: isCreate ? "CREATE" : "UPDATE",
       });
-
-      state.saveAssetStatus = "success";
-      setTimeout(() => {
-        state.saveAssetStatus = "idle"; // Reset status after a delay
+      saveAssetIndicator.value = "success";
+      successResetTimer = setTimeout(() => {
+        saveAssetIndicator.value = "idle";
       }, 3000);
     } catch (err) {
-      console.error(`Cannot save asset: ${err}`);
-
-      state.saveAssetStatus = "error";
-
-      setTimeout(() => {
-        state.saveAssetStatus = "idle"; // Reset status after a delay
+      console.debug("[useAssetEditor] doSave: save failed", {
+        error: err,
+        assetId: state.localAsset?.assetId || "(new)",
+      });
+      saveAssetIndicator.value = "error";
+      errorResetTimer = setTimeout(() => {
+        saveAssetIndicator.value = "idle";
       }, 10000);
-
       throw err;
     }
+    invariant(objectId, "Expected objectId to be defined after saveAsset");
+
+    const savedAsset = await fetchers.fetchAsset(objectId);
+    invariant(savedAsset, "Expected saved asset to be defined after saveAsset");
+
+    state.savedAsset = savedAsset;
+
+    // make some targeted updates to the local asset to avoid unnecessary reactivity
+    state.localAsset.assetId = savedAsset.assetId;
+    state.localAsset.title = savedAsset.title;
+    state.localAsset.modified = savedAsset.modified;
+    state.localAsset.modifiedBy = savedAsset.modifiedBy;
+    state.localAsset.firstFileHandlerId = savedAsset.firstFileHandlerId;
+
+    // clear any upload widget `regenerate` flags
+    const uploadWidgetItems = state.template.widgetArray
+      .filter((w) => w.type === T.WIDGET_TYPES.UPLOAD)
+      .flatMap(
+        (w) =>
+          state.localAsset?.[w.fieldTitle] as T.WithId<T.UploadWidgetContent>[]
+      )
+      .filter(Boolean);
+
+    uploadWidgetItems.forEach((item) => {
+      item.regenerate = undefined;
+    });
   }
 
   async function updateCollection(newCollectionId: number): Promise<void> {
@@ -336,7 +392,13 @@ export const createAssetEditor = () => {
       await migrateToTemplate(updatedAsset.templateId);
     }
 
-    state.localAsset = updatedAsset;
+    state.localAsset = {
+      ...updatedAsset,
+      // if updatedAsset contains a stale empty (new) assetId,
+      // but current localAsset has a non-empty assetId, preserve the
+      // non-empty one to prevent accidentally creating a new asset on save.
+      assetId: updatedAsset.assetId || state.localAsset.assetId,
+    };
   }
 
   function updateAssetField(
@@ -390,6 +452,7 @@ export const createAssetEditor = () => {
     localAssetTitle,
     savedAssetTitle,
     hasAssetChanged,
+    saveAssetIndicator,
     lastModified: computed(() => {
       if (!state.localAsset?.modified?.date) return null;
       return new Date(state.localAsset.modified.date).toLocaleString();
