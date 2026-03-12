@@ -64,14 +64,13 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
   }
 
   /**
-   * Requests a save. If a save is already in progress, it will be
-   * - If the save loop is not running, start it.
-   * - If it is, just set the pending flag to signal we
-   *  need to save again after the current save finishes.
+   * Requests a save. If the save loop is not running, start it.
+   * If it is already running, set the pending flag to signal we
+   * need to save again after the current save finishes.
    *
    * @returns a promise that resolves when the save completes, or rejects if it fails
    */
-  async function save() {
+  function save() {
     return new Promise<void>((resolve, reject) => {
       hasPendingSave = true;
 
@@ -81,8 +80,6 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
       if (!saveLoopPromise) {
         saveLoopPromise = runSaveLoop();
       }
-
-      return saveLoopPromise;
     });
   }
 
