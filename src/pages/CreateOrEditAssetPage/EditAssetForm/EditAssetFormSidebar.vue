@@ -16,7 +16,7 @@
         variant="primary"
         type="submit"
         :disabled="!isAssetValid || displayStatus === 'pending'"
-        @click="$emit('save')">
+        @click="handleSave">
         Save
         <SpinnerIcon
           v-if="displayStatus === 'pending'"
@@ -239,6 +239,11 @@ watch(
 function handleUpdateTemplateId(templateId: number | string | null) {
   invariant(typeof templateId === "number", "Template ID must be a number");
   emit("update:templateId", templateId);
+}
+
+function handleSave() {
+  displayStatus.value = "pending";
+  emit("save");
 }
 
 function handleUpdateCollectionId(collectionId: number | string | null) {
