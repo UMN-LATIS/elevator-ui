@@ -11,7 +11,7 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
   // should save again after this save finishes
   let hasPendingSave = false;
 
-  // as each save is requested, we'll add its promised
+  // as each save is requested, we'll add its promise's
   // resolve/reject to these sets, and call them when
   // the next save finishes
   const resolveCallbacks = new Set<() => void>();
