@@ -15,14 +15,16 @@
       <Button
         variant="primary"
         type="submit"
-        :disabled="!isAssetValid || saveStatus === 'pending'"
+        :disabled="!isAssetValid || displayStatus === 'pending'"
         @click="$emit('save')">
         Save
         <SpinnerIcon
-          v-if="saveStatus === 'pending'"
+          v-if="displayStatus === 'pending'"
           class="size-4 animate-spin" />
-        <TriangleAlert v-else-if="saveStatus === 'error'" class="size-4" />
-        <CheckCircle2Icon v-else-if="saveStatus === 'success'" class="size-4" />
+        <TriangleAlert v-else-if="displayStatus === 'error'" class="size-4" />
+        <CheckCircle2Icon
+          v-else-if="displayStatus === 'success'"
+          class="size-4" />
       </Button>
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
@@ -111,7 +113,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onUnmounted, reactive, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
@@ -144,6 +146,31 @@ const emit = defineEmits<{
 
 const state = reactive({
   localCollectionId: props.asset.collectionId,
+});
+
+// Hold success/error visible for a few seconds after a save, then reset to idle.
+// This is pure UI state — the raw mutation status resets only on the next save.
+const displayStatus = ref<MutationStatus>("idle");
+let displayTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(
+  () => props.saveStatus,
+  (status) => {
+    if (displayTimer) clearTimeout(displayTimer);
+    if (status === "pending") {
+      displayStatus.value = "pending";
+    } else if (status === "success") {
+      displayStatus.value = "success";
+      displayTimer = setTimeout(() => (displayStatus.value = "idle"), 3000);
+    } else if (status === "error") {
+      displayStatus.value = "error";
+      displayTimer = setTimeout(() => (displayStatus.value = "idle"), 10000);
+    }
+  }
+);
+
+onUnmounted(() => {
+  if (displayTimer) clearTimeout(displayTimer);
 });
 
 // Use controlled value for template ID - either selected or asset's current

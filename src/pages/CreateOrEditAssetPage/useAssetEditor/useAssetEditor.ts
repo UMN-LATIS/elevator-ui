@@ -1,6 +1,5 @@
 import * as T from "@/types";
-import { type MutationStatus } from "@tanstack/vue-query";
-import { computed, inject, nextTick, reactive, ref, toRefs } from "vue";
+import { computed, inject, nextTick, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   hasAssetChanged as hasAssetChangedPure,
@@ -11,6 +10,7 @@ import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
+import { createSaveQueue } from "./createSaveQueue";
 
 interface AssetEditorState {
   editorId: string; // unique ID for this editor instance
@@ -53,12 +53,6 @@ export const createAssetEditor = () => {
 
   const instanceStore = useInstanceStore();
   const updateAssetMutation = useUpdateAssetMutation();
-
-  // Mirrors mutation status but delays the "idle" reset so the success/error
-  // indicator stays visible for a few seconds after a save completes.
-  const saveAssetIndicator = ref<MutationStatus>("idle");
-  let successResetTimer: ReturnType<typeof setTimeout> | null = null;
-  let errorResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   ////////////////////////////////////////////////
   // COMPUTED
@@ -204,48 +198,21 @@ export const createAssetEditor = () => {
     return initExistingAsset(state.localAsset.assetId, { force: true });
   }
 
-  // Coalescing save queue: any number of concurrent saveAsset() callers share
-  // a single loop that runs at most one save at a time. A 2s cooldown between
-  // saves prevents rapid-fire requests while still persisting data promptly.
-  // This ensures the assetId from the first CREATE is always written back to
-  // localAsset before any subsequent save reads it, preventing duplicate assets.
-  const SAVE_COOLDOWN_MS = 2000;
-  const sleep = (ms: number): Promise<void> =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-  let saveLoopPromise: Promise<void> | null = null;
-  let hasPendingSave = false;
-
-  async function runSaveLoop(): Promise<void> {
-    try {
-      while (hasPendingSave) {
-        hasPendingSave = false;
-        await doSave();
-        if (hasPendingSave) {
-          console.debug("[useAssetEditor] save cooldown before next save");
-          await sleep(SAVE_COOLDOWN_MS);
-        }
-      }
-    } finally {
-      saveLoopPromise = null;
-    }
-  }
+  // Coalescing save queue: at most one save in flight, with a 2s cooldown
+  // between saves. Ensures the assetId from the first CREATE is written back
+  // before any subsequent save reads it, preventing duplicate assets.
+  const { save: enqueueSave } = createSaveQueue(doSave, 2000);
 
   /**
    * Save the current local asset to the backend.
    *
-   * Coalescing: concurrent callers all share the same in-flight loop and
-   * receive the same promise. The loop runs one save at a time with a 2s
-   * cooldown between saves, collapsing any number of queued requests into
+   * Coalescing: concurrent callers all share the same in-flight save and
+   * receive individual promises that resolve together. The queue enforces a
+   * 2s cooldown between saves, collapsing any number of queued requests into
    * at most one pending save.
    */
   function saveAsset(): Promise<void> {
-    if (successResetTimer) clearTimeout(successResetTimer);
-    if (errorResetTimer) clearTimeout(errorResetTimer);
-    saveAssetIndicator.value = "pending";
-
-    hasPendingSave = true;
-    saveLoopPromise ??= runSaveLoop();
-    return saveLoopPromise;
+    return enqueueSave();
   }
 
   async function doSave(): Promise<void> {
@@ -273,32 +240,11 @@ export const createAssetEditor = () => {
       collectionId: state.localAsset.collectionId,
     });
 
-    if (successResetTimer) clearTimeout(successResetTimer);
-    if (errorResetTimer) clearTimeout(errorResetTimer);
-    saveAssetIndicator.value = "pending";
-
-    let objectId: string;
-    try {
-      ({ objectId } = await updateAssetMutation.mutateAsync(formData));
-      console.debug("[useAssetEditor] doSave: save succeeded", {
-        objectId,
-        operation: isCreate ? "CREATE" : "UPDATE",
-      });
-      saveAssetIndicator.value = "success";
-      successResetTimer = setTimeout(() => {
-        saveAssetIndicator.value = "idle";
-      }, 3000);
-    } catch (err) {
-      console.debug("[useAssetEditor] doSave: save failed", {
-        error: err,
-        assetId: state.localAsset?.assetId || "(new)",
-      });
-      saveAssetIndicator.value = "error";
-      errorResetTimer = setTimeout(() => {
-        saveAssetIndicator.value = "idle";
-      }, 10000);
-      throw err;
-    }
+    const { objectId } = await updateAssetMutation.mutateAsync(formData);
+    console.debug("[useAssetEditor] doSave: save succeeded", {
+      objectId,
+      operation: isCreate ? "CREATE" : "UPDATE",
+    });
     invariant(objectId, "Expected objectId to be defined after saveAsset");
 
     const savedAsset = await fetchers.fetchAsset(objectId);
@@ -452,7 +398,7 @@ export const createAssetEditor = () => {
     localAssetTitle,
     savedAssetTitle,
     hasAssetChanged,
-    saveAssetIndicator,
+    saveAssetIndicator: updateAssetMutation.status,
     lastModified: computed(() => {
       if (!state.localAsset?.modified?.date) return null;
       return new Date(state.localAsset.modified.date).toLocaleString();
