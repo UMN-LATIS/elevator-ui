@@ -59,13 +59,12 @@
         v-show="widgetDef.allowMultiple || !hasContents"
         :collectionId="props.collectionId"
         :maxNumberOfFiles="widgetDef.allowMultiple ? undefined : 1"
-        @complete="handleCompleteUpload"
-        @allComplete="handleAllComplete" />
+        @complete="handleCompleteUpload" />
     </template>
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
@@ -78,7 +77,6 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { VerticalDotsIcon } from "@/icons";
 import { Circle } from "lucide-vue-next";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
-import { useDebounceFn } from "@vueuse/core";
 
 const props = defineProps<{
   collectionId: number;
@@ -101,39 +99,6 @@ const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-const hasPendingSave = ref(false);
-
-const debouncedEmitSave = useDebounceFn(
-  () => {
-    // Guard against double-save: handleAllComplete may have already saved
-    if (!hasPendingSave.value) return;
-    emit("save");
-    hasPendingSave.value = false;
-  },
-  2000,
-  {
-    maxWait: 4_000,
-  }
-);
-
-function scheduleSave() {
-  hasPendingSave.value = true;
-  debouncedEmitSave();
-}
-
-function handleAllComplete() {
-  if (!hasPendingSave.value) return;
-  // Clear the flag first so the still-pending debounce becomes a no-op
-  hasPendingSave.value = false;
-  emit("save");
-}
-
-onBeforeUnmount(() => {
-  if (hasPendingSave.value) {
-    emit("save");
-  }
-});
-
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
@@ -150,8 +115,10 @@ async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
     uploadedItem,
   ] as Type.WithId<Type.UploadWidgetContent>[]);
 
+  // Wait for Vue to flush the state update into localAsset before saving,
+  // so the new file is included in the save payload.
   await nextTick();
-  scheduleSave();
+  emit("save");
 }
 
 async function handleDeleteContent(id: string) {
@@ -180,7 +147,7 @@ async function handleDeleteContent(id: string) {
   );
 
   await nextTick();
-  scheduleSave();
+  emit("save");
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
