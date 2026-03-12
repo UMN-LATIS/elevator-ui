@@ -8,10 +8,18 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 test.describe("Race condition: no duplicate assets on concurrent saves", () => {
   test.beforeEach(async ({ page, request }) => {
     await page.route("**/arcgis.com/**", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: "{}" })
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}",
+      })
     );
     await page.route("**/basemaps-api.arcgis.com/**", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: "{}" })
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}",
+      })
     );
     const workerId = test.info().workerIndex.toString();
     await setupWorkerHTTPHeader({ page, workerId });
@@ -46,10 +54,14 @@ test.describe("Race condition: no duplicate assets on concurrent saves", () => {
     // Select the "Multiple Upload Widgets" template so there are two independent
     // upload widgets, each with its own debounce — maximising the chance that
     // both fire their saves within the race window.
-    await page.getByLabel("Template").selectOption({ label: "Multiple Upload Widgets" });
+    await page
+      .getByLabel("Template")
+      .selectOption({ label: "Multiple Upload Widgets" });
     await page.getByLabel("Collection").selectOption({ index: 1 });
     await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.getByRole("heading", { name: "Create Asset" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Create Asset" })
+    ).toBeVisible();
 
     await page.getByLabel("Title").fill("Race condition test asset");
 
@@ -166,6 +178,9 @@ test.describe("Multiple File Upload", () => {
     // verify that the image widget now has 4 entries
     const imageEntries = imageWidget.locator(".edit-upload-widget-item");
     await expect(imageEntries).toHaveCount(4);
+
+    // sleep for 4s to accommodate save cooldown
+    await new Promise((r) => setTimeout(r, 4000));
 
     // wait for network requests to complete
     await page.waitForLoadState("networkidle");
