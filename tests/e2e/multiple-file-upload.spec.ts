@@ -202,6 +202,7 @@ test.describe("Multiple File Upload", () => {
   });
 
   test("multiple upload widgets in the same template", async ({ page }) => {
+    test.setTimeout(30000);
     await expect(page).toHaveURL(/\/assetManager\/addAsset/);
 
     // Select template and collection
@@ -277,6 +278,9 @@ test.describe("Multiple File Upload", () => {
     await expect(
       singleUploadWidget.locator(".edit-upload-widget-item")
     ).toHaveCount(1);
+
+    // sleep for 4s to accommodate save cooldown (same as the single-widget test above)
+    await new Promise((r) => setTimeout(r, 4000));
 
     // wait for network requests to complete
     await page.waitForLoadState("networkidle");
