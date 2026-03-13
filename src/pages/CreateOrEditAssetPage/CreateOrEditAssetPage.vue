@@ -39,12 +39,13 @@
         :asset="assetEditor.localAsset!"
         :savedAssetTitle="assetEditor.savedAssetTitle"
         :localAssetTitle="assetEditor.localAssetTitle"
-        :saveStatus="assetEditor.saveAssetStatus"
+        :saveStatus="assetEditor.saveAssetIndicator"
         :hasUnsavedChanges="assetEditor.hasAssetChanged"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
-        @save="handleSaveAsset"
+        @save="handleSaveAsset({ showToast: true })"
+        @autoSave="handleSaveAsset({ showToast: false })"
         @update:asset="assetEditor.updateLocalAsset($event)" />
     </Transition>
     <Teleport to="body">
@@ -226,17 +227,10 @@ const route = useRoute();
 const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
 
-async function handleSaveAsset() {
+async function handleSaveAsset({ showToast }: { showToast: boolean }) {
   const isNewAsset = !props.assetId;
   try {
     await assetEditor.saveAsset();
-
-    toastStore.addToast({
-      title: "Saved",
-      message: `Asset saved successfully.`,
-      variant: "success",
-      duration: 3000,
-    });
 
     invariant(
       assetEditor.localAsset?.assetId,
@@ -274,15 +268,26 @@ async function handleSaveAsset() {
         preserveScroll: true,
       },
     });
+
+    if (showToast) {
+      toastStore.addToast({
+        title: "Saved",
+        message: `Asset saved successfully.`,
+        variant: "success",
+        duration: 3000,
+      });
+    }
   } catch (error) {
     invariant(error instanceof Error);
-    // handle error, e.g. show a toast
     console.error("Error saving asset:", error);
-    toastStore.addToast({
-      title: "Error",
-      message: `Failed to save asset: ${error.message}`,
-      variant: "error",
-    });
+
+    if (showToast) {
+      toastStore.addToast({
+        title: "Error",
+        message: `Failed to save asset: ${error.message}`,
+        variant: "error",
+      });
+    }
   }
 }
 
@@ -352,7 +357,7 @@ async function updateTemplateId() {
   await assetEditor.migrateToTemplate(state.destTemplateId);
 
   // save and replace route
-  handleSaveAsset();
+  handleSaveAsset({ showToast: true });
 }
 
 // provide the asset editor to child components

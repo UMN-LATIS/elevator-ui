@@ -77,7 +77,6 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { VerticalDotsIcon } from "@/icons";
 import { Circle } from "lucide-vue-next";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
-import { useDebounceFn } from "@vueuse/core";
 
 const props = defineProps<{
   collectionId: number;
@@ -100,10 +99,6 @@ const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-const debouncedEmitSave = useDebounceFn(() => emit("save"), 500, {
-  maxWait: 2000,
-});
-
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
@@ -120,8 +115,10 @@ async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
     uploadedItem,
   ] as Type.WithId<Type.UploadWidgetContent>[]);
 
+  // Wait for Vue to flush the state update into localAsset before saving,
+  // so the new file is included in the save payload.
   await nextTick();
-  debouncedEmitSave();
+  emit("save");
 }
 
 async function handleDeleteContent(id: string) {
@@ -150,7 +147,7 @@ async function handleDeleteContent(id: string) {
   );
 
   await nextTick();
-  debouncedEmitSave();
+  emit("save");
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
