@@ -148,6 +148,11 @@ app.patch("/_tests/instance/update", async (c) => {
   return c.json({ success: true, instance: updatedInstance });
 });
 
+app.get("/_tests/db/assets/count", (c) => {
+  const db = c.get("db");
+  return c.json({ count: db.assets.size() });
+});
+
 // Endpoint that delays response to test timeout behavior
 app.get("/_tests/slow-image.jpg", async (c) => {
   // Delay for 15 seconds (longer than the 10-second timeout in onAllImagesLoaded)

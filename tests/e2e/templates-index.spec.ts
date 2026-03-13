@@ -6,6 +6,8 @@ const TEMPLATE_NAMES_INSERTION_ORDER = [
   "Broken Template (for testing)",
   "Some Fields",
   "All Fields Test",
+  "Inline Child Template",
+  "Inline Parent Template",
   "Multiple Upload Widgets",
   "All Fields with Autocomplete",
 ];
