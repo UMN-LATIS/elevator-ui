@@ -78,6 +78,28 @@ export async function loginUser({
   }
 }
 
+export async function getAssetCount({
+  request,
+  workerId,
+}: {
+  request: APIRequestContext;
+  workerId: string;
+}): Promise<number> {
+  const response = await request.get(
+    `${MOCK_SERVER_BASE}/_tests/db/assets/count`,
+    { headers: { "x-worker-id": workerId } }
+  );
+
+  if (!response.ok()) {
+    throw new Error(
+      `Failed to get asset count: ${response.status()} ${await response.text()}`
+    );
+  }
+
+  const { count } = await response.json();
+  return count;
+}
+
 export async function updateInstance({
   request,
   workerId,
