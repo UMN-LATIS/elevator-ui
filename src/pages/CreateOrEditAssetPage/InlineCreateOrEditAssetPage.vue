@@ -95,10 +95,7 @@ import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import {
-  useAssetValidationProvider,
-  useAssetValidation,
-} from "./useAssetEditor/useAssetValidation";
+import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
 
 // Depth tracking to prevent infinite recursion with self-referencing templates
 const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";
@@ -135,12 +132,11 @@ const assetEditor = createAssetEditor();
 // Provide this inline editor to child components
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
-useAssetValidationProvider(
+const { isBlank } = useAssetValidationProvider(
   () => assetEditor.localAsset,
   () => assetEditor.template,
   assetEditor.getWidgetInstanceId
 );
-const { isBlank } = useAssetValidation();
 
 onMounted(async () => {
   // Bail out early if depth limit exceeded to prevent infinite recursion
