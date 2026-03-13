@@ -33,8 +33,13 @@ test.describe("Inline Related Asset", () => {
     const continueButton = page.getByRole("button", { name: "Continue" });
     await continueButton.click();
 
-    // Wait for the inline child form to appear
-    await expect(page.locator(".inline-edit-asset-page")).toBeVisible();
+    // Wait for the inline child form to finish initializing.
+    // The template name appears in an h3 once initNewAsset has completed.
+    await expect(
+      page.locator(".inline-edit-asset-page h3", {
+        hasText: "Inline Child Template",
+      })
+    ).toBeVisible();
 
     // Fill in the parent title only — deliberately leave the inline child form empty
     const titleField = page.getByLabel(/title/i).first();
