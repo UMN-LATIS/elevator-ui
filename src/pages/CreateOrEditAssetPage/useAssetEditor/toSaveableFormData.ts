@@ -58,18 +58,23 @@ function prepWidgetsForSave(
       | WidgetContent[]
       | undefined;
 
-    if (!widgetContents) return acc;
+    if (!Array.isArray(widgetContents)) return acc;
 
-    const cleanedWidgetContents = widgetContents.map((content) => {
-      const contentWithoutId = omit(["id"], content);
-      if (
-        widgetDef.type === WIDGET_TYPES.TEXT_AREA &&
-        isTextAreaWidgetContent(contentWithoutId)
-      ) {
-        return cleanTextAreaWidgetContent(contentWithoutId);
-      }
-      return contentWithoutId;
-    });
+    // Filter out empty/null entries the backend may have stored (e.g. `{}`
+    // for upload fields whose file handlers were deleted). This prevents
+    // corrupted data from being round-tripped back on the next save.
+    const cleanedWidgetContents = widgetContents
+      .filter((content) => content != null && Object.keys(content).length > 0)
+      .map((content) => {
+        const contentWithoutId = omit(["id"], content);
+        if (
+          widgetDef.type === WIDGET_TYPES.TEXT_AREA &&
+          isTextAreaWidgetContent(contentWithoutId)
+        ) {
+          return cleanTextAreaWidgetContent(contentWithoutId);
+        }
+        return contentWithoutId;
+      });
 
     return {
       ...acc,
