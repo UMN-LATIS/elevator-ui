@@ -7,7 +7,9 @@
           <Button variant="primary" class="mb-4">Add Asset</Button>
         </RouterLink>
       </div>
-      <p v-if="!allUserAssets.length" class="text-lg">No assets found.</p>
+      <p v-if="!isFetching && !allUserAssets.length" class="text-lg">
+        No assets found.
+      </p>
       <UserAssetsTable
         v-else
         :columns="columns"
@@ -25,7 +27,7 @@ import UserAssetsTable from "./UserAssetsTable.vue";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
 
-const { data: allUserAssets } = useAllUserAssets();
+const { data: allUserAssets, isFetching } = useAllUserAssets();
 
 const { mutate: deleteAsset } = useDeleteAssetMutation();
 const errorStore = useErrorStore();
