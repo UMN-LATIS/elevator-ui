@@ -53,6 +53,7 @@ describe("AllUserAssetsPage", () => {
   it("does not show 'No assets found.' while the fetch is in flight", () => {
     const wrapper = mount({ isFetching: true, data: [] });
     expect(wrapper.text()).not.toContain("No assets found.");
+    expect(wrapper.text()).not.toContain("No results.");
   });
 
   it("shows 'No assets found.' when fetch completes with no results", () => {
