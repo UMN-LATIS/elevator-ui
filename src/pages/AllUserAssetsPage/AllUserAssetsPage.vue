@@ -3,7 +3,7 @@
     <div class="container py-10 mx-auto">
       <div class="flex justify-between items-center">
         <h1 class="text-4xl font-bold my-8">All My Assets</h1>
-        <RouterLink :to="{ name: 'editAsset' }" asChild>
+        <RouterLink :to="{ path: '/assetManager/addAsset' }" asChild>
           <Button variant="primary" class="mb-4">Add Asset</Button>
         </RouterLink>
       </div>
