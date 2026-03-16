@@ -40,6 +40,12 @@ export function getWidgetContents<
 
   if (!widgetContents) return null;
 
+  // The backend can return empty objects `{}` for upload entries whose file
+  // handlers were deleted. Filter them out before they reach widget components.
+  const populatedContents = widgetContents.filter(
+    (content) => Object.keys(content).length > 0
+  );
+
   // `partition(testFn, array)` will split a given array into two arrays
   // based on the test function that's passed in. If testFn is true
   // for an item, the item will be in the first array, otherwise the second
@@ -48,7 +54,7 @@ export function getWidgetContents<
   // see: https://ramdajs.com/docs/#partition
   const [primaryWidgetContents, nonPrimaryWidgetContents] = partition<U>(
     (content) => !!content.isPrimary,
-    widgetContents
+    populatedContents
   );
 
   return [...primaryWidgetContents, ...nonPrimaryWidgetContents];

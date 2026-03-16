@@ -13,10 +13,32 @@ app.get("/viewAsset/:assetId/true", async (c) => {
   const db = c.get("db");
   const assetId = c.req.param("assetId");
   const asset = db.assets.get(assetId);
-  if (!asset) {
+  if (!asset || asset.deleted === true) {
     return c.json({ error: "Asset not found" }, 404);
   }
   return c.json(asset);
+});
+
+// DELETE /assetManager/deleteAsset/:assetId/true
+app.delete("/deleteAsset/:assetId/true", async (c) => {
+  const db = c.get("db");
+  const user = c.get("user");
+  const assetId = c.req.param("assetId");
+
+  const asset = db.assets.get(assetId);
+  if (!asset) {
+    return c.json({ error: "Asset not found" }, 404);
+  }
+
+  // Soft delete: mark as deleted but keep the record (mirrors PHP backend behaviour)
+  db.assets.set(assetId, {
+    ...asset,
+    deleted: true,
+    deletedAt: new Date().toISOString(),
+    deletedBy: user?.id ?? null,
+  });
+
+  return c.body(null, 204);
 });
 
 // GET /asset/getAssetPreview/:assetId
