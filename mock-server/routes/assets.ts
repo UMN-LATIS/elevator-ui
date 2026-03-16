@@ -13,7 +13,7 @@ app.get("/viewAsset/:assetId/true", async (c) => {
   const db = c.get("db");
   const assetId = c.req.param("assetId");
   const asset = db.assets.get(assetId);
-  if (!asset) {
+  if (!asset || asset.deleted === true) {
     return c.json({ error: "Asset not found" }, 404);
   }
   return c.json(asset);
