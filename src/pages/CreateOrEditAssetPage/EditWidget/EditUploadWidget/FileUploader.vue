@@ -25,7 +25,8 @@ import "@uppy/progress-bar/dist/style.min.css";
 import config from "@/config";
 import api from "@/api";
 import { pluralize } from "@/helpers/pluralize";
-import { computed } from "vue";
+import { computed, onBeforeUnmount } from "vue";
+import { useUploadStore } from "@/stores/uploadStore";
 
 const props = defineProps<{
   collectionId: number;
@@ -38,10 +39,12 @@ const emit = defineEmits<{
   (e: "error", error: Error): void;
 }>();
 
-const filenameToObjectIdMap = new Map<
-  string, // filename
-  Type.FileUploadRecord
->();
+const uploadStore = useUploadStore();
+
+// Local index: filename → uploadId. Used for O(1) lookups within Uppy's callbacks
+// (signPart, completeMultipartUpload, abortMultipartUpload all identify files by name).
+// Also serves as the cleanup list when this component unmounts mid-upload.
+const filenameToUploadId = new Map<string, string>();
 
 const note = computed(() => {
   if (props.maxNumberOfFiles) {
@@ -106,14 +109,12 @@ const uppy = new Uppy({
       uploadStatus: "in-progress",
     };
 
-    filenameToObjectIdMap.set(file.name, fileRecord);
+    filenameToUploadId.set(file.name, uploadId);
+    uploadStore.register(fileRecord);
 
     emit("start", fileRecord);
 
-    return {
-      uploadId,
-      key,
-    };
+    return { uploadId, key };
   },
   async signPart(
     file,
@@ -126,20 +127,28 @@ const uppy = new Uppy({
       throw new Error("File name is required to sign a part.");
     }
 
-    const fileRecord = filenameToObjectIdMap.get(file.name);
+    const uploadId = filenameToUploadId.get(file.name);
 
-    if (!fileRecord) {
+    if (!uploadId) {
       throw new Error(
-        `No file record found for file: ${file.name}. Please ensure the file upload has been started.`
+        `No upload record found for file: ${file.name}. Please ensure the file upload has been started.`
+      );
+    }
+
+    const record = uploadStore.uploads[uploadId];
+
+    if (!record) {
+      throw new Error(
+        `Upload record missing from store for uploadId: ${uploadId}.`
       );
     }
 
     const { url } = await api.signS3UploadPart({
       collectionId: props.collectionId,
-      fileObjectId: fileRecord.fileObjectId,
-      uploadId: fileRecord.uploadId,
+      fileObjectId: record.fileObjectId,
+      uploadId: record.uploadId,
       partNumber: partData.partNumber,
-      contentType: fileRecord.contentType,
+      contentType: record.contentType,
     });
 
     return { url };
@@ -152,34 +161,49 @@ const uppy = new Uppy({
       throw new Error("File name is required to complete a multipart upload.");
     }
 
-    const fileRecord = filenameToObjectIdMap.get(file.name);
+    const uploadId = filenameToUploadId.get(file.name);
 
-    if (!fileRecord) {
+    if (!uploadId) {
       throw new Error(
-        `No file record found for file: ${file.name}. Please ensure the file upload has been started.`
+        `No upload record found for file: ${file.name}. Please ensure the file upload has been started.`
       );
     }
 
-    const { location } = await api.completeS3MultipartUpload({
-      collectionId: props.collectionId,
-      fileObjectId: fileRecord.fileObjectId,
-      uploadId: fileRecord.uploadId,
-      contentType: fileRecord.contentType,
-    });
+    const record = uploadStore.uploads[uploadId];
 
-    // notify elevator backend that the upload is complete
-    await api.completeSourceFile(fileRecord.fileObjectId);
+    if (!record) {
+      throw new Error(
+        `Upload record missing from store for uploadId: ${uploadId}.`
+      );
+    }
 
-    const updatedFileRecord: Type.FileUploadRecord = {
-      ...fileRecord,
-      uploadStatus: "completed",
-      location, // store the S3 URL of the uploaded file
-    };
-    // update the file record status
-    filenameToObjectIdMap.set(file.name, updatedFileRecord);
+    // Remove from store in a finally block so the active count is corrected
+    // even if the completion API calls fail. abortMultipartUpload uses the same
+    // filenameToUploadId guard so there's no risk of double-removal.
+    let location: string | undefined;
+    try {
+      ({ location } = await api.completeS3MultipartUpload({
+        collectionId: props.collectionId,
+        fileObjectId: record.fileObjectId,
+        uploadId: record.uploadId,
+        contentType: record.contentType,
+      }));
 
-    // emit the complete event with the updated file record
-    emit("complete", updatedFileRecord);
+      // notify elevator backend that the upload is complete
+      await api.completeSourceFile(record.fileObjectId);
+
+      const completedRecord: Type.FileUploadRecord = {
+        ...record,
+        uploadStatus: "completed",
+        location,
+      };
+
+      // emit the complete event with the updated file record
+      emit("complete", completedRecord);
+    } finally {
+      filenameToUploadId.delete(file.name);
+      uploadStore.remove(uploadId);
+    }
 
     return { location };
   },
@@ -189,23 +213,31 @@ const uppy = new Uppy({
       throw new Error("File name is required to abort a multipart upload.");
     }
 
-    const fileRecord = filenameToObjectIdMap.get(file.name);
+    const uploadId = filenameToUploadId.get(file.name);
 
-    if (!fileRecord) {
+    if (!uploadId) {
       throw new Error(
-        `No file record found for file: ${file.name}. Please ensure the file upload has been started.`
+        `No upload record found for file: ${file.name}. Please ensure the file upload has been started.`
+      );
+    }
+
+    const record = uploadStore.uploads[uploadId];
+
+    if (!record) {
+      throw new Error(
+        `Upload record missing from store for uploadId: ${uploadId}.`
       );
     }
 
     await api.abortS3MultipartUpload({
       collectionId: props.collectionId,
-      fileObjectId: fileRecord.fileObjectId,
-      uploadId: fileRecord.uploadId,
-      contentType: fileRecord.contentType,
+      fileObjectId: record.fileObjectId,
+      uploadId: record.uploadId,
+      contentType: record.contentType,
     });
 
-    // remove the file record from the map
-    filenameToObjectIdMap.delete(file.name);
+    filenameToUploadId.delete(file.name);
+    uploadStore.remove(uploadId);
   },
 });
 
@@ -218,6 +250,13 @@ uppy.on("error", (error) => {
   // todo handle error
   console.error("Uppy error:", error);
   emit("error", error);
+});
+
+// If the component is destroyed while uploads are in flight (e.g. user confirmed
+// leaving in the navigation dialog), remove any orphaned records from the store.
+onBeforeUnmount(() => {
+  filenameToUploadId.forEach((uploadId) => uploadStore.remove(uploadId));
+  filenameToUploadId.clear();
 });
 </script>
 
