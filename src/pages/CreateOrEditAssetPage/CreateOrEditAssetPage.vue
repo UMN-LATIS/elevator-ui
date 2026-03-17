@@ -166,19 +166,16 @@ let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
 
 // Trigger the browser's native "Leave site?" dialog when the user tries to
 // close the tab, reload, or navigate to an external URL while an upload is running.
-// Known limitation: beforeunload does NOT fire for in-app (Vue Router) navigation —
-// that's intentional browser behaviour, not a bug. The onBeforeRouteLeave guard
-// below handles that case. Both guards are needed.
-// The dialog text is always browser-controlled; we can only trigger it, not style it.
-// onCleanup (not onUnmounted) is used because the listener must be removed
-// as soon as uploads finish — not just when the component is destroyed. watchEffect
-// calls the cleanup before each re-run and on unmount, covering both cases.
 watchEffect((onCleanup) => {
   if (!uploadStore.hasActiveUploads) return;
   const handler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
   };
   window.addEventListener("beforeunload", handler);
+
+  // onCleanup (not onUnmounted) is used because the listener must be removed
+  // as soon as uploads finish — not just when the component is destroyed.
+  // watchEffect calls the cleanup before each re-run and on unmount, covering both cases.
   onCleanup(() => window.removeEventListener("beforeunload", handler));
 });
 

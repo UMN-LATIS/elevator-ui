@@ -41,9 +41,7 @@ const emit = defineEmits<{
 
 const uploadStore = useUploadStore();
 
-// Local index: filename → uploadId. Used for O(1) lookups within Uppy's callbacks
-// (signPart, completeMultipartUpload, abortMultipartUpload all identify files by name).
-// Also serves as the cleanup list when this component unmounts mid-upload.
+// Local index: filename → uploadId.
 const filenameToUploadId = new Map<string, string>();
 
 const note = computed(() => {
@@ -177,9 +175,6 @@ const uppy = new Uppy({
       );
     }
 
-    // Remove from store in a finally block so the active count is corrected
-    // even if the completion API calls fail. abortMultipartUpload uses the same
-    // filenameToUploadId guard so there's no risk of double-removal.
     let location: string | undefined;
     try {
       ({ location } = await api.completeS3MultipartUpload({
