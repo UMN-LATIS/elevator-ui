@@ -101,17 +101,27 @@
           </p>
         </div>
       </ConfirmModal>
+      <ConfirmModal
+        type="warning"
+        :isOpen="isLeaveConfirmOpen"
+        title="Upload in progress"
+        confirmLabel="Leave"
+        cancelLabel="Stay"
+        @confirm="handleLeaveConfirm"
+        @close="handleLeaveCancel">
+        Navigating away will cancel your upload. Are you sure you want to leave?
+      </ConfirmModal>
     </Teleport>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, provide, reactive, watch } from "vue";
+import { computed, nextTick, onMounted, provide, reactive, ref, watch, watchEffect } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
@@ -121,6 +131,7 @@ import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
+import { useUploadStore } from "@/stores/uploadStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
 import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
 
@@ -145,6 +156,49 @@ useAssetValidationProvider(
 );
 
 const toastStore = useToastStore();
+const uploadStore = useUploadStore();
+
+// --- Upload navigation guard ---
+
+const isLeaveConfirmOpen = ref(false);
+// Holds the resolve function for the pending onBeforeRouteLeave promise.
+let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
+
+// Trigger the browser's native "Leave site?" dialog when the user tries to
+// close the tab, reload, or navigate to an external URL while an upload is running.
+watchEffect((onCleanup) => {
+  if (!uploadStore.hasActiveUploads) return;
+  const handler = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+  };
+  window.addEventListener("beforeunload", handler);
+
+  // onCleanup (not onUnmounted) is used because the listener must be removed
+  // as soon as uploads finish — not just when the component is destroyed.
+  // watchEffect calls the cleanup before each re-run and on unmount, covering both cases.
+  onCleanup(() => window.removeEventListener("beforeunload", handler));
+});
+
+// Show our custom ConfirmModal for in-app (Vue Router) navigation.
+onBeforeRouteLeave(async () => {
+  if (!uploadStore.hasActiveUploads) return true;
+  isLeaveConfirmOpen.value = true;
+  return new Promise<boolean>((resolve) => {
+    resolveLeaveGuard = resolve;
+  });
+});
+
+function handleLeaveConfirm() {
+  isLeaveConfirmOpen.value = false;
+  resolveLeaveGuard?.(true);
+  resolveLeaveGuard = null;
+}
+
+function handleLeaveCancel() {
+  isLeaveConfirmOpen.value = false;
+  resolveLeaveGuard?.(false);
+  resolveLeaveGuard = null;
+}
 
 watch(
   () => props.assetId,
