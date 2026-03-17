@@ -127,15 +127,21 @@ test.describe("Upload navigation guard", () => {
   test("no modal after upload has completed", async ({ page }) => {
     test.setTimeout(30_000);
 
-    await startUploadAndWaitUntilInFlight(page, 500);
+    // Save the asset first so we're on the edit page (no create-and-redirect).
+    await page.getByLabel(/title/i).first().fill("Upload Guard Test");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
 
-    // Wait for the upload to fully complete (part finishes → completeMultipartUpload).
-    await page.waitForResponse("**/s3/multipart/*/complete");
+    // uploadStore.remove() runs after completeSourceFile — wait for that response
+    // so the store is clean before we attempt navigation.
+    const uploadCleanedUp = page.waitForResponse("**/completeSourceFile/**");
+    await startUploadAndWaitUntilInFlight(page, 500);
+    await uploadCleanedUp;
 
     await navigateHome(page);
 
     await expect(page.getByText("Upload in progress")).not.toBeVisible();
-    await expect(page).not.toHaveURL(/\/assetManager\/addAsset/);
+    await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
   });
 
   test("triggers browser native dialog when reloading during upload", async ({
