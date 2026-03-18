@@ -45,7 +45,7 @@ const uploadStore = useUploadStore();
 
 const { activeTheme } = useTheming();
 
-// Themes with dark backgrounds (surface lightness < 30%) need Uppy's dark color scheme.
+// Explicit list of themes that should use Uppy's dark color scheme.
 const DARK_THEMES = new Set([
   "construction",
   "dark",
