@@ -8,6 +8,7 @@
         width: '100%',
         proudlyDisplayPoweredByUppy: false,
         note,
+        theme: uppyTheme,
       }" />
   </div>
 </template>
@@ -27,6 +28,7 @@ import api from "@/api";
 import { pluralize } from "@/helpers/pluralize";
 import { computed, onBeforeUnmount } from "vue";
 import { useUploadStore } from "@/stores/uploadStore";
+import { useTheming } from "@/helpers/useTheming";
 
 const props = defineProps<{
   collectionId: number;
@@ -40,6 +42,23 @@ const emit = defineEmits<{
 }>();
 
 const uploadStore = useUploadStore();
+
+const { activeTheme } = useTheming();
+
+// Explicit list of themes that should use Uppy's dark color scheme.
+const DARK_THEMES = new Set([
+  "construction",
+  "dark",
+  "hotrod",
+  "matrix",
+  "nord-dark",
+  "tron",
+  "vaporwave",
+]);
+
+const uppyTheme = computed<"dark" | "light">(() =>
+  DARK_THEMES.has(activeTheme.value ?? "") ? "dark" : "light"
+);
 
 // Local index: filename → uploadId.
 const filenameToUploadId = new Map<string, string>();
