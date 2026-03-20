@@ -13,11 +13,14 @@
     @mouseenter="isPaused = true"
     @mouseleave="isPaused = false">
     <div
+      v-if="isFinite(duration)"
       class="timer absolute top-0 left-0 w-full h-1 transform opacity-50"
       :style="{
         transform: `translateX(-${timerWidthPercent}%)`,
       }" />
-    <div class="flex items-center gap-4">
+    <div
+      class="flex gap-3"
+      :class="toast.title ? 'items-start' : 'items-center'">
       <CircleCheckIcon
         v-if="toast.variant === 'success'"
         class="text-success-container w-6 h-6" />
@@ -38,14 +41,24 @@
           {{ toast.title }}
         </h3>
         <p class="text-xs">{{ toast.message }}</p>
-        <p v-if="toast.url" class="mt-1 flex justify-end">
-          <Link
-            :to="toast.url"
-            class="uppercase text-xs py-1 px-2 bg-surface-container text-on-surface-variant hover:no-underline hover:text-on-surface hover:bg-surface-container-high rounded-md"
-            @click="$emit('dismiss', toast.id)">
-            {{ toast.urlText || "View" }}
-          </Link>
-        </p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <Link
+          v-if="toast.url"
+          :to="toast.url"
+          class="uppercase text-xs py-1 px-2 bg-surface-container text-on-surface-variant hover:no-underline hover:text-on-surface hover:bg-surface-container-high rounded-md"
+          @click="$emit('dismiss', toast.id)">
+          {{ toast.urlText || "View" }}
+        </Link>
+        <Button v-if="toast.action" variant="tertiary" @click="handleAction">
+          {{ toast.action.label }}
+        </Button>
+        <button
+          class="opacity-60 hover:opacity-100"
+          @click="$emit('dismiss', toast.id)">
+          <span class="sr-only">Close</span>
+          <XIcon class="w-4 h-4" />
+        </button>
       </div>
     </div>
   </div>
@@ -58,6 +71,7 @@ import { XIcon } from "@/icons";
 import Link from "../Link/Link.vue";
 import CircleCheckIcon from "@/icons/CircleCheckIcon.vue";
 import { InfoIcon, TriangleAlertIcon } from "lucide-vue-next";
+import Button from "@/components/Button/Button.vue";
 
 const props = defineProps<{
   toast: Toast;
@@ -69,7 +83,7 @@ const emit = defineEmits<{
 
 const elapsedTime = ref(0);
 const isPaused = ref(false);
-const duration = props.toast.duration ?? 3000;
+const duration = props.toast.duration ?? Number.POSITIVE_INFINITY;
 
 const timerWidthPercent = computed(() => (elapsedTime.value / duration) * 100);
 
@@ -93,6 +107,11 @@ function startTimer() {
     // update the timestamp
     prevTimestamp = Date.now();
   });
+}
+
+function handleAction() {
+  props.toast.action?.handler();
+  emit("dismiss", props.toast.id);
 }
 
 onMounted(() => {
