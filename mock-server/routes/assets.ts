@@ -223,23 +223,59 @@ app.post("/submission/true", async (c) => {
   });
 });
 
-// GET /assetManager/userAssets/:userId/true
-app.get("/userAssets/:userId/true", async (c) => {
+// GET /assetManager/userAssets/:offset/true
+// The real backend uses the session user, not a URL param.
+// The first segment is an offset for pagination (unused in mock).
+app.get("/userAssets/:offset/true", async (c) => {
   await delay(100);
   const db = c.get("db");
   const user = c.get("user");
-  const userId = c.req.param("userId");
 
-  // For security, only allow users to see their own assets (or admin users could see all)
-  if (
-    user &&
-    (user.id.toString() === userId || user.isSuperAdmin || user.isInstanceAdmin)
-  ) {
-    const userAssets = db.assets.getByUserId(Number(userId));
-    return c.json(userAssets);
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 403);
   }
 
-  return c.json({ error: "Unauthorized" }, 403);
+  const userAssets = db.assets.getByUserId(user.id);
+  return c.json(userAssets);
+});
+
+// GET /assetManager/deletedAssets
+app.get("/deletedAssets", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+  const user = c.get("user");
+
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const deletedAssets = db.assets.getDeletedByUser(user.id);
+  return c.json(deletedAssets);
+});
+
+// POST /assetManager/undeleteAsset/:assetId
+app.post("/undeleteAsset/:assetId", async (c) => {
+  await delay(200);
+  const db = c.get("db");
+  const user = c.get("user");
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const assetId = c.req.param("assetId");
+  const asset = db.assets.get(assetId);
+  if (!asset || !asset.deleted) {
+    return c.json({ error: "Asset not found" }, 404);
+  }
+
+  db.assets.set(assetId, {
+    ...asset,
+    deleted: false,
+    deletedAt: null,
+    deletedBy: null,
+  });
+
+  return c.json({ objectId: assetId });
 });
 
 // GET /assetManager/compareTemplates/:templateId1/:templateId2
