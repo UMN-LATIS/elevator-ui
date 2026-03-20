@@ -32,6 +32,7 @@ import {
   type ApiSuccessResponse,
   type CreateAssetRequestFormData,
   type AssetSummary,
+  type DeletedAssetSummary,
   type UpdateAssetRequestFormData,
   TemplateComparison,
   type GetFileContainerApiResponse,
@@ -639,6 +640,20 @@ export async function updateAsset(assetFormData: UpdateAssetRequestFormData) {
     formdata
   );
 
+  return res.data;
+}
+
+export async function fetchDeletedUserAssets() {
+  const res = await axios.get<DeletedAssetSummary[]>(
+    `${BASE_URL}/assetManager/deletedAssets`
+  );
+  return res.data;
+}
+
+export async function undeleteAsset(assetId: string) {
+  const res = await axios.post<{ objectId: string }>(
+    `${BASE_URL}/assetManager/undeleteAsset/${assetId}`
+  );
   return res.data;
 }
 

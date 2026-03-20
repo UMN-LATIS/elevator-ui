@@ -928,11 +928,12 @@ export type ApiRemoveAssetFromDrawerResponse = ApiSuccessResponse;
 
 export interface Toast {
   id: string;
-  title?: string; // optional title for the toast
+  title?: string;
   message: string;
   duration?: number;
   url?: string;
   urlText?: string;
+  action?: { label: string; handler: () => void };
   variant?: "default" | "error" | "success";
 }
 
@@ -1000,6 +1001,11 @@ export interface AssetSummary {
     timezone_type: number;
     timezone: string;
   };
+}
+
+export interface DeletedAssetSummary extends AssetSummary {
+  deletedAt: string;
+  deletedBy: number | null;
 }
 
 export interface SelectOption<idType = string> {

@@ -7,39 +7,80 @@
           <Button variant="primary" class="mb-4">Add Asset</Button>
         </RouterLink>
       </div>
-      <p v-if="!isFetching && !allUserAssets.length" class="text-lg">
-        No assets found.
-      </p>
-      <UserAssetsTable
-        v-else
-        :columns="columns"
-        :data="allUserAssets"
-        @deleteAsset="deleteAsset" />
+      <Tabs :activeTabId="activeTab" @tabChange="(tab) => setActiveTab(tab.id)">
+        <Tab id="my-assets" label="My Assets">
+          <p v-if="!isFetching && !allUserAssets.length" class="text-lg">
+            No assets found.
+          </p>
+          <UserAssetsTable
+            v-else
+            :columns="columns"
+            :data="allUserAssets"
+            @deleteAsset="handleDeleteAsset" />
+        </Tab>
+        <Tab id="trash" :label="`Trash (${deletedAssets.length})`">
+          <p v-if="!deletedAssets.length" class="text-lg">No deleted assets.</p>
+          <UserAssetsTable
+            v-else
+            :columns="trashColumns"
+            :data="deletedAssets" />
+        </Tab>
+      </Tabs>
     </div>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAllUserAssets } from "@/queries/useAllUserAssets";
+import { useDeletedUserAssets } from "@/queries/useDeletedUserAssets";
 import Button from "@/components/Button/Button.vue";
+import Tabs from "@/components/Tabs/Tabs.vue";
+import Tab from "@/components/Tabs/Tab.vue";
 import { createColumns } from "./UserAssetsTableColumns";
+import { createDeletedColumns } from "./DeletedAssetsTableColumns";
 import UserAssetsTable from "./UserAssetsTable.vue";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
+import { useRestoreAssetMutation } from "@/queries/useRestoreAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
+import { useToastStore } from "@/stores/toastStore";
+
+const route = useRoute();
+const router = useRouter();
+
+const VALID_TABS = ["my-assets", "trash"] as const;
+const activeTab = computed(() => {
+  const tab = route.query.tab as string;
+  return VALID_TABS.includes(tab as (typeof VALID_TABS)[number])
+    ? tab
+    : "my-assets";
+});
+
+const setActiveTab = (tabId: string) => {
+  router.replace({ query: tabId === "my-assets" ? {} : { tab: tabId } });
+};
 
 const { data: allUserAssets, isFetching } = useAllUserAssets();
+const { data: deletedAssets } = useDeletedUserAssets();
 
 const { mutate: deleteAsset } = useDeleteAssetMutation();
+const { mutate: restoreAsset } = useRestoreAssetMutation();
 const errorStore = useErrorStore();
+const toastStore = useToastStore();
 
 const handleDeleteAsset = (assetId: string) => {
-  const confirmDelete = confirm(
-    "Are you sure you want to delete this asset? This action cannot be undone."
-  );
-  if (!confirmDelete) return;
   deleteAsset(assetId, {
     onSuccess: () => {
-      // TODO: toast success
+      toastStore.addToast({
+        message: "Asset moved to trash.",
+        variant: "success",
+        duration: 6000,
+        action: {
+          label: "Undo",
+          handler: () => restoreAsset(assetId),
+        },
+      });
     },
     onError: (error) => {
       errorStore.setError(
@@ -49,6 +90,23 @@ const handleDeleteAsset = (assetId: string) => {
   });
 };
 
+const handleRestore = (assetId: string) => {
+  restoreAsset(assetId, {
+    onSuccess: () => {
+      toastStore.addToast({
+        message: "Asset restored.",
+        variant: "success",
+        duration: 6000,
+        action: {
+          label: "Undo",
+          handler: () => deleteAsset(assetId),
+        },
+      });
+    },
+  });
+};
+
 const columns = createColumns({ onDelete: handleDeleteAsset });
+const trashColumns = createDeletedColumns({ onRestore: handleRestore });
 </script>
 <style scoped></style>
