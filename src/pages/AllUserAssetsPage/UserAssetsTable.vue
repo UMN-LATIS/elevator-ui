@@ -26,7 +26,7 @@
                   :props="header.getContext()" />
                 <ArrowUpDown
                   v-if="header.column.getCanSort() && !header.column.getIsSorted()"
-                  class="w-3.5 h-3.5 text-on-surface-variant/40" />
+                  class="w-3.5 h-3.5 opacity-30" />
                 <ArrowUp
                   v-else-if="header.column.getIsSorted() === 'asc'"
                   class="w-3.5 h-3.5" />
