@@ -1,7 +1,7 @@
 <template>
-  <div class="border rounded-md">
+  <div class="border border-outline-variant">
     <Table>
-      <TableHeader>
+      <TableHeader class="bg-surface-container-lowest">
         <TableRow
           v-for="headerGroup in table.getHeaderGroups()"
           :key="headerGroup.id">
