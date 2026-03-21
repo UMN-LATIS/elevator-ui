@@ -13,15 +13,17 @@
             No assets found.
           </p>
           <UserAssetsTable
-            v-else
+            v-else-if="allUserAssets.length"
             :columns="columns"
             :data="allUserAssets"
             @deleteAsset="handleDeleteAsset" />
         </Tab>
         <Tab id="trash" :label="`Trash (${deletedAssets.length})`">
-          <p v-if="!deletedAssets.length" class="text-lg">No deleted assets.</p>
+          <p v-if="!isDeletedFetching && !deletedAssets.length" class="text-lg">
+            No deleted assets.
+          </p>
           <UserAssetsTable
-            v-else
+            v-else-if="deletedAssets.length"
             :columns="trashColumns"
             :data="deletedAssets" />
         </Tab>
@@ -62,7 +64,8 @@ const setActiveTab = (tabId: string) => {
 };
 
 const { data: allUserAssets, isFetching } = useAllUserAssets();
-const { data: deletedAssets } = useDeletedUserAssets();
+const { data: deletedAssets, isFetching: isDeletedFetching } =
+  useDeletedUserAssets();
 
 const { mutate: deleteAsset } = useDeleteAssetMutation();
 const { mutate: restoreAsset } = useRestoreAssetMutation();
