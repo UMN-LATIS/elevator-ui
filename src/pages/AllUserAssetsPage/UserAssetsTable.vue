@@ -1,11 +1,15 @@
 <template>
   <div>
     <div class="relative mb-3">
-      <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+      <SearchIcon
+        class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+      <label for="assets-filter" class="sr-only">Filter assets</label>
       <input
+        id="assets-filter"
         v-model="globalFilter"
         type="text"
         placeholder="Filter by title or ID..."
+        aria-label="Filter assets by title or ID"
         class="w-full text-sm rounded-md border border-outline-variant bg-surface-container pl-9 pr-3 py-2 focus:outline-none focus:border-on-surface placeholder:opacity-50" />
     </div>
     <div class="border border-outline-variant rounded-md">
@@ -17,7 +21,9 @@
             <TableHead
               v-for="header in headerGroup.headers"
               :key="header.id"
-              :class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
+              :class="
+                header.column.getCanSort() ? 'cursor-pointer select-none' : ''
+              "
               @click="header.column.getToggleSortingHandler()?.($event)">
               <div class="flex items-center gap-1">
                 <FlexRender
@@ -25,7 +31,9 @@
                   :render="header.column.columnDef.header"
                   :props="header.getContext()" />
                 <ArrowUpDown
-                  v-if="header.column.getCanSort() && !header.column.getIsSorted()"
+                  v-if="
+                    header.column.getCanSort() && !header.column.getIsSorted()
+                  "
                   class="w-3.5 h-3.5 opacity-30" />
                 <ArrowUp
                   v-else-if="header.column.getIsSorted() === 'asc'"
