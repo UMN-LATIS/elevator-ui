@@ -3,9 +3,7 @@
     <div class="relative mb-3">
       <SearchIcon
         class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
-      <label for="assets-filter" class="sr-only">Filter assets</label>
       <input
-        id="assets-filter"
         v-model="globalFilter"
         type="text"
         placeholder="Filter by title or ID..."
