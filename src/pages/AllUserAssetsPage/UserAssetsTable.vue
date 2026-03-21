@@ -14,7 +14,7 @@
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="table.getRowModel().rows?.length">
+        <TransitionGroup name="table-row">
           <TableRow
             v-for="row in table.getRowModel().rows"
             :key="row.id"
@@ -25,14 +25,12 @@
                 :props="cell.getContext()" />
             </TableCell>
           </TableRow>
-        </template>
-        <template v-else>
-          <TableRow>
-            <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
-            </TableCell>
-          </TableRow>
-        </template>
+        </TransitionGroup>
+        <TableRow v-if="!table.getRowModel().rows?.length">
+          <TableCell :colspan="columns.length" class="h-24 text-center">
+            No results.
+          </TableCell>
+        </TableRow>
       </TableBody>
     </Table>
   </div>
@@ -65,3 +63,15 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
 });
 </script>
+<style scoped>
+.table-row-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.table-row-leave-to {
+  opacity: 0;
+  transform: translateX(-1rem);
+}
+.table-row-move {
+  transition: transform 0.3s ease;
+}
+</style>
