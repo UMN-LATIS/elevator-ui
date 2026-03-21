@@ -70,10 +70,12 @@ const errorStore = useErrorStore();
 const toastStore = useToastStore();
 
 const handleDeleteAsset = (assetId: string) => {
+  const asset = allUserAssets.value.find((a) => a.objectId === assetId);
+  const label = asset?.title || assetId;
   deleteAsset(assetId, {
     onSuccess: () => {
       toastStore.addToast({
-        message: "Asset moved to trash.",
+        message: `"${label}" moved to trash.`,
         variant: "success",
         duration: 6000,
         action: {
@@ -91,10 +93,12 @@ const handleDeleteAsset = (assetId: string) => {
 };
 
 const handleRestore = (assetId: string) => {
+  const asset = deletedAssets.value.find((a) => a.objectId === assetId);
+  const label = asset?.title || assetId;
   restoreAsset(assetId, {
     onSuccess: () => {
       toastStore.addToast({
-        message: "Asset restored.",
+        message: `"${label}" restored.`,
         variant: "success",
         duration: 6000,
         action: {

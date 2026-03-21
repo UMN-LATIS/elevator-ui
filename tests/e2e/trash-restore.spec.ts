@@ -35,10 +35,12 @@ test.describe("Trash and Restore", () => {
     await trashRow.getByRole("button", { name: "Restore" }).click();
 
     // --- Toast should confirm restore ---
-    await expect(page.getByText("Asset restored.")).toBeVisible();
+    await expect(page.getByText("restored.")).toBeVisible();
 
-    // --- Asset should disappear from trash ---
-    await expect(page.getByText("Asset 1")).not.toBeVisible();
+    // --- Asset should disappear from trash table ---
+    await expect(
+      page.locator("tbody").getByText("Asset 1")
+    ).not.toBeVisible();
 
     // --- Verify asset is accessible again ---
     await page.goto(`/assetManager/editAsset/${SEED_ASSET_ID}`);
@@ -60,7 +62,7 @@ test.describe("Trash and Restore", () => {
     await firstRow.getByRole("button", { name: "Delete" }).click();
 
     // --- Toast appears with Undo ---
-    await expect(page.getByText("Asset moved to trash.")).toBeVisible();
+    await expect(page.getByText("moved to trash.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
 
     // --- Asset gone from My Assets ---
@@ -97,7 +99,7 @@ test.describe("Trash and Restore", () => {
     await trashRow.getByRole("button", { name: "Restore" }).click();
 
     // --- Toast appears with Undo ---
-    await expect(page.getByText("Asset restored.")).toBeVisible();
+    await expect(page.getByText("restored.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
 
     // --- Asset gone from trash ---
