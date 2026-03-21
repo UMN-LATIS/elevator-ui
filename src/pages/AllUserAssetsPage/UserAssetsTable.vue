@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div class="relative mb-3">
-      <SearchIcon
-        class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
-      <input
-        v-model="globalFilter"
-        type="text"
-        placeholder="Filter by title or ID..."
-        aria-label="Filter assets by title or ID"
-        class="w-full text-sm rounded-md border border-outline-variant bg-surface-container pl-9 pr-3 py-2 focus:outline-none focus:border-on-surface placeholder:opacity-50" />
-    </div>
+    <InputGroup
+      v-model="globalFilter"
+      label="Filter assets"
+      labelHidden
+      placeholder="Filter by title or ID..."
+      class="mb-3">
+      <template #prepend>
+        <SearchIcon class="w-4 h-4 text-on-surface-variant" />
+      </template>
+    </InputGroup>
     <div class="border border-outline-variant rounded-md">
       <Table>
         <TableHeader class="bg-surface-container-lowest">
@@ -86,6 +86,7 @@ import {
   useVueTable,
 } from "@tanstack/vue-table";
 import { SearchIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-vue-next";
+import InputGroup from "@/components/InputGroup/InputGroup.vue";
 
 const props = defineProps<{
   columns: ColumnDef<TData, any>[];
