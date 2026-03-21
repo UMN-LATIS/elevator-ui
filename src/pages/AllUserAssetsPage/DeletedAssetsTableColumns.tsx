@@ -4,7 +4,9 @@ import { ColHeader } from "./UserAssetsTableColumns";
 import Button from "@/components/Button/Button.vue";
 import { RotateCcw } from "lucide-vue-next";
 
-const columnHelper = createColumnHelper<DeletedAssetSummary>();
+type DeletedRow = DeletedAssetSummary & { pending?: boolean };
+
+const columnHelper = createColumnHelper<DeletedRow>();
 
 export const createDeletedColumns = (handlers: {
   onRestore: (objectId: string) => void;
@@ -30,13 +32,18 @@ export const createDeletedColumns = (handlers: {
   {
     id: "actions",
     header: () => <ColHeader text="Actions" />,
-    cell: ({ row }: { row: Row<DeletedAssetSummary> }) => (
-      <Button
-        variant="tertiary"
-        onClick={() => handlers.onRestore(row.original.objectId as string)}>
-        <RotateCcw class="size-4" />
-        Restore
-      </Button>
-    ),
+    cell: ({ row }: { row: Row<DeletedRow> }) => {
+      const isPending = row.original.pending;
+      return (
+        <Button
+          variant="tertiary"
+          disabled={isPending}
+          class={isPending ? "opacity-50" : ""}
+          onClick={() => handlers.onRestore(row.original.objectId as string)}>
+          <RotateCcw class="size-4" />
+          {isPending ? "Pending..." : "Restore"}
+        </Button>
+      );
+    },
   },
 ];
