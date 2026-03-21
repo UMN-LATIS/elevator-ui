@@ -21,6 +21,9 @@ app.get("/viewAsset/:assetId/true", async (c) => {
 
 // DELETE /assetManager/deleteAsset/:assetId/true
 app.delete("/deleteAsset/:assetId/true", async (c) => {
+  // simulate longer delete time for testing optimistic ui behavior
+  await delay(2000);
+
   const db = c.get("db");
   const user = c.get("user");
   const assetId = c.req.param("assetId");
@@ -255,7 +258,8 @@ app.get("/deletedAssets", async (c) => {
 
 // POST /assetManager/undeleteAsset/:assetId
 app.post("/undeleteAsset/:assetId", async (c) => {
-  await delay(200);
+  // simulate longer time for testing optimistic ui behavior
+  await delay(2000);
   const db = c.get("db");
   const user = c.get("user");
   if (!user) {
