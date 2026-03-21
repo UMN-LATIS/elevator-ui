@@ -91,9 +91,12 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 const props = defineProps<{
   columns: ColumnDef<TData, any>[];
   data: TData[];
+  defaultSort?: { id: string; desc: boolean };
 }>();
 
-const sorting = ref<SortingState>([]);
+const sorting = ref<SortingState>(
+  props.defaultSort ? [props.defaultSort] : []
+);
 const globalFilter = ref("");
 
 const table = useVueTable({

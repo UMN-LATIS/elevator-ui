@@ -16,6 +16,7 @@
             v-else-if="allUserAssets.length"
             :columns="columns"
             :data="allUserAssets"
+            :defaultSort="{ id: 'modifiedDate_date', desc: true }"
             @deleteAsset="handleDeleteAsset" />
         </Tab>
         <Tab id="trash" :label="`Trash (${deletedAssets.length})`">
@@ -25,7 +26,8 @@
           <UserAssetsTable
             v-else-if="deletedAssets.length"
             :columns="trashColumns"
-            :data="deletedAssets" />
+            :data="deletedAssets"
+            :defaultSort="{ id: 'deletedAt', desc: true }" />
         </Tab>
       </Tabs>
     </div>
