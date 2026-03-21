@@ -60,6 +60,7 @@ const table = useVueTable({
   get columns() {
     return props.columns;
   },
+  getRowId: (row) => (row as Record<string, unknown>).objectId as string,
   getCoreRowModel: getCoreRowModel(),
 });
 </script>
