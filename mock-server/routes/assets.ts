@@ -235,7 +235,7 @@ app.get("/userAssets/:offset/true", async (c) => {
   const user = c.get("user");
 
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 403);
+    return c.json({ error: "Unauthorized" }, 401);
   }
 
   const userAssets = db.assets.getByUserId(user.id);
