@@ -31,10 +31,20 @@
         </Tab>
       </Tabs>
     </div>
+    <ConfirmModal
+      :isOpen="showDeleteConfirm"
+      title="Move to Trash?"
+      type="warning"
+      confirmLabel="Move to Trash"
+      @confirm="confirmDelete"
+      @close="showDeleteConfirm = false">
+      Deleting an asset moves it to the trash. Restoring it later will require
+      regenerating derivatives, which may take some time.
+    </ConfirmModal>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAllUserAssets } from "@/queries/useAllUserAssets";
@@ -49,6 +59,7 @@ import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useRestoreAssetMutation } from "@/queries/useRestoreAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
 import { useToastStore } from "@/stores/toastStore";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -62,7 +73,10 @@ const activeTab = computed(() => {
 });
 
 const setActiveTab = (tabId: string) => {
-  router.replace({ query: tabId === "my-assets" ? {} : { tab: tabId } });
+  const { tab: _tab, ...rest } = route.query;
+  router.replace({
+    query: tabId === "my-assets" ? rest : { ...rest, tab: tabId },
+  });
 };
 
 const { data: allUserAssets, isFetching } = useAllUserAssets();
@@ -74,7 +88,12 @@ const { mutate: restoreAsset } = useRestoreAssetMutation();
 const errorStore = useErrorStore();
 const toastStore = useToastStore();
 
-const handleDeleteAsset = (assetId: string) => {
+// Show the delete confirmation dialog once per session, then skip it.
+const hasConfirmedDelete = ref(false);
+const showDeleteConfirm = ref(false);
+const pendingDeleteId = ref<string | null>(null);
+
+const performDelete = (assetId: string) => {
   const asset = allUserAssets.value.find((a) => a.objectId === assetId);
   const label = asset?.title || assetId;
   deleteAsset(assetId, {
@@ -95,6 +114,23 @@ const handleDeleteAsset = (assetId: string) => {
       );
     },
   });
+};
+
+const handleDeleteAsset = (assetId: string) => {
+  if (hasConfirmedDelete.value) {
+    performDelete(assetId);
+    return;
+  }
+  pendingDeleteId.value = assetId;
+  showDeleteConfirm.value = true;
+};
+
+const confirmDelete = () => {
+  hasConfirmedDelete.value = true;
+  if (pendingDeleteId.value) {
+    performDelete(pendingDeleteId.value);
+    pendingDeleteId.value = null;
+  }
 };
 
 const handleRestore = (assetId: string) => {
