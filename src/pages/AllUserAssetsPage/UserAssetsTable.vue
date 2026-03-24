@@ -44,7 +44,7 @@
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TransitionGroup name="table-row">
+          <TransitionGroup :name="globalFilter ? undefined : 'table-row'">
             <TableRow
               v-for="row in table.getRowModel().rows"
               :key="row.id"
