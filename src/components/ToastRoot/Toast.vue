@@ -26,11 +26,6 @@
         class="text-error-container w-6 h-6" />
       <InfoIcon v-else class="w-6 h-6 text-inverse-on-surface" />
       <div class="flex-1">
-        <button class="float-right" @click="$emit('dismiss', toast.id)">
-          <span class="sr-only">Close</span>
-          <XIcon />
-        </button>
-
         <h3
           v-if="toast.title"
           class="text-sm font-semibold"

@@ -29,8 +29,7 @@
         'border-error': type === 'danger',
         'border-success': type === 'success',
       }">
-      <div
-        class="notification__icon rounded-full p-2 self-center">
+      <div class="notification__icon rounded-full p-2 self-center">
         <WarningIcon v-if="type === 'warning'" />
         <InfoIcon v-if="type === 'info'" />
         <CircleCheckIcon v-if="type === 'success'" />
