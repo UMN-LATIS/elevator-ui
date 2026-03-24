@@ -1,11 +1,11 @@
 <template>
   <div
     :key="toast.id"
-    class="toast-root__toast pointer-events-auto shadow-sm p-4 rounded-md relative overflow-hidden transition-all duration-300 ease-in-out border-2 border-outline-variant"
+    class="toast-root__toast pointer-events-auto shadow-sm p-4 rounded-md relative overflow-hidden transition-all duration-300 ease-in-out border-2"
     :class="{
-      'bg-error-container text-on-error-container border-error':
+      'toast--error bg-error-container text-on-error-container border-error':
         toast.variant === 'error',
-      'bg-success-container text-on-success-container border-success':
+      'toast--success bg-success-container text-on-success-container border-success':
         toast.variant === 'success',
       'bg-inverse-surface text-inverse-on-surface border-inverse-surface':
         toast.variant === 'default' || !toast.variant,
@@ -104,3 +104,20 @@ onMounted(() => {
   startTimer();
 });
 </script>
+
+<style scoped>
+/* Remap primary tokens so action buttons harmonize with the toast variant. */
+.toast--error {
+  --primary: var(--error);
+  --on-primary: var(--on-error);
+  --primary-container: var(--error-container);
+  --on-primary-container: var(--on-error-container);
+}
+
+.toast--success {
+  --primary: var(--success);
+  --on-primary: var(--on-success);
+  --primary-container: var(--success-container);
+  --on-primary-container: var(--on-success-container);
+}
+</style>

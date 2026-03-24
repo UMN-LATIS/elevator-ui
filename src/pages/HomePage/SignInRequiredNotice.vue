@@ -1,6 +1,6 @@
 <template>
   <Notification
-    type="warning"
+    type="info"
     title="Sign In Required"
     class="home-page__sign-in-required-notice my-4 rounded-md">
     <p>This site requires you to sign in to search or access assets.</p>
