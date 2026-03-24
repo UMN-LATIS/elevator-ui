@@ -72,9 +72,10 @@ export function useDeleteAssetMutation() {
       );
     },
     onSettled: () => {
-      // Only refetch when no other mutations are in-flight to avoid
-      // races where a refetch brings back items still being deleted.
-      if (queryClient.isMutating() === 0) {
+      // isMutating() still counts the current mutation as pending inside
+      // onSettled (state dispatches after callbacks), so === 1 means
+      // "I am the last in-flight mutation."
+      if (queryClient.isMutating() === 1) {
         queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
         queryClient.invalidateQueries({
           queryKey: [DELETED_ASSETS_QUERY_KEY],
