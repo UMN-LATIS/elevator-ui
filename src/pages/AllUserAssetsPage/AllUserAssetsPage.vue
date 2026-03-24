@@ -41,6 +41,16 @@
       Deleting an asset moves it to the trash. Restoring it later will require
       regenerating derivatives, which may take some time.
     </ConfirmModal>
+    <ConfirmModal
+      :isOpen="showRestoreConfirm"
+      title="Restore Asset?"
+      type="warning"
+      confirmLabel="Restore"
+      @confirm="confirmRestore"
+      @close="showRestoreConfirm = false">
+      Restoring an asset will regenerate its derivatives, which may take some
+      time.
+    </ConfirmModal>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
@@ -110,8 +120,26 @@ const confirmDelete = () => {
   }
 };
 
+// Show the restore confirmation dialog once per session, then skip it.
+const hasConfirmedRestore = ref(false);
+const showRestoreConfirm = ref(false);
+const pendingRestoreId = ref<string | null>(null);
+
 const handleRestore = (assetId: string) => {
-  restoreAsset(assetId);
+  if (hasConfirmedRestore.value) {
+    restoreAsset(assetId);
+    return;
+  }
+  pendingRestoreId.value = assetId;
+  showRestoreConfirm.value = true;
+};
+
+const confirmRestore = () => {
+  hasConfirmedRestore.value = true;
+  if (pendingRestoreId.value) {
+    restoreAsset(pendingRestoreId.value);
+    pendingRestoreId.value = null;
+  }
 };
 
 const columns = createColumns({ onDelete: handleDeleteAsset });
