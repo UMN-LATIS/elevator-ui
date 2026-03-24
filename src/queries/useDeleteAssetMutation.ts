@@ -3,9 +3,11 @@ import * as fetchers from "@/api/fetchers";
 import { AssetSummary, DeletedAssetSummary } from "@/types";
 import { ASSETS_QUERY_KEY } from "./queryKeys";
 import { DELETED_ASSETS_QUERY_KEY } from "./useDeletedUserAssets";
+import { useToastStore } from "@/stores/toastStore";
 
 export function useDeleteAssetMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: fetchers.deleteAsset,
@@ -15,15 +17,12 @@ export function useDeleteAssetMutation() {
         queryKey: [DELETED_ASSETS_QUERY_KEY],
       });
 
-      const previousAssets = queryClient.getQueryData<AssetSummary[]>([
+      const activeAssets = queryClient.getQueryData<AssetSummary[]>([
         ASSETS_QUERY_KEY,
       ]);
-      const previousDeleted = queryClient.getQueryData<DeletedAssetSummary[]>([
-        DELETED_ASSETS_QUERY_KEY,
-      ]);
+      const deleted = activeAssets?.find((a) => a.objectId === assetId);
 
       // Remove from active assets
-      const deleted = previousAssets?.find((a) => a.objectId === assetId);
       queryClient.setQueryData<AssetSummary[]>([ASSETS_QUERY_KEY], (old) =>
         old?.filter((a) => a.objectId !== assetId)
       );
@@ -44,22 +43,43 @@ export function useDeleteAssetMutation() {
         );
       }
 
-      return { previousAssets, previousDeleted };
+      return { deletedAsset: deleted };
     },
-    onError: (_err, _assetId, context) => {
-      if (context?.previousAssets) {
-        queryClient.setQueryData([ASSETS_QUERY_KEY], context.previousAssets);
-      }
-      if (context?.previousDeleted) {
-        queryClient.setQueryData(
-          [DELETED_ASSETS_QUERY_KEY],
-          context.previousDeleted
+    onSuccess: (_data, _assetId, context) => {
+      const label = context?.deletedAsset?.title ?? _assetId;
+      toastStore.addToast({
+        message: `"${label}" moved to trash.`,
+        variant: "success",
+      });
+    },
+    onError: (_err, assetId, context) => {
+      toastStore.addToast({
+        title: "Delete failed",
+        message: _err.message ?? "Could not delete asset.",
+        variant: "error",
+        duration: Infinity,
+      });
+      // Re-add only the failed asset instead of restoring a stale snapshot
+      if (context?.deletedAsset) {
+        queryClient.setQueryData<AssetSummary[]>(
+          [ASSETS_QUERY_KEY],
+          (old) => [context.deletedAsset!, ...(old ?? [])]
         );
       }
+      queryClient.setQueryData<DeletedAssetSummary[]>(
+        [DELETED_ASSETS_QUERY_KEY],
+        (old) => old?.filter((a) => a.objectId !== assetId)
+      );
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [DELETED_ASSETS_QUERY_KEY] });
+      // Only refetch when no other mutations are in-flight to avoid
+      // races where a refetch brings back items still being deleted.
+      if (queryClient.isMutating() === 0) {
+        queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
+        queryClient.invalidateQueries({
+          queryKey: [DELETED_ASSETS_QUERY_KEY],
+        });
+      }
     },
   });
 }

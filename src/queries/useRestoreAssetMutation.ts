@@ -3,9 +3,11 @@ import { undeleteAsset } from "@/api/fetchers";
 import { AssetSummary, DeletedAssetSummary } from "@/types";
 import { ASSETS_QUERY_KEY } from "./queryKeys";
 import { DELETED_ASSETS_QUERY_KEY } from "./useDeletedUserAssets";
+import { useToastStore } from "@/stores/toastStore";
 
 export function useRestoreAssetMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: undeleteAsset,
@@ -15,15 +17,11 @@ export function useRestoreAssetMutation() {
         queryKey: [DELETED_ASSETS_QUERY_KEY],
       });
 
-      const previousAssets = queryClient.getQueryData<AssetSummary[]>([
-        ASSETS_QUERY_KEY,
-      ]);
-      const previousDeleted = queryClient.getQueryData<DeletedAssetSummary[]>([
+      // Remove from deleted assets
+      const deletedAssets = queryClient.getQueryData<DeletedAssetSummary[]>([
         DELETED_ASSETS_QUERY_KEY,
       ]);
-
-      // Remove from deleted assets
-      const restored = previousDeleted?.find((a) => a.objectId === assetId);
+      const restored = deletedAssets?.find((a) => a.objectId === assetId);
       queryClient.setQueryData<DeletedAssetSummary[]>(
         [DELETED_ASSETS_QUERY_KEY],
         (old) => old?.filter((a) => a.objectId !== assetId)
@@ -38,22 +36,41 @@ export function useRestoreAssetMutation() {
         );
       }
 
-      return { previousAssets, previousDeleted };
+      return { restoredAsset: restored };
     },
-    onError: (_err, _assetId, context) => {
-      if (context?.previousAssets) {
-        queryClient.setQueryData([ASSETS_QUERY_KEY], context.previousAssets);
-      }
-      if (context?.previousDeleted) {
-        queryClient.setQueryData(
+    onSuccess: (_data, _assetId, context) => {
+      const label = context?.restoredAsset?.title?.[0] ?? _assetId;
+      toastStore.addToast({
+        message: `"${label}" restored.`,
+        variant: "success",
+      });
+    },
+    onError: (_err, assetId, context) => {
+      toastStore.addToast({
+        title: "Restore failed",
+        message: _err.message ?? "Could not restore asset.",
+        variant: "error",
+        duration: Infinity,
+      });
+      // Re-add only the failed asset instead of restoring a stale snapshot
+      if (context?.restoredAsset) {
+        queryClient.setQueryData<DeletedAssetSummary[]>(
           [DELETED_ASSETS_QUERY_KEY],
-          context.previousDeleted
+          (old) => [context.restoredAsset!, ...(old ?? [])]
         );
       }
+      queryClient.setQueryData<AssetSummary[]>(
+        [ASSETS_QUERY_KEY],
+        (old) => old?.filter((a) => a.objectId !== assetId)
+      );
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [DELETED_ASSETS_QUERY_KEY] });
+      if (queryClient.isMutating() === 0) {
+        queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
+        queryClient.invalidateQueries({
+          queryKey: [DELETED_ASSETS_QUERY_KEY],
+        });
+      }
     },
   });
 }

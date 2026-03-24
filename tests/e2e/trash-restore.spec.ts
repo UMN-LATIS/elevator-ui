@@ -48,7 +48,7 @@ test.describe("Trash and Restore", () => {
     await expect(titleField).toHaveValue("Asset 1");
   });
 
-  test("delete shows toast with undo that restores the asset", async ({
+  test("delete via UI shows confirm dialog, then moves asset to trash", async ({
     page,
   }) => {
     // --- Navigate to All My Assets ---
@@ -58,29 +58,25 @@ test.describe("Trash and Restore", () => {
     const firstRow = page.locator("tbody tr").first();
     const assetTitle = await firstRow.locator("td").nth(2).textContent();
 
-    // --- Delete via UI (first delete shows confirm dialog) ---
+    // --- Click Delete — first delete shows confirm dialog ---
     await firstRow.getByRole("button", { name: "Delete" }).click();
+    await expect(page.getByText("Move to Trash?")).toBeVisible();
     await page.getByRole("button", { name: "Move to Trash" }).click();
 
-    // --- Toast appears with Undo ---
+    // --- Toast confirms deletion ---
     await expect(page.getByText("moved to trash.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
 
     // --- Asset gone from My Assets ---
     await expect(
       page.getByText(assetTitle!, { exact: true })
     ).not.toBeVisible();
 
-    // --- Click Undo ---
-    await page.getByRole("button", { name: "Undo" }).click();
-
-    // --- Asset reappears in My Assets ---
-    await expect(
-      page.getByText(assetTitle!, { exact: true })
-    ).toBeVisible();
+    // --- Asset appears in Trash tab ---
+    await page.getByText(/Trash/i).first().click();
+    await expect(page.getByText(assetTitle!)).toBeVisible();
   });
 
-  test("restore shows toast with undo that re-deletes the asset", async ({
+  test("restore shows toast and moves asset back to My Assets", async ({
     page,
     request,
   }) => {
@@ -99,19 +95,12 @@ test.describe("Trash and Restore", () => {
     const trashRow = page.locator("tr", { hasText: "Asset 1" });
     await trashRow.getByRole("button", { name: "Restore" }).click();
 
-    // --- Toast appears with Undo ---
+    // --- Toast confirms restore ---
     await expect(page.getByText("restored.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
 
     // --- Asset gone from trash ---
     await expect(
       page.locator("tr", { hasText: "Asset 1" })
     ).not.toBeVisible();
-
-    // --- Click Undo ---
-    await page.getByRole("button", { name: "Undo" }).click();
-
-    // --- Asset reappears in trash ---
-    await expect(page.getByText("Asset 1")).toBeVisible();
   });
 });

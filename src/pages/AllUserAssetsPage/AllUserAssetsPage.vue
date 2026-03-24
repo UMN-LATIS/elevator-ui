@@ -57,8 +57,6 @@ import { createDeletedColumns } from "./DeletedAssetsTableColumns";
 import UserAssetsTable from "./UserAssetsTable.vue";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useRestoreAssetMutation } from "@/queries/useRestoreAssetMutation";
-import { useErrorStore } from "@/stores/errorStore";
-import { useToastStore } from "@/stores/toastStore";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
 const route = useRoute();
@@ -85,8 +83,6 @@ const { data: deletedAssets, isFetching: isDeletedFetching } =
 
 const { mutate: deleteAsset } = useDeleteAssetMutation();
 const { mutate: restoreAsset } = useRestoreAssetMutation();
-const errorStore = useErrorStore();
-const toastStore = useToastStore();
 
 // Show the delete confirmation dialog once per session, then skip it.
 const hasConfirmedDelete = ref(false);
@@ -94,26 +90,7 @@ const showDeleteConfirm = ref(false);
 const pendingDeleteId = ref<string | null>(null);
 
 const performDelete = (assetId: string) => {
-  const asset = allUserAssets.value.find((a) => a.objectId === assetId);
-  const label = asset?.title || assetId;
-  deleteAsset(assetId, {
-    onSuccess: () => {
-      toastStore.addToast({
-        message: `"${label}" moved to trash.`,
-        variant: "success",
-        duration: 6000,
-        action: {
-          label: "Undo",
-          handler: () => restoreAsset(assetId),
-        },
-      });
-    },
-    onError: (error) => {
-      errorStore.setError(
-        new Error(`Failed to delete asset: ${error.message}`)
-      );
-    },
-  });
+  deleteAsset(assetId);
 };
 
 const handleDeleteAsset = (assetId: string) => {
@@ -134,21 +111,7 @@ const confirmDelete = () => {
 };
 
 const handleRestore = (assetId: string) => {
-  const asset = deletedAssets.value.find((a) => a.objectId === assetId);
-  const label = asset?.title || assetId;
-  restoreAsset(assetId, {
-    onSuccess: () => {
-      toastStore.addToast({
-        message: `"${label}" restored.`,
-        variant: "success",
-        duration: 6000,
-        action: {
-          label: "Undo",
-          handler: () => deleteAsset(assetId),
-        },
-      });
-    },
-  });
+  restoreAsset(assetId);
 };
 
 const columns = createColumns({ onDelete: handleDeleteAsset });
