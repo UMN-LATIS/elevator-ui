@@ -46,7 +46,7 @@ export function useDeleteAssetMutation() {
       return { deletedAsset: deleted };
     },
     onSuccess: (_data, _assetId, context) => {
-      const label = context?.deletedAsset?.title ?? _assetId;
+      const label = context?.deletedAsset?.title || _assetId;
       toastStore.addToast({
         message: `"${label}" moved to trash.`,
         variant: "success",
