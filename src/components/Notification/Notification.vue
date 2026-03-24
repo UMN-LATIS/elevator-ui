@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'notification max-w-lg w-full mx-auto overflow-hidden relative shadow rounded-md',
+      'notification max-w-lg w-full mx-auto overflow-hidden relative rounded-md',
       {
         'notification--info bg-surface-container-high text-on-surface':
           type === 'info',
@@ -30,17 +30,14 @@
         'border-success': type === 'success',
       }">
       <div
-        class="notification__icon rounded-full p-2 self-center"
-        :class="{
-          'bg-outline-variant text-on-surface-variant': type === 'info',
-          'bg-warning text-on-warning': type === 'warning',
-          'bg-success text-on-success': type === 'success',
-          'bg-error text-on-error': type === 'danger',
-        }">
+        class="notification__icon rounded-full p-2 self-center">
         <WarningIcon v-if="type === 'warning'" />
         <InfoIcon v-if="type === 'info'" />
         <CircleCheckIcon v-if="type === 'success'" />
-        <CircleXIcon v-if="type === 'danger'" />
+        <CircleAlertIcon
+          v-if="type === 'danger'"
+          class="w-5 h-5"
+          :stroke-width="1.5" />
       </div>
       <h3
         class="notification__title text-sm font-bold uppercase pr-6 text-inherit self-center">
@@ -53,8 +50,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { WarningIcon, InfoIcon, CircleCheckIcon, CircleXIcon } from "@/icons";
+import { WarningIcon, InfoIcon, CircleCheckIcon } from "@/icons";
 import XIcon from "@/icons/XIcon.vue";
+import { CircleAlertIcon } from "lucide-vue-next";
 
 withDefaults(
   defineProps<{
@@ -75,11 +73,14 @@ defineEmits<{
 </script>
 <style scoped>
 /*
- * Remap primary tokens so any slotted buttons (login links, confirm actions,
- * etc.) harmonize with the notification's color family. Works across all
- * themes because it aliases existing M3 role tokens.
+ * Per-variant tokens:
+ * --icon-bg / --icon-fg  → icon circle background (via color-mix) and foreground
+ * --primary remaps       → slotted buttons harmonize with the notification color
  */
 .notification--info {
+  --icon-tint: var(--on-surface);
+  --icon-base: var(--surface-container-high);
+  --icon-fg: var(--on-surface);
   --primary: var(--on-surface);
   --on-primary: var(--surface);
   --primary-container: var(--surface-container-highest);
@@ -87,6 +88,9 @@ defineEmits<{
 }
 
 .notification--warning {
+  --icon-tint: var(--warning);
+  --icon-base: var(--warning-container);
+  --icon-fg: var(--on-warning-container);
   --primary: var(--warning);
   --on-primary: var(--on-warning);
   --primary-container: var(--warning-container);
@@ -94,6 +98,9 @@ defineEmits<{
 }
 
 .notification--error {
+  --icon-tint: var(--error);
+  --icon-base: var(--error-container);
+  --icon-fg: var(--on-error-container);
   --primary: var(--error);
   --on-primary: var(--on-error);
   --primary-container: var(--error-container);
@@ -101,9 +108,17 @@ defineEmits<{
 }
 
 .notification--success {
+  --icon-tint: var(--success);
+  --icon-base: var(--success-container);
+  --icon-fg: var(--on-success-container);
   --primary: var(--success);
   --on-primary: var(--on-success);
   --primary-container: var(--success-container);
   --on-primary-container: var(--on-success-container);
+}
+
+.notification__icon {
+  background: color-mix(in oklch, var(--icon-tint) 15%, var(--icon-base));
+  color: var(--icon-fg);
 }
 </style>
