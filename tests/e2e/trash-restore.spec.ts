@@ -58,8 +58,9 @@ test.describe("Trash and Restore", () => {
     const firstRow = page.locator("tbody tr").first();
     const assetTitle = await firstRow.locator("td").nth(2).textContent();
 
-    // --- Delete via UI ---
+    // --- Delete via UI (first delete shows confirm dialog) ---
     await firstRow.getByRole("button", { name: "Delete" }).click();
+    await page.getByRole("button", { name: "Move to Trash" }).click();
 
     // --- Toast appears with Undo ---
     await expect(page.getByText("moved to trash.")).toBeVisible();
