@@ -30,9 +30,11 @@ test.describe("Trash and Restore", () => {
     await page.goto("/assetManager/userAssets?tab=trash");
     await expect(page.getByText("Asset 1")).toBeVisible();
 
-    // --- Click Restore (one-click, no modal) ---
+    // --- Click Restore — first restore shows confirm dialog ---
     const trashRow = page.locator("tr", { hasText: "Asset 1" });
     await trashRow.getByRole("button", { name: "Restore" }).click();
+    await expect(page.getByText("Restore Asset?")).toBeVisible();
+    await page.getByRole("button", { name: "Restore" }).click();
 
     // --- Toast should confirm restore ---
     await expect(page.getByText("restored.")).toBeVisible();
@@ -73,7 +75,73 @@ test.describe("Trash and Restore", () => {
 
     // --- Asset appears in Trash tab ---
     await page.getByText(/Trash/i).first().click();
-    await expect(page.getByText(assetTitle!)).toBeVisible();
+    await expect(
+      page.locator("tbody").getByText(assetTitle!, { exact: true })
+    ).toBeVisible();
+  });
+
+  test("rapid deletes: second deleted asset does not reappear after first delete settles", async ({
+    page,
+  }) => {
+    await page.goto("/assetManager/userAssets");
+    await page.locator("tbody tr").first().waitFor();
+
+    // Identify the first two assets by title (column index 2)
+    const firstTitle = (
+      await page.locator("tbody tr").nth(0).locator("td").nth(2).textContent()
+    )!.trim();
+    const secondTitle = (
+      await page.locator("tbody tr").nth(1).locator("td").nth(2).textContent()
+    )!.trim();
+
+    // Listen for the userAssets refetch (any GET after the initial load)
+    const refetch = page.waitForResponse(
+      (r) =>
+        r.url().includes("/userAssets/") &&
+        r.url().includes("/true") &&
+        r.request().method() === "GET"
+    );
+
+    // Delete first asset — triggers one-time confirm dialog
+    await page
+      .locator("tbody tr")
+      .first()
+      .getByRole("button", { name: "Delete" })
+      .click();
+    await page.getByRole("button", { name: "Move to Trash" }).click();
+
+    // Wait for first asset to leave the DOM before targeting next row
+    await expect(
+      page.locator("tbody").getByText(firstTitle, { exact: true })
+    ).not.toBeVisible();
+
+    // Delete second asset — no dialog (already confirmed this session)
+    await page
+      .locator("tbody tr")
+      .first()
+      .getByRole("button", { name: "Delete" })
+      .click();
+
+    // Second asset also removed optimistically
+    await expect(
+      page.locator("tbody").getByText(secondTitle, { exact: true })
+    ).not.toBeVisible();
+
+    // Wait for the refetch to complete.
+    // - Guard works: refetch fires after both deletes settle → correct data → pass
+    // - Guard missing: refetch fires after first delete → stale data with asset 2 → fail
+    // - Guard blocks all refetches: times out → fail
+    await refetch;
+    // Let Vue render the refetch data
+    await page.waitForTimeout(50);
+
+    // Point-in-time check (no auto-retry) — catches the race condition
+    expect(
+      await page
+        .locator("tbody")
+        .getByText(secondTitle, { exact: true })
+        .isVisible()
+    ).toBe(false);
   });
 
   test("restore shows toast and moves asset back to My Assets", async ({
@@ -91,9 +159,11 @@ test.describe("Trash and Restore", () => {
     await page.goto("/assetManager/userAssets?tab=trash");
     await expect(page.getByText("Asset 1")).toBeVisible();
 
-    // --- Restore ---
+    // --- Restore — confirm dialog ---
     const trashRow = page.locator("tr", { hasText: "Asset 1" });
     await trashRow.getByRole("button", { name: "Restore" }).click();
+    await expect(page.getByText("Restore Asset?")).toBeVisible();
+    await page.getByRole("button", { name: "Restore" }).click();
 
     // --- Toast confirms restore ---
     await expect(page.getByText("restored.")).toBeVisible();

@@ -39,7 +39,7 @@ export function useRestoreAssetMutation() {
       return { restoredAsset: restored };
     },
     onSuccess: (_data, _assetId, context) => {
-      const label = context?.restoredAsset?.title?.[0] ?? _assetId;
+      const label = context?.restoredAsset?.title || _assetId;
       toastStore.addToast({
         message: `"${label}" restored.`,
         variant: "success",
@@ -65,7 +65,7 @@ export function useRestoreAssetMutation() {
       );
     },
     onSettled: () => {
-      if (queryClient.isMutating() === 0) {
+      if (queryClient.isMutating() === 1) {
         queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
         queryClient.invalidateQueries({
           queryKey: [DELETED_ASSETS_QUERY_KEY],
