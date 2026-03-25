@@ -10,7 +10,7 @@
           class="border border-primary py-2 px-4"
           :disabled="isRestoring"
           @click="handleRestore">
-          {{ isRestoring ? "Restoring…" : "Undelete" }}
+          {{ isRestoring ? "Restoring…" : "Restore" }}
         </Button>
       </div>
     </Notification>

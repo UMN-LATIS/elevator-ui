@@ -44,7 +44,7 @@ test.describe("Deleted Asset Notice", () => {
     await page.goto(`/asset/viewAsset/${SEED_ASSET_ID}`);
     await expect(page.getByText("Asset Deleted")).toBeVisible();
 
-    await page.getByRole("button", { name: "Undelete" }).click();
+    await page.getByRole("button", { name: "Restore" }).click();
 
     // After restore, the notice should disappear and asset should load
     await expect(page.getByText("Asset Deleted")).not.toBeVisible();
@@ -55,14 +55,14 @@ test.describe("Deleted Asset Notice", () => {
     await page.goto(`/assetManager/editAsset/${SEED_ASSET_ID}`);
 
     await expect(page.getByText("Asset Deleted")).toBeVisible();
-    await page.getByRole("button", { name: "Undelete" }).click();
+    await page.getByRole("button", { name: "Restore" }).click();
 
     // After restore, the notice should disappear
     await expect(page.getByText("Asset Deleted")).not.toBeVisible();
     await expect(page.getByText("restored.")).toBeVisible();
   });
 
-  test("regular user sees deleted notice without Undelete button", async ({
+  test("regular user sees deleted notice without Restore button", async ({
     page,
     request,
   }) => {
@@ -73,7 +73,7 @@ test.describe("Deleted Asset Notice", () => {
 
     await expect(page.getByText("Asset Deleted")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Undelete" })
+      page.getByRole("button", { name: "Restore" })
     ).not.toBeVisible();
   });
 });
