@@ -9,7 +9,7 @@
     }"
     :to="`#${assetId}`">
     <ThumbnailImage
-      v-if="assetCacheItem.primaryHandler"
+      v-if="assetCacheItem?.primaryHandler"
       :src="getTinyURL(assetCacheItem.primaryHandler)"
       :alt="title"
       class="thumbnail-related-asset-widget__image max-w-full" />
@@ -31,7 +31,7 @@ defineProps<{
   assetId: string;
   title: string;
   isActiveObject: boolean;
-  assetCacheItem: RelatedAssetCacheItem;
+  assetCacheItem: RelatedAssetCacheItem | null;
 }>();
 </script>
 <style scoped></style>

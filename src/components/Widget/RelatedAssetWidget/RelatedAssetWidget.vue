@@ -1,6 +1,8 @@
 <template>
   <!-- Stop rendering if we've detected a cycle or exceeded max depth -->
-  <div v-if="isCycle || isTooDeep" class="text-sm text-on-surface-variant italic p-2">
+  <div
+    v-if="isCycle || isTooDeep"
+    class="text-sm text-on-surface-variant italic p-2">
     <span v-if="isCycle">
       Circular reference detected - stopping to prevent infinite loop
     </span>
@@ -14,18 +16,26 @@
       'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
       'gap-2': widgetType !== LinkedRelatedAssetWidgetItem,
     }">
-    <component
-      :is="widgetType"
+    <template
       v-for="relatedAsset in safeContents"
-      :key="relatedAsset.targetAssetId"
-      :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
-      :assetId="relatedAsset.targetAssetId"
-      :assetCacheItem="relatedAsset.cacheItem"
-      :title="relatedAsset.title">
-      <div class="flex items-center justify-end gap-2">
-        <ArrowButton :to="`/asset/viewAsset/${relatedAsset.targetAssetId}`" />
-      </div>
-    </component>
+      :key="relatedAsset.targetAssetId">
+      <DeletedRelatedAssetPlaceholder
+        v-if="!relatedAsset.cacheItem"
+        :title="relatedAsset.title" />
+      <component
+        :is="widgetType"
+        v-else
+        :isActiveObject="
+          assetStore.activeObjectId === relatedAsset.targetAssetId
+        "
+        :assetId="relatedAsset.targetAssetId"
+        :assetCacheItem="relatedAsset.cacheItem"
+        :title="relatedAsset.title">
+        <div class="flex items-center justify-end gap-2">
+          <ArrowButton :to="`/asset/viewAsset/${relatedAsset.targetAssetId}`" />
+        </div>
+      </component>
+    </template>
   </div>
 </template>
 <script setup lang="ts">
@@ -50,6 +60,7 @@ import CollapsedInlineRelatedAssetWidgetItem from "./CollapsedInlineRelatedAsset
 import ThumbnailRelatedAssetWidgetItem from "./ThumbnailRelatedAssetWidgetItem.vue";
 import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
 import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
+import DeletedRelatedAssetPlaceholder from "./DeletedRelatedAssetPlaceholder.vue";
 import { useAssetStore } from "@/stores/assetStore";
 
 // Cycle detection: track which asset IDs are ancestors in the render tree
@@ -161,8 +172,10 @@ function getRelatedAssetTitle({
     trimmedLabel.length > 0 &&
     trimmedLabel !== trimmedTitle;
 
+  const fallbackTitle = cacheItem ? "(No Title)" : "(Deleted asset)";
+
   if (!shouldShowLabel) {
-    return trimmedTitle || "(No Title)";
+    return trimmedTitle || fallbackTitle;
   }
   return `${trimmedTitle} (${trimmedLabel})`;
 }

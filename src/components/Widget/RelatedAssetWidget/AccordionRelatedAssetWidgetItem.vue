@@ -27,7 +27,7 @@ import { RelatedAssetCacheItem } from "@/types";
 defineProps<{
   assetId: string;
   title: string;
-  assetCacheItem: RelatedAssetCacheItem;
+  assetCacheItem: RelatedAssetCacheItem | null;
 }>();
 </script>
 <style scoped></style>
