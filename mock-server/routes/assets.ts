@@ -13,8 +13,20 @@ app.get("/viewAsset/:assetId/true", async (c) => {
   const db = c.get("db");
   const assetId = c.req.param("assetId");
   const asset = db.assets.get(assetId);
-  if (!asset || asset.deleted === true) {
+  if (!asset) {
     return c.json({ error: "Asset not found" }, 404);
+  }
+  if (asset.deleted === true) {
+    return c.json(
+      {
+        error: "deleted",
+        objectId: assetId,
+        deletedAt: asset.deletedAt ?? null,
+        deletedBy: asset.deletedBy ?? null,
+      },
+      410,
+      { "Cache-Control": "no-store" }
+    );
   }
   return c.json(asset);
 });

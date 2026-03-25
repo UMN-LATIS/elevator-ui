@@ -81,7 +81,7 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  if (!customConfig.skipErrorNotifications) {
+  if (!customConfig.skipErrorNotifications && apiError.statusCode !== 410) {
     // Add the ApiError to the errorStore
     errorStore.setError(apiError);
   }
@@ -982,7 +982,9 @@ export async function deleteCustomPage(pageId: number) {
 }
 
 export async function fetchFieldTypes(): Promise<FieldType[]> {
-  const res = await axios.get<FieldType[]>(`${BASE_URL}/templates/getFieldTypes`);
+  const res = await axios.get<FieldType[]>(
+    `${BASE_URL}/templates/getFieldTypes`
+  );
   return res.data;
 }
 

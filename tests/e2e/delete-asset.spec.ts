@@ -16,7 +16,7 @@ test.describe("Delete Asset", () => {
     await page.goto("/");
   });
 
-  test("navigating to a deleted asset's URL returns 404, not the asset data", async ({
+  test("navigating to a deleted asset's URL returns 410, not the asset data", async ({
     page,
     request,
   }) => {
@@ -46,8 +46,7 @@ test.describe("Delete Asset", () => {
       page.goto(`/asset/viewAsset/${KNOWN_ASSET_ID}`),
     ]);
 
-    // The backend should return 404 for a deleted asset, not 200
-    expect(afterResponse.status()).toBe(404);
+    // The backend should return 410 Gone for a deleted asset, not 200
+    expect(afterResponse.status()).toBe(410);
   });
-
 });

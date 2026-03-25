@@ -23,7 +23,10 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        if (error instanceof ApiError && [401, 403, 404].includes(error.statusCode)) {
+        if (
+          error instanceof ApiError &&
+          [401, 403, 404, 410].includes(error.statusCode)
+        ) {
           return false;
         }
         return failureCount < 3;

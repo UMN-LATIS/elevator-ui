@@ -1008,6 +1008,13 @@ export interface DeletedAssetSummary extends AssetSummary {
   deletedBy: number | null;
 }
 
+export interface DeletedAssetInfo {
+  error: "deleted";
+  objectId: string;
+  deletedAt: string | null;
+  deletedBy: number | null;
+}
+
 export interface SelectOption<idType = string> {
   id: idType;
   label: string;
