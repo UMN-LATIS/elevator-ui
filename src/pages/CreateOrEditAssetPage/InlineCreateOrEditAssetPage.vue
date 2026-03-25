@@ -7,6 +7,11 @@
       class="text-on-surface-variant italic p-2 bg-surface-container rounded text-sm">
       Maximum nesting depth reached.
     </div>
+    <DeletedAssetNotice
+      v-else-if="deletedAssetInfo"
+      :assetId="props.assetId!"
+      :deletedAt="deletedAssetInfo.deletedAt"
+      @restored="handleRestored" />
     <Transition v-else name="fade">
       <div
         v-if="!assetEditor.localAsset || !assetEditor.template"
@@ -81,6 +86,7 @@ import {
   onMounted,
   provide,
   reactive,
+  ref,
   useTemplateRef,
   watch,
 } from "vue";
@@ -89,6 +95,9 @@ import {
   createAssetEditor,
   useAssetEditor,
 } from "./useAssetEditor/useAssetEditor";
+import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
+import { ApiError } from "@/api/ApiError";
+import type { DeletedAssetInfo } from "@/types";
 import invariant from "tiny-invariant";
 import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
@@ -138,6 +147,15 @@ const { isBlank } = useAssetValidationProvider(
   assetEditor.getWidgetInstanceId
 );
 
+const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
+
+function handleRestored() {
+  deletedAssetInfo.value = null;
+  if (props.assetId) {
+    assetEditor.initExistingAsset(props.assetId, { force: true });
+  }
+}
+
 onMounted(async () => {
   // Bail out early if depth limit exceeded to prevent infinite recursion
   if (depthExceeded) {
@@ -157,7 +175,15 @@ onMounted(async () => {
   });
 
   if (props.assetId) {
-    await assetEditor.initExistingAsset(props.assetId);
+    try {
+      await assetEditor.initExistingAsset(props.assetId);
+    } catch (err) {
+      if (err instanceof ApiError && err.statusCode === 410) {
+        deletedAssetInfo.value = err.data as DeletedAssetInfo;
+        return;
+      }
+      throw err;
+    }
   } else {
     invariant(props.templateId && props.collectionId);
     await assetEditor.initNewAsset({
