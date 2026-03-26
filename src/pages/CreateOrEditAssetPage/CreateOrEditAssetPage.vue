@@ -26,6 +26,11 @@
           class="w-4 h-4 ml-2 animate-spin" />
       </Button>
     </form>
+    <DeletedAssetNotice
+      v-else-if="deletedAssetInfo"
+      :assetId="assetId!"
+      :deletedAt="deletedAssetInfo.deletedAt"
+      @restored="handleRestored" />
     <div
       v-else-if="!assetEditor.isInitialized"
       class="flex justify-center items-center py-12">
@@ -115,17 +120,34 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onMounted, provide, reactive, ref, watch, watchEffect } from "vue";
+import {
+  computed,
+  nextTick,
+  onMounted,
+  provide,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+import {
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+  useRoute,
+  useRouter,
+} from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { createAssetEditor } from "./useAssetEditor/useAssetEditor";
+import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
+import { ApiError } from "@/api/ApiError";
+import type { DeletedAssetInfo } from "@/types";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
@@ -157,6 +179,14 @@ useAssetValidationProvider(
 
 const toastStore = useToastStore();
 const uploadStore = useUploadStore();
+const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
+
+function handleRestored() {
+  deletedAssetInfo.value = null;
+  if (props.assetId) {
+    assetEditor.initExistingAsset(props.assetId, { force: true });
+  }
+}
 
 // --- Upload navigation guard ---
 
@@ -202,10 +232,21 @@ function handleLeaveCancel() {
 
 watch(
   () => props.assetId,
-  () => {
-    props.assetId
-      ? assetEditor.initExistingAsset(props.assetId)
-      : assetEditor.reset();
+  async () => {
+    deletedAssetInfo.value = null;
+    if (!props.assetId) {
+      assetEditor.reset();
+      return;
+    }
+    try {
+      await assetEditor.initExistingAsset(props.assetId);
+    } catch (err) {
+      if (err instanceof ApiError && err.statusCode === 410) {
+        deletedAssetInfo.value = err.data as DeletedAssetInfo;
+      } else {
+        throw err;
+      }
+    }
   },
   { immediate: true }
 );

@@ -1,6 +1,8 @@
 <template>
   <!-- Stop rendering if we've detected a cycle or exceeded max depth -->
-  <div v-if="isCycle || isTooDeep" class="text-sm text-on-surface-variant italic p-2">
+  <div
+    v-if="isCycle || isTooDeep"
+    class="text-sm text-on-surface-variant italic p-2">
     <span v-if="isCycle">
       Circular reference detected - stopping to prevent infinite loop
     </span>
@@ -18,7 +20,9 @@
       :is="widgetType"
       v-for="relatedAsset in safeContents"
       :key="relatedAsset.targetAssetId"
-      :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
+      :isActiveObject="
+        assetStore.activeObjectId === relatedAsset.targetAssetId
+      "
       :assetId="relatedAsset.targetAssetId"
       :assetCacheItem="relatedAsset.cacheItem"
       :title="relatedAsset.title">
@@ -122,10 +126,10 @@ const contentsWithAssetId = computed(() =>
     })
 );
 
-// Filter out any related assets that would create a cycle
+// Filter out cycles and items with no cache data (deleted or unavailable)
 const safeContents = computed(() =>
   contentsWithAssetId.value.filter(
-    (item) => !childAncestors.has(item.targetAssetId)
+    (item) => item.cacheItem && !childAncestors.has(item.targetAssetId)
   )
 );
 

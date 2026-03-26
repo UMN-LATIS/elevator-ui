@@ -4,8 +4,13 @@
       <PrevNextSearchResultNav />
     </template>
     <template v-if="isPageLoaded">
+      <DeletedAssetNotice
+        v-if="deletedAssetInfo"
+        :assetId="props.assetId"
+        :deletedAt="deletedAssetInfo.deletedAt"
+        @restored="handleRestored" />
       <MetaDataOnlyView
-        v-if="isMetaDataOnly"
+        v-else-if="isMetaDataOnly"
         :assetId="assetStore.activeAssetId" />
       <AssetView
         v-else
@@ -21,10 +26,13 @@ import { useRoute, onBeforeRouteLeave } from "vue-router";
 import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
+import DeletedAssetNotice from "./DeletedAssetNotice.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { usePageTitle } from "@/helpers/usePageTitle";
 import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
 import { striptags } from "striptags";
+import { ApiError } from "@/api/ApiError";
+import type { DeletedAssetInfo } from "@/types";
 
 const assetStore = useAssetStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
@@ -43,6 +51,7 @@ const objectId = computed(
 );
 
 const pageTitle = usePageTitle();
+const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
 
 async function onAssetIdChange() {
   // to prevent page format from shifting from MetaDataOnlyPage
@@ -51,19 +60,39 @@ async function onAssetIdChange() {
   // once the asset is loaded, we can determine if this should be a
   // `metadata-only-page` or a `asset-with-viewer-page`
   isPageLoaded.value = false;
-  const asset = await assetStore.setActiveAsset(props.assetId, objectId.value);
+  deletedAssetInfo.value = null;
 
-  // if there's no asset we're done
-  if (!asset) {
-    pageTitle.value = "Asset not found";
-    isPageLoaded.value = true;
-    return;
+  try {
+    const asset = await assetStore.setActiveAsset(
+      props.assetId,
+      objectId.value
+    );
+
+    // if there's no asset we're done
+    if (!asset) {
+      pageTitle.value = "Asset not found";
+      isPageLoaded.value = true;
+      return;
+    }
+
+    // if there's an asset, set the page title
+    const assetTitle = getAssetTitle(asset);
+    pageTitle.value = striptags(assetTitle);
+  } catch (err) {
+    if (err instanceof ApiError && err.statusCode === 410) {
+      deletedAssetInfo.value = err.data as DeletedAssetInfo;
+      pageTitle.value = "Deleted asset";
+    } else {
+      throw err;
+    }
   }
 
-  // if there's an asset, set the page title
-  const assetTitle = getAssetTitle(asset);
-  pageTitle.value = striptags(assetTitle);
   isPageLoaded.value = true;
+}
+
+function handleRestored() {
+  deletedAssetInfo.value = null;
+  onAssetIdChange();
 }
 
 watch([() => props.assetId, () => route.params?.assetId], onAssetIdChange, {

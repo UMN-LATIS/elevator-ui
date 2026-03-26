@@ -7,48 +7,142 @@
           <Button variant="primary" class="mb-4">Add Asset</Button>
         </RouterLink>
       </div>
-      <p v-if="!isFetching && !allUserAssets.length" class="text-lg">
-        No assets found.
-      </p>
-      <UserAssetsTable
-        v-else
-        :columns="columns"
-        :data="allUserAssets"
-        @deleteAsset="deleteAsset" />
+      <Tabs :activeTabId="activeTab" @tabChange="(tab) => setActiveTab(tab.id)">
+        <Tab id="my-assets" label="My Assets">
+          <p v-if="!isFetching && !allUserAssets.length" class="text-lg">
+            No assets found.
+          </p>
+          <UserAssetsTable
+            v-else-if="allUserAssets.length"
+            :columns="columns"
+            :data="allUserAssets"
+            :defaultSort="{ id: 'modifiedDate_date', desc: true }"
+            @deleteAsset="handleDeleteAsset" />
+        </Tab>
+        <Tab id="trash" :label="`Trash (${deletedAssets.length})`">
+          <p v-if="!isDeletedFetching && !deletedAssets.length" class="text-lg">
+            No deleted assets.
+          </p>
+          <UserAssetsTable
+            v-else-if="deletedAssets.length"
+            :columns="trashColumns"
+            :data="deletedAssets"
+            :defaultSort="{ id: 'deletedAt', desc: true }" />
+        </Tab>
+      </Tabs>
     </div>
+    <ConfirmModal
+      :isOpen="showDeleteConfirm"
+      title="Move to Trash?"
+      type="warning"
+      confirmLabel="Move to Trash"
+      @confirm="confirmDelete"
+      @close="showDeleteConfirm = false">
+      Deleting an asset moves it to the trash. Restoring it later will require
+      regenerating derivatives, which may take some time.
+    </ConfirmModal>
+    <ConfirmModal
+      :isOpen="showRestoreConfirm"
+      title="Restore Asset?"
+      type="warning"
+      confirmLabel="Restore"
+      @confirm="confirmRestore"
+      @close="showRestoreConfirm = false">
+      Restoring an asset will regenerate its derivatives, which may take some
+      time.
+    </ConfirmModal>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useAllUserAssets } from "@/queries/useAllUserAssets";
+import { useDeletedUserAssets } from "@/queries/useDeletedUserAssets";
 import Button from "@/components/Button/Button.vue";
+import Tabs from "@/components/Tabs/Tabs.vue";
+import Tab from "@/components/Tabs/Tab.vue";
 import { createColumns } from "./UserAssetsTableColumns";
+import { createDeletedColumns } from "./DeletedAssetsTableColumns";
 import UserAssetsTable from "./UserAssetsTable.vue";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
-import { useErrorStore } from "@/stores/errorStore";
+import { useRestoreAssetMutation } from "@/queries/useRestoreAssetMutation";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 
-const { data: allUserAssets, isFetching } = useAllUserAssets();
+const route = useRoute();
+const router = useRouter();
 
-const { mutate: deleteAsset } = useDeleteAssetMutation();
-const errorStore = useErrorStore();
+const VALID_TABS = ["my-assets", "trash"] as const;
+const activeTab = computed(() => {
+  const tab = route.query.tab as string;
+  return VALID_TABS.includes(tab as (typeof VALID_TABS)[number])
+    ? tab
+    : "my-assets";
+});
 
-const handleDeleteAsset = (assetId: string) => {
-  const confirmDelete = confirm(
-    "Are you sure you want to delete this asset? This action cannot be undone."
-  );
-  if (!confirmDelete) return;
-  deleteAsset(assetId, {
-    onSuccess: () => {
-      // TODO: toast success
-    },
-    onError: (error) => {
-      errorStore.setError(
-        new Error(`Failed to delete asset: ${error.message}`)
-      );
-    },
+const setActiveTab = (tabId: string) => {
+  const { tab: _tab, ...rest } = route.query;
+  router.replace({
+    query: tabId === "my-assets" ? rest : { ...rest, tab: tabId },
   });
 };
 
+const { data: allUserAssets, isFetching } = useAllUserAssets();
+const { data: deletedAssets, isFetching: isDeletedFetching } =
+  useDeletedUserAssets();
+
+const { mutate: deleteAsset } = useDeleteAssetMutation();
+const { mutate: restoreAsset } = useRestoreAssetMutation();
+
+// Show the delete confirmation dialog once per session, then skip it.
+const hasConfirmedDelete = ref(false);
+const showDeleteConfirm = ref(false);
+const pendingDeleteId = ref<string | null>(null);
+
+const performDelete = (assetId: string) => {
+  deleteAsset(assetId);
+};
+
+const handleDeleteAsset = (assetId: string) => {
+  if (hasConfirmedDelete.value) {
+    performDelete(assetId);
+    return;
+  }
+  pendingDeleteId.value = assetId;
+  showDeleteConfirm.value = true;
+};
+
+const confirmDelete = () => {
+  hasConfirmedDelete.value = true;
+  if (pendingDeleteId.value) {
+    performDelete(pendingDeleteId.value);
+    pendingDeleteId.value = null;
+  }
+};
+
+// Show the restore confirmation dialog once per session, then skip it.
+const hasConfirmedRestore = ref(false);
+const showRestoreConfirm = ref(false);
+const pendingRestoreId = ref<string | null>(null);
+
+const handleRestore = (assetId: string) => {
+  if (hasConfirmedRestore.value) {
+    restoreAsset(assetId);
+    return;
+  }
+  pendingRestoreId.value = assetId;
+  showRestoreConfirm.value = true;
+};
+
+const confirmRestore = () => {
+  hasConfirmedRestore.value = true;
+  if (pendingRestoreId.value) {
+    restoreAsset(pendingRestoreId.value);
+    pendingRestoreId.value = null;
+  }
+};
+
 const columns = createColumns({ onDelete: handleDeleteAsset });
+const trashColumns = createDeletedColumns({ onRestore: handleRestore });
 </script>
 <style scoped></style>

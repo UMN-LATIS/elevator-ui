@@ -97,7 +97,7 @@ const generateMockAssets = (count = 100): Asset[] => {
       firstFileHandlerId: handlerId,
       title: [title],
       modified: {
-        date: baseDate.toISOString().replace("T", " ").replace("Z", ".000000"),
+        date: baseDate.toISOString(),
         timezone_type: 3,
         timezone: "UTC",
       },
@@ -276,6 +276,64 @@ const assetSeeds: Asset[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Soft-deleted assets for trash tab testing
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Deleted Photo Essay" }],
+    assetId: "deleted_asset_001",
+    firstFileHandlerId: "handler_deleted_001",
+    title: ["Deleted Photo Essay"],
+    templateId: 1,
+    collectionId: 1,
+    createdBy: 1,
+    modifiedBy: 1,
+    deleted: true,
+    deletedBy: 1,
+    deletedAt: "2026-03-15T10:30:00.000Z",
+    modified: {
+      date: "2026-03-10 08:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Deleted Audio Recording" }],
+    assetId: "deleted_asset_002",
+    firstFileHandlerId: "handler_deleted_002",
+    title: ["Deleted Audio Recording"],
+    templateId: 1,
+    collectionId: 2,
+    createdBy: 1,
+    modifiedBy: 1,
+    deleted: true,
+    deletedBy: 1,
+    deletedAt: "2026-03-16T14:45:00.000Z",
+    modified: {
+      date: "2026-03-12 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Deleted Video Clip" }],
+    assetId: "deleted_asset_003",
+    firstFileHandlerId: "handler_deleted_003",
+    title: ["Deleted Video Clip"],
+    templateId: 1,
+    collectionId: 1,
+    createdBy: 2,
+    modifiedBy: 2,
+    deleted: true,
+    deletedBy: 2,
+    deletedAt: "2026-03-17T09:15:00.000Z",
+    modified: {
+      date: "2026-03-14 16:30:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
   ...generateMockAssets(),
 ];
 
@@ -326,24 +384,35 @@ export function createAssetsTable({
         template,
       });
     },
-    getByUserId: (userId: number): AssetPreview[] => {
+    getByUserId: (userId: number) => {
       return baseTable
         .filter(
-          (asset) => asset.createdBy === userId || asset.modifiedBy === userId
+          (asset) =>
+            !asset.deleted &&
+            (asset.createdBy === userId || asset.modifiedBy === userId)
         )
-        .map((asset) => {
-          const collection = collections.get(asset.collectionId);
-          const template = templates.get(asset.templateId);
-          if (!collection || !template) {
-            return null;
-          }
-          return assetToSearchResultMatch({
-            asset,
-            collection,
-            template,
-          });
-        })
-        .filter((preview): preview is AssetPreview => preview !== null);
+        .map((asset) => ({
+          objectId: asset.assetId,
+          title: asset.title?.[0] ?? "(Untitled)",
+          readyForDisplay: asset.readyForDisplay ?? false,
+          templateId: asset.templateId,
+          modifiedDate: asset.modified,
+        }));
+    },
+    getDeletedByUser: (userId: number) => {
+      return baseTable
+        .filter(
+          (asset) => asset.deleted === true && asset.deletedBy === userId
+        )
+        .map((asset) => ({
+          objectId: asset.assetId,
+          title: asset.title?.[0] ?? "(Untitled)",
+          readyForDisplay: asset.readyForDisplay ?? false,
+          templateId: asset.templateId,
+          modifiedDate: asset.modified,
+          deletedAt: asset.deletedAt,
+          deletedBy: asset.deletedBy,
+        }));
     },
   };
 }

@@ -32,6 +32,7 @@ import {
   type ApiSuccessResponse,
   type CreateAssetRequestFormData,
   type AssetSummary,
+  type DeletedAssetSummary,
   type UpdateAssetRequestFormData,
   TemplateComparison,
   type GetFileContainerApiResponse,
@@ -80,7 +81,7 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  if (!customConfig.skipErrorNotifications) {
+  if (!customConfig.skipErrorNotifications && apiError.statusCode !== 410) {
     // Add the ApiError to the errorStore
     errorStore.setError(apiError);
   }
@@ -642,6 +643,20 @@ export async function updateAsset(assetFormData: UpdateAssetRequestFormData) {
   return res.data;
 }
 
+export async function fetchDeletedUserAssets() {
+  const res = await axios.get<DeletedAssetSummary[]>(
+    `${BASE_URL}/assetManager/deletedAssets`
+  );
+  return res.data;
+}
+
+export async function undeleteAsset(assetId: string) {
+  const res = await axios.post<{ objectId: string }>(
+    `${BASE_URL}/assetManager/undeleteAsset/${assetId}`
+  );
+  return res.data;
+}
+
 export async function fetchAllUserAssets() {
   const offset = 0;
   const returnJson = true;
@@ -967,7 +982,9 @@ export async function deleteCustomPage(pageId: number) {
 }
 
 export async function fetchFieldTypes(): Promise<FieldType[]> {
-  const res = await axios.get<FieldType[]>(`${BASE_URL}/templates/getFieldTypes`);
+  const res = await axios.get<FieldType[]>(
+    `${BASE_URL}/templates/getFieldTypes`
+  );
   return res.data;
 }
 
