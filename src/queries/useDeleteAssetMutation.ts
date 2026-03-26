@@ -5,11 +5,14 @@ import { ASSETS_QUERY_KEY } from "./queryKeys";
 import { DELETED_ASSETS_QUERY_KEY } from "./useDeletedUserAssets";
 import { useToastStore } from "@/stores/toastStore";
 
+const DELETE_MUTATION_KEY = ["deleteAsset"] as const;
+
 export function useDeleteAssetMutation() {
   const queryClient = useQueryClient();
   const toastStore = useToastStore();
 
   return useMutation({
+    mutationKey: DELETE_MUTATION_KEY,
     mutationFn: fetchers.deleteAsset,
     onMutate: async (assetId) => {
       await queryClient.cancelQueries({ queryKey: [ASSETS_QUERY_KEY] });
@@ -75,7 +78,7 @@ export function useDeleteAssetMutation() {
       // isMutating() still counts the current mutation as pending inside
       // onSettled (state dispatches after callbacks), so === 1 means
       // "I am the last in-flight mutation."
-      if (queryClient.isMutating() === 1) {
+      if (queryClient.isMutating({ mutationKey: DELETE_MUTATION_KEY }) === 1) {
         queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
         queryClient.invalidateQueries({
           queryKey: [DELETED_ASSETS_QUERY_KEY],

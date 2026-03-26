@@ -5,11 +5,14 @@ import { ASSETS_QUERY_KEY } from "./queryKeys";
 import { DELETED_ASSETS_QUERY_KEY } from "./useDeletedUserAssets";
 import { useToastStore } from "@/stores/toastStore";
 
+const RESTORE_MUTATION_KEY = ["restoreAsset"] as const;
+
 export function useRestoreAssetMutation() {
   const queryClient = useQueryClient();
   const toastStore = useToastStore();
 
   return useMutation({
+    mutationKey: RESTORE_MUTATION_KEY,
     mutationFn: undeleteAsset,
     onMutate: async (assetId) => {
       await queryClient.cancelQueries({ queryKey: [ASSETS_QUERY_KEY] });
@@ -65,7 +68,7 @@ export function useRestoreAssetMutation() {
       );
     },
     onSettled: () => {
-      if (queryClient.isMutating() === 1) {
+      if (queryClient.isMutating({ mutationKey: RESTORE_MUTATION_KEY }) === 1) {
         queryClient.invalidateQueries({ queryKey: [ASSETS_QUERY_KEY] });
         queryClient.invalidateQueries({
           queryKey: [DELETED_ASSETS_QUERY_KEY],
