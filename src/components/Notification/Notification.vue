@@ -22,7 +22,7 @@
       <XIcon />
     </button>
     <div
-      class="grid grid-cols-[auto_1fr] gap-x-4 p-4 border border-l-8 rounded-md"
+      class="grid grid-cols-[auto_1fr] gap-x-4 p-4 pt-2 border-l-8 rounded-md"
       :class="{
         'border-outline-variant': type === 'info',
         'border-warning': type === 'warning',
