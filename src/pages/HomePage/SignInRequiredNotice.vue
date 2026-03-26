@@ -10,7 +10,8 @@
     <div class="flex gap-2">
       <Button
         :to="`/loginManager/localLogin/?redirect=${$route.path}`"
-        class="sign-in-required__local-login">
+        class="sign-in-required__local-login"
+        variant="primary">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
           <!--
           The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
@@ -20,7 +21,8 @@
       <Button
         v-if="instance.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
-        class="sign-in-required__remote-login">
+        class="sign-in-required__remote-login"
+        variant="primary">
         {{ instance.centralAuthLabel }} Login
       </Button>
     </div>

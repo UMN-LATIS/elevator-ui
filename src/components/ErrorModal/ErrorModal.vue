@@ -15,16 +15,6 @@
           class="w-full max-w-md border-none max-h-[80vh] !overflow-auto rounded-md"
           @dismiss="errorStore.clearError()">
           <p>{{ message }}</p>
-
-          <div class="mt-1">
-            <!-- using href for force app reload -->
-            <Button
-              :to="{ name: 'home' }"
-              variant="tertiary"
-              class="border border-primary">
-              Go Home
-            </Button>
-          </div>
         </Notification>
       </div>
     </Transition>
@@ -32,7 +22,6 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import Button from "../Button/Button.vue";
 import { useErrorStore } from "@/stores/errorStore";
 import Notification from "../Notification/Notification.vue";
 import { ApiError } from "@/api/ApiError";

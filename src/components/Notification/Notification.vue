@@ -42,7 +42,7 @@
         class="notification__title text-sm font-bold uppercase pr-6 text-inherit self-center">
         {{ title }}
       </h3>
-      <div class="notification__contents col-start-2 mt-2 text-sm">
+      <div class="notification__contents col-start-2 text-sm">
         <slot />
       </div>
     </div>
