@@ -243,6 +243,8 @@ watch(
     } catch (err) {
       if (err instanceof ApiError && err.statusCode === 410) {
         deletedAssetInfo.value = err.data as DeletedAssetInfo;
+      } else {
+        throw err;
       }
     }
   },

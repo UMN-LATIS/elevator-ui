@@ -82,6 +82,8 @@ async function onAssetIdChange() {
     if (err instanceof ApiError && err.statusCode === 410) {
       deletedAssetInfo.value = err.data as DeletedAssetInfo;
       pageTitle.value = "Deleted asset";
+    } else {
+      throw err;
     }
   }
 
