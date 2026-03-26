@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import {
   Dialog,
   DialogPanel,
@@ -64,7 +64,7 @@ import {
 import Notification from "@/components/Notification/Notification.vue";
 import Button from "@/components/Button/Button.vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     isOpen: boolean;
     title: string;
@@ -86,12 +86,9 @@ const emit = defineEmits<{
 
 const confirmButtonRef = ref<HTMLButtonElement | null>(null);
 
-const confirmButtonVariant = computed(() => {
-  if (props.type === "danger") {
-    return "danger";
-  }
-  return "primary";
-});
+// Always use "primary" — scoped CSS below remaps --primary tokens within
+// each notification color context so buttons harmonize with the dialog.
+const confirmButtonVariant = "primary";
 
 function handleConfirm() {
   emit("confirm");

@@ -359,6 +359,11 @@ const router = createRouter({
       component: () => import("@/pages/TestPages/MapStressTest.vue"),
     },
     {
+      name: "notificationTest",
+      path: "/tests/notifications",
+      component: () => import("@/pages/TestPages/NotificationTest.vue"),
+    },
+    {
       name: "error",
       path: "/error/:errorCode",
       component: ErrorPage,
