@@ -43,25 +43,28 @@
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          <TransitionGroup :name="globalFilter ? undefined : 'table-row'">
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-              :data-state="row.getIsSelected() ? 'selected' : undefined">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()" />
-              </TableCell>
-            </TableRow>
-          </TransitionGroup>
-          <TableRow v-if="!table.getRowModel().rows?.length">
+        <TransitionGroup
+          tag="tbody"
+          :name="globalFilter ? undefined : 'table-row'"
+          class="[&_tr:last-child]:border-0">
+          <TableRow
+            v-for="row in table.getRowModel().rows"
+            :key="row.id"
+            :data-state="row.getIsSelected() ? 'selected' : undefined">
+            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+              <FlexRender
+                :render="cell.column.columnDef.cell"
+                :props="cell.getContext()" />
+            </TableCell>
+          </TableRow>
+          <TableRow
+            v-if="!table.getRowModel().rows?.length"
+            key="empty-state">
             <TableCell :colspan="columns.length" class="h-24 text-center">
               No results.
             </TableCell>
           </TableRow>
-        </TableBody>
+        </TransitionGroup>
       </Table>
     </div>
   </div>
@@ -71,7 +74,6 @@ import { ref } from "vue";
 import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
