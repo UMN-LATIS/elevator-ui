@@ -768,6 +768,23 @@ const actions = (state: SearchStoreState) => ({
       });
       state.matches.value.push(...res.matches);
       state.searchEntry.value = res.searchEntry;
+
+      // If the API returned fewer results than expected, adjust totalResults
+      // to match reality. This handles index/count divergence (e.g., deleted
+      // items still counted in totalResults).
+      const exhausted =
+        res.matches.length === 0 || loadAll;
+
+      if (
+        exhausted &&
+        state.matches.value.length < (state.totalResults.value ?? 0)
+      ) {
+        console.warn(
+          `totalResults (${state.totalResults.value}) exceeds actual results (${state.matches.value.length}). Adjusting.`
+        );
+        state.totalResults.value = state.matches.value.length;
+      }
+
       state.status.value = "success";
     } catch (error) {
       state.status.value = "error";

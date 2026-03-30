@@ -9,7 +9,7 @@
         :showDetails="false"
         :drawerId="drawerId" />
       <SkeletonCard
-        v-for="i in Math.min(30, (totalResults ?? Infinity) - matches.length)"
+        v-for="i in skeletonCount"
         v-show="status === 'fetching'"
         :key="i" />
     </div>
@@ -27,6 +27,7 @@ const props = withDefaults(
     totalResults?: number;
     matches: SearchResultMatch[];
     status: FetchStatus;
+    hasMoreResults: boolean;
     drawerId?: number;
   }>(),
   {
@@ -52,7 +53,7 @@ watch(
 
     if (
       arrived.bottom &&
-      hasMoreResults.value &&
+      props.hasMoreResults &&
       props.status !== "fetching" &&
       hasInitialData
     ) {
@@ -62,8 +63,13 @@ watch(
   { immediate: true }
 );
 
-const hasMoreResults = computed(() => {
-  return (props.totalResults ?? Infinity) > props.matches.length;
+const MAX_SKELETONS = 30;
+
+// Guard against negative counts — the server's totalResults can exceed
+// actual match count when the server-side cache is out of sync.
+const skeletonCount = computed(() => {
+  const remaining = (props.totalResults ?? Infinity) - props.matches.length;
+  return Math.max(0, Math.min(MAX_SKELETONS, remaining));
 });
 </script>
 <style scoped></style>
