@@ -63,6 +63,7 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
+              :hasMoreResults="searchStore.hasMoreResults"
               :showAddToDrawerButton="
                 instanceStore.currentUser?.canManageDrawers
               "
@@ -73,6 +74,7 @@
               :totalResults="searchStore.totalResults"
               :matches="searchStore.matches"
               :status="searchStore.status"
+              :hasMoreResults="searchStore.hasMoreResults"
               @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="timeline" label="Timeline">
