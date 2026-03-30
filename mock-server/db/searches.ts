@@ -86,6 +86,7 @@ export function createSearchesTable({
           "Modified Date (oldest to newest)" as const,
       };
 
+      // permit override for testing when there's a mismatch between the number of matched assets and the expected total results (e.g. when testing pagination)
       const totalResults = totalResultsOverride ?? matchedAssets.length;
 
       // Store complete results for pagination
