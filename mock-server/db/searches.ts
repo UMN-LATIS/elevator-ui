@@ -48,7 +48,10 @@ export function createSearchesTable({
   return {
     ...baseTable,
     // Table-specific methods
-    create: (query: string): SearchResultsResponse => {
+    create: (
+      query: string,
+      { totalResultsOverride }: { totalResultsOverride?: number } = {}
+    ): SearchResultsResponse => {
       const searchId = crypto.randomUUID();
 
       // find any matches in the assets
@@ -83,10 +86,13 @@ export function createSearchesTable({
           "Modified Date (oldest to newest)" as const,
       };
 
+      // permit override for testing when there's a mismatch between the number of matched assets and the expected total results (e.g. when testing pagination)
+      const totalResults = totalResultsOverride ?? matchedAssets.length;
+
       // Store complete results for pagination
       completeSearchResults.set(searchId, {
         allMatches: allSearchMatches,
-        totalResults: matchedAssets.length,
+        totalResults,
         searchEntry,
         sortableWidgets,
       });
@@ -97,7 +103,7 @@ export function createSearchesTable({
       const newSearch: SearchResultsResponse = {
         searchId,
         matches: paginatedMatches,
-        totalResults: matchedAssets.length,
+        totalResults,
         searchResults: paginatedMatches.map((match) => match.objectId),
         searchEntry,
         sortableWidgets,

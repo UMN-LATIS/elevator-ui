@@ -100,6 +100,34 @@ export async function getAssetCount({
   return count;
 }
 
+export async function createMismatchedSearch({
+  request,
+  workerId,
+  query = "",
+  totalResultsOverride,
+}: {
+  request: APIRequestContext;
+  workerId: string;
+  query?: string;
+  totalResultsOverride: number;
+}) {
+  const response = await request.post(
+    `${MOCK_SERVER_BASE}/_tests/search/create`,
+    {
+      data: { query, totalResultsOverride },
+      headers: { "x-worker-id": workerId },
+    }
+  );
+
+  if (!response.ok()) {
+    throw new Error(
+      `Failed to create mismatched search: ${response.status()} ${await response.text()}`
+    );
+  }
+
+  return await response.json();
+}
+
 export async function updateInstance({
   request,
   workerId,

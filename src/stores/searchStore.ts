@@ -709,6 +709,16 @@ const actions = (state: SearchStoreState) => ({
       ...opts,
     };
 
+    // If we already have results for this searchId, keep them.
+    // This prevents back-navigation from resetting state while
+    // the API cache still holds the old pages — which would cause
+    // duplicate appends as loadMore re-walks cached pages.
+    if (state.searchId.value === searchId && state.matches.value.length > 0) {
+      state.status.value = "success";
+      state.afterNewSearchHandlers.forEach((fn) => fn(state));
+      return state.searchId.value;
+    }
+
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
 
@@ -768,6 +778,23 @@ const actions = (state: SearchStoreState) => ({
       });
       state.matches.value.push(...res.matches);
       state.searchEntry.value = res.searchEntry;
+
+      // If the API returned fewer results than expected, adjust totalResults
+      // to match reality. This handles index/count divergence (e.g., deleted
+      // items still counted in totalResults).
+      const hasNoMoreMatches =
+        res.matches.length === 0 || loadAll;
+
+      if (
+        hasNoMoreMatches &&
+        state.matches.value.length < (state.totalResults.value ?? 0)
+      ) {
+        console.warn(
+          `totalResults (${state.totalResults.value}) exceeds actual results (${state.matches.value.length}). Adjusting.`
+        );
+        state.totalResults.value = state.matches.value.length;
+      }
+
       state.status.value = "success";
     } catch (error) {
       state.status.value = "error";

@@ -153,6 +153,13 @@ app.get("/_tests/db/assets/count", (c) => {
   return c.json({ count: db.assets.size() });
 });
 
+app.post("/_tests/search/create", async (c) => {
+  const db = c.get("db");
+  const { query = "", totalResultsOverride } = await c.req.json();
+  const results = db.searches.create(query, { totalResultsOverride });
+  return c.json(results);
+});
+
 // Endpoint that delays response to test timeout behavior
 app.get("/_tests/slow-image.jpg", async (c) => {
   // Delay for 15 seconds (longer than the 10-second timeout in onAllImagesLoaded)
