@@ -37,6 +37,9 @@ function createCache() {
     moreLikeThisMatches: new Map<string, SearchResultMatch[]>(),
     fileMetaData: new Map<string, FileMetaData>(),
     fileDownloadResponses: new Map<string, FileDownloadNormalized[]>(),
+    // TODO: consider migrating search caching to TanStack Query —
+    // this hand-rolled cache doesn't key on loadAll and can drift
+    // from store state on back-navigation.
     paginatedSearchResults: new Map<
       string,
       Record<number, SearchResultsResponse>

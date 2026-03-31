@@ -782,11 +782,11 @@ const actions = (state: SearchStoreState) => ({
       // If the API returned fewer results than expected, adjust totalResults
       // to match reality. This handles index/count divergence (e.g., deleted
       // items still counted in totalResults).
-      const exhausted =
+      const hasNoMoreMatches =
         res.matches.length === 0 || loadAll;
 
       if (
-        exhausted &&
+        hasNoMoreMatches &&
         state.matches.value.length < (state.totalResults.value ?? 0)
       ) {
         console.warn(
