@@ -709,6 +709,16 @@ const actions = (state: SearchStoreState) => ({
       ...opts,
     };
 
+    // If we already have results for this searchId, keep them.
+    // This prevents back-navigation from resetting state while
+    // the API cache still holds the old pages — which would cause
+    // duplicate appends as loadMore re-walks cached pages.
+    if (state.searchId.value === searchId && state.matches.value.length > 0) {
+      state.status.value = "success";
+      state.afterNewSearchHandlers.forEach((fn) => fn(state));
+      return state.searchId.value;
+    }
+
     // call all registered before handlers
     state.beforeNewSearchHandlers.forEach((fn) => fn());
 
