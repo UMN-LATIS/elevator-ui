@@ -16,7 +16,10 @@
       <ul v-else class="max-w-sm">
         <template v-for="download in downloadFileInfo" :key="download.filetype">
           <a
-            v-if="download.isReady || download.filetype === 'original'"
+            v-if="
+              (download.isReady && download.isDownloadable) ||
+              download.filetype === 'original'
+            "
             :href="download.url"
             class="py-2 hover:bg-outline-variant/50 border-t last:border-b block hover:no-underline group"
             :download="`${download.originalFilename}-${download.filetype}.${download.extension}`"
