@@ -723,7 +723,7 @@ const mockSearch: SearchResultsResponse = {
               },
               fileId: "61f4487387ddb32ddf1cd201",
               fileType: "mp4",
-              sidecars: { captions: "", chapters: "" },
+              sidecars: { captions: "", chapters: "", language: null },
               isPrimary: true,
               searchData: null,
               fileDescription: "",
