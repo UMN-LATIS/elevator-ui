@@ -27,7 +27,7 @@
           </Tuple>
           <Tuple label="Image Size">
             {{ fileMetaData.width ?? "Unknown" }} x
-            {{ fileMetaData.height ?? "Unknonwn" }}
+            {{ fileMetaData.height ?? "Unknown" }}
           </Tuple>
           <Tuple
             v-if="shouldShowLocation && fileMetaData.coordinates"
@@ -54,7 +54,7 @@
           <pre>{{ displayExif }}</pre>
         </section>
         <section v-else>
-          <pre>{{ fileMetaData }}</pre>
+          <pre>{{ displayFileMetaData }}</pre>
         </section>
       </div>
     </Transition>
@@ -95,9 +95,22 @@ const displayExif = computed(() => {
   return shouldShowLocation.value ? exif : filterGpsFromExif(exif);
 });
 
+const displayFileMetaData = computed(() => {
+  if (!fileMetaData.value || shouldShowLocation.value) return fileMetaData.value;
+  const { coordinates: _coordinates, exif, ...rest } = fileMetaData.value;
+  return {
+    ...rest,
+    ...(exif ? { exif: filterGpsFromExif(exif) } : {}),
+  };
+});
+
 async function handleInfoButtonClick() {
   isFileInfoOpen.value = !isFileInfoOpen.value;
+
+  if (!isFileInfoOpen.value) return;
+
   fileMetaData.value = undefined;
+  shouldShowLocation.value = true;
 
   if (props.assetId) {
     const { template } = await api.getAssetWithTemplate(props.assetId);
