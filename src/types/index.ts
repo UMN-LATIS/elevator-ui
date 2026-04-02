@@ -513,8 +513,9 @@ interface AssetWidgetFields {
 
 export type Asset = BaseAsset & AssetWidgetFields;
 
-export type UnsavedAsset = Omit<BaseAsset, "assetId"> & {
+export type UnsavedAsset = Omit<BaseAsset, "assetId" | "modified"> & {
   assetId: null;
+  modified: PHPDateTime | null;
 } & AssetWidgetFields;
 
 export type TemplateShowPropertyPosition =
