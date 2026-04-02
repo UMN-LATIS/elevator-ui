@@ -1,4 +1,4 @@
-import type { Template, UploadWidgetDef } from "@/types";
+import { WIDGET_TYPES, type Template, type UploadWidgetDef } from "@/types";
 import type { Exif } from "@/types/FileMetaDataTypes";
 
 /**
@@ -6,16 +6,19 @@ import type { Exif } from "@/types/FileMetaDataTypes";
  * Defaults to true (show location) when the flag is absent, the template
  * has no upload widget, or the template itself is null.
  */
-export function getExtractLocation(template: Template | null): boolean {
+export function shouldExtractLocation(template: Template | null): boolean {
   if (!template) return true;
 
-  const uploadWidget = template.widgetArray.find(
-    (w): w is UploadWidgetDef => w.type === "upload"
+  const uploadWidgetDef = template.widgetArray.find(
+    (w): w is UploadWidgetDef => w.type === WIDGET_TYPES.UPLOAD
   );
 
-  return uploadWidget?.fieldData.extractLocation ?? true;
+  return uploadWidgetDef?.fieldData.extractLocation ?? true;
 }
 
+// EXIF GPS fields all share a "GPS" prefix (GPSLatitude, GPSLongitude,
+// GPSAltitude, GPSSpeed, etc.) across every EXIF section (EXIF, Composite).
+// Filtering by prefix strips all location data from the raw EXIF dump.
 const GPS_KEY_PREFIX = "GPS";
 
 function omitGpsKeys<T extends Record<string, unknown>>(
@@ -31,15 +34,14 @@ function omitGpsKeys<T extends Record<string, unknown>>(
  * removed from every section. Does not mutate the original.
  */
 export function filterGpsFromExif(exif: Exif): Exif {
-  const filtered: Exif = {};
-
-  for (const [sectionKey, sectionValue] of Object.entries(exif)) {
-    if (sectionValue && typeof sectionValue === "object") {
-      filtered[sectionKey as keyof Exif] = omitGpsKeys(
-        sectionValue as Record<string, unknown>
-      ) as Exif[keyof Exif];
-    }
-  }
-
-  return filtered;
+  // Each EXIF section (EXIF, Composite, File, etc.) is an object whose keys
+  // we can filter. Non-object values are preserved as-is.
+  return Object.fromEntries(
+    Object.entries(exif).map(([key, section]) => [
+      key,
+      section && typeof section === "object"
+        ? omitGpsKeys(section as Record<string, unknown>)
+        : section,
+    ])
+  ) as Exif;
 }

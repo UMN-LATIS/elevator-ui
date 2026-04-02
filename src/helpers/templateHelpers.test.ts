@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getExtractLocation, filterGpsFromExif } from "./templateHelpers";
+import { shouldExtractLocation, filterGpsFromExif } from "./templateHelpers";
 import type { Template } from "@/types";
 import type { Exif } from "@/types/FileMetaDataTypes";
 
@@ -71,25 +71,25 @@ function makeTemplateWithoutUpload(): Template {
   };
 }
 
-describe("getExtractLocation", () => {
+describe("shouldExtractLocation", () => {
   it("returns false when extractLocation is false", () => {
-    expect(getExtractLocation(makeTemplate(false))).toBe(false);
+    expect(shouldExtractLocation(makeTemplate(false))).toBe(false);
   });
 
   it("returns true when extractLocation is true", () => {
-    expect(getExtractLocation(makeTemplate(true))).toBe(true);
+    expect(shouldExtractLocation(makeTemplate(true))).toBe(true);
   });
 
   it("defaults to true when extractLocation is undefined", () => {
-    expect(getExtractLocation(makeTemplate(undefined))).toBe(true);
+    expect(shouldExtractLocation(makeTemplate(undefined))).toBe(true);
   });
 
   it("defaults to true when template has no upload widget", () => {
-    expect(getExtractLocation(makeTemplateWithoutUpload())).toBe(true);
+    expect(shouldExtractLocation(makeTemplateWithoutUpload())).toBe(true);
   });
 
   it("defaults to true when template is null", () => {
-    expect(getExtractLocation(null)).toBe(true);
+    expect(shouldExtractLocation(null)).toBe(true);
   });
 });
 

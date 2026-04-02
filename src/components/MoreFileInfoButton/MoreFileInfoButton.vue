@@ -70,7 +70,7 @@ import Tuple from "../Tuple/Tuple.vue";
 import config from "@/config";
 import InfoIcon from "@/icons/InfoIcon.vue";
 import {
-  getExtractLocation,
+  shouldExtractLocation,
   filterGpsFromExif,
 } from "@/helpers/templateHelpers";
 
@@ -101,7 +101,7 @@ async function handleInfoButtonClick() {
 
   if (props.assetId) {
     const { template } = await api.getAssetWithTemplate(props.assetId);
-    shouldShowLocation.value = getExtractLocation(template);
+    shouldShowLocation.value = shouldExtractLocation(template);
   }
 
   fileMetaData.value = await api.getFileMetaData(props.fileObjectId);
