@@ -1,17 +1,30 @@
 <template>
   <div class="audio-handler-sidecar flex flex-col gap-4">
-    <SelectGroup
-      label="Language"
-      placeholder="Auto-detect language"
-      :modelValue="sidecars.language ?? ''"
-      :options="iso639LanguageOptions"
-      @update:modelValue="
-        (value) =>
+    <div class="flex flex-col gap-1">
+      <label
+        :for="languageId"
+        class="text-xs uppercase font-medium text-on-surface">
+        Language
+      </label>
+      <select
+        :id="languageId"
+        :value="sidecars.language ?? ''"
+        class="rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2"
+        @change="
           $emit('update:sidecars', {
             ...sidecars,
-            language: value as string | null,
+            language: ($event.target as HTMLSelectElement).value || null,
           })
-      " />
+        ">
+        <option value="">Auto-detect language</option>
+        <option
+          v-for="opt in iso639LanguageOptions"
+          :key="opt.id"
+          :value="opt.id">
+          {{ opt.label }}
+        </option>
+      </select>
+    </div>
 
     <UploadableTextArea
       :modelValue="sidecars.captions ?? ''"
@@ -40,11 +53,12 @@
 </template>
 
 <script setup lang="ts">
-import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { iso639LanguageOptions } from "@/constants/iso639";
 import * as Type from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import UploadableTextArea from "./UploadableTextArea.vue";
+
+const languageId = `language-${crypto.randomUUID()}`;
 
 defineProps<{
   sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;

@@ -10,15 +10,15 @@ const defaultSidecars: WithId<UploadWidgetContent["sidecars"]> = {
   language: null,
 };
 
-const defaultWidgetDef: UploadWidgetDef = {
+const defaultWidgetDef = {
   type: "upload",
   fieldTitle: "Upload",
   label: "Upload",
   fieldData: {},
-};
+} as unknown as UploadWidgetDef;
 
 function mountSidecar(
-  sidecars: Partial<WithId<UploadWidgetContent["sidecars"]>> = {},
+  sidecars: Partial<WithId<UploadWidgetContent["sidecars"]>> = {}
 ) {
   return mount(MovieHandlerSidecar, {
     props: {
@@ -37,11 +37,12 @@ describe("MovieHandlerSidecar", () => {
     expect(languageLabel).toBeDefined();
   });
 
-  it("shows the placeholder when no language is set", () => {
+  it("defaults to Auto-detect when no language is set", () => {
     const wrapper = mountSidecar({ language: null });
     const select = wrapper.find("select");
-    const selected = select.find("option[selected]");
-    expect(selected.text()).toBe("Auto-detect language");
+    expect((select.element as HTMLSelectElement).value).toBe("");
+    const firstOption = wrapper.find("select option");
+    expect(firstOption.text()).toBe("Auto-detect language");
   });
 
   it("selects the correct language when set", () => {
@@ -60,10 +61,20 @@ describe("MovieHandlerSidecar", () => {
     expect(emitted![0][0]).toMatchObject({ language: "fr" });
   });
 
-  it("includes English as the first language option", () => {
+  it("emits null when selecting Auto-detect", async () => {
+    const wrapper = mountSidecar({ language: "es" });
+    const select = wrapper.find("select");
+    await select.setValue("");
+
+    const emitted = wrapper.emitted("update:sidecars");
+    expect(emitted).toBeTruthy();
+    expect(emitted![0][0]).toMatchObject({ language: null });
+  });
+
+  it("includes English as the first language option after Auto-detect", () => {
     const wrapper = mountSidecar();
     const options = wrapper.findAll("select option");
-    // First option is the placeholder, second should be English
+    expect(options[0].text()).toBe("Auto-detect language");
     expect(options[1].text()).toBe("English");
     expect(options[1].attributes("value")).toBe("en");
   });
