@@ -304,6 +304,7 @@ export interface UploadWidgetContent extends WidgetContent {
     dendro?: Record<string, unknown> | string | null; // dendro data (JSON string)
     captions?: string | null; // captions data
     chapters?: string | null; // chapters data
+    language?: string | null; // ISO 639-1 language code for caption generation
     "3dpoints"?: string | null; // 3D data
   };
   regenerate?: "On" | undefined; // regenerate derivatives
