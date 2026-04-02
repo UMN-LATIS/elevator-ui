@@ -10,9 +10,9 @@ function makeTemplate(
     templateId: 1,
     templateName: "Test Template",
     showCollection: false,
-    showCollectionPosition: "top",
+    showCollectionPosition: 1,
     showTemplate: false,
-    showTemplatePosition: "top",
+    showTemplatePosition: 1,
     widgetArray: [
       {
         widgetId: 1,
@@ -44,9 +44,9 @@ function makeTemplateWithoutUpload(): Template {
     templateId: 2,
     templateName: "No Upload Template",
     showCollection: false,
-    showCollectionPosition: "top",
+    showCollectionPosition: 1,
     showTemplate: false,
-    showTemplatePosition: "top",
+    showTemplatePosition: 1,
     widgetArray: [
       {
         widgetId: 1,

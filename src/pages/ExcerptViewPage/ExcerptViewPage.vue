@@ -31,7 +31,9 @@
             </span>
           </div>
           <div>
-            <MoreFileInfoButton :fileObjectId="excerpt.fileObjectId" />
+            <MoreFileInfoButton
+              :fileObjectId="excerpt.fileObjectId"
+              :assetId="excerpt.assetId" />
             <DownloadFileButton
               :assetId="excerpt.assetId"
               :fileObjectId="excerpt.fileObjectId" />
