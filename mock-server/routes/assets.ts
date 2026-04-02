@@ -313,4 +313,50 @@ app.get("/compareTemplates/:templateId1/:templateId2", async (c) => {
   return isEmpty(differences) ? c.json([]) : c.json(differences);
 });
 
+// GET /asset/getEmbedAsJson/:fileId/:parentObjectId?
+// Returns download info for a file's derivatives in the shape the frontend expects.
+app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+  const fileId = c.req.param("fileId");
+  const file = db.files.get(fileId);
+  const filename = file?.fileName ?? `file-${fileId}`;
+
+  const makeEntry = (
+    filetype: string,
+    {
+      ready = true,
+      downloadable = true,
+    }: { ready?: boolean; downloadable?: boolean } = {}
+  ) => ({
+    storageClass: "local",
+    originalFilename: filename,
+    path: `/files/${fileId}/${filetype}`,
+    derivativeType: filetype,
+    metadata: [],
+    basePath: "/files",
+    baseWebPath: "/files",
+    ready,
+    forcedMimeType: null,
+    localAsset: null,
+    storageKey: `${fileId}_${filetype}`,
+    downloadable,
+  });
+
+  const fileType = file?.fileType ?? "unknown";
+  const isNonDownloadable = ["dcm", "dicom"].includes(fileType);
+
+  return c.json({
+    original: makeEntry("original", { ready: true, downloadable: true }),
+    thumbnail: makeEntry("thumbnail", {
+      ready: true,
+      downloadable: !isNonDownloadable,
+    }),
+    screen: makeEntry("screen", {
+      ready: true,
+      downloadable: !isNonDownloadable,
+    }),
+  });
+});
+
 export default app;
