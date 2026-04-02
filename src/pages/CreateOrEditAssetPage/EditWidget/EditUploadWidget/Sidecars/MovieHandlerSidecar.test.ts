@@ -10,12 +10,25 @@ const defaultSidecars: WithId<UploadWidgetContent["sidecars"]> = {
   language: null,
 };
 
-const defaultWidgetDef = {
+const defaultWidgetDef: UploadWidgetDef = {
   type: "upload",
+  widgetId: 1,
+  allowMultiple: false,
+  attemptAutocomplete: false,
   fieldTitle: "Upload",
   label: "Upload",
+  tooltip: "",
   fieldData: {},
-} as unknown as UploadWidgetDef;
+  display: true,
+  displayInPreview: false,
+  required: false,
+  searchable: false,
+  directSearch: false,
+  clickToSearch: false,
+  clickToSearchType: 0,
+  viewOrder: 0,
+  templateOrder: 0,
+};
 
 function mountSidecar(
   sidecars: Partial<WithId<UploadWidgetContent["sidecars"]>> = {}
