@@ -41,11 +41,19 @@ const props = withDefaults(
 
 const removeExtraWhitespace = (str: string) => str.replace(/\s+/g, " ").trim();
 
+const escapeHtmlAttr = (str: string) =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
 const isOpen = ref(false);
 
 const embedValue = computed(() => {
   return removeExtraWhitespace(`
-  <iframe width="560" height="480" src="${props.url}" title="${props.embedTitle}" frameborder="0" allowfullscreen></iframe>`);
+  <iframe width="560" height="480" src="${props.url}" title="${escapeHtmlAttr(props.embedTitle)}" frameborder="0" allowfullscreen></iframe>`);
 });
 </script>
 <style scoped></style>

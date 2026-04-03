@@ -30,20 +30,21 @@ export const useAssetStore = defineStore("asset2", {
     activeFileDescription(): string {
       if (!this.activeAsset || !this.activeTemplate) return "";
 
-      const uploadWidgetDef = this.activeTemplate.widgetArray.find(
+      const uploadWidgetDefs = this.activeTemplate.widgetArray.filter(
         (w): w is UploadWidgetDef => w.type === WIDGET_TYPES.UPLOAD
       );
-      if (!uploadWidgetDef) return "";
 
-      const contents = this.activeAsset[uploadWidgetDef.fieldTitle] as
-        | UploadWidgetContent[]
-        | undefined;
+      for (const widgetDef of uploadWidgetDefs) {
+        const contents = this.activeAsset[widgetDef.fieldTitle] as
+          | UploadWidgetContent[]
+          | undefined;
+        const match = contents?.find(
+          (c) => c.fileId === this.activeFileObjectId
+        );
+        if (match?.fileDescription) return match.fileDescription;
+      }
 
-      const activeContent = contents?.find(
-        (c) => c.fileId === this.activeFileObjectId
-      );
-
-      return activeContent?.fileDescription ?? "";
+      return "";
     },
     activeTitle(): string {
       if (!this.activeAsset) return "";

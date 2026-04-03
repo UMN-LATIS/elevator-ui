@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
+import { ref } from "vue";
 import ObjectViewer from "./ObjectViewer.vue";
 
 vi.mock("@/config", () => ({
@@ -12,7 +13,7 @@ vi.mock("@/config", () => ({
 
 vi.mock("@/helpers/useTheming", () => ({
   useTheming: () => ({
-    activeTheme: { value: "light" },
+    activeTheme: ref("light"),
   }),
 }));
 
