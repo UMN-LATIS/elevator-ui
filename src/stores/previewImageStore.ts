@@ -42,21 +42,24 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
       });
   });
 
-  const registerFileId = (fileId: string) => {
+  const incrementRefCount = (fileId: FileId) =>
     refCountMap.set(fileId, (refCountMap.get(fileId) ?? 0) + 1);
-    if (!imageReadyMap.has(fileId)) {
-      imageReadyMap.set(fileId, false);
-    }
+
+  const decrementRefCount = (fileId: FileId) => {
+    const next = (refCountMap.get(fileId) ?? 1) - 1;
+    return next <= 0
+      ? refCountMap.delete(fileId)
+      : refCountMap.set(fileId, next);
+  };
+
+  const registerFileId = (fileId: string) => {
+    incrementRefCount(fileId);
+    imageReadyMap.set(fileId, imageReadyMap.get(fileId) ?? false);
   };
 
   const unregisterFileId = (fileId: string) => {
-    const count = refCountMap.get(fileId) ?? 0;
-    if (count <= 1) {
-      refCountMap.delete(fileId);
-      imageReadyMap.delete(fileId);
-    } else {
-      refCountMap.set(fileId, count - 1);
-    }
+    decrementRefCount(fileId);
+    if (!refCountMap.has(fileId)) imageReadyMap.delete(fileId);
   };
 
   return {
