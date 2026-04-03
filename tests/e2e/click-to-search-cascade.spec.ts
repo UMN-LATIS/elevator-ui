@@ -28,13 +28,12 @@ test.describe("Click-to-Search Cascade Select Filter (#495)", () => {
     // Should navigate to search results page
     await expect(page).toHaveURL(/\/search\/s\//);
 
-    // Open the advanced search panel
+    // Open the advanced search panel. When filters are active, the
+    // "Advanced Search" button is replaced by a filter-count button.
     const advancedSearchTrigger = page.getByRole("button", {
-      name: /advanced/i,
+      name: /advanced|\d+\s+filters?/i,
     });
 
-    // The filter badge or advanced search should indicate a filter is active
-    // Open the advanced search form to inspect the filter
     const advancedForm = page.locator(".advanced-search-form");
     if (!(await advancedForm.isVisible())) {
       await advancedSearchTrigger.click();

@@ -142,8 +142,11 @@ app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
 app.get("/scopedQuerySearch/:fieldTitle/:value/:json", async (c) => {
   await delay(200);
   const db = c.get("db");
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
   const fieldTitle = c.req.param("fieldTitle");
-  const value = decodeURIComponent(c.req.param("value"));
+  const value = c.req.param("value");
 
   const resultsResponse = db.searches.create(value, {
     specificFieldSearch: [
@@ -162,7 +165,10 @@ app.get("/scopedQuerySearch/:fieldTitle/:value/:json", async (c) => {
 app.get("/querySearch/:value/:json", async (c) => {
   await delay(200);
   const db = c.get("db");
-  const value = decodeURIComponent(c.req.param("value"));
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
+  const value = c.req.param("value");
 
   const resultsResponse = db.searches.create(value);
   return c.json({ searchId: resultsResponse.searchId });
@@ -172,6 +178,8 @@ app.get("/querySearch/:value/:json", async (c) => {
 app.post("/getFieldInfo", async (c) => {
   await delay(100);
   const db = c.get("db");
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
 
   const body = await c.req.formData();
   const fieldTitle = body.get("fieldTitle") as string;

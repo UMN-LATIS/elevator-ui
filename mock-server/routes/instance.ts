@@ -60,27 +60,25 @@ app.get("/getInstanceNav", async (c) => {
     contact: instance.ownerHomepage ?? "",
     useCentralAuth: instance.useCentralAuth,
     centralAuthLabel: instance.centralAuthLabel,
-    sortableFields: db.templates
-      .getAll()
-      .flatMap((template) =>
-        template.widgetArray
-          .filter((w) => w.searchable || w.directSearch)
-          .map(
-            (w) =>
-              [
-                w.fieldTitle,
-                {
-                  label: w.label,
-                  template: template.templateId,
-                  type: w.type,
-                } satisfies RawSortableField,
-              ] as const
-          )
-      )
-      .reduce(
-        (acc, [id, field]) => ({ ...acc, [id]: field }),
-        {} as Record<string, RawSortableField>
-      ),
+    sortableFields: Object.fromEntries(
+      db.templates
+        .getAll()
+        .flatMap((template) =>
+          template.widgetArray
+            .filter((w) => w.searchable || w.directSearch)
+            .map(
+              (w) =>
+                [
+                  w.fieldTitle,
+                  {
+                    label: w.label,
+                    template: template.templateId,
+                    type: w.type,
+                  } satisfies RawSortableField,
+                ] as const
+            )
+        )
+    ) as Record<string, RawSortableField>,
     customHeaderMode: instance.useCustomHeader as ShowCustomHeaderMode,
     customHeaderText: instance.customHeaderText,
     customFooterText: instance.customFooterText,
