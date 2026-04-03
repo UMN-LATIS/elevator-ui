@@ -27,9 +27,11 @@
           </Tuple>
           <Tuple label="Image Size">
             {{ fileMetaData.width ?? "Unknown" }} x
-            {{ fileMetaData.height ?? "Unknonwn" }}
+            {{ fileMetaData.height ?? "Unknown" }}
           </Tuple>
-          <Tuple v-if="fileMetaData.coordinates" label="Location">
+          <Tuple
+            v-if="shouldShowLocation && fileMetaData.coordinates"
+            label="Location">
             <div class="bg-surface-container p-4 rounded-xl">
               <Map
                 :center="{
@@ -49,28 +51,32 @@
           </Tuple>
 
           <h2 class="text-xl font-bold mt-6 border-t pt-6">EXIF Details</h2>
-          <pre>{{ fileMetaData.exif }}</pre>
+          <pre>{{ displayExif }}</pre>
         </section>
         <section v-else>
-          <pre>{{ fileMetaData }}</pre>
+          <pre>{{ displayFileMetaData }}</pre>
         </section>
       </div>
     </Transition>
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
+import { ref, computed, defineAsyncComponent } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import api from "@/api";
-import { computed } from "vue";
 import Tuple from "../Tuple/Tuple.vue";
 import config from "@/config";
 import InfoIcon from "@/icons/InfoIcon.vue";
+import {
+  shouldExtractLocation,
+  filterGpsFromExif,
+} from "@/helpers/templateHelpers";
 
 const props = defineProps<{
   fileObjectId: string;
+  assetId?: string | null;
 }>();
 
 const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
@@ -80,11 +86,37 @@ const MapMarker = defineAsyncComponent(
 
 const isFileInfoOpen = ref(false);
 const fileMetaData = ref<FileMetaData | null | undefined>(undefined);
+const shouldShowLocation = ref(true);
 const isFileMetaDataReady = computed(() => fileMetaData.value !== undefined);
+
+const displayExif = computed(() => {
+  const exif = fileMetaData.value?.exif;
+  if (!exif) return undefined;
+  return shouldShowLocation.value ? exif : filterGpsFromExif(exif);
+});
+
+const displayFileMetaData = computed(() => {
+  if (!fileMetaData.value || shouldShowLocation.value) return fileMetaData.value;
+  const { coordinates: _coordinates, exif, ...rest } = fileMetaData.value;
+  return {
+    ...rest,
+    ...(exif ? { exif: filterGpsFromExif(exif) } : {}),
+  };
+});
 
 async function handleInfoButtonClick() {
   isFileInfoOpen.value = !isFileInfoOpen.value;
+
+  if (!isFileInfoOpen.value) return;
+
   fileMetaData.value = undefined;
+  shouldShowLocation.value = true;
+
+  if (props.assetId) {
+    const { template } = await api.getAssetWithTemplate(props.assetId);
+    shouldShowLocation.value = shouldExtractLocation(template);
+  }
+
   fileMetaData.value = await api.getFileMetaData(props.fileObjectId);
 }
 </script>

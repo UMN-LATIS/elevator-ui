@@ -4,7 +4,8 @@
       <div class="flex gap-1 items-center leading-none">
         <MoreFileInfoButton
           v-if="fileHandlerId"
-          :fileObjectId="fileHandlerId" />
+          :fileObjectId="fileHandlerId"
+          :assetId="assetId" />
         <DownloadFileButton
           v-if="assetId && fileHandlerId"
           :assetId="assetId"
