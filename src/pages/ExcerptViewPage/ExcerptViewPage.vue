@@ -38,7 +38,10 @@
             <DownloadFileButton
               :assetId="excerpt.assetId"
               :fileObjectId="excerpt.fileObjectId" />
-            <ShareButton class="share-file-button" :url="shareUrl" />
+            <ShareButton
+              class="share-file-button"
+              :url="shareUrl"
+              :embedTitle="excerpt.label || `Excerpt ${excerpt.id}`" />
           </div>
         </div>
       </div>

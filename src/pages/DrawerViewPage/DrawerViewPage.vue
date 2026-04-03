@@ -71,7 +71,10 @@
                 {{ sortOptionLabel }}
               </option>
             </select>
-            <ShareButton v-if="isCurrentViewEmbeddable" :url="embedUrl" />
+            <ShareButton
+              v-if="isCurrentViewEmbeddable"
+              :url="embedUrl"
+              :embedTitle="drawerTitle" />
           </div>
         </div>
         <Tab id="grid" label="Grid">

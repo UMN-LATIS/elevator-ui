@@ -55,7 +55,8 @@
                     searchStore.resultsView
                   )
                 "
-                :url="embedUrl" />
+                :url="embedUrl"
+                :embedTitle="`Search results ${searchStore.resultsView}`" />
             </div>
           </div>
           <Tab id="grid" label="Grid">
