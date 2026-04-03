@@ -2,7 +2,8 @@ import { usePreviewImageStore } from "@/stores/previewImageStore";
 import invariant from "tiny-invariant";
 import {
   computed,
-  watchEffect,
+  watch,
+  onBeforeUnmount,
   toValue,
   type MaybeRefOrGetter,
   type ComputedRef,
@@ -19,14 +20,20 @@ export const usePreviewImage = (
   const store = usePreviewImageStore();
   const fileId = computed(() => toValue(fileIdSource));
 
-  // watchEffect + onCleanup handles both fileId changes and component
-  // unmount in one place. onCleanup runs before each re-run AND on
-  // unmount, so we don't need a separate onUnmounted hook.
-  watchEffect((onCleanup) => {
-    const id = fileId.value;
-    if (!id) return;
-    store.registerFileId(id);
-    onCleanup(() => store.unregisterFileId(id));
+  // watch (not watchEffect) so we only track fileId — watchEffect would
+  // also track reactive reads inside registerFileId, causing an infinite
+  // loop when those same maps are mutated.
+  watch(
+    fileId,
+    (newId, oldId) => {
+      if (oldId) store.unregisterFileId(oldId);
+      if (newId) store.registerFileId(newId);
+    },
+    { immediate: true },
+  );
+
+  onBeforeUnmount(() => {
+    if (fileId.value) store.unregisterFileId(fileId.value);
   });
 
   const isReady = computed((): boolean => {
