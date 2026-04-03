@@ -75,7 +75,6 @@ import {
 import config from "@/config";
 import { useAssetStore } from "@/stores/assetStore";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
