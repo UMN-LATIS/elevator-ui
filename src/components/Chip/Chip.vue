@@ -35,11 +35,11 @@ const isInteractive = computed(() => !!props.href || props.clickable);
 <style scoped lang="postcss">
 .chip--is-clickable {
   border-color: var(--primary);
-  background: var(--inverse-primary);
-  color: var(--primary);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
 
   &:hover {
-    color: var(--inverse-primary);
+    color: var(--on-primary);
     background: var(--primary);
   }
 }
