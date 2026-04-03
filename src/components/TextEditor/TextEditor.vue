@@ -199,6 +199,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0;
   }
 
   & .ql-html-textArea.ql-container {
@@ -210,6 +211,8 @@ onMounted(() => {
     height: auto;
     width: auto;
     flex: 1;
+    min-height: 0;
+    overflow: auto;
     border: 1px solid var(--outline);
 
     &:focus-within {
