@@ -14,7 +14,7 @@ const baseAsset: Asset = {
   upload_1: [
     {
       loc: null,
-      fileId: "6875872f4eb080a4880a0f45",
+      fileId: "687587494eb080a4880a0f46",
       fileType: "txt",
       sidecars: [],
       isPrimary: false,
