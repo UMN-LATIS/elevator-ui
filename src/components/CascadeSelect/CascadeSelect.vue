@@ -13,7 +13,13 @@
           {{ selected.label }}
         </label>
         <select
-          :class="['rounded-md text-sm', selectClass]"
+          :class="
+            cn([
+              'rounded-md text-sm bg-surface-container text-on-surface-container',
+              !selected.value && 'text-on-surface-variant',
+              selectClass,
+            ])
+          "
           :style="{ width: '100%' }"
           :value="selected.value"
           @change="
@@ -37,8 +43,9 @@
   </div>
 </template>
 <script setup lang="ts">
+import { cn } from "@/lib/utils";
 import { path } from "ramda";
-import { reactive, toRaw, watch } from "vue";
+import { reactive, watch } from "vue";
 
 export interface CascaderSelectOptions {
   [label: string]: string[] | CascaderSelectOptions;
