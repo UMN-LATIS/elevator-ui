@@ -12,8 +12,8 @@ test.describe("Click-to-Search Cascade Select Filter (#495)", () => {
   test("field-specific click-to-search populates advanced filter cascade dropdowns", async ({
     page,
   }) => {
-    // Navigate to the pre-seeded "All Fields Asset" which has cascade select data:
-    // { country: "usa", stateorprovince: "minnesota", city: "St. Paul", neighborhood: "Summit Hill" }
+    // Pre-seeded "All Fields Asset" from mock-server/db/assets.ts
+    // Has cascade select data: { country: "usa", stateorprovince: "minnesota", city: "St. Paul", neighborhood: "Summit Hill" }
     const existingAssetId = "687969fd9c90c709c1021d01";
     await page.goto(`/asset/viewAsset/${existingAssetId}`);
     await page.waitForLoadState("networkidle");

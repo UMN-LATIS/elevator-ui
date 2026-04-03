@@ -190,7 +190,12 @@ app.post("/getFieldInfo", async (c) => {
     return c.json({ error: "Widget not found" }, 404);
   }
 
-  if (widget.type === "multiselect") {
+  if (
+    widget.type === "multiselect" &&
+    widget.fieldData &&
+    typeof widget.fieldData === "object" &&
+    !Array.isArray(widget.fieldData)
+  ) {
     return c.json<ApiGetMultiSelectFieldInfoResponse>({
       type: "multiselect",
       rawContent: widget.fieldData as ApiGetMultiSelectFieldInfoResponse["rawContent"],

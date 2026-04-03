@@ -642,8 +642,6 @@ const actions = (state: SearchStoreState) => ({
           return;
         }
 
-        console.log("adding search entry field", searchField.field);
-
         // Normalize multiselect (cascade select) values from API format
         // (" : " separated) to internal format ("," separated)
         const field = instanceStore.getSearchableField(searchField.field);
