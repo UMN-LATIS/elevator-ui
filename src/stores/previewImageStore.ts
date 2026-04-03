@@ -2,22 +2,16 @@ import { defineStore } from "pinia";
 import * as Type from "@/types";
 import config from "@/config";
 import { computed, reactive, watchEffect } from "vue";
-import { isNotNil } from "ramda";
-import invariant from "tiny-invariant";
 import { usePreviewImagesQuery } from "@/queries/usePreviewImagesQuery";
 
 type FileId = Type.UploadWidgetContent["fileId"];
 
 export const usePreviewImageStore = defineStore("previewImages", () => {
   const imageReadyMap = reactive<Map<FileId, boolean>>(new Map());
+  const refCountMap = reactive<Map<FileId, number>>(new Map());
 
   const isImageReady = (fileId: FileId): boolean => {
-    const isReady = imageReadyMap.get(fileId);
-    invariant(
-      isNotNil(isReady),
-      `File ID ${fileId} is not registered in the preview image store.`
-    );
-    return isReady;
+    return imageReadyMap.get(fileId) ?? false;
   };
 
   const getPreviewImageUrl = (fileId: FileId): string => {
@@ -37,24 +31,43 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
 
   const { data: previewResults } = usePreviewImagesQuery(imagesToCheck);
 
-  // Update imageReadyMap when query results change
+  // Update imageReadyMap when query results change. Filter out fileIds
+  // that were unregistered while the request was in flight — without
+  // this, a stale response could re-add the fileId and restart polling.
   watchEffect(() => {
-    if (previewResults.value) {
-      previewResults.value.forEach(({ fileId, status }) => {
+    previewResults.value
+      ?.filter(({ fileId }) => refCountMap.has(fileId))
+      .forEach(({ fileId, status }) => {
         imageReadyMap.set(fileId, status === "true");
       });
-    }
   });
 
+  const incrementRefCount = (fileId: FileId) =>
+    refCountMap.set(fileId, (refCountMap.get(fileId) ?? 0) + 1);
+
+  const decrementRefCount = (fileId: FileId) => {
+    const next = (refCountMap.get(fileId) ?? 1) - 1;
+    return next <= 0
+      ? refCountMap.delete(fileId)
+      : refCountMap.set(fileId, next);
+  };
+
   const registerFileId = (fileId: string) => {
-    if (imageReadyMap.has(fileId)) return;
-    imageReadyMap.set(fileId, false);
+    incrementRefCount(fileId);
+    imageReadyMap.set(fileId, imageReadyMap.get(fileId) ?? false);
+  };
+
+  const unregisterFileId = (fileId: string) => {
+    decrementRefCount(fileId);
+    if (!refCountMap.has(fileId)) imageReadyMap.delete(fileId);
   };
 
   return {
     imageReadyMap,
+    refCountMap,
     isImageReady,
     getPreviewImageUrl,
     registerFileId,
+    unregisterFileId,
   };
 });

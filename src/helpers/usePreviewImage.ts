@@ -3,6 +3,7 @@ import invariant from "tiny-invariant";
 import {
   computed,
   watch,
+  onBeforeUnmount,
   toValue,
   type MaybeRefOrGetter,
   type ComputedRef,
@@ -19,14 +20,21 @@ export const usePreviewImage = (
   const store = usePreviewImageStore();
   const fileId = computed(() => toValue(fileIdSource));
 
+  // watch (not watchEffect) so we only track fileId — watchEffect would
+  // also track reactive reads inside registerFileId, causing an infinite
+  // loop when those same maps are mutated.
   watch(
     fileId,
-    () => {
-      if (!fileId.value) return;
-      store.registerFileId(fileId.value);
+    (newId, oldId) => {
+      if (oldId) store.unregisterFileId(oldId);
+      if (newId) store.registerFileId(newId);
     },
-    { immediate: true }
+    { immediate: true },
   );
+
+  onBeforeUnmount(() => {
+    if (fileId.value) store.unregisterFileId(fileId.value);
+  });
 
   const isReady = computed((): boolean => {
     return Boolean(fileId.value && store.isImageReady(fileId.value));
