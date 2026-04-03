@@ -31,17 +31,15 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
 
   const { data: previewResults } = usePreviewImagesQuery(imagesToCheck);
 
-  // Update imageReadyMap when query results change. Guard against late
-  // responses arriving after a fileId has been unregistered — without
-  // this check, a stale response could re-add the fileId and restart polling.
+  // Update imageReadyMap when query results change. Filter out fileIds
+  // that were unregistered while the request was in flight — without
+  // this, a stale response could re-add the fileId and restart polling.
   watchEffect(() => {
-    if (previewResults.value) {
-      previewResults.value.forEach(({ fileId, status }) => {
-        if (refCountMap.has(fileId)) {
-          imageReadyMap.set(fileId, status === "true");
-        }
+    previewResults.value
+      ?.filter(({ fileId }) => refCountMap.has(fileId))
+      .forEach(({ fileId, status }) => {
+        imageReadyMap.set(fileId, status === "true");
       });
-    }
   });
 
   const registerFileId = (fileId: string) => {
