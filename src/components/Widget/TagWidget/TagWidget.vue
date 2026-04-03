@@ -7,11 +7,7 @@
             v-slot="{ isClickable }"
             :linkText="tag"
             :widget="widget">
-            <Chip
-              :class="{
-                'chip--is-clickable border border-primary  bg-primary-container text-primary cursor-pointer hover:bg-primary hover:text-on-primary transition-colors ease-in-out':
-                  isClickable,
-              }">
+            <Chip :clickable="isClickable">
               {{ tag }}
             </Chip>
           </ClickToSearchLink>

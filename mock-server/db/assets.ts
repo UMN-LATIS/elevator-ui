@@ -276,6 +276,36 @@ const assetSeeds: Asset[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Asset with both clickable and non-clickable tags for contrast testing
+  {
+    ...baseAsset,
+    title_1: [
+      { isPrimary: true, fieldContents: "Tag Contrast Test Asset" },
+    ],
+    sometags_1: [
+      {
+        isPrimary: false,
+        tags: ["archival", "photograph", "19th century"],
+      },
+    ],
+    clickabletags_1: [
+      {
+        isPrimary: false,
+        tags: ["Minneapolis", "portrait", "daguerreotype"],
+      },
+    ],
+    assetId: "tag_contrast_test_001",
+    firstFileHandlerId: "handler_tag_contrast_001",
+    title: ["Tag Contrast Test Asset"],
+    templateId: 68,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2026-04-01 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
   // Soft-deleted assets for trash tab testing
   {
     ...baseAsset,

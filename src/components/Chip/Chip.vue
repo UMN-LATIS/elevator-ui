@@ -1,34 +1,48 @@
 <template>
-  <component
-    :is="href ? 'a' : 'span'"
-    :href="href"
-    class="chip inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-surface-container hover:no-underline no-underline text-on-surface-variant"
+  <span
+    class="chip inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-surface-container text-on-surface"
     :class="{
-      'chip--is-clickable border border-primary bg-primary-container text-on-primary-container cursor-pointer hover:bg-primary hover:text-on-primary transition-colors ease-in-out':
-        href,
+      'chip--is-clickable border cursor-pointer transition-colors ease-in-out':
+        clickable,
     }">
     <slot />
-  </component>
+    <ArrowUpRight
+      v-if="clickable"
+      class="chip__icon"
+      :size="12"
+      :stroke-width="2.5" />
+  </span>
 </template>
 <script setup lang="ts">
+import { ArrowUpRight } from "lucide-vue-next";
+
 withDefaults(
   defineProps<{
-    href?: string;
+    clickable?: boolean;
   }>(),
   {
-    href: undefined,
+    clickable: false,
   }
 );
 </script>
 <style scoped lang="postcss">
 .chip--is-clickable {
   border-color: var(--primary);
-  background: var(--inverse-primary);
-  color: var(--primary);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
 
   &:hover {
-    color: var(--inverse-primary);
+    color: var(--on-primary);
     background: var(--primary);
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.chip__icon {
+  flex-shrink: 0;
 }
 </style>
