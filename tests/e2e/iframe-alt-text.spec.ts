@@ -13,18 +13,28 @@ test.describe("Iframe accessibility: title attributes", () => {
   });
 
   test.describe("ObjectViewer on asset view page", () => {
-    test("iframe has a title attribute", async ({ page }) => {
+    test("iframe has a non-empty title attribute", async ({ page }) => {
       await page.goto(`/asset/viewAsset/${KNOWN_ASSET_ID}`);
 
       const iframe = page.locator(".object-viewer__iframe");
       await expect(iframe).toBeVisible();
-      await expect(iframe).toHaveAttribute("title");
+
+      const title = await iframe.getAttribute("title");
+      expect(title).toBeTruthy();
+      expect(title!.length).toBeGreaterThan(0);
     });
 
     test("iframe title uses fileDescription when available", async ({
       page,
     }) => {
-      await page.goto(`/asset/viewAsset/${KNOWN_ASSET_ID}`);
+      // Wait for the asset API response so the store has fileDescription
+      const [response] = await Promise.all([
+        page.waitForResponse((r) =>
+          r.url().includes(`/asset/viewAsset/${KNOWN_ASSET_ID}/true`)
+        ),
+        page.goto(`/asset/viewAsset/${KNOWN_ASSET_ID}`),
+      ]);
+      expect(response.status()).toBe(200);
 
       const iframe = page.locator(".object-viewer__iframe");
       await expect(iframe).toHaveAttribute("title", "file.txt");
@@ -33,10 +43,9 @@ test.describe("Iframe accessibility: title attributes", () => {
 
   test.describe("ShareButton embed snippet", () => {
     test("embed snippet includes a title attribute", async ({ page }) => {
-      await page.goto(`/asset/viewAsset/${KNOWN_ASSET_ID}`);
+      // Use the drawer page where ShareButton is always visible
+      await page.goto("/drawers/viewDrawer/1?resultsView=map");
 
-      // Open share modal — the share button is inside ObjectDetailsPanel
-      await page.getByRole("button", { name: "Object Details" }).click();
       await page.getByRole("button", { name: "Share" }).click();
 
       const embedTextbox = page.getByRole("textbox", { name: "Embed" });
