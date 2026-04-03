@@ -115,33 +115,30 @@ function createDialog(
     updateInsertEnabled();
   });
 
-  const cleanup = () => overlay.remove();
+  // Keyboard handler — declared early so cleanup can reference it
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") cleanup();
+    if (e.key === "Enter" && !insertBtn.disabled) handleInsert();
+  };
 
-  const handleInsert = () => {
+  function cleanup() {
+    document.removeEventListener("keydown", handleKeydown);
+    overlay.remove();
+  }
+
+  function handleInsert() {
     const src = urlInput.value.trim() || pendingDataUrl;
     if (src) {
       insertImage(quill, src);
     }
     cleanup();
-  };
+  }
 
   insertBtn.addEventListener("click", handleInsert);
   cancelBtn.addEventListener("click", cleanup);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) cleanup();
   });
-
-  // ESC to close
-  const handleKeydown = (e: KeyboardEvent) => {
-    if (e.key === "Escape") {
-      cleanup();
-      document.removeEventListener("keydown", handleKeydown);
-    }
-    if (e.key === "Enter" && !insertBtn.disabled) {
-      handleInsert();
-      document.removeEventListener("keydown", handleKeydown);
-    }
-  };
   document.addEventListener("keydown", handleKeydown);
 
   return { overlay, cleanup };
