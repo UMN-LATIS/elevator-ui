@@ -20,11 +20,9 @@ log()  { echo "→ $*"; }
 warn() { echo "⚠ $*" >&2; }
 fail() { echo "✘ $*" >&2; exit 1; }
 
-cleanup() {
-  # Return to the original branch on exit
+switch_back() {
   git checkout "$original_branch" --quiet 2>/dev/null || true
 }
-trap cleanup EXIT
 
 # --- Preflight ---
 
@@ -122,5 +120,14 @@ if [[ ${#skipped[@]} -gt 0 ]]; then
 fi
 
 echo ""
-echo "Next: deploy with bin/deploy-dev.sh (from the ${testing_branch} branch)"
-echo "  Or: git checkout ${testing_branch} && bin/deploy-dev.sh"
+read -rp "Deploy ${testing_branch} to dev now? [y/N] " deploy_answer
+if [[ "${deploy_answer,,}" == "y" ]]; then
+  log "Deploying ${testing_branch}..."
+  bin/deploy-dev.sh
+  log "Switching back to ${original_branch}..."
+  switch_back
+else
+  log "Switching back to ${original_branch}..."
+  switch_back
+  echo "To deploy later: git checkout ${testing_branch} && bin/deploy-dev.sh"
+fi
