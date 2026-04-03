@@ -121,7 +121,7 @@ fi
 
 echo ""
 read -rp "Deploy ${testing_branch} to dev now? [y/N] " deploy_answer
-if [[ "${deploy_answer,,}" == "y" ]]; then
+if [[ "$deploy_answer" =~ ^[Yy]$ ]]; then
   log "Deploying ${testing_branch}..."
   bin/deploy-dev.sh
   log "Switching back to ${original_branch}..."
