@@ -21,6 +21,7 @@
       :id="`text-editor-${id}`"
       ref="editorRef"
       :modelValue="modelValue"
+      :enableImageInsert="enableImageInsert"
       @update:modelValue="$emit('update:modelValue', $event)" />
   </div>
 </template>
@@ -36,9 +37,11 @@ withDefaults(
     label: string;
     modelValue: string;
     labelClass?: CSSClass;
+    enableImageInsert?: boolean;
   }>(),
   {
     labelClass: "",
+    enableImageInsert: false,
   }
 );
 

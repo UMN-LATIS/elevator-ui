@@ -10,6 +10,7 @@
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
     <ImageInsertDialog
+      v-if="enableImageInsert"
       :isOpen="isImageDialogOpen"
       @close="isImageDialogOpen = false"
       @insert="handleImageInsert" />
@@ -27,13 +28,15 @@ import QuillBetterImage from "@umn-latis/quill-better-image-module";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     modelValue: string;
     id?: string;
+    enableImageInsert?: boolean;
   }>(),
   {
     id: "",
+    enableImageInsert: false,
   }
 );
 
@@ -73,13 +76,13 @@ const options = computed(() => ({
         { list: "ordered" },
         { list: "bullet" },
         "link",
-        "image",
+        ...(props.enableImageInsert ? ["image"] : []),
         "formula",
         { direction: "rtl" }, // text direction
         "clean",
       ],
     ],
-    betterImage: {},
+    ...(props.enableImageInsert ? { betterImage: {} } : {}),
     keyboard: {
       bindings: {
         // disable tab key
@@ -133,13 +136,14 @@ onMounted(() => {
 
   quill = editor.value.initialize(Quill);
 
-  // Override the default image toolbar handler with our custom dialog
-  const toolbar = quill.getModule("toolbar") as {
-    addHandler: (name: string, handler: () => void) => void;
-  };
-  toolbar.addHandler("image", () => {
-    isImageDialogOpen.value = true;
-  });
+  if (props.enableImageInsert) {
+    const toolbar = quill.getModule("toolbar") as {
+      addHandler: (name: string, handler: () => void) => void;
+    };
+    toolbar.addHandler("image", () => {
+      isImageDialogOpen.value = true;
+    });
+  }
 });
 </script>
 <style scoped></style>

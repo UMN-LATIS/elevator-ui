@@ -22,7 +22,8 @@
           <TextEditorGroup
             ref="bodyEditorRef"
             v-model="form.body"
-            label="Body" />
+            label="Body"
+            enableImageInsert />
         </FormSection>
 
         <FormSection id="options" title="Options">
