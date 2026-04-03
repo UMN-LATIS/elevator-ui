@@ -116,8 +116,9 @@ function getCleanHtml(): string {
 function handleImageInsert(src: string) {
   if (!quill) return;
   const range = quill.getSelection(true);
-  quill.insertEmbed(range.index, "image", src, "user");
-  quill.setSelection(range.index + 1, 0, "user");
+  const insertIndex = range ? range.index : quill.getLength();
+  quill.insertEmbed(insertIndex, "image", src, "user");
+  quill.setSelection(insertIndex + 1, 0, "user");
 }
 
 defineExpose({
