@@ -14,7 +14,8 @@
           !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
       }"
       :fileHandlerId="assetStore.activeFileObjectId"
-      :parentAssetId="assetStore.activeAssetId" />
+      :parentAssetId="assetStore.activeAssetId"
+      :title="iframeTitle" />
     <!-- render file view toolbar here for mobile
        so it appears below the object viewer. Otherwise it goes
        with the object details panel
@@ -62,15 +63,22 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, toRef } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsPanel from "@/components/ObjectDetailsPanel/ObjectDetailsPanel.vue";
 import AssetDetailsPanel from "@/components/AssetDetailsPanel/AssetDetailsPanel.vue";
 import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
 import { useMediaQuery } from "@vueuse/core";
+import { useAsset } from "@/helpers/useAsset";
+import { getAssetTitle } from "@/helpers/displayUtils";
+import {
+  WIDGET_TYPES,
+  type UploadWidgetDef,
+  type UploadWidgetContent,
+} from "@/types";
 
-defineProps<{
+const props = defineProps<{
   assetId: string | null;
   objectId?: string | null;
 }>();
@@ -80,6 +88,28 @@ const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
 
 const permitPanelToggle = useMediaQuery("(min-width: 768px)");
+
+const { asset, template } = useAsset(toRef(() => props.assetId));
+
+const iframeTitle = computed(() => {
+  if (!asset.value || !template.value) return "Asset viewer";
+
+  const uploadWidgetDef = template.value.widgetArray.find(
+    (w): w is UploadWidgetDef => w.type === WIDGET_TYPES.UPLOAD
+  );
+
+  if (uploadWidgetDef) {
+    const contents = asset.value[uploadWidgetDef.fieldTitle] as
+      | UploadWidgetContent[]
+      | undefined;
+    const activeContent = contents?.find(
+      (c) => c.fileId === assetStore.activeFileObjectId
+    );
+    if (activeContent?.fileDescription) return activeContent.fileDescription;
+  }
+
+  return getAssetTitle(asset.value);
+});
 </script>
 <style scoped lang="postcss">
 @media (min-width: 48rem) {

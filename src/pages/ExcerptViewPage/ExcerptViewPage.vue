@@ -21,7 +21,8 @@
         <ExcerptableIframe
           :fileObjectId="excerpt.fileObjectId"
           :startTime="excerpt.startTime"
-          :endTime="excerpt.endTime" />
+          :endTime="excerpt.endTime"
+          :title="excerpt.label || `Excerpt ${excerpt.id}`" />
         <div class="flex justify-between p-1 items-center flex-wrap">
           <div class="inline-flex gap-2 items-center">
             <span class="font-bold text-xs uppercase">Time</span>

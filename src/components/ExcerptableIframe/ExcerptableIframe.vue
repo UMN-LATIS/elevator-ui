@@ -2,6 +2,7 @@
   <iframe
     ref="videoPlayerIframe"
     :src="`${config.instance.base.url}/asset/getEmbed/${fileObjectId}`"
+    :title="title"
     frameBorder="0"
     allowfullscreen="true"
     class="excerptable-iframe w-full aspect-video">
@@ -26,11 +27,17 @@ interface ResponseMessageEvent extends MessageEvent {
   };
 }
 
-const props = defineProps<{
-  fileObjectId: string;
-  startTime?: number;
-  endTime?: number;
-}>();
+const props = withDefaults(
+  defineProps<{
+    fileObjectId: string;
+    startTime?: number;
+    endTime?: number;
+    title?: string;
+  }>(),
+  {
+    title: "Media player",
+  }
+);
 
 const emit = defineEmits<{
   (eventName: "ready");

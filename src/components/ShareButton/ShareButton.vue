@@ -39,7 +39,7 @@ const isOpen = ref(false);
 
 const embedValue = computed(() => {
   return removeExtraWhitespace(`
-  <iframe width="560" height="480" src="${props.url}" frameborder="0" allowfullscreen></iframe>`);
+  <iframe width="560" height="480" src="${props.url}" title="Embedded asset" frameborder="0" allowfullscreen></iframe>`);
 });
 </script>
 <style scoped></style>

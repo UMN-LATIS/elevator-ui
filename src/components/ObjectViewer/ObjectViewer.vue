@@ -8,6 +8,7 @@
       :src="`${config.instance.base.url}/asset/getEmbed/${fileHandlerId}/${
         parentAssetId ?? ''
       }`"
+      :title="title"
       frameBorder="0"
       allowfullscreen="true"></iframe>
     <div
@@ -28,9 +29,11 @@ withDefaults(
   defineProps<{
     fileHandlerId: string | null;
     parentAssetId?: string | null;
+    title?: string;
   }>(),
   {
     parentAssetId: null,
+    title: "Asset viewer",
   }
 );
 
