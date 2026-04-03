@@ -12,6 +12,16 @@ describe("cleanHtml", () => {
     expect(result).toContain('alt="A photo"');
   });
 
+  it("preserves width and height attributes on img tags", () => {
+    const html =
+      '<p><img src="https://example.com/photo.jpg" alt="test" width="300" height="200"></p>';
+    const result = cleanHtml(html);
+
+    expect(result).toContain("<img");
+    expect(result).toContain('width="300"');
+    expect(result).toContain('height="200"');
+  });
+
   it("strips inline style attributes from img tags", () => {
     const html =
       '<p><img src="https://example.com/photo.jpg" alt="test" style="width: 300px; cursor: nwse-resize;"></p>';
