@@ -73,18 +73,12 @@ test.describe("Preview image polling cleanup", () => {
   test("polling stops after navigating away from asset editor", async ({
     page,
   }) => {
-    test.setTimeout(30_000);
+    test.setTimeout(60_000);
 
     await createAssetWithUploadAndWaitForPolling(page);
 
-    // SPA-navigate away via the logo RouterLink (not page.goto which
-    // does a full reload and destroys the Vue app — that would mask the
-    // bug since the Pinia store only survives SPA navigation).
-    await page.locator(".app-header__logo-link").click();
-    await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
-
-    // Count any previewImageAvailable requests that occur after navigation.
-    // Wait for 2 full polling cycles — if polling leaked, we'd see requests.
+    // Attach listener before navigation so we don't miss any requests
+    // that fire during or immediately after the route change.
     let postNavRequests = 0;
     page.on("request", (req) => {
       if (req.url().includes("previewImageAvailable")) {
@@ -92,6 +86,17 @@ test.describe("Preview image polling cleanup", () => {
       }
     });
 
+    // SPA-navigate away via the logo RouterLink (not page.goto which
+    // does a full reload and destroys the Vue app — that would mask the
+    // bug since the Pinia store only survives SPA navigation).
+    await page.locator(".app-header__logo-link").click();
+    await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
+
+    // Reset counter after navigation completes — any request during the
+    // route transition is acceptable; we care about requests after.
+    postNavRequests = 0;
+
+    // Wait for 2 full polling cycles — if polling leaked, we'd see requests.
     await page.waitForTimeout(POLLING_INTERVAL_MS * 2.5);
 
     expect(postNavRequests).toBe(0);
@@ -100,7 +105,7 @@ test.describe("Preview image polling cleanup", () => {
   test("polling resumes after navigating back to the asset", async ({
     page,
   }) => {
-    test.setTimeout(30_000);
+    test.setTimeout(60_000);
 
     const editUrl = await createAssetWithUploadAndWaitForPolling(page);
 

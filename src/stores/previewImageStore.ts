@@ -2,22 +2,16 @@ import { defineStore } from "pinia";
 import * as Type from "@/types";
 import config from "@/config";
 import { computed, reactive, watchEffect } from "vue";
-import { isNotNil } from "ramda";
-import invariant from "tiny-invariant";
 import { usePreviewImagesQuery } from "@/queries/usePreviewImagesQuery";
 
 type FileId = Type.UploadWidgetContent["fileId"];
 
 export const usePreviewImageStore = defineStore("previewImages", () => {
   const imageReadyMap = reactive<Map<FileId, boolean>>(new Map());
+  const refCountMap = reactive<Map<FileId, number>>(new Map());
 
   const isImageReady = (fileId: FileId): boolean => {
-    const isReady = imageReadyMap.get(fileId);
-    invariant(
-      isNotNil(isReady),
-      `File ID ${fileId} is not registered in the preview image store.`
-    );
-    return isReady;
+    return imageReadyMap.get(fileId) ?? false;
   };
 
   const getPreviewImageUrl = (fileId: FileId): string => {
@@ -47,12 +41,20 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
   });
 
   const registerFileId = (fileId: string) => {
-    if (imageReadyMap.has(fileId)) return;
-    imageReadyMap.set(fileId, false);
+    refCountMap.set(fileId, (refCountMap.get(fileId) ?? 0) + 1);
+    if (!imageReadyMap.has(fileId)) {
+      imageReadyMap.set(fileId, false);
+    }
   };
 
   const unregisterFileId = (fileId: string) => {
-    imageReadyMap.delete(fileId);
+    const count = refCountMap.get(fileId) ?? 0;
+    if (count <= 1) {
+      refCountMap.delete(fileId);
+      imageReadyMap.delete(fileId);
+    } else {
+      refCountMap.set(fileId, count - 1);
+    }
   };
 
   return {

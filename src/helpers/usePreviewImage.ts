@@ -19,6 +19,9 @@ export const usePreviewImage = (
   const store = usePreviewImageStore();
   const fileId = computed(() => toValue(fileIdSource));
 
+  // watchEffect + onCleanup handles both fileId changes and component
+  // unmount in one place. onCleanup runs before each re-run AND on
+  // unmount, so we don't need a separate onUnmounted hook.
   watchEffect((onCleanup) => {
     const id = fileId.value;
     if (!id) return;
