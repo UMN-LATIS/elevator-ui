@@ -29,17 +29,31 @@ import CopyableTextArea from "@/components/CopyableTextArea/CopyableTextArea.vue
 import Button from "@/components/Button/Button.vue";
 import ShareIcon from "@/icons/ShareIcon.vue";
 
-const props = defineProps<{
-  url: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    url: string;
+    embedTitle?: string;
+  }>(),
+  {
+    embedTitle: "Embedded asset",
+  }
+);
 
 const removeExtraWhitespace = (str: string) => str.replace(/\s+/g, " ").trim();
+
+const escapeHtmlAttr = (str: string) =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
 const isOpen = ref(false);
 
 const embedValue = computed(() => {
   return removeExtraWhitespace(`
-  <iframe width="560" height="480" src="${props.url}" frameborder="0" allowfullscreen></iframe>`);
+  <iframe width="560" height="480" src="${props.url}" title="${escapeHtmlAttr(props.embedTitle)}" frameborder="0" allowfullscreen></iframe>`);
 });
 </script>
 <style scoped></style>

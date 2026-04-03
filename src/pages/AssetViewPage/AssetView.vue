@@ -14,7 +14,8 @@
           !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
       }"
       :fileHandlerId="assetStore.activeFileObjectId"
-      :parentAssetId="assetStore.activeAssetId" />
+      :parentAssetId="assetStore.activeAssetId"
+      :title="iframeTitle" />
     <!-- render file view toolbar here for mobile
        so it appears below the object viewer. Otherwise it goes
        with the object details panel
@@ -62,7 +63,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAssetStore } from "@/stores/assetStore";
 import ObjectViewer from "@/components/ObjectViewer/ObjectViewer.vue";
 import ObjectDetailsPanel from "@/components/ObjectDetailsPanel/ObjectDetailsPanel.vue";
@@ -80,6 +81,13 @@ const isObjectDetailsOpen = ref(false);
 const assetStore = useAssetStore();
 
 const permitPanelToggle = useMediaQuery("(min-width: 768px)");
+
+const iframeTitle = computed(
+  () =>
+    assetStore.activeFileDescription ||
+    assetStore.activeTitle ||
+    "Asset viewer"
+);
 </script>
 <style scoped lang="postcss">
 @media (min-width: 48rem) {

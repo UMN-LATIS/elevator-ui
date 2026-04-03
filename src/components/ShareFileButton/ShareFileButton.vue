@@ -1,14 +1,20 @@
 <template>
-  <ShareButton class="share-file-button" :url="url" />
+  <ShareButton class="share-file-button" :url="url" :embedTitle="embedTitle" />
 </template>
 <script setup lang="ts">
 import ShareButton from "@/components/ShareButton/ShareButton.vue";
 import { computed } from "vue";
 import config from "@/config";
 
-const props = defineProps<{
-  fileObjectId: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    fileObjectId: string;
+    embedTitle?: string;
+  }>(),
+  {
+    embedTitle: "Embedded asset",
+  }
+);
 
 const url = computed(
   () =>

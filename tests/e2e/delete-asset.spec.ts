@@ -4,7 +4,7 @@ import mockServerConfig from "../../mock-server/config";
 
 const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
 
-// Asset 1 from seed data — has exactly 1 upload_1 entry with fileId "6875872f4eb080a4880a0f45"
+// Asset 1 from seed data — has exactly 1 upload_1 entry with fileId "687587494eb080a4880a0f46"
 const KNOWN_ASSET_ID = "6875871d4eb080a4880a0f44";
 
 test.describe("Delete Asset", () => {

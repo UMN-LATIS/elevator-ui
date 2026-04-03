@@ -110,6 +110,7 @@
       </div>
       <ExcerptableIframe
         :fileObjectId="fileObjectId"
+        :title="excerptName || 'Media player'"
         class="aspect-video rounded"
         @update:currentScrubberPosition="
           (val) => (currentScrubberPosition = val)
