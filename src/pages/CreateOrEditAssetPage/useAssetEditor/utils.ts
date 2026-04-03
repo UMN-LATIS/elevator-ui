@@ -138,11 +138,7 @@ function makeNewLocalAsset({
     readyForDisplay: true,
     collectionId,
     availableAfter: null,
-    modified: {
-      date: new Date().toISOString(),
-      timezone_type: 3,
-      timezone: "UTC",
-    },
+    modified: null,
     modifiedBy: 0,
     createdBy: 0,
     deletedBy: null,
