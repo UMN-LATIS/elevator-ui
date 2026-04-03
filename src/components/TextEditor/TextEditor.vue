@@ -9,6 +9,10 @@
       class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-primary"
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
+    <ImageInsertDialog
+      :isOpen="isImageDialogOpen"
+      @close="isImageDialogOpen = false"
+      @insert="handleImageInsert" />
   </div>
 </template>
 <script setup lang="ts">
@@ -16,7 +20,7 @@ import { QuillyEditor } from "vue-quilly";
 import Quill from "quill/quill";
 import { ref, onMounted, computed } from "vue";
 import { cleanHtml } from "@/helpers/htmlCleaningHelpers";
-import { imageInsertHandler } from "./imageInsertHandler";
+import ImageInsertDialog from "./ImageInsertDialog.vue";
 import "quill-paste-smart";
 import htmlEditButton from "quill-html-edit-button";
 import QuillBetterImage from "@umn-latis/quill-better-image-module";
@@ -38,6 +42,7 @@ const emit = defineEmits<{
 }>();
 
 const editor = ref<InstanceType<typeof QuillyEditor>>();
+const isImageDialogOpen = ref(false);
 let quill: Quill | null = null;
 
 // Handle update event with semantic HTML conversion
@@ -108,6 +113,13 @@ function getCleanHtml(): string {
   return cleanHtml(quill.root.innerHTML);
 }
 
+function handleImageInsert(src: string) {
+  if (!quill) return;
+  const range = quill.getSelection(true);
+  quill.insertEmbed(range.index, "image", src, "user");
+  quill.setSelection(range.index + 1, 0, "user");
+}
+
 defineExpose({
   quill,
   getCleanHtml,
@@ -121,8 +133,12 @@ onMounted(() => {
   quill = editor.value.initialize(Quill);
 
   // Override the default image toolbar handler with our custom dialog
-  const toolbar = quill.getModule("toolbar") as { addHandler: (name: string, handler: () => void) => void };
-  toolbar.addHandler("image", () => imageInsertHandler(quill!));
+  const toolbar = quill.getModule("toolbar") as {
+    addHandler: (name: string, handler: () => void) => void;
+  };
+  toolbar.addHandler("image", () => {
+    isImageDialogOpen.value = true;
+  });
 });
 </script>
 <style scoped></style>
@@ -267,126 +283,6 @@ onMounted(() => {
       border-color: var(--primary);
       color: var(--on-primary);
     }
-  }
-}
-
-/* Image Insert Dialog */
-
-.ql-image-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--scrim);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ql-image-popup {
-  width: 90dvw;
-  max-width: 28rem;
-  background-color: var(--surface);
-  color: var(--on-surface);
-  border: 1px solid var(--outline-variant);
-  border-radius: 0.375rem;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.ql-image-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.ql-image-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--on-surface-variant);
-}
-
-.ql-image-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--outline);
-  border-radius: 0.375rem;
-  background: var(--surface-container);
-  color: var(--on-surface);
-  font-size: 0.875rem;
-
-  &:focus {
-    outline: 2px solid var(--primary);
-    outline-offset: -1px;
-  }
-}
-
-.ql-image-file-input {
-  font-size: 0.875rem;
-  color: var(--on-surface-variant);
-}
-
-.ql-image-divider {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--on-surface-variant);
-
-  &::before,
-  &::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--outline-variant);
-  }
-}
-
-.ql-image-divider-text {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.ql-image-button-group {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-
-  & button {
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    border: 1px solid var(--outline);
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-}
-
-.ql-image-btn-cancel {
-  border-color: var(--outline);
-  color: var(--on-surface);
-  background: transparent;
-
-  &:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
-}
-
-.ql-image-btn-insert {
-  border-color: var(--primary);
-  background-color: var(--primary);
-  color: var(--on-primary);
-
-  &:hover:not(:disabled) {
-    background-color: color-mix(in oklch, var(--primary) 90%, transparent);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 }
 
