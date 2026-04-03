@@ -31,11 +31,15 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
 
   const { data: previewResults } = usePreviewImagesQuery(imagesToCheck);
 
-  // Update imageReadyMap when query results change
+  // Update imageReadyMap when query results change. Guard against late
+  // responses arriving after a fileId has been unregistered — without
+  // this check, a stale response could re-add the fileId and restart polling.
   watchEffect(() => {
     if (previewResults.value) {
       previewResults.value.forEach(({ fileId, status }) => {
-        imageReadyMap.set(fileId, status === "true");
+        if (refCountMap.has(fileId)) {
+          imageReadyMap.set(fileId, status === "true");
+        }
       });
     }
   });
@@ -59,6 +63,7 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
 
   return {
     imageReadyMap,
+    refCountMap,
     isImageReady,
     getPreviewImageUrl,
     registerFileId,
