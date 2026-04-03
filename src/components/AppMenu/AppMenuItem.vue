@@ -41,6 +41,6 @@ withDefaults(
 
 .app-menu-item.is-current-page {
   background: var(--primary-container);
-  color: var(--primary);
+  color: var(--on-primary-container);
 }
 </style>

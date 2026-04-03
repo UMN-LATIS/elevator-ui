@@ -23,7 +23,7 @@
           <label class="sr-only">Add to Drawer</label>
           <select
             v-model="selectedDrawer"
-            class="border border-outline rounded w-full text-sm"
+            class="border border-outline rounded w-full text-sm bg-surface text-on-surface"
             :class="{
               'text-on-surface-variant': !selectedDrawer,
             }">
