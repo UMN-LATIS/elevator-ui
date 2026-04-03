@@ -1,36 +1,29 @@
 <template>
-  <component
-    :is="href ? 'a' : 'span'"
-    :href="href"
-    class="chip inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-surface-container hover:no-underline no-underline text-on-surface"
+  <span
+    class="chip inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-surface-container text-on-surface"
     :class="{
       'chip--is-clickable border cursor-pointer transition-colors ease-in-out':
-        isInteractive,
+        clickable,
     }">
     <slot />
     <ArrowUpRight
-      v-if="isInteractive"
+      v-if="clickable"
       class="chip__icon"
       :size="12"
       :stroke-width="2.5" />
-  </component>
+  </span>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
 import { ArrowUpRight } from "lucide-vue-next";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    href?: string;
     clickable?: boolean;
   }>(),
   {
-    href: undefined,
     clickable: false,
   }
 );
-
-const isInteractive = computed(() => !!props.href || props.clickable);
 </script>
 <style scoped lang="postcss">
 .chip--is-clickable {
@@ -41,6 +34,11 @@ const isInteractive = computed(() => !!props.href || props.clickable);
   &:hover {
     color: var(--on-primary);
     background: var(--primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
   }
 }
 
