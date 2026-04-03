@@ -124,7 +124,8 @@ function handleFileError(message: string) {
 }
 
 function handleInsert() {
-  const src = urlValue.value.trim() || pendingDataUrl.value;
+  if (!canInsert.value) return;
+  const src = pendingDataUrl.value || urlValue.value.trim();
   if (!src) return;
   emit("insert", src);
   emit("close");
