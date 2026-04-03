@@ -6,6 +6,7 @@ import {
   type SearchResultsResponse,
 } from "../../src/types";
 import type { MockServerContext } from "../types.js";
+import type { ApiGetMultiSelectFieldInfoResponse } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
@@ -135,6 +136,85 @@ app.get("/searchResults/:searchId/:page/:loadAll", async (c) => {
   }
 
   return c.json<SearchResultsResponse>(results);
+});
+
+// GET /search/scopedQuerySearch/:fieldTitle/:value/:json
+app.get("/scopedQuerySearch/:fieldTitle/:value/:json", async (c) => {
+  await delay(200);
+  const db = c.get("db");
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
+  const fieldTitle = c.req.param("fieldTitle");
+  const value = c.req.param("value");
+
+  const resultsResponse = db.searches.create(value, {
+    specificFieldSearch: [
+      {
+        field: fieldTitle,
+        text: value,
+        fuzzy: false,
+      },
+    ],
+  });
+
+  return c.json({ searchId: resultsResponse.searchId });
+});
+
+// GET /search/querySearch/:value/:json
+app.get("/querySearch/:value/:json", async (c) => {
+  await delay(200);
+  const db = c.get("db");
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
+  const value = c.req.param("value");
+
+  const resultsResponse = db.searches.create(value);
+  return c.json({ searchId: resultsResponse.searchId });
+});
+
+// POST /search/getFieldInfo
+app.post("/getFieldInfo", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+  const user = c.get("user");
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
+  const body = await c.req.formData();
+  const fieldTitle = body.get("fieldTitle") as string;
+  const templateId = Number(body.get("template"));
+
+  const template = db.templates.get(templateId);
+  if (!template) {
+    return c.json({ error: "Template not found" }, 404);
+  }
+
+  const widget = template.widgetArray.find(
+    (w) => w.fieldTitle === fieldTitle
+  );
+
+  if (!widget) {
+    return c.json({ error: "Widget not found" }, 404);
+  }
+
+  if (
+    widget.type === "multiselect" &&
+    widget.fieldData &&
+    typeof widget.fieldData === "object" &&
+    !Array.isArray(widget.fieldData)
+  ) {
+    return c.json<ApiGetMultiSelectFieldInfoResponse>({
+      type: "multiselect",
+      rawContent: widget.fieldData as ApiGetMultiSelectFieldInfoResponse["rawContent"],
+      values: {},
+    });
+  }
+
+  return c.json({
+    type: widget.type,
+    values: widget.fieldData,
+  });
 });
 
 // POST /search/getSuggestion

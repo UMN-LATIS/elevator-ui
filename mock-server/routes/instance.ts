@@ -4,6 +4,7 @@ import type { MockServerContext } from "../types.js";
 import {
   ApiInstanceNavResponse,
   Page,
+  RawSortableField,
   ShowCustomHeaderMode,
 } from "../../src/types";
 import type { MockCustomPage } from "../types";
@@ -59,7 +60,25 @@ app.get("/getInstanceNav", async (c) => {
     contact: instance.ownerHomepage ?? "",
     useCentralAuth: instance.useCentralAuth,
     centralAuthLabel: instance.centralAuthLabel,
-    sortableFields: {}, // not stored in InstanceSettings
+    sortableFields: Object.fromEntries(
+      db.templates
+        .getAll()
+        .flatMap((template) =>
+          template.widgetArray
+            .filter((w) => w.searchable || w.directSearch)
+            .map(
+              (w) =>
+                [
+                  w.fieldTitle,
+                  {
+                    label: w.label,
+                    template: template.templateId,
+                    type: w.type,
+                  } satisfies RawSortableField,
+                ] as const
+            )
+        )
+    ) as Record<string, RawSortableField>,
     customHeaderMode: instance.useCustomHeader as ShowCustomHeaderMode,
     customHeaderText: instance.customHeaderText,
     customFooterText: instance.customFooterText,
