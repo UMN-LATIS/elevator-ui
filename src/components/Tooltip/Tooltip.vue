@@ -4,7 +4,7 @@
       <TooltipTrigger asChild>
         <slot />
       </TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent v-if="tip || $slots.content">
         <slot name="content">
           {{ tip }}
         </slot>

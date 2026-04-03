@@ -37,6 +37,7 @@ const instanceSeeds: InstanceSettings[] = [
     domain: "example.edu",
     featuredAsset: "687969fd9c90c709c1021d01",
     featuredAssetText: "This is a featured asset",
+    enableTheming: true,
   }),
 ];
 

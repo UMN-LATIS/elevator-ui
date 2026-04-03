@@ -1,20 +1,20 @@
 <template>
-  <Popover :content="title">
+  <Tooltip :tip="title">
     <component
       :is="componentType"
       :href="resolvedHref"
       :type="type"
       :to="componentType === RouterLink ? to : undefined"
+      :aria-label="title"
       v-bind="$attrs"
       class="icon-button flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150 text-primary hover:bg-primary-container hover:text-on-primary-container focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed"
-      :title="title"
       @click="($event) => $emit('click', $event)">
       <slot />
     </component>
-  </Popover>
+  </Tooltip>
 </template>
 <script setup lang="ts">
-import Popover from "../Popover/Popover.vue";
+import Tooltip from "../Tooltip/Tooltip.vue";
 
 import { computed } from "vue";
 import { RouterLink, type RouteLocationRaw, useRouter } from "vue-router";
