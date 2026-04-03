@@ -287,10 +287,7 @@ test.describe("Instance Settings Page", () => {
       await page.getByLabel("Text Area Collapsed Height (px)").fill("200");
 
       // --- User Interface ---
-      // Interface version is already 1 (VueJS) — enable theming (starts off)
-      await page
-        .getByRole("switch", { name: "Enable Theme Selection" })
-        .click();
+      // Interface version is already 1 (VueJS) — theming starts on (seed default)
       await expect(
         page.getByRole("switch", { name: "Enable Theme Selection" })
       ).toHaveAttribute("aria-checked", "true");
