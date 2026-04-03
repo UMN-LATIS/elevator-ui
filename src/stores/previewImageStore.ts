@@ -51,10 +51,15 @@ export const usePreviewImageStore = defineStore("previewImages", () => {
     imageReadyMap.set(fileId, false);
   };
 
+  const unregisterFileId = (fileId: string) => {
+    imageReadyMap.delete(fileId);
+  };
+
   return {
     imageReadyMap,
     isImageReady,
     getPreviewImageUrl,
     registerFileId,
+    unregisterFileId,
   };
 });

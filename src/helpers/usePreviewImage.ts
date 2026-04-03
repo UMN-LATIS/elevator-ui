@@ -2,7 +2,7 @@ import { usePreviewImageStore } from "@/stores/previewImageStore";
 import invariant from "tiny-invariant";
 import {
   computed,
-  watch,
+  watchEffect,
   toValue,
   type MaybeRefOrGetter,
   type ComputedRef,
@@ -19,14 +19,12 @@ export const usePreviewImage = (
   const store = usePreviewImageStore();
   const fileId = computed(() => toValue(fileIdSource));
 
-  watch(
-    fileId,
-    () => {
-      if (!fileId.value) return;
-      store.registerFileId(fileId.value);
-    },
-    { immediate: true }
-  );
+  watchEffect((onCleanup) => {
+    const id = fileId.value;
+    if (!id) return;
+    store.registerFileId(id);
+    onCleanup(() => store.unregisterFileId(id));
+  });
 
   const isReady = computed((): boolean => {
     return Boolean(fileId.value && store.isImageReady(fileId.value));
