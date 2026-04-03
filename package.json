@@ -41,7 +41,7 @@
     "@tanstack/vue-table": "^8.21.3",
     "@turf/circle": "^6.5.0",
     "@umn-cla/uppy-aws-s3": "^0.1.1",
-    "@umn-latis/quill-better-image-module": "^0.2.2",
+    "@umn-latis/quill-better-image-module": "^0.2.4",
     "@uppy/core": "^4.4.7",
     "@uppy/dashboard": "^4.3.4",
     "@uppy/drag-drop": "^4.1.3",

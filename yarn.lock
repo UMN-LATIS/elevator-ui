@@ -1335,10 +1335,10 @@
     "@uppy/companion-client" "^4.4.2"
     "@uppy/utils" "^6.1.5"
 
-"@umn-latis/quill-better-image-module@^0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@umn-latis/quill-better-image-module/-/quill-better-image-module-0.2.2.tgz#60d6592179f1ab26a10985f3861d8eaa7db1b02b"
-  integrity sha512-pNvfEya2BUGUyc/n/UPd6GsbvYB6qe1s0EJB616fyFqYlhXCmn0jhw/5Sfyvh613NHIjSR8iyOgdiXpkF0e1hw==
+"@umn-latis/quill-better-image-module@^0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@umn-latis/quill-better-image-module/-/quill-better-image-module-0.2.4.tgz#a754a52e7396b47c3fe2713b90a88c1b65d20a85"
+  integrity sha512-ZQ0uBnWJ+f5VOv0I4/Olq/UR3n4AEv5jcUFLTvjziL9bDCrribV9FQB6TfNHJt8YD4IiyIS1hhWTcRvbwO9dAg==
   dependencies:
     deepmerge "^4.3.1"
     deepmerge-ts "^7.1.0"
