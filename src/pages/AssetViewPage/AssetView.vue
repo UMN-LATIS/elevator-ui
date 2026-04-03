@@ -108,7 +108,7 @@ const iframeTitle = computed(() => {
     if (activeContent?.fileDescription) return activeContent.fileDescription;
   }
 
-  return getAssetTitle(asset.value);
+  return getAssetTitle(asset.value) || "Asset viewer";
 });
 </script>
 <style scoped lang="postcss">
