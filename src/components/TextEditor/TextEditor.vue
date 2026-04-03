@@ -18,6 +18,7 @@ import { ref, onMounted, computed } from "vue";
 import { cleanHtml } from "@/helpers/htmlCleaningHelpers";
 import "quill-paste-smart";
 import htmlEditButton from "quill-html-edit-button";
+import QuillBetterImage from "@umn-latis/quill-better-image-module";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 
@@ -48,6 +49,7 @@ function handleUpdate(quillHTML: string) {
 }
 
 Quill.register("modules/htmlEditButton", htmlEditButton);
+Quill.register("modules/betterImage", QuillBetterImage);
 
 const options = computed(() => ({
   theme: "snow",
@@ -65,11 +67,13 @@ const options = computed(() => ({
         { list: "ordered" },
         { list: "bullet" },
         "link",
+        "image",
         "formula",
         { direction: "rtl" }, // text direction
         "clean",
       ],
     ],
+    betterImage: {},
     keyboard: {
       bindings: {
         // disable tab key
