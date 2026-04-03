@@ -227,13 +227,19 @@ const getters = (state: SearchStoreState) => ({
       state.filterBy.specificFieldsMap.values()
     );
 
-    // convert to SpecificFieldSearch shape
+    // convert to SpecificFieldSearch shape, normalizing multiselect
+    // values from internal format (",") back to API format (" : ")
+    const instanceStore = useInstanceStore();
     const specificFieldSearch: SpecificFieldSearchItem[] =
-      searchableFieldsArray.map((filter) => ({
-        field: filter.fieldId,
-        text: filter.value,
-        fuzzy: filter.isFuzzy,
-      }));
+      searchableFieldsArray.map((filter) => {
+        const field = instanceStore.getSearchableField(filter.fieldId);
+        const text =
+          field?.type === "multiselect"
+            ? filter.value.split(",").join(" : ")
+            : filter.value;
+
+        return { field: filter.fieldId, text, fuzzy: filter.isFuzzy };
+      });
 
     const startDateText =
       state.filterBy.globalDateRange?.startDate.toString() ?? "";
@@ -637,8 +643,17 @@ const actions = (state: SearchStoreState) => ({
         }
 
         console.log("adding search entry field", searchField.field);
+
+        // Normalize multiselect (cascade select) values from API format
+        // (" : " separated) to internal format ("," separated)
+        const field = instanceStore.getSearchableField(searchField.field);
+        const value =
+          field?.type === "multiselect"
+            ? searchField.text.split(" : ").join(",")
+            : searchField.text;
+
         actions(state).addSearchableFieldFilter(searchField.field, {
-          value: searchField.text,
+          value,
           isFuzzy: searchField.fuzzy,
         });
       });

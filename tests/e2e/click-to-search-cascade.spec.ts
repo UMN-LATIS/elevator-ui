@@ -43,9 +43,10 @@ test.describe("Click-to-Search Cascade Select Filter (#495)", () => {
 
     // The cascade select field should be selected in the filter row
     const filterFieldSelect = advancedForm.locator(
-      ".filter-row__name"
+      "select.filter-row__name"
     );
     await expect(filterFieldSelect).toBeVisible();
+    await expect(filterFieldSelect).toHaveValue("cascadeselect_1");
 
     // Verify the cascade select dropdowns are populated with correct values
     // The clicked value was "minnesota" which sends "usa : minnesota" as the search text
@@ -53,14 +54,13 @@ test.describe("Click-to-Search Cascade Select Filter (#495)", () => {
     const cascadeSelect = advancedForm.locator(".cascade-select");
     await expect(cascadeSelect).toBeVisible();
 
+    // The cascade dropdowns render with sr-only labels, so locate by role
+    const cascadeDropdowns = cascadeSelect.locator("select");
+
     // First dropdown (Country) should have "usa" selected
-    const countrySelect = cascadeSelect.getByLabel("country");
-    await expect(countrySelect).toBeVisible();
-    await expect(countrySelect).toHaveValue("usa");
+    await expect(cascadeDropdowns.nth(0)).toHaveValue("usa");
 
     // Second dropdown (State or Province) should have "minnesota" selected
-    const stateSelect = cascadeSelect.getByLabel("State or Province");
-    await expect(stateSelect).toBeVisible();
-    await expect(stateSelect).toHaveValue("minnesota");
+    await expect(cascadeDropdowns.nth(1)).toHaveValue("minnesota");
   });
 });

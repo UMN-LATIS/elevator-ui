@@ -4,6 +4,7 @@ import {
   SearchEntry,
   SearchResultMatch,
   SearchSortOptions,
+  SpecificFieldSearchItem,
 } from "../../src/types";
 import { SORT_KEYS } from "../../src/constants/constants";
 import { assetToSearchResultMatch } from "../utils/assetToSearchResultMatch";
@@ -50,7 +51,13 @@ export function createSearchesTable({
     // Table-specific methods
     create: (
       query: string,
-      { totalResultsOverride }: { totalResultsOverride?: number } = {}
+      {
+        totalResultsOverride,
+        specificFieldSearch,
+      }: {
+        totalResultsOverride?: number;
+        specificFieldSearch?: SpecificFieldSearchItem[];
+      } = {}
     ): SearchResultsResponse => {
       const searchId = crypto.randomUUID();
 
@@ -72,9 +79,10 @@ export function createSearchesTable({
         return assetToSearchResultMatch({ asset, collection, template });
       });
 
-      const searchEntry = {
+      const searchEntry: SearchEntry = {
         searchText: query,
         combineSpecificSearches: "OR" as const,
+        ...(specificFieldSearch ? { specificFieldSearch } : {}),
       };
 
       const sortableWidgets = {
