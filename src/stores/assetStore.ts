@@ -1,4 +1,10 @@
-import { Asset } from "@/types";
+import {
+  Asset,
+  Template,
+  WIDGET_TYPES,
+  type UploadWidgetDef,
+  type UploadWidgetContent,
+} from "@/types";
 import { defineStore } from "pinia";
 import api from "@/api";
 import { getAssetTitle } from "@/helpers/displayUtils";
@@ -8,6 +14,8 @@ export interface AssetStoreState {
   activeAssetId: string | null;
   activeObjectId: string | null;
   activeFileObjectId: string | null; // fileHandlerId
+  activeAsset: Asset | null;
+  activeTemplate: Template | null;
 }
 
 export const useAssetStore = defineStore("asset2", {
@@ -15,7 +23,33 @@ export const useAssetStore = defineStore("asset2", {
     activeAssetId: null,
     activeObjectId: null,
     activeFileObjectId: null,
+    activeAsset: null,
+    activeTemplate: null,
   }),
+  getters: {
+    activeFileDescription(): string {
+      if (!this.activeAsset || !this.activeTemplate) return "";
+
+      const uploadWidgetDef = this.activeTemplate.widgetArray.find(
+        (w): w is UploadWidgetDef => w.type === WIDGET_TYPES.UPLOAD
+      );
+      if (!uploadWidgetDef) return "";
+
+      const contents = this.activeAsset[uploadWidgetDef.fieldTitle] as
+        | UploadWidgetContent[]
+        | undefined;
+
+      const activeContent = contents?.find(
+        (c) => c.fileId === this.activeFileObjectId
+      );
+
+      return activeContent?.fileDescription ?? "";
+    },
+    activeTitle(): string {
+      if (!this.activeAsset) return "";
+      return getAssetTitle(this.activeAsset);
+    },
+  },
   actions: {
     /**
      * This makes a given asset active and sets the
@@ -27,16 +61,23 @@ export const useAssetStore = defineStore("asset2", {
       objectId?: string | null
     ): Promise<Asset | null> {
       const parentAssetId = this.activeAssetId || "";
-      const { asset } = await api.getAssetWithTemplate(assetId, parentAssetId);
+      const { asset, template } = await api.getAssetWithTemplate(
+        assetId,
+        parentAssetId
+      );
 
       if (!asset || !assetId) {
         this.activeAssetId = null;
         this.activeObjectId = null;
         this.activeFileObjectId = null;
+        this.activeAsset = null;
+        this.activeTemplate = null;
         return null;
       }
 
       this.activeAssetId = assetId;
+      this.activeAsset = asset;
+      this.activeTemplate = template;
 
       useAnalytics().trackViewAssetEvent(assetId);
 
@@ -61,11 +102,16 @@ export const useAssetStore = defineStore("asset2", {
      */
     async setActiveObject(objectId: string | null): Promise<Asset | null> {
       const parentAssetId = this.activeAssetId || "";
-      const { asset } = await api.getAssetWithTemplate(objectId, parentAssetId);
+      const { asset, template } = await api.getAssetWithTemplate(
+        objectId,
+        parentAssetId
+      );
 
       // if asset exists, set the objectId to active, otherwise null
       this.activeObjectId = asset ? objectId : null;
       this.activeFileObjectId = asset?.firstFileHandlerId ?? null;
+      this.activeAsset = asset ?? this.activeAsset;
+      this.activeTemplate = template ?? this.activeTemplate;
 
       return asset;
     },
