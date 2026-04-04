@@ -1,5 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
+import type { SearchResultMatch } from "@/types";
+
+const makeMatch = (
+  overrides: Partial<SearchResultMatch> = {},
+): SearchResultMatch => ({
+  title: "Test Asset",
+  dates: [],
+  locations: [],
+  objectId: "test-id",
+  collectionHierarchy: [],
+  template: { id: 1, name: "Test Template" },
+  ...overrides,
+});
 
 vi.mock("@/api", () => ({
   default: {
@@ -13,7 +26,16 @@ vi.mock("@/api", () => ({
         specificFieldSearch: [],
       },
       totalResults: 1,
-      matches: [{ objectId: "abc123" }],
+      matches: [
+        {
+          title: "Result",
+          dates: [],
+          locations: [],
+          objectId: "abc123",
+          collectionHierarchy: [],
+          template: { id: 1, name: "T" },
+        },
+      ],
       sortableWidgets: {
         0: "Best Match",
         "title.raw": "Default Title",
@@ -36,6 +58,15 @@ vi.mock("@/stores/instanceStore", () => ({
   }),
 }));
 
+// Dynamic imports are needed because vi.mock is hoisted above static
+// imports, and the store/api modules must resolve with mocks in place.
+async function importModules() {
+  const { default: api } = await import("@/api");
+  const { useSearchStore } = await import("@/stores/searchStore");
+  const { SORT_KEYS } = await import("@/constants/constants");
+  return { api, useSearchStore, SORT_KEYS };
+}
+
 describe("searchStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -44,28 +75,35 @@ describe("searchStore", () => {
 
   describe("setSortOption", () => {
     it("fetches new results even when results already exist", async () => {
-      const { default: api } = await import("@/api");
-      const { useSearchStore } = await import("@/stores/searchStore");
-      const { SORT_KEYS } = await import("@/constants/constants");
+      const { api, useSearchStore, SORT_KEYS } = await importModules();
       const store = useSearchStore();
 
       // Simulate an existing search with results already loaded
       store.searchId = "search-id-original";
-      store.matches = [{ objectId: "existing" } as never];
+      store.matches = [makeMatch({ objectId: "existing" })];
       store.totalResults = 1;
       store.status = "success";
       store.query = "test";
 
-      // Change sort option — this should fetch new results
       await store.setSortOption(SORT_KEYS.TITLE);
 
-      // getSearchId should be called to get the new search ID
       expect(api.getSearchId).toHaveBeenCalled();
+      expect(api.getSearchResultsById).toHaveBeenCalledWith(
+        "search-id-sorted",
+        expect.objectContaining({ page: 0 }),
+      );
+      expect(store.searchId).toBe("search-id-sorted");
+    });
 
-      // getSearchResultsById should be called with the new search ID.
-      // This fails on the current code: setSortOption pre-stores the
-      // searchId in state, so search()'s dedup guard sees a match
-      // and skips the fetch entirely.
+    it("fetches results when no prior results exist", async () => {
+      const { api, useSearchStore, SORT_KEYS } = await importModules();
+      const store = useSearchStore();
+
+      store.query = "test";
+
+      await store.setSortOption(SORT_KEYS.TITLE);
+
+      expect(api.getSearchId).toHaveBeenCalled();
       expect(api.getSearchResultsById).toHaveBeenCalledWith(
         "search-id-sorted",
         expect.objectContaining({ page: 0 }),
