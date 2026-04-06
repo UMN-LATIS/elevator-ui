@@ -18,7 +18,9 @@ test.describe("Login deep link — protected asset", () => {
     await page.goto(`/asset/viewAsset/${PROTECTED_ASSET_ID}`);
 
     await expect(
-      page.getByRole("heading", { name: "Sign In Required" })
+      page
+        .locator(".asset-view-page")
+        .getByRole("heading", { name: "Sign In Required" })
     ).toBeVisible();
   });
 
@@ -30,11 +32,15 @@ test.describe("Login deep link — protected asset", () => {
 
     // 2. Sign-in notice appears
     await expect(
-      page.getByRole("heading", { name: "Sign In Required" })
+      page
+        .locator(".asset-view-page")
+        .getByRole("heading", { name: "Sign In Required" })
     ).toBeVisible();
 
     // 3. Click the guest Login button
-    await page.locator(".sign-in-required__local-login").click();
+    await page
+      .locator(".asset-view-page .sign-in-required__local-login")
+      .click();
 
     // 4. Should be on the local login page with redirect param
     await expect(page).toHaveURL(
