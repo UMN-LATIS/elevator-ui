@@ -34,11 +34,9 @@ import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNe
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import { striptags } from "striptags";
 import { ApiError } from "@/api/ApiError";
-import { useErrorStore } from "@/stores/errorStore";
 import type { DeletedAssetInfo } from "@/types";
 
 const assetStore = useAssetStore();
-const errorStore = useErrorStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
 const isPageLoaded = ref(false);
 const requiresAuth = ref(false);
@@ -92,7 +90,6 @@ async function onAssetIdChange() {
       // Handle 401 inline instead of letting ErrorModal show a modal
       // with the asset page visible behind a scrim.
       requiresAuth.value = true;
-      errorStore.clearError();
       assetStore.setActiveAsset(null);
       isPageLoaded.value = true;
       return;

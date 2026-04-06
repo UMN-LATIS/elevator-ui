@@ -81,7 +81,11 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  if (!customConfig.skipErrorNotifications && apiError.statusCode !== 410) {
+  if (
+    !customConfig.skipErrorNotifications &&
+    apiError.statusCode !== 401 &&
+    apiError.statusCode !== 410
+  ) {
     // Add the ApiError to the errorStore
     errorStore.setError(apiError);
   }
