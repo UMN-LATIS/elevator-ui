@@ -9,6 +9,11 @@
       class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-primary"
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
+    <ImageInsertDialog
+      v-if="enableImageInsert"
+      :isOpen="isImageDialogOpen"
+      @close="isImageDialogOpen = false"
+      @insert="handleImageInsert" />
   </div>
 </template>
 <script setup lang="ts">
@@ -16,18 +21,22 @@ import { QuillyEditor } from "vue-quilly";
 import Quill from "quill/quill";
 import { ref, onMounted, computed } from "vue";
 import { cleanHtml } from "@/helpers/htmlCleaningHelpers";
+import ImageInsertDialog from "./ImageInsertDialog.vue";
 import "quill-paste-smart";
 import htmlEditButton from "quill-html-edit-button";
+import QuillBetterImage from "@umn-latis/quill-better-image-module";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     modelValue: string;
     id?: string;
+    enableImageInsert?: boolean;
   }>(),
   {
     id: "",
+    enableImageInsert: false,
   }
 );
 
@@ -36,6 +45,7 @@ const emit = defineEmits<{
 }>();
 
 const editor = ref<InstanceType<typeof QuillyEditor>>();
+const isImageDialogOpen = ref(false);
 let quill: Quill | null = null;
 
 // Handle update event with semantic HTML conversion
@@ -48,6 +58,7 @@ function handleUpdate(quillHTML: string) {
 }
 
 Quill.register("modules/htmlEditButton", htmlEditButton);
+Quill.register("modules/betterImage", QuillBetterImage);
 
 const options = computed(() => ({
   theme: "snow",
@@ -65,11 +76,13 @@ const options = computed(() => ({
         { list: "ordered" },
         { list: "bullet" },
         "link",
+        ...(props.enableImageInsert ? ["image"] : []),
         "formula",
         { direction: "rtl" }, // text direction
         "clean",
       ],
     ],
+    ...(props.enableImageInsert ? { betterImage: {} } : {}),
     keyboard: {
       bindings: {
         // disable tab key
@@ -103,6 +116,14 @@ function getCleanHtml(): string {
   return cleanHtml(quill.root.innerHTML);
 }
 
+function handleImageInsert(src: string) {
+  if (!quill) return;
+  const range = quill.getSelection(true);
+  const insertIndex = range ? range.index : quill.getLength();
+  quill.insertEmbed(insertIndex, "image", src, "user");
+  quill.setSelection(insertIndex + 1, 0, "user");
+}
+
 defineExpose({
   quill,
   getCleanHtml,
@@ -114,6 +135,15 @@ onMounted(() => {
   }
 
   quill = editor.value.initialize(Quill);
+
+  if (props.enableImageInsert) {
+    const toolbar = quill.getModule("toolbar") as {
+      addHandler: (name: string, handler: () => void) => void;
+    };
+    toolbar.addHandler("image", () => {
+      isImageDialogOpen.value = true;
+    });
+  }
 });
 </script>
 <style scoped></style>
