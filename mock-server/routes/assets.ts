@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { parseFormData, delay } from "../utils/index";
+import { parseFormData, delay, stripMeta } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
 import { Asset, TextWidgetContent, UploadWidgetContent } from "../../src/types";
 import type { DB } from "../db/index";
@@ -16,6 +16,11 @@ app.get("/viewAsset/:assetId/true", async (c) => {
   if (!asset) {
     return c.json({ error: "Asset not found" }, 404);
   }
+
+  if (asset._meta?.visibility === "authenticated" && !c.get("user")) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
   if (asset.deleted === true) {
     return c.json(
       {
@@ -28,7 +33,7 @@ app.get("/viewAsset/:assetId/true", async (c) => {
       { "Cache-Control": "no-store" }
     );
   }
-  return c.json(asset);
+  return c.json(stripMeta(asset));
 });
 
 // DELETE /assetManager/deleteAsset/:assetId/true
