@@ -30,6 +30,9 @@ import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 const errorStore = useErrorStore();
 
 const error = computed(() => errorStore.error);
+const isCurrentUserUnauthenticated = computed(() => {
+  return error.value instanceof ApiError && error.value.statusCode === 401;
+});
 const errorTitle = computed(() => {
   if (!(error.value instanceof ApiError)) {
     return "Error";
@@ -40,9 +43,6 @@ const errorTitle = computed(() => {
   }
 
   return `Error: ${error.value.statusCode}`;
-});
-const isCurrentUserUnauthenticated = computed(() => {
-  return error.value instanceof ApiError && error.value.statusCode === 401;
 });
 
 const messages: Record<number | string, string> = {

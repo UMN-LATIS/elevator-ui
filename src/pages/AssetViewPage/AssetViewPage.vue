@@ -82,6 +82,11 @@ async function onAssetIdChange() {
     if (err instanceof ApiError && err.statusCode === 410) {
       deletedAssetInfo.value = err.data as DeletedAssetInfo;
       pageTitle.value = "Deleted asset";
+    } else if (err instanceof ApiError && err.statusCode === 401) {
+      // 401s are handled by the global error interceptor → ErrorModal →
+      // SignInRequiredNotice. Don't re-throw or ErrorBoundary will also
+      // catch it and replace the page with a generic error.
+      return;
     } else {
       throw err;
     }

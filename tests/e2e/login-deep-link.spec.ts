@@ -12,7 +12,7 @@ test.describe("Login deep link — protected asset", () => {
     // Deliberately NOT logging in — user is unauthenticated
   });
 
-  test("navigating to a protected asset shows sign-in modal", async ({
+  test("navigating to a protected asset shows sign-in notice", async ({
     page,
   }) => {
     await page.goto(`/asset/viewAsset/${PROTECTED_ASSET_ID}`);
@@ -28,12 +28,12 @@ test.describe("Login deep link — protected asset", () => {
     // 1. Navigate to protected asset while unauthenticated
     await page.goto(`/asset/viewAsset/${PROTECTED_ASSET_ID}`);
 
-    // 2. Sign-in modal appears
+    // 2. Sign-in notice appears
     await expect(
       page.getByRole("heading", { name: "Sign In Required" })
     ).toBeVisible();
 
-    // 3. Click the guest Login button in the modal
+    // 3. Click the guest Login button
     await page.locator(".sign-in-required__local-login").click();
 
     // 4. Should be on the local login page with redirect param
@@ -44,7 +44,7 @@ test.describe("Login deep link — protected asset", () => {
     // 5. Fill in guest credentials and submit
     await page.getByLabel("Username").fill("user");
     await page.getByLabel("Password").fill("user");
-    await page.getByRole("button", { name: "Login" }).click();
+    await page.locator('button[type="submit"]').click();
 
     // 6. Should redirect to the protected asset and render it
     await expect(page).toHaveURL(
