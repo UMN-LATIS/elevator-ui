@@ -54,7 +54,7 @@ const baseAsset: WithMeta<Asset> = {
   titleObject: "title_1",
 };
 
-const generateMockAssets = (count = 100): Asset[] => {
+const generateMockAssets = (count = 100): WithMeta<Asset>[] => {
   const assets: Asset[] = [];
   const fileTypes = ["txt", "pdf", "docx", "jpg", "png", "mp4", "wav"];
 
@@ -114,7 +114,7 @@ const generateMockAssets = (count = 100): Asset[] => {
 };
 
 // Assets with location + date data for map/timeline/drawer share testing
-const locationAssetSeeds: Asset[] = [
+const locationAssetSeeds: WithMeta<Asset>[] = [
   {
     ...baseAsset,
     title_1: [

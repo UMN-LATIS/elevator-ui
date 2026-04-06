@@ -86,6 +86,7 @@ async function onAssetIdChange() {
       // 401s are handled by the global error interceptor → ErrorModal →
       // SignInRequiredNotice. Don't re-throw or ErrorBoundary will also
       // catch it and replace the page with a generic error.
+      isPageLoaded.value = true;
       return;
     } else {
       throw err;

@@ -57,7 +57,7 @@ function goToLocalLogin() {
   errorStore.clearError();
   router.push({
     path: "/loginManager/localLogin",
-    query: { redirect: route.path },
+    query: { redirect: route.fullPath },
   });
 }
 </script>
