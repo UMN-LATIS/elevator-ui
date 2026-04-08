@@ -1,21 +1,23 @@
 <template>
   <div class="asset-view-page__asset-view md:h-full relative pb-16 md:pb-0">
-    <ObjectViewer
-      class="asset-view__object-viewer min-h-[50dvh] md:min-h-0 md:absolute md:top-0 border-t-0 border-b-asset-view"
-      :class="{
-        'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-l-asset-view':
-          isAssetDetailsOpen && isObjectDetailsOpen, // both open
-        'md:top-0 md:bottom-16 md:left-sm md:right-0 border-l-asset-view':
-          isAssetDetailsOpen && !isObjectDetailsOpen, // just asset details
+    <ErrorBoundary>
+      <ObjectViewer
+        class="asset-view__object-viewer min-h-[50dvh] md:min-h-0 md:absolute md:top-0 border-t-0 border-b-asset-view"
+        :class="{
+          'md:top-0 md:bottom-1/2 md:left-sm md:right-0 border-l-asset-view':
+            isAssetDetailsOpen && isObjectDetailsOpen, // both open
+          'md:top-0 md:bottom-16 md:left-sm md:right-0 border-l-asset-view':
+            isAssetDetailsOpen && !isObjectDetailsOpen, // just asset details
 
-        'md:top-0 md:bottom-16 md:left-0 md:right-sm border-r-asset-view':
-          !isAssetDetailsOpen && isObjectDetailsOpen, // just object details
-        'md:top-0 md:bottom-16 md:left-0 md:right-0':
-          !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
-      }"
-      :fileHandlerId="assetStore.activeFileObjectId"
-      :parentAssetId="assetStore.activeAssetId"
-      :title="iframeTitle" />
+          'md:top-0 md:bottom-16 md:left-0 md:right-sm border-r-asset-view':
+            !isAssetDetailsOpen && isObjectDetailsOpen, // just object details
+          'md:top-0 md:bottom-16 md:left-0 md:right-0':
+            !isAssetDetailsOpen && !isObjectDetailsOpen, // neither open
+        }"
+        :fileHandlerId="assetStore.activeFileObjectId"
+        :parentAssetId="assetStore.activeAssetId"
+        :title="iframeTitle" />
+    </ErrorBoundary>
     <!-- render file view toolbar here for mobile
        so it appears below the object viewer. Otherwise it goes
        with the object details panel
@@ -25,41 +27,45 @@
         :fileHandlerId="assetStore.activeFileObjectId"
         :assetId="assetStore.activeObjectId ?? assetId" />
     </div>
-    <AssetDetailsPanel
-      class="asset-view__asset-panel md:absolute"
-      :class="{
-        'asset-view__asset-panel--open': isAssetDetailsOpen,
-        'md:bottom-0 md:left-0 md:top-0 md:w-sm': isAssetDetailsOpen, // both open + asset details open
-        'md:bottom-0 md:left-0 md:h-16 md:right-sm border-r-asset-view':
-          !isAssetDetailsOpen && isObjectDetailsOpen, // just obj panel
-        'md:bottom-0 md:left-0 md:h-16 md:w-1/2':
-          !isAssetDetailsOpen && !isObjectDetailsOpen, //neither open
-      }"
-      :showToggle="permitPanelToggle"
-      :assetId="assetStore.activeAssetId"
-      :parentAssetId="assetStore.activeAssetId"
-      :isOpen="permitPanelToggle ? isAssetDetailsOpen : true"
-      @toggle="isAssetDetailsOpen = !isAssetDetailsOpen" />
-    <ObjectDetailsPanel
-      class="asset-view__details-panel md:absolute"
-      :class="{
-        'asset-view__details-panel--open': isObjectDetailsOpen,
-        'border-l-asset-view': !isObjectDetailsOpen,
-        'md:bottom-0 md:right-0 md:h-16 md:left-sm':
-          !isObjectDetailsOpen && isAssetDetailsOpen, // just asset open
-        'md:bottom-0 md:right-0 md:h-1/2 md:left-sm border-l-asset-view':
-          isObjectDetailsOpen && isAssetDetailsOpen, // both panels open
-        'md:bottom-0 md:right-0 md:top-0 md:w-sm':
-          isObjectDetailsOpen && !isAssetDetailsOpen, // just object open
-        'md:bottom-0 md:right-0 md:h-16 md:w-1/2':
-          !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
-      }"
-      :showToggle="permitPanelToggle"
-      :assetId="assetStore.activeAssetId"
-      :objectId="assetStore.activeObjectId"
-      :fileHandlerId="assetStore.activeFileObjectId"
-      :isOpen="permitPanelToggle ? isObjectDetailsOpen : true"
-      @toggle="isObjectDetailsOpen = !isObjectDetailsOpen" />
+    <ErrorBoundary>
+      <AssetDetailsPanel
+        class="asset-view__asset-panel md:absolute"
+        :class="{
+          'asset-view__asset-panel--open': isAssetDetailsOpen,
+          'md:bottom-0 md:left-0 md:top-0 md:w-sm': isAssetDetailsOpen, // both open + asset details open
+          'md:bottom-0 md:left-0 md:h-16 md:right-sm border-r-asset-view':
+            !isAssetDetailsOpen && isObjectDetailsOpen, // just obj panel
+          'md:bottom-0 md:left-0 md:h-16 md:w-1/2':
+            !isAssetDetailsOpen && !isObjectDetailsOpen, //neither open
+        }"
+        :showToggle="permitPanelToggle"
+        :assetId="assetStore.activeAssetId"
+        :parentAssetId="assetStore.activeAssetId"
+        :isOpen="permitPanelToggle ? isAssetDetailsOpen : true"
+        @toggle="isAssetDetailsOpen = !isAssetDetailsOpen" />
+    </ErrorBoundary>
+    <ErrorBoundary>
+      <ObjectDetailsPanel
+        class="asset-view__details-panel md:absolute"
+        :class="{
+          'asset-view__details-panel--open': isObjectDetailsOpen,
+          'border-l-asset-view': !isObjectDetailsOpen,
+          'md:bottom-0 md:right-0 md:h-16 md:left-sm':
+            !isObjectDetailsOpen && isAssetDetailsOpen, // just asset open
+          'md:bottom-0 md:right-0 md:h-1/2 md:left-sm border-l-asset-view':
+            isObjectDetailsOpen && isAssetDetailsOpen, // both panels open
+          'md:bottom-0 md:right-0 md:top-0 md:w-sm':
+            isObjectDetailsOpen && !isAssetDetailsOpen, // just object open
+          'md:bottom-0 md:right-0 md:h-16 md:w-1/2':
+            !isObjectDetailsOpen && !isAssetDetailsOpen, // neither panels open
+        }"
+        :showToggle="permitPanelToggle"
+        :assetId="assetStore.activeAssetId"
+        :objectId="assetStore.activeObjectId"
+        :fileHandlerId="assetStore.activeFileObjectId"
+        :isOpen="permitPanelToggle ? isObjectDetailsOpen : true"
+        @toggle="isObjectDetailsOpen = !isObjectDetailsOpen" />
+    </ErrorBoundary>
   </div>
 </template>
 <script setup lang="ts">
@@ -70,6 +76,7 @@ import ObjectDetailsPanel from "@/components/ObjectDetailsPanel/ObjectDetailsPan
 import AssetDetailsPanel from "@/components/AssetDetailsPanel/AssetDetailsPanel.vue";
 import ActiveFileViewToolbar from "@/components/ActiveFileViewToolbar/ActiveFileViewToolbar.vue";
 import { useMediaQuery } from "@vueuse/core";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 
 defineProps<{
   assetId: string | null;
@@ -84,9 +91,7 @@ const permitPanelToggle = useMediaQuery("(min-width: 768px)");
 
 const iframeTitle = computed(
   () =>
-    assetStore.activeFileDescription ||
-    assetStore.activeTitle ||
-    "Asset viewer"
+    assetStore.activeFileDescription || assetStore.activeTitle || "Asset viewer"
 );
 </script>
 <style scoped lang="postcss">
