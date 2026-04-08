@@ -38,6 +38,18 @@ export interface FileFormData {
   [key: string]: unknown;
 }
 
+/**
+ * Internal metadata attached to mock objects. Stripped before sending
+ * to the client — the frontend never sees this, mirroring how a real
+ * backend enforces permissions server-side.
+ */
+export interface MockMeta {
+  visibility: "public" | "authenticated";
+}
+
+/** Attach _meta to any mock object type. */
+export type WithMeta<T> = T & { _meta?: MockMeta };
+
 export interface MockServerContext {
   Variables: {
     user: MockUser | null;

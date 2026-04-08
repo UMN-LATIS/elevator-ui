@@ -4,8 +4,9 @@
       <PrevNextSearchResultNav />
     </template>
     <template v-if="isPageLoaded">
+      <SignInRequiredNotice v-if="requiresAuth" />
       <DeletedAssetNotice
-        v-if="deletedAssetInfo"
+        v-else-if="deletedAssetInfo"
         :assetId="props.assetId"
         :deletedAt="deletedAssetInfo.deletedAt"
         @restored="handleRestored" />
@@ -30,6 +31,7 @@ import DeletedAssetNotice from "./DeletedAssetNotice.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { usePageTitle } from "@/helpers/usePageTitle";
 import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
+import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import { striptags } from "striptags";
 import { ApiError } from "@/api/ApiError";
 import type { DeletedAssetInfo } from "@/types";
@@ -37,6 +39,7 @@ import type { DeletedAssetInfo } from "@/types";
 const assetStore = useAssetStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
 const isPageLoaded = ref(false);
+const requiresAuth = ref(false);
 const route = useRoute();
 const props = withDefaults(
   defineProps<{
@@ -61,6 +64,7 @@ async function onAssetIdChange() {
   // `metadata-only-page` or a `asset-with-viewer-page`
   isPageLoaded.value = false;
   deletedAssetInfo.value = null;
+  requiresAuth.value = false;
 
   try {
     const asset = await assetStore.setActiveAsset(
@@ -82,6 +86,13 @@ async function onAssetIdChange() {
     if (err instanceof ApiError && err.statusCode === 410) {
       deletedAssetInfo.value = err.data as DeletedAssetInfo;
       pageTitle.value = "Deleted asset";
+    } else if (err instanceof ApiError && err.statusCode === 401) {
+      // Handle 401 inline instead of letting ErrorModal show a modal
+      // with the asset page visible behind a scrim.
+      requiresAuth.value = true;
+      assetStore.setActiveAsset(null);
+      isPageLoaded.value = true;
+      return;
     } else {
       throw err;
     }

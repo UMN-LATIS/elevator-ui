@@ -9,9 +9,9 @@
 
     <div class="flex gap-2">
       <Button
-        :to="`/loginManager/localLogin/?redirect=${$route.path}`"
         class="sign-in-required__local-login"
-        variant="primary">
+        variant="primary"
+        @click="goToLocalLogin">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
           <!--
           The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
@@ -31,18 +31,35 @@
 <script setup lang="ts">
 import { useBrowserLocation } from "@vueuse/core";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { useErrorStore } from "@/stores/errorStore";
 import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import config from "@/config";
 import Notification from "@/components/Notification/Notification.vue";
 import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
+const errorStore = useErrorStore();
+const router = useRouter();
+const route = useRoute();
 const instance = computed(() => instanceStore.instance);
 const browserLocation = useBrowserLocation();
 const encodedCallbackUrl = computed(() => {
   const callbackUrl = browserLocation.value?.href ?? config.instance.base.url;
   return encodeURIComponent(callbackUrl);
 });
+
+function goToLocalLogin() {
+  // Clear the error first so the ErrorModal unmounts cleanly,
+  // then navigate. Previously this was a RouterLink, but the
+  // router's beforeResolve guard cleared the error mid-navigation,
+  // destroying the modal (and its RouterLink) before navigation completed.
+  errorStore.clearError();
+  router.push({
+    path: "/loginManager/localLogin",
+    query: { redirect: route.fullPath },
+  });
+}
 </script>
 <style scoped>
 .guest-auth-label::before {

@@ -3,8 +3,10 @@ import { assetToSearchResultMatch } from "../utils/index";
 import { createBaseTable } from "./baseTable";
 import type { CollectionsTable } from "./collections";
 import type { TemplatesTable } from "./templates";
+import type { WithMeta } from "../types";
 
-const baseAsset: Asset = {
+const baseAsset: WithMeta<Asset> = {
+  _meta: { visibility: "public" },
   title_1: [
     {
       isPrimary: false,
@@ -52,7 +54,7 @@ const baseAsset: Asset = {
   titleObject: "title_1",
 };
 
-const generateMockAssets = (count = 100): Asset[] => {
+const generateMockAssets = (count = 100): WithMeta<Asset>[] => {
   const assets: Asset[] = [];
   const fileTypes = ["txt", "pdf", "docx", "jpg", "png", "mp4", "wav"];
 
@@ -112,7 +114,7 @@ const generateMockAssets = (count = 100): Asset[] => {
 };
 
 // Assets with location + date data for map/timeline/drawer share testing
-const locationAssetSeeds: Asset[] = [
+const locationAssetSeeds: WithMeta<Asset>[] = [
   {
     ...baseAsset,
     title_1: [
@@ -203,7 +205,7 @@ const locationAssetSeeds: Asset[] = [
 
 export const LOCATION_ASSET_IDS = locationAssetSeeds.map((a) => a.assetId);
 
-const assetSeeds: Asset[] = [
+const assetSeeds: WithMeta<Asset>[] = [
   ...locationAssetSeeds,
   baseAsset,
   // Asset with broken template for error boundary testing
@@ -306,6 +308,23 @@ const assetSeeds: Asset[] = [
       timezone: "UTC",
     },
   },
+  // Auth-required asset for testing 401 / login-redirect flows
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Protected Asset" }],
+    assetId: "protected_asset_001",
+    firstFileHandlerId: "handler_protected_001",
+    title: ["Protected Asset"],
+    templateId: 1,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2026-04-01 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    _meta: { visibility: "authenticated" },
+  },
   // Soft-deleted assets for trash tab testing
   {
     ...baseAsset,
@@ -375,7 +394,7 @@ export function createAssetsTable({
   templates: TemplatesTable;
 }) {
   const baseTable = createBaseTable(
-    (asset: Asset) => asset.assetId,
+    (asset: WithMeta<Asset>) => asset.assetId,
     assetSeeds
   );
 
