@@ -7,6 +7,7 @@ const TEMPLATE_NAMES_INSERTION_ORDER = [
   "Some Fields",
   "All Fields Test",
   "Inline Child Template",
+  "Collapsed Related Parent Template",
   "Inline Parent Template",
   "Multiple Upload Widgets",
   "All Fields with Autocomplete",
@@ -112,7 +113,11 @@ test.describe("Templates Index Page", () => {
 
     // Created and Modified columns show formatted dates from seed data.
     // Accept any separator (/, ., -) so the assertion holds across locales.
-    await expect(allFieldsRow.locator("td:nth-child(3)")).toHaveText(/\d+[/.\-]\d+[/.\-]\d+/);
-    await expect(allFieldsRow.locator("td:nth-child(4)")).toHaveText(/\d+[/.\-]\d+[/.\-]\d+/);
+    await expect(allFieldsRow.locator("td:nth-child(3)")).toHaveText(
+      /\d+[/.\-]\d+[/.\-]\d+/
+    );
+    await expect(allFieldsRow.locator("td:nth-child(4)")).toHaveText(
+      /\d+[/.\-]\d+[/.\-]\d+/
+    );
   });
 });
