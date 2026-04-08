@@ -383,6 +383,57 @@ const assetSeeds: WithMeta<Asset>[] = [
       timezone: "UTC",
     },
   },
+  // Auth-required child for collapsed related asset parent-id test
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Protected Child Asset" }],
+    assetId: "protected_child_001",
+    firstFileHandlerId: "handler_protected_child_001",
+    title: ["Protected Child Asset"],
+    templateId: 1,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2026-04-01 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    _meta: { visibility: "authenticated" },
+  },
+  // Public parent with collapsed related asset pointing to the protected child
+  {
+    ...baseAsset,
+    title_1: [
+      { isPrimary: false, fieldContents: "Parent With Protected Child" },
+    ],
+    collapsedchild_1: [
+      {
+        isPrimary: false,
+        targetAssetId: "protected_child_001",
+      },
+    ],
+    relatedAssetCache: {
+      protected_child_001: {
+        relatedAssetTitle: ["Protected Child Asset"],
+        primaryHandler: null,
+        primaryHandlerTiny: null,
+        primaryHandlerTiny2x: null,
+      },
+    },
+    assetId: "collapsed_parent_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Parent With Protected Child"],
+    templateId: 103,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2026-04-01 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    _meta: { visibility: "public" },
+  },
   ...generateMockAssets(),
 ];
 
