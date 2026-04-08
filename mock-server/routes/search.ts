@@ -93,13 +93,15 @@ app.post("/searchResults", async (c) => {
 
   const user = c.get("user");
 
-  // check if authed
-  if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-
   const body = await c.req.formData();
   const parsed = parseFormData(body);
+
+  // Allow unauthenticated "More Like This" searches (searchRelated),
+  // but require auth for regular searches.
+  const isRelatedSearch = parsed.searchRelated === true;
+  if (!user && !isRelatedSearch) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
 
   const storeOnly = parsed.storeOnly === "true";
   const searchQuery = parsed.searchQuery as SearchRequestOptions;

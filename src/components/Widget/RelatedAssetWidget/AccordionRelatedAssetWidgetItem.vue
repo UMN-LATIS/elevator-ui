@@ -14,13 +14,16 @@
           <h3>{{ title }}</h3>
         </div>
       </template>
-      <WidgetList :assetId="assetId" />
+      <ErrorBoundary>
+        <WidgetList :assetId="assetId" />
+      </ErrorBoundary>
       <slot />
     </Accordion>
   </div>
 </template>
 <script setup lang="ts">
 import Accordion from "@/components/Accordion/Accordion.vue";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { getTinyURL } from "@/helpers/displayUtils";
 import { RelatedAssetCacheItem } from "@/types";
