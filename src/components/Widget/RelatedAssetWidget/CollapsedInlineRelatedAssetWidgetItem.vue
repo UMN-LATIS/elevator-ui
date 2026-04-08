@@ -16,6 +16,7 @@
 import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { computed } from "vue";
 import { useAsset } from "@/helpers/useAsset";
+import { useAssetStore } from "@/stores/assetStore";
 import { ArrowRightIcon } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 
@@ -24,8 +25,10 @@ const props = defineProps<{
   title: string;
 }>();
 
+const assetStore = useAssetStore();
 const assetIdRef = computed(() => props.assetId);
-const { asset } = useAsset(assetIdRef);
+const parentAssetIdRef = computed((): string => assetStore.activeAssetId ?? "");
+const { asset } = useAsset(assetIdRef, parentAssetIdRef);
 </script>
 <style scoped>
 .collapsed-inline-related-asset-widget-item {
