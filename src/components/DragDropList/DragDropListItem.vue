@@ -334,5 +334,6 @@ onMounted(() => {
 
 .drag-drop-list-item__content {
   flex: 1;
+  min-width: 0;
 }
 </style>
