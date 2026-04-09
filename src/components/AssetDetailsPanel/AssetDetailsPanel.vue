@@ -32,7 +32,9 @@
         <Tuple v-if="showTemplateTop" label="Template">
           {{ template.templateName }}
         </Tuple>
-        <WidgetList :assetId="assetId" class="py-4 md:py-0" />
+        <ErrorBoundary>
+          <WidgetList :assetId="assetId" class="py-4 md:py-0" />
+        </ErrorBoundary>
         <CollectionTuple
           v-if="showCollectionBottom"
           :collectionId="asset.collectionId"
@@ -65,6 +67,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { PencilIcon } from "lucide-vue-next";
 import IconButton from "../IconButton/IconButton.vue";
 import Link from "../Link/Link.vue";
+import ErrorBoundary from "../ErrorBoundary/ErrorBoundary.vue";
 
 const props = withDefaults(
   defineProps<{

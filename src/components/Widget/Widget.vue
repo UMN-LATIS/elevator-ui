@@ -1,18 +1,37 @@
 <template>
-  <component
-    :is="getWidgetComponentByType(widget.type)"
-    v-if="['upload'].includes(widget.type)"
-    :widget="widget"
-    :contents="widgetContents"
-    :asset="asset"></component>
-  <Tuple v-else :label="widget.label" class="widget">
+  <ErrorBoundary>
+    <template #fallback>
+      <div class="p-4 bg-error-container border border-error rounded-md">
+        <h3 class="text-sm text-error font-bold mb-2">Widget Error</h3>
+        <p class="text-sm text-error/90">
+          An error occurred while rendering this widget.
+          <a
+            :href="`${
+              instanceStore.instance.contact || 'mailto:latistecharch@umn.edu'
+            }`"
+            target="_blank"
+            rel="noopener noreferrer">
+            Contact your administrator
+          </a>
+          for assistance.
+        </p>
+      </div>
+    </template>
     <component
       :is="getWidgetComponentByType(widget.type)"
-      v-if="getWidgetComponentByType(widget.type)"
+      v-if="['upload'].includes(widget.type)"
       :widget="widget"
       :contents="widgetContents"
       :asset="asset"></component>
-  </Tuple>
+    <Tuple v-else :label="widget.label" class="widget">
+      <component
+        :is="getWidgetComponentByType(widget.type)"
+        v-if="getWidgetComponentByType(widget.type)"
+        :widget="widget"
+        :contents="widgetContents"
+        :asset="asset"></component>
+    </Tuple>
+  </ErrorBoundary>
 </template>
 <script setup lang="ts">
 import { type Component, computed } from "vue";
@@ -30,11 +49,15 @@ import UploadWidget from "@/components/Widget/UploadWidget/UploadWidget.vue";
 import TagWidget from "@/components/Widget/TagWidget/TagWidget.vue";
 import RelatedAssetWidget from "@/components/Widget/RelatedAssetWidget/RelatedAssetWidget.vue";
 import { getWidgetContents } from "@/helpers/displayUtils";
+import ErrorBoundary from "../ErrorBoundary/ErrorBoundary.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 
 const props = defineProps<{
   widget: WidgetDef;
   asset: Asset | UnsavedAsset;
 }>();
+
+const instanceStore = useInstanceStore();
 
 const widgetContents = computed(() =>
   getWidgetContents({ asset: props.asset, widget: props.widget })
