@@ -133,7 +133,7 @@ const { activeTheme } = useTheming();
 // Determine default map style based on theme
 const defaultMapStyle = computed<keyof typeof mapStyles>(() => {
   // If theme name contains "dark", use dark map style
-  return activeTheme.value.includes("dark") ? "dark" : "light";
+  return activeTheme.value?.includes("dark") ? "dark" : "light";
 });
 
 // Track whether user has manually selected a style
@@ -519,11 +519,7 @@ onMounted(() => {
   });
 
   if (props.fullscreenControl) {
-    map.addControl(
-      new FullscreenControl({
-        container: document.querySelector("body") as HTMLBodyElement,
-      })
-    );
+    map.addControl(new FullscreenControl());
   }
 
   map
@@ -911,6 +907,11 @@ provide<MapContext>(MapInjectionKey, {
   height: 100%;
   min-height: 25rem;
   background: var(--surface-container);
+}
+
+.map-container:fullscreen {
+  height: 100vh !important;
+  width: 100vw !important;
 }
 </style>
 
