@@ -124,8 +124,18 @@ async function onConfirmedToAdd() {
       });
 
       document.body.innerHTML += data;
-      // autosubmit name comes from he packbackbooks package we use, create a deeplink payload to post back to canvas
-      (document.getElementById("auto_submit") as HTMLFormElement)?.submit();
+
+      // get the first form in the document and submit it, this is the form that the LTI 1.3 endpoint returns that we need to submit
+      nextTick(() => {
+        const form = document.querySelector("form");
+        if (!form) {
+          addingToPluginStatus.value = "error";
+          throw new Error("Return form not found");
+        }
+        form.submit();
+        addingToPluginStatus.value = "success";
+        toastStore.addToast({ message: "Added to Canvas" });
+      });
     } else {
       const data = await api.postLtiPayload({
         fileObjectId: props.fileHandlerId,
