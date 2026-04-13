@@ -123,9 +123,20 @@ async function onConfirmedToAdd() {
         userId: userId.value ?? "",
       });
 
-      document.body.innerHTML += data;
-      // autosubmit name comes from he packbackbooks package we use, create a deeplink payload to post back to canvas
-      (document.getElementById("auto_submit") as HTMLFormElement)?.submit();
+      // The backend returns a self-submitting HTML form with a known id.
+      // insertAdjacentHTML avoids clobbering existing DOM nodes (and their
+      // Vue listeners) the way `body.innerHTML += data` would.
+      document.body.insertAdjacentHTML("beforeend", data);
+      const form = document.getElementById(
+        "lti13DeepLinkResponse"
+      ) as HTMLFormElement | null;
+      if (!form) {
+        addingToPluginStatus.value = "error";
+        throw new Error("Return form not found");
+      }
+      form.submit();
+      addingToPluginStatus.value = "success";
+      toastStore.addToast({ message: "Added to Canvas" });
     } else {
       const data = await api.postLtiPayload({
         fileObjectId: props.fileHandlerId,
