@@ -18,6 +18,7 @@
         :assetId="assetStore.activeAssetId"
         :objectId="assetStore.activeObjectId" />
     </template>
+    <AssetViewSkeleton v-else />
   </NoScrollLayout>
 </template>
 <script setup lang="ts">
@@ -28,6 +29,7 @@ import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 import DeletedAssetNotice from "./DeletedAssetNotice.vue";
+import AssetViewSkeleton from "./AssetViewSkeleton.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { usePageTitle } from "@/helpers/usePageTitle";
 import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
