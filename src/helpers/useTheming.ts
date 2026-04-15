@@ -3,24 +3,9 @@ import { useStorage } from "@vueuse/core";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { ALL_THEMES } from "@/config";
 
-import "@/css/themes/default.css";
-import "@/css/themes/dark.css";
-import "@/css/themes/folwell.css";
-import "@/css/themes/st-thomas.css";
-import "@/css/themes/hotdog.css";
-import "@/css/themes/vaporwave.css";
-import "@/css/themes/matrix.css";
-import "@/css/themes/barbie.css";
-import "@/css/themes/nord-dark.css";
-import "@/css/themes/nord-light.css";
-import "@/css/themes/gameboy.css";
-import "@/css/themes/tron.css";
-import "@/css/themes/construction.css";
-import "@/css/themes/hotrod.css";
-import "@/css/themes/simple.css";
-import "@/css/themes/neobrutalist.css";
-import "@/css/themes/natural.css";
-import "@/css/themes/bucky.css";
+// Eager-import every theme CSS file.
+// Order matters: `_default.css` must be first.
+import.meta.glob("@/css/themes/*.css", { eager: true });
 
 export function useTheming() {
   const { data: instanceData } = useInstanceQuery();

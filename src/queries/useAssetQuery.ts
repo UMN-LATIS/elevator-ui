@@ -9,7 +9,7 @@ export function useAssetQuery(
 ) {
   return useQuery({
     queryKey: [ASSETS_QUERY_KEY, assetId],
-    enabled: !!toValue(assetId),
+    enabled: () => !!toValue(assetId),
     placeholderData: () => null,
     queryFn: async () => {
       const id = toValue(assetId);
