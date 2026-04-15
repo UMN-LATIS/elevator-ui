@@ -37,15 +37,12 @@ export default defineConfig(({ mode }) => {
           mode === "test"
             ? path.resolve(__dirname, "index.html")
             : path.resolve(__dirname, "src/main.ts"),
-        output: {
-          // Isolated heavy libraries get their own chunk so they can be cached
-          // independently from app code. Only libraries without app-shared
-          // sub-imports belong here — don't chunk widely-shared deps.
-          manualChunks: {
-            maplibre: ["maplibre-gl", "@turf/circle"],
-            timeline: ["@knight-lab/timelinejs"],
-          },
-        },
+        // No manualChunks here on purpose. We tried naming maplibre/timeline
+        // chunks but Vite then treated them as first-class entry deps and
+        // emitted <link rel="modulepreload"> for the JS plus a render-blocking
+        // <link rel="stylesheet"> for the timeline CSS on every page load —
+        // defeating the lazy import. Letting Rollup auto-chunk based on the
+        // dynamic-import graph keeps these chunks behind their import() calls.
       },
       sourcemap: mode !== "production",
     },
