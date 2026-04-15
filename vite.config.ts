@@ -1,13 +1,32 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
+import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
+  const analyze = process.env.ANALYZE === "1";
+
+  const plugins: PluginOption[] = [vue(), vueJsx()];
+  if (analyze) {
+    plugins.push(
+      visualizer({
+        filename: "dist/bundle-stats.html",
+        template: "treemap",
+        gzipSize: true,
+        brotliSize: true,
+      }) as PluginOption,
+      visualizer({
+        filename: "dist/bundle-stats.json",
+        template: "raw-data",
+        gzipSize: true,
+      }) as PluginOption
+    );
+  }
 
   return {
-    plugins: [vue(), vueJsx()],
+    plugins,
     base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
     resolve: {
       alias: {
