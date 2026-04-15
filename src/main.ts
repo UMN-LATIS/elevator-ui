@@ -3,8 +3,8 @@ import App from "./App.vue";
 import { resetStorePlugin } from "@/stores/resetStorePlugin";
 import { createPinia } from "pinia";
 import router from "@/router";
-import { VueQueryPlugin, QueryClient } from "@tanstack/vue-query";
-import { ApiError } from "@/api/ApiError";
+import { VueQueryPlugin } from "@tanstack/vue-query";
+import { createAppQueryClient } from "@/queries/queryClient";
 
 // Work Sans: weights 400 (regular) and 600 (semibold) only. Italic variants
 // are omitted — italic is rare in the UI and the browser synthesizes it from
@@ -18,20 +18,6 @@ const app = createApp(App);
 const pinia = createPinia();
 pinia.use(resetStorePlugin);
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error) => {
-        if (
-          error instanceof ApiError &&
-          [401, 403, 404, 410].includes(error.statusCode)
-        ) {
-          return false;
-        }
-        return failureCount < 3;
-      },
-    },
-  },
-});
+const queryClient = createAppQueryClient();
 
 app.use(router).use(pinia).use(VueQueryPlugin, { queryClient }).mount("#app");
