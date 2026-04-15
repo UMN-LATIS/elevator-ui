@@ -179,8 +179,19 @@ import { useDrawerStore } from "@/stores/drawerStore";
 import { SORT_KEYS } from "@/constants/constants";
 import { useErrorStore } from "@/stores/errorStore";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import DrawerItemsGrid from "./DrawerItemsGrid.vue";
-import DrawerItemsList from "./DrawerItemsList.vue";
+
+// Lazy: DrawerItemsGrid/List pull in vuedraggable (CJS/UMD), which drags
+// sortablejs AND the full vue.cjs.prod bundle (runtime + template compiler)
+// into whatever chunk imports them. Keeping them behind dynamic import()
+// contains ~100 kB gz to the DrawerItems chunk.
+const DrawerItemsGrid = defineAsyncComponent({
+  loader: () => import("./DrawerItemsGrid.vue"),
+  loadingComponent: tabLoadingFallback,
+});
+const DrawerItemsList = defineAsyncComponent({
+  loader: () => import("./DrawerItemsList.vue"),
+  loadingComponent: tabLoadingFallback,
+});
 import IconButton from "@/components/IconButton/IconButton.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
