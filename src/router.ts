@@ -1,20 +1,12 @@
 import { RouteRecordRaw, createRouter, createWebHistory } from "vue-router";
 import config from "@/config";
+// Core-flow pages stay eager so navigation to/from them has no loading flash.
 import HomePage from "@/pages/HomePage/HomePage.vue";
 import AssetViewPage from "@/pages/AssetViewPage/AssetViewPage.vue";
-import AllCollectionsPage from "@/pages/AllCollectionsPage/AllCollectionsPage.vue";
 import BrowseCollectionPage from "./pages/BrowseCollectionPage/BrowseCollectionPage.vue";
 import SearchResultsPage from "./pages/SearchResultsPage/SearchResultsPage.vue";
-import LocalLoginPage from "./pages/LocalLoginPage/LocalLoginPage.vue";
-import StaticContentPage from "@/pages/StaticContentPage/StaticContentPage.vue";
-import ErrorPage from "@/pages/ErrorPage/ErrorPage.vue";
-import AllDrawersPage from "@/pages/AllDrawersPage/AllDrawersPage.vue";
 import DrawerViewPage from "./pages/DrawerViewPage/DrawerViewPage.vue";
-import DownloadDrawerPage from "./pages/DownloadDrawerPage/DownloadDrawerPage.vue";
 import { useErrorStore } from "./stores/errorStore";
-import LogoutPage from "./pages/LogoutPage/LogoutPage.vue";
-import ExcerptViewPage from "./pages/ExcerptViewPage/ExcerptViewPage.vue";
-import SearchResultsEmbedPage from "./pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue";
 import { User } from "./types";
 
 declare module "vue-router" {
@@ -126,7 +118,7 @@ const router = createRouter({
     {
       name: "viewExcerpt",
       path: "/asset/viewExcerpt/:excerptId",
-      component: ExcerptViewPage,
+      component: () => import("@/pages/ExcerptViewPage/ExcerptViewPage.vue"),
       props: (route) => ({
         excerptId: parseIntFromParam(route.params.excerptId),
       }),
@@ -188,9 +180,8 @@ const router = createRouter({
       name: "listCollections",
       path: "/search/listCollections",
       alias: "/collections",
-      component: AllCollectionsPage,
-      // component: () =>
-      // import("@/pages/AllCollectionsPage/AllCollectionsPage.vue"),
+      component: () =>
+        import("@/pages/AllCollectionsPage/AllCollectionsPage.vue"),
     },
     {
       name: "browseCollection",
@@ -206,7 +197,7 @@ const router = createRouter({
     {
       name: "allDrawersPage",
       path: "/drawers/listDrawers",
-      component: AllDrawersPage,
+      component: () => import("@/pages/AllDrawersPage/AllDrawersPage.vue"),
     },
     {
       name: "viewDrawerPage",
@@ -220,7 +211,8 @@ const router = createRouter({
     {
       name: "downloadDrawerPage",
       path: "/drawers/downloadDrawer/:drawerId",
-      component: DownloadDrawerPage,
+      component: () =>
+        import("@/pages/DownloadDrawerPage/DownloadDrawerPage.vue"),
       props: (route) => ({
         drawerId: parseIntFromParam(route.params.drawerId),
       }),
@@ -249,7 +241,8 @@ const router = createRouter({
     {
       name: "searchResultsMapEmbed",
       path: "/search/:embedType/:searchId",
-      component: SearchResultsEmbedPage,
+      component: () =>
+        import("@/pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue"),
       props: true,
       // The classic interface used /search/{embedType}/{drawerId} for
       // drawer embeds. Redirect those legacy URLs to the canonical drawer
@@ -279,8 +272,7 @@ const router = createRouter({
     {
       name: "localLogin",
       path: "/loginManager/localLogin",
-      component: LocalLoginPage,
-      // component: () => import("@/pages/LocalLoginPage/LocalLoginPage.vue"),
+      component: () => import("@/pages/LocalLoginPage/LocalLoginPage.vue"),
       props: (route) => ({
         redirectURL: route.query.redirect ?? null,
       }),
@@ -288,14 +280,13 @@ const router = createRouter({
     {
       name: "logout",
       path: "/logout",
-      component: LogoutPage,
+      component: () => import("@/pages/LogoutPage/LogoutPage.vue"),
     },
     {
       name: "staticContentPage",
       path: "/page/view/:pageId",
-      component: StaticContentPage,
-      // component: () =>
-      // import("@/pages/StaticContentPage/StaticContentPage.vue"),
+      component: () =>
+        import("@/pages/StaticContentPage/StaticContentPage.vue"),
       props: (route) => ({
         pageId: parseIntFromParam(route.params.pageId),
       }),
@@ -366,8 +357,7 @@ const router = createRouter({
     {
       name: "error",
       path: "/error/:errorCode",
-      component: ErrorPage,
-      // component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
+      component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
       props: (route) => ({
         errorCode: parseIntFromParam(route.params.errorCode),
       }),
@@ -375,8 +365,7 @@ const router = createRouter({
     {
       name: "catchall",
       path: "/:pathMatch(.*)",
-      component: ErrorPage,
-      // component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
+      component: () => import("@/pages/ErrorPage/ErrorPage.vue"),
       props: () => ({
         errorCode: 404,
       }),
