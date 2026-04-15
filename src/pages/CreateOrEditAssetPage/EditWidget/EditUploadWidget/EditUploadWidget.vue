@@ -68,10 +68,6 @@ import { computed, nextTick, ref, defineAsyncComponent } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
-
-// Lazy — Uppy + plugins (~300 KB) only load when a curator is actually
-// editing an upload widget, not for metadata-only edits.
-const FileUploader = defineAsyncComponent(() => import("./FileUploader.vue"));
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
@@ -80,6 +76,10 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import { VerticalDotsIcon } from "@/icons";
 import { Circle } from "lucide-vue-next";
 import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
+
+// Lazy — Uppy + plugins (~300 KB) only load when a curator is actually
+// editing an upload widget, not for metadata-only edits.
+const FileUploader = defineAsyncComponent(() => import("./FileUploader.vue"));
 
 const props = defineProps<{
   collectionId: number;
