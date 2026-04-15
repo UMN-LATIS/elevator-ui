@@ -27,10 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useId } from "vue";
+import { ref, useId, defineAsyncComponent } from "vue";
 import { cn } from "@/lib/utils";
-import TextEditor from "@/components/TextEditor/TextEditor.vue";
 import type { CSSClass } from "@/types";
+
+const TextEditor = defineAsyncComponent(
+  () => import("@/components/TextEditor/TextEditor.vue")
+);
 
 withDefaults(
   defineProps<{

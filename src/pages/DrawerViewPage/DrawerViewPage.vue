@@ -139,14 +139,32 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, defineAsyncComponent, h } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
-import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
-import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
-import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
+
+// Heavy tab components — lazy so timelinejs, maplibre-gl, and swiper don't
+// land in the eager DrawerViewPage chunk (which feeds main).
+const tabLoadingFallback = {
+  render: () => h(Skeleton, { height: "60dvh" }),
+};
+const SearchResultsTimeline = defineAsyncComponent({
+  loader: () =>
+    import("@/components/SearchResultsTimeline/SearchResultsTimeline.vue"),
+  loadingComponent: tabLoadingFallback,
+});
+const SearchResultsMap = defineAsyncComponent({
+  loader: () => import("@/components/SearchResultsMap/SearchResultsMap.vue"),
+  loadingComponent: tabLoadingFallback,
+});
+const SearchResultsGallery = defineAsyncComponent({
+  loader: () =>
+    import("@/components/SearchResultsGallery/SearchResultsGallery.vue"),
+  loadingComponent: tabLoadingFallback,
+});
 import { ArrowForwardIcon, UsersIcon, DownloadIcon } from "@/icons";
 import Link from "@/components/Link/Link.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";

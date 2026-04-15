@@ -43,12 +43,28 @@
 </template>
 
 <script setup lang="ts">
-import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
-import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
-import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
+import { defineAsyncComponent, h } from "vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useDrawerQuery } from "@/queries/useDrawerQuery";
 import Notification from "@/components/Notification/Notification.vue";
+
+// Each embed renders exactly one of these — lazy so we only download the
+// chunk for the embed type the URL actually requested.
+const embedFallback = { render: () => h(Skeleton, { height: "100dvh" }) };
+const SearchResultsMap = defineAsyncComponent({
+  loader: () => import("@/components/SearchResultsMap/SearchResultsMap.vue"),
+  loadingComponent: embedFallback,
+});
+const SearchResultsTimeline = defineAsyncComponent({
+  loader: () =>
+    import("@/components/SearchResultsTimeline/SearchResultsTimeline.vue"),
+  loadingComponent: embedFallback,
+});
+const SearchResultsGallery = defineAsyncComponent({
+  loader: () =>
+    import("@/components/SearchResultsGallery/SearchResultsGallery.vue"),
+  loadingComponent: embedFallback,
+});
 
 const props = defineProps<{
   drawerId: number;

@@ -56,10 +56,16 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import TextEditor from "@/components/TextEditor/TextEditor.vue";
 import * as ops from "./helpers/editWidgetOps";
+
+// Lazy — vue-quilly + Quill plugins only load when a curator is actually
+// editing a text widget.
+const TextEditor = defineAsyncComponent(
+  () => import("@/components/TextEditor/TextEditor.vue")
+);
 
 defineProps<{
   widgetDef: Type.TextWidgetDef;
