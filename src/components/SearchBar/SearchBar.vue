@@ -36,12 +36,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import AdvancedSearchForm from "@/components/AdvancedSearchForm/AdvancedSearchForm.vue";
+import { ref, watch, defineAsyncComponent } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useRouter, useRoute } from "vue-router";
 import SearchTextInputGroup from "./SearchTextInputGroup.vue";
 import TransitionFade from "@/components/TransitionFade/TransitionFade.vue";
+
+// Modal content — lazy so its subtree (FilterByGlobalLocationRow → maplibre-gl,
+// @turf/circle) doesn't end up in the main bundle.
+const AdvancedSearchForm = defineAsyncComponent(
+  () => import("@/components/AdvancedSearchForm/AdvancedSearchForm.vue")
+);
 
 const isAdvancedSearchModalOpen = ref(false);
 const searchStore = useSearchStore();

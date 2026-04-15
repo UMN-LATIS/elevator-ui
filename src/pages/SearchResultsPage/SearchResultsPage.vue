@@ -122,7 +122,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed, onMounted, nextTick, ref } from "vue";
+import { watch, computed, onMounted, nextTick, ref, defineAsyncComponent, h } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
@@ -132,9 +132,27 @@ import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
-import SearchResultsTimeline from "@/components/SearchResultsTimeline/SearchResultsTimeline.vue";
-import SearchResultsMap from "@/components/SearchResultsMap/SearchResultsMap.vue";
-import SearchResultsGallery from "@/components/SearchResultsGallery/SearchResultsGallery.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
+
+// Heavy tabs are lazy-loaded so maplibre-gl, timelinejs, and swiper don't
+// land in the main bundle when a user stays on grid/list.
+const tabLoadingFallback = {
+  render: () => h(Skeleton, { height: "60dvh" }),
+};
+const SearchResultsTimeline = defineAsyncComponent({
+  loader: () =>
+    import("@/components/SearchResultsTimeline/SearchResultsTimeline.vue"),
+  loadingComponent: tabLoadingFallback,
+});
+const SearchResultsMap = defineAsyncComponent({
+  loader: () => import("@/components/SearchResultsMap/SearchResultsMap.vue"),
+  loadingComponent: tabLoadingFallback,
+});
+const SearchResultsGallery = defineAsyncComponent({
+  loader: () =>
+    import("@/components/SearchResultsGallery/SearchResultsGallery.vue"),
+  loadingComponent: tabLoadingFallback,
+});
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import type {
@@ -145,7 +163,6 @@ import type {
 import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 import SearchErrorNotification from "./SearchErrorNotification.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import AddSearchResultsToDrawerButton from "./AddSearchResultsToDrawerButton.vue";
 import DidYouMeanSuggestions from "./DidYouMeanSuggestions.vue";
