@@ -143,11 +143,12 @@ const debouncedSearchTerm = useDebounce(
 );
 
 // Query for autocomplete suggestions
-const { data: suggestions, isFetching } = useAutocompleteQuery(
+const { data: suggestionsData, isFetching } = useAutocompleteQuery(
   props.fieldTitle,
   debouncedSearchTerm,
   props.templateId || ""
 );
+const suggestions = computed(() => suggestionsData.value ?? []);
 
 const isTyping = computed(() => {
   const hasActiveInput = props.modelValue.trim().length >= 1;

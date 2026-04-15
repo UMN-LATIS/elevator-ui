@@ -8,6 +8,6 @@ export function useDeletedUserAssets() {
   return useQuery({
     queryKey: [DELETED_ASSETS_QUERY_KEY],
     queryFn: fetchDeletedUserAssets,
-    initialData: () => [] as DeletedAssetSummary[],
+    placeholderData: () => [] as DeletedAssetSummary[],
   });
 }

@@ -5,7 +5,11 @@
  * and flame-job orange/red. Muscle car meets UI. V8-powered.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Russo+One&family=Chakra+Petch:wght@400;500;600;700&display=swap");
+@import "@fontsource/russo-one/400.css";
+@import "@fontsource/chakra-petch/400.css";
+@import "@fontsource/chakra-petch/500.css";
+@import "@fontsource/chakra-petch/600.css";
+@import "@fontsource/chakra-petch/700.css";
 
 [data-theme="hotrod"] {
   /* Surface — glossy black paint */

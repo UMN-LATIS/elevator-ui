@@ -5,7 +5,11 @@
  * This theme overrides M3 tokens with UMN brand colors.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap");
+@import "@fontsource/open-sans/400.css";
+@import "@fontsource/open-sans/500.css";
+@import "@fontsource/open-sans/700.css";
+@import "@fontsource/open-sans/400-italic.css";
+@import "@fontsource/open-sans/700-italic.css";
 
 [data-theme="folwell"] {
   /* Brand color palette */

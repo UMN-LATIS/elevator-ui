@@ -18,6 +18,7 @@
         :assetId="assetStore.activeAssetId"
         :objectId="assetStore.activeObjectId" />
     </template>
+    <AssetViewSkeleton v-else />
   </NoScrollLayout>
 </template>
 <script setup lang="ts">
@@ -28,11 +29,12 @@ import NoScrollLayout from "@/layouts/NoScrollLayout.vue";
 import AssetView from "./AssetView.vue";
 import MetaDataOnlyView from "./MetaDataOnlyView.vue";
 import DeletedAssetNotice from "./DeletedAssetNotice.vue";
+import AssetViewSkeleton from "./AssetViewSkeleton.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { usePageTitle } from "@/helpers/usePageTitle";
 import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
-import { striptags } from "striptags";
+import DOMPurify from "dompurify";
 import { ApiError } from "@/api/ApiError";
 import type { DeletedAssetInfo } from "@/types";
 
@@ -81,7 +83,10 @@ async function onAssetIdChange() {
 
     // if there's an asset, set the page title
     const assetTitle = getAssetTitle(asset);
-    pageTitle.value = striptags(assetTitle);
+    pageTitle.value = DOMPurify.sanitize(assetTitle, {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+    });
   } catch (err) {
     if (err instanceof ApiError && err.statusCode === 410) {
       deletedAssetInfo.value = err.data as DeletedAssetInfo;

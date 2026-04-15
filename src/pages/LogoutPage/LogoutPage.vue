@@ -21,3 +21,9 @@ onMounted(async () => {
   router.push("/");
 });
 </script>
+
+<template>
+  <div role="status" aria-live="polite" class="p-8 text-center">
+    Logging out…
+  </div>
+</template>

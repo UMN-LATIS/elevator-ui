@@ -6,7 +6,16 @@
  * On, Wisconsin!
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800&family=Red+Hat+Text:wght@300;400;500;600;700&display=swap");
+@import "@fontsource/red-hat-display/400.css";
+@import "@fontsource/red-hat-display/500.css";
+@import "@fontsource/red-hat-display/600.css";
+@import "@fontsource/red-hat-display/700.css";
+@import "@fontsource/red-hat-display/800.css";
+@import "@fontsource/red-hat-text/300.css";
+@import "@fontsource/red-hat-text/400.css";
+@import "@fontsource/red-hat-text/500.css";
+@import "@fontsource/red-hat-text/600.css";
+@import "@fontsource/red-hat-text/700.css";
 
 [data-theme="bucky"] {
   /* Brand palette */

@@ -1,13 +1,32 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig, loadEnv, type PluginOption } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
+import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
+  const analyze = process.env.ANALYZE === "1";
+
+  const plugins: PluginOption[] = [vue(), vueJsx()];
+  if (analyze) {
+    plugins.push(
+      visualizer({
+        filename: "dist/bundle-stats.html",
+        template: "treemap",
+        gzipSize: true,
+        brotliSize: true,
+      }) as PluginOption,
+      visualizer({
+        filename: "dist/bundle-stats.json",
+        template: "raw-data",
+        gzipSize: true,
+      }) as PluginOption
+    );
+  }
 
   return {
-    plugins: [vue(), vueJsx()],
+    plugins,
     base: mode === "production" ? "/assets/elevator-ui/dist/" : "/",
     resolve: {
       alias: {
@@ -22,8 +41,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      // create one css stylesheet
-      cssCodeSplit: false,
+      // split css per dynamic import so a route-lazy chunk's CSS travels with it
+      cssCodeSplit: true,
+
+      // 600 KB — the TextEditor chunk is legitimately large (Quill + plugins);
+      // anything above this is signal worth investigating.
+      chunkSizeWarningLimit: 600,
 
       // put in dist/manifest.json (default for vite@4),
       // not dist/.vite/manifest.json (default for vite@5)
@@ -33,6 +56,12 @@ export default defineConfig(({ mode }) => {
           mode === "test"
             ? path.resolve(__dirname, "index.html")
             : path.resolve(__dirname, "src/main.ts"),
+        // No manualChunks here on purpose. We tried naming maplibre/timeline
+        // chunks but Vite then treated them as first-class entry deps and
+        // emitted <link rel="modulepreload"> for the JS plus a render-blocking
+        // <link rel="stylesheet"> for the timeline CSS on every page load —
+        // defeating the lazy import. Letting Rollup auto-chunk based on the
+        // dynamic-import graph keeps these chunks behind their import() calls.
       },
       sourcemap: mode !== "production",
     },

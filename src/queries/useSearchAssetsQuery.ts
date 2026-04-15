@@ -13,7 +13,7 @@ export function useSearchAssetsQuery(
 
   return useQuery({
     queryKey: [SEARCH_QUERY_ID, queryRef],
-    initialData: [],
+    placeholderData: [],
     queryFn: async (): Promise<SearchResultMatch[]> => {
       const searchQuery = toValue(query).trim();
       if (!searchQuery) {

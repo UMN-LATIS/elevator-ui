@@ -5,7 +5,12 @@
  * Unapologetically, fabulously pink. Life in plastic, it's fantastic.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@300;400;500;600;700&display=swap");
+@import "@fontsource/pacifico/400.css";
+@import "@fontsource/nunito/300.css";
+@import "@fontsource/nunito/400.css";
+@import "@fontsource/nunito/500.css";
+@import "@fontsource/nunito/600.css";
+@import "@fontsource/nunito/700.css";
 
 [data-theme="barbie"] {
   /* Surface — soft blush pink */

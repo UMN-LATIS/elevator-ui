@@ -1,22 +1,3 @@
-@import url("themes/default.css");
-@import url("themes/dark.css");
-@import url("themes/folwell.css");
-@import url("themes/st-thomas.css");
-@import url("themes/hotdog.css");
-@import url("themes/vaporwave.css");
-@import url("themes/matrix.css");
-@import url("themes/barbie.css");
-@import url("themes/nord-dark.css");
-@import url("themes/nord-light.css");
-@import url("themes/gameboy.css");
-@import url("themes/tron.css");
-@import url("themes/construction.css");
-@import url("themes/hotrod.css");
-@import url("themes/simple.css");
-@import url("themes/neobrutalist.css");
-@import url("themes/natural.css");
-@import url("themes/bucky.css");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

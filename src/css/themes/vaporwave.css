@@ -5,7 +5,12 @@
  * sunset gradients, and retro-futurism. A E S T H E T I C.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Megrim&family=Quicksand:wght@300;400;500;600;700&display=swap");
+@import "@fontsource/megrim/400.css";
+@import "@fontsource/quicksand/300.css";
+@import "@fontsource/quicksand/400.css";
+@import "@fontsource/quicksand/500.css";
+@import "@fontsource/quicksand/600.css";
+@import "@fontsource/quicksand/700.css";
 
 [data-theme="vaporwave"] {
   /* Surface — deep purple-blue twilight */

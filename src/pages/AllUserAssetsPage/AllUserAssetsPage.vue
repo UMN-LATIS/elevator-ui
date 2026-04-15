@@ -87,9 +87,11 @@ const setActiveTab = (tabId: string) => {
   });
 };
 
-const { data: allUserAssets, isFetching } = useAllUserAssets();
-const { data: deletedAssets, isFetching: isDeletedFetching } =
+const { data: allUserAssetsData, isFetching } = useAllUserAssets();
+const allUserAssets = computed(() => allUserAssetsData.value ?? []);
+const { data: deletedAssetsData, isFetching: isDeletedFetching } =
   useDeletedUserAssets();
+const deletedAssets = computed(() => deletedAssetsData.value ?? []);
 
 const { mutate: deleteAsset } = useDeleteAssetMutation();
 const { mutate: restoreAsset } = useRestoreAssetMutation();

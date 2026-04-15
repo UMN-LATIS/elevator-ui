@@ -7,6 +7,6 @@ export function useAllUserAssets() {
   return useQuery({
     queryKey: [ASSETS_QUERY_KEY],
     queryFn: fetchAllUserAssets,
-    initialData: () => [] as AssetSummary[],
+    placeholderData: () => [] as AssetSummary[],
   });
 }

@@ -5,7 +5,6 @@ import { INSTANCE_QUERY_KEY } from "./queryKeys";
 export function useInstanceQuery(options = {}) {
   return useQuery({
     queryKey: [INSTANCE_QUERY_KEY],
-    initialData: () => null,
     queryFn: fetchers.fetchInstanceNav,
     refetchOnWindowFocus: true,
     ...options,

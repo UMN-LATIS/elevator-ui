@@ -5,7 +5,10 @@
  * This theme overrides M3 tokens with UST brand colors.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/700.css";
+@import "@fontsource/lato/400-italic.css";
+@import "@fontsource/lato/700-italic.css";
 
 [data-theme="st-thomas"] {
   /* Brand color palette */
