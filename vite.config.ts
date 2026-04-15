@@ -22,8 +22,12 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      // create one css stylesheet
-      cssCodeSplit: false,
+      // split css per dynamic import so a route-lazy chunk's CSS travels with it
+      cssCodeSplit: true,
+
+      // 600 KB — the TextEditor chunk is legitimately large (Quill + plugins);
+      // anything above this is signal worth investigating.
+      chunkSizeWarningLimit: 600,
 
       // put in dist/manifest.json (default for vite@4),
       // not dist/.vite/manifest.json (default for vite@5)
@@ -33,6 +37,15 @@ export default defineConfig(({ mode }) => {
           mode === "test"
             ? path.resolve(__dirname, "index.html")
             : path.resolve(__dirname, "src/main.ts"),
+        output: {
+          // Isolated heavy libraries get their own chunk so they can be cached
+          // independently from app code. Only libraries without app-shared
+          // sub-imports belong here — don't chunk widely-shared deps.
+          manualChunks: {
+            maplibre: ["maplibre-gl", "@turf/circle"],
+            timeline: ["@knight-lab/timelinejs"],
+          },
+        },
       },
       sourcemap: mode !== "production",
     },

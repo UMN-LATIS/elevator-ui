@@ -2,6 +2,7 @@ import { watch, computed } from "vue";
 import { useStorage } from "@vueuse/core";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { ALL_THEMES } from "@/config";
+import { loadTheme } from "@/css/themes/themeLoader";
 
 export function useTheming() {
   const { data: instanceData } = useInstanceQuery();
@@ -32,7 +33,10 @@ export function useTheming() {
 
       activeTheme.value = activeTheme.value || defaultTheme.value;
 
-      // set theme on the body
+      // Dynamically import the theme's CSS before applying data-theme so the
+      // rules are in the DOM when the attribute flips. default ships eagerly.
+      await loadTheme(activeTheme.value);
+
       document.documentElement.setAttribute("data-theme", activeTheme.value);
     },
     { immediate: true }
