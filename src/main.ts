@@ -6,12 +6,11 @@ import router from "@/router";
 import { VueQueryPlugin, QueryClient } from "@tanstack/vue-query";
 import { ApiError } from "@/api/ApiError";
 
+// Work Sans: weights 400 (regular) and 600 (semibold) only. Italic variants
+// are omitted — italic is rare in the UI and the browser synthesizes it from
+// the regular face. @fontsource ships `font-display: swap` by default.
 import "@fontsource/work-sans/400.css";
-import "@fontsource/work-sans/400-italic.css";
-import "@fontsource/work-sans/500.css";
-import "@fontsource/work-sans/500-italic.css";
 import "@fontsource/work-sans/600.css";
-import "@fontsource/work-sans/600-italic.css";
 
 import "./css/app.css";
 
