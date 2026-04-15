@@ -493,11 +493,6 @@
   resolved "https://registry.yarnpkg.com/@fontsource/chakra-petch/-/chakra-petch-5.2.7.tgz#c9161bc51bb28d93685ed82c81b87fea5967bfcd"
   integrity sha512-GLbun5WZJNAEc8FtWxwcgo+4Kurqdwejvf671l+YfIjyQgPvTjyxXYP7Ffg2HAY89NGnp3oOvKQjRzfm/fBECw==
 
-"@fontsource/comic-neue@^5.2.7":
-  version "5.2.7"
-  resolved "https://registry.yarnpkg.com/@fontsource/comic-neue/-/comic-neue-5.2.7.tgz#27470ebec558c3d4345171fd5e0c6405e5601856"
-  integrity sha512-tNi0Nxbz0QMwHvZWJSP5G0SXq8CeX5b+K3l3q/afPmJ/WlQ+i3/NfOYWBzsojCZko1lNplfmjbsOGMuBs4WmcA==
-
 "@fontsource/dm-sans@^5.2.8":
   version "5.2.8"
   resolved "https://registry.yarnpkg.com/@fontsource/dm-sans/-/dm-sans-5.2.8.tgz#762968f3aa4408b7886ead18fb3e82b6ce02ef41"

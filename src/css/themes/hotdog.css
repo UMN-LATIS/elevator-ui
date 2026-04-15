@@ -6,11 +6,6 @@
  * This is a LIGHT theme with maximum saturation.
  */
 
-@import "@fontsource/comic-neue/300.css";
-@import "@fontsource/comic-neue/700.css";
-@import "@fontsource/comic-neue/300-italic.css";
-@import "@fontsource/comic-neue/700-italic.css";
-
 [data-theme="hotdog"] {
   /* Surface tokens — yellow windows on red backgrounds */
   --surface: oklch(90% 0.2 100);
@@ -88,6 +83,6 @@
   }
 
   & body {
-    font-family: "Comic Sans", "Work Sans", "Helvetica Neue", sans-serif;
+    font-family: "Comic Sans MS", cursive;
   }
 }

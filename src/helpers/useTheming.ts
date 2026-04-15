@@ -18,7 +18,7 @@ const themeUrlModules = import.meta.glob("@/css/themes/*.css", {
   eager: true,
 }) as Record<string, string>;
 
-const themeHref: Record<string, string> = Object.fromEntries(
+const themeUrlLookup: Record<string, string> = Object.fromEntries(
   Object.entries(themeUrlModules)
     .map(([path, url]) => [path.match(/\/([^/]+)\.css$/)?.[1] ?? "", url])
     .filter(([name]) => name && name !== "_default")
@@ -26,32 +26,52 @@ const themeHref: Record<string, string> = Object.fromEntries(
 
 const THEME_LINK_ATTR = "data-theme-css";
 
+// Track which themes we've already fetched. Each theme's CSS stays in the DOM
+// once loaded — it's scoped to `[data-theme="X"]`, so inactive themes don't
+// affect rendering, and re-activating a previously-loaded theme is instant
+// (no network, fonts already in the FontFaceSet).
+const loadedThemes = new Set<string>();
+const inFlightThemes = new Set<string>();
+
+// Tracks the theme the user currently wants. A load handler for a
+// superseded theme must NOT apply its attribute — otherwise rapid
+// theme-switching can briefly flash to a stale in-flight theme.
+let pendingTheme: string | null = null;
+
 /**
- * Activate a theme: set the `data-theme` and swap the `<link>` tag carrying
- * that theme's CSS.
+ * Activate a theme. On first activation, fetches the theme's CSS and waits
+ * for it to load before flipping the `data-theme` attribute — otherwise the
+ * attribute would point at a theme whose rules haven't arrived, briefly
+ * rendering the default baseline. For already-loaded themes, the attribute
+ * flip is immediate.
  */
 function applyTheme(theme: string) {
-  document.documentElement?.setAttribute("data-theme", theme);
+  pendingTheme = theme;
 
-  const existing = document.querySelector<HTMLLinkElement>(
-    `link[${THEME_LINK_ATTR}]`
-  );
-  const href = themeHref[theme];
-
-  if (!href) {
-    existing?.remove();
+  const href = themeUrlLookup[theme];
+  if (!href || loadedThemes.has(theme)) {
+    document.documentElement?.setAttribute("data-theme", theme);
     return;
   }
-  if (existing?.getAttribute(THEME_LINK_ATTR) === theme) return;
 
-  // Append the new link first so the new theme's rules are parsed before the
-  // old ones are removed, minimizing the unstyled-flash window.
+  // Fetch already in flight from a previous call — its existing onReady will
+  // check `pendingTheme` when it fires.
+  if (inFlightThemes.has(theme)) return;
+  inFlightThemes.add(theme);
+
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = href;
   link.setAttribute(THEME_LINK_ATTR, theme);
-  link.addEventListener("load", () => existing?.remove(), { once: true });
-  link.addEventListener("error", () => existing?.remove(), { once: true });
+
+  const onReady = () => {
+    inFlightThemes.delete(theme);
+    loadedThemes.add(theme);
+    if (pendingTheme !== theme) return;
+    document.documentElement?.setAttribute("data-theme", theme);
+  };
+  link.addEventListener("load", onReady, { once: true });
+  link.addEventListener("error", onReady, { once: true });
   document.head.appendChild(link);
 }
 
