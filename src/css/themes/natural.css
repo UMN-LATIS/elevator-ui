@@ -5,7 +5,12 @@
  * forest floors, and morning light through leaves. Calm and grounded.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Outfit:wght@300;400;500;600;700&display=swap");
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource/outfit/300.css";
+@import "@fontsource/outfit/400.css";
+@import "@fontsource/outfit/500.css";
+@import "@fontsource/outfit/600.css";
+@import "@fontsource/outfit/700.css";
 
 [data-theme="natural"] {
   /* Surface — warm parchment cream */
@@ -74,7 +79,7 @@
   --shadow: oklch(25% 0.03 60 / 0.2);
 
   /* Typography — soft wonky serif display, clean geometric body */
-  --font-display: "Fraunces", serif;
+  --font-display: "Fraunces Variable", serif;
   --font-body: "Outfit", sans-serif;
 
   .app-header {
@@ -94,6 +99,6 @@
   & h1,
   & h2,
   & h3 {
-    font-family: "Fraunces", serif;
+    font-family: "Fraunces Variable", serif;
   }
 }
