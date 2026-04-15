@@ -20,7 +20,7 @@ export function useSearchRelatedAssetsQuery(
 
   return useQuery({
     queryKey: [RELATED_ASSETS_SEARCH_QUERY_ID, templateIdsRef, queryRef],
-    initialData: [],
+    placeholderData: [],
     queryFn: async (): Promise<SearchResultMatch[]> => {
       const query = queryRef.value;
       const templateIds = templateIdsRef.value;

@@ -12,7 +12,7 @@ export function useTemplateQuery(
   return useQuery({
     queryKey: [TEMPLATES_QUERY_KEY, templateId],
     enabled: () => !!toValue(templateId),
-    initialData: () => null,
+    placeholderData: () => null,
     queryFn: async () => {
       const id = toValue(templateId);
       const idInt = Number.parseInt(id as string);

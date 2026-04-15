@@ -10,7 +10,7 @@ export function useAssetQuery(
   return useQuery({
     queryKey: [ASSETS_QUERY_KEY, assetId],
     enabled: !!toValue(assetId),
-    initialData: () => null,
+    placeholderData: () => null,
     queryFn: async () => {
       const id = toValue(assetId);
       return id ? await fetchers.fetchAsset(id) : null;

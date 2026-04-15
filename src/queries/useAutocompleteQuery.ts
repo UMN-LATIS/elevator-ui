@@ -17,7 +17,7 @@ export function useAutocompleteQuery(
       toValue(searchTerm),
       toValue(templateId),
     ]),
-    initialData: () => [] as string[],
+    placeholderData: () => [] as string[],
     queryFn: async () => {
       const term = toValue(searchTerm);
       if (!term || term.length < 1) {
