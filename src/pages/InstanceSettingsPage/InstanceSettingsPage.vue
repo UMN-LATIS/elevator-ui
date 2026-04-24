@@ -206,6 +206,19 @@
             v-model="form.interfaceVersion"
             :options="interfaceVersionOptions"
             label="Interface Version" />
+          <div class="flex flex-col gap-1">
+            <Button
+              variant="secondary"
+              type="button"
+              class="self-start"
+              @click="useClassicInterface">
+              Use Classic Interface
+            </Button>
+            <p class="text-xs text-on-surface-variant">
+              Temporarily switch your session to the legacy interface. Does not
+              change the saved setting above.
+            </p>
+          </div>
           <FormSubSection
             v-if="!!form.interfaceVersion"
             :isOpen="form.enableTheming">
@@ -294,7 +307,7 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import EyeOffIcon from "@/icons/EyeOffIcon.vue";
 import { useToastStore } from "@/stores/toastStore";
-import { ALL_THEMES } from "@/config";
+import config, { ALL_THEMES } from "@/config";
 import {
   useInstanceSettingsQuery,
   useUpdateInstanceSettingsMutation,
@@ -395,6 +408,18 @@ function handleCancel() {
   if (!settingsData.value) return;
   form.value = { ...settingsData.value };
   selectedHeaderImage.value = null;
+}
+
+function useClassicInterface() {
+  if (
+    hasUnsavedChanges.value &&
+    !window.confirm(
+      "You have unsaved changes that will be lost. Switch to the classic interface anyway?"
+    )
+  ) {
+    return;
+  }
+  window.location.href = `${config.instance.base.url}instances/forceOldInterface`;
 }
 
 // Theme options for the select
