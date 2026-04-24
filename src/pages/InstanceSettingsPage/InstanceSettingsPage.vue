@@ -202,22 +202,19 @@
         </FormSection>
 
         <FormSection id="user-interface" title="User Interface">
-          <SelectGroup
-            v-model="form.interfaceVersion"
-            :options="interfaceVersionOptions"
-            label="Interface Version" />
-          <div class="flex flex-col gap-1">
+          <div class="flex gap-2">
+            <SelectGroup
+              v-model="form.interfaceVersion"
+              :options="interfaceVersionOptions"
+              class="flex-1"
+              label="Interface Version" />
             <Button
               variant="secondary"
               type="button"
-              class="self-start"
+              class="py-2 px-3 text-sm self-end"
               @click="useClassicInterface">
-              Use Classic Interface
+              Try Classic
             </Button>
-            <p class="text-xs text-on-surface-variant">
-              Temporarily switch your session to the legacy interface. Does not
-              change the saved setting above.
-            </p>
           </div>
           <FormSubSection
             v-if="!!form.interfaceVersion"
@@ -419,7 +416,7 @@ function useClassicInterface() {
   ) {
     return;
   }
-  window.location.href = `${config.instance.base.url}instances/forceOldInterface`;
+  window.location.href = `${config.instance.base.url}/instances/forceOldInterface`;
 }
 
 // Theme options for the select
