@@ -8,16 +8,16 @@
       v-if="page"
       class="static-content-page__content p-4 lg:p-8 mx-auto flex-1 w-full max-w-screen-xl">
       <article class="mx-auto">
-        <header class="flex items-center gap-4 justify-between mb-8">
-          <div />
+        <header class="grid grid-cols-[1fr_auto_1fr] items-center gap-4 mb-8">
           <h1
-            class="static-content-page__page-title text-4xl font-bold text-center">
+            class="static-content-page__page-title col-start-2 text-4xl font-bold text-center">
             {{ page.title || "Untitled" }}
           </h1>
           <Button
             v-if="canCurrentUserEdit"
             :to="`/instances/editPage/${pageId}`"
-            variant="tertiary">
+            variant="tertiary"
+            class="col-start-3 justify-self-end">
             Edit Page
           </Button>
         </header>
