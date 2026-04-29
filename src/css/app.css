@@ -63,22 +63,6 @@ body {
     clip-path: inset(50%);
     white-space: nowrap;
   }
-
-  ::-webkit-scrollbar {
-    width: 0.5rem;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: var(--surface-container);
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--outline);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--on-surface-variant);
-  }
 }
 
 .prose {
