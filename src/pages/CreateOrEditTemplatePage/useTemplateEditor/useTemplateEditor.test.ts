@@ -15,7 +15,9 @@ vi.mock("@/queries/useTemplateQuery", () => ({
     isError: ref(false),
   }),
   useFieldTypesQuery: () => ({
-    data: ref([{ id: 1, name: "text", modelName: "TextField", sampleFieldData: null }]),
+    data: ref([
+      { id: 1, name: "text", modelName: "TextField", sampleFieldData: null },
+    ]),
   }),
   useCreateTemplateMutation: () => ({
     mutateAsync: mockCreateMutateAsync,
@@ -30,7 +32,9 @@ vi.mock("@/queries/useTemplateQuery", () => ({
 // Import after mock registration so the mock is in place.
 import { newWidget, useTemplateEditor } from "./useTemplateEditor";
 
-const makeAdminTemplate = (overrides: Partial<AdminTemplate> = {}): AdminTemplate => ({
+const makeAdminTemplate = (
+  overrides: Partial<AdminTemplate> = {}
+): AdminTemplate => ({
   id: 5,
   name: "Test Template",
   showCollection: false,
@@ -57,11 +61,11 @@ describe("newWidget", () => {
     expect(w.viewOrder).toBe(4);
   });
 
-  it("enables display, searchable, and directSearch by default", () => {
+  it("disables display, searchable, and directSearch by default", () => {
     const w = newWidget(1, 1);
-    expect(w.display).toBe(true);
-    expect(w.searchable).toBe(true);
-    expect(w.directSearch).toBe(true);
+    expect(w.display).toBe(false);
+    expect(w.searchable).toBe(false);
+    expect(w.directSearch).toBe(false);
   });
 
   it("leaves widgetId and fieldTitle undefined so the server assigns them", () => {
@@ -215,7 +219,10 @@ describe("useTemplateEditor", () => {
 
     const id = await editor.save();
 
-    expect(mockUpdateMutateAsync).toHaveBeenCalledWith({ templateId: 5, payload: editor.form });
+    expect(mockUpdateMutateAsync).toHaveBeenCalledWith({
+      templateId: 5,
+      payload: editor.form,
+    });
     expect(id).toBe(5);
     expect(mockCreateMutateAsync).not.toHaveBeenCalled();
   });
