@@ -167,6 +167,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   }
 
   return {
+    templateId: computed(() => toValue(templateId)),
     form,
     isEditMode,
     isLoading,

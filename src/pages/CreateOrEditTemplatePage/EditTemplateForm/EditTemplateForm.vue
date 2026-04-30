@@ -1,6 +1,20 @@
 <template>
-  <FormPageLayout
-    :title="editor.isEditMode.value ? 'Edit Template' : 'New Template'">
+  <FormPageLayout>
+    <template #header>
+      <div class="flex justify-between items-baseline">
+        <h1 class="text-2xl md:text-4xl font-bold">
+          {{ editor.isEditMode.value ? "Edit Template" : "New Template" }}
+        </h1>
+
+        <Tuple
+          v-if="editor.templateId.value"
+          label="Template ID"
+          variant="inline">
+          {{ editor.templateId.value }}
+        </Tuple>
+      </div>
+    </template>
+
     <form id="template-form" @submit.prevent="$emit('save')">
       <FormSection id="template" title="Template">
         <InputGroup
@@ -132,9 +146,6 @@
           </p>
           <p v-if="!editor.hasUnsavedChanges.value">No unsaved changes</p>
         </div>
-        <Tuple v-if="editor.templateId.value" label="TemplateId">
-          {{ editor.templateId.value }}
-        </Tuple>
       </div>
     </template>
 
