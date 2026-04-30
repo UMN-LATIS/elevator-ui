@@ -97,7 +97,7 @@
         <Button
           type="button"
           variant="secondary"
-          class="w-full justify-center border-secondary bg-secondary-container text-on-secondary-container transition-colors"
+          class="w-full justify-center border border-outline-variant bg-secondary-container text-on-secondary-container transition-colors"
           @click="handleAddWidget()">
           + Add Field
         </Button>
@@ -132,6 +132,9 @@
           </p>
           <p v-if="!editor.hasUnsavedChanges.value">No unsaved changes</p>
         </div>
+        <Tuple v-if="editor.templateId.value" label="TemplateId">
+          {{ editor.templateId.value }}
+        </Tuple>
       </div>
     </template>
 
@@ -218,6 +221,7 @@ import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
 import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
 import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";
 import type { SelectOption } from "@/types";
+import Tuple from "@/components/Tuple/Tuple.vue";
 
 defineEmits<{ save: []; cancel: [] }>();
 
