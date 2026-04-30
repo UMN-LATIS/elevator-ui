@@ -16,7 +16,12 @@
     </template>
 
     <form id="template-form" @submit.prevent="$emit('save')">
-      <FormSection id="template" title="Template">
+      <FormSection id="template" class="block">
+        <template #header>
+          <div class="mb-2">
+            <h2 class="text-lg font-semibold">Template</h2>
+          </div>
+        </template>
         <InputGroup
           v-model="form.name"
           label="Name"
@@ -24,7 +29,7 @@
           placeholder="e.g. Article" />
 
         <!-- Advanced options (search & display) — collapsed by default -->
-        <div>
+        <div class="my-4">
           <button
             type="button"
             class="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface uppercase tracking-wide font-medium"
@@ -66,37 +71,32 @@
         </div>
       </FormSection>
 
-      <FormSection id="widgets" title="Fields">
+      <FormSection id="widgets" title="Fields" class="block my-6">
         <template #header>
-          <div class="flex gap-1 mt-1 -ml-2">
-            <Button
-              type="button"
-              variant="tertiary"
-              @click="setAllWidgetOptions(true)">
-              Expand all
-            </Button>
-            <Button
-              type="button"
-              variant="tertiary"
-              @click="setAllWidgetOptions(false)">
-              Collapse all
-            </Button>
+          <div class="grid grid-cols-[1fr_auto] gap-4 items-baseline mb-2">
+            <h2 class="text-lg font-semibold">Fields</h2>
+            <div class="flex gap-4">
+              <SegmentedControl
+                v-model="sortMode"
+                label="Field order"
+                class="justify-end"
+                labelClass="text-xs uppercase font-medium text-on-surface-variant"
+                :options="sortModeOptions" />
+              <IconButton
+                type="button"
+                :title="allExpanded ? 'Collapse all' : 'Expand all'"
+                @click="toggleAllWidgetOptions">
+                <ChevronsDownUpIcon v-if="allExpanded" class="w-4 h-4" />
+                <ChevronsUpDownIcon v-else class="w-4 h-4" />
+              </IconButton>
+            </div>
           </div>
         </template>
-
-        <SegmentedControl
-          v-model="sortMode"
-          label="Field order"
-          class="justify-end"
-          labelClass="text-xs uppercase font-medium text-on-surface-variant"
-          :options="sortModeOptions" />
 
         <DragDropContainer groupId="widgets">
           <DragDropList
             listId="widgets"
             :modelValue="dragItems"
-            listClass="flex flex-col"
-            listItemClass=""
             :showEmptyList="false"
             @update:modelValue="onReorder">
             <template #item="{ item }">
@@ -216,13 +216,20 @@
 
 <script setup lang="ts">
 import { inject, provide, ref, computed, nextTick, type Component } from "vue";
-import { TypeIcon, TriangleAlertIcon, CheckCircle2Icon } from "lucide-vue-next";
+import {
+  TypeIcon,
+  TriangleAlertIcon,
+  CheckCircle2Icon,
+  ChevronsUpDownIcon,
+  ChevronsDownUpIcon,
+} from "lucide-vue-next";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import FormSection from "@/components/Form/FormSection.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { ChevronRightIcon } from "@/icons";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
@@ -251,6 +258,13 @@ function setAllWidgetOptions(open: boolean) {
     open,
     trigger: widgetOptionsState.value.trigger + 1,
   };
+}
+
+const allExpanded = ref(false);
+
+function toggleAllWidgetOptions() {
+  allExpanded.value = !allExpanded.value;
+  setAllWidgetOptions(allExpanded.value);
 }
 
 type DisplayPosition = "off" | "bottom" | "top";

@@ -1,15 +1,22 @@
 <template>
   <div class="px-4 py-2 flex flex-col">
     <!-- Header: type icon + label + remove -->
-    <div class="flex justify-between items-center gap-2 mb-2">
+    <div
+      class="grid grid-cols-[1fr_auto] md:grid-cols-[1fr_3fr_auto] items-center gap-2 mb-2">
       <FieldTypeSelect
         v-model="widget.fieldTypeId"
-        class="flex-1"
         :options="fieldTypeOptions"
         @update:modelValue="handleTypeChange" />
+      <InputGroup
+        v-model="widget.label"
+        class="order-3 col-span-2 md:col-span-1 md:order-2"
+        label="Label"
+        :labelHidden="true"
+        placeholder="Field label"
+        required />
       <button
         type="button"
-        class="shrink-0 text-error hover:text-on-error-container p-1 rounded"
+        class="order-2 md:order-3 shrink-0 text-error hover:text-on-error-container p-1 rounded"
         aria-label="Remove field"
         @click="showConfirm = true">
         <Trash2Icon class="w-4 h-4" />
@@ -31,21 +38,13 @@
       </ConfirmModal>
     </div>
 
-    <InputGroup
-      v-model="widget.label"
-      class="mb-2"
-      label="Label"
-      :labelHidden="true"
-      placeholder="Field label"
-      required />
-
     <template v-if="hasFieldData">
       <TextAreaGroup
         :modelValue="rawFieldDataString"
         class="mb-4"
         label="Field data (JSON)"
         :inputClass="[
-          'font-mono text-sm h-24',
+          'font-mono text-sm',
           isFieldDataInvalid ? 'border-error' : '',
         ]"
         placeholder="null"
