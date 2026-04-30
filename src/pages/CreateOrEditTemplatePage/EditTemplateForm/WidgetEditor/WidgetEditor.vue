@@ -134,7 +134,7 @@ import {
   FIELD_TYPE_DISPLAY_NAMES,
 } from "../fieldTypeConstants";
 import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
-import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
+import { WIDGET_EXPANSION_KEY } from "../widgetExpansionKey";
 import type { SelectOption } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
@@ -169,17 +169,11 @@ watch(
   }
 );
 
-const showOptions = ref(false);
-
-const widgetOptionsState = inject(WIDGET_OPTIONS_KEY);
-if (widgetOptionsState) {
-  watch(
-    () => widgetOptionsState.value.trigger,
-    () => {
-      showOptions.value = widgetOptionsState.value.open;
-    }
-  );
-}
+const expansion = inject(WIDGET_EXPANSION_KEY);
+const showOptions = computed({
+  get: () => expansion?.isExpanded(widget.value._tempId) ?? false,
+  set: (val: boolean) => expansion?.setExpanded(widget.value._tempId, val),
+});
 
 const showTooltip = ref(!!widget.value.tooltip);
 watch(showTooltip, (value) => {

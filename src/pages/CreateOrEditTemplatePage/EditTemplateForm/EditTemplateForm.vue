@@ -236,7 +236,7 @@ import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
 import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
-import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
+import { WIDGET_EXPANSION_KEY } from "./widgetExpansionKey";
 import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";
 import type { SelectOption } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
@@ -248,23 +248,29 @@ const form = editor.form;
 
 const showAdvanced = ref(false);
 
-// Broadcast expand/collapse to all WidgetEditor instances via provide/inject.
-// The `trigger` counter lets "expand all" re-fire even if `open` hasn't changed.
-const widgetOptionsState = ref({ open: false, trigger: 0 });
-provide(WIDGET_OPTIONS_KEY, widgetOptionsState);
+// Track which widgets have their options panel open, keyed by stable _tempId.
+const expandedTempIds = ref(new Set<string>());
 
-function setAllWidgetOptions(open: boolean) {
-  widgetOptionsState.value = {
-    open,
-    trigger: widgetOptionsState.value.trigger + 1,
-  };
-}
+provide(WIDGET_EXPANSION_KEY, {
+  isExpanded: (tempId) => expandedTempIds.value.has(tempId),
+  setExpanded: (tempId, open) => {
+    if (open) expandedTempIds.value.add(tempId);
+    else expandedTempIds.value.delete(tempId);
+  },
+});
 
-const allExpanded = ref(false);
+const allExpanded = computed(
+  () =>
+    form.widgetArray.length > 0 &&
+    form.widgetArray.every((w) => expandedTempIds.value.has(w._tempId))
+);
 
 function toggleAllWidgetOptions() {
-  allExpanded.value = !allExpanded.value;
-  setAllWidgetOptions(allExpanded.value);
+  if (allExpanded.value) {
+    expandedTempIds.value.clear();
+    return;
+  }
+  form.widgetArray.forEach((w) => expandedTempIds.value.add(w._tempId));
 }
 
 type DisplayPosition = "off" | "bottom" | "top";
@@ -380,10 +386,10 @@ function onReorderViewer(newItems: { id: number }[]) {
 }
 
 async function handleAddWidget() {
-  editor.addWidget();
-  const newIndex = form.widgetArray.length - 1;
+  const widget = editor.addWidget();
+  expandedTempIds.value.add(widget._tempId);
   await nextTick();
-  scrollToWidget(newIndex);
+  scrollToWidget(form.widgetArray.length - 1);
 }
 
 function scrollToWidget(index: number) {

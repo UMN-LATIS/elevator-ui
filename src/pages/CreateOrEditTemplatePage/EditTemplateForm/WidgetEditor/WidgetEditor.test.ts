@@ -49,20 +49,26 @@ import {
   useTemplateEditor,
   TEMPLATE_EDITOR_KEY,
 } from "../../useTemplateEditor/useTemplateEditor";
-import { WIDGET_OPTIONS_KEY } from "../widgetOptionsKey";
+import { WIDGET_EXPANSION_KEY } from "../widgetExpansionKey";
 
 describe("WidgetEditor", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
-  function mountWidgetEditor(editor: ReturnType<typeof useTemplateEditor>, index: number) {
+  function mountWidgetEditor(
+    editor: ReturnType<typeof useTemplateEditor>,
+    index: number
+  ) {
     return shallowMount(WidgetEditor, {
       props: { index },
       global: {
         provide: {
           [TEMPLATE_EDITOR_KEY as symbol]: editor,
-          [WIDGET_OPTIONS_KEY as symbol]: ref({ open: false, trigger: 0 }),
+          [WIDGET_EXPANSION_KEY as symbol]: {
+            isExpanded: () => false,
+            setExpanded: () => {},
+          },
         },
       },
     });
@@ -71,7 +77,9 @@ describe("WidgetEditor", () => {
   function labelOf(wrapper: ReturnType<typeof shallowMount>): string {
     // WidgetEditor binds `v-model="widget.label"` on InputGroup.
     // With shallowMount the stub receives it as the `modelValue` prop.
-    return wrapper.findComponent({ name: "InputGroup" }).props("modelValue") as string;
+    return wrapper
+      .findComponent({ name: "InputGroup" })
+      .props("modelValue") as string;
   }
 
   it("displays the label of the widget at the given index", () => {
