@@ -250,7 +250,7 @@ h6 {
 * but any child elements (e.g. asset panels, menus) will show
 * the scroll.
 */
-html > * {
+html * {
   & ::-webkit-scrollbar {
     width: 0.5rem;
   }
