@@ -1,10 +1,16 @@
 <template>
   <section
     :id="id"
-    class="border-t border-outline-variant py-3 grid sm:grid-cols-[15rem,1fr] gap-4 items-start">
+    :class="
+      cn(
+        'border-t border-outline-variant py-3 grid sm:grid-cols-[15rem,1fr] gap-4 items-start',
+        props.class
+      )
+    ">
     <header>
-      <h2 class="text-lg font-semibold">{{ title }}</h2>
-      <slot name="header" />
+      <slot name="header">
+        <h2 class="text-lg font-semibold">{{ title }}</h2>
+      </slot>
     </header>
     <div class="space-y-4">
       <slot />
@@ -13,8 +19,18 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  id: string;
-  title: string;
-}>();
+import { cn } from "@/lib/utils";
+import { CSSClass } from "@/types";
+
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    title?: string;
+    class?: CSSClass;
+  }>(),
+  {
+    title: "",
+    class: "",
+  }
+);
 </script>

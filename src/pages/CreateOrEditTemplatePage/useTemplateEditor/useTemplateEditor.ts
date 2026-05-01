@@ -14,6 +14,7 @@ import {
   useUpdateTemplateMutation,
   useFieldTypesQuery,
 } from "@/queries/useTemplateQuery";
+import { addTempId, stripTempId, type WithTempId } from "@/lib/tempId";
 import type {
   AdminTemplate,
   AdminWidgetDef,
@@ -21,7 +22,11 @@ import type {
   TemplatePayload,
 } from "@/types";
 
-function adminWidgetToPayload(w: AdminWidgetDef): AdminWidgetPayload {
+type FormState = Omit<TemplatePayload, "widgetArray"> & {
+  widgetArray: WithTempId<AdminWidgetPayload>[];
+};
+
+function widgetDefToPayload(w: AdminWidgetDef): AdminWidgetPayload {
   return {
     widgetId: w.widgetId,
     fieldTitle: w.fieldTitle ?? "",
@@ -43,7 +48,7 @@ function adminWidgetToPayload(w: AdminWidgetDef): AdminWidgetPayload {
   };
 }
 
-function adminTemplateToPayload(t: AdminTemplate): TemplatePayload {
+function toFormState(t: AdminTemplate): FormState {
   return {
     name: t.name,
     showCollection: t.showCollection,
@@ -55,7 +60,7 @@ function adminTemplateToPayload(t: AdminTemplate): TemplatePayload {
     isHidden: t.isHidden,
     templateColor: t.templateColor,
     recursiveIndexDepth: t.recursiveIndexDepth,
-    widgetArray: t.widgetArray.map(adminWidgetToPayload),
+    widgetArray: t.widgetArray.map((w) => addTempId(widgetDefToPayload(w))),
   };
 }
 
@@ -75,25 +80,28 @@ function emptyPayload(): TemplatePayload {
   };
 }
 
-export function newWidget(order: number, textTypeId: number): AdminWidgetPayload {
-  return {
+export function newWidget(
+  order: number,
+  textTypeId: number
+): WithTempId<AdminWidgetPayload> {
+  return addTempId<AdminWidgetPayload>({
     // No widgetId or fieldTitle — server assigns both for new widgets.
     fieldTypeId: textTypeId,
     label: "",
     tooltip: "",
     templateOrder: order,
     viewOrder: order,
-    display: true,
-    displayInPreview: true,
+    display: false,
+    displayInPreview: false,
     required: false,
-    searchable: true,
+    searchable: false,
     allowMultiple: false,
     attemptAutocomplete: false,
-    directSearch: true,
+    directSearch: false,
     clickToSearch: false,
     clickToSearchType: 0,
     fieldData: null,
-  };
+  });
 }
 
 export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
@@ -105,7 +113,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     isError,
   } = useAdminTemplateQuery(templateId);
 
-  const form = reactive<TemplatePayload>(emptyPayload());
+  const form = reactive<FormState>(emptyPayload() as FormState);
 
   // Snapshot of the last saved/loaded form state, used to detect unsaved changes.
   const savedSnapshot = ref(JSON.stringify(emptyPayload()));
@@ -114,7 +122,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     template,
     (t) => {
       if (t) {
-        Object.assign(form, adminTemplateToPayload(t));
+        Object.assign(form, toFormState(t));
         savedSnapshot.value = JSON.stringify(form);
       }
     },
@@ -141,25 +149,39 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   // ISO date string of the template's last server-side modification, if known.
   const lastModifiedAt = computed(() => template.value?.modifiedAt ?? null);
 
+  function toServerPayload(): TemplatePayload {
+    return {
+      ...form,
+      widgetArray: form.widgetArray.map(stripTempId),
+    };
+  }
+
   async function save(): Promise<number> {
+    const payload = toServerPayload();
     if (!isEditMode.value) {
-      const summary = await createMutation.mutateAsync(form);
+      const summary = await createMutation.mutateAsync(payload);
       savedSnapshot.value = JSON.stringify(form);
       return summary.id;
     }
 
     const summary = await updateMutation.mutateAsync({
       templateId: toValue(templateId) as number,
-      payload: form,
+      payload,
     });
     savedSnapshot.value = JSON.stringify(form);
     return summary.id;
   }
 
-  function addWidget() {
-    const textTypeId = fieldTypes.value?.find((ft) => ft.name === "text")?.id ?? 1;
-    const maxOrder = Math.max(0, ...form.widgetArray.map((w) => w.templateOrder));
-    form.widgetArray.push(newWidget(maxOrder + 1, textTypeId));
+  function addWidget(): WithTempId<AdminWidgetPayload> {
+    const textTypeId =
+      fieldTypes.value?.find((ft) => ft.name === "text")?.id ?? 1;
+    const maxOrder = Math.max(
+      0,
+      ...form.widgetArray.map((w) => w.templateOrder)
+    );
+    const widget = newWidget(maxOrder + 1, textTypeId);
+    form.widgetArray.push(widget);
+    return widget;
   }
 
   function removeWidget(index: number) {
@@ -167,6 +189,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   }
 
   return {
+    templateId: computed(() => toValue(templateId)),
     form,
     isEditMode,
     isLoading,

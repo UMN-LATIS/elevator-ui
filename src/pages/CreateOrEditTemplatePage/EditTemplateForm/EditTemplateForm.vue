@@ -1,8 +1,27 @@
 <template>
-  <FormPageLayout
-    :title="editor.isEditMode.value ? 'Edit Template' : 'New Template'">
+  <FormPageLayout>
+    <template #header>
+      <div class="flex justify-between items-baseline">
+        <h1 class="text-2xl md:text-4xl font-bold">
+          {{ editor.isEditMode.value ? "Edit Template" : "New Template" }}
+        </h1>
+
+        <Tuple
+          v-if="editor.templateId.value"
+          label="Template ID"
+          variant="inline">
+          {{ editor.templateId.value }}
+        </Tuple>
+      </div>
+    </template>
+
     <form id="template-form" @submit.prevent="$emit('save')">
-      <FormSection id="template" title="Template">
+      <FormSection id="template" class="block">
+        <template #header>
+          <div class="mb-2">
+            <h2 class="text-lg font-semibold">Template</h2>
+          </div>
+        </template>
         <InputGroup
           v-model="form.name"
           label="Name"
@@ -10,7 +29,7 @@
           placeholder="e.g. Article" />
 
         <!-- Advanced options (search & display) — collapsed by default -->
-        <div>
+        <div class="my-4">
           <button
             type="button"
             class="flex items-center gap-1 text-xs text-on-surface-variant hover:text-on-surface uppercase tracking-wide font-medium"
@@ -52,37 +71,32 @@
         </div>
       </FormSection>
 
-      <FormSection id="widgets" title="Fields">
+      <FormSection id="widgets" title="Fields" class="block my-6">
         <template #header>
-          <div class="flex gap-1 mt-1 -ml-2">
-            <Button
-              type="button"
-              variant="tertiary"
-              @click="setAllWidgetOptions(true)">
-              Expand all
-            </Button>
-            <Button
-              type="button"
-              variant="tertiary"
-              @click="setAllWidgetOptions(false)">
-              Collapse all
-            </Button>
+          <div class="grid grid-cols-[1fr_auto] gap-4 items-baseline mb-2">
+            <h2 class="text-lg font-semibold">Fields</h2>
+            <div class="flex gap-4">
+              <SegmentedControl
+                v-model="sortMode"
+                label="Field order"
+                class="justify-end"
+                labelClass="text-xs uppercase font-medium text-on-surface-variant"
+                :options="sortModeOptions" />
+              <IconButton
+                type="button"
+                :title="allExpanded ? 'Collapse all' : 'Expand all'"
+                @click="toggleAllWidgetOptions">
+                <ChevronsDownUpIcon v-if="allExpanded" class="w-4 h-4" />
+                <ChevronsUpDownIcon v-else class="w-4 h-4" />
+              </IconButton>
+            </div>
           </div>
         </template>
-
-        <SegmentedControl
-          v-model="sortMode"
-          label="Field order"
-          class="justify-end"
-          labelClass="text-xs uppercase font-medium text-on-surface-variant"
-          :options="sortModeOptions" />
 
         <DragDropContainer groupId="widgets">
           <DragDropList
             listId="widgets"
             :modelValue="dragItems"
-            listClass="flex flex-col"
-            listItemClass=""
             :showEmptyList="false"
             @update:modelValue="onReorder">
             <template #item="{ item }">
@@ -97,7 +111,7 @@
         <Button
           type="button"
           variant="secondary"
-          class="w-full justify-center border-secondary bg-secondary-container text-on-secondary-container transition-colors"
+          class="w-full justify-center border border-outline-variant bg-secondary-container text-on-secondary-container transition-colors"
           @click="handleAddWidget()">
           + Add Field
         </Button>
@@ -202,22 +216,30 @@
 
 <script setup lang="ts">
 import { inject, provide, ref, computed, nextTick, type Component } from "vue";
-import { TypeIcon, TriangleAlertIcon, CheckCircle2Icon } from "lucide-vue-next";
+import {
+  TypeIcon,
+  TriangleAlertIcon,
+  CheckCircle2Icon,
+  ChevronsUpDownIcon,
+  ChevronsDownUpIcon,
+} from "lucide-vue-next";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import FormSection from "@/components/Form/FormSection.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
+import IconButton from "@/components/IconButton/IconButton.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { ChevronRightIcon } from "@/icons";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
 import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
-import { WIDGET_OPTIONS_KEY } from "./widgetOptionsKey";
+import { WIDGET_EXPANSION_KEY } from "./widgetExpansionKey";
 import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";
 import type { SelectOption } from "@/types";
+import Tuple from "@/components/Tuple/Tuple.vue";
 
 defineEmits<{ save: []; cancel: [] }>();
 
@@ -226,16 +248,29 @@ const form = editor.form;
 
 const showAdvanced = ref(false);
 
-// Broadcast expand/collapse to all WidgetEditor instances via provide/inject.
-// The `trigger` counter lets "expand all" re-fire even if `open` hasn't changed.
-const widgetOptionsState = ref({ open: false, trigger: 0 });
-provide(WIDGET_OPTIONS_KEY, widgetOptionsState);
+// Track which widgets have their options panel open, keyed by stable _tempId.
+const expandedTempIds = ref(new Set<string>());
 
-function setAllWidgetOptions(open: boolean) {
-  widgetOptionsState.value = {
-    open,
-    trigger: widgetOptionsState.value.trigger + 1,
-  };
+provide(WIDGET_EXPANSION_KEY, {
+  isExpanded: (tempId) => expandedTempIds.value.has(tempId),
+  setExpanded: (tempId, open) => {
+    if (open) expandedTempIds.value.add(tempId);
+    else expandedTempIds.value.delete(tempId);
+  },
+});
+
+const allExpanded = computed(
+  () =>
+    form.widgetArray.length > 0 &&
+    form.widgetArray.every((w) => expandedTempIds.value.has(w._tempId))
+);
+
+function toggleAllWidgetOptions() {
+  if (allExpanded.value) {
+    expandedTempIds.value.clear();
+    return;
+  }
+  form.widgetArray.forEach((w) => expandedTempIds.value.add(w._tempId));
 }
 
 type DisplayPosition = "off" | "bottom" | "top";
@@ -351,10 +386,10 @@ function onReorderViewer(newItems: { id: number }[]) {
 }
 
 async function handleAddWidget() {
-  editor.addWidget();
-  const newIndex = form.widgetArray.length - 1;
+  const widget = editor.addWidget();
+  expandedTempIds.value.add(widget._tempId);
   await nextTick();
-  scrollToWidget(newIndex);
+  scrollToWidget(form.widgetArray.length - 1);
 }
 
 function scrollToWidget(index: number) {
