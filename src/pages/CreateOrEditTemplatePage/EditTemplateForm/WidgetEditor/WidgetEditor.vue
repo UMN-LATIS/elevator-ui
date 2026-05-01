@@ -112,6 +112,41 @@
             label="Click to search"
             :options="clickToSearchOptions" />
         </div>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs uppercase font-medium text-on-surface-variant">
+            Advanced
+          </p>
+          <div class="flex justify-between items-baseline gap-4">
+            <label
+              :for="`field-title-${widget._tempId}`"
+              class="inline-block whitespace-nowrap text-sm">
+              Field Title
+            </label>
+            <LockedInput
+              :id="`field-title-${widget._tempId}`"
+              :modelValue="widget.fieldTitle ?? ''"
+              class="max-w-[260px]"
+              inputClass="font-mono text-right"
+              editLabel="Edit field title"
+              saveLabel="Save field title"
+              required
+              pattern="[A-Za-z0-9_\-]+"
+              title="Letters, numbers, underscores, and hyphens only."
+              spellcheck="false"
+              autocapitalize="off"
+              autocomplete="off"
+              :validate="validateFieldTitleUnique"
+              @update:modelValue="onFieldTitleCommit">
+              <template #help>
+                <div class="text-right">
+                  <WarningIcon class="inline-block !size-3" />
+                  Changing this can break saved data.
+                </div>
+              </template>
+            </LockedInput>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -125,9 +160,10 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
+import LockedInput from "@/components/LockedInput/LockedInput.vue";
 import FieldTypeSelect from "./FieldTypeSelect.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import { ChevronRightIcon } from "@/icons";
+import { ChevronRightIcon, WarningIcon } from "@/icons";
 import {
   FIELD_TYPE_NAME_ICONS,
   FIELD_TYPE_SAMPLE_DATA,
@@ -137,6 +173,7 @@ import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_EXPANSION_KEY } from "../widgetExpansionKey";
 import type { SelectOption } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
+import invariant from "tiny-invariant";
 
 const props = defineProps<{ index: number }>();
 
@@ -168,6 +205,18 @@ watch(
     widget.value.fieldTitle = slug + "_" + instanceId;
   }
 );
+
+function validateFieldTitleUnique(value: string): string {
+  invariant(editor, "Editor is required for field title validation");
+  const conflict = editor.form.widgetArray.some(
+    (w, i) => i !== props.index && w.fieldTitle === value
+  );
+  return conflict ? "Another field already uses this title." : "";
+}
+
+function onFieldTitleCommit(value: string) {
+  widget.value.fieldTitle = value;
+}
 
 const expansion = inject(WIDGET_EXPANSION_KEY);
 const showOptions = computed({
