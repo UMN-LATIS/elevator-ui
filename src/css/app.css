@@ -242,6 +242,32 @@ h6 {
   }
 }
 
+/**
+* We want to avoid users not realizing they can scroll down --
+* especially in the sidepanel on the asset view page. But, we also
+* want to respect OS-level settings to "hide scroll when not in use."
+* This is a compromise: keep page-level scroll as OS defaults,
+* but any child elements (e.g. asset panels, menus) will show
+* the scroll.
+*/
+html > * {
+  & ::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  & ::-webkit-scrollbar-track {
+    background: var(--surface-container);
+  }
+
+  & ::-webkit-scrollbar-thumb {
+    background: var(--outline);
+  }
+
+  & ::-webkit-scrollbar-thumb:hover {
+    background: var(--on-surface-variant);
+  }
+}
+
 /* Unlayered, after @tailwind utilities — source order beats equal-specificity utility classes */
 :disabled,
 [disabled] {
