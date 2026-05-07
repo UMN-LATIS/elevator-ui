@@ -5,13 +5,8 @@
     </template>
     <template v-if="isPageLoaded">
       <SignInRequiredNotice v-if="requiresAuth" />
-      <DeletedAssetNotice
-        v-else-if="deletedAssetInfo"
-        :assetId="props.assetId"
-        :deletedAt="deletedAssetInfo.deletedAt"
-        @restored="handleRestored" />
       <MetaDataOnlyView
-        v-if="isMetaDataOnly"
+        v-else-if="isMetaDataOnly"
         :assetId="assetStore.activeAssetId" />
       <AssetView
         v-else
@@ -32,6 +27,7 @@ import { usePageTitle } from "@/helpers/usePageTitle";
 import PrevNextSearchResultNav from "@/components/PrevNextSearchResultNav/PrevNextSearchResultNav.vue";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import { striptags } from "striptags";
+import { ApiError } from "@/api/ApiError";
 
 const assetStore = useAssetStore();
 const isMetaDataOnly = computed(() => !assetStore.activeFileObjectId);
@@ -59,7 +55,6 @@ async function onAssetIdChange() {
   // once the asset is loaded, we can determine if this should be a
   // `metadata-only-page` or a `asset-with-viewer-page`
   isPageLoaded.value = false;
-  deletedAssetInfo.value = null;
   requiresAuth.value = false;
 
   try {
@@ -79,10 +74,7 @@ async function onAssetIdChange() {
     const assetTitle = getAssetTitle(asset);
     pageTitle.value = striptags(assetTitle);
   } catch (err) {
-    if (err instanceof ApiError && err.statusCode === 410) {
-      deletedAssetInfo.value = err.data as DeletedAssetInfo;
-      pageTitle.value = "Deleted asset";
-    } else if (err instanceof ApiError && err.statusCode === 401) {
+    if (err instanceof ApiError && err.statusCode === 401) {
       // Handle 401 inline instead of letting ErrorModal show a modal
       // with the asset page visible behind a scrim.
       requiresAuth.value = true;
@@ -94,9 +86,6 @@ async function onAssetIdChange() {
     }
   }
 
-  // if there's an asset, set the page title
-  const assetTitle = getAssetTitle(asset);
-  pageTitle.value = striptags(assetTitle);
   isPageLoaded.value = true;
 }
 
