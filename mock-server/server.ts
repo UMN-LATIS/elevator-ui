@@ -8,6 +8,7 @@ import type { MockServerContext } from "./types";
 import { db, getOrCreateWorkerDb } from "./db/index";
 
 import assetRoutes from "./routes/assets";
+import collectionRoutes from "./routes/collections";
 import searchRoutes from "./routes/search";
 import drawerRoutes from "./routes/drawers";
 import authRoutes from "./routes/auth";
@@ -78,6 +79,7 @@ app.use("*", async (c, next) => {
 
 // Routes - defaultinstance prefix to match real API structure
 app.route("/defaultinstance/asset", assetRoutes);
+app.route("/defaultinstance/collections", collectionRoutes);
 app.route("/defaultinstance/search", searchRoutes);
 app.route("/defaultinstance/drawers", drawerRoutes);
 app.route("/defaultinstance/loginManager", authRoutes);
