@@ -2,13 +2,13 @@
   <Notification
     type="warning"
     title="Sign In Required"
-    class="home-page__sign-in-required-notice my-4 rounded-md">
+    class="home-page__sign-in-required-notice my-4 rounded-md border">
     <p>This site requires you to sign in to search or access assets.</p>
 
     <div class="flex gap-2 mt-2">
       <Button
-        class="sign-in-required__local-login"
         variant="primary"
+        class="sign-in-required__local-login border border-primary !py-2 !px-4"
         @click="goToLocalLogin">
         <span v-if="instance.useCentralAuth" class="guest-auth-label">
           <!--
@@ -19,8 +19,8 @@
       <Button
         v-if="instance.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
-        variant="tertiary"
-        class="sign-in-required__remote-login border border-primary py-2 px-4">
+        variant="primary"
+        class="sign-in-required__remote-login border border-primary !py-2 !px-4">
         {{ instance.centralAuthLabel }} Login
       </Button>
     </div>
