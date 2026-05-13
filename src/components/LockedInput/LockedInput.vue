@@ -1,5 +1,5 @@
 <template>
-  <div :class="cn('flex flex-col gap-1 w-full', $attrs.class as string)">
+  <div :class="cn('flex flex-col gap-1 w-full', attrs.class as ClassValue)">
     <div
       :class="
         cn(
@@ -52,6 +52,7 @@
 import { computed, nextTick, ref, useAttrs, useId, watch } from "vue";
 import { CheckIcon, PencilIcon, Undo2Icon } from "lucide-vue-next";
 import IconButton from "@/components/IconButton/IconButton.vue";
+import { type ClassValue } from "clsx";
 import { cn } from "@/lib/utils";
 
 defineOptions({ inheritAttrs: false });
@@ -121,14 +122,16 @@ async function startEdit() {
 }
 
 function commit(): boolean {
+  draft.value = draft.value.trim();
   refreshValidity();
   const el = inputEl.value;
   if (!el?.checkValidity()) {
     el?.focus();
     return false;
   }
-  const trimmed = draft.value.trim();
-  if (trimmed !== props.modelValue) emit("update:modelValue", trimmed);
+  if (draft.value !== props.modelValue) {
+    emit("update:modelValue", draft.value);
+  }
   isEditing.value = false;
   return true;
 }

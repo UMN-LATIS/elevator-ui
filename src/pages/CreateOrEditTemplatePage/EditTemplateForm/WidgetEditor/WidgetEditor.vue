@@ -131,8 +131,8 @@
               editLabel="Edit field title"
               saveLabel="Save field title"
               required
-              pattern="[A-Za-z0-9_\-]+"
-              title="Letters, numbers, underscores, and hyphens only."
+              pattern="[a-z0-9_\-]+"
+              title="Lowercase letters, numbers, underscores, and hyphens only."
               spellcheck="false"
               autocapitalize="off"
               autocomplete="off"
