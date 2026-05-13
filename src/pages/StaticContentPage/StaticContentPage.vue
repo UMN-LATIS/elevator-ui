@@ -53,7 +53,7 @@ const props = defineProps<{
   pageId: number;
 }>();
 
-const BASE_URL = config.instance.base.path;
+const BASE_URL = config.instance.base.url;
 const pageIdRef = toRef(props, "pageId");
 
 const canCurrentUserEdit = computed(() => {
