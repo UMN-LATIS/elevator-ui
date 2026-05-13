@@ -281,9 +281,7 @@ const assetSeeds: WithMeta<Asset>[] = [
   // Asset with both clickable and non-clickable tags for contrast testing
   {
     ...baseAsset,
-    title_1: [
-      { isPrimary: true, fieldContents: "Tag Contrast Test Asset" },
-    ],
+    title_1: [{ isPrimary: true, fieldContents: "Tag Contrast Test Asset" }],
     sometags_1: [
       {
         isPrimary: false,
@@ -501,9 +499,7 @@ export function createAssetsTable({
     },
     getDeletedByUser: (userId: number) => {
       return baseTable
-        .filter(
-          (asset) => asset.deleted === true && asset.deletedBy === userId
-        )
+        .filter((asset) => asset.deleted === true && asset.deletedBy === userId)
         .map((asset) => ({
           objectId: asset.assetId,
           title: asset.title?.[0] ?? "(Untitled)",
