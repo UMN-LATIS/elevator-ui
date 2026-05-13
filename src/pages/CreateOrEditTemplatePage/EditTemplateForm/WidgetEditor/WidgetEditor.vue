@@ -213,16 +213,15 @@ function validateFieldTitleUnique(value: string): string {
   );
   return conflict ? "Another field already uses this title." : "";
 }
-
-function onFieldTitleCommit(value: string) {
-  widget.value.fieldTitle = value;
-}
-
 const expansion = inject(WIDGET_EXPANSION_KEY);
 const showOptions = computed({
   get: () => expansion?.isExpanded(widget.value._tempId) ?? false,
   set: (val: boolean) => expansion?.setExpanded(widget.value._tempId, val),
 });
+
+function onFieldTitleCommit(value: string) {
+  widget.value.fieldTitle = value;
+}
 
 const showTooltip = ref(!!widget.value.tooltip);
 watch(showTooltip, (value) => {
