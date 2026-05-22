@@ -1,10 +1,12 @@
 <template>
-  <nav class="admin-sidebar" aria-label="Admin">
+  <nav
+    class="bg-surface text-on-surface border-r border-outline-variant h-full w-60 py-4 px-3"
+    aria-label="Admin">
     <h2
       class="text-xs uppercase text-on-surface-variant font-bold pl-2 pb-1 tracking-wider">
       Admin
     </h2>
-    <ul class="admin-sidebar__list">
+    <ul class="list-none p-0 m-0 flex flex-col gap-0.5">
       <li>
         <SidebarNavItem :to="{ name: 'customPagesIndex' }" :icon="FileTextIcon">
           Pages
@@ -82,23 +84,3 @@ const BASE_URL = config.instance.base.url;
 const instanceStore = useInstanceStore();
 const { currentUser } = storeToRefs(instanceStore);
 </script>
-
-<style scoped>
-.admin-sidebar {
-  background: var(--surface);
-  color: var(--on-surface);
-  border-right: 1px solid var(--outline-variant);
-  padding: 1rem 0.75rem;
-  height: 100%;
-  width: 15rem;
-}
-
-.admin-sidebar__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-</style>
