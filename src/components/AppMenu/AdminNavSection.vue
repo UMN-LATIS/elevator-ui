@@ -6,11 +6,9 @@
     <AppMenuItem
       v-if="config.features.adminPermissions"
       to="/admin/permissions">
-      Instance Permissions
+      Instance Permissions (WIP)
     </AppMenuItem>
-    <AppMenuItem
-      v-else
-      :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
+    <AppMenuItem :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
       Instance Permissions
     </AppMenuItem>
     <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
