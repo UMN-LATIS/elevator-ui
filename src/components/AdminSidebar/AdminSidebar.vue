@@ -6,56 +6,56 @@
     </h2>
     <ul class="admin-sidebar__list">
       <li>
-        <AppNavItem :to="{ name: 'customPagesIndex' }" :icon="FileTextIcon">
+        <SidebarNavItem :to="{ name: 'customPagesIndex' }" :icon="FileTextIcon">
           Pages
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <!-- <li>
-        <AppNavItem :to="{ name: 'adminGroups' }" :icon="UsersIcon">
+        <SidebarNavItem :to="{ name: 'adminGroups' }" :icon="UsersIcon">
           Groups
-        </AppNavItem>
+        </SidebarNavItem>
       </li> -->
       <li v-if="config.features.adminPermissions">
-        <AppNavItem :to="{ name: 'adminPermissions' }" :icon="LockIcon">
+        <SidebarNavItem :to="{ name: 'adminPermissions' }" :icon="LockIcon">
           Permissions
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <li>
-        <AppNavItem :to="{ name: 'templatesIndex' }" :icon="LayoutTemplateIcon">
+        <SidebarNavItem :to="{ name: 'templatesIndex' }" :icon="LayoutTemplateIcon">
           Templates
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <li>
-        <AppNavItem
+        <SidebarNavItem
           :href="`${BASE_URL}/collectionManager`"
           :icon="FolderCogIcon">
           Collections
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <li>
-        <AppNavItem :href="`${BASE_URL}/reports`" :icon="BarChartIcon">
+        <SidebarNavItem :href="`${BASE_URL}/reports`" :icon="BarChartIcon">
           Reports
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <li>
-        <AppNavItem
+        <SidebarNavItem
           :to="{
             name: 'editInstanceSettingsPage',
             params: { instanceId: instanceStore.instance.id },
           }"
           :icon="SettingsIcon">
           Instance Settings
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <li v-if="currentUser?.isSuperAdmin">
-        <AppNavItem :href="`${BASE_URL}/admin`" :icon="ShieldIcon">
+        <SidebarNavItem :href="`${BASE_URL}/admin`" :icon="ShieldIcon">
           Super Admin
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
       <li v-if="currentUser?.isSuperAdmin">
-        <AppNavItem :href="`${BASE_URL}/admin/logs`" :icon="ScrollTextIcon">
+        <SidebarNavItem :href="`${BASE_URL}/admin/logs`" :icon="ScrollTextIcon">
           Logs
-        </AppNavItem>
+        </SidebarNavItem>
       </li>
     </ul>
   </nav>
@@ -74,7 +74,7 @@ import {
   ScrollText as ScrollTextIcon,
   Shield as ShieldIcon,
 } from "lucide-vue-next";
-import AppNavItem from "@/components/AppMenu/AppNavItem.vue";
+import SidebarNavItem from "./SidebarNavItem.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import config from "@/config";
 
