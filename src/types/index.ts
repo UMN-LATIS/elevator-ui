@@ -55,6 +55,9 @@ export interface AppConfig {
   };
   mode: "development" | "production" | string | null;
   isUsingMockServer?: boolean;
+  features: {
+    adminPermissions: boolean;
+  };
 }
 
 /**
