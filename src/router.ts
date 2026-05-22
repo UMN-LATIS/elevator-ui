@@ -320,19 +320,27 @@ const router = createRouter({
       name: "templatesEdit",
       path: "/templates/edit/:id",
       component: () =>
-        import(
-          "@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"
-        ),
+        import("@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"),
       props: (route) => ({ templateId: parseIntFromParam(route.params.id) }),
     },
     {
       name: "templatesCreate",
       path: "/templates/edit",
       component: () =>
-        import(
-          "@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"
-        ),
+        import("@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"),
       props: { templateId: null },
+    },
+    {
+      name: "adminPermissions",
+      path: "/admin/permissions",
+      component: () =>
+        config.features.adminPermissions
+          ? import("@/pages/AdminPermissionsPage/AdminPermissionsPage.vue")
+          : import("@/pages/ErrorPage/ErrorPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "mapClusterTest",

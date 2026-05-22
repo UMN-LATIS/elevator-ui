@@ -74,6 +74,7 @@ export default {
           DEFAULT: "var(--on-surface)",
           variant: "var(--on-surface-variant)",
           muted: "color-mix(in oklch, var(--on-surface) 20%, transparent)",
+          hover: "color-mix(in oklch, var(--on-surface) 8%, transparent)",
         },
         primary: {
           DEFAULT: "var(--primary)",

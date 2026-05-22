@@ -3,7 +3,14 @@
     <AppMenuItem :to="`/instances/edit/${instance.id}`">
       Instance Settings
     </AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
+    <AppMenuItem
+      v-if="config.features.adminPermissions"
+      to="/admin/permissions">
+      Instance Permissions
+    </AppMenuItem>
+    <AppMenuItem
+      v-else
+      :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
       Instance Permissions
     </AppMenuItem>
     <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
