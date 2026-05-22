@@ -1,5 +1,7 @@
 <template>
-  <div class="page-content" :class="`page-content--${width}`">
+  <div
+    class="w-full mx-auto pt-10 px-4 pb-12 md:px-6 lg:px-8"
+    :class="width === 'narrow' ? 'max-w-4xl' : 'max-w-7xl'">
     <slot />
   </div>
 </template>
@@ -12,32 +14,3 @@ withDefaults(
   { width: "default" }
 );
 </script>
-
-<style scoped>
-.page-content {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 2.5rem 1rem 3rem;
-}
-
-.page-content--default {
-  max-width: 80rem;
-}
-
-.page-content--narrow {
-  max-width: 56rem;
-}
-
-@media (min-width: 768px) {
-  .page-content {
-    padding: 2.5rem 1.5rem 3rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .page-content {
-    padding: 2.5rem 2rem 3rem;
-  }
-}
-</style>
