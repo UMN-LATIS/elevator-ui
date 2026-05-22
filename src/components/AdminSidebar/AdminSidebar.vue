@@ -12,18 +12,15 @@
           Pages
         </SidebarNavItem>
       </li>
-      <!-- <li>
-        <SidebarNavItem :to="{ name: 'adminGroups' }" :icon="UsersIcon">
-          Groups
-        </SidebarNavItem>
-      </li> -->
       <li v-if="config.features.adminPermissions">
         <SidebarNavItem :to="{ name: 'adminPermissions' }" :icon="LockIcon">
           Permissions
         </SidebarNavItem>
       </li>
       <li>
-        <SidebarNavItem :to="{ name: 'templatesIndex' }" :icon="LayoutTemplateIcon">
+        <SidebarNavItem
+          :to="{ name: 'templatesIndex' }"
+          :icon="LayoutTemplateIcon">
           Templates
         </SidebarNavItem>
       </li>
@@ -67,7 +64,6 @@
 import { storeToRefs } from "pinia";
 import {
   FileText as FileTextIcon,
-  Users as UsersIcon,
   Lock as LockIcon,
   LayoutTemplate as LayoutTemplateIcon,
   FolderCog as FolderCogIcon,
