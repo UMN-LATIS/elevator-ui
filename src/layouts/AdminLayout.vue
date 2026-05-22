@@ -3,16 +3,15 @@
     <template v-if="$slots['custom-header']" #custom-header>
       <slot name="custom-header" />
     </template>
-    <template #sidebar>
-      <AdminSidebar />
-    </template>
-    <template v-if="$slots.aside" #aside>
-      <slot name="aside" />
-    </template>
+    <div class="flex flex-1 min-h-0">
+      <AdminSidebar class="shrink-0" />
+      <div class="flex-1 min-w-0">
+        <slot />
+      </div>
+    </div>
     <template v-if="$slots.footer" #footer>
       <slot name="footer" />
     </template>
-    <slot />
   </DefaultLayout>
 </template>
 
