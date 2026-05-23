@@ -56,8 +56,9 @@ const defaultConfig: AppConfig = {
     },
   },
   mode: import.meta.env.MODE ?? null,
-  isUsingMockServer:
-    import.meta.env.VITE_SHOW_MOCK_SERVER_BORDER?.toLowerCase() === "true",
+  isUsingMockServer: import.meta.env.VITE_IS_USING_MOCK_SERVER
+    ? import.meta.env.VITE_IS_USING_MOCK_SERVER.toLowerCase() === "true"
+    : false,
   features: {
     adminPermissions:
       import.meta.env.VITE_FEATURE_ADMIN_PERMISSIONS?.toLowerCase() === "true",
