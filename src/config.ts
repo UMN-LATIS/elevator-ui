@@ -1,6 +1,5 @@
 import deepmerge from "deepmerge";
 import { AppConfig } from "@/types";
-import { resolveThemingConfig } from "@/helpers/resolveThemingConfig";
 
 export const ALL_THEMES = [
   "dark",
@@ -60,6 +59,10 @@ const defaultConfig: AppConfig = {
   isUsingMockServer: import.meta.env.VITE_IS_USING_MOCK_SERVER
     ? import.meta.env.VITE_IS_USING_MOCK_SERVER.toLowerCase() === "true"
     : false,
+  features: {
+    adminPermissions:
+      import.meta.env.VITE_FEATURE_ADMIN_PERMISSIONS?.toLowerCase() === "true",
+  },
 };
 
 const globalConfig = globalThis?.Elevator?.config ?? {};
