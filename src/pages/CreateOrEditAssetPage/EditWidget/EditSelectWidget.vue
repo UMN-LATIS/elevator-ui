@@ -83,9 +83,9 @@ const selectOptions = computed((): Type.SelectOption[] => {
     }));
   }
 
-  return Object.entries(options).map(([key, value]) => ({
+  return Object.entries(options).map(([key]) => ({
     id: key.toString(),
-    label: value?.toString() ?? key.toString(),
+    label: key.toString(),
   }));
 });
 </script>
