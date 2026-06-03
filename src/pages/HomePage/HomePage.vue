@@ -15,12 +15,13 @@
         'md:grid-cols-3': featuredAssetId,
       }">
       <article class="page-content-block col-span-2 p-4 lg:p-8">
-        <a
+        <Button
           v-if="canCurrentUserEdit"
-          :href="`${BASE_URL}/instances/editPage/${homePageId}`"
-          class="float-right uppercase text-xs font-medium bg-blue-100 px-2 py-1 rounded-md no-underline hover:bg-blue-600 hover:text-blue-100 hover:no-underline">
+          :to="`/instances/editPage/${homePageId}`"
+          variant="tertiary"
+          class="float-right">
           Edit Page
-        </a>
+        </Button>
         <Transition v-if="page" name="fade">
           <SanitizedHTML
             v-if="page.content"
@@ -76,10 +77,10 @@ import { useStaticPageQuery } from "@/queries/useStaticPageQuery";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { ELEVATOR_EVENTS } from "@/constants/constants";
 import { onAllImagesLoaded } from "@/helpers/onAllImagesLoaded";
-import config from "@/config";
+import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
-const BASE_URL = config.instance.base.url;
+
 const canSearchAndBrowse = computed(
   () => instanceStore.instance?.userCanSearchAndBrowse ?? false
 );
