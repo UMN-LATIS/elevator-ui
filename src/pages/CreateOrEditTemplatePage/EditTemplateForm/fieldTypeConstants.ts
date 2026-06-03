@@ -21,7 +21,14 @@ import {
 export const FIELD_TYPE_SAMPLE_DATA: Record<string, unknown> = {
   select: {
     multiSelect: false,
-    selectGroup: ["option 1", "option 2", "option 3"],
+    _comment:
+      "`selectGroup` can be object or array. Two examples are below. Pick one form, change its key  to `selectGroup`, and delete the other example",
+    selectGroupExampleArray: ["option 1", "option 2", "option 3"],
+    selectGroupExampleObject: {
+      "option 1 - curator view": "option 1 - visitor view",
+      "option 2 - curator view": "option 2 - visitor view",
+      "option 3 - curator view": "option 3 - visitor view",
+    },
   },
   multiselect: {
     country: {
