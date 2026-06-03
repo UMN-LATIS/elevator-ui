@@ -83,6 +83,7 @@ const selectOptions = computed((): Type.SelectOption[] => {
     }));
   }
 
+  // this model shows the key to curators and the value is shown to end-users
   return Object.entries(options).map(([key]) => ({
     id: key.toString(),
     label: key.toString(),
