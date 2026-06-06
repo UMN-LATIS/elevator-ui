@@ -152,47 +152,53 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
   if (isDownloadingAll.value) return;
 
   isDownloadingAll.value = true;
-  // snapshot the assetId in case it changes during the download process
-  const assetId = assetStore.activeAssetId;
+  try {
+    // snapshot the assetId in case it changes during the download process
+    const assetId = assetStore.activeAssetId;
 
-  for (const content of props.contents) {
-    const fileId = content.fileId;
-    const downloadInfo = await api.getFileDownloadInfo(fileId, assetId);
+    for (const content of props.contents) {
+      const fileId = content.fileId;
+      try {
+        const downloadInfo = await api.getFileDownloadInfo(fileId, assetId);
 
-    const preferredDownloadInfo = downloadInfo
-      ? getPreferredDownloadInfo(downloadInfo, { preferOriginals })
-      : null;
+        const preferredDownloadInfo = downloadInfo
+          ? getPreferredDownloadInfo(downloadInfo, { preferOriginals })
+          : null;
 
-    if (!preferredDownloadInfo) {
-      toastStore.addToast({
-        message: `No downloadable file found for ${fileId}. Skipping.`,
-        variant: "error",
-      });
-      continue;
-    }
+        if (!preferredDownloadInfo) {
+          toastStore.addToast({
+            message: `No downloadable file found for ${fileId}. Skipping.`,
+            variant: "error",
+          });
+          continue;
+        }
 
-    const filename = `${fileId}-${preferredDownloadInfo.filetype}.${preferredDownloadInfo.extension}`;
+        const filename = `${fileId}-${preferredDownloadInfo.filetype}.${preferredDownloadInfo.extension}`;
 
-    isFileDownloadable(preferredDownloadInfo.url)
-      .then((isDownloadable) => {
-        if (isDownloadable) {
-          triggerBrowserDownload(preferredDownloadInfo.url, filename);
-        } else {
+        // Glacier-archived originals come back as the restore HTML, not the
+        // file bytes — skip the download and let the user know it's coming.
+        if (!(await isFileDownloadable(preferredDownloadInfo.url))) {
           toastStore.addToast({
             message: `File ${fileId} is being restored from Glacier. It will be emailed to you when ready.`,
           });
+          continue;
         }
-      })
-      .catch((err) => {
-        console.error("Error checking if file is downloadable", err);
+
+        // awaited so downloads stay serialized — the helper resolves on its
+        // ~2s timeout, which spaces the clicks apart (browsers drop downloads
+        // fired back-to-back).
+        await triggerBrowserDownload(preferredDownloadInfo.url, filename);
+      } catch (err) {
+        console.error(`Error downloading file ${fileId}`, err);
         toastStore.addToast({
           message: "Sorry, this file couldn't be downloaded. Please try again.",
           variant: "error",
         });
-      });
+      }
+    }
+  } finally {
+    isDownloadingAll.value = false;
   }
-
-  isDownloadingAll.value = false;
 }
 
 const canDownloadOriginals = ref<boolean | undefined>();
