@@ -1,5 +1,4 @@
 import { RawSortableField, ShowCustomHeaderMode } from "../src/types";
-import type { StorageClass } from "../src/types/FileDownloadTypes";
 
 export interface MockUser {
   id: number;
@@ -115,7 +114,4 @@ export interface MockFile {
   };
   uploadedAt: Date;
   assetId?: string;
-  // S3 storage class the backend sees for the original. "GLACIER" makes
-  // getOriginal return the restore HTML instead of the file (reproduces #546).
-  storageClass?: StorageClass;
 }

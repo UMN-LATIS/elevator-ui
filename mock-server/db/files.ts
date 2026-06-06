@@ -20,17 +20,6 @@ const fileSeeds: MockFile[] = [
     uploadedAt: new Date(),
     assetId: "6875871d4eb080a4880a0f44",
   },
-  // Original archived in Glacier — getOriginal returns the restore HTML (#546).
-  {
-    id: "glacier_file_001",
-    fileName: "archived-document.txt",
-    fileType: "txt",
-    fileSize: 5242880,
-    metadata: {},
-    uploadedAt: new Date(),
-    assetId: "glacier_asset_001",
-    storageClass: "GLACIER",
-  },
 ];
 
 export function createFilesTable() {

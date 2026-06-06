@@ -14,7 +14,6 @@ import authRoutes from "./routes/auth";
 import fileRoutes from "./routes/files";
 import pageRoutes from "./routes/pages";
 import instanceRoutes from "./routes/instance";
-import collectionRoutes from "./routes/collections";
 import s3Routes from "./routes/s3";
 import config from "./config";
 
@@ -85,7 +84,6 @@ app.route("/defaultinstance/loginManager", authRoutes);
 app.route("/defaultinstance/fileManager", fileRoutes);
 app.route("/defaultinstance/assetManager", assetRoutes);
 app.route("/defaultinstance/home", instanceRoutes);
-app.route("/defaultinstance/collections", collectionRoutes);
 app.route("/defaultinstance/page", pageRoutes);
 app.route("/defaultinstance/s3", s3Routes);
 // Also mount s3 routes at root level for signed URL handling
