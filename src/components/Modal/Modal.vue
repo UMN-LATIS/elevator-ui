@@ -15,6 +15,7 @@
           class="absolute right-4 top-4 md:top-8 md:right-8"
           @click="$emit('close')" />
         <header
+          v-if="!!label || $slots.label"
           class="modal-contents__header flex justify-between items-start p-4 md:p-8">
           <h2 class="flex-1 font-bold text-2xl mr-12 flex items-center">
             <slot name="label">
