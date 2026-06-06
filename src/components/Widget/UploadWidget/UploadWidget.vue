@@ -82,10 +82,7 @@ import { SpinnerIcon, VerticalDotsIcon } from "@/icons";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import api from "@/api";
-import {
-  triggerBrowserDownload,
-  isFileDownloadable,
-} from "@/helpers/fileDownload";
+import { downloadOriginalFile } from "@/helpers/fileDownload";
 import { useToastStore } from "@/stores/toastStore";
 
 const props = defineProps<{
@@ -177,21 +174,37 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
 
         // Glacier-archived originals come back as the restore HTML, not the
         // file bytes — skip the download and let the user know it's coming.
-        if (!(await isFileDownloadable(preferredDownloadInfo.url))) {
-          toastStore.addToast({
-            message: `File ${fileId} is being restored from Glacier. It will be emailed to you when ready.`,
-          });
-          continue;
-        }
+        const downloadStatus = await downloadOriginalFile(
+          preferredDownloadInfo.url,
+          filename
+        );
 
-        // awaited so downloads stay serialized — the helper resolves on its
-        // ~2s timeout, which spaces the clicks apart (browsers drop downloads
-        // fired back-to-back).
-        await triggerBrowserDownload(preferredDownloadInfo.url, filename);
+        switch (downloadStatus.status) {
+          case "pending": {
+            toastStore.addToast({
+              message: `File ${fileId} is being restored from Glacier. It will be emailed to you when ready.`,
+            });
+            continue;
+          }
+          case "error": {
+            toastStore.addToast({
+              message: `Error downloading file ${fileId}. Skipping. Error: ${downloadStatus.message}`,
+              variant: "error",
+            });
+            continue;
+          }
+          case "downloading": {
+            // download is in progress, so do nothing and let it proceed
+            continue;
+          }
+          default:
+            const _exaustive: never = downloadStatus;
+        }
       } catch (err) {
         console.error(`Error downloading file ${fileId}`, err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
         toastStore.addToast({
-          message: "Sorry, this file couldn't be downloaded. Please try again.",
+          message: `Sorry, file ${content.fileId} couldn't be downloaded. Error: ${errorMessage}`,
           variant: "error",
         });
       }
