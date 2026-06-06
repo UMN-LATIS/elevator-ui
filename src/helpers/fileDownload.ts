@@ -1,4 +1,4 @@
-import { ApiError } from "@/api/ApiError";
+import DOMPurify from "dompurify";
 
 /**
  * Trigger the browser's native download. The browser streams
@@ -33,23 +33,64 @@ export function triggerBrowserDownload(
 }
 
 /**
- * check if a file is downloadable without triggering download
+ * an original file
  */
-export async function isFileDownloadable(url: string) {
-  const res = await fetch(url, {
-    method: "GET",
-    // use "manual" to avoid following the redirect
-    redirect: "manual",
-    credentials: "include",
-  });
 
-  // don't download any body
-  res.body?.cancel();
+type DownloadOriginalStatus =
+  | { status: "downloading" }
+  | {
+      status: "pending";
+      htmlMessage: string;
+    }
+  | {
+      status: "error";
+      message: string;
+    };
 
-  // if we get html back from server, it's a message
-  // about restoring from glacier or some error and thus
-  // not downloadable
-  const isHtmlResponse =
-    res.headers.get("content-type")?.includes("text/html") ?? false;
-  return !isHtmlResponse;
+/**
+ * downloads an original file if possible, and if not
+ * it returns the message from the server (e.g. restoring from Glacier)
+ */
+export async function downloadOriginalFile(
+  downloadUrl: string,
+  filename: string
+): Promise<DownloadOriginalStatus> {
+  // first probe to see what we get from when we request a download
+  // if it's HTML, then it's some message we should display to the user
+  // otherwise, we can trigger the download
+  try {
+    const res = await fetch(downloadUrl, {
+      method: "GET",
+      // use "manual" to avoid following the redirect
+      redirect: "manual",
+      credentials: "include",
+    });
+
+    const isHtmlResponse =
+      res.headers.get("content-type")?.includes("text/html") ?? false;
+
+    if (isHtmlResponse) {
+      const unsafeHtml = await res.text();
+      return {
+        status: "pending",
+        htmlMessage: DOMPurify.sanitize(unsafeHtml),
+      };
+    }
+
+    // stop the actual download during probe
+    res.body?.cancel();
+
+    // trigger download
+    await triggerBrowserDownload(downloadUrl, filename);
+
+    return {
+      status: "downloading",
+    };
+  } catch (err) {
+    console.error(err);
+    return {
+      status: "error",
+      message: err instanceof Error ? err.message : String(err),
+    };
+  }
 }

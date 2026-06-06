@@ -2,7 +2,7 @@
   <IconButton
     class="download-file-button"
     title="Download File"
-    @click="handleDownloadFileClick">
+    @click="handleDownloadIconClick">
     <DownloadIcon />
     <span class="sr-only">Download File</span>
   </IconButton>
@@ -36,9 +36,14 @@
       </ul>
     </div>
   </Modal>
-  <GlacierRestoreModal
-    :isOpen="isGlacierModalOpen"
-    @close="isGlacierModalOpen = false" />
+  <Modal
+    :isOpen="!!downloadExceptionModalHtml"
+    class="max-w-md"
+    @close="downloadExceptionModalHtml = ''">
+    <div class="prose prose-h1:text-lg">
+      <SanitizedHTML :html="downloadExceptionModalHtml" />
+    </div>
+  </Modal>
 </template>
 <script setup lang="ts">
 import { ref, computed } from "vue";
@@ -48,13 +53,10 @@ import DownloadIcon from "@/icons/DownloadIcon.vue";
 import api from "@/api";
 import Modal from "@/components/Modal/Modal.vue";
 import Chip from "@/components/Chip/Chip.vue";
-import GlacierRestoreModal from "@/components/GlacierRestoreModal/GlacierRestoreModal.vue";
 import { useAnalytics } from "@/helpers/useAnalytics";
-import {
-  isFileDownloadable,
-  triggerBrowserDownload,
-} from "@/helpers/fileDownload";
+import { downloadOriginalFile } from "@/helpers/fileDownload";
 import { useToastStore } from "@/stores/toastStore";
+import SanitizedHTML from "../SanitizedHTML/SanitizedHTML.vue";
 
 const props = defineProps<{
   fileObjectId: string;
@@ -63,16 +65,19 @@ const props = defineProps<{
 
 const analytics = useAnalytics();
 const toastStore = useToastStore();
-const isChooseDownloadModalOpen = ref(false);
-const isGlacierModalOpen = ref(false);
 const downloadFileInfo = ref<FileDownloadNormalized[] | null | undefined>(
   undefined
 );
 const isDownloadFileInfoReady = computed(
   () => downloadFileInfo.value !== undefined
 );
+const isChooseDownloadModalOpen = ref(false);
 
-async function handleDownloadFileClick() {
+// sometimes we get html response from server when trying to download a file
+// (e.g. it's in Glacier). Show the message instead of triggering the download
+const downloadExceptionModalHtml = ref<string>("");
+
+async function handleDownloadIconClick() {
   isChooseDownloadModalOpen.value = true;
   downloadFileInfo.value = undefined; // undef means we're fetching
   downloadFileInfo.value = await api.getFileDownloadInfo(
@@ -105,22 +110,30 @@ async function handleDownloadClick(
   event.preventDefault();
   const filename = `${download.originalFilename}-${download.filetype}.${download.extension}`;
 
-  isFileDownloadable(download.url)
-    .then((isDownloadable) => {
-      if (isDownloadable) {
-        triggerBrowserDownload(download.url, filename);
-      } else {
-        isChooseDownloadModalOpen.value = false;
-        isGlacierModalOpen.value = true;
-      }
-    })
-    .catch((err) => {
-      console.error("Error checking if file is downloadable", err);
+  const downloadStatus = await downloadOriginalFile(download.url, filename);
+
+  switch (downloadStatus.status) {
+    case "pending":
+      // close other modal before opening this one
+      isChooseDownloadModalOpen.value = false;
+      downloadExceptionModalHtml.value =
+        downloadStatus.htmlMessage ||
+        // assume restoring from Glacier if we get no message, since that's the most common reason for pending downloads
+        "<h1>Give us a moment</h1><p>We're retrieving your file from cold storage. This can take several hours. We'll send you an email when it's ready for download.</p>";
+      return;
+    case "error": {
       toastStore.addToast({
-        message: "Sorry, this file couldn't be downloaded. Please try again.",
+        message: `Sorry, this file couldn't be downloaded. Error: ${downloadStatus.message}`,
         variant: "error",
       });
-    });
+      return;
+    }
+    case "downloading":
+      return;
+    default:
+      // ensure exhaustive switch
+      const _exhaustive: never = downloadStatus;
+  }
 }
 </script>
 <style scoped></style>
