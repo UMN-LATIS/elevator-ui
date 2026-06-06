@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { delay } from "../utils/index";
-import { MockServerContext } from "../types";
+import type { MockServerContext } from "../types";
 
 const app = new Hono<MockServerContext>();
 
 // GET /collections/collectionHeader/:collectionId/true
+// Returns the collection description (used by instanceStore on asset views).
 app.get("/collectionHeader/:collectionId/true", async (c) => {
   await delay(100);
   const db = c.get("db");

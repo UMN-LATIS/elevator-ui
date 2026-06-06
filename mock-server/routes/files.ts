@@ -10,6 +10,15 @@ import { promises as fs } from "fs";
 
 const app = new Hono<MockServerContext>();
 
+// The legacy backend renders this page when an original is archived in Glacier.
+// The mock returns it from getOriginal to reproduce #546.
+const GLACIER_RESTORING_HTML = `<div class="jumbotron">
+  <div class="container">
+    <h1>Give us a moment</h1>
+    <p>It's going to take some time to get that file ready for you.  We'll send you an email when it's all set.</p>
+  </div>
+</div>`;
+
 // GET /fileManager/getMetadataForObject/:fileId
 app.get("/getMetadataForObject/:fileId", async (c) => {
   await delay(150);
@@ -29,14 +38,27 @@ app.get("/getOriginal/:fileId", async (c) => {
   const file = db.files.get(fileId);
   const filename = file?.fileName;
 
+  // Archived originals come back as the restore page (200, text/html), not the
+  // file bytes — this is the #546 bug.
+  if (file?.storageClass === "GLACIER") {
+    return c.html(GLACIER_RESTORING_HTML);
+  }
+
+  const displayFilename = filename || `file-${fileId}`;
   const { path, exists } = await getOriginalFile(fileId, filename);
 
+  // Seeded files have no bytes on disk. Return a small valid file so a
+  // non-Glacier original still downloads cleanly (instead of 404ing).
   if (!exists) {
-    return c.json({ error: "File not found" }, 404);
+    return new Response(`Mock original file: ${displayFilename}\n`, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${displayFilename}"`,
+      },
+    });
   }
 
   const fileBuffer = await fs.readFile(path);
-  const displayFilename = filename || `file-${fileId}`;
   const mimeType = getMimeType(displayFilename);
 
   return new Response(fileBuffer, {

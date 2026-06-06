@@ -252,6 +252,33 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Asset backed by a Glacier-archived original (#546).
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Glacier Archived Asset" }],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "glacier_file_001",
+        fileType: "txt",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "archived-document.txt",
+      },
+    ],
+    assetId: "glacier_asset_001",
+    firstFileHandlerId: "glacier_file_001",
+    title: ["Glacier Archived Asset"],
+    templateId: 1,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
   // Special test asset for multiselect cascade tests
   {
     ...baseAsset,

@@ -82,6 +82,11 @@ import { SpinnerIcon, VerticalDotsIcon } from "@/icons";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import api from "@/api";
+import {
+  triggerBrowserDownload,
+  isFileDownloadable,
+} from "@/helpers/fileDownload";
+import { useToastStore } from "@/stores/toastStore";
 
 const props = defineProps<{
   widget: UploadWidgetDef;
@@ -125,52 +130,23 @@ function handleNextPrevArrowPresses(event: KeyboardEvent) {
   }
 }
 
-async function downloadFile(url: string, filename: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    try {
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-
-      // To address an Network Error issue with Safari, we need to make
-      // the timeout long enough to receive the 200 response from the server
-      // and start the download. Note: This doesn't need to be long
-      // enough to COMPLETE the whole download, just long enough to start.
-      // ~2s seems to be a good balance.
-      const WAIT_TIME_FOR_DOWNLOAD_RESPONSE = 2000;
-      setTimeout(() => {
-        link.remove();
-        resolve();
-      }, WAIT_TIME_FOR_DOWNLOAD_RESPONSE);
-    } catch (error) {
-      console.error(`Error downloading file: ${url}`, error);
-      reject(error);
-    }
-  });
-}
-
 function getPreferredDownloadInfo(
-  downloadables: FileDownloadNormalized[],
+  downloadInfo: FileDownloadNormalized[],
   { preferOriginals = false } = {}
-): FileDownloadNormalized {
-  if (downloadables.length < 1) {
-    throw new Error(`No downloadable derivatives found: ${downloadables}`);
-  }
-
-  // if we prefer originals, return the first original
+): FileDownloadNormalized | null {
+  // Originals don't carry isReady/isDownloadable flags, so match on filetype.
   if (preferOriginals) {
-    const original = downloadables.find(
-      (derivative) => derivative.filetype === "original"
-    );
+    const original = downloadInfo.find((file) => file.filetype === "original");
     if (original) return original;
   }
 
-  // return the first deriv
-  return downloadables[0];
+  // otherwise the first ready, downloadable derivative
+  return (
+    downloadInfo.find((file) => file.isDownloadable && file.isReady) ?? null
+  );
 }
+
+const toastStore = useToastStore();
 
 async function handleDownloadAll({ preferOriginals = false } = {}) {
   if (isDownloadingAll.value) return;
@@ -180,45 +156,40 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
   const assetId = assetStore.activeAssetId;
 
   for (const content of props.contents) {
-    try {
-      const fileId = content.fileId;
-      const downloadInfo = await api.getFileDownloadInfo(
-        content.fileId,
-        assetId
-      );
+    const fileId = content.fileId;
+    const downloadInfo = await api.getFileDownloadInfo(fileId, assetId);
 
-      if (!downloadInfo) {
-        console.warn(
-          `No download info found for file ${content.fileId}. Skipping.`
-        );
-        continue;
-      }
+    const preferredDownloadInfo = downloadInfo
+      ? getPreferredDownloadInfo(downloadInfo, { preferOriginals })
+      : null;
 
-      const downloadables = downloadInfo.filter(
-        (derivative) => derivative.isDownloadable && derivative.isReady
-      );
-
-      if (!downloadables.length) {
-        console.warn(
-          `No downloadable derivatives found for file ${content.fileId}. Skipping.`
-        );
-        continue;
-      }
-
-      const { url, filetype, extension } = getPreferredDownloadInfo(
-        downloadables,
-        { preferOriginals }
-      );
-
-      const filename = `${fileId}-${filetype}.${extension}`;
-      await downloadFile(url, filename);
-    } catch (error) {
-      console.error(
-        `Error downloading file ${content.fileId}. Skipping.`,
-        error
-      );
+    if (!preferredDownloadInfo) {
+      toastStore.addToast({
+        message: `No downloadable file found for ${fileId}. Skipping.`,
+        variant: "error",
+      });
       continue;
     }
+
+    const filename = `${fileId}-${preferredDownloadInfo.filetype}.${preferredDownloadInfo.extension}`;
+
+    isFileDownloadable(preferredDownloadInfo.url)
+      .then((isDownloadable) => {
+        if (isDownloadable) {
+          triggerBrowserDownload(preferredDownloadInfo.url, filename);
+        } else {
+          toastStore.addToast({
+            message: `File ${fileId} is being restored from Glacier. It will be emailed to you when ready.`,
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Error checking if file is downloadable", err);
+        toastStore.addToast({
+          message: "Sorry, this file couldn't be downloaded. Please try again.",
+          variant: "error",
+        });
+      });
   }
 
   isDownloadingAll.value = false;
