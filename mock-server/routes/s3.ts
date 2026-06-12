@@ -7,6 +7,7 @@ import type { MockServerContext } from "../types";
 import { processUploadedFile } from "../utils/fileProcessor";
 import { delay } from "../utils";
 import config from "../config";
+import mime from "mime-types";
 
 const MOCK_SERVER_BASE = `${config.ORIGIN}:${config.PORT}`;
 
@@ -32,7 +33,7 @@ function getFileTypeFromMime(mimeType: string): string {
     "application/pdf": "pdf",
     "text/plain": "txt",
   };
-  return typeMap[mimeType] || "unknown";
+  return typeMap[mimeType] || mime.extension(mimeType) || "bin";
 }
 
 async function concatenateUploadParts(upload: any): Promise<string> {
@@ -65,8 +66,10 @@ async function handleFileProcessing(
   finalFilePath: string
 ): Promise<void> {
   try {
-    // For now, use a generic filename - in real app this would come from the original request
-    const originalFilename = `upload-${upload.fileObjectId}.jpg`;
+    // The client only sends contentType (not the original filename) at multipart-start,
+    // so reconstruct a filename with the correct extension for the uploaded type.
+    const ext = getFileTypeFromMime(upload.contentType);
+    const originalFilename = `upload-${upload.fileObjectId}.${ext}`;
     const processedFile = await processUploadedFile(
       finalFilePath,
       upload.fileObjectId,
