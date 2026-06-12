@@ -20,6 +20,16 @@ const fileSeeds: MockFile[] = [
     uploadedAt: new Date(),
     assetId: "6875871d4eb080a4880a0f44",
   },
+  {
+    id: "goldy-face_001",
+    fileName: "goldy-face_001.png",
+    fileType: "png",
+    fileSize: 104373,
+    metadata: { width: 1163, height: 1200 },
+    uploadedAt: new Date(),
+    assetId: "glacier_asset_001",
+    // storageClass: "GLACIER",
+  },
 ];
 
 export function createFilesTable() {

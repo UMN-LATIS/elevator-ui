@@ -439,16 +439,16 @@ const assetSeeds: WithMeta<Asset>[] = [
     upload_1: [
       {
         loc: null,
-        fileId: "glacier_file_001",
-        fileType: "tif",
+        fileId: "goldy-face_001",
+        fileType: "png",
         sidecars: [],
         isPrimary: false,
         searchData: null,
-        fileDescription: "glacier-photo.tif",
+        fileDescription: "goldy-face_001.png",
       },
     ],
     assetId: "glacier_asset_001",
-    firstFileHandlerId: "glacier_file_001",
+    firstFileHandlerId: "goldy-face_001",
     title: ["Glacier Asset"],
     modified: {
       date: "2025-07-14 22:40:25.000000",
