@@ -27,7 +27,9 @@ const app = new Hono<MockServerContext>({ strict: false });
 app.use(
   "*",
   cors({
-    origin: "*", // Allow all origins
+    // reflect the request origin; a wildcard is invalid for credentialed
+    // requests (which the SPA sends via axios withCredentials)
+    origin: (origin) => origin,
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowHeaders: [
