@@ -412,10 +412,9 @@ const assetSeeds: WithMeta<Asset>[] = [
     ],
     relatedAssetCache: {
       protected_child_001: {
-        relatedAssetTitle: ["Protected Child Asset"],
         primaryHandler: null,
-        primaryHandlerTiny: null,
-        primaryHandlerTiny2x: null,
+        readyForDisplay: true,
+        relatedAssetTitle: ["Protected Child Asset"],
       },
     },
     assetId: "collapsed_parent_001",
@@ -431,6 +430,69 @@ const assetSeeds: WithMeta<Asset>[] = [
       timezone: "UTC",
     },
     _meta: { visibility: "public" },
+  },
+  // Asset whose original file is archived in glacier (see db/files.ts
+  // glacier_file_001) — drives the restore-from-archive download tests
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Glacier Asset" }],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "glacier_file_001",
+        fileType: "tif",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "glacier-photo.tif",
+      },
+    ],
+    assetId: "glacier_asset_001",
+    firstFileHandlerId: "glacier_file_001",
+    title: ["Glacier Asset"],
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
+  // Two-file asset (one available original + the glacier original) so the
+  // upload widget's "Download All Originals" batch-restore can be tested
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Glacier Mixed Asset" }],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "687587494eb080a4880a0f46",
+        fileType: "svg",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "warm.svg",
+      },
+      {
+        loc: null,
+        fileId: "glacier_file_001",
+        fileType: "tif",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "glacier-photo.tif",
+      },
+    ],
+    assetId: "glacier_mixed_asset_001",
+    firstFileHandlerId: "687587494eb080a4880a0f46",
+    title: ["Glacier Mixed Asset"],
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
   },
   ...generateMockAssets(),
 ];
