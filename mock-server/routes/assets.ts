@@ -371,4 +371,32 @@ app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
   });
 });
 
+// GET /asset/getEmbed/:fileId/:parentObjectId?/:embed?
+// The ObjectViewer iframe loads this. The mock can't render real files, so
+// return a placeholder instead of falling through to the SPA catch-all.
+app.get("/getEmbed/:fileId/:parentObjectId?/:embed?", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+  const fileId = c.req.param("fileId");
+  const file = db.files.get(fileId);
+  const filename = file?.fileName ?? `file-${fileId}`;
+
+  return c.html(`<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Object viewer</title>
+    <style>
+      body { margin: 0; display: grid; place-items: center; min-height: 100vh;
+        background: #1b1b1f; color: #9aa0a6; font-family: system-ui, sans-serif;
+        text-align: center; }
+      small { opacity: 0.7; }
+    </style>
+  </head>
+  <body>
+    <p>Object viewer not implemented in the mock server.<br /><small>${filename}</small></p>
+  </body>
+</html>`);
+});
+
 export default app;
