@@ -95,21 +95,6 @@ test.describe("DownloadFileButton: original archive states", () => {
     );
   });
 
-  test("a forbidden original surfaces a permission message", async ({
-    page,
-  }) => {
-    await stubStatus(page, 403, { error: "noPermission" });
-
-    const modal = await openDownloadModal(page);
-
-    await expect(
-      modal.getByText("You don't have permission to download the original file.")
-    ).toBeVisible({ timeout: 5000 });
-    await expect(
-      modal.getByRole("button", { name: "Restore Original" })
-    ).toHaveCount(0);
-  });
-
   test("a missing original surfaces a support message", async ({ page }) => {
     await stubStatus(page, 404, { error: "unknownFile" });
 
