@@ -89,6 +89,20 @@ export interface MockDrawer {
   updatedAt: Date;
 }
 
+type S3StorageStatus =
+  // regular S3, non-glacier. Downloadable
+  | { storageClass: "STANDARD" }
+  // in Glacier. must be restored to download
+  | { storageClass: "GLACIER" | "GLACIER_IR" }
+  // restore in progress. NOT downloadable
+  | { storageClass: "GLACIER" | "GLACIER_IR"; ongoingRequest: true }
+  // restored. Will go back to glacier at date. Downloadable.
+  | {
+      storageClass: "GLACIER" | "GLACIER_IR";
+      ongoingRequest: false;
+      expiryDate: string;
+    };
+
 export interface MockFile {
   id: string;
   fileName: string;
@@ -102,4 +116,5 @@ export interface MockFile {
   };
   uploadedAt: Date;
   assetId?: string;
+  s3StorageStatus?: S3StorageStatus;
 }

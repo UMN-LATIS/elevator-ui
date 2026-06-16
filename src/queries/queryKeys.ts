@@ -9,3 +9,5 @@ export const FILE_METADATA_QUERY_KEY = "fileMetadata";
 export const CUSTOM_PAGES_QUERY_KEY = "customPages";
 export const DRAWERS_QUERY_KEY = "drawers";
 export const FIELD_TYPES_QUERY_KEY = "fieldTypes";
+export const FILE_DOWNLOADS_QUERY_KEY = "fileDownloads";
+export const ORIGINAL_STORAGE_STATUS_QUERY_KEY = "originalStorageStatus";

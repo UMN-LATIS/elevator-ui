@@ -35,4 +35,3 @@ node_modules
 
 # Mock server temporary files
 /mock-server/tmp/
-/mock-server/files/

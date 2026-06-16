@@ -412,10 +412,9 @@ const assetSeeds: WithMeta<Asset>[] = [
     ],
     relatedAssetCache: {
       protected_child_001: {
-        relatedAssetTitle: ["Protected Child Asset"],
         primaryHandler: null,
-        primaryHandlerTiny: null,
-        primaryHandlerTiny2x: null,
+        readyForDisplay: true,
+        relatedAssetTitle: ["Protected Child Asset"],
       },
     },
     assetId: "collapsed_parent_001",
@@ -431,6 +430,82 @@ const assetSeeds: WithMeta<Asset>[] = [
       timezone: "UTC",
     },
     _meta: { visibility: "public" },
+  },
+  // Asset whose original file is archived in glacier (see db/files.ts
+  // glacier_file_001) — drives the restore-from-archive download tests
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Glacier Asset" }],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "goldy-face_001",
+        fileType: "png",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "goldy-face_001.png",
+      },
+    ],
+    assetId: "glacier_asset_001",
+    firstFileHandlerId: "goldy-face_001",
+    title: ["Glacier Asset"],
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
+  // Multi-file asset for testing the upload widget's "Download All Originals"
+  // batch: a cold .tif original, a warm .png (goldy-M), and a few synthetic warm
+  // .svgs. The archived original is listed first so its restore kicks off (and
+  // is observable) before the warm originals stream down — the warm ones each
+  // settle for ~2s, so a trailing archived file would make the batch slow to
+  // observe end-to-end.
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Glacier Mixed Asset" }],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "glacier_file_001",
+        fileType: "tif",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "glacier-photo.tif",
+      },
+      {
+        loc: null,
+        fileId: "goldy-M",
+        fileType: "png",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: "goldy-M.png",
+      },
+      ...[1, 2, 3].map((n) => ({
+        loc: null,
+        fileId: `mixed-warm-0${n}`,
+        fileType: "svg",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription: `mixed-warm-0${n}.svg`,
+      })),
+    ],
+    assetId: "glacier_mixed_asset_001",
+    firstFileHandlerId: "goldy-M",
+    title: ["Glacier Mixed Asset"],
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
   },
   ...generateMockAssets(),
 ];

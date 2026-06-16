@@ -1,0 +1,12 @@
+# Ignore everything in this folder...
+*
+# ...except this file and the seeded originals: goldy-face_001 and
+# glacier_file_001 (the two archived originals — they need real bytes so the
+# download works once a restore completes), goldy-M (the warm original for the
+# "Download All Originals" batch-restore test), and the synthetic mixed-warm-*
+# svgs that pad that batch out so it streams several files. The mock derives
+# each on-disk name from its fileId.
+!.gitignore
+!goldy-*
+!mixed-warm-*
+!glacier_file_001.tif
