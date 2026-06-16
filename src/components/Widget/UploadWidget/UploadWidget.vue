@@ -36,7 +36,7 @@
           </DropDownItem>
           <DropDownItem
             v-if="canDownloadOriginals"
-            @click="handleDownloadAll({ preferOriginals: true })">
+            @click="handleDownloadAllOriginals">
             Download All Originals
           </DropDownItem>
         </template>
@@ -67,13 +67,14 @@
 </template>
 
 <script setup lang="ts">
-import {
-  UploadWidgetDef,
-  UploadWidgetContent,
-  FileDownloadNormalized,
-} from "@/types";
+import { UploadWidgetDef, UploadWidgetContent } from "@/types";
 import config from "@/config";
 import { useAssetStore } from "@/stores/assetStore";
+import { useToastStore } from "@/stores/toastStore";
+import {
+  fetchOriginalFileStorageStatus,
+  restoreOriginalFile,
+} from "@/api/fetchers";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { computed, onMounted, onBeforeUnmount, ref } from "vue";
@@ -89,6 +90,7 @@ const props = defineProps<{
 }>();
 
 const assetStore = useAssetStore();
+const toastStore = useToastStore();
 
 const isFileActive = (fileId: string) =>
   assetStore.activeFileObjectId === fileId;
@@ -152,27 +154,7 @@ async function downloadFile(url: string, filename: string): Promise<void> {
   });
 }
 
-function getPreferredDownloadInfo(
-  downloadables: FileDownloadNormalized[],
-  { preferOriginals = false } = {}
-): FileDownloadNormalized {
-  if (downloadables.length < 1) {
-    throw new Error(`No downloadable derivatives found: ${downloadables}`);
-  }
-
-  // if we prefer originals, return the first original
-  if (preferOriginals) {
-    const original = downloadables.find(
-      (derivative) => derivative.filetype === "original"
-    );
-    if (original) return original;
-  }
-
-  // return the first deriv
-  return downloadables[0];
-}
-
-async function handleDownloadAll({ preferOriginals = false } = {}) {
+async function handleDownloadAll() {
   if (isDownloadingAll.value) return;
 
   isDownloadingAll.value = true;
@@ -205,10 +187,7 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
         continue;
       }
 
-      const { url, filetype, extension } = getPreferredDownloadInfo(
-        downloadables,
-        { preferOriginals }
-      );
+      const { url, filetype, extension } = downloadables[0];
 
       const filename = `${fileId}-${filetype}.${extension}`;
       await downloadFile(url, filename);
@@ -218,6 +197,87 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
         error
       );
       continue;
+    }
+  }
+
+  isDownloadingAll.value = false;
+}
+
+// "Download All Originals" can't trust the embed JSON's downloadable flag for
+// an original — a cold one looks the same there. So check each original's live
+// storage status first and branch: download the hot ones now, queue a thaw for
+// the cold/restoring ones (re-requesting a restore also joins the user to the
+// email queue, mirroring DownloadFileButton), or report a status error. Each
+// file gets its own toast, named, so the user can see which originals started
+// downloading, which are being restored, and which failed. See #546.
+async function handleDownloadAllOriginals() {
+  if (isDownloadingAll.value) return;
+
+  isDownloadingAll.value = true;
+  // snapshot the assetId in case it changes during the download process
+  const assetId = assetStore.activeAssetId;
+
+  // how long each per-file toast lingers — long enough to read the filename as
+  // the batch streams past
+  const TOAST_DURATION = 6000;
+
+  for (const content of props.contents) {
+    // a best-effort name for the toasts before the embed JSON loads; refined to
+    // the real filename below once we have it
+    let name = content.fileDescription || content.fileId;
+
+    try {
+      const downloadInfo = await api.getFileDownloadInfo(
+        content.fileId,
+        assetId
+      );
+      const original = downloadInfo?.find(
+        (derivative) => derivative.filetype === "original"
+      );
+      if (original?.originalFilename) name = original.originalFilename;
+
+      const { status } = await fetchOriginalFileStorageStatus(content.fileId);
+
+      if (status === "downloadable") {
+        if (!original) {
+          toastStore.addToast({
+            variant: "error",
+            message: `Couldn't find an original to download for ${name}.`,
+            duration: TOAST_DURATION,
+          });
+          continue;
+        }
+        toastStore.addToast({
+          variant: "success",
+          message: `Download of ${name} started.`,
+          duration: TOAST_DURATION,
+        });
+        const filename = `${content.fileId}-${original.filetype}.${original.extension}`;
+        await downloadFile(original.url, filename);
+      } else if (status === "archived" || status === "restoring") {
+        await restoreOriginalFile(content.fileId);
+        toastStore.addToast({
+          message: `Restoring ${name} — we'll email you when it's ready to download.`,
+          duration: TOAST_DURATION,
+        });
+      } else {
+        // status === "error" (forbidden / notFound)
+        toastStore.addToast({
+          variant: "error",
+          message: `Couldn't check the status of ${name}.`,
+          duration: TOAST_DURATION,
+        });
+      }
+    } catch (error) {
+      console.error(
+        `Error downloading original for file ${content.fileId}.`,
+        error
+      );
+      toastStore.addToast({
+        variant: "error",
+        message: `Couldn't download ${name}.`,
+        duration: TOAST_DURATION,
+      });
     }
   }
 
