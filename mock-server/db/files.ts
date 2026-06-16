@@ -32,6 +32,20 @@ const fileSeeds: MockFile[] = [
       storageClass: "GLACIER",
     },
   },
+  // The cold original in glacier_mixed_asset_001 — paired with a warm svg so
+  // the upload widget's "Download All Originals" batch-restore has one of each.
+  {
+    id: "glacier_file_001",
+    fileName: "glacier-photo.tif",
+    fileType: "tif",
+    fileSize: 524288,
+    metadata: { width: 4000, height: 3000 },
+    uploadedAt: new Date(),
+    assetId: "glacier_mixed_asset_001",
+    s3StorageStatus: {
+      storageClass: "GLACIER",
+    },
+  },
 ];
 
 export function createFilesTable() {

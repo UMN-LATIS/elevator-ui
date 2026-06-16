@@ -91,13 +91,29 @@ app.get("/getOriginal/:fileId/status", async (c) => {
 
 // GET /fileManager/getOriginal/:fileId/download
 // Explicit download action used by the new frontend. The UI only navigates
-// here once status is "downloadable", so it just serves the file.
+// here once status is "downloadable", but we still guard the bytes: mirror
+// FileManager::getOriginal()'s 409 so a cold (or mid-restore) file is never
+// streamed, even on the re-archive race or a direct hit. See #546.
 app.get("/getOriginal/:fileId/download", async (c) => {
   await delay(300);
   const db = c.get("db");
   const fileId = c.req.param("fileId");
   const file = db.files.get(fileId);
-  const res = await serveOriginal(fileId, file?.fileName);
+
+  if (!file) return c.json({ error: "unknownFile" }, 404);
+
+  if (deriveArchiveStatus(file.s3StorageStatus) !== "downloadable") {
+    return c.json(
+      {
+        error: "fileArchived",
+        message:
+          "Cannot download an archived file. Please wait for restore to complete before downloading.",
+      },
+      409
+    );
+  }
+
+  const res = await serveOriginal(fileId, file.fileName);
 
   return res ?? c.json({ error: "originalNotAvailable" }, 404);
 });
