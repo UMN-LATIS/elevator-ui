@@ -67,13 +67,12 @@ test.describe("Search Result Count Mismatch (#451)", () => {
   }) => {
     const workerId = test.info().workerIndex.toString();
 
-    // Empty query matches all ~105 assets (4 pages).
-    // Inflate totalResults to 115 so the UI thinks there are 10 more.
+    // inflate the total results
     const search = await createMismatchedSearch({
       request,
       workerId,
       query: "",
-      totalResultsOverride: 115,
+      totalResultsOverride: 200,
     });
 
     await page.goto(`/defaultinstance/search/s/${search.searchId}`);
@@ -123,7 +122,7 @@ test.describe("Search Result Count Mismatch (#451)", () => {
       request,
       workerId,
       query: "",
-      totalResultsOverride: 115,
+      totalResultsOverride: 200,
     });
 
     await page.goto(`/defaultinstance/search/s/${search.searchId}`);
