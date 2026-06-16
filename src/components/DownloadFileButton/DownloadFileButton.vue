@@ -54,7 +54,7 @@
             <Chip v-if="originalExtension">{{ originalExtension }}</Chip>
           </Button>
           <p class="mt-1 text-xs text-on-surface-variant">
-            This could take awhile.We'll email you when it's ready.
+            This could take awhile. We'll email you when it's ready.
           </p>
         </div>
         <div
