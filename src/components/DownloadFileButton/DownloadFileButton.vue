@@ -77,7 +77,7 @@
           </p>
         </div>
 
-        <!-- forbidden / notFound -->
+        <!-- notFound -->
         <p
           v-else-if="
             originalStatus?.status === 'error' &&
