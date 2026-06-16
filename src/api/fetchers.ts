@@ -182,15 +182,47 @@ export async function fetchFileDownloadInfo(
 
   return Object.entries(res.data).map(([filetype, downloadDetails]) => ({
     filetype,
-    isReady: downloadDetails.ready,
+    isGenerated: downloadDetails.ready,
     url:
       filetype === "original"
-        ? `${BASE_URL}/fileManager/getOriginal/${fileId}`
+        ? `${BASE_URL}/fileManager/getOriginal/${fileId}/download`
         : `${BASE_URL}/fileManager/getDerivativeById/${fileId}/${filetype}`,
     originalFilename: downloadDetails.originalFilename,
     extension: getExtensionFromFilename(downloadDetails.originalFilename),
     isDownloadable: downloadDetails.downloadable,
   }));
+}
+
+export type OriginalFileStorageStatus =
+  | { status: "downloadable" | "archived" | "restoring" }
+  | { status: "error"; error: "forbidden" | "notFound" };
+
+export async function fetchOriginalFileStorageStatus(
+  fileId: string
+): Promise<OriginalFileStorageStatus> {
+  const res = await axios.get<{
+    status: "downloadable" | "archived" | "restoring";
+  }>(`${BASE_URL}/fileManager/getOriginal/${fileId}/status`, {
+    validateStatus: (s) => [200, 403, 404].includes(s),
+  });
+
+  switch (res.status) {
+    case 200:
+      return { status: res.data.status };
+    case 403:
+      return { status: "error", error: "forbidden" };
+    case 404:
+      return { status: "error", error: "notFound" };
+    default:
+      throw new Error(
+        `Unhandled HTTP Status ${res.status} when fetching original file storage status`
+      );
+  }
+}
+
+// queues a Glacier thaw.
+export async function restoreOriginalFile(fileId: string): Promise<void> {
+  await axios.post(`${BASE_URL}/fileManager/getOriginal/${fileId}/restore`);
 }
 
 export async function fetchInterstitial() {

@@ -768,7 +768,7 @@ export interface NavItem {
 
 export interface FileDownloadNormalized {
   filetype: string;
-  isReady: boolean;
+  isGenerated: boolean;
   url: string;
   originalFilename: string;
   extension: string;

@@ -28,7 +28,9 @@ const fileSeeds: MockFile[] = [
     metadata: { width: 1163, height: 1200 },
     uploadedAt: new Date(),
     assetId: "glacier_asset_001",
-    // storageClass: "GLACIER",
+    s3StorageStatus: {
+      storageClass: "GLACIER",
+    },
   },
 ];
 

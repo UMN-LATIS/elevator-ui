@@ -195,7 +195,7 @@ async function handleDownloadAll({ preferOriginals = false } = {}) {
       }
 
       const downloadables = downloadInfo.filter(
-        (derivative) => derivative.isDownloadable && derivative.isReady
+        (derivative) => derivative.isDownloadable && derivative.isGenerated
       );
 
       if (!downloadables.length) {
