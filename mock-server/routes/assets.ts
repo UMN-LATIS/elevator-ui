@@ -359,7 +359,10 @@ app.get("/getEmbedAsJson/:fileId/:parentObjectId?", async (c) => {
   const isNonDownloadable = ["dcm", "dicom"].includes(fileType);
 
   return c.json({
-    original: makeEntry("original", { ready: true, downloadable: true }),
+    original: {
+      originalFilename: filename,
+      path: "original",
+    },
     thumbnail: makeEntry("thumbnail", {
       ready: true,
       downloadable: !isNonDownloadable,

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#ffcc33" />
+  <rect x="96" y="96" width="320" height="320" rx="32" fill="#7a0019" />
+  <text x="256" y="280" font-family="system-ui, sans-serif" font-size="48"
+    fill="#ffcc33" text-anchor="middle">Warm 2</text>
+</svg>
