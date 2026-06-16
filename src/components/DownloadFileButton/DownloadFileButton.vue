@@ -21,10 +21,11 @@
     <ul
       v-else
       class="border-y border-outline-variant divide-y divide-outline-variant">
-      <!-- Derivatives -->
-      <li v-for="download in derivatives" :key="download.filetype" class="py-1">
+      <li
+        v-for="download in donwloadableDerivatives"
+        :key="download.filetype"
+        class="py-1">
         <Button
-          v-if="download.isGenerated && download.isDownloadable"
           :href="download.url"
           :download="`${download.originalFilename}-${download.filetype}.${download.extension}`"
           variant="tertiary"
@@ -53,7 +54,7 @@
             <Chip v-if="originalExtension">{{ originalExtension }}</Chip>
           </Button>
           <p class="mt-1 text-xs text-on-surface-variant">
-            This could take awhile. We'll email you when it's ready.
+            This could take awhile.We'll email you when it's ready.
           </p>
         </div>
         <div
@@ -77,8 +78,13 @@
         </div>
 
         <!-- forbidden / notFound -->
-        <p v-else-if="originalError" class="text-sm text-error px-2">
-          {{ originalError }}
+        <p
+          v-else-if="
+            originalStatus?.status === 'error' &&
+            originalStatus.error === 'notFound'
+          "
+          class="text-sm text-error px-2">
+          The original file is missing from storage. Please contact support.
         </p>
       </li>
     </ul>
@@ -127,6 +133,11 @@ const originalEntry = computed(
 const derivatives = computed(
   () => fileDownloadInfo.value?.filter((d) => d.filetype !== "original") ?? []
 );
+
+const donwloadableDerivatives = computed(() =>
+  derivatives.value.filter((d) => d.isGenerated && d.isDownloadable)
+);
+
 const originalExtension = computed(
   () => originalEntry.value?.extension ?? null
 );
@@ -141,21 +152,6 @@ const restoreOriginal = useRestoreOriginalMutation();
 const didRequestRestore = computed(
   () => restoreOriginal.isPending.value || restoreOriginal.isSuccess.value
 );
-
-const originalError = computed(() => {
-  if (originalStatus.value?.status !== "error") {
-    return null;
-  }
-
-  if (originalStatus.value?.error === "forbidden") {
-    return "You don't have permission to download the original file.";
-  }
-  if (originalStatus.value.error === "notFound") {
-    return "The original file is missing from storage. Please contact support.";
-  }
-
-  return "An unknown error occured while getting the status of the original file. Please contact support.";
-});
 
 function trackDownload(fileType: string) {
   analytics.trackDownloadEvent({
