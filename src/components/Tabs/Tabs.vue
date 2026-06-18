@@ -28,10 +28,13 @@ import { ref, provide } from "vue";
 import { TabsInjectionKey } from "@/constants/constants";
 import type { Tab, TabsContext } from "@/types";
 
-const props = defineProps<{
+defineProps<{
   labelsClass?: string;
-  activeTabId: string;
 }>();
+
+// change to defineModel so we can take a prop or `tactiveTabId`
+// can exist on its own as a ref
+const activeTabId = defineModel<string>("activeTabId");
 
 const emit = defineEmits<{
   (event: "tabChange", tab: Tab): void;
@@ -41,6 +44,10 @@ const tabs = ref<Tab[]>([]);
 
 const addTab = (tab: Tab) => {
   tabs.value.push(tab);
+  // Seed the default selection (first tab) when used without a v-model.
+  if (activeTabId.value === undefined) {
+    activeTabId.value = tab.id;
+  }
 };
 
 const removeTab = (tab: Tab) => {
@@ -54,11 +61,12 @@ const setActiveTab = (tabId: string) => {
   if (!newActiveTab) {
     throw new Error(`Tab with id ${tabId} not found`);
   }
+  activeTabId.value = newActiveTab.id;
   emit("tabChange", newActiveTab);
 };
 
 const isActiveTab = (tabId: string) => {
-  return tabId === props.activeTabId;
+  return tabId === activeTabId.value;
 };
 
 provide<TabsContext>(TabsInjectionKey, {
