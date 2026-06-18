@@ -1,5 +1,5 @@
 <template>
-  <Tuple v-if="collectionPath?.length" label="Collection">
+  <Tuple v-if="collectionPath?.length" :label="label">
     <template
       v-for="(collection, index) in collectionPath"
       :key="collection.id">
@@ -20,6 +20,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { AssetCollection } from "@/types";
 
 const props = defineProps<{
+  label: string;
   collectionId: AssetCollection["id"];
 }>();
 
