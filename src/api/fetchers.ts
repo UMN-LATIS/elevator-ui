@@ -1134,3 +1134,28 @@ export async function updateTemplate(
   );
   return res.data;
 }
+
+const PERMISSIONS_GROUP_TYPES = {
+  ALL: "All",
+  AUTHED: "Authed",
+  SSO: "Authed_remote", // SSO
+  USER: "User",
+} as const;
+
+type PermissionsGroupTypeKeys = keyof typeof PERMISSIONS_GROUP_TYPES;
+type PermissionsGroupTypeValues =
+  (typeof PERMISSIONS_GROUP_TYPES)[PermissionsGroupTypeKeys];
+
+interface PermissionsGroupType {
+  type: PermissionsGroupTypeValues;
+  label: string;
+  description: string;
+}
+
+export async function fetchGroupTypes() {
+  const res = await axios.get<{ groupTypes: PermissionsGroupType[] }>(
+    `${BASE_URL}/adminPermissions/groupTypes`
+  );
+
+  return res.data.groupTypes;
+}
