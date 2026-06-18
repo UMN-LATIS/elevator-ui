@@ -162,14 +162,14 @@
                         widgetDef.type === Types.WIDGET_TYPES.UPLOAD
                       "
                       :class="[
-                        'text-on-surface-variant hover:text-error p-2 rounded-sm -mt-2 -mr-1',
+                        'text-on-surface-variant hover:text-error p-2 rounded-sm -mt-2 -mr-1 hover:bg-error-container duration-300 transition-colors',
                         {
                           'sr-only': !isOpen,
                         },
                       ]"
                       type="button"
                       @click="$emit('delete', item.id)">
-                      <XIcon class="!size-4" />
+                      <XIcon class="!size-5" />
                       <span class="sr-only">Delete</span>
                     </button>
                   </div>
