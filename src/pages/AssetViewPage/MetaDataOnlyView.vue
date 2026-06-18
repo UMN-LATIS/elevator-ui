@@ -17,26 +17,19 @@
           </IconButton>
         </header>
 
-        <WidgetList v-if="assetId" :assetId="assetId" />
-        <MoreLikeThis
-          v-if="assetId"
-          :items="moreLikeThisItems"
-          listContainerClass="sm:!grid sm:!grid-cols-2" />
+        <AssetMetadata :assetId="assetId" />
       </article>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
-import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import { useAsset } from "@/helpers/useAsset";
-import { SearchResultMatch } from "@/types";
-import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
-import api from "@/api";
 import { useInstanceStore } from "@/stores/instanceStore";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { PencilIcon } from "lucide-vue-next";
+import AssetMetadata from "@/components/AssetMetadata/AssetMetadata.vue";
 
 const props = defineProps<{
   assetId: string | null;
@@ -47,16 +40,7 @@ const { asset } = useAsset(assetIdRef);
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
-const moreLikeThisItems = ref<SearchResultMatch[]>([]);
 const instanceStore = useInstanceStore();
-
-watch(
-  assetIdRef,
-  async () => {
-    moreLikeThisItems.value = await api.getMoreLikeThis(assetIdRef.value);
-  },
-  { immediate: true }
-);
 </script>
 <style scoped>
 .meta-data-only-view__inner {
