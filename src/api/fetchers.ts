@@ -49,6 +49,7 @@ import {
   type LabelledGroupType,
   type PermissionsGroup,
   type CreateGroupPayload,
+  type UserAutocompleteMatch,
   GROUP_TYPES,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -1153,6 +1154,22 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
   );
 
   return res.data.groups;
+}
+
+// Suggest people for a "Specific People" group member field. What comes
+// back depends on the institution: local rows everywhere, plus a live
+// directory at API schools. The query is passed through verbatim; the
+// backend short-circuits to [] for trivial input.
+export async function fetchUserAutocomplete(
+  query: string,
+  options?: { signal?: AbortSignal }
+): Promise<UserAutocompleteMatch[]> {
+  const res = await axios.get<{ matches: UserAutocompleteMatch[] }>(
+    `${BASE_URL}/adminPermissions/userAutocomplete`,
+    { params: { q: query }, signal: options?.signal }
+  );
+
+  return res.data.matches;
 }
 
 export async function createGroup(

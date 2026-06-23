@@ -35,6 +35,17 @@ export interface PermissionsGroup {
   values: PermissionsGroupValue[];
 }
 
+// One suggestion from the user-autocomplete endpoint. `completionId` is
+// the local user id when the person already has a row; it is null for a
+// directory-only match (someone central auth knows but who has never
+// logged in here), in which case `username` is what provisioning keys on.
+export interface UserAutocompleteMatch {
+  name: string;
+  email: string;
+  completionId: number | null;
+  username: string;
+}
+
 // `values` is only meaningful for "User"-type groups; the backend
 // resolves each entry (user id or internet ID) to a user on submit.
 export interface CreateGroupPayload {
