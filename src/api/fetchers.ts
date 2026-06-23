@@ -46,6 +46,11 @@ import {
   type AdminTemplate,
   type TemplatePayload,
   type FieldType,
+  type PermissionsGroupType,
+  type PermissionsGroup,
+  type CreateGroupPayload,
+  type GroupUserMatch,
+  PERMISSIONS_GROUP_TYPES,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1135,23 +1140,6 @@ export async function updateTemplate(
   return res.data;
 }
 
-const PERMISSIONS_GROUP_TYPES = {
-  ALL: "All",
-  AUTHED: "Authed",
-  SSO: "Authed_remote", // SSO
-  USER: "User",
-} as const;
-
-type PermissionsGroupTypeKeys = keyof typeof PERMISSIONS_GROUP_TYPES;
-type PermissionsGroupTypeValues =
-  (typeof PERMISSIONS_GROUP_TYPES)[PermissionsGroupTypeKeys];
-
-interface PermissionsGroupType {
-  type: PermissionsGroupTypeValues;
-  label: string;
-  description: string;
-}
-
 export async function fetchGroupTypes() {
   const res = await axios.get<{ groupTypes: PermissionsGroupType[] }>(
     `${BASE_URL}/adminPermissions/groupTypes`
@@ -1159,3 +1147,23 @@ export async function fetchGroupTypes() {
 
   return res.data.groupTypes;
 }
+
+export async function fetchGroups(): Promise<PermissionsGroup[]> {
+  const res = await axios.get<{ groups: PermissionsGroup[] }>(
+    `${BASE_URL}/adminPermissions/groups`
+  );
+
+  return res.data.groups;
+}
+
+export async function createGroup(
+  payload: CreateGroupPayload
+): Promise<PermissionsGroup> {
+  const res = await axios.post<{ group: PermissionsGroup }>(
+    `${BASE_URL}/adminPermissions/groups`,
+    payload
+  );
+
+  return res.data.group;
+}
+
