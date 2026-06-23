@@ -46,11 +46,10 @@ import {
   type AdminTemplate,
   type TemplatePayload,
   type FieldType,
-  type PermissionsGroupType,
+  type LabelledGroupType,
   type PermissionsGroup,
   type CreateGroupPayload,
-  type GroupUserMatch,
-  PERMISSIONS_GROUP_TYPES,
+  GROUP_TYPES,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1141,7 +1140,7 @@ export async function updateTemplate(
 }
 
 export async function fetchGroupTypes() {
-  const res = await axios.get<{ groupTypes: PermissionsGroupType[] }>(
+  const res = await axios.get<{ groupTypes: LabelledGroupType[] }>(
     `${BASE_URL}/adminPermissions/groupTypes`
   );
 
@@ -1166,4 +1165,3 @@ export async function createGroup(
 
   return res.data.group;
 }
-

@@ -28,7 +28,7 @@
           <span
             class="ml-auto flex items-center gap-4 text-sm text-on-surface-variant">
             <span>{{ typeLabel(group.type) }}</span>
-            <span v-if="group.type === PERMISSIONS_GROUP_TYPES.USER">
+            <span v-if="group.type === GROUP_TYPES.USER">
               {{ group.values.length }}
               {{ group.values.length === 1 ? "member" : "members" }}
             </span>
@@ -60,8 +60,8 @@ import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import CreateGroupModal from "./CreateGroupModal.vue";
 import { useGroupsQuery } from "@/queries/useGroupsQuery";
 import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
-import { PERMISSIONS_GROUP_TYPES } from "@/types";
-import type { PermissionsGroupTypeValues } from "@/types";
+import { GROUP_TYPES } from "@/types";
+import type { GroupTypeValues } from "@/types";
 
 const { data: groups, isLoading } = useGroupsQuery();
 const { data: groupTypes } = useGroupTypesQuery();
@@ -70,7 +70,7 @@ const typeLabelByValue = computed(
   () => new Map(groupTypes.value?.map((type) => [type.type, type.label]) ?? [])
 );
 
-function typeLabel(type: PermissionsGroupTypeValues) {
+function typeLabel(type: GroupTypeValues) {
   return typeLabelByValue.value.get(type) ?? type;
 }
 
