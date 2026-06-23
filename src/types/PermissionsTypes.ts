@@ -42,19 +42,3 @@ export interface CreateGroupPayload {
   values?: string[];
 }
 
-// A match from the user autocompleter, for adding "User"-group members.
-export interface GroupUserMatch {
-  id: string;
-  username: string;
-  displayName: string;
-  email: string | null;
-  source: "local" | "central";
-}
-
-// A member chosen in the create-group form, before submission.
-// `groupValue` is the username or internet ID sent to the backend;
-// `label` is what we show in the chip.
-export interface GroupMemberDraft {
-  groupValue: string;
-  label: string;
-}
