@@ -46,11 +46,12 @@ export interface UserAutocompleteMatch {
   username: string;
 }
 
-// `values` is only meaningful for "User"-type groups; the backend
-// resolves each entry (user id or internet ID) to a user on submit.
+// `values` carries "User"-group members; always sent (empty for a group
+// created with no members yet). The vestigial group_value scalar is set
+// by the backend at creation, never by the client.
 export interface CreateGroupPayload {
   type: GroupTypeValues;
   label: string;
-  values?: string[];
+  values: string[];
 }
 

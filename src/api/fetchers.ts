@@ -1178,7 +1178,7 @@ export async function createGroup(
   const params = new URLSearchParams();
   params.append("label", payload.label);
   params.append("type", payload.type);
-  for (const value of payload.values ?? []) {
+  for (const value of payload.values) {
     params.append("values[]", value);
   }
 
