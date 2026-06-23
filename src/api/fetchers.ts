@@ -1158,9 +1158,16 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
 export async function createGroup(
   payload: CreateGroupPayload
 ): Promise<PermissionsGroup> {
+  const params = new URLSearchParams();
+  params.append("label", payload.label);
+  params.append("type", payload.type);
+  for (const value of payload.values ?? []) {
+    params.append("values[]", value);
+  }
+
   const res = await axios.post<{ group: PermissionsGroup }>(
     `${BASE_URL}/adminPermissions/groups`,
-    payload
+    params
   );
 
   return res.data.group;
