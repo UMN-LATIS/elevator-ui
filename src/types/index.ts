@@ -9,6 +9,7 @@ import { AxiosRequestConfig } from "axios";
 import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.vue";
 
 export * from "./TimelineJSTypes";
+export * from "./PermissionsTypes";
 
 export interface AppConfig {
   instance: {
