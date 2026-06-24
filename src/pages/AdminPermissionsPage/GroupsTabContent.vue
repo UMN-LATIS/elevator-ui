@@ -11,7 +11,11 @@
     No groups yet. Create one to get started.
   </p>
 
-  <AccordionRoot v-else type="multiple" class="mt-4 flex flex-col gap-2">
+  <AccordionRoot
+    v-else
+    v-model="openGroupIds"
+    type="multiple"
+    class="mt-4 flex flex-col gap-2">
     <AccordionItem
       v-for="group in groups"
       :key="group.id"
@@ -35,6 +39,11 @@
       </AccordionHeader>
       <AccordionContent
         class="border-t border-outline-variant p-4 bg-surface-container-lowest">
+        <GroupMemberManager
+          v-if="group.type === GROUP_TYPES.USER"
+          :group="group"
+          :isOpen="openGroupIds.includes(String(group.id))"
+          class="mb-4" />
         <div class="flex items-center gap-2">
           <Button variant="secondary" @click="openEdit(group)">
             Edit Group
@@ -62,6 +71,7 @@ import {
 } from "reka-ui";
 import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import GroupFormModal from "./GroupFormModal.vue";
+import GroupMemberManager from "./GroupMemberManager.vue";
 import { useGroupsQuery } from "@/queries/useGroupsQuery";
 import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
 import { GROUP_TYPES } from "@/types";
@@ -77,6 +87,10 @@ const typeLabelByValue = computed(
 function typeLabel(type: GroupTypeValues) {
   return typeLabelByValue.value.get(type) ?? type;
 }
+
+// ids of the currently expanded accordion items, so each group fetches its
+// members only when opened
+const openGroupIds = ref<string[]>([]);
 
 const editingGroup = ref<PermissionsGroup | null>(null);
 const isGroupModalOpen = ref(false);

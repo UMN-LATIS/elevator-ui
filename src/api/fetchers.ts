@@ -51,6 +51,7 @@ import {
   type CreateGroupPayload,
   type UpdateGroupPayload,
   type UserAutocompleteMatch,
+  type GroupMember,
   GROUP_TYPES,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -1203,4 +1204,29 @@ export async function updateGroup(
   );
 
   return res.data.group;
+}
+
+export async function fetchGroupMembers(
+  groupId: number
+): Promise<GroupMember[]> {
+  const res = await axios.get<{ members: GroupMember[] }>(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/members`
+  );
+
+  return res.data.members;
+}
+
+export async function addGroupMember(
+  groupId: number,
+  userId: number
+): Promise<GroupMember> {
+  const params = new URLSearchParams();
+  params.append("userId", String(userId));
+
+  const res = await axios.post<{ member: GroupMember }>(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/members`,
+    params
+  );
+
+  return res.data.member;
 }

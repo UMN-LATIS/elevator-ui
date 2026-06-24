@@ -42,6 +42,14 @@ export interface UserAutocompleteMatch {
   username: string;
 }
 
+// A member of a User group, resolved to display data so the UI can show who
+// belongs (the group list itself only carries ids).
+export interface GroupMember {
+  userId: number;
+  name: string;
+  email: string;
+}
+
 // `values` holds "User"-group members. Always sent, even when empty for a
 // group with no members yet. The backend sets group_value itself.
 export interface CreateGroupPayload {
