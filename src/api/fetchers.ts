@@ -49,6 +49,7 @@ import {
   type LabelledGroupType,
   type PermissionsGroup,
   type CreateGroupPayload,
+  type UpdateGroupPayload,
   type UserAutocompleteMatch,
   GROUP_TYPES,
 } from "@/types";
@@ -1182,6 +1183,22 @@ export async function createGroup(
 
   const res = await axios.post<{ group: PermissionsGroup }>(
     `${BASE_URL}/adminPermissions/groups`,
+    params
+  );
+
+  return res.data.group;
+}
+
+export async function updateGroup(
+  groupId: number,
+  payload: UpdateGroupPayload
+): Promise<PermissionsGroup> {
+  const params = new URLSearchParams();
+  params.append("label", payload.label);
+  params.append("type", payload.type);
+
+  const res = await axios.put<{ group: PermissionsGroup }>(
+    `${BASE_URL}/adminPermissions/groups/${groupId}`,
     params
   );
 

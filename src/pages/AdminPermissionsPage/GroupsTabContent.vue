@@ -1,9 +1,7 @@
 <template>
   <div class="flex items-center justify-between">
     <p>Help text goes here about groups and how they work.</p>
-    <Button variant="primary" @click="isCreateGroupOpen = true">
-      Create Group
-    </Button>
+    <Button variant="primary" @click="openCreate">Create Group</Button>
   </div>
 
   <p v-if="isLoading" class="mt-4 text-on-surface-variant">Loading groups…</p>
@@ -37,14 +35,20 @@
       </AccordionHeader>
       <AccordionContent
         class="border-t border-outline-variant p-4 bg-surface-container-lowest">
-        <Button variant="danger">Delete Group</Button>
+        <div class="flex items-center gap-2">
+          <Button variant="secondary" @click="openEdit(group)">
+            Edit Group
+          </Button>
+          <Button variant="danger">Delete Group</Button>
+        </div>
       </AccordionContent>
     </AccordionItem>
   </AccordionRoot>
 
-  <CreateGroupModal
-    :isOpen="isCreateGroupOpen"
-    @close="isCreateGroupOpen = false" />
+  <GroupFormModal
+    :isOpen="isGroupModalOpen"
+    :group="editingGroup"
+    @close="closeGroupModal" />
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
@@ -57,11 +61,11 @@ import {
   AccordionItem,
 } from "reka-ui";
 import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
-import CreateGroupModal from "./CreateGroupModal.vue";
+import GroupFormModal from "./GroupFormModal.vue";
 import { useGroupsQuery } from "@/queries/useGroupsQuery";
 import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
 import { GROUP_TYPES } from "@/types";
-import type { GroupTypeValues } from "@/types";
+import type { GroupTypeValues, PermissionsGroup } from "@/types";
 
 const { data: groups, isLoading } = useGroupsQuery();
 const { data: groupTypes } = useGroupTypesQuery();
@@ -74,6 +78,21 @@ function typeLabel(type: GroupTypeValues) {
   return typeLabelByValue.value.get(type) ?? type;
 }
 
-const isCreateGroupOpen = ref(false);
+const editingGroup = ref<PermissionsGroup | null>(null);
+const isGroupModalOpen = ref(false);
+
+function openCreate() {
+  editingGroup.value = null;
+  isGroupModalOpen.value = true;
+}
+
+function openEdit(group: PermissionsGroup) {
+  editingGroup.value = group;
+  isGroupModalOpen.value = true;
+}
+
+function closeGroupModal() {
+  isGroupModalOpen.value = false;
+}
 </script>
 <style scoped></style>

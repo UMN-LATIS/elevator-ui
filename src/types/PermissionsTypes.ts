@@ -5,11 +5,9 @@ export const GROUP_TYPES = {
   USER: "User",
 } as const;
 
-
 type GroupTypeKeys = keyof typeof GROUP_TYPES;
 
-export type GroupTypeValues =
-  (typeof GROUP_TYPES)[GroupTypeKeys];
+export type GroupTypeValues = (typeof GROUP_TYPES)[GroupTypeKeys];
 
 export interface LabelledGroupType {
   type: GroupTypeValues;
@@ -52,3 +50,9 @@ export interface CreateGroupPayload {
   values: string[];
 }
 
+// Edit a group's label and type. Members are not edited here. Changing the
+// type clears existing members server-side.
+export interface UpdateGroupPayload {
+  type: GroupTypeValues;
+  label: string;
+}
