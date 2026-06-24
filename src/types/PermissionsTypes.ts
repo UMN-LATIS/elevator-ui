@@ -33,12 +33,12 @@ export interface PermissionsGroup {
   values: PermissionsGroupValue[];
 }
 
-// A user-autocomplete suggestion. `completionId` is the local user id, or
+// A user-autocomplete suggestion. `localUserId` is the local user id, or
 // null for someone the directory knows but who has no local row yet.
 export interface UserAutocompleteMatch {
   name: string;
   email: string;
-  completionId: number | null;
+  localUserId: number | null;
   username: string;
 }
 
