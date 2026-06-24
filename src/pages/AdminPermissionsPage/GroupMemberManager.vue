@@ -1,9 +1,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <div>
-      <label
-        :for="`group-${group.id}-add-member`"
-        class="text-sm font-bold text-on-surface-variant">
+      <label :for="`group-${group.id}-add-member`" class="sr-only">
         Add member
       </label>
       <AutoCompleteInput
@@ -13,7 +11,7 @@
         :isLoading="isSearching"
         :isItemDisabled="(match: UserAutocompleteMatch) => !isAddable(match)"
         :blurOnSelect="false"
-        placeholder="Search by name or email…"
+        placeholder="Add member by name or email…"
         inputClass="mt-1 w-full bg-surface-container rounded-md px-3 py-2 text-sm"
         @select="add">
         <template #option="{ item }">
@@ -27,13 +25,7 @@
         </template>
       </AutoCompleteInput>
     </div>
-    <div>
-      <h4 class="text-sm font-bold text-on-surface-variant">Members</h4>
-      <GroupMembersTable
-        :columns="columns"
-        :data="memberList"
-        class="mt-2" />
-    </div>
+    <GroupMembersTable :columns="columns" :data="memberList" class="mb-2" />
 
     <ConfirmModal
       :isOpen="memberToRemove !== null"
@@ -43,7 +35,9 @@
       @confirm="confirmRemove"
       @close="memberToRemove = null">
       <p v-if="memberToRemove">
-        Remove <strong>{{ memberToRemove.name }}</strong> from this group?
+        Remove
+        <strong>{{ memberToRemove.name }}</strong>
+        from this group?
       </p>
     </ConfirmModal>
   </div>

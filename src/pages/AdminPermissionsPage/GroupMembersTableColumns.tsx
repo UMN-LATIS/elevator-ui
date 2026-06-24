@@ -7,7 +7,9 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 const columnHelper = createColumnHelper<GroupMember>();
 
 const ColHeader = (props: { text: string; class?: CSSClass }) => (
-  <div class={cn(["font-medium", props.class])}>{props.text}</div>
+  <div class={cn(["font-medium uppercase text-xs leading-loose", props.class])}>
+    {props.text}
+  </div>
 );
 
 export const createGroupMemberColumns = (
@@ -15,24 +17,26 @@ export const createGroupMemberColumns = (
 ) => [
   columnHelper.accessor("name", {
     header: () => <ColHeader text="Name" />,
-    cell: (ctx) => <div class="text-sm">{ctx.getValue()}</div>,
+    cell: (ctx) => (
+      <div class="text-sm text-on-surface font-medium">{ctx.getValue()}</div>
+    ),
   }),
   columnHelper.accessor("email", {
     header: () => <ColHeader text="Email" />,
     cell: (ctx) => (
-      <div class="text-sm text-muted-foreground">{ctx.getValue() || "—"}</div>
+      <div class="text-sm text-on-surface-variant">{ctx.getValue() || "—"}</div>
     ),
   }),
   columnHelper.accessor("username", {
     header: () => <ColHeader text="Username" />,
     cell: (ctx) => (
-      <div class="text-sm text-muted-foreground">{ctx.getValue() || "—"}</div>
+      <div class="text-sm text-on-surface-variant">{ctx.getValue() || "—"}</div>
     ),
   }),
   columnHelper.accessor("userType", {
     header: () => <ColHeader text="Type" />,
     cell: (ctx) => (
-      <div class="text-sm text-muted-foreground">{ctx.getValue()}</div>
+      <div class="text-sm text-on-surface-variant">{ctx.getValue()}</div>
     ),
   }),
   columnHelper.accessor("createdAt", {
@@ -40,7 +44,7 @@ export const createGroupMemberColumns = (
     cell: (ctx) => {
       const value = ctx.getValue();
       return (
-        <div class="text-sm text-muted-foreground">
+        <div class="text-sm text-on-surface-variant">
           {value ? new Date(value).toLocaleDateString() : "—"}
         </div>
       );

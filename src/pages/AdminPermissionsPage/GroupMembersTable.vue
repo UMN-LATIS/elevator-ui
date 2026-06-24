@@ -8,7 +8,7 @@
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            class="bg-surface-container-lowest"
+            class="bg-surface-container-low"
             :class="{
               'cursor-pointer select-none': header.column.getCanSort(),
             }"
@@ -21,11 +21,11 @@
               <template v-if="header.column.getCanSort()">
                 <ArrowUpDown
                   v-if="!header.column.getIsSorted()"
-                  class="h-4 w-4 text-muted-foreground/50" />
+                  class="h-4 w-4 text-on-surface-muted" />
                 <ArrowUp
                   v-else-if="header.column.getIsSorted() === 'asc'"
-                  class="h-4 w-4" />
-                <ArrowDown v-else class="h-4 w-4" />
+                  class="h-4 w-4 text-primary" />
+                <ArrowDown v-else class="h-4 w-4 text-primary" />
               </template>
             </div>
           </TableHead>
@@ -33,9 +33,7 @@
       </TableHeader>
       <TableBody>
         <template v-if="table.getRowModel().rows?.length">
-          <TableRow
-            v-for="row in table.getRowModel().rows"
-            :key="row.id">
+          <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
               <FlexRender
                 :render="cell.column.columnDef.cell"
