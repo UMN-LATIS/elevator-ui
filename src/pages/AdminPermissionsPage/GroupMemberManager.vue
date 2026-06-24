@@ -1,21 +1,6 @@
 <template>
   <div class="flex flex-col gap-4">
     <div>
-      <h4 class="text-sm font-bold text-on-surface-variant">Members</h4>
-      <p
-        v-if="memberList.length === 0"
-        class="mt-1 text-sm text-on-surface-variant">
-        No members yet.
-      </p>
-      <ul v-else class="mt-2 flex flex-col gap-1">
-        <li v-for="member in memberList" :key="member.userId" class="text-sm">
-          {{ member.name }}
-          <span class="text-on-surface-variant">{{ member.email }}</span>
-        </li>
-      </ul>
-    </div>
-
-    <div>
       <label
         :for="`group-${group.id}-add-member`"
         class="text-sm font-bold text-on-surface-variant">
@@ -42,6 +27,25 @@
         </template>
       </AutoCompleteInput>
     </div>
+    <div>
+      <h4 class="text-sm font-bold text-on-surface-variant">Members</h4>
+      <GroupMembersTable
+        :columns="columns"
+        :data="memberList"
+        class="mt-2" />
+    </div>
+
+    <ConfirmModal
+      :isOpen="memberToRemove !== null"
+      title="Remove member?"
+      type="danger"
+      confirmLabel="Remove"
+      @confirm="confirmRemove"
+      @close="memberToRemove = null">
+      <p v-if="memberToRemove">
+        Remove <strong>{{ memberToRemove.name }}</strong> from this group?
+      </p>
+    </ConfirmModal>
   </div>
 </template>
 
@@ -49,10 +53,18 @@
 import { computed, ref } from "vue";
 import { useDebounce } from "@vueuse/core";
 import { AutoCompleteInput } from "@/components/AutoCompleteInput";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import GroupMembersTable from "./GroupMembersTable.vue";
+import { createGroupMemberColumns } from "./GroupMembersTableColumns";
 import { useUserAutocompleteQuery } from "@/queries/useUserAutocompleteQuery";
 import { useGroupMembersQuery } from "@/queries/useGroupMembersQuery";
 import { useAddGroupMemberMutation } from "@/queries/useAddGroupMemberMutation";
-import type { PermissionsGroup, UserAutocompleteMatch } from "@/types";
+import { useRemoveGroupMemberMutation } from "@/queries/useRemoveGroupMemberMutation";
+import type {
+  GroupMember,
+  PermissionsGroup,
+  UserAutocompleteMatch,
+} from "@/types";
 
 const props = defineProps<{
   group: PermissionsGroup;
@@ -71,6 +83,24 @@ const { data: matches, isFetching: isSearching } =
 const matchList = computed(() => matches.value ?? []);
 
 const addMutation = useAddGroupMemberMutation();
+const removeMutation = useRemoveGroupMemberMutation();
+
+const memberToRemove = ref<GroupMember | null>(null);
+
+function remove(member: GroupMember) {
+  memberToRemove.value = member;
+}
+
+function confirmRemove() {
+  if (memberToRemove.value) {
+    removeMutation.mutate({
+      groupId: props.group.id,
+      userId: memberToRemove.value.userId,
+    });
+  }
+}
+
+const columns = createGroupMemberColumns(remove);
 
 const memberIds = computed(
   () => new Set(memberList.value.map((member) => member.userId))

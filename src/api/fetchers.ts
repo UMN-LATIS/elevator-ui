@@ -1230,3 +1230,12 @@ export async function addGroupMember(
 
   return res.data.member;
 }
+
+export async function removeGroupMember(
+  groupId: number,
+  userId: number
+): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/members/${userId}`
+  );
+}

@@ -48,6 +48,12 @@ export interface GroupMember {
   userId: number;
   name: string;
   email: string;
+  username: string;
+  // "Local" or "Remote" — a Remote member may be a stub that has never
+  // signed in.
+  userType: string;
+  // ISO 8601, or null. When the user account was created.
+  createdAt: string | null;
 }
 
 // `values` holds "User"-group members. Always sent, even when empty for a
