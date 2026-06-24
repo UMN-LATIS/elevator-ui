@@ -22,12 +22,7 @@
         @keydown.up="handleKeydownUp"
         @keydown.down="handleKeydownDown"
         @keydown.esc="handleKeydownEsc"
-        @keydown="
-          $emit('keydown', $event, {
-            highlightedSuggestion: highlightedSuggestion,
-            modelValue: modelValue,
-          })
-        "
+        @keydown="$emit('keydown', $event, { highlightedItem, modelValue })"
         @blur="$emit('blur')" />
     </PopoverAnchor>
 
@@ -38,40 +33,40 @@
         :aria-labelledby="id"
         align="start"
         :sideOffset="4">
-        <!-- Loading state -->
         <div
-          v-if="isLoadingSuggestions"
+          v-if="isLoading"
           class="flex items-center justify-center gap-2 p-4">
           <SpinnerIcon class="size-4" />
           <span class="text-sm">Loading suggestions...</span>
         </div>
 
-        <!-- Empty state -->
         <div
           v-else-if="showEmptyState"
           class="p-4 text-sm text-muted-foreground text-center">
           No suggestions found.
         </div>
 
-        <!-- Suggestions -->
         <div v-else class="max-h-[33dvh] overflow-y-auto">
           <div
-            v-for="(suggestion, index) in suggestions"
+            v-for="(item, index) in items"
             :id="`${id}-option-${index}`"
-            :key="suggestion"
+            :key="index"
             role="option"
-            :aria-selected="suggestion === modelValue"
+            :aria-selected="index === highlightedIndex"
+            :aria-disabled="isDisabled(item)"
             :class="[
               'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-primary-container hover:text-on-primary-container',
               index === highlightedIndex && 'bg-primary text-on-primary',
+              isDisabled(item) && 'cursor-not-allowed opacity-50',
             ]"
-            @mousedown.prevent="
-              // use mousedown to prevent race condition with input blur
-              // mousedown will commit the suggestion, and blur
-              // won't try to commit searchTerm
-              commitSelection(suggestion)
-            ">
-            <span>{{ suggestion }}</span>
+            @mousedown.prevent="commitSelection(item)">
+            <slot
+              name="option"
+              :item="item"
+              :highlighted="index === highlightedIndex"
+              :disabled="isDisabled(item)">
+              {{ item }}
+            </slot>
           </div>
         </div>
       </PopoverContent>
@@ -79,9 +74,8 @@
   </PopoverRoot>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { computed, ref, useTemplateRef } from "vue";
-import { useDebounce } from "@vueuse/core";
 import {
   PopoverRoot,
   PopoverContent,
@@ -90,25 +84,29 @@ import {
 } from "reka-ui";
 import { Input } from "@/components/ui/input";
 import { SpinnerIcon } from "@/icons";
-import { useAutocompleteQuery } from "@/queries/useAutocompleteQuery";
 import { CSSClass } from "@/types";
 
+// Presentational autocomplete. The parent owns the data: it passes `items`
+// and `isLoading`, renders each item with the #option slot, and reacts to
+// `select`. A disabled item can be shown but not chosen.
 const props = withDefaults(
   defineProps<{
     modelValue: string;
+    items: T[];
+    isLoading?: boolean;
     placeholder?: string;
-    fieldTitle: string;
-    templateId?: number | null;
     inputClass?: CSSClass;
-    id: string;
+    id?: string;
     blurOnSelect?: boolean;
+    isItemDisabled?: (item: T) => boolean;
   }>(),
   {
     id: "",
     placeholder: "",
     inputClass: "",
-    templateId: undefined,
+    isLoading: false,
     blurOnSelect: true,
+    isItemDisabled: undefined,
   }
 );
 
@@ -116,133 +114,83 @@ const emit = defineEmits<{
   "update:modelValue": [value: string];
   keydown: [
     event: KeyboardEvent,
-    {
-      highlightedSuggestion: string | null;
-      modelValue: string;
-    }
+    context: { highlightedItem: T | null; modelValue: string }
   ];
   blur: [];
-  select: [selection: string];
+  select: [item: T];
 }>();
 
-// Component refs
 const inputRef = useTemplateRef("inputRef");
 
 const isOpen = ref(false);
 const highlightedIndex = ref(-1);
 
-const highlightedSuggestion = computed((): string | null => {
-  if (!suggestions.value.length || highlightedIndex.value < 0) return null;
-  return suggestions.value[highlightedIndex.value] ?? null;
+const highlightedItem = computed((): T | null => {
+  if (!props.items.length || highlightedIndex.value < 0) return null;
+  return props.items[highlightedIndex.value] ?? null;
 });
 
-// Debounced search for API calls
-const debouncedSearchTerm = useDebounce(
-  computed(() => props.modelValue),
-  300
-);
-
-// Query for autocomplete suggestions
-const { data: suggestionsData, isFetching } = useAutocompleteQuery(
-  props.fieldTitle,
-  debouncedSearchTerm,
-  props.templateId || ""
-);
-const suggestions = computed(() => suggestionsData.value ?? []);
-
-const isTyping = computed(() => {
-  const hasActiveInput = props.modelValue.trim().length >= 1;
-  return hasActiveInput && props.modelValue !== debouncedSearchTerm.value;
-});
-
-const isLoadingSuggestions = computed(() => {
-  return isTyping.value || isFetching.value;
-});
+function isDisabled(item: T): boolean {
+  return props.isItemDisabled?.(item) ?? false;
+}
 
 const showEmptyState = computed(() => {
   return (
     props.modelValue.trim().length >= 1 &&
-    !isLoadingSuggestions.value &&
-    suggestions.value.length === 0
+    !props.isLoading &&
+    props.items.length === 0
   );
 });
 
 function handleUpdateSearchTerm(value: string) {
   emit("update:modelValue", value);
+  highlightedIndex.value = -1;
 
-  highlightedIndex.value = -1; // Reset highlighting on new input
-
-  // If the input is empty, close the dropdown
   if (value.trim().length === 0) {
     isOpen.value = false;
     return;
   }
-
-  // Open dropdown when user is actively typing
   isOpen.value = true;
 }
 
 function handleKeydownDown(event: KeyboardEvent) {
-  const trimmedTerm = props.modelValue.trim();
-  // if no searchTerm or suggestions, we're done
-  if (!trimmedTerm.length || !suggestions.value.length) {
-    return;
-  }
-
+  if (!props.modelValue.trim().length || !props.items.length) return;
   event.preventDefault();
-
-  // make sure dropdown is open
   isOpen.value = true;
-
-  // advance highlight if possible
   highlightedIndex.value = Math.min(
     highlightedIndex.value + 1,
-    suggestions.value.length - 1
+    props.items.length - 1
   );
 }
 
 function handleKeydownUp(event: KeyboardEvent) {
-  const trimmedTerm = props.modelValue.trim();
-  // if no searchTerm or suggestions, we're done
-  if (!trimmedTerm.length || !suggestions.value.length) {
-    return;
-  }
-
+  if (!props.modelValue.trim().length || !props.items.length) return;
   event.preventDefault();
-
-  // move highlight up if possible
   highlightedIndex.value = Math.max(highlightedIndex.value - 1, -1);
 }
 
 function handleKeydownEnter(event: KeyboardEvent) {
-  const trimmedTerm = props.modelValue.trim();
-  // if no searchTerm or suggestions, we're done
-  if (!trimmedTerm.length) {
-    return;
-  }
-
+  const item = highlightedItem.value;
+  if (item === null) return;
   event.preventDefault();
-
-  // commit the highlighted suggestion or the current term
-  commitSelection(highlightedSuggestion.value ?? trimmedTerm);
+  commitSelection(item);
 }
 
 function handleKeydownEsc(event: KeyboardEvent) {
-  // Close the dropdown and reset highlighting
   event.preventDefault();
   isOpen.value = false;
   highlightedIndex.value = -1;
 }
 
-async function commitSelection(selection: string) {
-  // reset state
+function commitSelection(item: T) {
+  if (isDisabled(item)) return;
+
   isOpen.value = false;
   highlightedIndex.value = -1;
-
-  emit("select", selection);
+  emit("select", item);
 
   if (props.blurOnSelect) {
-    inputRef.value?.$el.blur(); // Remove focus from input
+    inputRef.value?.$el.blur();
   }
 }
 </script>

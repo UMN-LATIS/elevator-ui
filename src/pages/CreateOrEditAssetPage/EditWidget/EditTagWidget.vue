@@ -30,7 +30,7 @@
           <TagsInputItemDelete />
         </TagsInputItem>
 
-        <AutoCompleteInput
+        <FieldAutoComplete
           v-if="widgetDef.attemptAutocomplete"
           :id="`edit-tag-widget-autocomplete-${item.id}`"
           v-model="tagInput"
@@ -59,7 +59,7 @@ import {
   TagsInputItemDelete,
   TagsInputInput,
 } from "@/components/ui/tags-input";
-import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
+import FieldAutoComplete from "@/components/AutoCompleteInput/FieldAutoComplete.vue";
 import { computed, ref, nextTick } from "vue";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
