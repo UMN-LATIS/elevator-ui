@@ -4,9 +4,8 @@ import { fetchUserAutocomplete } from "@/api/fetchers";
 import { UserAutocompleteMatch } from "@/types";
 import { USER_AUTOCOMPLETE_QUERY_KEY } from "./queryKeys";
 
-// Suggest people for a "Specific People" group member field. Reactive on
-// the search term; only fires at 2+ chars to mirror the backend's
-// short-circuit and to spare API-school directory lookups per keystroke.
+// Reactive user-search for a group's member field. Only fires at 2+ chars
+// to avoid a directory lookup on every keystroke.
 export function useUserAutocompleteQuery(
   searchTerm: MaybeRefOrGetter<string>
 ) {

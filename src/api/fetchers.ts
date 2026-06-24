@@ -1156,10 +1156,8 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
   return res.data.groups;
 }
 
-// Suggest people for a "Specific People" group member field. What comes
-// back depends on the institution: local rows everywhere, plus a live
-// directory at API schools. The query is passed through verbatim; the
-// backend short-circuits to [] for trivial input.
+// Fetch user suggestions for a group's member field. The backend returns
+// [] for trivial queries, so keystrokes can be passed straight through.
 export async function fetchUserAutocomplete(
   query: string,
   options?: { signal?: AbortSignal }

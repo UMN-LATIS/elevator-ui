@@ -35,10 +35,8 @@ export interface PermissionsGroup {
   values: PermissionsGroupValue[];
 }
 
-// One suggestion from the user-autocomplete endpoint. `completionId` is
-// the local user id when the person already has a row; it is null for a
-// directory-only match (someone central auth knows but who has never
-// logged in here), in which case `username` is what provisioning keys on.
+// A user-autocomplete suggestion. `completionId` is the local user id, or
+// null for someone the directory knows but who has no local row yet.
 export interface UserAutocompleteMatch {
   name: string;
   email: string;
@@ -46,9 +44,8 @@ export interface UserAutocompleteMatch {
   username: string;
 }
 
-// `values` carries "User"-group members; always sent (empty for a group
-// created with no members yet). The vestigial group_value scalar is set
-// by the backend at creation, never by the client.
+// `values` holds "User"-group members. Always sent, even when empty for a
+// group with no members yet. The backend sets group_value itself.
 export interface CreateGroupPayload {
   type: GroupTypeValues;
   label: string;
