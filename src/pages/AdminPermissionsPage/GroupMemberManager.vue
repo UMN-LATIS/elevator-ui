@@ -10,46 +10,41 @@
         :items="options"
         :isLoading="isSearching"
         :isItemDisabled="isOptionDisabled"
-        :itemClass="optionClass"
         :blurOnSelect="false"
         placeholder="Add member by name, email, or username…"
         inputClass="mt-1 w-full bg-surface-container rounded-md px-3 py-2 text-sm"
         @select="add">
         <template #option="{ item }">
           <template v-if="item.kind === 'match'">
-            <span
-              class="flex size-8 flex-none items-center justify-center rounded-full bg-primary-container text-xs font-semibold text-on-primary-container">
+            <div
+              class="border border-current rounded-full size-8 flex items-center justify-center">
               {{ initials(item.match.name) }}
-            </span>
-            <span class="min-w-0 flex-1">
+            </div>
+            <div>
               <span class="block truncate font-medium">
                 {{ item.match.name }}
               </span>
-              <span class="block truncate text-xs text-inverse-on-surface/70">
+              <span class="block truncate text-xs">
                 {{ secondaryLine(item.match) }}
               </span>
-            </span>
-            <span
-              v-if="isAlreadyMember(item.match)"
-              class="ml-auto flex-none text-xs italic text-inverse-on-surface/70">
-              already a member
-            </span>
+              <em v-if="isAlreadyMember(item.match)" class="text-xs italic">
+                already a member
+              </em>
+            </div>
           </template>
           <template v-else>
-            <span
-              class="flex size-8 flex-none items-center justify-center rounded-lg bg-primary-container text-on-primary-container">
+            <div
+              class="border border-current rounded-md size-8 flex items-center justify-center">
               <PlusIcon class="size-4" />
-            </span>
-            <span class="min-w-0 flex-1">
+            </div>
+            <div>
               <span class="block truncate font-medium">
-                Create new user “{{ item.query }}”
+                Provision and add remote user
               </span>
-              <span class="block truncate text-xs text-inverse-on-surface/70">
-                Provision an account for someone not in the directory
+              <span class="block truncate text-xs">
+                with username: "{{ item.query }}"
               </span>
-            </span>
-            <ChevronRightIcon
-              class="ml-auto size-4 flex-none text-inverse-on-surface/50" />
+            </div>
           </template>
         </template>
       </AutoCompleteInput>
@@ -158,13 +153,6 @@ function isAlreadyMember(match: UserAutocompleteMatch): boolean {
 // only an existing member is unpickable; the create row is always actionable
 function isOptionDisabled(option: MemberOption): boolean {
   return option.kind === "match" && isAlreadyMember(option.match);
-}
-
-// set the pinned create row apart from the match rows above it
-function optionClass(option: MemberOption): string {
-  return option.kind === "create"
-    ? "border-t border-inverse-on-surface/15 bg-inverse-on-surface/5"
-    : "";
 }
 
 function add(option: MemberOption) {
