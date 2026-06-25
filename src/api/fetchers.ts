@@ -1216,15 +1216,24 @@ export async function fetchGroupMembers(
   return res.data.members;
 }
 
+// Add by localUserId for someone who already has a local row, or by
+// remoteUserId (a netid/username) for someone we provision on add.
+export type AddGroupMemberInput =
+  | { groupId: number; localUserId: number }
+  | { groupId: number; remoteUserId: string };
+
 export async function addGroupMember(
-  groupId: number,
-  userId: number
+  input: AddGroupMemberInput
 ): Promise<GroupMember> {
   const params = new URLSearchParams();
-  params.append("userId", String(userId));
+  if ("localUserId" in input) {
+    params.append("localUserId", String(input.localUserId));
+  } else {
+    params.append("remoteUserId", input.remoteUserId);
+  }
 
   const res = await axios.post<{ member: GroupMember }>(
-    `${BASE_URL}/adminPermissions/groups/${groupId}/members`,
+    `${BASE_URL}/adminPermissions/groups/${input.groupId}/members`,
     params
   );
 

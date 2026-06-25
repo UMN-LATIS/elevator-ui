@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
+import type { AddGroupMemberInput } from "@/api/fetchers";
 import {
   GROUP_MEMBERS_QUERY_KEY,
   PERMISSIONS_GROUPS_QUERY_KEY,
@@ -11,8 +12,7 @@ export function useAddGroupMemberMutation() {
   const toastStore = useToastStore();
 
   return useMutation({
-    mutationFn: (vars: { groupId: number; userId: number }) =>
-      fetchers.addGroupMember(vars.groupId, vars.userId),
+    mutationFn: (vars: AddGroupMemberInput) => fetchers.addGroupMember(vars),
     onSuccess: (member, vars) => {
       // refresh the member list and the group list (its count changed)
       queryClient.invalidateQueries({
