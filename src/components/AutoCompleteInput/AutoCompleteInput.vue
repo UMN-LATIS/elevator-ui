@@ -58,6 +58,7 @@
               'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-primary-container hover:text-on-primary-container',
               index === highlightedIndex && 'bg-primary text-on-primary',
               isDisabled(item) && 'cursor-not-allowed opacity-50',
+              itemClass?.(item),
             ]"
             @mousedown.prevent="commitSelection(item)">
             <slot
@@ -99,6 +100,8 @@ const props = withDefaults(
     id?: string;
     blurOnSelect?: boolean;
     isItemDisabled?: (item: T) => boolean;
+    // extra classes per option wrapper, e.g. to set a pinned row apart
+    itemClass?: (item: T) => CSSClass;
   }>(),
   {
     id: "",
@@ -107,6 +110,7 @@ const props = withDefaults(
     isLoading: false,
     blurOnSelect: true,
     isItemDisabled: undefined,
+    itemClass: undefined,
   }
 );
 
