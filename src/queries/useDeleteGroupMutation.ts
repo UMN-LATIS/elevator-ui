@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { PERMISSIONS_GROUPS_QUERY_KEY } from "./queryKeys";
 import { useToastStore } from "@/stores/toastStore";
+import type { PermissionsGroup } from "@/types";
 
 export function useDeleteGroupMutation() {
   const queryClient = useQueryClient();
@@ -12,9 +13,12 @@ export function useDeleteGroupMutation() {
     mutationFn: (vars: { id: number; label: string }) =>
       fetchers.deleteGroup(vars.id),
     onSuccess: (_data, vars) => {
-      queryClient.invalidateQueries({
-        queryKey: [PERMISSIONS_GROUPS_QUERY_KEY],
-      });
+      // Drop the deleted group from the cache by id instead of invalidating
+      // — no refetch.
+      queryClient.setQueryData<PermissionsGroup[]>(
+        [PERMISSIONS_GROUPS_QUERY_KEY],
+        (groups = []) => groups.filter((g) => g.id !== vars.id)
+      );
       toastStore.addToast({
         message: `Group "${vars.label}" deleted.`,
         variant: "success",
