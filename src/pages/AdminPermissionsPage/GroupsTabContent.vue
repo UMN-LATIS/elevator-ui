@@ -1,74 +1,78 @@
 <template>
-  <div class="flex justify-end">
-    <Button variant="primary" @click="openCreate">Create Group</Button>
-  </div>
+  <div>
+    <div class="flex justify-between items-center gap-8">
+      <p class="text-sm">
+        Create a group to manage permissions for a set of users.
+      </p>
+      <Button variant="primary" @click="openCreate">Create Group</Button>
+    </div>
 
-  <p v-if="isLoading" class="mt-4 text-on-surface-variant">Loading groups…</p>
-  <p
-    v-else-if="!groups?.length"
-    class="mt-4 rounded-md border border-dashed border-outline-variant p-8 text-center text-on-surface-variant">
-    No groups yet. Create one to get started.
-  </p>
+    <p v-if="isLoading" class="mt-4 text-on-surface-variant">Loading groups…</p>
+    <p
+      v-else-if="!groups?.length"
+      class="mt-4 rounded-md border border-dashed border-outline-variant p-8 text-center text-on-surface-variant">
+      No groups yet. Create one to get started.
+    </p>
 
-  <AccordionRoot
-    v-else
-    v-model="openGroupIds"
-    type="multiple"
-    class="mt-4 flex flex-col rounded-md overflow-hidden border border-outline-variant">
-    <AccordionItem
-      v-for="group in groups"
-      :key="group.id"
-      :value="String(group.id)"
-      class="border-b border-outline-variant bg-surface-container">
-      <AccordionHeader class="group flex w-full items-center gap-4 p-2">
-        <AccordionTrigger
-          class="flex items-center gap-2 text-sm font-medium text-left">
-          <ChevronRightIcon
-            class="shrink-0 text-on-surface-variant transition-transform group-data-[state=open]:rotate-90 !size-4" />
-          {{ group.label }}
-        </AccordionTrigger>
-        <div
-          class="ml-auto flex items-center text-sm text-on-surface-variant gap-1">
-          <Chip
-            v-if="group.type === GROUP_TYPES.USER"
-            class="bg-secondary-container">
-            {{ group.values.length }}
-            {{ pluralize(group.values.length, "member") }}
-          </Chip>
-          <div v-else>
-            {{ groupTypesMap.get(group.type)?.label ?? group.type }}
+    <AccordionRoot
+      v-else
+      v-model="openGroupIds"
+      type="multiple"
+      class="my-4 flex flex-col border-y border-outline-variant">
+      <AccordionItem
+        v-for="group in groups"
+        :key="group.id"
+        :value="String(group.id)"
+        class="border-b border-outline-variant last:border-b-0">
+        <AccordionHeader class="group flex w-full items-center gap-4 p-2">
+          <AccordionTrigger
+            class="flex items-center gap-2 text-sm font-medium text-left">
+            <ChevronRightIcon
+              class="shrink-0 text-on-surface-variant transition-transform group-data-[state=open]:rotate-90 !size-4" />
+            {{ group.label || group.type }}
+          </AccordionTrigger>
+          <div
+            class="ml-auto flex items-center text-sm text-on-surface-variant gap-1">
+            <Chip
+              v-if="group.type === GROUP_TYPES.USER"
+              class="bg-secondary-container">
+              {{ group.values.length }}
+              {{ pluralize(group.values.length, "member") }}
+            </Chip>
+            <div v-else>
+              {{ groupTypesMap.get(group.type)?.label ?? group.type }}
+            </div>
+            <DropDown
+              alignment="right"
+              :showChevron="false"
+              labelClass="rounded-full hover:bg-surface-container-high justify-self-end">
+              <template #label>
+                <VerticalDotsIcon class="size-5" />
+                <span class="sr-only">More actions</span>
+              </template>
+              <DropDownItem @click="openEdit(group)">Edit Group</DropDownItem>
+              <DropDownItem @click="handleDelete(group)">
+                <span class="text-error">Delete Group</span>
+              </DropDownItem>
+            </DropDown>
           </div>
-          <DropDown
-            alignment="right"
-            :showChevron="false"
-            labelClass="rounded-full hover:bg-surface-container-high justify-self-end">
-            <template #label>
-              <VerticalDotsIcon class="size-5" />
-              <span class="sr-only">More actions</span>
-            </template>
-            <DropDownItem @click="openEdit(group)">Edit Group</DropDownItem>
-            <DropDownItem @click="handleDelete(group)">
-              <span class="text-error">Delete Group</span>
-            </DropDownItem>
-          </DropDown>
-        </div>
-      </AccordionHeader>
-      <AccordionContent
-        class="border-t border-outline-variant p-4 pl-8 bg-surface-container-lowest text-sm">
-        {{ groupTypesMap.get(group.type)?.description }}
-        <GroupMemberManager
-          v-if="group.type === GROUP_TYPES.USER"
-          :group="group"
-          :isOpen="openGroupIds.includes(String(group.id))"
-          class="my-2 max-w-screen-md m-auto" />
-      </AccordionContent>
-    </AccordionItem>
-  </AccordionRoot>
+        </AccordionHeader>
+        <AccordionContent class="p-4 pt-0 pl-8 text-sm">
+          {{ groupTypesMap.get(group.type)?.description }}
+          <GroupMemberManager
+            v-if="group.type === GROUP_TYPES.USER"
+            :group="group"
+            :isOpen="openGroupIds.includes(String(group.id))"
+            class="my-2 max-w-screen-md m-auto" />
+        </AccordionContent>
+      </AccordionItem>
+    </AccordionRoot>
 
-  <GroupFormModal
-    :isOpen="isGroupModalOpen"
-    :group="editingGroup"
-    @close="closeGroupModal" />
+    <GroupFormModal
+      :isOpen="isGroupModalOpen"
+      :group="editingGroup"
+      @close="closeGroupModal" />
+  </div>
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";

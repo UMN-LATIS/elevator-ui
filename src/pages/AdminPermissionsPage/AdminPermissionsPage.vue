@@ -1,11 +1,13 @@
 <template>
   <AdminLayout>
-    <PageContent>
+    <PageContent class="max-w-screen-lg">
       <PageHeader
         title="Permissions"
         description="Grant access to any collection in this instance" />
 
-      <Tabs v-model:activeTabId="activeTabId">
+      <Tabs
+        v-model:activeTabId="activeTabId"
+        labelsClass="border-b border-outline-variant">
         <Tab id="rules" label="Rules">
           <div
             class="border border-dashed border-outline-variant rounded-md p-10 text-center text-sm text-on-surface-variant">
