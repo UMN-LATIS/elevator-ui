@@ -22,11 +22,12 @@
       <AccordionItem
         v-for="group in sortedGroups"
         :key="group.id"
+        v-slot="{ open }"
         :value="String(group.id)"
         class="border-b border-outline-variant last:border-b-0">
-        <AccordionHeader class="group flex w-full items-center gap-4 p-2">
+        <AccordionHeader class="group flex w-full items-center gap-4">
           <AccordionTrigger
-            class="flex items-center gap-2 text-sm font-medium text-left">
+            class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold">
             <ChevronRightIcon
               class="shrink-0 text-on-surface-variant transition-transform group-data-[state=open]:rotate-90 !size-4" />
             {{ group.label || group.type }}
@@ -57,12 +58,12 @@
             </DropDown>
           </div>
         </AccordionHeader>
-        <AccordionContent class="p-4 pt-0 pl-8 text-sm">
+        <AccordionContent class="p-4 pt-0 pl-8 text-sm text-on-surface-variant">
           {{ groupTypesMap.get(group.type)?.description }}
           <GroupMemberManager
             v-if="group.type === GROUP_TYPES.USER"
             :group="group"
-            :isOpen="openGroupIds.includes(String(group.id))"
+            :isOpen="open"
             class="my-2 max-w-screen-md m-auto" />
         </AccordionContent>
       </AccordionItem>
