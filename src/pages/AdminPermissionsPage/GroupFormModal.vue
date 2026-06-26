@@ -107,12 +107,26 @@ function isSubmittable(
 
 const canSubmit = computed((): boolean => isSubmittable(form.value));
 
+// implemented types
+const ENABLED_GROUP_TYPES: GroupTypeValues[] = [
+  "All",
+  "Authed",
+  "Authed_remote",
+  "User",
+];
+
 const typeOptions = computed((): SelectOption[] =>
-  (labelledGroupTypes.value ?? []).map((groupType) => ({
-    id: groupType.type,
-    label: groupType.label,
-    description: groupType.description,
-  }))
+  (labelledGroupTypes.value ?? []).map((groupType) => {
+    const isEnabled = ENABLED_GROUP_TYPES.includes(groupType.type);
+    return {
+      id: groupType.type,
+      label: isEnabled
+        ? groupType.label
+        : `${groupType.label} (not implemented)`,
+      description: groupType.description,
+      disabled: !isEnabled,
+    };
+  })
 );
 
 function handleClose() {
