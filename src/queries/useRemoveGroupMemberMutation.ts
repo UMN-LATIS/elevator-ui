@@ -5,6 +5,7 @@ import {
   PERMISSIONS_GROUPS_QUERY_KEY,
 } from "./queryKeys";
 import { useToastStore } from "@/stores/toastStore";
+import type { GroupMember } from "@/types";
 
 export function useRemoveGroupMemberMutation() {
   const queryClient = useQueryClient();
@@ -14,10 +15,13 @@ export function useRemoveGroupMemberMutation() {
     mutationFn: (vars: { groupId: number; userId: number }) =>
       fetchers.removeGroupMember(vars.groupId, vars.userId),
     onSuccess: (_data, vars) => {
-      // refresh the member list and the group list (its count changed)
-      queryClient.invalidateQueries({
-        queryKey: [GROUP_MEMBERS_QUERY_KEY, vars.groupId],
-      });
+      // Drop the removed member from the cache by id instead of invalidating
+      // — no refetch.
+      queryClient.setQueryData<GroupMember[]>(
+        [GROUP_MEMBERS_QUERY_KEY, vars.groupId],
+        (members = []) => members.filter((m) => m.userId !== vars.userId)
+      );
+      // The group list still needs a refresh — its member count changed.
       queryClient.invalidateQueries({
         queryKey: [PERMISSIONS_GROUPS_QUERY_KEY],
       });
