@@ -13,7 +13,6 @@ export function useGroupMembersQuery(
   return useQuery({
     queryKey: computed(() => [GROUP_MEMBERS_QUERY_KEY, toValue(groupId)]),
     queryFn: () => fetchGroupMembers(toValue(groupId)),
-    placeholderData: () => [] as GroupMember[],
     enabled: computed(() => toValue(options?.enabled) ?? true),
   });
 }
