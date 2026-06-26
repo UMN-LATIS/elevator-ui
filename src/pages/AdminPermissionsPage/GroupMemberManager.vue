@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-4">
-    <div>
+    <div :data-group-add-member="group.id">
       <label :for="`group-${group.id}-add-member`" class="sr-only">
         Add member
       </label>
@@ -78,7 +78,7 @@ import { AutoCompleteInput } from "@/components/AutoCompleteInput";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import GroupMembersTable from "./GroupMembersTable.vue";
 import { createGroupMemberColumns } from "./GroupMembersTableColumns";
-import { ChevronRightIcon, PlusIcon } from "@/icons";
+import { PlusIcon } from "@/icons";
 import { useUserAutocompleteQuery } from "@/queries/useUserAutocompleteQuery";
 import { useGroupMembersQuery } from "@/queries/useGroupMembersQuery";
 import { useAddGroupMemberMutation } from "@/queries/useAddGroupMemberMutation";

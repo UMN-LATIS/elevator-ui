@@ -38,7 +38,8 @@
         class="border-b border-outline-variant last:border-b-0">
         <AccordionHeader class="group flex w-full items-center gap-4">
           <AccordionTrigger
-            class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold">
+            :data-group-trigger="group.id"
+            class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
             <ChevronRightIcon
               class="shrink-0 text-on-surface-variant transition-transform group-data-[state=open]:rotate-90 !size-4" />
             {{ group.label || group.type }}
@@ -83,7 +84,8 @@
     <GroupFormModal
       :isOpen="isGroupModalOpen"
       :group="editingGroup"
-      @close="closeGroupModal" />
+      @close="closeGroupModal"
+      @created="handleCreated" />
 
     <ConfirmModal
       :isOpen="Boolean(groupPendingDelete)"
@@ -127,6 +129,7 @@ import type {
   PermissionsGroup,
 } from "@/types";
 import { pluralize } from "@/helpers/pluralize.js";
+import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
 import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 
@@ -154,6 +157,32 @@ const groupTypesMap = computed((): Map<GroupTypeValues, LabelledGroupType> => {
 // ids of the currently expanded accordion items, so each group fetches its
 // members only when opened
 const openGroupIds = ref<string[]>([]);
+
+// Open a freshly created group and move focus into it: a User group lands on
+// its add-member field so the admin can start adding people, other types land
+// on the accordion trigger and scroll into view. The row, its open content,
+// and the input mount across several frames, so tryFocus retries until focus
+// lands rather than guessing a single tick.
+async function handleCreated(group: PermissionsGroup) {
+  const groupId = String(group.id);
+  if (!openGroupIds.value.includes(groupId)) {
+    openGroupIds.value = [...openGroupIds.value, groupId];
+  }
+
+  // the User input sits inside reka's PopoverAnchor — reach it through our own
+  // wrapper's data attribute; other types focus the accordion trigger
+  const isUserGroup = group.type === GROUP_TYPES.USER;
+  const selector = isUserGroup
+    ? `[data-group-add-member="${group.id}"] input`
+    : `[data-group-trigger="${group.id}"]`;
+
+  try {
+    const focused = await tryFocus(selector);
+    if (!isUserGroup) focused.scrollIntoView({ block: "nearest" });
+  } catch (error) {
+    console.warn(`Could not focus new ${group.type} group`, error);
+  }
+}
 
 const editingGroup = ref<PermissionsGroup | null>(null);
 const isGroupModalOpen = ref(false);

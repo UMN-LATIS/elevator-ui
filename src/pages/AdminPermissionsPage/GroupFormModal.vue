@@ -56,7 +56,10 @@ const props = defineProps<{
   // when present the modal edits this group, otherwise it creates one
   group?: PermissionsGroup | null;
 }>();
-const emit = defineEmits<{ (e: "close"): void }>();
+const emit = defineEmits<{
+  (e: "close"): void;
+  (e: "created", group: PermissionsGroup): void;
+}>();
 
 const { data: labelledGroupTypes } = useGroupTypesQuery();
 const createMutation = useCreateGroupMutation();
@@ -140,16 +143,23 @@ function handleSubmit() {
     return;
   }
 
-  const onSuccess = () => emit("close");
   const { type, label } = form.value;
 
   if (props.group) {
     updateMutation.mutate(
       { id: props.group.id, payload: { type, label } },
-      { onSuccess }
+      { onSuccess: () => emit("close") }
     );
   } else {
-    createMutation.mutate({ type, label, values: [] }, { onSuccess });
+    createMutation.mutate(
+      { type, label, values: [] },
+      {
+        onSuccess: (group) => {
+          emit("created", group);
+          emit("close");
+        },
+      }
+    );
   }
 }
 </script>
