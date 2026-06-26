@@ -32,7 +32,14 @@
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="table.getRowModel().rows?.length">
+        <template v-if="isLoading">
+          <TableRow v-for="row in SKELETON_ROW_COUNT" :key="`skeleton-${row}`">
+            <TableCell v-for="(_, index) in columns" :key="index">
+              <Skeleton height="1rem" width="70%" />
+            </TableCell>
+          </TableRow>
+        </template>
+        <template v-else-if="table.getRowModel().rows?.length">
           <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
               <FlexRender
@@ -73,11 +80,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
+
+// Placeholder rows shown while the member list loads.
+const SKELETON_ROW_COUNT = 3;
 
 const props = defineProps<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<TData, any>[];
   data: TData[];
+  isLoading?: boolean;
 }>();
 
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);

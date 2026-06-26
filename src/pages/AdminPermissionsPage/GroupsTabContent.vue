@@ -7,7 +7,18 @@
       <Button variant="primary" @click="openCreate">Create Group</Button>
     </div>
 
-    <p v-if="isLoading" class="mt-4 text-on-surface-variant">Loading groups…</p>
+    <div
+      v-if="isLoading"
+      class="my-4 flex flex-col border-y border-outline-variant">
+      <div
+        v-for="row in SKELETON_ROW_COUNT"
+        :key="`skeleton-${row}`"
+        class="flex items-center gap-4 border-b border-outline-variant p-4 last:border-b-0">
+        <Skeleton width="1rem" height="1rem" />
+        <Skeleton width="30%" height="1rem" />
+        <Skeleton width="5rem" height="1.5rem" class="ml-auto rounded-full" />
+      </div>
+    </div>
     <p
       v-else-if="!sortedGroups?.length"
       class="mt-4 rounded-md border border-dashed border-outline-variant p-8 text-center text-on-surface-variant">
@@ -101,6 +112,7 @@ import {
 } from "reka-ui";
 import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import VerticalDotsIcon from "@/icons/VerticalDotsIcon.vue";
+import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import GroupFormModal from "./GroupFormModal.vue";
@@ -117,6 +129,9 @@ import type {
 import { pluralize } from "@/helpers/pluralize.js";
 import Chip from "@/components/Chip/Chip.vue";
 import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
+
+// Placeholder rows shown while the group list loads.
+const SKELETON_ROW_COUNT = 3;
 
 const { data: groups, isLoading } = useGroupsQuery();
 const { data: groupTypes } = useGroupTypesQuery();

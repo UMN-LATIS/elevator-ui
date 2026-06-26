@@ -49,7 +49,11 @@
         </template>
       </AutoCompleteInput>
     </div>
-    <GroupMembersTable :columns="columns" :data="memberList" class="mb-2" />
+    <GroupMembersTable
+      :columns="columns"
+      :data="memberList"
+      :isLoading="isLoadingMembers"
+      class="mb-2" />
 
     <ConfirmModal
       :isOpen="memberToRemove !== null"
@@ -96,10 +100,21 @@ const props = defineProps<{
   isOpen: boolean;
 }>();
 
-const { data: members } = useGroupMembersQuery(() => props.group.id, {
+const {
+  data: members,
+  isFetching: isFetchingMembers,
+  isPlaceholderData: isMembersPlaceholder,
+} = useGroupMembersQuery(() => props.group.id, {
   enabled: () => props.isOpen,
 });
 const memberList = computed(() => members.value ?? []);
+
+// Only the very first load — the query starts on the placeholder list and a
+// fetch is in flight. Cache patches on add/remove never refetch, so this
+// stays false for them.
+const isLoadingMembers = computed(
+  () => isFetchingMembers.value && isMembersPlaceholder.value
+);
 
 const search = ref("");
 const debouncedSearch = useDebounce(search, 300);
