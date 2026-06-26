@@ -6,6 +6,7 @@ import {
   PERMISSIONS_GROUPS_QUERY_KEY,
 } from "./queryKeys";
 import { useToastStore } from "@/stores/toastStore";
+import type { GroupMember } from "@/types";
 
 export function useAddGroupMemberMutation() {
   const queryClient = useQueryClient();
@@ -14,10 +15,16 @@ export function useAddGroupMemberMutation() {
   return useMutation({
     mutationFn: (vars: AddGroupMemberInput) => fetchers.addGroupMember(vars),
     onSuccess: (member, vars) => {
-      // refresh the member list and the group list (its count changed)
-      queryClient.invalidateQueries({
-        queryKey: [GROUP_MEMBERS_QUERY_KEY, vars.groupId],
-      });
+      // The server returns the fully-resolved member, so write it straight
+      // into the cache instead of invalidating — no second round-trip.
+      queryClient.setQueryData<GroupMember[]>(
+        [GROUP_MEMBERS_QUERY_KEY, vars.groupId],
+        (members = []) =>
+          members.some((m) => m.userId === member.userId)
+            ? members
+            : [...members, member]
+      );
+      // The group list still needs a refresh — its member count changed.
       queryClient.invalidateQueries({
         queryKey: [PERMISSIONS_GROUPS_QUERY_KEY],
       });
