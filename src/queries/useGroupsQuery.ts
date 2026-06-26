@@ -7,6 +7,5 @@ export function useGroupsQuery() {
   return useQuery({
     queryKey: [PERMISSIONS_GROUPS_QUERY_KEY],
     queryFn: fetchGroups,
-    placeholderData: () => [] as PermissionsGroup[],
   });
 }
