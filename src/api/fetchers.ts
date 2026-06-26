@@ -1248,3 +1248,7 @@ export async function removeGroupMember(
     `${BASE_URL}/adminPermissions/groups/${groupId}/members/${userId}`
   );
 }
+
+export async function deleteGroup(groupId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/adminPermissions/groups/${groupId}`);
+}

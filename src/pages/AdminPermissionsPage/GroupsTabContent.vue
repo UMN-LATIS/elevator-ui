@@ -100,9 +100,11 @@ import type {
 } from "@/types";
 import { pluralize } from "@/helpers/pluralize.js";
 import Chip from "@/components/Chip/Chip.vue";
+import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 
 const { data: groups, isLoading } = useGroupsQuery();
 const { data: groupTypes } = useGroupTypesQuery();
+const { mutate: deleteGroup } = useDeleteGroupMutation();
 
 const groupTypesMap = computed((): Map<GroupTypeValues, LabelledGroupType> => {
   const entries = groupTypes.value?.map((g) => [g.type, g] as const) ?? [];
@@ -130,8 +132,9 @@ function closeGroupModal() {
   isGroupModalOpen.value = false;
 }
 
-function handleDelete(_group: PermissionsGroup) {
+function handleDelete(group: PermissionsGroup) {
   // TODO: delete is not wired yet. The backend deleteGroup returns 501.
+  deleteGroup(group);
 }
 </script>
 <style scoped></style>
