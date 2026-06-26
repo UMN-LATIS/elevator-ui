@@ -9,7 +9,7 @@
 
     <p v-if="isLoading" class="mt-4 text-on-surface-variant">Loading groups…</p>
     <p
-      v-else-if="!groups?.length"
+      v-else-if="!sortedGroups?.length"
       class="mt-4 rounded-md border border-dashed border-outline-variant p-8 text-center text-on-surface-variant">
       No groups yet. Create one to get started.
     </p>
@@ -20,7 +20,7 @@
       type="multiple"
       class="my-4 flex flex-col border-y border-outline-variant">
       <AccordionItem
-        v-for="group in groups"
+        v-for="group in sortedGroups"
         :key="group.id"
         :value="String(group.id)"
         class="border-b border-outline-variant last:border-b-0">
@@ -120,6 +120,15 @@ import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 const { data: groups, isLoading } = useGroupsQuery();
 const { data: groupTypes } = useGroupTypesQuery();
 const { mutate: deleteGroup } = useDeleteGroupMutation();
+
+const byAlphaNumeric = (a: PermissionsGroup, b: PermissionsGroup) => {
+  const labelA = a.label || a.type;
+  const labelB = b.label || b.type;
+  return labelA.localeCompare(labelB, undefined, { numeric: true });
+};
+const sortedGroups = computed(
+  () => groups.value?.toSorted(byAlphaNumeric) ?? []
+);
 
 const groupTypesMap = computed((): Map<GroupTypeValues, LabelledGroupType> => {
   const entries = groupTypes.value?.map((g) => [g.type, g] as const) ?? [];
