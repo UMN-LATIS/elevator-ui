@@ -72,6 +72,20 @@
       :isOpen="isGroupModalOpen"
       :group="editingGroup"
       @close="closeGroupModal" />
+
+    <ConfirmModal
+      :isOpen="Boolean(groupPendingDelete)"
+      title="Delete Group"
+      type="danger"
+      confirmLabel="Delete"
+      @close="groupPendingDelete = null"
+      @confirm="confirmDelete">
+      <p>
+        Are you sure you want to delete group
+        <b>{{ groupPendingDelete?.label || groupPendingDelete?.type }}</b>
+        ? This action cannot be undone.
+      </p>
+    </ConfirmModal>
   </div>
 </template>
 <script setup lang="ts">
@@ -90,6 +104,7 @@ import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import GroupFormModal from "./GroupFormModal.vue";
 import GroupMemberManager from "./GroupMemberManager.vue";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { useGroupsQuery } from "@/queries/useGroupsQuery";
 import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
 import { GROUP_TYPES } from "@/types";
@@ -132,9 +147,17 @@ function closeGroupModal() {
   isGroupModalOpen.value = false;
 }
 
+// the group awaiting delete confirmation; also drives the modal's open state
+const groupPendingDelete = ref<PermissionsGroup | null>(null);
+
 function handleDelete(group: PermissionsGroup) {
-  // TODO: delete is not wired yet. The backend deleteGroup returns 501.
-  deleteGroup(group);
+  groupPendingDelete.value = group;
+}
+
+function confirmDelete() {
+  if (!groupPendingDelete.value) return;
+  deleteGroup(groupPendingDelete.value);
+  groupPendingDelete.value = null;
 }
 </script>
 <style scoped></style>
