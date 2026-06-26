@@ -69,6 +69,14 @@ axios.defaults.withCredentials = true;
 // convert them into API errors and store them in the error store
 // so that they're displayed to the user
 axios.interceptors.response.use(undefined, async (err: AxiosError) => {
+  // A request aborted via AbortSignal (e.g. TanStack Query superseding a
+  // stale autocomplete fetch) isn't a failure. Reject quietly so it never
+  // reaches the global error store, while still letting the query revert.
+  // Pass as unknown so the guard doesn't narrow `err` to never below.
+  if (axios.isCancel(err as unknown)) {
+    return Promise.reject(err);
+  }
+
   const customConfig = err.config as CustomAxiosRequestConfig;
 
   const errorStore = useErrorStore();
