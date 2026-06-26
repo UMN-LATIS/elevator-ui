@@ -3,13 +3,13 @@
     <PageContent>
       <PageHeader
         title="Permissions"
-        description="Baseline access across this Elevator instance. Rules are additive — a user gets the highest grant that matches them." />
+        description="Grant access to any collection in this instance" />
 
       <Tabs v-model:activeTabId="activeTabId">
         <Tab id="rules" label="Rules">
           <div
             class="border border-dashed border-outline-variant rounded-md p-10 text-center text-sm text-on-surface-variant">
-            Rules
+            Permission Rules (Not Implemented Yet)
           </div>
         </Tab>
         <Tab id="groups" label="Groups">
