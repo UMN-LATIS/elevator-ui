@@ -24,6 +24,14 @@ echo "→ Checking out $BRANCH..."
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
 
+if [ ! -f .env ]; then
+  echo "→ Creating .env from .env.example..."
+  cp .env.example .env
+
+  echo "→ enabling admin permissions feature flag in .env..."
+  echo "VITE_FEATURE_ADMIN_PERMISSIONS=true" >> .env
+fi
+
 echo "→ Installing dependencies..."
 yarn
 
