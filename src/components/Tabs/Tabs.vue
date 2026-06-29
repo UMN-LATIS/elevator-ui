@@ -32,7 +32,7 @@ defineProps<{
   labelsClass?: string;
 }>();
 
-// change to defineModel so we can take a prop or `tactiveTabId`
+// change to defineModel so we can take a prop or `activeTabId`
 // can exist on its own as a ref
 const activeTabId = defineModel<string>("activeTabId");
 
