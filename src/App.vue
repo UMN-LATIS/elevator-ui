@@ -12,7 +12,7 @@
     </div>
     <Teleport to="body">
       <ErrorModal />
-      <ToastRoot />
+      <ToastRoot class="z-[60]" />
     </Teleport>
     <ErrorBoundary>
       <RouterView v-if="instanceStore.hasData && drawerStore.isReady" />

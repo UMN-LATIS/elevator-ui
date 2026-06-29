@@ -9,7 +9,7 @@
       }"
       @click.self="$emit('close')">
       <div
-        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[90vh] m-auto w-full p-4 md:p-8 gap-4 md:gap-6 bg-surface-container text-on-surface"
+        class="modal-contents shadow-lg relative rounded-2xl flex flex-col overflow-hidden max-w-[60rem] max-h-[90vh] m-auto w-full p-4 md:p-8 gap-4 md:gap-6 bg-surface text-on-surface"
         v-bind="$attrs">
         <XButton
           class="absolute top-4 right-4 md:top-8 md:right-8"

@@ -1,10 +1,15 @@
 <template>
   <span
-    class="chip inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-surface-container text-on-surface"
-    :class="{
-      'chip--is-clickable border cursor-pointer transition-colors ease-in-out':
-        clickable,
-    }">
+    :class="
+      cn([
+        'chip inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-surface-container text-on-surface',
+        {
+          'chip--is-clickable border cursor-pointer transition-colors ease-in-out':
+            clickable,
+        },
+        $attrs.class,
+      ])
+    ">
     <slot />
     <ArrowUpRight
       v-if="clickable"
@@ -14,6 +19,7 @@
   </span>
 </template>
 <script setup lang="ts">
+import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-vue-next";
 
 withDefaults(

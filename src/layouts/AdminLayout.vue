@@ -4,7 +4,7 @@
       <slot name="custom-header" />
     </template>
     <div class="flex flex-1 min-h-0">
-      <AdminSidebar class="shrink-0" />
+      <AdminSidebar class="hidden lg:block shrink-0" />
       <div class="flex-1 min-w-0">
         <slot />
       </div>

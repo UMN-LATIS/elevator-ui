@@ -138,8 +138,10 @@ export default {
         },
         "inverse-surface": "var(--inverse-surface)",
         "inverse-on-surface": "var(--inverse-on-surface)",
+        "inverse-on-surface-variant":
+          "color-mix(in oklch, var(--inverse-on-surface) 60%, transparent)",
         "inverse-on-surface-muted":
-          "color-mix(in oklch, var(--on-surface) 38%, transparent)",
+          "color-mix(in oklch, var(--inverse-on-surface) 40%, transparent)",
         "inverse-primary": "var(--inverse-primary)",
         scrim: "var(--scrim)",
         shadow: "var(--shadow)",

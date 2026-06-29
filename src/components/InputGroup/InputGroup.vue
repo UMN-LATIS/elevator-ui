@@ -39,6 +39,7 @@
         <slot name="append" />
       </div>
     </div>
+    <p v-if="error" class="text-error my-2 text-xs">{{ error }}</p>
   </div>
 </template>
 <script setup lang="ts" generic="TModelValue = string | number | null">
@@ -55,12 +56,14 @@ withDefaults(
     inputClass?: CSSClass;
     labelClass?: CSSClass;
     required?: boolean;
+    error?: string | null;
   }>(),
   {
     id: () => useId(),
     labelHidden: false,
     type: "text",
     required: false,
+    error: "",
     inputClass: () => ({}),
     labelClass: () => ({}),
   }

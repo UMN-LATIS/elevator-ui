@@ -38,7 +38,7 @@
 
         <!-- Autocomplete Text Input -->
         <div v-if="widgetDef.attemptAutocomplete">
-          <AutoCompleteInput
+          <FieldAutoComplete
             :id="`${item.id}-input`"
             :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
             :placeholder="widgetDef.label"
@@ -71,7 +71,7 @@
 import * as Type from "@/types";
 import { Input } from "@/components/ui/input";
 import EditWidgetLayout from "./EditWidgetLayout.vue";
-import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
+import FieldAutoComplete from "@/components/AutoCompleteInput/FieldAutoComplete.vue";
 import * as ops from "./helpers/editWidgetOps";
 import { computed } from "vue";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";

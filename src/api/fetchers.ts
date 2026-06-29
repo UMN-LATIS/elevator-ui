@@ -46,6 +46,13 @@ import {
   type AdminTemplate,
   type TemplatePayload,
   type FieldType,
+  type LabelledGroupType,
+  type PermissionsGroup,
+  type CreateGroupPayload,
+  type UpdateGroupPayload,
+  type UserAutocompleteMatch,
+  type GroupMember,
+  GROUP_TYPES,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -62,6 +69,14 @@ axios.defaults.withCredentials = true;
 // convert them into API errors and store them in the error store
 // so that they're displayed to the user
 axios.interceptors.response.use(undefined, async (err: AxiosError) => {
+  // A request aborted via AbortSignal (e.g. TanStack Query superseding a
+  // stale autocomplete fetch) isn't a failure. Reject quietly so it never
+  // reaches the global error store, while still letting the query revert.
+  // Pass as unknown so the guard doesn't narrow `err` to never below.
+  if (axios.isCancel(err as unknown)) {
+    return Promise.reject(err);
+  }
+
   const customConfig = err.config as CustomAxiosRequestConfig;
 
   const errorStore = useErrorStore();
@@ -1133,4 +1148,115 @@ export async function updateTemplate(
     serializeTemplatePayload(payload, templateId)
   );
   return res.data;
+}
+
+export async function fetchGroupTypes() {
+  const res = await axios.get<{ groupTypes: LabelledGroupType[] }>(
+    `${BASE_URL}/adminPermissions/groupTypes`
+  );
+
+  return res.data.groupTypes;
+}
+
+export async function fetchGroups(): Promise<PermissionsGroup[]> {
+  const res = await axios.get<{ groups: PermissionsGroup[] }>(
+    `${BASE_URL}/adminPermissions/groups`
+  );
+
+  return res.data.groups;
+}
+
+// Fetch user suggestions for a group's member field. The backend returns
+// [] for trivial queries, so keystrokes can be passed straight through.
+export async function fetchUserAutocomplete(
+  query: string,
+  options?: { signal?: AbortSignal }
+): Promise<UserAutocompleteMatch[]> {
+  const res = await axios.get<{ matches: UserAutocompleteMatch[] }>(
+    `${BASE_URL}/adminPermissions/userAutocomplete`,
+    { params: { q: query }, signal: options?.signal }
+  );
+
+  return res.data.matches;
+}
+
+export async function createGroup(
+  payload: CreateGroupPayload
+): Promise<PermissionsGroup> {
+  const params = new URLSearchParams();
+  params.append("label", payload.label);
+  params.append("type", payload.type);
+  for (const value of payload.values) {
+    params.append("values[]", value);
+  }
+
+  const res = await axios.post<{ group: PermissionsGroup }>(
+    `${BASE_URL}/adminPermissions/groups`,
+    params
+  );
+
+  return res.data.group;
+}
+
+export async function updateGroup(
+  groupId: number,
+  payload: UpdateGroupPayload
+): Promise<PermissionsGroup> {
+  const params = new URLSearchParams();
+  params.append("label", payload.label);
+  params.append("type", payload.type);
+
+  const res = await axios.put<{ group: PermissionsGroup }>(
+    `${BASE_URL}/adminPermissions/groups/${groupId}`,
+    params
+  );
+
+  return res.data.group;
+}
+
+export async function fetchGroupMembers(
+  groupId: number
+): Promise<GroupMember[]> {
+  const res = await axios.get<{ members: GroupMember[] }>(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/members`
+  );
+
+  return res.data.members;
+}
+
+// Add by localUserId for someone who already has a local row, or by
+// remoteUserId (a netid/username) for someone we provision on add.
+export type AddGroupMemberInput =
+  | { groupId: number; localUserId: number }
+  | { groupId: number; remoteUserId: string };
+
+export async function addGroupMember(
+  input: AddGroupMemberInput
+): Promise<GroupMember> {
+  const params = new URLSearchParams();
+  if ("localUserId" in input) {
+    params.append("localUserId", String(input.localUserId));
+  } else {
+    params.append("remoteUserId", input.remoteUserId);
+  }
+
+  const res = await axios.post<{ member: GroupMember }>(
+    `${BASE_URL}/adminPermissions/groups/${input.groupId}/members`,
+    params
+  );
+
+  return res.data.member;
+}
+
+export async function removeGroupMember(
+  groupId: number,
+  userId: number
+): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/members/${userId}`
+  );
+}
+
+export async function deleteGroup(groupId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/adminPermissions/groups/${groupId}`);
 }
