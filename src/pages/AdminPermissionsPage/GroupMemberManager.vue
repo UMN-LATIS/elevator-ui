@@ -147,12 +147,14 @@ function remove(member: GroupMember) {
 }
 
 function confirmRemove() {
-  if (memberToRemove.value) {
-    removeMutation.mutate({
-      groupId: props.group.id,
-      userId: memberToRemove.value.userId,
-    });
-  }
+  if (!memberToRemove.value) return;
+  removeMutation.mutate({
+    groupId: props.group.id,
+    userId: memberToRemove.value.userId,
+  });
+  // Close the confirm modal now
+  // removal is optimistic, no need to wait for mutation
+  memberToRemove.value = null;
 }
 
 const columns = createGroupMemberColumns(remove);
