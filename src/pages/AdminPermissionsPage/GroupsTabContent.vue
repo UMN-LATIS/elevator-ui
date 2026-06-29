@@ -132,10 +132,12 @@ import { pluralize } from "@/helpers/pluralize.js";
 import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
 import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
+import { useToastStore } from "@/stores/toastStore";
 
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
 
+const toastStore = useToastStore();
 const { data: groups, isLoading } = useGroupsQuery();
 const { data: groupTypes } = useGroupTypesQuery();
 const { mutate: deleteGroup } = useDeleteGroupMutation();
@@ -209,8 +211,23 @@ function handleDelete(group: PermissionsGroup) {
 }
 
 function confirmDelete() {
-  if (!groupPendingDelete.value) return;
-  deleteGroup(groupPendingDelete.value);
+  const group = groupPendingDelete.value;
+  if (!group) return;
+  deleteGroup(group.id, {
+    onSuccess: () =>
+      toastStore.addToast({
+        message: `Group "${group.label || group.type}" deleted.`,
+        variant: "success",
+      }),
+    onError: (error) =>
+      toastStore.addToast({
+        title: "Delete Group Failed",
+        message: `Failed to delete group "${group.label || group.type}": ${
+          error.message
+        }`,
+        variant: "error",
+      }),
+  });
   groupPendingDelete.value = null;
 }
 </script>
