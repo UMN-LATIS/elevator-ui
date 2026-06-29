@@ -4,26 +4,23 @@
     :label="isEditing ? 'Edit Group' : 'Create Group'"
     class="max-w-md"
     @close="handleClose">
-    <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
+    <form @submit.prevent="handleSubmit">
       <InputGroup
         v-model="form.label"
         label="Name"
         placeholder="e.g. Library Staff"
+        :error="wasTouched.label ? errors.label : null"
         required
         @blur="wasTouched.label = true" />
-      <p v-if="wasTouched.label && errors.label" class="text-error">
-        {{ errors.label }}
-      </p>
 
       <SelectGroup
         v-model="form.type"
         label="Type"
         placeholder="Select a type…"
+        class="my-4"
+        :error="wasTouched.type ? errors.type : null"
         :options="typeOptions"
         @update:modelValue="wasTouched.type = true" />
-      <p v-if="wasTouched.type && errors.type" class="text-error">
-        {{ errors.type }}
-      </p>
 
       <div class="flex items-center justify-end gap-2">
         <Button variant="tertiary" type="button" @click="handleClose">
