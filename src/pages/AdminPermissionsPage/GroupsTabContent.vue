@@ -63,8 +63,10 @@
                 <VerticalDotsIcon class="size-5" />
                 <span class="sr-only">More actions</span>
               </template>
-              <DropDownItem @click="openEdit(group)">Edit Group</DropDownItem>
-              <DropDownItem @click="handleDelete(group)">
+              <DropDownItem is="button" @click="openEdit(group)">
+                Edit Group
+              </DropDownItem>
+              <DropDownItem is="button" @click="handleDelete(group)">
                 <span class="text-error">Delete Group</span>
               </DropDownItem>
             </DropDown>

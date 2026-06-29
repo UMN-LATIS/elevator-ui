@@ -5,7 +5,7 @@
     :disabled="disabled">
     <component
       :is="is || ($attrs.disabled ? 'div' : Link)"
-      class="block px-4 py-2 text-sm !no-underline"
+      class="block w-full text-left px-4 py-2 text-sm !no-underline"
       :class="{
         'bg-surface-container-high': active,
         'text-on-surface': active || current,
