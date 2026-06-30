@@ -46,7 +46,7 @@ import {
   type AdminTemplate,
   type TemplatePayload,
   type FieldType,
-  type LabelledGroupType,
+  type GroupTypeDetails,
   type PermissionsGroup,
   type CreateGroupPayload,
   type UpdateGroupPayload,
@@ -1151,7 +1151,7 @@ export async function updateTemplate(
 }
 
 export async function fetchGroupTypes() {
-  const res = await axios.get<{ groupTypes: LabelledGroupType[] }>(
+  const res = await axios.get<{ groupTypes: GroupTypeDetails[] }>(
     `${BASE_URL}/adminPermissions/groupTypes`
   );
 

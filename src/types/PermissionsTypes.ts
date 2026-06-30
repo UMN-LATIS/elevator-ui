@@ -9,7 +9,7 @@ type GroupTypeKeys = keyof typeof GROUP_TYPES;
 
 export type GroupTypeValues = (typeof GROUP_TYPES)[GroupTypeKeys];
 
-export interface LabelledGroupType {
+export interface GroupTypeDetails {
   type: GroupTypeValues;
   label: string;
   description: string;
