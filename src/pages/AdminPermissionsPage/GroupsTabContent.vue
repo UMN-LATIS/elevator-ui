@@ -73,12 +73,17 @@
           </div>
         </AccordionHeader>
         <AccordionContent class="p-4 pt-0 pl-8 text-sm text-on-surface-variant">
-          {{ groupTypesMap.get(group.type)?.description }}
+          <p v-if="getGroupDescription(group)" class="mb-2">
+            {{ getGroupDescription(group) }}
+          </p>
           <GroupMemberManager
             v-if="group.type === GROUP_TYPES.USER"
             :group="group"
             :isOpen="open"
             class="my-2 max-w-screen-md m-auto" />
+          <AuthHelperGroupManager
+            v-else-if="isAuthHelperGroupType(group)"
+            :group="group" />
         </AccordionContent>
       </AccordionItem>
     </AccordionRoot>
@@ -127,7 +132,7 @@ import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
 import { GROUP_TYPES } from "@/types";
 import type {
   GroupTypeValues,
-  LabelledGroupType,
+  GroupTypeDetails,
   PermissionsGroup,
 } from "@/types";
 import { pluralize } from "@/helpers/pluralize.js";
@@ -135,6 +140,7 @@ import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
 import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 import { useToastStore } from "@/stores/toastStore";
+import AuthHelperGroupManager from "./AuthHelperGroupManager.vue";
 
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
@@ -153,7 +159,7 @@ const sortedGroups = computed(
   () => groups.value?.toSorted(byAlphaNumeric) ?? []
 );
 
-const groupTypesMap = computed((): Map<GroupTypeValues, LabelledGroupType> => {
+const groupTypesMap = computed((): Map<GroupTypeValues, GroupTypeDetails> => {
   const entries = groupTypes.value?.map((g) => [g.type, g] as const) ?? [];
   return new Map(entries);
 });
@@ -190,6 +196,20 @@ async function handleCreated(group: PermissionsGroup) {
 
 const editingGroup = ref<PermissionsGroup | null>(null);
 const isGroupModalOpen = ref(false);
+
+function getGroupDescription(group: PermissionsGroup) {
+  return groupTypesMap.value.get(group.type)?.description ?? "";
+}
+
+function isAuthHelperGroupType(group: PermissionsGroup) {
+  const globalGroupTypes: GroupTypeValues[] = [
+    GROUP_TYPES.ALL,
+    GROUP_TYPES.AUTHED,
+    GROUP_TYPES.REMOTE,
+    GROUP_TYPES.USER,
+  ];
+  return !globalGroupTypes.includes(group.type);
+}
 
 function openCreate() {
   editingGroup.value = null;
