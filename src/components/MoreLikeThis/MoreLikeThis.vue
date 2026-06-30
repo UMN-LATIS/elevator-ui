@@ -7,7 +7,7 @@
         <CountChip>{{ items.length }}</CountChip>
       </h3>
 
-      <div class="flex flex-col gap-2" :class="listContainerClass">
+      <div class="more-like-this__list">
         <SearchResultCard
           v-for="searchMatch in inlineResultsList"
           :key="searchMatch.objectId"
@@ -52,10 +52,8 @@ import Modal from "../Modal/Modal.vue";
 import ButtonWithCount from "./ButtonWithCount.vue";
 import CountChip from "./CountChip.vue";
 
-type CSSClass = string | string[] | Record<string, boolean>;
 const props = defineProps<{
   items: SearchResultMatch[];
-  listContainerClass?: CSSClass;
 }>();
 
 const inlineResultsList = computed(() => {
@@ -68,3 +66,27 @@ const numOfSeeMoreResults = computed(() => {
 
 const isShowingFullListOfResults = ref(false);
 </script>
+<style scoped>
+.more-like-this {
+  container-type: inline-size;
+}
+
+.more-like-this__title {
+  color: var(--app-mediaCard-title-textColor);
+}
+
+.more-like-this__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Go two-up once the component itself has room, regardless of where
+   it's placed (narrow asset panel vs. wide metadata-only page). */
+@container (min-width: 32rem) {
+  .more-like-this__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

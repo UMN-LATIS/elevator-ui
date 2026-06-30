@@ -81,6 +81,9 @@ const uppy = new Uppy({
 }).use(umnAwsS3, {
   endpoint: config.instance.base.url,
   shouldUseMultipart: true,
+  // AWS S3 allows up to 10k parts per multipart upload.
+  // support up to 2TB file size w/200MB part size (200MB * 10k = 2TB)
+  getChunkSize: () => 200 * 1024 * 1024, // 200MB
   async createMultipartUpload(file): Promise<{
     uploadId: string;
     key: string;

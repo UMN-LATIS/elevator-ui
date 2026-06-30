@@ -23,51 +23,20 @@
           <PencilIcon class="size-4" />
         </IconButton>
       </template>
-      <template v-if="assetId && asset && template">
-        <CollectionTuple
-          v-if="showCollectionTop"
-          :collectionId="asset.collectionId"
-          label="Collection" />
-
-        <Tuple v-if="showTemplateTop" label="Template">
-          {{ template.templateName }}
-        </Tuple>
-        <ErrorBoundary>
-          <WidgetList :assetId="assetId" class="py-4 md:py-0" />
-        </ErrorBoundary>
-        <CollectionTuple
-          v-if="showCollectionBottom"
-          :collectionId="asset.collectionId"
-          label="Collection" />
-
-        <Tuple v-if="showTemplateBottom" label="Template">
-          {{ template.templateName }}
-        </Tuple>
-
-        <MoreLikeThis :items="moreLikeThisItems" />
-      </template>
+      <AssetMetadata :assetId="assetId" :parentAssetId="parentAssetId" />
     </Panel>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import Panel from "@/components/Panel/Panel.vue";
-import WidgetList from "@/components/WidgetList/WidgetList.vue";
-import Tuple from "@/components/Tuple/Tuple.vue";
-import CollectionTuple from "./CollectionTuple.vue";
+import AssetMetadata from "@/components/AssetMetadata/AssetMetadata.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
-import MoreLikeThis from "../MoreLikeThis/MoreLikeThis.vue";
 import PanelLabel from "../Panel/PanelLabel.vue";
-import api from "@/api";
-import { SearchResultMatch } from "@/types";
-import { TEMPLATE_SHOW_PROPERTY_POSITIONS } from "@/constants/constants";
-import { RouterLink } from "vue-router";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { PencilIcon } from "lucide-vue-next";
 import IconButton from "../IconButton/IconButton.vue";
-import Link from "../Link/Link.vue";
-import ErrorBoundary from "../ErrorBoundary/ErrorBoundary.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -89,44 +58,8 @@ defineEmits<{
 
 const assetIdRef = computed(() => props.assetId);
 const parentAssetIdRef = computed(() => props.parentAssetId);
-const { asset, template } = useAsset(assetIdRef, parentAssetIdRef);
+const { asset } = useAsset(assetIdRef, parentAssetIdRef);
 const instanceStore = useInstanceStore();
-const moreLikeThisItems = ref<SearchResultMatch[]>([]);
-const showCollectionBottom = computed(
-  () =>
-    template.value?.showCollection &&
-    template.value?.showCollectionPosition ===
-      TEMPLATE_SHOW_PROPERTY_POSITIONS.BOTTOM
-);
-
-const showCollectionTop = computed(
-  () =>
-    template.value?.showCollection &&
-    template.value?.showCollectionPosition ===
-      TEMPLATE_SHOW_PROPERTY_POSITIONS.TOP
-);
-
-const showTemplateBottom = computed(
-  () =>
-    template.value?.showTemplate &&
-    template.value?.showTemplatePosition ===
-      TEMPLATE_SHOW_PROPERTY_POSITIONS.BOTTOM
-);
-
-const showTemplateTop = computed(
-  () =>
-    template.value?.showTemplate &&
-    template.value?.showTemplatePosition ===
-      TEMPLATE_SHOW_PROPERTY_POSITIONS.TOP
-);
-
-watch(
-  assetIdRef,
-  async () => {
-    moreLikeThisItems.value = await api.getMoreLikeThis(assetIdRef.value);
-  },
-  { immediate: true }
-);
 
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : ""
