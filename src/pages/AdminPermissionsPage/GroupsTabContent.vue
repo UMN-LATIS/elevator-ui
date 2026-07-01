@@ -33,7 +33,7 @@
       <AccordionItem
         v-for="group in sortedGroups"
         :key="group.id"
-        v-slot="{ open }"
+        v-slot="{ open: isPanelOpen }"
         :value="String(group.id)"
         class="border-b border-outline-variant last:border-b-0">
         <AccordionHeader class="group flex w-full items-center gap-4">
@@ -49,8 +49,8 @@
             <Chip
               v-if="group.type === GROUP_TYPES.USER"
               class="bg-secondary-container">
-              {{ group.values.length }}
-              {{ pluralize(group.values.length, "member") }}
+              {{ group.entries_count }}
+              {{ pluralize(group.entries_count, "member") }}
             </Chip>
             <div v-else>
               {{ groupTypesMap.get(group.type)?.label ?? group.type }}
@@ -79,11 +79,12 @@
           <GroupMemberManager
             v-if="group.type === GROUP_TYPES.USER"
             :group="group"
-            :isOpen="open"
+            :isOpen="isPanelOpen"
             class="my-2 max-w-screen-md m-auto" />
-          <AuthHelperGroupManager
+          <GroupEntriesManager
             v-else-if="isAuthHelperGroupType(group)"
-            :group="group" />
+            :group="group"
+            :isOpen="isPanelOpen" />
         </AccordionContent>
       </AccordionItem>
     </AccordionRoot>
@@ -140,7 +141,7 @@ import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
 import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 import { useToastStore } from "@/stores/toastStore";
-import AuthHelperGroupManager from "./AuthHelperGroupManager.vue";
+import GroupEntriesManager from "./GroupEntriesManager.vue";
 
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
