@@ -53,6 +53,7 @@ import {
   type UserAutocompleteMatch,
   type GroupMember,
   GROUP_TYPES,
+  PermissionsGroupEntry,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1259,4 +1260,23 @@ export async function removeGroupMember(
 
 export async function deleteGroup(groupId: number): Promise<void> {
   await axios.delete(`${BASE_URL}/adminPermissions/groups/${groupId}`);
+}
+
+export async function fetchGroupEntries(groupId: PermissionsGroup['id']): Promise<PermissionsGroupEntry[]> {
+  const res = await axios.get(`${BASE_URL}/adminPermissions/groups/${groupId}/entries`);
+  return res.data.group_entries;
+}
+
+
+export type AddGroupEntryInput = {
+  groupId: PermissionsGroup['id'],
+  value: PermissionsGroupEntry['value']
+}
+
+export async function addGroupEntry({groupId, value}: AddGroupEntryInput) {
+  const payload = new URLSearchParams({ value });
+
+  const res = await axios.post<{entry: PermissionsGroupEntry}>(`${BASE_URL}/adminPermissions/groups/${groupId}/entries`, payload);
+
+  return res.data.entry;
 }

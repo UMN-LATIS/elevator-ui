@@ -17,7 +17,7 @@ export interface GroupTypeDetails {
 
 // A member of a "User"-type group. `value` is the local user id the
 // backend resolved the member to; the list response carries no name.
-export interface PermissionsGroupValue {
+export interface PermissionsGroupEntry {
   id: number;
   value: string;
 }
@@ -25,12 +25,9 @@ export interface PermissionsGroupValue {
 export interface PermissionsGroup {
   id: number;
   type: GroupTypeValues;
-  // Vestigial scalar: 1 for global types (All/Authed/Authed_remote),
-  // null for User groups (whose membership lives in `values`).
-  value: number | null;
   label: string;
   expiration: string | null;
-  values: PermissionsGroupValue[];
+  entries_count: number;
 }
 
 // A user-autocomplete suggestion. `localUserId` is the local user id, or
