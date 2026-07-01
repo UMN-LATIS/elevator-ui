@@ -82,7 +82,8 @@ const groupEntryOptions = computed((): string[] => {
   return groupEntries.value.map((entry) => entry.value);
 });
 
-function handleSaveEntry(entry: { id: string; value: string }) {
-  // emit event to parent to handle saving the entry
+function handleSaveEntry() {
+  // emit
+  // event to parent to handle saving the entry
 }
 </script>
