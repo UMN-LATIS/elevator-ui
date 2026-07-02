@@ -11,7 +11,7 @@
         :labelHidden="true"
         placeholder="Add value..." />
       <Button type="submit" variant="secondary" :disabled="!canAddEntry">
-        Add
+        Add Entry
       </Button>
     </form>
 

@@ -29,14 +29,15 @@
       v-else
       v-model="openGroupIds"
       type="multiple"
-      class="my-4 flex flex-col border-y border-outline-variant">
+      class="my-4 flex flex-col gap-1">
       <AccordionItem
         v-for="group in sortedGroups"
         :key="group.id"
         v-slot="{ open: isPanelOpen }"
         :value="String(group.id)"
-        class="border-b border-outline-variant last:border-b-0">
-        <AccordionHeader class="group flex w-full items-center gap-4">
+        class="border border-outline-variant rounded-md overflow-hidden">
+        <AccordionHeader
+          class="group flex w-full items-center gap-4 bg-surface-container">
           <AccordionTrigger
             :data-group-trigger="group.id"
             class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
@@ -72,15 +73,14 @@
             </DropDown>
           </div>
         </AccordionHeader>
-        <AccordionContent class="p-4 pt-0 pl-8 text-sm text-on-surface-variant">
-          <p v-if="getGroupDescription(group)" class="mb-2">
+        <AccordionContent class="p-4 pl-16 text-sm text-on-surface-variant">
+          <p v-if="getGroupDescription(group)" class="mb-4">
             {{ getGroupDescription(group) }}
           </p>
           <GroupMemberManager
             v-if="group.type === GROUP_TYPES.USER"
             :group="group"
-            :isOpen="isPanelOpen"
-            class="my-2 max-w-screen-md m-auto" />
+            :isOpen="isPanelOpen" />
           <GroupEntriesManager
             v-else-if="isAuthHelperGroupType(group)"
             :group="group"
