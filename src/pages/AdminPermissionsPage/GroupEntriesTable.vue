@@ -23,9 +23,7 @@
             v-for="entry in entries"
             :key="entry.id"
             :entry="entry"
-            :group="group"
-            @save="$emit('save', $event)"
-            @remove="$emit('remove', $event)" />
+            :group="group" />
           <TableRow v-if="pendingValue">
             <TableCell
               :colspan="2"
@@ -62,10 +60,5 @@ defineProps<{
   // When set, a muted row with this value renders after the data rows, for
   // an addition that is still settling.
   pendingValue?: string | null;
-}>();
-
-defineEmits<{
-  (eventName: "save", entry: PermissionsGroupEntry): void;
-  (eventName: "remove", entry: PermissionsGroupEntry): void;
 }>();
 </script>

@@ -19,9 +19,7 @@
       :group="group"
       :entries="groupEntries ?? []"
       :isLoading="isLoadingEntries"
-      :pendingValue="pendingEntryValue"
-      @save="handleSaveEntry"
-      @remove="handleRemoveEntry" />
+      :pendingValue="pendingEntryValue" />
   </div>
 </template>
 
@@ -30,7 +28,7 @@ import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Button from "@/components/Button/Button.vue";
-import type { PermissionsGroup, PermissionsGroupEntry } from "@/types";
+import type { PermissionsGroup } from "@/types";
 import { groupEntriesQuery, useAddGroupEntryMutation } from "./groupQueries";
 import GroupEntriesTable from "./GroupEntriesTable.vue";
 
@@ -59,13 +57,5 @@ function handleAddEntry(): void {
 
   addMutation.mutate({ groupId: props.group.id, value });
   newValue.value = "";
-}
-
-function handleSaveEntry(_entry: PermissionsGroupEntry): void {
-  // TODO
-}
-
-function handleRemoveEntry(_entry: PermissionsGroupEntry): void {
-  // TODO
 }
 </script>
