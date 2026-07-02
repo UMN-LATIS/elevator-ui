@@ -7,7 +7,8 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 const columnHelper = createColumnHelper<GroupMember>();
 
 const ColHeader = (props: { text: string; class?: CSSClass }) => (
-  <div class={cn(["font-medium uppercase text-xs tracking-wider", props.class])}>
+  <div
+    class={cn(["font-medium uppercase text-xs tracking-wider", props.class])}>
     {props.text}
   </div>
 );
@@ -61,7 +62,6 @@ export const createGroupMemberColumns = (
           title="Remove"
           showTooltip={false}
           class="enabled:hover:bg-error-container enabled:hover:text-on-error-container">
-            { /* XIcon is used by Cancel, TrashIcon is used by Remove */ }
           <TrashIcon class="size-4" />
         </IconButton>
       </div>

@@ -69,4 +69,3 @@ defineEmits<{
   (eventName: "remove", entry: PermissionsGroupEntry): void;
 }>();
 </script>
-<style scoped></style>

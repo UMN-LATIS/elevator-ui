@@ -15,8 +15,9 @@ export interface GroupTypeDetails {
   description: string;
 }
 
-// A member of a "User"-type group. `value` is the local user id the
-// backend resolved the member to; the list response carries no name.
+// One raw match value of a value-based group: an auth attribute string
+// the group matches on. User groups store resolved user ids here and
+// manage them through the members endpoints instead.
 export interface PermissionsGroupEntry {
   id: number;
   value: string;
@@ -26,7 +27,6 @@ export interface PermissionsGroup {
   id: number;
   type: GroupTypeValues;
   label: string;
-  expiration: string | null;
   entries_count: number;
 }
 

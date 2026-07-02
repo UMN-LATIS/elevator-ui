@@ -138,9 +138,10 @@ const removeMutation = useRemoveGroupMemberMutation();
 // The in-flight row is derived, not cached: while the add settles (request
 // plus refetch) the mutation's own variables supply the display name, and
 // the row disappears exactly when the refetched list takes over.
-const pendingMemberName = computed(() =>
-  addMutation.isPending.value ? addMutation.variables.value?.name ?? null : null
-);
+const pendingMemberName = computed((): string | null => {
+  if (!addMutation.isPending.value) return null;
+  return addMutation.variables.value?.name ?? null;
+});
 
 const memberToRemove = ref<GroupMember | null>(null);
 

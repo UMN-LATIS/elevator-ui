@@ -13,7 +13,7 @@
         <template v-if="isEditing">
           <IconButton
             title="Save"
-            :data-group-entry-remove="entry.id"
+            :data-group-entry-save="entry.id"
             class="enabled:hover:bg-primary-container enabled:hover:text-on-primary-container"
             :aria-label="`Save ${entry.value} in ${group.label}`"
             @click="handleSave">
@@ -21,7 +21,7 @@
           </IconButton>
           <IconButton
             title="Cancel"
-            :data-group-entry-remove="entry.id"
+            :data-group-entry-cancel="entry.id"
             class="enabled:hover:bg-secondary-container enabled:hover:text-on-secondary-container"
             :aria-label="`Cancel editing ${entry.value} in ${group.label}`"
             @click="isEditing = false">
@@ -31,7 +31,7 @@
         <template v-else>
           <IconButton
             title="Edit"
-            :data-group-entry-remove="entry.id"
+            :data-group-entry-edit="entry.id"
             class="enabled:hover:bg-secondary-container enabled:hover:text-on-secondary-container"
             :aria-label="`Edit ${entry.value} in ${group.label}`"
             @click="handleEdit">
@@ -41,7 +41,8 @@
             title="Remove"
             :data-group-entry-remove="entry.id"
             class="enabled:hover:bg-error-container enabled:hover:text-on-error-container"
-            :aria-label="`Remove ${entry.value} from ${group.label}`">
+            :aria-label="`Remove ${entry.value} from ${group.label}`"
+            @click="emit('remove', entry)">
             <TrashIcon class="size-4" />
           </IconButton>
         </template>
@@ -70,12 +71,12 @@ const emit = defineEmits<{
 const isEditing = ref(false);
 const draftValue = ref(props.entry.value);
 
-function handleEdit() {
+function handleEdit(): void {
   isEditing.value = true;
   draftValue.value = props.entry.value;
 }
 
-function handleSave() {
+function handleSave(): void {
   isEditing.value = false;
 
   const trimmedDraft = draftValue.value.trim();
@@ -94,7 +95,6 @@ watch(
   (newValue) => {
     // don't clobber any draft value if editing
     if (isEditing.value) return;
-    // otherwise update
     draftValue.value = newValue;
   }
 );
