@@ -24,14 +24,9 @@
             :key="entry.id"
             :entry="entry"
             :group="group" />
-          <TableRow v-if="pendingValue">
-            <TableCell
-              :colspan="2"
-              class="text-sm p-2 italic text-on-surface-variant opacity-60">
-              {{ pendingValue }} (adding…)
-            </TableCell>
-          </TableRow>
-          <TableEmpty v-if="!entries.length && !pendingValue" :colspan="2">
+          <!-- extra rows such as the add-entry form -->
+          <slot />
+          <TableEmpty v-if="!entries.length && showEmptyMessage" :colspan="2">
             No entries yet.
           </TableEmpty>
         </template>
@@ -53,12 +48,15 @@ import {
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import GroupEntriesTableRow from "./GroupEntriesTableRow.vue";
 
-defineProps<{
-  group: PermissionsGroup;
-  entries: PermissionsGroupEntry[];
-  isLoading: boolean;
-  // When set, a muted row with this value renders after the data rows, for
-  // an addition that is still settling.
-  pendingValue?: string | null;
-}>();
+withDefaults(
+  defineProps<{
+    group: PermissionsGroup;
+    entries: PermissionsGroupEntry[];
+    isLoading: boolean;
+    // pass false while a slotted row (add form, in-flight entry) occupies
+    // the body, so "No entries yet." doesn't show beside it
+    showEmptyMessage?: boolean;
+  }>(),
+  { showEmptyMessage: true }
+);
 </script>

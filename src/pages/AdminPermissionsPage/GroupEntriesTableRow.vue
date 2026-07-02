@@ -9,6 +9,7 @@
         <InputGroup
           v-model="draftValue"
           class="flex-1"
+          :inputClass="`group-entry__input--${entry.id}`"
           :label="`Group ${group.label} Entry Value`"
           :labelHidden="true" />
         <IconButton
@@ -24,7 +25,7 @@
           :data-group-entry-cancel="entry.id"
           class="enabled:hover:bg-secondary-container enabled:hover:text-on-secondary-container"
           :aria-label="`Cancel editing ${entry.value} in ${group.label}`"
-          @click="isEditing = false">
+          @click="handleCancel">
           <XIcon class="size-4" />
         </IconButton>
       </form>
@@ -89,9 +90,15 @@ function handleEdit(): void {
   isEditing.value = true;
 }
 
+function handleCancel(): void {
+  isEditing.value = false;
+  draftValue.value = props.entry.value;
+}
+
 function handleSave(): void {
   isEditing.value = false;
   const trimmedDraft = draftValue.value.trim();
+
   if (trimmedDraft === props.entry.value) return;
 
   updateGroupEntry({
@@ -102,7 +109,6 @@ function handleSave(): void {
 }
 
 function handleDelete(): void {
-  isEditing.value = false;
   removeGroupEntry({
     groupId: props.group.id,
     entryId: props.entry.id,
