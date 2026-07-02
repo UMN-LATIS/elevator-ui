@@ -5,9 +5,11 @@ import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 
-// Keys mirror the REST paths and compose by prefix: item(id) is a prefix of
-// members(id) and entries(id), so invalidating `all` or one group's item key
-// refreshes every query beneath it.
+// Invalidation matches keys by prefix. The kind ("list" or "item")
+// comes right after the resource so list data and item data are
+// separate branches: the list can be refreshed without refetching
+// every group, and ["groups", "item"] targets all items but not the
+// list. See https://tkdodo.eu/blog/effective-react-query-keys
 export const groupKeys = {
   all: ["groups"] as const,
   list: () => ["groups", "list"] as const,
@@ -62,16 +64,6 @@ export function groupTypesQuery() {
   });
 }
 
-// Mutations never write to the cache, so it only ever holds server
-// responses. Each one invalidates the groups subtree in onSettled and
-// returns the promise, which keeps isPending true until the refetched lists
-// land. Components derive in-flight rows from isPending + variables.
-
-function useInvalidateGroups(): () => Promise<void> {
-  const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: groupKeys.all });
-}
-
 function useErrorToast(title: string): (error: Error) => void {
   const toastStore = useToastStore();
   return (error) =>
@@ -84,7 +76,7 @@ function useErrorToast(title: string): (error: Error) => void {
 }
 
 export function useCreateGroupMutation() {
-  const invalidateGroups = useInvalidateGroups();
+  const queryClient = useQueryClient();
   const toastStore = useToastStore();
 
   return useMutation({
@@ -95,12 +87,13 @@ export function useCreateGroupMutation() {
         variant: "success",
       }),
     onError: useErrorToast("Could not create group"),
-    onSettled: invalidateGroups,
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: groupKeys.list() }),
   });
 }
 
 export function useUpdateGroupMutation() {
-  const invalidateGroups = useInvalidateGroups();
+  const queryClient = useQueryClient();
   const toastStore = useToastStore();
 
   return useMutation({
@@ -112,17 +105,27 @@ export function useUpdateGroupMutation() {
         variant: "success",
       }),
     onError: useErrorToast("Could not update group"),
-    onSettled: invalidateGroups,
+    // The list shows label and type, so it goes stale along with the item.
+    onSettled: (_group, _error, vars) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: groupKeys.item(vars.id) }),
+        queryClient.invalidateQueries({ queryKey: groupKeys.list() }),
+      ]),
   });
 }
 
 // Toasts for delete live at the call site, next to the confirm dialog.
 export function useDeleteGroupMutation() {
-  const invalidateGroups = useInvalidateGroups();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: PermissionsGroup["id"]) => fetchers.deleteGroup(id),
-    onSettled: invalidateGroups,
+    // The group no longer exists, so drop its item subtree instead of
+    // invalidating it (a refetch would 404).
+    onSettled: (_data, _error, id) => {
+      queryClient.removeQueries({ queryKey: groupKeys.item(id) });
+      return queryClient.invalidateQueries({ queryKey: groupKeys.list() });
+    },
   });
 }
 
@@ -131,32 +134,45 @@ export function useDeleteGroupMutation() {
 export type AddGroupMemberVars = AddGroupMemberInput & { name: string };
 
 export function useAddGroupMemberMutation() {
-  const invalidateGroups = useInvalidateGroups();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (vars: AddGroupMemberVars) => fetchers.addGroupMember(vars),
     onError: useErrorToast("Could not add member"),
-    onSettled: invalidateGroups,
+    onSettled: (_member, _error, vars) =>
+      queryClient.invalidateQueries({
+        queryKey: groupKeys.members(vars.groupId),
+      }),
   });
 }
 
 export function useRemoveGroupMemberMutation() {
-  const invalidateGroups = useInvalidateGroups();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (vars: { groupId: number; userId: number }) =>
       fetchers.removeGroupMember(vars.groupId, vars.userId),
     onError: useErrorToast("Could not remove member"),
-    onSettled: invalidateGroups,
+    onSettled: (_data, _error, vars) =>
+      queryClient.invalidateQueries({
+        queryKey: groupKeys.members(vars.groupId),
+      }),
   });
 }
 
 export function useAddGroupEntryMutation() {
-  const invalidateGroups = useInvalidateGroups();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: fetchers.addGroupEntry,
     onError: useErrorToast("Could not add value"),
-    onSettled: invalidateGroups,
+    // The list shows entries_count, so it goes stale along with the entries.
+    onSettled: (_entry, _error, vars) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: groupKeys.entries(vars.groupId),
+        }),
+        queryClient.invalidateQueries({ queryKey: groupKeys.list() }),
+      ]),
   });
 }
