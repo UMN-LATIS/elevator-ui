@@ -22,68 +22,49 @@
     <GroupEntriesTable
       :group="group"
       :entries="groupEntries ?? []"
-      :isLoading="isLoadingValues"
+      :isLoading="isLoadingEntries"
+      :pendingValue="pendingEntryValue"
       @save="handleSaveEntry"
       @remove="handleRemoveEntry" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toValue } from "vue";
+import { computed, ref } from "vue";
+import { useQuery } from "@tanstack/vue-query";
 import AutoCompleteInput from "@/components/AutoCompleteInput/AutoCompleteInput.vue";
-import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import type { PermissionsGroup, PermissionsGroupEntry } from "@/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import {
-  GROUP_VALUES_QUERY_KEY,
-  PERMISSIONS_GROUPS_QUERY_KEY,
-} from "@/queries/queryKeys";
-import {
-  addGroupEntry,
-  AddGroupEntryInput,
-  fetchGroupEntries,
-} from "@/api/fetchers";
+import { groupEntriesQuery, useAddGroupEntryMutation } from "./groupQueries";
 import GroupEntriesTable from "./GroupEntriesTable.vue";
 
 const props = defineProps<{ group: PermissionsGroup; isOpen: boolean }>();
 
 const search = ref("");
 
-const groupEntriesQueryKey = computed(() => [
-  PERMISSIONS_GROUPS_QUERY_KEY,
-  props.group.id,
-  GROUP_VALUES_QUERY_KEY,
-]);
+const { data: groupEntries, isPending: isLoadingEntries } = useQuery(
+  groupEntriesQuery(() => props.group.id, { enabled: () => props.isOpen })
+);
 
-const { data: groupEntries, isLoading: isLoadingValues } = useQuery({
-  queryKey: groupEntriesQueryKey,
-  queryFn: () => fetchGroupEntries(toValue(props.group.id)),
-});
+const addMutation = useAddGroupEntryMutation();
 
-const queryClient = useQueryClient();
-
-const { mutate: addEntry } = useMutation({
-  mutationFn: addGroupEntry,
-  onSuccess: (entry: PermissionsGroupEntry, vars: AddGroupEntryInput) => {
-    // update the group entries with the new data
-    queryClient.setQueryData<PermissionsGroupEntry[]>(
-      groupEntriesQueryKey.value,
-      (entries = []) =>
-        entries.some((e) => e.id === entry.id) ? entries : [...entries, entry]
-    );
-  },
-  onError: (error) => {
-    console.error("Error adding group entry:", error);
-  },
-});
+// The in-flight row is derived from the mutation, not written to the cache:
+// it shows while the add settles and vanishes when the refetched list lands.
+const pendingEntryValue = computed(() =>
+  addMutation.isPending.value
+    ? addMutation.variables.value?.value ?? null
+    : null
+);
 
 const groupEntryOptions = computed((): string[] => {
   if (!groupEntries.value) return [];
   return groupEntries.value.map((entry) => entry.value);
 });
 
-function handleSaveEntry() {
-  // emit
-  // event to parent to handle saving the entry
+function handleSaveEntry(_entry: PermissionsGroupEntry): void {
+  // TODO: wire once the update entry endpoint exists
+}
+
+function handleRemoveEntry(_entry: PermissionsGroupEntry): void {
+  // TODO: wire once the remove entry endpoint exists
 }
 </script>

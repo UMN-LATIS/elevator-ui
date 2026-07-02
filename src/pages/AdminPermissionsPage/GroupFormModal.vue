@@ -43,9 +43,12 @@ import Modal from "@/components/Modal/Modal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
-import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
-import { useCreateGroupMutation } from "@/queries/useCreateGroupMutation";
-import { useUpdateGroupMutation } from "@/queries/useUpdateGroupMutation";
+import { useQuery } from "@tanstack/vue-query";
+import {
+  groupTypesQuery,
+  useCreateGroupMutation,
+  useUpdateGroupMutation,
+} from "./groupQueries";
 import { GroupTypeValues, PermissionsGroup, SelectOption } from "@/types";
 
 const props = defineProps<{
@@ -58,7 +61,7 @@ const emit = defineEmits<{
   (e: "created", group: PermissionsGroup): void;
 }>();
 
-const { data: labelledGroupTypes } = useGroupTypesQuery();
+const { data: labelledGroupTypes } = useQuery(groupTypesQuery());
 const createMutation = useCreateGroupMutation();
 const updateMutation = useUpdateGroupMutation();
 
@@ -130,16 +133,25 @@ function handleSubmit() {
 
   const { type, label } = form.value;
 
+  // Both branches emit from onSettled, not onSuccess: the mutation's own
+  // onSettled awaits the list refetch first, so by the time these run the
+  // updated list is on screen. isPending covers the whole window, and the
+  // parent's tryFocus can rely on the new row existing.
   if (props.group) {
     updateMutation.mutate(
       { id: props.group.id, payload: { type, label } },
-      { onSuccess: () => emit("close") }
+      {
+        onSettled: (_group, error) => {
+          if (!error) emit("close");
+        },
+      }
     );
   } else {
     createMutation.mutate(
       { type, label, values: [] },
       {
-        onSuccess: (group) => {
+        onSettled: (group) => {
+          if (!group) return;
           emit("created", group);
           emit("close");
         },

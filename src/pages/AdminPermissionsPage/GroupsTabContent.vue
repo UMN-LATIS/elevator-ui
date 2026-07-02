@@ -128,8 +128,12 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import GroupFormModal from "./GroupFormModal.vue";
 import GroupMemberManager from "./GroupMemberManager.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import { useGroupsQuery } from "@/queries/useGroupsQuery";
-import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
+import { useQuery } from "@tanstack/vue-query";
+import {
+  groupsQuery,
+  groupTypesQuery,
+  useDeleteGroupMutation,
+} from "./groupQueries";
 import { GROUP_TYPES } from "@/types";
 import type {
   GroupTypeValues,
@@ -139,7 +143,6 @@ import type {
 import { pluralize } from "@/helpers/pluralize.js";
 import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
-import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 import { useToastStore } from "@/stores/toastStore";
 import GroupEntriesManager from "./GroupEntriesManager.vue";
 
@@ -147,8 +150,8 @@ import GroupEntriesManager from "./GroupEntriesManager.vue";
 const SKELETON_ROW_COUNT = 3;
 
 const toastStore = useToastStore();
-const { data: groups, isLoading } = useGroupsQuery();
-const { data: groupTypes } = useGroupTypesQuery();
+const { data: groups, isLoading } = useQuery(groupsQuery());
+const { data: groupTypes } = useQuery(groupTypesQuery());
 const { mutate: deleteGroup } = useDeleteGroupMutation();
 
 const byAlphaNumeric = (a: PermissionsGroup, b: PermissionsGroup) => {

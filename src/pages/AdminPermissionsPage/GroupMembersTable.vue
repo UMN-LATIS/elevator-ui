@@ -39,7 +39,7 @@
             </TableCell>
           </TableRow>
         </template>
-        <template v-else-if="table.getRowModel().rows?.length">
+        <template v-else>
           <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
               <FlexRender
@@ -47,9 +47,15 @@
                 :props="cell.getContext()" />
             </TableCell>
           </TableRow>
-        </template>
-        <template v-else>
-          <TableRow>
+          <TableRow v-if="pendingRowLabel">
+            <TableCell
+              :colspan="columns.length"
+              class="italic text-on-surface-variant opacity-60">
+              {{ pendingRowLabel }} (adding…)
+            </TableCell>
+          </TableRow>
+          <TableRow
+            v-if="!table.getRowModel().rows?.length && !pendingRowLabel">
             <TableCell
               :colspan="columns.length"
               class="h-16 text-center text-sm text-on-surface-variant">
@@ -90,6 +96,9 @@ const props = defineProps<{
   columns: ColumnDef<TData, any>[];
   data: TData[];
   isLoading?: boolean;
+  // When set, a muted row with this label renders after the data rows, for
+  // an addition that is still settling.
+  pendingRowLabel?: string | null;
 }>();
 
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);

@@ -53,6 +53,7 @@
       :columns="columns"
       :data="memberList"
       :isLoading="isLoadingMembers"
+      :pendingRowLabel="pendingMemberName"
       class="mb-2" />
 
     <ConfirmModal
@@ -79,10 +80,13 @@ import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import GroupMembersTable from "./GroupMembersTable.vue";
 import { createGroupMemberColumns } from "./GroupMembersTableColumns";
 import { PlusIcon } from "@/icons";
+import { useQuery } from "@tanstack/vue-query";
 import { useUserAutocompleteQuery } from "@/queries/useUserAutocompleteQuery";
-import { useGroupMembersQuery } from "@/queries/useGroupMembersQuery";
-import { useAddGroupMemberMutation } from "@/queries/useAddGroupMemberMutation";
-import { useRemoveGroupMemberMutation } from "@/queries/useRemoveGroupMemberMutation";
+import {
+  groupMembersQuery,
+  useAddGroupMemberMutation,
+  useRemoveGroupMemberMutation,
+} from "./groupQueries";
 import type {
   GroupMember,
   PermissionsGroup,
@@ -100,21 +104,12 @@ const props = defineProps<{
   isOpen: boolean;
 }>();
 
-const {
-  data: members,
-  isFetching: isFetchingMembers,
-  isPlaceholderData: isMembersPlaceholder,
-} = useGroupMembersQuery(() => props.group.id, {
-  enabled: () => props.isOpen,
-});
-const memberList = computed(() => members.value ?? []);
-
-// Only the very first load — the query starts on the placeholder list and a
-// fetch is in flight. Cache patches on add/remove never refetch, so this
-// stays false for them.
-const isLoadingMembers = computed(
-  () => isFetchingMembers.value && isMembersPlaceholder.value
+// isPending is true only before the first data arrives. Refetches after
+// add/remove keep the old list on screen, so no skeleton flash.
+const { data: members, isPending: isLoadingMembers } = useQuery(
+  groupMembersQuery(() => props.group.id, { enabled: () => props.isOpen })
 );
+const memberList = computed(() => members.value ?? []);
 
 const search = ref("");
 const debouncedSearch = useDebounce(search, 300);
@@ -140,6 +135,13 @@ const options = computed<MemberOption[]>(() => {
 const addMutation = useAddGroupMemberMutation();
 const removeMutation = useRemoveGroupMemberMutation();
 
+// The in-flight row is derived, not cached: while the add settles (request
+// plus refetch) the mutation's own variables supply the display name, and
+// the row disappears exactly when the refetched list takes over.
+const pendingMemberName = computed(() =>
+  addMutation.isPending.value ? addMutation.variables.value?.name ?? null : null
+);
+
 const memberToRemove = ref<GroupMember | null>(null);
 
 function remove(member: GroupMember) {
@@ -152,8 +154,8 @@ function confirmRemove() {
     groupId: props.group.id,
     userId: memberToRemove.value.userId,
   });
-  // Close the confirm modal now
-  // removal is optimistic, no need to wait for mutation
+  // Close the confirm modal right away. The row stays until the refetch
+  // drops it, and a failure surfaces as an error toast.
   memberToRemove.value = null;
 }
 
@@ -185,8 +187,16 @@ function add(option: MemberOption) {
   // provisions through its remote username
   addMutation.mutate(
     match.localUserId !== null
-      ? { groupId: props.group.id, localUserId: match.localUserId }
-      : { groupId: props.group.id, remoteUserId: match.username }
+      ? {
+          groupId: props.group.id,
+          localUserId: match.localUserId,
+          name: match.name,
+        }
+      : {
+          groupId: props.group.id,
+          remoteUserId: match.username,
+          name: match.name,
+        }
   );
   search.value = "";
 }
@@ -196,7 +206,11 @@ function add(option: MemberOption) {
 function provision(query: string) {
   const remoteUserId = query.trim();
   if (remoteUserId === "") return;
-  addMutation.mutate({ groupId: props.group.id, remoteUserId });
+  addMutation.mutate({
+    groupId: props.group.id,
+    remoteUserId,
+    name: remoteUserId,
+  });
   search.value = "";
 }
 
