@@ -1288,3 +1288,33 @@ export async function addGroupEntry({
 
   return res.data.entry;
 }
+
+export type UpdateGroupEntryInput = {
+  groupId: PermissionsGroup["id"];
+  entryId: PermissionsGroupEntry["id"];
+  value: PermissionsGroupEntry["value"];
+};
+
+export async function updateGroupEntry({
+  groupId,
+  entryId,
+  value,
+}: UpdateGroupEntryInput): Promise<PermissionsGroupEntry> {
+  const payload = new URLSearchParams({ value });
+
+  const res = await axios.put<{ entry: PermissionsGroupEntry }>(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/entries/${entryId}`,
+    payload
+  );
+
+  return res.data.entry;
+}
+
+export async function removeGroupEntry(
+  groupId: PermissionsGroup["id"],
+  entryId: PermissionsGroupEntry["id"]
+): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/adminPermissions/groups/${groupId}/entries/${entryId}`
+  );
+}

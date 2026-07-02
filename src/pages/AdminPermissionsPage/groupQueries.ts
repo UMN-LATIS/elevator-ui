@@ -10,15 +10,15 @@ import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 // separate branches: the list can be refreshed without refetching
 // every group, and ["groups", "item"] targets all items but not the
 // list. See https://tkdodo.eu/blog/effective-react-query-keys
-export const groupKeys = {
+export const makeQueryKeyFor = {
   all: ["groups"] as const,
-  list: () => ["groups", "list"] as const,
-  item: (groupId: number) => ["groups", "item", groupId] as const,
-  entries: (groupId: number) =>
-    [...groupKeys.item(groupId), "entries"] as const,
-  members: (groupId: number) =>
-    [...groupKeys.item(groupId), "members"] as const,
-  types: () => ["groupTypes"] as const,
+  groupsList: () => ["groups", "list"] as const,
+  groupDetails: (groupId: number) => ["groups", "item", groupId] as const,
+  groupEntries: (groupId: number) =>
+    [...makeQueryKeyFor.groupDetails(groupId), "entries"] as const,
+  groupMembers: (groupId: number) =>
+    [...makeQueryKeyFor.groupDetails(groupId), "members"] as const,
+  groupTypes: () => ["groupTypes"] as const,
 };
 
 // Queries are queryOptions factories so the key and fetcher stay welded
@@ -26,7 +26,7 @@ export const groupKeys = {
 
 export function groupsQuery() {
   return queryOptions({
-    queryKey: groupKeys.list(),
+    queryKey: makeQueryKeyFor.groupsList(),
     queryFn: fetchers.fetchGroups,
   });
 }
@@ -37,7 +37,7 @@ export function groupMembersQuery(
   options?: { enabled?: MaybeRefOrGetter<boolean> }
 ) {
   return queryOptions({
-    queryKey: computed(() => groupKeys.members(toValue(groupId))),
+    queryKey: computed(() => makeQueryKeyFor.groupMembers(toValue(groupId))),
     queryFn: () => fetchers.fetchGroupMembers(toValue(groupId)),
     enabled: computed(() => toValue(options?.enabled) ?? true),
   });
@@ -49,7 +49,7 @@ export function groupEntriesQuery(
   options?: { enabled?: MaybeRefOrGetter<boolean> }
 ) {
   return queryOptions({
-    queryKey: computed(() => groupKeys.entries(toValue(groupId))),
+    queryKey: computed(() => makeQueryKeyFor.groupEntries(toValue(groupId))),
     queryFn: () => fetchers.fetchGroupEntries(toValue(groupId)),
     enabled: computed(() => toValue(options?.enabled) ?? true),
   });
@@ -57,7 +57,7 @@ export function groupEntriesQuery(
 
 export function groupTypesQuery() {
   return queryOptions({
-    queryKey: groupKeys.types(),
+    queryKey: makeQueryKeyFor.groupTypes(),
     queryFn: fetchers.fetchGroupTypes,
     // Types never change over a page's life, so fetch once and reuse.
     staleTime: Infinity,
@@ -88,7 +88,7 @@ export function useCreateGroupMutation() {
       }),
     onError: useErrorToast("Could not create group"),
     onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: groupKeys.list() }),
+      queryClient.invalidateQueries({ queryKey: makeQueryKeyFor.groupsList() }),
   });
 }
 
@@ -108,8 +108,12 @@ export function useUpdateGroupMutation() {
     // The list shows label and type, so it goes stale along with the item.
     onSettled: (_group, _error, vars) =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: groupKeys.item(vars.id) }),
-        queryClient.invalidateQueries({ queryKey: groupKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupDetails(vars.id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupsList(),
+        }),
       ]),
   });
 }
@@ -123,8 +127,10 @@ export function useDeleteGroupMutation() {
     // The group no longer exists, so drop its item subtree instead of
     // invalidating it (a refetch would 404).
     onSettled: (_data, _error, id) => {
-      queryClient.removeQueries({ queryKey: groupKeys.item(id) });
-      return queryClient.invalidateQueries({ queryKey: groupKeys.list() });
+      queryClient.removeQueries({ queryKey: makeQueryKeyFor.groupDetails(id) });
+      return queryClient.invalidateQueries({
+        queryKey: makeQueryKeyFor.groupsList(),
+      });
     },
   });
 }
@@ -141,7 +147,7 @@ export function useAddGroupMemberMutation() {
     onError: useErrorToast("Could not add member"),
     onSettled: (_member, _error, vars) =>
       queryClient.invalidateQueries({
-        queryKey: groupKeys.members(vars.groupId),
+        queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
       }),
   });
 }
@@ -155,7 +161,7 @@ export function useRemoveGroupMemberMutation() {
     onError: useErrorToast("Could not remove member"),
     onSettled: (_data, _error, vars) =>
       queryClient.invalidateQueries({
-        queryKey: groupKeys.members(vars.groupId),
+        queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
       }),
   });
 }
@@ -170,9 +176,45 @@ export function useAddGroupEntryMutation() {
     onSettled: (_entry, _error, vars) =>
       Promise.all([
         queryClient.invalidateQueries({
-          queryKey: groupKeys.entries(vars.groupId),
+          queryKey: makeQueryKeyFor.groupEntries(vars.groupId),
         }),
-        queryClient.invalidateQueries({ queryKey: groupKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupsList(),
+        }),
+      ]),
+  });
+}
+
+// Editing a value in place leaves entries_count alone, so the list stays fresh.
+export function useUpdateGroupEntryMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: fetchers.updateGroupEntry,
+    onError: useErrorToast("Could not update value"),
+    onSettled: (_entry, _error, vars) =>
+      queryClient.invalidateQueries({
+        queryKey: makeQueryKeyFor.groupEntries(vars.groupId),
+      }),
+  });
+}
+
+export function useRemoveGroupEntryMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vars: { groupId: number; entryId: number }) =>
+      fetchers.removeGroupEntry(vars.groupId, vars.entryId),
+    onError: useErrorToast("Could not remove value"),
+    // The list shows entries_count, so it goes stale along with the entries.
+    onSettled: (_data, _error, vars) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupEntries(vars.groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupsList(),
+        }),
       ]),
   });
 }
