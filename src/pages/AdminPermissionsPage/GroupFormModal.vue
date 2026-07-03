@@ -133,14 +133,11 @@ function handleSubmit() {
 
   const { type, label } = form.value;
 
-  // Both branches emit from onSettled, not onSuccess: the mutation's own
-  // onSettled awaits the list refetch first, so by the time these run the
-  // updated list is on screen. isPending covers the whole window, and the
-  // parent's tryFocus can rely on the new row existing.
   if (props.group) {
     updateMutation.mutate(
       { id: props.group.id, payload: { type, label } },
       {
+        // wait for updateMutation invalidations to settle before closing
         onSettled: (_group, error) => {
           if (!error) emit("close");
         },
@@ -150,6 +147,10 @@ function handleSubmit() {
     createMutation.mutate(
       { type, label, values: [] },
       {
+        // updateMutation isn't doing an optimistic updates, so we
+        // need to wait until the invalidation settles before
+        // closing the modal, otherwise `tryFocus` in the parent
+        // won't be able to find the member input for the updated group
         onSettled: (group) => {
           if (!group) return;
           emit("created", group);

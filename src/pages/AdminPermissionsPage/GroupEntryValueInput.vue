@@ -52,10 +52,6 @@ import {
 import type { CSSClass, PermissionsGroup } from "@/types";
 import { cn } from "@/lib/utils";
 
-// The entry value field shared by the add row and the edit row: the
-// group type's hints plus a pinned use-what-you-typed row. Selecting
-// fills the input rather than saving, so a picked hint can still be
-// edited into a wildcard before the row's own Save commits it.
 const props = defineProps<{
   group: PermissionsGroup;
   inputId: string;
