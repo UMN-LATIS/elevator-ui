@@ -7,12 +7,13 @@
         class="flex items-start gap-2"
         :data-group-entry-add-form="group.id"
         @submit.prevent="handleSave">
-        <InputGroup
+        <GroupEntryValueInput
           v-model="draftValue"
           class="flex-1"
+          :group="group"
+          :inputId="`group-entry-add-input-${group.id}`"
           :inputClass="`group-entry-add__input--${group.id}`"
-          :label="`New ${group.label} Entry Value`"
-          :labelHidden="true" />
+          :label="`New ${group.label} Entry Value`" />
         <IconButton
           title="Save"
           :data-group-entry-add-save="group.id"
@@ -40,7 +41,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { computed, ref } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { XIcon, CheckIcon } from "lucide-vue-next";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import GroupEntryValueInput from "./GroupEntryValueInput.vue";
 import { useAddGroupEntryMutation } from "./groupQueries";
 
 const props = defineProps<{ group: PermissionsGroup }>();

@@ -11,6 +11,7 @@
         :isLoading="isSearching"
         :isItemDisabled="isOptionDisabled"
         :blurOnSelect="false"
+        :minChars="2"
         placeholder="Add member by name, email, or username…"
         inputClass="mt-1 w-full bg-surface-container rounded-md px-3 py-2 text-sm"
         @select="add">
@@ -113,9 +114,15 @@ const memberList = computed(() => members.value ?? []);
 
 const search = ref("");
 const debouncedSearch = useDebounce(search, 300);
-const { data: matches, isFetching: isSearching } =
-  useUserAutocompleteQuery(debouncedSearch);
+const { data: matches, isFetching } = useUserAutocompleteQuery(debouncedSearch);
 const matchList = computed(() => matches.value ?? []);
+
+// The debounce window counts as loading too: while the query waits for
+// typing to settle, matches still reflect the previous term, and the
+// dropdown must not present them as current.
+const isSearching = computed(
+  () => isFetching.value || search.value.trim() !== debouncedSearch.value.trim()
+);
 
 // matches first, then a create row pinned to the bottom whenever there is
 // text to provision — present even when matches exist, so creating someone

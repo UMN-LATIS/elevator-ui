@@ -37,7 +37,7 @@
         :value="String(group.id)"
         class="border border-outline-variant rounded-md overflow-hidden">
         <AccordionHeader
-          class="group flex w-full items-center gap-4 bg-surface-container">
+          class="group flex w-full items-center gap-4 bg-surface-container-low">
           <AccordionTrigger
             :data-group-trigger="group.id"
             class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
@@ -59,7 +59,7 @@
             <DropDown
               alignment="right"
               :showChevron="false"
-              labelClass="rounded-full hover:bg-surface-container-high justify-self-end">
+              labelClass="rounded-full hover:bg-surface-container-low justify-self-end">
               <template #label>
                 <VerticalDotsIcon class="size-5" />
                 <span class="sr-only">More actions</span>
@@ -73,7 +73,8 @@
             </DropDown>
           </div>
         </AccordionHeader>
-        <AccordionContent class="p-4 pl-16 text-sm text-on-surface-variant">
+        <AccordionContent
+          class="p-4 pl-16 text-sm text-on-surface-variant bg-surface-container-lowest">
           <p v-if="getGroupDescription(group)" class="mb-4">
             {{ getGroupDescription(group) }}
           </p>

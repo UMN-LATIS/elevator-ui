@@ -12,12 +12,15 @@
         :class="inputClass"
         autocomplete="off"
         role="combobox"
+        :aria-controls="`${id}-listbox`"
         :aria-expanded="isOpen"
         :aria-activedescendant="
           highlightedIndex >= 0 ? `${id}-option-${highlightedIndex}` : undefined
         "
         aria-autocomplete="list"
         @update:modelValue="handleUpdateSearchTerm"
+        @focus="openDropdown"
+        @click="openDropdown"
         @keydown.enter="handleKeydownEnter"
         @keydown.up="handleKeydownUp"
         @keydown.down="handleKeydownDown"
@@ -28,20 +31,28 @@
 
     <PopoverPortal>
       <PopoverContent
+        :id="`${id}-listbox`"
         class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-inverse-surface p-0 text-inverse-on-surface shadow-md z-10 max-w-sm"
         role="listbox"
         :aria-labelledby="id"
         align="start"
         :sideOffset="4">
         <div
-          v-if="isLoading"
+          v-if="needsMoreChars"
+          class="p-4 text-sm text-muted-foreground text-center">
+          Type at least {{ minChars }}
+          {{ minChars === 1 ? "character" : "characters" }} to see suggestions.
+        </div>
+
+        <div
+          v-else-if="isLoading"
           class="flex items-center justify-center gap-2 p-4">
           <SpinnerIcon class="size-4" />
           <span class="text-sm">Loading suggestions...</span>
         </div>
 
         <div
-          v-else-if="showEmptyState"
+          v-else-if="items.length === 0"
           class="p-4 text-sm text-muted-foreground text-center">
           No suggestions found.
         </div>
@@ -99,6 +110,10 @@ const props = withDefaults(
     inputClass?: CSSClass;
     id?: string;
     blurOnSelect?: boolean;
+    // The consumer's query threshold, which this component cannot know:
+    // below it the dropdown explains that typing more starts the search,
+    // instead of showing empty or stale results.
+    minChars?: number;
     isItemDisabled?: (item: T) => boolean;
     // extra classes per option wrapper, e.g. to set a pinned row apart
     itemClass?: (item: T) => CSSClass;
@@ -109,6 +124,7 @@ const props = withDefaults(
     inputClass: "",
     isLoading: false,
     blurOnSelect: true,
+    minChars: 0,
     isItemDisabled: undefined,
     itemClass: undefined,
   }
@@ -138,27 +154,35 @@ function isDisabled(item: T): boolean {
   return props.isItemDisabled?.(item) ?? false;
 }
 
-const showEmptyState = computed(() => {
-  return (
-    props.modelValue.trim().length >= 1 &&
-    !props.isLoading &&
-    props.items.length === 0
-  );
+const needsMoreChars = computed(() => {
+  return props.minChars > 0 && props.modelValue.trim().length < props.minChars;
+});
+
+// Options render only when no state message (type-more, loading, empty)
+// stands in for them, and only rendered options are keyboard-navigable.
+const hasNavigableOptions = computed(() => {
+  return !needsMoreChars.value && !props.isLoading && props.items.length > 0;
 });
 
 function handleUpdateSearchTerm(value: string) {
   emit("update:modelValue", value);
   highlightedIndex.value = -1;
+  isOpen.value = true;
+}
 
-  if (value.trim().length === 0) {
-    isOpen.value = false;
-    return;
-  }
+// The dropdown opens whenever the field is focused and always shows a
+// true state (type-more, loading, no matches, or options), so the user
+// never has to guess whether typing would reveal anything. Click must
+// also open because a mouse click focuses mid-sequence: the popover
+// opens on focus, reka-ui's dismiss layer closes it when the same click
+// finishes on the input (which sits outside the popover content), and
+// the click event fires after that dismissal, so opening here wins.
+function openDropdown(): void {
   isOpen.value = true;
 }
 
 function handleKeydownDown(event: KeyboardEvent) {
-  if (!props.modelValue.trim().length || !props.items.length) return;
+  if (!hasNavigableOptions.value) return;
   event.preventDefault();
   isOpen.value = true;
   highlightedIndex.value = Math.min(
@@ -168,7 +192,7 @@ function handleKeydownDown(event: KeyboardEvent) {
 }
 
 function handleKeydownUp(event: KeyboardEvent) {
-  if (!props.modelValue.trim().length || !props.items.length) return;
+  if (!hasNavigableOptions.value) return;
   event.preventDefault();
   highlightedIndex.value = Math.max(highlightedIndex.value - 1, -1);
 }

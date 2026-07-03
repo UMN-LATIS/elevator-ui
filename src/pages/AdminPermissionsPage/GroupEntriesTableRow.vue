@@ -6,12 +6,14 @@
         class="flex items-start gap-2"
         :data-group-entry-edit-form="entry.id"
         @submit.prevent="handleSave">
-        <InputGroup
+        <GroupEntryValueInput
           v-model="draftValue"
           class="flex-1"
+          :group="group"
+          :excludeValue="entry.value"
+          :inputId="`group-entry-edit-input-${entry.id}`"
           :inputClass="`group-entry__input--${entry.id}`"
-          :label="`Group ${group.label} Entry Value`"
-          :labelHidden="true" />
+          :label="`Group ${group.label} Entry Value`" />
         <IconButton
           title="Save"
           :data-group-entry-save="entry.id"
@@ -66,7 +68,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { ref } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { PenIcon, XIcon, CheckIcon, TrashIcon } from "lucide-vue-next";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import GroupEntryValueInput from "./GroupEntryValueInput.vue";
 import {
   useUpdateGroupEntryMutation,
   useRemoveGroupEntryMutation,
