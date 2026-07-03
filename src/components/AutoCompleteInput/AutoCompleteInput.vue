@@ -85,14 +85,6 @@ import { SpinnerIcon } from "@/icons";
 import { CSSClass } from "@/types";
 import { cn } from "@/lib/utils";
 
-// Presentational autocomplete on the native Popover API and CSS anchor
-// positioning. The parent owns the data: it passes items and isLoading,
-// renders each item with the #option slot, and reacts to select. The
-// browser owns closing: popover="auto" light-dismisses on outside click
-// and Escape, so this code only ever shows the listbox (focus, click,
-// typing) and hides it on select. Options prevent their mousedown
-// default so choosing one never blurs the input. Needs Chrome 125+,
-// Safari 26+, or Firefox 147+ for anchor positioning.
 const props = withDefaults(
   defineProps<{
     modelValue: string;
@@ -102,9 +94,7 @@ const props = withDefaults(
     inputClass?: CSSClass;
     id?: string;
     blurOnSelect?: boolean;
-    // The consumer's query threshold, which this component cannot know:
-    // below it the dropdown explains that typing more starts the search,
-    // instead of showing empty or stale results.
+    // number of chars required before a search is triggered
     minChars?: number;
     isItemDisabled?: (item: T) => boolean;
   }>(),
@@ -129,9 +119,7 @@ const emit = defineEmits<{
 const inputRef = useTemplateRef("inputRef");
 const listboxRef = useTemplateRef<HTMLDivElement>("listboxRef");
 
-// anchor-name is a page-global dashed-ident and duplicates resolve to
-// the last one in source order, so each instance mints its own from
-// the input id.
+// CSS identifier that we put on the input for popover anchoring
 const anchorName = computed(() => `--autocomplete-${props.id}`);
 
 // Mirrors the popover's real state via its toggle event. The browser
@@ -217,11 +205,7 @@ function commitSelection(item: T) {
 </script>
 
 <style scoped>
-/* The UA stylesheet gives [popover] inset: 0, margin: auto, and its own
-   border and padding. Reset those, then pin the listbox to the input
-   through its anchor (position-anchor arrives per instance via inline
-   style). Anchor positioning tracks the input across scroll and resize,
-   which is the whole floating-ui replacement. */
+/* reset popover defaults and pin listbox to anchor */
 .autocomplete-listbox {
   position: fixed;
   inset: auto;
