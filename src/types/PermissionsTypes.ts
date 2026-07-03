@@ -9,10 +9,19 @@ type GroupTypeKeys = keyof typeof GROUP_TYPES;
 
 export type GroupTypeValues = (typeof GROUP_TYPES)[GroupTypeKeys];
 
+// A suggested entry value for an auth-helper group type, from the signed-in
+// admin's own session data (e.g. courses they teach). Often legitimately
+// empty: local admins and some types (JobCode) have no hints.
+export interface EntryHint {
+  value: string;
+  label: string;
+}
+
 export interface GroupTypeDetails {
   type: GroupTypeValues;
   label: string;
   description: string;
+  entryHints: EntryHint[];
 }
 
 // One raw match value of a value-based group: an auth attribute string
