@@ -36,7 +36,9 @@
         role="listbox"
         :aria-labelledby="id"
         align="start"
-        :sideOffset="4">
+        :sideOffset="4"
+        @pointerDownOutside="preventDismissFromOwnInput"
+        @focusOutside="preventDismissFromOwnInput">
         <div
           v-if="needsMoreChars"
           class="p-4 text-sm text-muted-foreground text-center">
@@ -93,6 +95,8 @@ import {
   PopoverContent,
   PopoverPortal,
   PopoverAnchor,
+  type PointerDownOutsideEvent,
+  type FocusOutsideEvent,
 } from "reka-ui";
 import { Input } from "@/components/ui/input";
 import { SpinnerIcon } from "@/icons";
@@ -172,13 +176,27 @@ function handleUpdateSearchTerm(value: string) {
 
 // The dropdown opens whenever the field is focused and always shows a
 // true state (type-more, loading, no matches, or options), so the user
-// never has to guess whether typing would reveal anything. Click must
-// also open because a mouse click focuses mid-sequence: the popover
-// opens on focus, reka-ui's dismiss layer closes it when the same click
-// finishes on the input (which sits outside the popover content), and
-// the click event fires after that dismissal, so opening here wins.
+// never has to guess whether typing would reveal anything. Click also
+// opens so that clicking the already-focused input restores a dropdown
+// closed with Escape.
 function openDropdown(): void {
   isOpen.value = true;
+}
+
+// The input anchors the popover but lives outside its portaled content,
+// so the dismiss layer treats every interaction with the input as
+// outside: a click would close the dropdown mid-press and keyboard
+// focus would close it right after opening. Interacting with the input
+// must keep it open, the same exclusion reka-ui's own Combobox applies
+// to its input.
+function preventDismissFromOwnInput(
+  event: PointerDownOutsideEvent | FocusOutsideEvent
+): void {
+  const inputElement: unknown = inputRef.value?.$el;
+  if (!(inputElement instanceof HTMLElement)) return;
+  if (event.target instanceof Node && inputElement.contains(event.target)) {
+    event.preventDefault();
+  }
 }
 
 function handleKeydownDown(event: KeyboardEvent) {
