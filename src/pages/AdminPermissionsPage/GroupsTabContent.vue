@@ -173,27 +173,31 @@ const groupTypesMap = computed((): Map<GroupTypeValues, GroupTypeDetails> => {
 // members only when opened
 const openGroupIds = ref<string[]>([]);
 
-// Open a freshly created group and move focus into it: a User group lands on
-// its add-member field so the admin can start adding people, other types land
+// Open a freshly created group and move focus into it: a User group opens
+// its add-member form so the admin can start adding people, other types land
 // on the accordion trigger and scroll into view. The row, its open content,
-// and the input mount across several frames, so tryFocus retries until focus
-// lands rather than guessing a single tick.
+// and the button mount across several frames, so tryFocus retries until
+// focus lands rather than guessing a single tick.
 async function handleCreated(group: PermissionsGroup) {
   const groupId = String(group.id);
   if (!openGroupIds.value.includes(groupId)) {
     openGroupIds.value = [...openGroupIds.value, groupId];
   }
 
-  // the User input sits inside reka's PopoverAnchor — reach it through our own
-  // wrapper's data attribute; other types focus the accordion trigger
   const isUserGroup = group.type === GROUP_TYPES.USER;
   const selector = isUserGroup
-    ? `[data-group-add-member="${group.id}"] input`
+    ? `[data-group-add-member="${group.id}"]`
     : `[data-group-trigger="${group.id}"]`;
 
   try {
     const focused = await tryFocus(selector);
-    if (!isUserGroup) focused.scrollIntoView({ block: "nearest" });
+    if (isUserGroup) {
+      // clicking the Add Member row opens the form, which then moves
+      // focus into its search field
+      focused.click();
+    } else {
+      focused.scrollIntoView({ block: "nearest" });
+    }
   } catch (error) {
     console.warn(`Could not focus new ${group.type} group`, error);
   }

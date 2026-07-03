@@ -24,11 +24,12 @@
             :key="entry.id"
             :entry="entry"
             :group="group" />
-          <!-- extra rows such as the add-entry form -->
-          <slot />
           <TableEmpty v-if="!entries.length && showEmptyMessage" :colspan="2">
             No entries yet.
           </TableEmpty>
+          <!-- extra rows such as the add-entry form and its trigger, kept
+               after the empty message so the trigger stays the last row -->
+          <slot />
         </template>
       </TableBody>
     </Table>

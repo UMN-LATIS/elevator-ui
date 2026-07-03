@@ -1,10 +1,10 @@
 <template>
   <TableRow v-if="isPending || isOpen">
-    <TableCell class="text-sm p-2">
+    <TableCell class="text-sm p-2" :colspan="colspan">
       <p v-if="isPending">{{ pendingValue }} (saving...)</p>
       <form
         v-else
-        class="flex items-start gap-2"
+        class="flex items-center gap-2"
         :data-group-entry-add-form="group.id"
         @submit.prevent="handleSave">
         <GroupEntryValueInput
@@ -14,37 +14,45 @@
           :inputId="`group-entry-add-input-${group.id}`"
           :inputClass="`group-entry-add__input--${group.id}`"
           :label="`New ${group.label} Entry Value`" />
-        <IconButton
-          title="Save"
+        <Button
+          type="submit"
           :data-group-entry-add-save="group.id"
-          class="enabled:hover:bg-primary-container enabled:hover:text-on-primary-container"
+          variant="secondary"
+          class="py-2 border border-secondary-container"
           :aria-label="`Save new entry in ${group.label}`"
           @click="handleSave">
           <CheckIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          title="Cancel"
-          :data-group-entry-add-cancel="group.id"
-          class="enabled:hover:bg-secondary-container enabled:hover:text-on-secondary-container"
-          :aria-label="`Cancel new entry in ${group.label}`"
-          @click="closeForm">
+          Save
+        </Button>
+        <Button
+          type="button"
+          :data-group-entry-add-save="group.id"
+          variant="tertiary"
+          class="py-2"
+          :aria-label="`Save new entry in ${group.label}`"
+          @click="handleSave">
           <XIcon class="size-4" />
-        </IconButton>
+          Cancel
+        </Button>
       </form>
     </TableCell>
-    <TableCell class="text-sm p-2" />
   </TableRow>
 </template>
 <script setup lang="ts">
 import type { PermissionsGroup } from "@/types";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { computed, ref } from "vue";
-import IconButton from "@/components/IconButton/IconButton.vue";
 import { XIcon, CheckIcon } from "lucide-vue-next";
 import GroupEntryValueInput from "./GroupEntryValueInput.vue";
 import { useAddGroupEntryMutation } from "./groupQueries";
+import Button from "@/components/Button/Button.vue";
 
-const props = defineProps<{ group: PermissionsGroup }>();
+const props = withDefaults(
+  defineProps<{ group: PermissionsGroup; colspan?: number }>(),
+  {
+    colspan: 2,
+  }
+);
 
 // The in-flight "(saving...)" row renders here from the mutation, so the
 // parent toggles `open` instead of v-if. Unmounting would drop that row
