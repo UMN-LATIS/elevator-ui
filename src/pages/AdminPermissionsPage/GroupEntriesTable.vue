@@ -3,10 +3,11 @@
     <Table class="w-full">
       <TableHeader>
         <TableHead
-          class="bg-surface-container-low font-medium uppercase text-xs tracking-wider">
+          class="bg-surface-container-low font-medium uppercase text-xs tracking-wider border-b border-outline-variant">
           Value
         </TableHead>
-        <TableHead class="bg-surface-container-low">
+        <TableHead
+          class="bg-surface-container-low border-b border-outline-variant">
           <span class="sr-only">Actions</span>
         </TableHead>
       </TableHeader>

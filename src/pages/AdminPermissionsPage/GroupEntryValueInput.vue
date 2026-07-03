@@ -8,7 +8,7 @@
       :isItemDisabled="isOptionDisabled"
       :isLoading="isLoadingHints"
       :blurOnSelect="false"
-      :inputClass="['w-full', inputClass ?? '']"
+      :inputClass="cn('w-full bg-surface border-outline', inputClass)"
       :placeholder="placeholder"
       @select="handleSelect">
       <template #option="{ item }">
@@ -50,6 +50,7 @@ import {
   type EntryValueOption,
 } from "./buildEntryValueOptions";
 import type { CSSClass, PermissionsGroup } from "@/types";
+import { cn } from "@/lib/utils";
 
 // The entry value field shared by the add row and the edit row: the
 // group type's hints plus a pinned use-what-you-typed row. Selecting

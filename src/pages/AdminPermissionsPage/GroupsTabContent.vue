@@ -29,15 +29,15 @@
       v-else
       v-model="openGroupIds"
       type="multiple"
-      class="my-4 flex flex-col gap-1">
+      class="my-4 flex flex-col gap-2">
       <AccordionItem
         v-for="group in sortedGroups"
         :key="group.id"
         v-slot="{ open: isPanelOpen }"
         :value="String(group.id)"
-        class="border border-outline-variant rounded-md overflow-hidden">
+        class="border border-outline-variant rounded-md overflow-hidden bg-surface-container-low shadow-sm data-[state=open]:shadow-md">
         <AccordionHeader
-          class="group flex w-full items-center gap-4 bg-surface-container-low">
+          class="group flex w-full items-center gap-4 data-[state=open]:border-b data-[state=open]:border-outline-variant">
           <AccordionTrigger
             :data-group-trigger="group.id"
             class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
@@ -59,7 +59,7 @@
             <DropDown
               alignment="right"
               :showChevron="false"
-              labelClass="rounded-full hover:bg-surface-container-low justify-self-end">
+              labelClass="rounded-full hover:bg-surface-container-highest justify-self-end">
               <template #label>
                 <VerticalDotsIcon class="size-5" />
                 <span class="sr-only">More actions</span>
@@ -73,8 +73,7 @@
             </DropDown>
           </div>
         </AccordionHeader>
-        <AccordionContent
-          class="p-4 pl-16 text-sm text-on-surface-variant bg-surface-container-lowest">
+        <AccordionContent class="p-4 pl-16 text-sm text-on-surface-variant">
           <p v-if="getGroupDescription(group)" class="mb-4">
             {{ getGroupDescription(group) }}
           </p>

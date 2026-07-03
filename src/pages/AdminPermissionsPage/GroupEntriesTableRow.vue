@@ -1,6 +1,6 @@
 <template>
   <TableRow>
-    <TableCell class="text-sm p-2">
+    <TableCell class="text-sm p-2 text-on-surface">
       <form
         v-if="isEditing"
         class="flex items-start gap-2"
