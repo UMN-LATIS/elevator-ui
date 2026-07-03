@@ -60,6 +60,20 @@
         </template>
       </div>
     </TableCell>
+
+    <ConfirmModal
+      :isOpen="isConfirmingRemoval"
+      title="Remove entry?"
+      type="danger"
+      confirmLabel="Remove"
+      @confirm="confirmRemove"
+      @close="isConfirmingRemoval = false">
+      <p>
+        Remove
+        <strong>{{ entry.value }}</strong>
+        from this group?
+      </p>
+    </ConfirmModal>
   </TableRow>
 </template>
 <script setup lang="ts">
@@ -68,6 +82,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { ref } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { PenIcon, XIcon, CheckIcon, TrashIcon } from "lucide-vue-next";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import GroupEntryValueInput from "./GroupEntryValueInput.vue";
 import {
   useUpdateGroupEntryMutation,
@@ -80,6 +95,7 @@ const props = defineProps<{
 }>();
 
 const isEditing = ref(false);
+const isConfirmingRemoval = ref(false);
 const draftValue = ref(props.entry.value);
 
 const { mutate: updateGroupEntry, isPending: isUpdatePending } =
@@ -111,10 +127,17 @@ function handleSave(): void {
 }
 
 function handleDelete(): void {
+  isConfirmingRemoval.value = true;
+}
+
+function confirmRemove(): void {
   removeGroupEntry({
     groupId: props.group.id,
     entryId: props.entry.id,
   });
+  // Close the confirm modal right away. The row shows "(removing…)" until
+  // the refetch drops it, and a failure surfaces as an error toast.
+  isConfirmingRemoval.value = false;
 }
 </script>
 <style scoped></style>
