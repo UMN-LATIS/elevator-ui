@@ -3,7 +3,8 @@
     :id="id"
     :modelValue="modelValue"
     :items="suggestions"
-    :isLoading="isFetching"
+    :isLoading="isLoadingSuggestions"
+    :minChars="1"
     :placeholder="placeholder"
     :inputClass="inputClass"
     :blurOnSelect="blurOnSelect"
@@ -59,4 +60,12 @@ const { data, isFetching } = useAutocompleteQuery(
   () => props.templateId ?? ""
 );
 const suggestions = computed(() => data.value ?? []);
+
+// The debounce window counts as loading too: while the query waits for
+// typing to settle, suggestions still reflect the previous term, and
+// the dropdown must not present them as current.
+const isLoadingSuggestions = computed(
+  () =>
+    isFetching.value || props.modelValue.trim() !== debouncedTerm.value.trim()
+);
 </script>

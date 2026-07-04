@@ -1,5 +1,5 @@
 import { createColumnHelper } from "@tanstack/vue-table";
-import { XIcon } from "lucide-vue-next";
+import { TrashIcon } from "lucide-vue-next";
 import type { CSSClass, GroupMember } from "@/types";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
@@ -7,7 +7,8 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 const columnHelper = createColumnHelper<GroupMember>();
 
 const ColHeader = (props: { text: string; class?: CSSClass }) => (
-  <div class={cn(["font-medium uppercase text-xs leading-loose", props.class])}>
+  <div
+    class={cn(["font-medium uppercase text-xs tracking-wider", props.class])}>
     {props.text}
   </div>
 );
@@ -58,10 +59,10 @@ export const createGroupMemberColumns = (
       <div class="flex justify-end">
         <IconButton
           onClick={() => onRemove(row.original)}
-          title="Remove member"
+          title="Remove"
           showTooltip={false}
-          class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
-          <XIcon class="size-4" />
+          class="enabled:hover:bg-error-container enabled:hover:text-on-error-container">
+          <TrashIcon class="size-4" />
         </IconButton>
       </div>
     ),

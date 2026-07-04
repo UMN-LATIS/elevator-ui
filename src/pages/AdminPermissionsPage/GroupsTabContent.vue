@@ -29,14 +29,15 @@
       v-else
       v-model="openGroupIds"
       type="multiple"
-      class="my-4 flex flex-col border-y border-outline-variant">
+      class="my-4 flex flex-col gap-2">
       <AccordionItem
         v-for="group in sortedGroups"
         :key="group.id"
-        v-slot="{ open }"
+        v-slot="{ open: isPanelOpen }"
         :value="String(group.id)"
-        class="border-b border-outline-variant last:border-b-0">
-        <AccordionHeader class="group flex w-full items-center gap-4">
+        class="border border-outline-variant rounded-md overflow-hidden bg-surface-container-low shadow-sm data-[state=open]:shadow-md">
+        <AccordionHeader
+          class="group flex w-full items-center gap-4 data-[state=open]:border-b data-[state=open]:border-outline-variant">
           <AccordionTrigger
             :data-group-trigger="group.id"
             class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
@@ -49,8 +50,8 @@
             <Chip
               v-if="group.type === GROUP_TYPES.USER"
               class="bg-secondary-container">
-              {{ group.values.length }}
-              {{ pluralize(group.values.length, "member") }}
+              {{ group.entries_count }}
+              {{ pluralize(group.entries_count, "member") }}
             </Chip>
             <div v-else>
               {{ groupTypesMap.get(group.type)?.label ?? group.type }}
@@ -58,7 +59,7 @@
             <DropDown
               alignment="right"
               :showChevron="false"
-              labelClass="rounded-full hover:bg-surface-container-high justify-self-end">
+              labelClass="rounded-full hover:bg-surface-container-highest justify-self-end">
               <template #label>
                 <VerticalDotsIcon class="size-5" />
                 <span class="sr-only">More actions</span>
@@ -72,13 +73,18 @@
             </DropDown>
           </div>
         </AccordionHeader>
-        <AccordionContent class="p-4 pt-0 pl-8 text-sm text-on-surface-variant">
-          {{ groupTypesMap.get(group.type)?.description }}
+        <AccordionContent class="p-4 pl-16 text-sm text-on-surface-variant">
+          <p v-if="getGroupDescription(group)" class="mb-4">
+            {{ getGroupDescription(group) }}
+          </p>
           <GroupMemberManager
             v-if="group.type === GROUP_TYPES.USER"
             :group="group"
-            :isOpen="open"
-            class="my-2 max-w-screen-md m-auto" />
+            :isOpen="isPanelOpen" />
+          <GroupEntriesManager
+            v-else-if="isAuthHelperGroupType(group)"
+            :group="group"
+            :isOpen="isPanelOpen" />
         </AccordionContent>
       </AccordionItem>
     </AccordionRoot>
@@ -122,26 +128,30 @@ import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import GroupFormModal from "./GroupFormModal.vue";
 import GroupMemberManager from "./GroupMemberManager.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import { useGroupsQuery } from "@/queries/useGroupsQuery";
-import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
+import { useQuery } from "@tanstack/vue-query";
+import {
+  groupsQuery,
+  groupTypesQuery,
+  useDeleteGroupMutation,
+} from "./groupQueries";
 import { GROUP_TYPES } from "@/types";
 import type {
   GroupTypeValues,
-  LabelledGroupType,
+  GroupTypeDetails,
   PermissionsGroup,
 } from "@/types";
 import { pluralize } from "@/helpers/pluralize.js";
 import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
-import { useDeleteGroupMutation } from "@/queries/useDeleteGroupMutation.js";
 import { useToastStore } from "@/stores/toastStore";
+import GroupEntriesManager from "./GroupEntriesManager.vue";
 
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
 
 const toastStore = useToastStore();
-const { data: groups, isLoading } = useGroupsQuery();
-const { data: groupTypes } = useGroupTypesQuery();
+const { data: groups, isLoading } = useQuery(groupsQuery());
+const { data: groupTypes } = useQuery(groupTypesQuery());
 const { mutate: deleteGroup } = useDeleteGroupMutation();
 
 const byAlphaNumeric = (a: PermissionsGroup, b: PermissionsGroup) => {
@@ -153,7 +163,7 @@ const sortedGroups = computed(
   () => groups.value?.toSorted(byAlphaNumeric) ?? []
 );
 
-const groupTypesMap = computed((): Map<GroupTypeValues, LabelledGroupType> => {
+const groupTypesMap = computed((): Map<GroupTypeValues, GroupTypeDetails> => {
   const entries = groupTypes.value?.map((g) => [g.type, g] as const) ?? [];
   return new Map(entries);
 });
@@ -162,27 +172,31 @@ const groupTypesMap = computed((): Map<GroupTypeValues, LabelledGroupType> => {
 // members only when opened
 const openGroupIds = ref<string[]>([]);
 
-// Open a freshly created group and move focus into it: a User group lands on
-// its add-member field so the admin can start adding people, other types land
+// Open a freshly created group and move focus into it: a User group opens
+// its add-member form so the admin can start adding people, other types land
 // on the accordion trigger and scroll into view. The row, its open content,
-// and the input mount across several frames, so tryFocus retries until focus
-// lands rather than guessing a single tick.
+// and the button mount across several frames, so tryFocus retries until
+// focus lands rather than guessing a single tick.
 async function handleCreated(group: PermissionsGroup) {
   const groupId = String(group.id);
   if (!openGroupIds.value.includes(groupId)) {
     openGroupIds.value = [...openGroupIds.value, groupId];
   }
 
-  // the User input sits inside reka's PopoverAnchor — reach it through our own
-  // wrapper's data attribute; other types focus the accordion trigger
   const isUserGroup = group.type === GROUP_TYPES.USER;
   const selector = isUserGroup
-    ? `[data-group-add-member="${group.id}"] input`
+    ? `[data-group-add-member="${group.id}"]`
     : `[data-group-trigger="${group.id}"]`;
 
   try {
     const focused = await tryFocus(selector);
-    if (!isUserGroup) focused.scrollIntoView({ block: "nearest" });
+    if (isUserGroup) {
+      // clicking the Add Member row opens the form, which then moves
+      // focus into its search field
+      focused.click();
+    } else {
+      focused.scrollIntoView({ block: "nearest" });
+    }
   } catch (error) {
     console.warn(`Could not focus new ${group.type} group`, error);
   }
@@ -190,6 +204,18 @@ async function handleCreated(group: PermissionsGroup) {
 
 const editingGroup = ref<PermissionsGroup | null>(null);
 const isGroupModalOpen = ref(false);
+
+function getGroupDescription(group: PermissionsGroup): string {
+  return groupTypesMap.value.get(group.type)?.description ?? "";
+}
+
+// Auth-helper types are defined per campus by the backend's AuthHelper
+// classes, so the UI can only recognize them as "not one of the built-in
+// GROUP_TYPES". The backend rejects entry writes on other types anyway.
+function isAuthHelperGroupType(group: PermissionsGroup): boolean {
+  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
+  return !builtInTypes.includes(group.type);
+}
 
 function openCreate() {
   editingGroup.value = null;

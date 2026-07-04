@@ -9,15 +9,25 @@ type GroupTypeKeys = keyof typeof GROUP_TYPES;
 
 export type GroupTypeValues = (typeof GROUP_TYPES)[GroupTypeKeys];
 
-export interface LabelledGroupType {
+// A suggested entry value for an auth-helper group type, from the signed-in
+// admin's own session data (e.g. courses they teach). Often legitimately
+// empty: local admins and some types (JobCode) have no hints.
+export interface EntryHint {
+  value: string;
+  label: string;
+}
+
+export interface GroupTypeDetails {
   type: GroupTypeValues;
   label: string;
   description: string;
+  entryHints: EntryHint[];
 }
 
-// A member of a "User"-type group. `value` is the local user id the
-// backend resolved the member to; the list response carries no name.
-export interface PermissionsGroupValue {
+// One raw match value of a value-based group: an auth attribute string
+// the group matches on. User groups store resolved user ids here and
+// manage them through the members endpoints instead.
+export interface PermissionsGroupEntry {
   id: number;
   value: string;
 }
@@ -25,12 +35,8 @@ export interface PermissionsGroupValue {
 export interface PermissionsGroup {
   id: number;
   type: GroupTypeValues;
-  // Vestigial scalar: 1 for global types (All/Authed/Authed_remote),
-  // null for User groups (whose membership lives in `values`).
-  value: number | null;
   label: string;
-  expiration: string | null;
-  values: PermissionsGroupValue[];
+  entries_count: number;
 }
 
 // A user-autocomplete suggestion. `localUserId` is the local user id, or

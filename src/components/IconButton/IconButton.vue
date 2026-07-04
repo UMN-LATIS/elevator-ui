@@ -7,17 +7,19 @@
       :to="componentType === RouterLink ? to : undefined"
       :aria-label="title"
       v-bind="$attrs"
-      class="icon-button flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150 text-primary hover:bg-primary-container hover:text-on-primary-container focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed"
+      :class="cn('icon-button flex items-center justify-center aspect-square p-2 rounded-md transition-colors duration-150 text-primary hover:bg-primary-container hover:text-on-primary-container focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed', $attrs.class as CSSClass)"
       @click="($event) => $emit('click', $event)">
       <slot />
     </component>
   </Tooltip>
 </template>
 <script setup lang="ts">
+import { cn } from "@/lib/utils.js";
 import Tooltip from "../Tooltip/Tooltip.vue";
 
 import { computed } from "vue";
 import { RouterLink, type RouteLocationRaw, useRouter } from "vue-router";
+import { CSSClass } from "@/types/index.js";
 const props = withDefaults(
   defineProps<{
     title: string;
