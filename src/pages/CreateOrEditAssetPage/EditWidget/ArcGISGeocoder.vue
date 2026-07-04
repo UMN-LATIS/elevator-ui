@@ -1,37 +1,17 @@
 <template>
-  <div class="relative w-full">
-    <div class="relative">
-      <input
-        :id="id"
-        v-model="searchText"
-        type="text"
-        class="w-full px-4 py-2 rounded-md bg-surface-container border border-outline-variant focus:bg-surface-bright text-sm"
-        :placeholder="placeholder"
-        @input="handleInput"
-        @keydown.down.prevent="handleKeyDown"
-        @keydown.up.prevent="handleKeyUp"
-        @keydown.enter.prevent="selectSuggestion(selectedIndex)"
-        @blur="hideSuggestions" />
-      <div v-if="loading" class="absolute right-3 top-2.5">
-        <SpinnerIcon />
-      </div>
-    </div>
-
-    <div
-      v-if="suggestions.length > 0"
-      class="absolute z-10 w-full mt-1 border rounded-md shadow-lg max-h-60 overflow-y-auto">
-      <div
-        v-for="(suggestion, index) in suggestions"
-        :key="index"
-        :class="[
-          'px-4 py-2 cursor-pointer hover:bg-gray-100',
-          { 'bg-primary-container': index === selectedIndex },
-        ]"
-        @mousedown="selectSuggestion(index)"
-        @mouseover="selectedIndex = index">
-        {{ suggestion.text }}
-      </div>
-    </div>
+  <div class="w-full">
+    <AutoCompleteInput
+      :id="id"
+      :modelValue="searchText"
+      :items="suggestions"
+      :isLoading="loading"
+      :placeholder="placeholder"
+      :minChars="MIN_SEARCH_CHARS"
+      @update:modelValue="handleSearchInput"
+      @focus="handleFocus"
+      @select="selectSuggestion">
+      <template #option="{ item }">{{ item.text }}</template>
+    </AutoCompleteInput>
 
     <div v-if="error" class="mt-1 text-sm text-error">
       {{ error }}
@@ -41,13 +21,24 @@
 
 <script setup lang="ts">
 import { ref, watch, useId } from "vue";
+import { useDebounceFn } from "@vueuse/core";
+import { AutoCompleteInput } from "@/components/AutoCompleteInput";
 import { GeocoderResult } from "@/types";
-import { SpinnerIcon } from "@/icons";
 
 interface Suggestion {
   text: string;
   magicKey: string;
 }
+
+interface SuggestResponse {
+  suggestions?: Suggestion[];
+}
+
+interface FindAddressCandidatesResponse {
+  candidates?: { location: { x: number; y: number } }[];
+}
+
+const MIN_SEARCH_CHARS = 3;
 
 const props = withDefaults(
   defineProps<{
@@ -69,12 +60,9 @@ const emit = defineEmits<{
 
 const searchText = ref(props.initialValue);
 const suggestions = ref<Suggestion[]>([]);
-const selectedIndex = ref(-1);
 const loading = ref(false);
 const error = ref("");
-const debounceTimeout = ref<number | null>(null);
 
-// Watch for initialValue changes
 watch(
   () => props.initialValue,
   (newValue) => {
@@ -82,25 +70,34 @@ watch(
   }
 );
 
-const handleInput = () => {
-  // Clear previous timeout
-  if (debounceTimeout.value) {
-    clearTimeout(debounceTimeout.value);
+// Check the threshold when the debounce fires, not when typing starts,
+// so deleting back below it clears stale suggestions instead of fetching.
+const debouncedSuggest = useDebounceFn((): void => {
+  if (searchText.value.trim().length >= MIN_SEARCH_CHARS) {
+    fetchSuggestions();
+  } else {
+    suggestions.value = [];
   }
+}, 300);
 
-  // Set new timeout to fetch suggestions
-  debounceTimeout.value = window.setTimeout(() => {
-    if (searchText.value.length >= 3) {
-      fetchSuggestions();
-    } else {
-      suggestions.value = [];
-    }
-  }, 300); // 300ms debounce
-};
-
-const fetchSuggestions = async () => {
-  loading.value = true;
+function handleSearchInput(value: string): void {
+  searchText.value = value;
   error.value = "";
+  debouncedSuggest();
+}
+
+// Refocusing with searchable text would otherwise open an empty dropdown
+// claiming no suggestions, so search for the current text instead.
+function handleFocus(): void {
+  const hasSearchableText = searchText.value.trim().length >= MIN_SEARCH_CHARS;
+  if (hasSearchableText && suggestions.value.length === 0) {
+    error.value = "";
+    fetchSuggestions();
+  }
+}
+
+async function fetchSuggestions(): Promise<void> {
+  loading.value = true;
 
   try {
     const suggestUrl =
@@ -114,17 +111,9 @@ const fetchSuggestions = async () => {
     });
 
     const response = await fetch(`${suggestUrl}?${params}`);
-    const data = await response.json();
+    const data: SuggestResponse = await response.json();
 
-    if (data.suggestions && data.suggestions.length > 0) {
-      suggestions.value = data.suggestions.map((suggestion: Suggestion) => ({
-        text: suggestion.text,
-        magicKey: suggestion.magicKey,
-      }));
-      selectedIndex.value = -1;
-    } else {
-      suggestions.value = [];
-    }
+    suggestions.value = data.suggestions ?? [];
   } catch (err) {
     console.error("Error fetching suggestions:", err);
     error.value = "Failed to fetch address suggestions";
@@ -132,40 +121,10 @@ const fetchSuggestions = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 
-const hideSuggestions = () => {
-  // Small delay to allow click events to register
-  setTimeout(() => {
-    suggestions.value = [];
-  }, 200);
-};
-
-const handleKeyDown = () => {
-  if (suggestions.value.length === 0) return;
-  selectedIndex.value = (selectedIndex.value + 1) % suggestions.value.length;
-};
-
-const handleKeyUp = () => {
-  if (suggestions.value.length === 0) return;
-  selectedIndex.value =
-    selectedIndex.value <= 0
-      ? suggestions.value.length - 1
-      : selectedIndex.value - 1;
-};
-
-const selectSuggestion = async (index: number) => {
-  if (index < 0 || index >= suggestions.value.length) return;
-
-  const selectedSuggestion = suggestions.value[index];
-  searchText.value = selectedSuggestion.text;
+async function selectSuggestion(suggestion: Suggestion): Promise<void> {
   suggestions.value = [];
-
-  // Get coordinates for the selected suggestion
-  await getCoordinatesForSuggestion(selectedSuggestion);
-};
-
-const getCoordinatesForSuggestion = async (suggestion: Suggestion) => {
   loading.value = true;
   error.value = "";
 
@@ -182,16 +141,15 @@ const getCoordinatesForSuggestion = async (suggestion: Suggestion) => {
     });
 
     const response = await fetch(`${url}?${params}`);
-    const data = await response.json();
+    const data: FindAddressCandidatesResponse = await response.json();
+    const candidate = data.candidates?.[0];
 
-    if (data.candidates && data.candidates.length > 0) {
-      const result = {
-        lng: data.candidates[0].location.x,
-        lat: data.candidates[0].location.y,
+    if (candidate) {
+      emit("select", {
+        lng: candidate.location.x,
+        lat: candidate.location.y,
         address: suggestion.text,
-      };
-
-      emit("select", result);
+      });
     } else {
       error.value = "No results found for this address";
     }
@@ -200,8 +158,7 @@ const getCoordinatesForSuggestion = async (suggestion: Suggestion) => {
     error.value = "Error searching for address";
   } finally {
     loading.value = false;
-    // Clear search text after successful selection
     searchText.value = "";
   }
-};
+}
 </script>
