@@ -1,8 +1,9 @@
 <template>
-  <div class="asset-view-page__meta-data-only-view h-full relative">
+  <div
+    class="asset-view-page__meta-data-only-view h-full relative bg-surface-container">
     <div class="meta-data-only-view__inner h-full sm:p-8">
       <article
-        class="meta-data-only-view__article bg-surface-container m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow-md sm:px-12">
+        class="meta-data-only-view__article bg-surface m-auto sm:max-w-3xl h-full overflow-auto p-4 sm:p-12 rounded shadow-md sm:px-12">
         <header class="flex justify-between items-baseline">
           <h2
             class="text-3xl mb-12 sm:text-5xl font-bold after:content-[''] after:w-8 after:h-2 after:block relative after:absolute after:bottom-0 after:left-0 after:bg-on-surface pb-8">
