@@ -41,19 +41,14 @@
       No groups yet. Create one to get started.
     </p>
 
-    <AccordionRoot
-      v-else
-      v-model="openGroupIds"
-      type="multiple"
-      class="my-4 flex flex-col gap-2">
+    <AccordionRoot v-else v-model="openGroupIds" type="multiple" class="">
       <AccordionItem
         v-for="group in filteredGroups"
         :key="group.id"
         v-slot="{ open: isPanelOpen }"
         :value="String(group.id)"
-        class="border border-outline-variant rounded-md overflow-hidden bg-surface-container-low shadow-sm data-[state=open]:shadow-md">
-        <AccordionHeader
-          class="group flex w-full items-center gap-4 data-[state=open]:border-b data-[state=open]:border-outline-variant">
+        class="rounded-md overflow-hidden data-[state=open]:shadow-md data-[state=open]:border data-[state=open]:border-outline-variant data-[state=open]:my-4">
+        <AccordionHeader class="group flex w-full items-center gap-4">
           <AccordionTrigger
             :data-group-trigger="group.id"
             class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
