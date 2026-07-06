@@ -3,11 +3,11 @@
     <Table class="w-full">
       <TableHeader>
         <TableHead
-          class="bg-surface-container-low font-medium uppercase text-xs tracking-wider border-b border-outline-variant">
+          class="font-medium uppercase text-xs tracking-wider border-b border-outline-variant bg-surface-container-low">
           Value
         </TableHead>
         <TableHead
-          class="bg-surface-container-low border-b border-outline-variant">
+          class="border-b border-outline-variant bg-surface-container-low">
           <span class="sr-only">Actions</span>
         </TableHead>
       </TableHeader>
@@ -24,6 +24,7 @@
             v-for="entry in entries"
             :key="entry.id"
             :entry="entry"
+            class="hover:bg-surface-container"
             :group="group" />
           <TableEmpty v-if="!entries.length && showEmptyMessage" :colspan="2">
             No entries yet.

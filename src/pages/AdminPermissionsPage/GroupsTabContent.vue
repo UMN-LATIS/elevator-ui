@@ -1,10 +1,26 @@
 <template>
   <div>
-    <div class="flex justify-between items-center gap-8">
-      <p class="text-sm">
+    <div class="flex justify-between items-center gap-x-8 gap-y-4 flex-wrap">
+      <p class="text-sm flex-1">
         Create a group to manage permissions for a set of users.
       </p>
-      <Button variant="primary" @click="openCreate">Create Group</Button>
+      <div class="flex gap-2 items-center flex-wrap">
+        <InputGroup
+          v-model="searchGroupText"
+          label="Search Groups"
+          placeholder="Search groups"
+          :labelHidden="true"
+          class="max-w-sm"
+          type="search"
+          :disabled="isLoading">
+          <template #prepend>
+            <FilterIcon class="size-4 text-on-surface-variant" />
+          </template>
+        </InputGroup>
+        <Button variant="primary" class="whitespace-nowrap" @click="openCreate">
+          Create Group
+        </Button>
+      </div>
     </div>
 
     <div
@@ -20,24 +36,19 @@
       </div>
     </div>
     <p
-      v-else-if="!sortedGroups?.length"
+      v-else-if="!filteredGroups?.length"
       class="mt-4 rounded-md border border-dashed border-outline-variant p-8 text-center text-on-surface-variant">
       No groups yet. Create one to get started.
     </p>
 
-    <AccordionRoot
-      v-else
-      v-model="openGroupIds"
-      type="multiple"
-      class="my-4 flex flex-col gap-2">
+    <AccordionRoot v-else v-model="openGroupIds" type="multiple" class="">
       <AccordionItem
-        v-for="group in sortedGroups"
+        v-for="group in filteredGroups"
         :key="group.id"
         v-slot="{ open: isPanelOpen }"
         :value="String(group.id)"
-        class="border border-outline-variant rounded-md overflow-hidden bg-surface-container-low shadow-sm data-[state=open]:shadow-md">
-        <AccordionHeader
-          class="group flex w-full items-center gap-4 data-[state=open]:border-b data-[state=open]:border-outline-variant">
+        class="rounded-md overflow-hidden data-[state=open]:shadow-md data-[state=open]:border data-[state=open]:border-outline-variant data-[state=open]:my-4">
+        <AccordionHeader class="group flex w-full items-center gap-4">
           <AccordionTrigger
             :data-group-trigger="group.id"
             class="flex items-center gap-2 text-sm font-medium text-left flex-1 p-4 data-[state=open]:font-bold focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
@@ -47,15 +58,27 @@
           </AccordionTrigger>
           <div
             class="ml-auto flex items-center text-sm text-on-surface-variant gap-1">
-            <Chip
-              v-if="group.type === GROUP_TYPES.USER"
-              class="bg-secondary-container">
-              {{ group.entries_count }}
-              {{ pluralize(group.entries_count, "member") }}
-            </Chip>
-            <div v-else>
+            <div>
               {{ groupTypesMap.get(group.type)?.label ?? group.type }}
             </div>
+            <Chip
+              v-if="
+                !([
+                  GROUP_TYPES.ALL,
+                  GROUP_TYPES.AUTHED,
+                  GROUP_TYPES.REMOTE,
+                ] as string[]).includes(group.type)
+              "
+              :class="[
+                'border border-outline-variant',
+                {
+                  'bg-secondary-container': group.entries_count > 0,
+                  'bg-transparent text-on-surface-variant':
+                    group.entries_count === 0,
+                },
+              ]">
+              {{ group.entries_count }}
+            </Chip>
             <DropDown
               alignment="right"
               :showChevron="false"
@@ -140,11 +163,12 @@ import type {
   GroupTypeDetails,
   PermissionsGroup,
 } from "@/types";
-import { pluralize } from "@/helpers/pluralize.js";
 import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
 import { useToastStore } from "@/stores/toastStore";
 import GroupEntriesManager from "./GroupEntriesManager.vue";
+import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import { FilterIcon } from "lucide-vue-next";
 
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
@@ -154,13 +178,24 @@ const { data: groups, isLoading } = useQuery(groupsQuery());
 const { data: groupTypes } = useQuery(groupTypesQuery());
 const { mutate: deleteGroup } = useDeleteGroupMutation();
 
+const searchGroupText = ref("");
+
 const byAlphaNumeric = (a: PermissionsGroup, b: PermissionsGroup) => {
   const labelA = a.label || a.type;
   const labelB = b.label || b.type;
   return labelA.localeCompare(labelB, undefined, { numeric: true });
 };
-const sortedGroups = computed(
-  () => groups.value?.toSorted(byAlphaNumeric) ?? []
+const filteredGroups = computed(
+  () =>
+    groups.value
+      ?.filter(
+        (g) =>
+          g.label
+            ?.toLowerCase()
+            .includes(searchGroupText.value.toLowerCase()) ||
+          g.type.toLowerCase().includes(searchGroupText.value.toLowerCase())
+      )
+      .toSorted(byAlphaNumeric) ?? []
 );
 
 const groupTypesMap = computed((): Map<GroupTypeValues, GroupTypeDetails> => {
