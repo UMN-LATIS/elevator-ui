@@ -163,7 +163,6 @@ import type {
   GroupTypeDetails,
   PermissionsGroup,
 } from "@/types";
-import { pluralize } from "@/helpers/pluralize.js";
 import { tryFocus } from "@/helpers/tryFocus";
 import Chip from "@/components/Chip/Chip.vue";
 import { useToastStore } from "@/stores/toastStore";

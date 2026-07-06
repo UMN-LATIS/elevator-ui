@@ -19,18 +19,17 @@
           :data-group-entry-add-save="group.id"
           variant="secondary"
           class="py-2 border border-secondary-container"
-          :aria-label="`Save new entry in ${group.label}`"
-          @click="handleSave">
+          :aria-label="`Save new entry in ${group.label}`">
           <CheckIcon class="size-4" />
           Save
         </Button>
         <Button
           type="button"
-          :data-group-entry-add-save="group.id"
+          :data-group-entry-add-cancel="group.id"
           variant="tertiary"
           class="py-2"
-          :aria-label="`Save new entry in ${group.label}`"
-          @click="handleSave">
+          :aria-label="`Cancel new entry in ${group.label}`"
+          @click="closeForm">
           <XIcon class="size-4" />
           Cancel
         </Button>

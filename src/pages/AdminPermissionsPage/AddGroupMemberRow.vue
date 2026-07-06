@@ -64,8 +64,7 @@
           variant="secondary"
           class="py-2 border border-secondary-container"
           :data-group-add-member-save="group.id"
-          aria-label="Save new member"
-          @click="handleSave">
+          aria-label="Save new member">
           <CheckIcon class="size-4" />
           Save
         </Button>
@@ -88,7 +87,6 @@ import { computed, ref } from "vue";
 import { useDebounce } from "@vueuse/core";
 import { useQuery } from "@tanstack/vue-query";
 import { TableRow, TableCell } from "@/components/ui/table";
-import IconButton from "@/components/IconButton/IconButton.vue";
 import { XIcon, CheckIcon, PlusIcon } from "lucide-vue-next";
 import { AutoCompleteInput } from "@/components/AutoCompleteInput";
 import { useUserAutocompleteQuery } from "@/queries/useUserAutocompleteQuery";
