@@ -19,6 +19,7 @@
         :type="type"
         :name="id"
         :required="required"
+        :disabled="disabled"
         :class="
           cn([
             'block w-full rounded-md border border-outline-variant sm:text-sm py-2 bg-surface-container text-on-surface focus:bg-surface-bright px-4 placeholder:text-on-surface-muted',
@@ -56,6 +57,7 @@ withDefaults(
     inputClass?: CSSClass;
     labelClass?: CSSClass;
     required?: boolean;
+    disabled?: boolean;
     error?: string | null;
   }>(),
   {
@@ -63,6 +65,7 @@ withDefaults(
     labelHidden: false,
     type: "text",
     required: false,
+    disabled: false,
     error: "",
     inputClass: () => ({}),
     labelClass: () => ({}),
