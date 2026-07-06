@@ -10,6 +10,7 @@
       :blurOnSelect="false"
       :inputClass="cn('w-full bg-surface border-outline', inputClass)"
       :placeholder="placeholder"
+      :minChars="0"
       @select="handleSelect">
       <template #option="{ item }">
         <template v-if="item.kind === 'hint'">
