@@ -58,15 +58,27 @@
           </AccordionTrigger>
           <div
             class="ml-auto flex items-center text-sm text-on-surface-variant gap-1">
-            <Chip
-              v-if="group.type === GROUP_TYPES.USER"
-              class="bg-secondary-container">
-              {{ group.entries_count }}
-              {{ pluralize(group.entries_count, "member") }}
-            </Chip>
-            <div v-else>
+            <div>
               {{ groupTypesMap.get(group.type)?.label ?? group.type }}
             </div>
+            <Chip
+              v-if="
+                !([
+                  GROUP_TYPES.ALL,
+                  GROUP_TYPES.AUTHED,
+                  GROUP_TYPES.REMOTE,
+                ] as string[]).includes(group.type)
+              "
+              :class="[
+                'border border-outline-variant',
+                {
+                  'bg-secondary-container': group.entries_count > 0,
+                  'bg-transparent text-on-surface-variant':
+                    group.entries_count === 0,
+                },
+              ]">
+              {{ group.entries_count }}
+            </Chip>
             <DropDown
               alignment="right"
               :showChevron="false"
