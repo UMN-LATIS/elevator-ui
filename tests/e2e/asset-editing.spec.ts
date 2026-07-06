@@ -32,10 +32,15 @@ test.describe("Asset Editing", () => {
       // Edit the title
       await titleField.fill("Asset 1 - Edited via E2E");
 
-      // Save the changes
+      // Save the changes and wait for the request to finish, since
+      // reloading mid-save aborts it and the edit is lost
+      const saveCompleted = page.waitForResponse((response) =>
+        response.url().includes("assetManager/submission")
+      );
       const saveButton = page.getByRole("button", { name: "Save" });
       await expect(saveButton).toBeEnabled();
       await saveButton.click();
+      await saveCompleted;
 
       // Should remain on edit page after save
       await expect(page).toHaveURL(
