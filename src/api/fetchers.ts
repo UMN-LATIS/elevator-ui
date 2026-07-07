@@ -1193,6 +1193,48 @@ export async function fetchCollectionGrants(): Promise<CollectionGrant[]> {
   return res.data.collectionGrants;
 }
 
+export interface CreateInstanceGrantPayload {
+  groupId: number;
+  permissionLevelId: number;
+}
+
+export async function createInstanceGrant(
+  payload: CreateInstanceGrantPayload
+): Promise<InstanceGrant> {
+  const params = new URLSearchParams();
+  params.append("groupId", String(payload.groupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.post<{ instanceGrant: InstanceGrant }>(
+    `${BASE_URL}/adminPermissions/instanceGrants`,
+    params
+  );
+
+  return res.data.instanceGrant;
+}
+
+export interface CreateCollectionGrantPayload {
+  collectionId: number;
+  groupId: number;
+  permissionLevelId: number;
+}
+
+export async function createCollectionGrant(
+  payload: CreateCollectionGrantPayload
+): Promise<CollectionGrant> {
+  const params = new URLSearchParams();
+  params.append("collectionId", String(payload.collectionId));
+  params.append("groupId", String(payload.groupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.post<{ collectionGrant: CollectionGrant }>(
+    `${BASE_URL}/adminPermissions/collectionGrants`,
+    params
+  );
+
+  return res.data.collectionGrant;
+}
+
 // Fetch user suggestions for a group's member field. The backend returns
 // [] for trivial queries, so keystrokes can be passed straight through.
 export async function fetchUserAutocomplete(

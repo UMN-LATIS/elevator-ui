@@ -1,8 +1,16 @@
 <template>
   <div>
-    <p class="text-sm">
-      Grant groups access to all collections or a single collection.
-    </p>
+    <div class="flex justify-between items-center gap-x-8 gap-y-4 flex-wrap">
+      <p class="text-sm flex-1">
+        Grant groups access to all collections or a single collection.
+      </p>
+      <Button
+        variant="primary"
+        class="whitespace-nowrap"
+        @click="isRuleModalOpen = true">
+        Create Rule
+      </Button>
+    </div>
 
     <div class="mt-4 border border-outline-variant rounded-md">
       <Table class="w-full">
@@ -65,6 +73,8 @@
         </TableBody>
       </Table>
     </div>
+
+    <RuleFormModal :isOpen="isRuleModalOpen" @close="isRuleModalOpen = false" />
   </div>
 </template>
 
@@ -87,7 +97,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
+import Button from "@/components/Button/Button.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import RuleFormModal from "./RuleFormModal.vue";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import {
   flattenCollections,
@@ -104,6 +116,8 @@ import { ruleColumns } from "./RulesTableColumns";
 
 // Placeholder rows shown while the rule lists load.
 const SKELETON_ROW_COUNT = 3;
+
+const isRuleModalOpen = ref(false);
 
 const { data: instanceGrants, isLoading: isLoadingInstanceGrants } = useQuery(
   instanceGrantsQuery()
