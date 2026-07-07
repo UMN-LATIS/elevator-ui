@@ -9,7 +9,7 @@
         v-model:activeTabId="activeTabId"
         labelsClass="border-b border-outline-variant">
         <Tab id="rules" label="Rules">
-          <PermissionsTabContent />
+          <RulesTabContent />
         </Tab>
         <Tab id="groups" label="Groups">
           <GroupsTabContent />
@@ -28,7 +28,7 @@ import Tab from "@/components/Tabs/Tab.vue";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import GroupsTabContent from "./GroupsTabContent.vue";
-import PermissionsTabContent from "./PermissionsTabContent.vue";
+import RulesTabContent from "./RulesTabContent.vue";
 
 const VALID_TABS = ["rules", "groups"] as const;
 type ValidTab = (typeof VALID_TABS)[number];
