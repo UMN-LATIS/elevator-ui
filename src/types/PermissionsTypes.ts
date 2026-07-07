@@ -39,6 +39,34 @@ export interface PermissionsGroup {
   entries_count: number;
 }
 
+// A permission tier from GET /adminPermissions/permissionLevels. `level` is
+// the numeric strength (0 no permission … 60 admin) that access checks
+// compare; grants reference tiers by `id`.
+export interface PermissionLevel {
+  id: number;
+  level: number;
+  name: string;
+  label: string;
+}
+
+// A stored grant row from GET /adminPermissions/instanceGrants: the group
+// holds the level on every collection in the instance. The id fields are
+// null on orphaned legacy rows whose group or level was deleted.
+export interface InstanceGrant {
+  id: number;
+  groupId: number | null;
+  permissionLevelId: number | null;
+}
+
+// A stored grant row from GET /adminPermissions/collectionGrants: the group
+// holds the level on one collection and its descendants.
+export interface CollectionGrant {
+  id: number;
+  collectionId: number | null;
+  groupId: number | null;
+  permissionLevelId: number | null;
+}
+
 // A user-autocomplete suggestion. `localUserId` is the local user id, or
 // null for someone the directory knows but who has no local row yet.
 export interface UserAutocompleteMatch {
