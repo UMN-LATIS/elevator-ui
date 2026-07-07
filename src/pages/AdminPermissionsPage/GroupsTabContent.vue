@@ -24,7 +24,7 @@
     </div>
 
     <div class="mt-4 border border-outline-variant rounded-md">
-      <Table class="w-full">
+      <Table class="w-full table-fixed">
         <TableHeader>
           <template
             v-for="headerGroup in table.getHeaderGroups()"
@@ -33,7 +33,8 @@
               <TableHead
                 v-for="header in headerGroup.headers"
                 :key="`filter-${header.id}`"
-                class="bg-surface-container-low py-2">
+                class="bg-surface-container-low py-2"
+                :class="header.column.columnDef.meta?.widthClass">
                 <InputGroup
                   v-if="header.column.getCanFilter()"
                   :label="
@@ -90,14 +91,27 @@
           </template>
           <template v-else>
             <template v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableRow :class="row.getIsExpanded() && 'border-b-transparent'">
+              <TableRow
+                :data-group-row="row.original.group.id"
+                tabindex="-1"
+                :aria-current="
+                  isCurrentGroup(row.original.group.id) ? 'true' : undefined
+                "
+                :class="{
+                  'border-b-transparent': row.getIsExpanded(),
+                  'group-row--current': isCurrentGroup(row.original.group.id),
+                }">
                 <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                   <FlexRender
                     :render="cell.column.columnDef.cell"
                     :props="cell.getContext()" />
                 </TableCell>
               </TableRow>
-              <TableRow v-if="row.getIsExpanded()">
+              <TableRow
+                v-if="row.getIsExpanded()"
+                :class="{
+                  'group-row--current': isCurrentGroup(row.original.group.id),
+                }">
                 <TableCell
                   :colspan="row.getVisibleCells().length"
                   class="px-4 pb-4 pl-12">
@@ -110,11 +124,12 @@
                     v-if="row.original.group.type === GROUP_TYPES.USER"
                     :group="row.original.group"
                     :isOpen="row.getIsExpanded()"
-                    class="bg-surface-container-low" />
+                    class="bg-surface-container" />
                   <GroupEntriesManager
                     v-else-if="isAuthHelperGroupType(row.original.group)"
                     :group="row.original.group"
-                    :isOpen="row.getIsExpanded()" />
+                    :isOpen="row.getIsExpanded()"
+                    class="bg-surface-container" />
                 </TableCell>
               </TableRow>
             </template>
@@ -161,7 +176,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
 import type {
   ColumnDef,
@@ -207,7 +223,6 @@ import { tryFocus } from "@/helpers/tryFocus";
 import { useToastStore } from "@/stores/toastStore";
 import { createGroupColumns } from "./GroupsTableColumns";
 import type { GroupRow } from "./GroupsTableColumns";
-import { cn } from "@/lib/utils.js";
 
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
@@ -312,6 +327,16 @@ const columnFilters = ref<ColumnFiltersState>([]);
 // or entries only when its detail panel is open
 const expanded = ref<ExpandedState>({});
 
+// The group the admin was just brought to (a Rules-tab link or a fresh
+// create). Its row carries aria-current and a highlight so "which one
+// was it?" stays answered. Any table interaction means the admin has
+// moved on, so the table's change handlers clear it.
+const currentGroupId = ref<number | null>(null);
+
+function isCurrentGroup(groupId: number): boolean {
+  return groupId === currentGroupId.value;
+}
+
 const table = useVueTable({
   get data() {
     return groupRows.value;
@@ -325,18 +350,22 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
   globalFilterFn: "includesString",
   onSortingChange: (updater) => {
+    currentGroupId.value = null;
     sorting.value =
       typeof updater === "function" ? updater(sorting.value) : updater;
   },
   onColumnFiltersChange: (updater) => {
+    currentGroupId.value = null;
     columnFilters.value =
       typeof updater === "function" ? updater(columnFilters.value) : updater;
   },
   onExpandedChange: (updater) => {
+    currentGroupId.value = null;
     expanded.value =
       typeof updater === "function" ? updater(expanded.value) : updater;
   },
   onGlobalFilterChange: (updater) => {
+    currentGroupId.value = null;
     searchGroupText.value =
       typeof updater === "function" ? updater(searchGroupText.value) : updater;
   },
@@ -356,35 +385,99 @@ const table = useVueTable({
   },
 });
 
-// Open a freshly created group and move focus into it: a User group opens
-// its add-member form so the admin can start adding people, other
-// manageable types land on the row's expand button. Global groups have no
-// panel to open, so focus stays put. The row, its detail panel, and the
-// button mount across several frames, so tryFocus retries until focus
-// lands rather than guessing a single tick.
+// A User group's add-member row, an auth-helper group's add-entry row,
+// or the edit button for global groups, which have no detail panel.
+function focusSelectorForNewGroup(group: PermissionsGroup): string {
+  if (group.type === GROUP_TYPES.USER) {
+    return `[data-group-add-member="${group.id}"]`;
+  }
+  if (isAuthHelperGroupType(group)) {
+    return `[data-group-entry-add-button="${group.id}"]`;
+  }
+  return `[data-group-edit="${group.id}"]`;
+}
+
+// Reveal a freshly created group and put focus where the admin works
+// next.
 async function handleCreated(group: PermissionsGroup) {
-  if (!isManageableGroup(group)) return;
+  // active filters could hide the new row, so they reset
+  searchGroupText.value = "";
+  columnFilters.value = [];
+  currentGroupId.value = group.id;
 
-  const groupId = String(group.id);
-  const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-  expanded.value = { ...currentlyExpanded, [groupId]: true };
+  if (isManageableGroup(group)) {
+    const groupId = String(group.id);
+    const currentlyExpanded = expanded.value === true ? {} : expanded.value;
+    expanded.value = { ...currentlyExpanded, [groupId]: true };
+  }
 
-  const isUserGroup = group.type === GROUP_TYPES.USER;
-  const selector = isUserGroup
-    ? `[data-group-add-member="${group.id}"]`
-    : `[data-group-trigger="${group.id}"]`;
-
+  // The row, its detail panel, and the button mount across several
+  // frames, so tryFocus retries until focus lands rather than
+  // guessing a single tick.
   try {
-    const focused = await tryFocus(selector);
-    if (isUserGroup) {
-      // clicking the Add Member row opens the form, which then moves
-      // focus into its search field
+    const focused = await tryFocus(focusSelectorForNewGroup(group));
+    focused.scrollIntoView({ block: "nearest" });
+    if (isManageableGroup(group)) {
+      // clicking the add row opens its form, which then moves focus
+      // into the input field
       focused.click();
-    } else {
-      focused.scrollIntoView({ block: "nearest" });
     }
   } catch (error) {
     console.warn(`Could not focus new ${group.type} group`, error);
   }
 }
+
+const route = useRoute();
+const router = useRouter();
+
+// Deep link from the Rules tab: ?group=<id> reveals that group's row.
+watch(
+  [groups, () => route.query.group],
+  async ([groupList, groupParam]) => {
+    // the link can arrive before the groups query has loaded, so this
+    // watch also runs on groups and waits for both
+    if (!groupList || typeof groupParam !== "string") return;
+
+    // drop the param right away so a refresh or back navigation
+    // doesn't replay the jump
+    router.replace({ query: { ...route.query, group: undefined } });
+
+    const group = groupList.find((g) => String(g.id) === groupParam);
+    if (!group) return;
+
+    // active filters could hide the row, so they reset
+    searchGroupText.value = "";
+    columnFilters.value = [];
+    currentGroupId.value = group.id;
+    if (isManageableGroup(group)) {
+      const currentlyExpanded = expanded.value === true ? {} : expanded.value;
+      expanded.value = { ...currentlyExpanded, [groupParam]: true };
+    }
+
+    try {
+      const focused = await tryFocus(`[data-group-row="${group.id}"]`);
+      focused.scrollIntoView({ block: "center" });
+    } catch (error) {
+      console.warn(`Could not focus group ${groupParam}`, error);
+    }
+  },
+  { immediate: true }
+);
 </script>
+<style scoped>
+/* Draw the eye to the aria-current row, then settle into its
+   persistent tint. Same visual language as the DragDropList
+   post-move flash. */
+.group-row--current {
+  animation: current-group-flash 0.5s ease-out;
+}
+
+@keyframes current-group-flash {
+  from {
+    background-color: var(--primary-muted);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+</style>

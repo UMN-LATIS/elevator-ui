@@ -10,36 +10,60 @@
     </div>
 
     <div class="mt-4 border border-outline-variant rounded-md">
-      <Table class="w-full">
+      <Table class="w-full table-fixed">
         <TableHeader>
-          <TableRow
+          <template
             v-for="headerGroup in table.getHeaderGroups()"
             :key="headerGroup.id">
-            <TableHead
-              v-for="header in headerGroup.headers"
-              :key="header.id"
-              class="bg-surface-container-low"
-              :class="{
-                'cursor-pointer select-none': header.column.getCanSort(),
-              }"
-              @click="header.column.getToggleSortingHandler()?.($event)">
-              <div class="flex items-center gap-2">
-                <FlexRender
-                  v-if="!header.isPlaceholder"
-                  :render="header.column.columnDef.header"
-                  :props="header.getContext()" />
-                <template v-if="header.column.getCanSort()">
-                  <ArrowUpDown
-                    v-if="!header.column.getIsSorted()"
-                    class="h-4 w-4 text-on-surface-muted" />
-                  <ArrowUp
-                    v-else-if="header.column.getIsSorted() === 'asc'"
-                    class="h-4 w-4 text-primary" />
-                  <ArrowDown v-else class="h-4 w-4 text-primary" />
-                </template>
-              </div>
-            </TableHead>
-          </TableRow>
+            <TableRow class="hover:bg-transparent">
+              <TableHead
+                v-for="header in headerGroup.headers"
+                :key="`filter-${header.id}`"
+                class="bg-surface-container-low py-2"
+                :class="header.column.columnDef.meta?.widthClass">
+                <InputGroup
+                  v-if="header.column.getCanFilter()"
+                  :label="
+                    header.column.columnDef.meta?.filterPlaceholder ?? 'Filter'
+                  "
+                  :labelHidden="true"
+                  :placeholder="header.column.columnDef.meta?.filterPlaceholder"
+                  type="search"
+                  class="max-w-xs"
+                  :disabled="isLoading"
+                  :modelValue="String(header.column.getFilterValue() ?? '')"
+                  @update:modelValue="
+                    header.column.setFilterValue($event || undefined)
+                  " />
+              </TableHead>
+            </TableRow>
+            <TableRow class="hover:bg-transparent">
+              <TableHead
+                v-for="header in headerGroup.headers"
+                :key="header.id"
+                class="bg-surface-container-low"
+                :class="{
+                  'cursor-pointer select-none': header.column.getCanSort(),
+                }"
+                @click="header.column.getToggleSortingHandler()?.($event)">
+                <div class="flex items-center gap-2">
+                  <FlexRender
+                    v-if="!header.isPlaceholder"
+                    :render="header.column.columnDef.header"
+                    :props="header.getContext()" />
+                  <template v-if="header.column.getCanSort()">
+                    <ArrowUpDown
+                      v-if="!header.column.getIsSorted()"
+                      class="h-4 w-4 text-on-surface-muted" />
+                    <ArrowUp
+                      v-else-if="header.column.getIsSorted() === 'asc'"
+                      class="h-4 w-4 text-primary" />
+                    <ArrowDown v-else class="h-4 w-4 text-primary" />
+                  </template>
+                </div>
+              </TableHead>
+            </TableRow>
+          </template>
         </TableHeader>
         <TableBody>
           <template v-if="isLoading">
@@ -63,7 +87,11 @@
               <TableCell
                 :colspan="ruleColumns.length"
                 class="h-16 text-center text-sm text-on-surface-variant">
-                No rules yet.
+                {{
+                  ruleRows.length
+                    ? "No rules match your filters."
+                    : "No rules yet."
+                }}
               </TableCell>
             </TableRow>
           </template>
@@ -99,10 +127,15 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+} from "@tanstack/vue-table";
 import {
   FlexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
@@ -117,6 +150,7 @@ import {
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useToastStore } from "@/stores/toastStore";
 import RuleFormModal from "./RuleFormModal.vue";
@@ -233,6 +267,8 @@ const ruleRows = computed(() =>
 // "All Collections" sorts to the top under the default ascending sort.
 const sorting = ref<SortingState>([{ id: "collection", desc: false }]);
 
+const columnFilters = ref<ColumnFiltersState>([]);
+
 const table = useVueTable({
   get data() {
     return ruleRows.value;
@@ -242,13 +278,21 @@ const table = useVueTable({
   getRowId: (row) => row.key,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
   onSortingChange: (updater) => {
     sorting.value =
       typeof updater === "function" ? updater(sorting.value) : updater;
   },
+  onColumnFiltersChange: (updater) => {
+    columnFilters.value =
+      typeof updater === "function" ? updater(columnFilters.value) : updater;
+  },
   state: {
     get sorting() {
       return sorting.value;
+    },
+    get columnFilters() {
+      return columnFilters.value;
     },
   },
 });

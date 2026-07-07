@@ -13,6 +13,10 @@ declare module "@tanstack/vue-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
     // Placeholder for the filter input rendered above this column's header.
     filterPlaceholder?: string;
+    // Tailwind width class applied to the column's header cells. The
+    // tables use table-fixed layout so widths hold steady while
+    // filtering adds and removes rows.
+    widthClass?: string;
   }
 }
 
@@ -39,6 +43,7 @@ export const createGroupColumns = (
     id: "expander",
     header: () => null,
     enableSorting: false,
+    meta: { widthClass: "w-12" },
     cell: ({ row }) =>
       row.getCanExpand() ? (
         <button
@@ -56,12 +61,11 @@ export const createGroupColumns = (
           />
         </button>
       ) : null,
-    maxSize: 48,
   }),
   columnHelper.accessor("name", {
     id: "name",
     header: () => <ColHeader text="Name" />,
-    meta: { filterPlaceholder: "Filter name" },
+    meta: { filterPlaceholder: "Filter name", widthClass: "w-[35%]" },
     cell: (ctx) => (
       <div class="text-sm font-medium text-on-surface">{ctx.getValue()}</div>
     ),
@@ -69,7 +73,7 @@ export const createGroupColumns = (
   columnHelper.accessor("typeLabel", {
     id: "type",
     header: () => <ColHeader text="Type" />,
-    meta: { filterPlaceholder: "Filter type" },
+    meta: { filterPlaceholder: "Filter type", widthClass: "w-[30%]" },
     cell: (ctx) => (
       <div class="text-sm text-on-surface-variant">{ctx.getValue()}</div>
     ),
@@ -79,6 +83,7 @@ export const createGroupColumns = (
     header: () => <ColHeader text="Members / Entries" />,
     enableColumnFilter: false,
     enableGlobalFilter: false,
+    meta: { widthClass: "w-[20%]" },
     cell: (ctx) =>
       ctx.row.original.isGlobal ? (
         <div class="text-sm text-on-surface-variant">—</div>
@@ -98,11 +103,13 @@ export const createGroupColumns = (
     id: "actions",
     header: () => <ColHeader text="" />,
     enableSorting: false,
+    meta: { widthClass: "w-24" },
     cell: ({ row }: { row: { original: GroupRow } }) => (
       <div class="flex justify-end">
         <IconButton
           onClick={() => onEdit(row.original.group)}
           title="Edit Group"
+          data-group-edit={row.original.group.id}
           showTooltip={false}>
           <PencilIcon class="size-4" />
         </IconButton>
@@ -110,11 +117,10 @@ export const createGroupColumns = (
           onClick={() => onDelete(row.original.group)}
           title="Delete Group"
           showTooltip={false}
-          class="enabled:hover:bg-error-container enabled:hover:text-on-error-container">
+          class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
           <TrashIcon class="size-4" />
         </IconButton>
       </div>
     ),
-    maxSize: 96,
   },
 ];
