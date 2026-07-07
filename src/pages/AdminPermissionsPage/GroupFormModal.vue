@@ -147,10 +147,9 @@ function handleSubmit() {
     createMutation.mutate(
       { type, label, values: [] },
       {
-        // updateMutation isn't doing an optimistic updates, so we
-        // need to wait until the invalidation settles before
-        // closing the modal, otherwise `tryFocus` in the parent
-        // won't be able to find the member input for the updated group
+        // createMutation has no optimistic update, so wait for the list
+        // invalidation to settle before closing, otherwise tryFocus in
+        // the parent can't find the new group's row yet
         onSettled: (group) => {
           if (!group) return;
           emit("created", group);

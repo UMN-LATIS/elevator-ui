@@ -227,8 +227,8 @@ import type { GroupRow } from "./GroupsTableColumns";
 // Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
 
-// Global groups match everyone by definition, so the table shows no
-// member count and no expandable detail panel for them.
+// Global groups match everyone by definition, so their rows show no
+// member or entry count.
 const GLOBAL_GROUP_TYPES: GroupTypeValues[] = [
   GROUP_TYPES.ALL,
   GROUP_TYPES.AUTHED,
@@ -290,7 +290,7 @@ function closeGroupModal() {
   isGroupModalOpen.value = false;
 }
 
-// the group awaiting delete confirmation; also drives the modal's open state
+// the group awaiting delete confirmation, doubling as the modal's open state
 const groupPendingDelete = ref<PermissionsGroup | null>(null);
 
 function handleDelete(group: PermissionsGroup) {

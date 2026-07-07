@@ -175,7 +175,7 @@ const SKELETON_ROW_COUNT = 3;
 
 const isRuleModalOpen = ref(false);
 
-// the rule being edited; null puts the modal in create mode
+// the rule being edited, or null for create mode
 const editingRule = ref<PermissionRuleRow | null>(null);
 
 function openCreate() {
@@ -191,7 +191,7 @@ function openEdit(rule: PermissionRuleRow) {
 const toastStore = useToastStore();
 const { mutate: deleteRule } = useDeleteRuleMutation();
 
-// the rule awaiting delete confirmation; also drives the modal's open state
+// the rule awaiting delete confirmation, doubling as the modal's open state
 const rulePendingDelete = ref<PermissionRuleRow | null>(null);
 
 function handleDelete(rule: PermissionRuleRow) {
@@ -245,8 +245,8 @@ const isLoading = computed(
 );
 
 // Breadcrumb titles ("Parent › Child") for the collection column. The nav
-// list only holds collections this admin can browse, so any other
-// collection's rule falls back to "Collection {id}".
+// list only holds collections this admin can browse, so a rule's
+// collection can be missing here.
 const collectionTitleById = computed(() => {
   const flat = flattenCollections(
     normalizeAssetCollections(instanceNav.value?.collections ?? [])

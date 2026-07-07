@@ -153,11 +153,12 @@ function isOptionDisabled(option: MemberOption): boolean {
   return option.kind === "match" && isAlreadyMember(option.match);
 }
 
-// The picked option, held until Save commits it. Selecting fills the input
-// (with the username, the one field that stays meaningful as plain text)
-// rather than saving, mirroring the entries row's fill-on-select behavior.
+// the picked option, held until Save commits it
 const stagedOption = ref<MemberOption | null>(null);
 
+// Selecting fills the input with the username (the one field that stays
+// meaningful as plain text) rather than saving, mirroring the entries
+// row's fill-on-select behavior.
 function handleSelect(option: MemberOption): void {
   stagedOption.value = option;
   search.value = option.kind === "match" ? option.match.username : option.query;
