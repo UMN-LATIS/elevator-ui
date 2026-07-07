@@ -53,6 +53,9 @@ import {
   type UserAutocompleteMatch,
   type GroupMember,
   type PermissionsGroupEntry,
+  type PermissionLevel,
+  type InstanceGrant,
+  type CollectionGrant,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1164,6 +1167,30 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
   );
 
   return res.data.groups;
+}
+
+export async function fetchPermissionLevels(): Promise<PermissionLevel[]> {
+  const res = await axios.get<{ permissionLevels: PermissionLevel[] }>(
+    `${BASE_URL}/adminPermissions/permissionLevels`
+  );
+
+  return res.data.permissionLevels;
+}
+
+export async function fetchInstanceGrants(): Promise<InstanceGrant[]> {
+  const res = await axios.get<{ instanceGrants: InstanceGrant[] }>(
+    `${BASE_URL}/adminPermissions/instanceGrants`
+  );
+
+  return res.data.instanceGrants;
+}
+
+export async function fetchCollectionGrants(): Promise<CollectionGrant[]> {
+  const res = await axios.get<{ collectionGrants: CollectionGrant[] }>(
+    `${BASE_URL}/adminPermissions/collectionGrants`
+  );
+
+  return res.data.collectionGrants;
 }
 
 // Fetch user suggestions for a group's member field. The backend returns
