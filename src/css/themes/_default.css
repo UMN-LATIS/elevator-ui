@@ -56,10 +56,12 @@
    *   - FABs, progress indicators
    * ============================================ */
   --primary: oklch(50% 0.2 250);
+  --primary-muted: color-mix(in oklch, var(--primary) 10%, transparent);
   --on-primary: oklch(100% 0 0);
   --primary-container: oklch(
     90% 0.05 250
   ); /* tonal bg for grouped primary content */
+  --primary-container-muted: color-mix(in oklch, var(--primary-container) 10%, transparent);
   --on-primary-container: oklch(0.47 0.19 254.8);
 
   /* ============================================
