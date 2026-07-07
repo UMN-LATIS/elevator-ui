@@ -20,7 +20,7 @@
             :blurOnSelect="false"
             :minChars="2"
             placeholder="Add member by name, email, or username…"
-            :inputClass="`w-full bg-surface border-outline group-member-add__input--${group.id}`"
+            :inputClass="`w-full bg-surface border-outline-variant group-member-add__input--${group.id}`"
             @update:modelValue="handleSearchInput"
             @select="handleSelect">
             <template #option="{ item }">

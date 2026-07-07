@@ -1,18 +1,11 @@
 import { createColumnHelper } from "@tanstack/vue-table";
 import { PencilIcon, TrashIcon } from "lucide-vue-next";
-import type { CSSClass } from "@/types";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
+import { ColHeader } from "./ColHeader";
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
-
-const ColHeader = (props: { text: string; class?: CSSClass }) => (
-  <div
-    class={cn(["font-medium uppercase text-xs tracking-wider", props.class])}>
-    {props.text}
-  </div>
-);
 
 export const createRuleColumns = (
   onEdit: (rule: PermissionRuleRow) => void,

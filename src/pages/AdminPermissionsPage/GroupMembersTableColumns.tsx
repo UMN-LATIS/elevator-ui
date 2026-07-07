@@ -1,17 +1,10 @@
 import { createColumnHelper } from "@tanstack/vue-table";
 import { TrashIcon } from "lucide-vue-next";
-import type { CSSClass, GroupMember } from "@/types";
-import { cn } from "@/lib/utils";
+import type { GroupMember } from "@/types";
 import IconButton from "@/components/IconButton/IconButton.vue";
+import { ColHeader } from "./ColHeader";
 
 const columnHelper = createColumnHelper<GroupMember>();
-
-const ColHeader = (props: { text: string; class?: CSSClass }) => (
-  <div
-    class={cn(["font-medium uppercase text-xs tracking-wider", props.class])}>
-    {props.text}
-  </div>
-);
 
 export const createGroupMemberColumns = (
   onRemove: (member: GroupMember) => void
