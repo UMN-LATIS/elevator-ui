@@ -17,9 +17,10 @@
     <select
       :id="id"
       :value="modelValue ?? ''"
+      :disabled="disabled"
       :class="
         cn([
-          'rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2',
+          'rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2 disabled:opacity-50',
           selectClass,
         ])
       "
@@ -49,6 +50,7 @@ withDefaults(
     label: string;
     options: Array<SelectOption<string | number>>;
     required?: boolean;
+    disabled?: boolean;
     id?: string;
     placeholder?: string;
     showLabel?: boolean;
@@ -59,6 +61,7 @@ withDefaults(
     id: () => `select-${crypto.randomUUID()}`,
     placeholder: "--",
     required: false,
+    disabled: false,
     showLabel: true,
     labelClass: "",
     selectClass: "",

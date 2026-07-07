@@ -17,7 +17,9 @@ export interface PermissionRuleRow {
   grantId: number;
   collectionId: number | null;
   collectionLabel: string;
+  groupId: number;
   groupLabel: string;
+  permissionLevelId: number;
   permissionLabel: string;
 }
 
@@ -60,7 +62,9 @@ export function buildRuleRows({
       grantId: grant.id,
       collectionId: null,
       collectionLabel: ALL_COLLECTIONS_LABEL,
+      groupId: grant.groupId,
       groupLabel: groupLabelById.get(grant.groupId) ?? `Group ${grant.groupId}`,
+      permissionLevelId: grant.permissionLevelId,
       permissionLabel:
         levelLabelById.get(grant.permissionLevelId) ??
         `Level ${grant.permissionLevelId}`,
@@ -83,7 +87,9 @@ export function buildRuleRows({
       collectionLabel:
         collectionTitleById.get(grant.collectionId) ??
         `Collection ${grant.collectionId}`,
+      groupId: grant.groupId,
       groupLabel: groupLabelById.get(grant.groupId) ?? `Group ${grant.groupId}`,
+      permissionLevelId: grant.permissionLevelId,
       permissionLabel:
         levelLabelById.get(grant.permissionLevelId) ??
         `Level ${grant.permissionLevelId}`,

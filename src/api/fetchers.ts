@@ -1235,6 +1235,52 @@ export async function createCollectionGrant(
   return res.data.collectionGrant;
 }
 
+// Only the level is mutable on a grant. Moving a grant to another group
+// or collection is a delete + create.
+export interface UpdateGrantPayload {
+  permissionLevelId: number;
+}
+
+export async function updateInstanceGrant(
+  grantId: number,
+  payload: UpdateGrantPayload
+): Promise<InstanceGrant> {
+  const params = new URLSearchParams();
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.put<{ instanceGrant: InstanceGrant }>(
+    `${BASE_URL}/adminPermissions/instanceGrants/${grantId}`,
+    params
+  );
+
+  return res.data.instanceGrant;
+}
+
+export async function updateCollectionGrant(
+  grantId: number,
+  payload: UpdateGrantPayload
+): Promise<CollectionGrant> {
+  const params = new URLSearchParams();
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.put<{ collectionGrant: CollectionGrant }>(
+    `${BASE_URL}/adminPermissions/collectionGrants/${grantId}`,
+    params
+  );
+
+  return res.data.collectionGrant;
+}
+
+export async function deleteInstanceGrant(grantId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/adminPermissions/instanceGrants/${grantId}`);
+}
+
+export async function deleteCollectionGrant(grantId: number): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/adminPermissions/collectionGrants/${grantId}`
+  );
+}
+
 // Fetch user suggestions for a group's member field. The backend returns
 // [] for trivial queries, so keystrokes can be passed straight through.
 export async function fetchUserAutocomplete(

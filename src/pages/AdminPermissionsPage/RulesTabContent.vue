@@ -4,10 +4,7 @@
       <p class="text-sm flex-1">
         Grant groups access to all collections or a single collection.
       </p>
-      <Button
-        variant="primary"
-        class="whitespace-nowrap"
-        @click="isRuleModalOpen = true">
+      <Button variant="primary" class="whitespace-nowrap" @click="openCreate">
         Create Rule
       </Button>
     </div>
@@ -74,14 +71,35 @@
       </Table>
     </div>
 
-    <RuleFormModal :isOpen="isRuleModalOpen" @close="isRuleModalOpen = false" />
+    <RuleFormModal
+      :isOpen="isRuleModalOpen"
+      :rule="editingRule"
+      @close="isRuleModalOpen = false" />
+
+    <ConfirmModal
+      :isOpen="Boolean(rulePendingDelete)"
+      title="Delete Rule"
+      type="danger"
+      confirmLabel="Delete"
+      @close="rulePendingDelete = null"
+      @confirm="confirmDelete">
+      <p>
+        Are you sure you want to delete the rule granting
+        <b>{{ rulePendingDelete?.groupLabel }}</b>
+        the
+        <b>{{ rulePendingDelete?.permissionLabel }}</b>
+        permission on
+        <b>{{ rulePendingDelete?.collectionLabel }}</b>
+        ? This action cannot be undone.
+      </p>
+    </ConfirmModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type { SortingState } from "@tanstack/vue-table";
+import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
   FlexRender,
   getCoreRowModel,
@@ -98,7 +116,9 @@ import {
 } from "@/components/ui/table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import { useToastStore } from "@/stores/toastStore";
 import RuleFormModal from "./RuleFormModal.vue";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import {
@@ -110,14 +130,63 @@ import {
   collectionGrantsQuery,
   instanceGrantsQuery,
   permissionLevelsQuery,
+  useDeleteRuleMutation,
 } from "./ruleQueries";
 import { buildRuleRows } from "./buildRuleRows";
-import { ruleColumns } from "./RulesTableColumns";
+import type { PermissionRuleRow } from "./buildRuleRows";
+import { createRuleColumns } from "./RulesTableColumns";
 
 // Placeholder rows shown while the rule lists load.
 const SKELETON_ROW_COUNT = 3;
 
 const isRuleModalOpen = ref(false);
+
+// the rule being edited; null puts the modal in create mode
+const editingRule = ref<PermissionRuleRow | null>(null);
+
+function openCreate() {
+  editingRule.value = null;
+  isRuleModalOpen.value = true;
+}
+
+function openEdit(rule: PermissionRuleRow) {
+  editingRule.value = rule;
+  isRuleModalOpen.value = true;
+}
+
+const toastStore = useToastStore();
+const { mutate: deleteRule } = useDeleteRuleMutation();
+
+// the rule awaiting delete confirmation; also drives the modal's open state
+const rulePendingDelete = ref<PermissionRuleRow | null>(null);
+
+function handleDelete(rule: PermissionRuleRow) {
+  rulePendingDelete.value = rule;
+}
+
+function confirmDelete() {
+  const rule = rulePendingDelete.value;
+  if (!rule) return;
+  deleteRule(
+    { scope: rule.scope, grantId: rule.grantId },
+    {
+      onSuccess: () =>
+        toastStore.addToast({
+          message: "Rule deleted.",
+          variant: "success",
+        }),
+      onError: (error) =>
+        toastStore.addToast({
+          title: "Delete Rule Failed",
+          message: `Failed to delete rule: ${error.message}`,
+          variant: "error",
+        }),
+    }
+  );
+  rulePendingDelete.value = null;
+}
+
+const ruleColumns = createRuleColumns(openEdit, handleDelete);
 
 const { data: instanceGrants, isLoading: isLoadingInstanceGrants } = useQuery(
   instanceGrantsQuery()
@@ -168,7 +237,8 @@ const table = useVueTable({
   get data() {
     return ruleRows.value;
   },
-  columns: ruleColumns,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  columns: ruleColumns as ColumnDef<PermissionRuleRow, any>[],
   getRowId: (row) => row.key,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),

@@ -1,7 +1,7 @@
 <template>
   <Modal
     :isOpen="isOpen"
-    label="Create Rule"
+    :label="isEditing ? 'Edit Rule' : 'Create Rule'"
     class="max-w-md"
     @close="handleClose">
     <form @submit.prevent="handleSubmit">
@@ -32,8 +32,8 @@
         <Button
           variant="primary"
           type="submit"
-          :disabled="!canSubmit || createRule.isPending.value">
-          Create Rule
+          :disabled="!canSubmit || isPending">
+          {{ isEditing ? "Save Changes" : "Create Rule" }}
         </Button>
       </div>
     </form>
@@ -52,12 +52,19 @@ import {
   normalizeAssetCollections,
 } from "@/helpers/collectionHelpers";
 import { groupsQuery } from "./groupQueries";
-import { permissionLevelsQuery, useCreateRuleMutation } from "./ruleQueries";
-import { ALL_COLLECTIONS_LABEL } from "./buildRuleRows";
+import {
+  permissionLevelsQuery,
+  useCreateRuleMutation,
+  useUpdateRuleMutation,
+} from "./ruleQueries";
+import { ALL_COLLECTIONS_LABEL, PermissionRuleRow } from "./buildRuleRows";
 import type { SelectOption } from "@/types";
 
 const props = defineProps<{
   isOpen: boolean;
+  // when present the modal edits this rule's level, otherwise it creates
+  // a rule
+  rule?: PermissionRuleRow | null;
 }>();
 const emit = defineEmits<{
   (e: "close"): void;
@@ -71,6 +78,12 @@ const { data: groups } = useQuery(groupsQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
 const { data: instanceNav } = useInstanceQuery();
 const createRule = useCreateRuleMutation();
+const updateRule = useUpdateRuleMutation();
+
+const isEditing = computed(() => Boolean(props.rule));
+const isPending = computed(
+  () => createRule.isPending.value || updateRule.isPending.value
+);
 
 type RuleForm = {
   collectionId: number | typeof ALL_COLLECTIONS_ID | null;
@@ -84,15 +97,18 @@ const form = ref<RuleForm>({
   permissionLevelId: null,
 });
 
-// reset the form each time the modal opens
+// fill the form each time the modal opens, prefilling from the rule in
+// edit mode and starting blank in create mode
 watch(
-  () => props.isOpen,
-  (isOpen) => {
+  () => [props.isOpen, props.rule] as const,
+  ([isOpen]) => {
     if (!isOpen) return;
     form.value = {
-      collectionId: null,
-      groupId: null,
-      permissionLevelId: null,
+      collectionId: props.rule
+        ? props.rule.collectionId ?? ALL_COLLECTIONS_ID
+        : null,
+      groupId: props.rule?.groupId ?? null,
+      permissionLevelId: props.rule?.permissionLevelId ?? null,
     };
   },
   { immediate: true }
@@ -102,13 +118,29 @@ const collectionOptions = computed((): SelectOption<string | number>[] => {
   const flat = flattenCollections(
     normalizeAssetCollections(instanceNav.value?.collections ?? [])
   );
-  return [
+  const options: SelectOption<string | number>[] = [
     { id: ALL_COLLECTIONS_ID, label: ALL_COLLECTIONS_LABEL },
     ...flat.map((collection) => ({
       id: collection.id,
       label: collection.title,
     })),
   ];
+
+  // An edited rule can sit on a collection missing from the nav list
+  // (not browsable by this admin). Append it so the locked select still
+  // shows the rule's collection instead of the placeholder.
+  const ruleCollectionId = props.rule?.collectionId;
+  if (
+    ruleCollectionId != null &&
+    !options.some((option) => option.id === ruleCollectionId)
+  ) {
+    options.push({
+      id: ruleCollectionId,
+      label: props.rule?.collectionLabel ?? `Collection ${ruleCollectionId}`,
+    });
+  }
+
+  return options;
 });
 
 const groupOptions = computed((): SelectOption<number>[] =>
@@ -143,19 +175,40 @@ function handleSubmit() {
     return;
   }
 
-  createRule.mutate(
-    {
-      collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
-      groupId,
-      permissionLevelId,
-    },
-    {
-      // wait for the list invalidation to settle before closing so the
-      // new row is already there when the table regains focus
-      onSettled: (grant, error) => {
-        if (!error && grant) emit("close");
+  // wait for the list invalidation to settle before closing so the
+  // changed row is already there when the table regains focus
+  if (props.rule) {
+    updateRule.mutate(
+      {
+        original: {
+          scope: props.rule.scope,
+          grantId: props.rule.grantId,
+          collectionId: props.rule.collectionId,
+          groupId: props.rule.groupId,
+        },
+        collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+        groupId,
+        permissionLevelId,
       },
-    }
-  );
+      {
+        onSettled: (grant, error) => {
+          if (!error && grant) emit("close");
+        },
+      }
+    );
+  } else {
+    createRule.mutate(
+      {
+        collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+        groupId,
+        permissionLevelId,
+      },
+      {
+        onSettled: (grant, error) => {
+          if (!error && grant) emit("close");
+        },
+      }
+    );
+  }
 }
 </script>
