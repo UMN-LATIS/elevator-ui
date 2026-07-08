@@ -32,28 +32,6 @@
             <TableRow class="hover:bg-transparent">
               <TableHead
                 v-for="header in headerGroup.headers"
-                :key="`filter-${header.id}`"
-                class="bg-surface-container-low py-2"
-                :class="header.column.columnDef.meta?.widthClass">
-                <InputGroup
-                  v-if="header.column.getCanFilter()"
-                  :label="
-                    header.column.columnDef.meta?.filterPlaceholder ?? 'Filter'
-                  "
-                  :labelHidden="true"
-                  :placeholder="header.column.columnDef.meta?.filterPlaceholder"
-                  type="search"
-                  class="max-w-xs"
-                  :disabled="isLoading"
-                  :modelValue="String(header.column.getFilterValue() ?? '')"
-                  @update:modelValue="
-                    header.column.setFilterValue($event || undefined)
-                  " />
-              </TableHead>
-            </TableRow>
-            <TableRow class="hover:bg-transparent">
-              <TableHead
-                v-for="header in headerGroup.headers"
                 :key="header.id"
                 class="bg-surface-container-low"
                 :class="{
@@ -181,7 +159,6 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
 import type {
   ColumnDef,
-  ColumnFiltersState,
   ExpandedState,
   SortingState,
 } from "@tanstack/vue-table";
@@ -309,7 +286,6 @@ const groupColumns = createGroupColumns(openEdit, handleDelete);
 
 const searchGroupText = ref("");
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);
-const columnFilters = ref<ColumnFiltersState>([]);
 // ids of the currently expanded rows, so each group fetches its members
 // or entries only when its detail panel is open
 const expanded = ref<ExpandedState>({});
@@ -339,10 +315,6 @@ const table = useVueTable({
     currentGroupId.value = null;
     sorting.value = functionalUpdate(updater, sorting.value);
   },
-  onColumnFiltersChange: (updater) => {
-    currentGroupId.value = null;
-    columnFilters.value = functionalUpdate(updater, columnFilters.value);
-  },
   onExpandedChange: (updater) => {
     currentGroupId.value = null;
     expanded.value = functionalUpdate(updater, expanded.value);
@@ -354,9 +326,6 @@ const table = useVueTable({
   state: {
     get sorting() {
       return sorting.value;
-    },
-    get columnFilters() {
-      return columnFilters.value;
     },
     get expanded() {
       return expanded.value;
@@ -382,9 +351,8 @@ function focusSelectorForNewGroup(group: PermissionsGroup): string {
 // Reveal a freshly created group and put focus where the admin works
 // next.
 async function handleCreated(group: PermissionsGroup) {
-  // active filters could hide the new row, so they reset
+  // an active search could hide the new row, so it resets
   searchGroupText.value = "";
-  columnFilters.value = [];
   currentGroupId.value = group.id;
 
   if (isManageableGroup(group)) {
@@ -427,9 +395,8 @@ watch(
     const group = groupList.find((g) => String(g.id) === groupParam);
     if (!group) return;
 
-    // active filters could hide the row, so they reset
+    // an active search could hide the row, so it resets
     searchGroupText.value = "";
-    columnFilters.value = [];
     currentGroupId.value = group.id;
     if (isManageableGroup(group)) {
       const currentlyExpanded = expanded.value === true ? {} : expanded.value;

@@ -11,8 +11,6 @@ import { ColHeader } from "./ColHeader";
 declare module "@tanstack/vue-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface ColumnMeta<TData extends RowData, TValue> {
-    // Placeholder for the filter input rendered above this column's header.
-    filterPlaceholder?: string;
     // Tailwind width class applied to the column's header cells. The
     // tables use table-fixed layout so widths hold steady while
     // filtering adds and removes rows.
@@ -64,7 +62,7 @@ export const createGroupColumns = (
   columnHelper.accessor("name", {
     id: "name",
     header: () => <ColHeader text="Name" />,
-    meta: { filterPlaceholder: "Filter name", widthClass: "w-[35%]" },
+    meta: { widthClass: "w-[35%]" },
     cell: (ctx) => (
       <div class="text-sm font-medium text-on-surface">{ctx.getValue()}</div>
     ),
@@ -72,7 +70,7 @@ export const createGroupColumns = (
   columnHelper.accessor("typeLabel", {
     id: "type",
     header: () => <ColHeader text="Type" />,
-    meta: { filterPlaceholder: "Filter type", widthClass: "w-[30%]" },
+    meta: { widthClass: "w-[30%]" },
     cell: (ctx) => (
       <div class="text-sm text-on-surface-variant">{ctx.getValue()}</div>
     ),

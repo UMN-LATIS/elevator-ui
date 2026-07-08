@@ -4,9 +4,23 @@
       <p class="text-sm flex-1">
         Grant groups access to all collections or a single collection.
       </p>
-      <Button variant="primary" class="whitespace-nowrap" @click="openCreate">
-        Create Rule
-      </Button>
+      <div class="flex gap-2 items-center flex-wrap">
+        <InputGroup
+          v-model="searchText"
+          label="Search Rules"
+          placeholder="Search rules"
+          :labelHidden="true"
+          class="max-w-sm"
+          type="search"
+          :disabled="isLoading">
+          <template #prepend>
+            <FilterIcon class="size-4 text-on-surface-variant" />
+          </template>
+        </InputGroup>
+        <Button variant="primary" class="whitespace-nowrap" @click="openCreate">
+          Create Rule
+        </Button>
+      </div>
     </div>
 
     <div class="mt-4 border border-outline-variant rounded-md">
@@ -15,28 +29,6 @@
           <template
             v-for="headerGroup in table.getHeaderGroups()"
             :key="headerGroup.id">
-            <TableRow class="hover:bg-transparent">
-              <TableHead
-                v-for="header in headerGroup.headers"
-                :key="`filter-${header.id}`"
-                class="bg-surface-container-low py-2"
-                :class="header.column.columnDef.meta?.widthClass">
-                <InputGroup
-                  v-if="header.column.getCanFilter()"
-                  :label="
-                    header.column.columnDef.meta?.filterPlaceholder ?? 'Filter'
-                  "
-                  :labelHidden="true"
-                  :placeholder="header.column.columnDef.meta?.filterPlaceholder"
-                  type="search"
-                  class="max-w-xs"
-                  :disabled="isLoading"
-                  :modelValue="String(header.column.getFilterValue() ?? '')"
-                  @update:modelValue="
-                    header.column.setFilterValue($event || undefined)
-                  " />
-              </TableHead>
-            </TableRow>
             <TableRow class="hover:bg-transparent">
               <TableHead
                 v-for="header in headerGroup.headers"
@@ -124,11 +116,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-} from "@tanstack/vue-table";
+import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
   FlexRender,
   functionalUpdate,
@@ -145,7 +133,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
+import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
@@ -305,7 +293,8 @@ const ruleColumns = createRuleColumns({
 // "All Collections" sorts to the top under the default ascending sort.
 const sorting = ref<SortingState>([{ id: "collection", desc: false }]);
 
-const columnFilters = ref<ColumnFiltersState>([]);
+// One search box filters across every text column.
+const searchText = ref("");
 
 const table = useVueTable({
   get data() {
@@ -316,18 +305,19 @@ const table = useVueTable({
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
+  globalFilterFn: "includesString",
   onSortingChange: (updater) => {
     sorting.value = functionalUpdate(updater, sorting.value);
   },
-  onColumnFiltersChange: (updater) => {
-    columnFilters.value = functionalUpdate(updater, columnFilters.value);
+  onGlobalFilterChange: (updater) => {
+    searchText.value = functionalUpdate(updater, searchText.value);
   },
   state: {
     get sorting() {
       return sorting.value;
     },
-    get columnFilters() {
-      return columnFilters.value;
+    get globalFilter() {
+      return searchText.value;
     },
   },
 });

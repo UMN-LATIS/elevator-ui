@@ -40,7 +40,6 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
   columnHelper.accessor("scope", {
     id: "scope",
     header: () => <ColHeader text="Scope" />,
-    enableColumnFilter: false,
     meta: { widthClass: "w-[15%]" },
     cell: (ctx) => (
       <Chip
@@ -59,7 +58,7 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
     {
       id: "collection",
       header: () => <ColHeader text="Collection" />,
-      meta: { filterPlaceholder: "Filter collection", widthClass: "w-[30%]" },
+      meta: { widthClass: "w-[30%]" },
       cell: (ctx) => (
         <div
           class={cn(
@@ -74,7 +73,7 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
   columnHelper.accessor("groupLabel", {
     id: "group",
     header: () => <ColHeader text="Group" />,
-    meta: { filterPlaceholder: "Filter group", widthClass: "w-[25%]" },
+    meta: { widthClass: "w-[25%]" },
     // The Groups tab consumes ?group=<id> and reveals that group's row.
     cell: (ctx) => (
       <RouterLink
@@ -89,7 +88,7 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
   columnHelper.accessor("permissionLabel", {
     id: "permission",
     header: () => <ColHeader text="Permission" />,
-    meta: { filterPlaceholder: "Filter permission", widthClass: "w-[20%]" },
+    meta: { widthClass: "w-[20%]" },
     cell: (ctx) => {
       const rule = ctx.row.original;
 
@@ -110,7 +109,7 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
 
       const dotClass = permissionDotClass(rule.permissionLevelNumber);
       return (
-        <Chip class="w-32 flex gap-1 items-center border border-outline-variant bg-surface-container text-on-surface">
+        <Chip class="w-40 flex gap-1 items-center border border-outline-variant bg-surface text-on-surface">
           <i class={["size-2 shrink-0 rounded-full", dotClass]} />
           <span class="truncate">{ctx.getValue()}</span>
         </Chip>
