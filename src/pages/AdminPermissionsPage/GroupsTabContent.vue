@@ -169,8 +169,8 @@
       @confirm="confirmDelete">
       <p>
         Are you sure you want to delete group
-        <b>{{ groupPendingDelete?.label || groupPendingDelete?.type }}</b>
-        ? This action cannot be undone.
+        <b>{{ groupPendingDelete?.label || groupPendingDelete?.type }}?</b>
+        This action cannot be undone.
       </p>
     </ConfirmModal>
   </div>
@@ -327,8 +327,7 @@ const table = useVueTable({
   get data() {
     return groupRows.value;
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: groupColumns as ColumnDef<GroupRow, any>[],
+  columns: groupColumns as ColumnDef<GroupRow, unknown>[],
   getRowId: (row) => String(row.group.id),
   getRowCanExpand: (row) => isManageableGroup(row.original.group),
   getCoreRowModel: getCoreRowModel(),

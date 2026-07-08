@@ -69,8 +69,6 @@ export const PERM = {
   ADMIN: 60,
 } as const;
 
-export type PermLevelNumber = (typeof PERM)[keyof typeof PERM];
-
 // A permission tier from GET /adminPermissions/permissionLevels. `level` is
 // the numeric strength (a PERM value) that access checks compare; grants
 // reference tiers by `id`.

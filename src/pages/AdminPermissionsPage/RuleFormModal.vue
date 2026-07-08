@@ -9,6 +9,7 @@
         v-model="form.collectionId"
         label="Collection"
         placeholder="Select a collection…"
+        :disabled="isEditing"
         :options="collectionOptions" />
 
       <div class="my-4 flex items-end gap-2">
@@ -17,12 +18,13 @@
           label="Group"
           placeholder="Select a group…"
           class="flex-1"
+          :disabled="isEditing"
           :options="groupOptions" />
         <Button
+          v-if="!isEditing"
           variant="secondary"
           type="button"
           class="whitespace-nowrap text-sm py-2"
-          data-rule-new-group
           @click="isGroupModalOpen = true">
           New Group
         </Button>
@@ -36,7 +38,7 @@
         :options="permissionOptions" />
 
       <p
-        v-if="plan?.overwrites"
+        v-if="grantBeingOverwritten"
         role="alert"
         class="my-4 flex items-center gap-2 rounded-md bg-warning-container px-3 py-2 text-sm text-on-warning-container">
         <TriangleAlertIcon class="size-4 shrink-0" />
@@ -91,12 +93,13 @@ import {
   useSaveRuleMutation,
 } from "./ruleQueries";
 import { ALL_COLLECTIONS_LABEL, PermissionRuleRow } from "./buildRuleRows";
-import {
-  makePlanForSavingRule,
-  type RuleSavePlan,
-} from "./makePlanForSavingRule";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
-import type { PermissionsGroup, SelectOption } from "@/types";
+import type {
+  CollectionGrant,
+  InstanceGrant,
+  PermissionsGroup,
+  SelectOption,
+} from "@/types";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -121,7 +124,7 @@ const { data: collectionGrants } = useQuery(collectionGrantsQuery());
 const saveRule = useSaveRuleMutation();
 
 const isEditing = computed(() => Boolean(props.rule));
-const isPending = computed(() => saveRule.isPending.value);
+const isPending = saveRule.isPending;
 
 type RuleForm = {
   collectionId: number | typeof ALL_COLLECTIONS_ID | null;
@@ -233,28 +236,43 @@ const permissionOptions = computed((): SelectOption<number>[] =>
     .map((level) => ({ id: level.id, label: level.label }))
 );
 
-// Null until every field is filled.
-const plan = computed((): RuleSavePlan | null => {
-  const { collectionId, groupId, permissionLevelId } = form.value;
-  if (collectionId === null || groupId === null || permissionLevelId === null) {
-    return null;
-  }
-  return makePlanForSavingRule({
-    before: props.rule ?? null,
-    after: {
-      collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
-      groupId,
-      permissionLevelId,
-    },
-    instanceGrants: instanceGrants.value ?? [],
-    collectionGrants: collectionGrants.value ?? [],
-  });
-});
+const canSubmit = computed(
+  (): boolean =>
+    form.value.collectionId !== null &&
+    form.value.groupId !== null &&
+    form.value.permissionLevelId !== null
+);
 
-const canSubmit = computed((): boolean => plan.value !== null);
+// The grant already at the picked pair, which saving will replace.
+// A pair holds at most one grant.
+const grantBeingOverwritten = computed(
+  (): InstanceGrant | CollectionGrant | null => {
+    // Editing locks collection and group, so the only grant at the
+    // pair is the rule's own.
+    if (isEditing.value) return null;
+
+    const { collectionId, groupId } = form.value;
+    if (collectionId === null || groupId === null) return null;
+
+    // instance permissions
+    if (collectionId === ALL_COLLECTIONS_ID) {
+      const instanceGrantForGroup = (instanceGrants.value ?? []).find(
+        (grant) => grant.groupId === groupId
+      );
+      return instanceGrantForGroup ?? null;
+    }
+
+    // collection permissions
+    const collectionGrantForPair = (collectionGrants.value ?? []).find(
+      (grant) =>
+        grant.collectionId === collectionId && grant.groupId === groupId
+    );
+    return collectionGrantForPair ?? null;
+  }
+);
 
 const levelLabelToReplace = computed((): string | null => {
-  const grant = plan.value?.overwrites;
+  const grant = grantBeingOverwritten.value;
   if (!grant) return null;
   const level = (permissionLevels.value ?? []).find(
     (candidate) => candidate.id === grant.permissionLevelId
@@ -281,7 +299,30 @@ function closeWhenSaved(grant: unknown, error: Error | null): void {
 }
 
 function handleSubmit() {
-  if (!plan.value) return;
-  saveRule.mutate(plan.value.steps, { onSettled: closeWhenSaved });
+  const { collectionId, groupId, permissionLevelId } = form.value;
+  if (collectionId === null || groupId === null || permissionLevelId === null) {
+    return;
+  }
+  const rule = {
+    collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+    groupId,
+    permissionLevelId,
+  };
+
+  if (props.rule) {
+    saveRule.mutate(
+      { kind: "update", grantId: props.rule.grantId, rule },
+      { onSettled: closeWhenSaved }
+    );
+  } else if (grantBeingOverwritten.value) {
+    // creating onto an occupied pair replaces the grant there,
+    // matching the warning above
+    saveRule.mutate(
+      { kind: "update", grantId: grantBeingOverwritten.value.id, rule },
+      { onSettled: closeWhenSaved }
+    );
+  } else {
+    saveRule.mutate({ kind: "create", rule }, { onSettled: closeWhenSaved });
+  }
 }
 </script>

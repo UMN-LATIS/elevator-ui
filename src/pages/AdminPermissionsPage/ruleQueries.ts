@@ -3,11 +3,7 @@ import * as fetchers from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import type { CollectionGrant, InstanceGrant } from "@/types";
 
-// A "rule" is one row of the Rules table. The backend stores it as a
-// "grant": an instance grant ("All Collections") or a collection grant.
-
-// Key scheme matches groupQueries: resource then kind, so item keys can
-// branch off later without invalidating the lists.
+// A "rule" in the UI is a "grant" in the backend: instance or collection scope.
 export const makeQueryKeyFor = {
   instanceGrantsList: () => ["instanceGrants", "list"] as const,
   collectionGrantsList: () => ["collectionGrants", "list"] as const,
@@ -50,7 +46,7 @@ function useErrorToast(title: string): (error: Error) => void {
 
 export type RuleScope = "instance" | "collection";
 
-function grantsListKeyFor(scope: RuleScope) {
+function queryKeyForScope(scope: RuleScope) {
   return scope === "instance"
     ? makeQueryKeyFor.instanceGrantsList()
     : makeQueryKeyFor.collectionGrantsList();
@@ -107,54 +103,32 @@ function deleteGrant(grant: GrantIdentifier): Promise<void> {
     : fetchers.deleteCollectionGrant(grant.grantId);
 }
 
-// makePlanForSavingRule builds the step list, useSaveRuleMutation runs it.
-export type RuleSaveStep =
-  | { action: "create"; rule: RuleInput }
-  | { action: "update"; grantId: number; rule: RuleInput }
-  | { action: "delete"; grant: GrantIdentifier };
-
-function getScopeTouchedBy(step: RuleSaveStep): RuleScope {
-  if (step.action === "delete") {
-    return step.grant.scope;
-  }
-  return step.rule.collectionId === null ? "instance" : "collection";
-}
+export type SaveRuleInput =
+  | { kind: "create"; rule: RuleInput }
+  | { kind: "update"; grantId: number; rule: RuleInput };
 
 export function useSaveRuleMutation() {
   const queryClient = useQueryClient();
   const toastStore = useToastStore();
 
   return useMutation({
-    // Steps must run in order: the plan relies on write-before-delete.
-    mutationFn: async (steps: RuleSaveStep[]) => {
-      let savedGrant: InstanceGrant | CollectionGrant | null = null;
-      for (const step of steps) {
-        if (step.action === "create") {
-          savedGrant = await createGrant(step.rule);
-        } else if (step.action === "update") {
-          savedGrant = await updateGrant(step.grantId, step.rule);
-        } else {
-          await deleteGrant(step.grant);
-        }
-      }
-      return savedGrant;
-    },
-    onSuccess: (_grant, steps) => {
-      const isCreateOnly = steps.length === 1 && steps[0]?.action === "create";
+    mutationFn: (input: SaveRuleInput) =>
+      input.kind === "create"
+        ? createGrant(input.rule)
+        : updateGrant(input.grantId, input.rule),
+    onSuccess: (_grant, input) =>
       toastStore.addToast({
-        message: isCreateOnly ? "Rule created." : "Rule updated.",
+        message: input.kind === "create" ? "Rule created." : "Rule updated.",
         variant: "success",
-      });
-    },
+      }),
     onError: useErrorToast("Could not save rule"),
-    onSettled: (_grant, _error, steps) => {
-      const staleScopes = new Set(steps.map(getScopeTouchedBy));
-      return Promise.all(
-        [...staleScopes].map((scope) =>
-          queryClient.invalidateQueries({ queryKey: grantsListKeyFor(scope) })
-        )
-      );
-    },
+    // Only the list the rule lives in goes stale.
+    onSettled: (_grant, _error, input) =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeyForScope(
+          input.rule.collectionId === null ? "instance" : "collection"
+        ),
+      }),
   });
 }
 
@@ -166,7 +140,7 @@ export function useDeleteRuleMutation() {
     mutationFn: (input: GrantIdentifier) => deleteGrant(input),
     onSettled: (_data, _error, input) =>
       queryClient.invalidateQueries({
-        queryKey: grantsListKeyFor(input.scope),
+        queryKey: queryKeyForScope(input.scope),
       }),
   });
 }

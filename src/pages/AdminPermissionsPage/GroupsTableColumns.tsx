@@ -48,7 +48,6 @@ export const createGroupColumns = (
       row.getCanExpand() ? (
         <button
           type="button"
-          data-group-trigger={row.original.group.id}
           aria-expanded={row.getIsExpanded()}
           aria-label={`Toggle details for ${row.original.name}`}
           class="flex size-8 items-center justify-center rounded-full hover:bg-surface-container-highest focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -101,7 +100,7 @@ export const createGroupColumns = (
   }),
   {
     id: "actions",
-    header: () => <ColHeader text="" />,
+    header: () => null,
     enableSorting: false,
     meta: { widthClass: "w-24" },
     cell: ({ row }: { row: { original: GroupRow } }) => (

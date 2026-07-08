@@ -117,8 +117,8 @@
         the
         <b>{{ rulePendingDelete?.permissionLabel }}</b>
         permission on
-        <b>{{ rulePendingDelete?.collectionLabel }}</b>
-        ? This action cannot be undone.
+        <b>{{ rulePendingDelete?.collectionLabel }}?</b>
+        This action cannot be undone.
       </p>
     </ConfirmModal>
   </div>
@@ -273,8 +273,7 @@ const table = useVueTable({
   get data() {
     return ruleRows.value;
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ruleColumns as ColumnDef<PermissionRuleRow, any>[],
+  columns: ruleColumns as ColumnDef<PermissionRuleRow, unknown>[],
   getRowId: (row) => row.key,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),

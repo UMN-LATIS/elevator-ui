@@ -46,7 +46,7 @@ export const createGroupMemberColumns = (
   }),
   {
     id: "actions",
-    header: () => <ColHeader text="" />,
+    header: () => null,
     enableSorting: false,
     cell: ({ row }: { row: { original: GroupMember } }) => (
       <div class="flex justify-end">
