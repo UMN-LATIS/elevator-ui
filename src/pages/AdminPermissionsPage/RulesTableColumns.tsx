@@ -6,23 +6,9 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { ColHeader } from "./ColHeader";
 import Chip from "@/components/Chip/Chip.vue";
-import { PERM } from "@/types";
+import { permissionDotClass } from "./permissionDotClass";
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
-
-const dotClassByLevel: Record<number, string> = {
-  [PERM.NOPERM]: "bg-gray-500",
-  // read
-  [PERM.SEARCH]: "bg-green-500",
-  [PERM.VIEWDERIVATIVES]: "bg-green-500",
-  [PERM.DERIVATIVES_GROUP_2]: "bg-green-500",
-  // write
-  [PERM.CREATEDRAWERS]: "bg-yellow-500",
-  [PERM.ORIGINALS]: "bg-yellow-500",
-  // admin
-  [PERM.ADDASSETS]: "bg-orange-500",
-  [PERM.ADMIN]: "bg-red-500",
-};
 
 const scopeLabelByScope: Record<PermissionRuleRow["scope"], string> = {
   instance: "Instance",
@@ -92,8 +78,7 @@ export const createRuleColumns = (
     header: () => <ColHeader text="Permission" />,
     meta: { filterPlaceholder: "Filter permission", widthClass: "w-[20%]" },
     cell: (ctx) => {
-      const dotClass =
-        dotClassByLevel[ctx.row.original.permissionLevelNumber] ?? "bg-black";
+      const dotClass = permissionDotClass(ctx.row.original.permissionLevelNumber);
 
       return (
         <Chip class="w-32 flex gap-1 items-center border border-outline-variant bg-surface-container text-on-surface">

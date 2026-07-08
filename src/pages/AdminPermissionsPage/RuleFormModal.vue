@@ -38,7 +38,7 @@
         </Button>
       </div>
 
-      <SelectGroup
+      <PermissionSelect
         v-model="form.permissionLevelId"
         label="Permission"
         placeholder="Select a permission…"
@@ -89,6 +89,8 @@ import { useQuery } from "@tanstack/vue-query";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { useToastStore } from "@/stores/toastStore";
 import GroupFormModal from "./GroupFormModal.vue";
+import PermissionSelect from "./PermissionSelect.vue";
+import type { PermissionSelectOption } from "./PermissionSelect.vue";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -237,10 +239,10 @@ const groupOptions = computed((): SelectOption<number>[] =>
 
 // Level 0 (noperm) is omitted: grants only add access under max-merge
 // resolution, so a level-0 rule does nothing.
-const permissionOptions = computed((): SelectOption<number>[] =>
+const permissionOptions = computed((): PermissionSelectOption[] =>
   (permissionLevels.value ?? [])
     .filter((level) => level.level > 0)
-    .map((level) => ({ id: level.id, label: level.label }))
+    .map((level) => ({ id: level.id, label: level.label, level: level.level }))
 );
 
 const canSubmit = computed((): boolean => {
