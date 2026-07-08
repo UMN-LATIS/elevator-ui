@@ -58,7 +58,8 @@
           variant="primary"
           type="submit"
           :disabled="!canSubmit || isPending">
-          Create Rule
+          <LoaderCircleIcon v-if="isPending" class="size-4 animate-spin" />
+          {{ isPending ? "Creating…" : "Create Rule" }}
         </Button>
       </div>
     </form>
@@ -77,7 +78,7 @@ import { useRouter } from "vue-router";
 import Modal from "@/components/Modal/Modal.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
-import { TriangleAlertIcon } from "lucide-vue-next";
+import { TriangleAlertIcon, LoaderCircleIcon } from "lucide-vue-next";
 import { useQuery } from "@tanstack/vue-query";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { useToastStore } from "@/stores/toastStore";

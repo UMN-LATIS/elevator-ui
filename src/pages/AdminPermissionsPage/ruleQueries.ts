@@ -33,17 +33,6 @@ export function permissionLevelsQuery() {
   });
 }
 
-function useErrorToast(title: string): (error: Error) => void {
-  const toastStore = useToastStore();
-  return (error) =>
-    toastStore.addToast({
-      title,
-      message: error.message ?? "Something went wrong. Unknown error.",
-      variant: "error",
-      duration: Infinity,
-    });
-}
-
 export type RuleScope = "instance" | "collection";
 
 function queryKeyForScope(scope: RuleScope) {
@@ -107,6 +96,17 @@ export type SaveRuleInput =
   | { kind: "create"; rule: RuleInput }
   | { kind: "update"; grantId: number; rule: RuleInput };
 
+// The cached grant lists the optimistic handlers patch. Both scopes share
+// an `id`, so removals and level edits touch them the same way.
+type CachedGrantList = (InstanceGrant | CollectionGrant)[];
+
+// Snapshot kept between onMutate and onError so a failed request rolls the
+// cache back to what the server last confirmed.
+type OptimisticRollback = {
+  queryKey: ReturnType<typeof queryKeyForScope>;
+  previous: CachedGrantList | undefined;
+};
+
 export function useSaveRuleMutation() {
   const queryClient = useQueryClient();
   const toastStore = useToastStore();
@@ -116,12 +116,34 @@ export function useSaveRuleMutation() {
       input.kind === "create"
         ? createGrant(input.rule)
         : updateGrant(input.grantId, input.rule),
+    // Editing only swaps a level, so patch the cached grant right away.
+    // Create waits for the server, which assigns the new id.
+    onMutate: async (
+      input: SaveRuleInput
+    ): Promise<OptimisticRollback | undefined> => {
+      if (input.kind !== "update") return undefined;
+      const queryKey = queryKeyForScope(
+        input.rule.collectionId === null ? "instance" : "collection"
+      );
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<CachedGrantList>(queryKey);
+      queryClient.setQueryData<CachedGrantList>(queryKey, (list) =>
+        (list ?? []).map((grant) =>
+          grant.id === input.grantId
+            ? { ...grant, permissionLevelId: input.rule.permissionLevelId }
+            : grant
+        )
+      );
+      return { queryKey, previous };
+    },
     onSuccess: (_grant, input) =>
-      toastStore.addToast({
-        message: input.kind === "create" ? "Rule created." : "Rule updated.",
-        variant: "success",
-      }),
-    onError: useErrorToast("Could not save rule"),
+      toastStore.success(
+        input.kind === "create" ? "Rule created." : "Rule updated."
+      ),
+    onError: (error, _input, context) => {
+      if (context) queryClient.setQueryData(context.queryKey, context.previous);
+      toastStore.error(error.message, { title: "Could not save rule" });
+    },
     // Only the list the rule lives in goes stale.
     onSettled: (_grant, _error, input) =>
       queryClient.invalidateQueries({
@@ -138,6 +160,21 @@ export function useDeleteRuleMutation() {
 
   return useMutation({
     mutationFn: (input: GrantIdentifier) => deleteGrant(input),
+    // Drop the row immediately. The confirm dialog has already closed.
+    onMutate: async (input: GrantIdentifier): Promise<OptimisticRollback> => {
+      const queryKey = queryKeyForScope(input.scope);
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<CachedGrantList>(queryKey);
+      queryClient.setQueryData<CachedGrantList>(queryKey, (list) =>
+        (list ?? []).filter((grant) => grant.id !== input.grantId)
+      );
+      return { queryKey, previous };
+    },
+    onError: (error, _input, context) => {
+      const toastStore = useToastStore();
+      toastStore.error(error.message, { title: "Delete failed" });
+      if (context) queryClient.setQueryData(context.queryKey, context.previous);
+    },
     onSettled: (_data, _error, input) =>
       queryClient.invalidateQueries({
         queryKey: queryKeyForScope(input.scope),
