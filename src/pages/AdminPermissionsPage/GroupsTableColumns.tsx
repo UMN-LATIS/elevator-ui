@@ -41,7 +41,7 @@ export const createGroupColumns = (
     id: "expander",
     header: () => null,
     enableSorting: false,
-    meta: { widthClass: "w-12" },
+    meta: { widthClass: "w-10" },
     cell: ({ row }) =>
       row.getCanExpand() ? (
         <button
@@ -62,7 +62,7 @@ export const createGroupColumns = (
   columnHelper.accessor("name", {
     id: "name",
     header: () => <ColHeader text="Name" />,
-    meta: { widthClass: "w-[35%]" },
+    meta: { widthClass: "w-[38%]" },
     cell: (ctx) => (
       <div class="text-sm font-medium text-on-surface">{ctx.getValue()}</div>
     ),
@@ -70,7 +70,7 @@ export const createGroupColumns = (
   columnHelper.accessor("typeLabel", {
     id: "type",
     header: () => <ColHeader text="Type" />,
-    meta: { widthClass: "w-[30%]" },
+    meta: { widthClass: "w-[38%]" },
     cell: (ctx) => (
       <div class="text-sm text-on-surface-variant">{ctx.getValue()}</div>
     ),
@@ -80,7 +80,7 @@ export const createGroupColumns = (
     header: () => <ColHeader text="Members / Entries" />,
     enableColumnFilter: false,
     enableGlobalFilter: false,
-    meta: { widthClass: "w-[20%]" },
+    meta: { widthClass: "w-[14%]" },
     cell: (ctx) =>
       ctx.row.original.isGlobal ? (
         <div class="text-sm text-on-surface-variant">—</div>
@@ -100,7 +100,7 @@ export const createGroupColumns = (
     id: "actions",
     header: () => null,
     enableSorting: false,
-    meta: { widthClass: "w-24" },
+    meta: { widthClass: "w-20" },
     cell: ({ row }: { row: { original: GroupRow } }) => (
       <div class="flex justify-end">
         <IconButton

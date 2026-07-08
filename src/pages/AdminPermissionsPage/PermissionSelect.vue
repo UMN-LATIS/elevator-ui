@@ -35,7 +35,7 @@
         <SelectContent
           position="popper"
           :sideOffset="4"
-          class="z-[100] w-[var(--reka-select-trigger-width)] max-h-[var(--reka-select-content-available-height)] overflow-y-auto rounded-md bg-surface-container py-1 shadow-lg ring-1 ring-outline-variant">
+          class="z-[100] min-w-[var(--reka-select-trigger-width)] max-w-[calc(100vw_-_2rem)] max-h-[var(--reka-select-content-available-height)] overflow-y-auto rounded-md bg-surface-container py-1 shadow-lg ring-1 ring-outline-variant">
           <SelectViewport>
             <SelectItem
               v-for="opt in options"
