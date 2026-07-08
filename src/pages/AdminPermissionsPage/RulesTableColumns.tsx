@@ -24,28 +24,58 @@ const dotClassByLevel: Record<number, string> = {
   [PERM.ADMIN]: "bg-red-500",
 };
 
+const scopeLabelByScope: Record<PermissionRuleRow["scope"], string> = {
+  instance: "Instance",
+  collection: "Collection",
+};
+
+const scopeChipClassByScope: Record<PermissionRuleRow["scope"], string> = {
+  instance: "bg-secondary-container text-on-secondary-container",
+  collection: "bg-tertiary-container text-on-tertiary-container",
+};
+
 export const createRuleColumns = (
   onEdit: (rule: PermissionRuleRow) => void,
   onDelete: (rule: PermissionRuleRow) => void
 ) => [
-  columnHelper.accessor("collectionLabel", {
-    id: "collection",
-    header: () => <ColHeader text="Collection" />,
-    meta: { filterPlaceholder: "Filter collection", widthClass: "w-[40%]" },
+  columnHelper.accessor("scope", {
+    id: "scope",
+    header: () => <ColHeader text="Scope" />,
+    enableColumnFilter: false,
+    meta: { widthClass: "w-[15%]" },
     cell: (ctx) => (
-      <div
+      <Chip
         class={cn(
-          "text-sm text-on-surface font-medium",
-          ctx.row.original.scope === "instance" && "italic"
+          "border border-outline-variant bg-surface-container",
+          scopeChipClassByScope[ctx.getValue()]
         )}>
-        {ctx.getValue()}
-      </div>
+        {scopeLabelByScope[ctx.getValue()]}
+      </Chip>
     ),
   }),
+  columnHelper.accessor(
+    // Instance rules span every collection, shown and filtered as "*"
+    // rather than a title.
+    (row) => (row.scope === "instance" ? "*" : row.collectionLabel),
+    {
+      id: "collection",
+      header: () => <ColHeader text="Collection" />,
+      meta: { filterPlaceholder: "Filter collection", widthClass: "w-[30%]" },
+      cell: (ctx) => (
+        <div
+          class={cn(
+            "text-sm text-on-surface font-medium",
+            ctx.row.original.scope === "instance" && "italic"
+          )}>
+          {ctx.getValue()}
+        </div>
+      ),
+    }
+  ),
   columnHelper.accessor("groupLabel", {
     id: "group",
     header: () => <ColHeader text="Group" />,
-    meta: { filterPlaceholder: "Filter group", widthClass: "w-[30%]" },
+    meta: { filterPlaceholder: "Filter group", widthClass: "w-[25%]" },
     // The Groups tab consumes ?group=<id> and reveals that group's row.
     cell: (ctx) => (
       <RouterLink

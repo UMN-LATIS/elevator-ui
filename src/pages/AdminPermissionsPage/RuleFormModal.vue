@@ -6,9 +6,17 @@
     @close="handleClose">
     <form @submit.prevent="handleSubmit">
       <SelectGroup
+        v-model="form.scope"
+        label="Scope"
+        :disabled="isEditing"
+        :options="scopeOptions" />
+
+      <SelectGroup
+        v-if="form.scope === 'collection'"
         v-model="form.collectionId"
         label="Collection"
         placeholder="Select a collection…"
+        class="mt-4"
         :disabled="isEditing"
         :options="collectionOptions" />
 
@@ -92,7 +100,7 @@ import {
   permissionLevelsQuery,
   useSaveRuleMutation,
 } from "./ruleQueries";
-import { ALL_COLLECTIONS_LABEL, PermissionRuleRow } from "./buildRuleRows";
+import { PermissionRuleRow } from "./buildRuleRows";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
 import type {
   CollectionGrant,
@@ -111,9 +119,10 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
-// The select stores numbers for collections. "All Collections" needs a
-// non-numeric sentinel so SelectGroup passes it through as a string.
-const ALL_COLLECTIONS_ID = "all";
+const scopeOptions: SelectOption<string>[] = [
+  { id: "instance", label: "Instance" },
+  { id: "collection", label: "Collection" },
+];
 
 const { data: groups } = useQuery(groupsQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
@@ -127,12 +136,14 @@ const isEditing = computed(() => Boolean(props.rule));
 const isPending = saveRule.isPending;
 
 type RuleForm = {
-  collectionId: number | typeof ALL_COLLECTIONS_ID | null;
+  scope: PermissionRuleRow["scope"];
+  collectionId: number | null;
   groupId: number | null;
   permissionLevelId: number | null;
 };
 
 const form = ref<RuleForm>({
+  scope: "instance",
   collectionId: null,
   groupId: null,
   permissionLevelId: null,
@@ -151,9 +162,8 @@ watch(
   ([isOpen]) => {
     if (!isOpen) return;
     form.value = {
-      collectionId: props.rule
-        ? props.rule.collectionId ?? ALL_COLLECTIONS_ID
-        : null,
+      scope: props.rule?.scope ?? "instance",
+      collectionId: props.rule?.collectionId ?? null,
       groupId: props.rule?.groupId ?? null,
       permissionLevelId: props.rule?.permissionLevelId ?? null,
     };
@@ -196,13 +206,10 @@ const collectionOptions = computed((): SelectOption<string | number>[] => {
   const flat = flattenCollections(
     normalizeAssetCollections(instanceNav.value?.collections ?? [])
   );
-  const options: SelectOption<string | number>[] = [
-    { id: ALL_COLLECTIONS_ID, label: ALL_COLLECTIONS_LABEL },
-    ...flat.map((collection) => ({
-      id: collection.id,
-      label: collection.title,
-    })),
-  ];
+  const options: SelectOption<string | number>[] = flat.map((collection) => ({
+    id: collection.id,
+    label: collection.title,
+  }));
 
   // An edited rule can sit on a collection missing from the nav list
   // (not browsable by this admin). Append it so the locked select still
@@ -236,12 +243,16 @@ const permissionOptions = computed((): SelectOption<number>[] =>
     .map((level) => ({ id: level.id, label: level.label }))
 );
 
-const canSubmit = computed(
-  (): boolean =>
-    form.value.collectionId !== null &&
+const canSubmit = computed((): boolean => {
+  // Instance scope covers every collection, so no collection pick is needed.
+  const hasCollection =
+    form.value.scope === "instance" || form.value.collectionId !== null;
+  return (
+    hasCollection &&
     form.value.groupId !== null &&
     form.value.permissionLevelId !== null
-);
+  );
+});
 
 // The grant already at the picked pair, which saving will replace.
 // A pair holds at most one grant.
@@ -251,11 +262,11 @@ const grantBeingOverwritten = computed(
     // pair is the rule's own.
     if (isEditing.value) return null;
 
-    const { collectionId, groupId } = form.value;
-    if (collectionId === null || groupId === null) return null;
+    const { scope, collectionId, groupId } = form.value;
+    if (groupId === null) return null;
 
     // instance permissions
-    if (collectionId === ALL_COLLECTIONS_ID) {
+    if (scope === "instance") {
       const instanceGrantForGroup = (instanceGrants.value ?? []).find(
         (grant) => grant.groupId === groupId
       );
@@ -263,6 +274,7 @@ const grantBeingOverwritten = computed(
     }
 
     // collection permissions
+    if (collectionId === null) return null;
     const collectionGrantForPair = (collectionGrants.value ?? []).find(
       (grant) =>
         grant.collectionId === collectionId && grant.groupId === groupId
@@ -299,12 +311,12 @@ function closeWhenSaved(grant: unknown, error: Error | null): void {
 }
 
 function handleSubmit() {
-  const { collectionId, groupId, permissionLevelId } = form.value;
-  if (collectionId === null || groupId === null || permissionLevelId === null) {
-    return;
-  }
+  const { scope, collectionId, groupId, permissionLevelId } = form.value;
+  if (groupId === null || permissionLevelId === null) return;
+  if (scope === "collection" && collectionId === null) return;
+
   const rule = {
-    collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+    collectionId: scope === "instance" ? null : collectionId,
     groupId,
     permissionLevelId,
   };
