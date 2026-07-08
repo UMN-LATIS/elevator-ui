@@ -27,10 +27,13 @@
           <TableEmpty v-if="!entries.length && showEmptyMessage" :colspan="2">
             No entries yet.
           </TableEmpty>
-          <!-- extra rows such as the add-entry form and its trigger, kept
-               after the empty message so the trigger stays the last row -->
-          <slot />
         </template>
+        <!-- slot for extra rows such as the add-member form or the "add entry"
+          button. Keep it OUTSIDE of the `<template v-*>` blocks so that
+          it renders regardless of whether the table is loading or empty.
+          This permits `tryFocus` to find the add button immediately after
+          creating a new group. -->
+        <slot />
       </TableBody>
     </Table>
   </div>
