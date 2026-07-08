@@ -10,8 +10,7 @@ export const ALL_COLLECTIONS_LABEL = "All Collections";
 // One row of the unified Rules table: an instance grant shown as
 // "All Collections", or a collection grant.
 export interface PermissionRuleRow {
-  // grant ids collide across the two backing tables, so rows key on
-  // scope + id
+  // grant ids repeat across the two scopes, so rows key on scope + id
   key: string;
   scope: "instance" | "collection";
   grantId: number;

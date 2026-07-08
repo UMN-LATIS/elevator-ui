@@ -36,7 +36,7 @@
         :options="permissionOptions" />
 
       <p
-        v-if="grantAtDestination"
+        v-if="plan?.overwrites"
         role="alert"
         class="my-4 flex items-center gap-2 rounded-md bg-warning-container px-3 py-2 text-sm text-on-warning-container">
         <TriangleAlertIcon class="size-4 shrink-0" />
@@ -88,10 +88,13 @@ import {
   collectionGrantsQuery,
   instanceGrantsQuery,
   permissionLevelsQuery,
-  useCreateRuleMutation,
-  useUpdateRuleMutation,
+  useSaveRuleMutation,
 } from "./ruleQueries";
 import { ALL_COLLECTIONS_LABEL, PermissionRuleRow } from "./buildRuleRows";
+import {
+  makePlanForSavingRule,
+  type RuleSavePlan,
+} from "./makePlanForSavingRule";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
 import type { PermissionsGroup, SelectOption } from "@/types";
 
@@ -115,13 +118,10 @@ const { data: instanceNav } = useInstanceQuery();
 // Both grant lists are already in the query cache from the Rules table.
 const { data: instanceGrants } = useQuery(instanceGrantsQuery());
 const { data: collectionGrants } = useQuery(collectionGrantsQuery());
-const createRule = useCreateRuleMutation();
-const updateRule = useUpdateRuleMutation();
+const saveRule = useSaveRuleMutation();
 
 const isEditing = computed(() => Boolean(props.rule));
-const isPending = computed(
-  () => createRule.isPending.value || updateRule.isPending.value
-);
+const isPending = computed(() => saveRule.isPending.value);
 
 type RuleForm = {
   collectionId: number | typeof ALL_COLLECTIONS_ID | null;
@@ -233,39 +233,28 @@ const permissionOptions = computed((): SelectOption<number>[] =>
     .map((level) => ({ id: level.id, label: level.label }))
 );
 
-const canSubmit = computed(
-  (): boolean =>
-    form.value.collectionId !== null &&
-    form.value.groupId !== null &&
-    form.value.permissionLevelId !== null
-);
-
-// The grant already sitting at the picked group + collection, if any,
-// excluding the rule being edited (its own spot is not a conflict). A
-// pair holds at most one grant, so saving over another one replaces
-// it: the form warns, and submit updates that grant instead.
-const grantAtDestination = computed(() => {
-  const { collectionId, groupId } = form.value;
-  if (collectionId === null || groupId === null) return null;
-
-  const destinationScope =
-    collectionId === ALL_COLLECTIONS_ID ? "instance" : "collection";
-  const found =
-    destinationScope === "instance"
-      ? (instanceGrants.value ?? []).find((grant) => grant.groupId === groupId)
-      : (collectionGrants.value ?? []).find(
-          (grant) =>
-            grant.collectionId === collectionId && grant.groupId === groupId
-        );
-  if (!found) return null;
-
-  const isRuleBeingEdited =
-    props.rule?.scope === destinationScope && props.rule?.grantId === found.id;
-  return isRuleBeingEdited ? null : found;
+// Null until every field is filled.
+const plan = computed((): RuleSavePlan | null => {
+  const { collectionId, groupId, permissionLevelId } = form.value;
+  if (collectionId === null || groupId === null || permissionLevelId === null) {
+    return null;
+  }
+  return makePlanForSavingRule({
+    before: props.rule ?? null,
+    after: {
+      collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+      groupId,
+      permissionLevelId,
+    },
+    instanceGrants: instanceGrants.value ?? [],
+    collectionGrants: collectionGrants.value ?? [],
+  });
 });
 
+const canSubmit = computed((): boolean => plan.value !== null);
+
 const levelLabelToReplace = computed((): string | null => {
-  const grant = grantAtDestination.value;
+  const grant = plan.value?.overwrites;
   if (!grant) return null;
   const level = (permissionLevels.value ?? []).find(
     (candidate) => candidate.id === grant.permissionLevelId
@@ -292,59 +281,7 @@ function closeWhenSaved(grant: unknown, error: Error | null): void {
 }
 
 function handleSubmit() {
-  const { collectionId, groupId, permissionLevelId } = form.value;
-  if (collectionId === null || groupId === null || permissionLevelId === null) {
-    return;
-  }
-
-  const targetCollectionId =
-    collectionId === ALL_COLLECTIONS_ID ? null : collectionId;
-
-  if (props.rule) {
-    updateRule.mutate(
-      {
-        original: {
-          scope: props.rule.scope,
-          grantId: props.rule.grantId,
-          collectionId: props.rule.collectionId,
-          groupId: props.rule.groupId,
-        },
-        collectionId: targetCollectionId,
-        groupId,
-        permissionLevelId,
-        // moving onto an occupied pair replaces the grant there,
-        // matching the warning above
-        replaceGrantId: grantAtDestination.value?.id,
-      },
-      { onSettled: closeWhenSaved }
-    );
-  } else if (grantAtDestination.value) {
-    // a pair holds at most one grant, so creating over an existing one
-    // replaces it (matching the warning above) instead of 409ing
-    const existing = grantAtDestination.value;
-    updateRule.mutate(
-      {
-        original: {
-          scope: targetCollectionId === null ? "instance" : "collection",
-          grantId: existing.id,
-          collectionId: targetCollectionId,
-          groupId,
-        },
-        collectionId: targetCollectionId,
-        groupId,
-        permissionLevelId,
-      },
-      { onSettled: closeWhenSaved }
-    );
-  } else {
-    createRule.mutate(
-      {
-        collectionId: targetCollectionId,
-        groupId,
-        permissionLevelId,
-      },
-      { onSettled: closeWhenSaved }
-    );
-  }
+  if (!plan.value) return;
+  saveRule.mutate(plan.value.steps, { onSettled: closeWhenSaved });
 }
 </script>

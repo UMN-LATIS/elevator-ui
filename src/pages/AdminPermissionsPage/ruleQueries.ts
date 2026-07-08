@@ -1,6 +1,10 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
+import type { CollectionGrant, InstanceGrant } from "@/types";
+
+// A "rule" is one row of the Rules table. The backend stores it as a
+// "grant": an instance grant ("All Collections") or a collection grant.
 
 // Key scheme matches groupQueries: resource then kind, so item keys can
 // branch off later without invalidating the lists.
@@ -44,43 +48,7 @@ function useErrorToast(title: string): (error: Error) => void {
     });
 }
 
-// The unified rule input. A null collectionId means "All Collections",
-// which the backend stores as an instance grant.
-export type CreateRuleInput = {
-  collectionId: number | null;
-  groupId: number;
-  permissionLevelId: number;
-};
-
-export function useCreateRuleMutation() {
-  const queryClient = useQueryClient();
-  const toastStore = useToastStore();
-
-  return useMutation({
-    mutationFn: (input: CreateRuleInput) =>
-      input.collectionId === null
-        ? fetchers.createInstanceGrant(input)
-        : fetchers.createCollectionGrant({
-            ...input,
-            collectionId: input.collectionId,
-          }),
-    onSuccess: () =>
-      toastStore.addToast({
-        message: "Rule created.",
-        variant: "success",
-      }),
-    onError: useErrorToast("Could not create rule"),
-    // Only the list the rule landed in goes stale.
-    onSettled: (_grant, _error, input) =>
-      queryClient.invalidateQueries({
-        queryKey: grantsListKeyFor(
-          input.collectionId === null ? "instance" : "collection"
-        ),
-      }),
-  });
-}
-
-type RuleScope = "instance" | "collection";
+export type RuleScope = "instance" | "collection";
 
 function grantsListKeyFor(scope: RuleScope) {
   return scope === "instance"
@@ -88,116 +56,101 @@ function grantsListKeyFor(scope: RuleScope) {
     : makeQueryKeyFor.collectionGrantsList();
 }
 
-// An edit re-sends the whole rule plus where it currently lives, so the
-// mutation can tell an in-place level change from a move.
-export type UpdateRuleInput = {
-  original: {
-    scope: RuleScope;
-    grantId: number;
-    collectionId: number | null;
-    groupId: number;
-  };
+// A rule as the form submits it. A null collectionId means
+// "All Collections".
+export type RuleInput = {
   collectionId: number | null;
   groupId: number;
   permissionLevelId: number;
-  // The id of a different grant already at the destination. When set,
-  // the move replaces that grant instead of tripping the API's
-  // duplicate 409.
-  replaceGrantId?: number;
 };
 
-export function useUpdateRuleMutation() {
+// Grant ids repeat across the two scopes, so identity needs both.
+export type GrantIdentifier = {
+  scope: RuleScope;
+  grantId: number;
+};
+
+function createGrant(
+  input: RuleInput
+): Promise<InstanceGrant | CollectionGrant> {
+  return input.collectionId === null
+    ? fetchers.createInstanceGrant({
+        groupId: input.groupId,
+        permissionLevelId: input.permissionLevelId,
+      })
+    : fetchers.createCollectionGrant({
+        collectionId: input.collectionId,
+        groupId: input.groupId,
+        permissionLevelId: input.permissionLevelId,
+      });
+}
+
+function updateGrant(
+  grantId: number,
+  input: RuleInput
+): Promise<InstanceGrant | CollectionGrant> {
+  return input.collectionId === null
+    ? fetchers.updateInstanceGrant(grantId, {
+        groupId: input.groupId,
+        permissionLevelId: input.permissionLevelId,
+      })
+    : fetchers.updateCollectionGrant(grantId, {
+        collectionId: input.collectionId,
+        groupId: input.groupId,
+        permissionLevelId: input.permissionLevelId,
+      });
+}
+
+function deleteGrant(grant: GrantIdentifier): Promise<void> {
+  return grant.scope === "instance"
+    ? fetchers.deleteInstanceGrant(grant.grantId)
+    : fetchers.deleteCollectionGrant(grant.grantId);
+}
+
+// makePlanForSavingRule builds the step list, useSaveRuleMutation runs it.
+export type RuleSaveStep =
+  | { action: "create"; rule: RuleInput }
+  | { action: "update"; grantId: number; rule: RuleInput }
+  | { action: "delete"; grant: GrantIdentifier };
+
+function getScopeTouchedBy(step: RuleSaveStep): RuleScope {
+  if (step.action === "delete") {
+    return step.grant.scope;
+  }
+  return step.rule.collectionId === null ? "instance" : "collection";
+}
+
+export function useSaveRuleMutation() {
   const queryClient = useQueryClient();
   const toastStore = useToastStore();
 
   return useMutation({
-    mutationFn: async (input: UpdateRuleInput) => {
-      const { original } = input;
-      const isSamePlace =
-        input.collectionId === original.collectionId &&
-        input.groupId === original.groupId;
-
-      // Same place and a null collectionId can only be the instance
-      // scope, so the null check doubles as the scope switch.
-      if (isSamePlace) {
-        return input.collectionId === null
-          ? fetchers.updateInstanceGrant(original.grantId, {
-              groupId: input.groupId,
-              permissionLevelId: input.permissionLevelId,
-            })
-          : fetchers.updateCollectionGrant(original.grantId, {
-              collectionId: input.collectionId,
-              groupId: input.groupId,
-              permissionLevelId: input.permissionLevelId,
-            });
-      }
-
-      // A move onto an occupied destination replaces the grant there:
-      // PUT it first so a failure leaves the original untouched, then
-      // drop the original so the rule doesn't exist in two places.
-      if (input.replaceGrantId !== undefined) {
-        const replaced =
-          input.collectionId === null
-            ? await fetchers.updateInstanceGrant(input.replaceGrantId, {
-                groupId: input.groupId,
-                permissionLevelId: input.permissionLevelId,
-              })
-            : await fetchers.updateCollectionGrant(input.replaceGrantId, {
-                collectionId: input.collectionId,
-                groupId: input.groupId,
-                permissionLevelId: input.permissionLevelId,
-              });
-
-        if (original.scope === "instance") {
-          await fetchers.deleteInstanceGrant(original.grantId);
+    // Steps must run in order: the plan relies on write-before-delete.
+    mutationFn: async (steps: RuleSaveStep[]) => {
+      let savedGrant: InstanceGrant | CollectionGrant | null = null;
+      for (const step of steps) {
+        if (step.action === "create") {
+          savedGrant = await createGrant(step.rule);
+        } else if (step.action === "update") {
+          savedGrant = await updateGrant(step.grantId, step.rule);
         } else {
-          await fetchers.deleteCollectionGrant(original.grantId);
+          await deleteGrant(step.grant);
         }
-
-        return replaced;
       }
-
-      // A moved rule changes rows (and possibly tables), so compose it:
-      // create at the destination first so a failure (e.g. a duplicate
-      // there) leaves the original rule untouched. If the trailing
-      // delete fails both rules stay visible in the table, and grants
-      // max-merge, so access never dips below either rule meanwhile.
-      const created =
-        input.collectionId === null
-          ? await fetchers.createInstanceGrant({
-              groupId: input.groupId,
-              permissionLevelId: input.permissionLevelId,
-            })
-          : await fetchers.createCollectionGrant({
-              collectionId: input.collectionId,
-              groupId: input.groupId,
-              permissionLevelId: input.permissionLevelId,
-            });
-
-      if (original.scope === "instance") {
-        await fetchers.deleteInstanceGrant(original.grantId);
-      } else {
-        await fetchers.deleteCollectionGrant(original.grantId);
-      }
-
-      return created;
+      return savedGrant;
     },
-    onSuccess: () =>
+    onSuccess: (_grant, steps) => {
+      const isCreateOnly = steps.length === 1 && steps[0]?.action === "create";
       toastStore.addToast({
-        message: "Rule updated.",
+        message: isCreateOnly ? "Rule created." : "Rule updated.",
         variant: "success",
-      }),
-    onError: useErrorToast("Could not update rule"),
-    // A move can touch both lists (source and destination scopes differ).
-    onSettled: (_grant, _error, input) => {
-      const destinationScope: RuleScope =
-        input.collectionId === null ? "instance" : "collection";
-      const scopes = new Set<RuleScope>([
-        input.original.scope,
-        destinationScope,
-      ]);
+      });
+    },
+    onError: useErrorToast("Could not save rule"),
+    onSettled: (_grant, _error, steps) => {
+      const staleScopes = new Set(steps.map(getScopeTouchedBy));
       return Promise.all(
-        [...scopes].map((scope) =>
+        [...staleScopes].map((scope) =>
           queryClient.invalidateQueries({ queryKey: grantsListKeyFor(scope) })
         )
       );
@@ -205,20 +158,12 @@ export function useUpdateRuleMutation() {
   });
 }
 
-export type DeleteRuleInput = {
-  scope: RuleScope;
-  grantId: number;
-};
-
 // Toasts for delete live at the call site, next to the confirm dialog.
 export function useDeleteRuleMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: DeleteRuleInput) =>
-      input.scope === "instance"
-        ? fetchers.deleteInstanceGrant(input.grantId)
-        : fetchers.deleteCollectionGrant(input.grantId),
+    mutationFn: (input: GrantIdentifier) => deleteGrant(input),
     onSettled: (_data, _error, input) =>
       queryClient.invalidateQueries({
         queryKey: grantsListKeyFor(input.scope),
