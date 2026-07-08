@@ -1,7 +1,13 @@
 import type { Ref } from "vue";
 import { createColumnHelper } from "@tanstack/vue-table";
 import { RouterLink } from "vue-router";
-import { PencilIcon, TrashIcon, CheckIcon, XIcon } from "lucide-vue-next";
+import {
+  PencilIcon,
+  TrashIcon,
+  CheckIcon,
+  XIcon,
+  LoaderCircleIcon,
+} from "lucide-vue-next";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
@@ -19,6 +25,11 @@ const columnHelper = createColumnHelper<PermissionRuleRow>();
 export interface RuleColumnsDeps {
   editingKey: Ref<string | null>;
   draftLevelId: Ref<number | null>;
+  // the row whose save is in flight, and the level label it submitted, so
+  // the permission cell shows the new value with a spinner instead of
+  // snapping back to the old one while the refetch runs
+  savingKey: Ref<string | null>;
+  savingLevelLabel: Ref<string>;
   permissionOptions: Ref<PermissionSelectOption[]>;
   onEdit: (rule: PermissionRuleRow) => void;
   onCancel: () => void;
@@ -104,6 +115,15 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
             showLabel={false}
             placeholder="Select a permission…"
           />
+        );
+      }
+
+      if (deps.savingKey.value === rule.key) {
+        return (
+          <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface-variant">
+            <LoaderCircleIcon class="size-3 shrink-0 animate-spin" />
+            <span class="truncate">{deps.savingLevelLabel.value}</span>
+          </Chip>
         );
       }
 

@@ -7,6 +7,15 @@ import type {
 
 export const ALL_COLLECTIONS_LABEL = "All Collections";
 
+// Grant ids repeat across the two scopes, so row keys carry both. Callers
+// matching an in-flight mutation to its row build keys with this too.
+export function ruleRowKey(
+  scope: PermissionRuleRow["scope"],
+  grantId: number
+): string {
+  return `${scope}-${grantId}`;
+}
+
 // One row of the unified Rules table: an instance grant shown as
 // "All Collections", or a collection grant.
 export interface PermissionRuleRow {
@@ -61,7 +70,7 @@ export function buildRuleRows({
   for (const grant of instanceGrants) {
     if (grant.groupId === null || grant.permissionLevelId === null) continue;
     rows.push({
-      key: `instance-${grant.id}`,
+      key: ruleRowKey("instance", grant.id),
       scope: "instance",
       grantId: grant.id,
       collectionId: null,
@@ -83,7 +92,7 @@ export function buildRuleRows({
       continue;
     }
     rows.push({
-      key: `collection-${grant.id}`,
+      key: ruleRowKey("collection", grant.id),
       scope: "collection",
       grantId: grant.id,
       collectionId: grant.collectionId,

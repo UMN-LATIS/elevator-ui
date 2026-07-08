@@ -78,6 +78,8 @@
                 :class="{
                   'border-b-transparent': row.getIsExpanded(),
                   'group-row--current': isCurrentGroup(row.original.group.id),
+                  'opacity-50 pointer-events-none':
+                    row.original.group.id === deletingGroupId,
                 }">
                 <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                   <FlexRender
@@ -216,7 +218,15 @@ const GLOBAL_GROUP_TYPES: GroupTypeValues[] = [
 const toastStore = useToastStore();
 const { data: groups, isLoading } = useQuery(groupsQuery());
 const { data: groupTypes } = useQuery(groupTypesQuery());
-const { mutate: deleteGroup } = useDeleteGroupMutation();
+const deleteGroupMutation = useDeleteGroupMutation();
+
+// The row being deleted grays out until the refetch drops it. isPending
+// holds through the refetch because onSettled returns its promise.
+const deletingGroupId = computed((): number | null =>
+  deleteGroupMutation.isPending.value
+    ? deleteGroupMutation.variables.value ?? null
+    : null
+);
 
 const groupTypesMap = computed((): Map<GroupTypeValues, GroupTypeDetails> => {
   const entries = groupTypes.value?.map((g) => [g.type, g] as const) ?? [];
@@ -264,7 +274,7 @@ function handleDelete(group: PermissionsGroup) {
 function confirmDelete() {
   const group = groupPendingDelete.value;
   if (!group) return;
-  deleteGroup(group.id, {
+  deleteGroupMutation.mutate(group.id, {
     onSuccess: () =>
       toastStore.addToast({
         message: `Group "${group.label || group.type}" deleted.`,

@@ -68,7 +68,12 @@
             </TableRow>
           </template>
           <template v-else>
-            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+            <TableRow
+              v-for="row in table.getRowModel().rows"
+              :key="row.id"
+              :class="{
+                'opacity-50 pointer-events-none': row.id === deletingKey,
+              }">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                 <FlexRender
                   :render="cell.column.columnDef.cell"
@@ -153,7 +158,7 @@ import {
   useDeleteRuleMutation,
   useSaveRuleMutation,
 } from "./ruleQueries";
-import { buildRuleRows } from "./buildRuleRows";
+import { buildRuleRows, ruleRowKey } from "./buildRuleRows";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { buildPermissionOptions } from "./buildPermissionOptions";
 import { createRuleColumns } from "./RulesTableColumns";
@@ -202,7 +207,15 @@ function saveEdit(rule: PermissionRuleRow) {
 }
 
 const toastStore = useToastStore();
-const { mutate: deleteRule } = useDeleteRuleMutation();
+const deleteRuleMutation = useDeleteRuleMutation();
+
+// The row being deleted grays out until the refetch drops it. isPending
+// holds through the refetch because onSettled returns its promise.
+const deletingKey = computed((): string | null => {
+  const vars = deleteRuleMutation.variables.value;
+  if (!deleteRuleMutation.isPending.value || !vars) return null;
+  return ruleRowKey(vars.scope, vars.grantId);
+});
 
 // the rule awaiting delete confirmation, doubling as the modal's open state
 const rulePendingDelete = ref<PermissionRuleRow | null>(null);
@@ -214,7 +227,7 @@ function handleDelete(rule: PermissionRuleRow) {
 function confirmDelete() {
   const rule = rulePendingDelete.value;
   if (!rule) return;
-  deleteRule(
+  deleteRuleMutation.mutate(
     { scope: rule.scope, grantId: rule.grantId },
     {
       onSuccess: () =>
@@ -280,9 +293,29 @@ const permissionOptions = computed(() =>
   buildPermissionOptions(permissionLevels.value ?? [])
 );
 
+// The row whose inline save is in flight. Its permission cell shows the
+// submitted level with a spinner until the refetch lands.
+const savingKey = computed((): string | null => {
+  const input = saveRule.variables.value;
+  if (!saveRule.isPending.value || input?.kind !== "update") return null;
+  const scope = input.rule.collectionId === null ? "instance" : "collection";
+  return ruleRowKey(scope, input.grantId);
+});
+
+const savingLevelLabel = computed((): string => {
+  const input = saveRule.variables.value;
+  if (input?.kind !== "update") return "";
+  const submittedLevel = permissionOptions.value.find(
+    (option) => option.id === input.rule.permissionLevelId
+  );
+  return submittedLevel?.label ?? "";
+});
+
 const ruleColumns = createRuleColumns({
   editingKey,
   draftLevelId,
+  savingKey,
+  savingLevelLabel,
   permissionOptions,
   onEdit: startEdit,
   onCancel: cancelEdit,

@@ -1,19 +1,9 @@
-import {
-  queryOptions,
-  useMutation,
-  useQueryClient,
-  type QueryClient,
-} from "@tanstack/vue-query";
+import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { computed, toValue, type MaybeRefOrGetter } from "vue";
 import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
-import type {
-  GroupMember,
-  PermissionsGroup,
-  PermissionsGroupEntry,
-  UpdateGroupPayload,
-} from "@/types";
+import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 
 // Invalidation matches keys by prefix. The kind ("list" or "item")
 // comes right after the resource so list data and item data are
@@ -73,41 +63,10 @@ export function groupTypesQuery() {
   });
 }
 
-// Optimistic-update plumbing. onMutate snapshots the caches it is about to
-// touch, after cancelling in-flight refetches that could otherwise land on
-// top of the patch, and onError restores the snapshot when the server
-// rejects the change. onSettled still invalidates to reconcile with the
-// server, but that refetch runs in the background so the user never waits.
-type CacheSnapshot = { queryKey: readonly unknown[]; data: unknown }[];
-
-async function snapshotAndCancel(
-  queryClient: QueryClient,
-  keys: readonly (readonly unknown[])[]
-): Promise<CacheSnapshot> {
-  await Promise.all(
-    keys.map((queryKey) => queryClient.cancelQueries({ queryKey }))
-  );
-  return keys.map((queryKey) => ({
-    queryKey,
-    data: queryClient.getQueryData(queryKey),
-  }));
-}
-
-function restoreSnapshot(
-  queryClient: QueryClient,
-  snapshot: CacheSnapshot
-): void {
-  for (const entry of snapshot) {
-    queryClient.setQueryData(entry.queryKey, entry.data);
-  }
-}
-
-// Optimistic rows carry a negative id until the server's real one arrives
-// on the reconciling refetch, so they never collide with real ids.
-let optimisticIdCounter = -1;
-function nextOptimisticId(): number {
-  return optimisticIdCounter--;
-}
+// Mutations reconcile by invalidating in onSettled instead of patching the
+// cache optimistically. Call sites render in-flight feedback from isPending,
+// which stays true until the promise returned by onSettled (the reconciling
+// refetch) resolves, so pending markers hold until fresh data lands.
 
 export function useCreateGroupMutation() {
   const queryClient = useQueryClient();
@@ -115,26 +74,9 @@ export function useCreateGroupMutation() {
 
   return useMutation({
     mutationFn: fetchers.createGroup,
-    onMutate: async (payload): Promise<CacheSnapshot> => {
-      const listKey = makeQueryKeyFor.groupsList();
-      const snapshot = await snapshotAndCancel(queryClient, [listKey]);
-      const optimisticGroup: PermissionsGroup = {
-        id: nextOptimisticId(),
-        type: payload.type,
-        label: payload.label,
-        entries_count: payload.values.length,
-      };
-      queryClient.setQueryData<PermissionsGroup[]>(listKey, (list) => [
-        ...(list ?? []),
-        optimisticGroup,
-      ]);
-      return snapshot;
-    },
     onSuccess: (group) => toastStore.success(`Group "${group.label}" created.`),
-    onError: (error, _payload, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not create group" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not create group" }),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: makeQueryKeyFor.groupsList() }),
   });
@@ -147,24 +89,9 @@ export function useUpdateGroupMutation() {
   return useMutation({
     mutationFn: (vars: { id: number; payload: UpdateGroupPayload }) =>
       fetchers.updateGroup(vars.id, vars.payload),
-    // The list shows label and type, so patch it in place right away.
-    onMutate: async (vars): Promise<CacheSnapshot> => {
-      const listKey = makeQueryKeyFor.groupsList();
-      const snapshot = await snapshotAndCancel(queryClient, [listKey]);
-      queryClient.setQueryData<PermissionsGroup[]>(listKey, (list) =>
-        (list ?? []).map((group) =>
-          group.id === vars.id
-            ? { ...group, label: vars.payload.label, type: vars.payload.type }
-            : group
-        )
-      );
-      return snapshot;
-    },
     onSuccess: (group) => toastStore.success(`Group "${group.label}" updated.`),
-    onError: (error, _vars, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not update group" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not update group" }),
     // The list shows label and type, so it goes stale along with the item.
     onSettled: (_group, _error, vars) =>
       Promise.all([
@@ -184,19 +111,6 @@ export function useDeleteGroupMutation() {
 
   return useMutation({
     mutationFn: (id: PermissionsGroup["id"]) => fetchers.deleteGroup(id),
-    // Drop the row immediately. The confirm dialog has already closed.
-    onMutate: async (id): Promise<CacheSnapshot> => {
-      const listKey = makeQueryKeyFor.groupsList();
-      const snapshot = await snapshotAndCancel(queryClient, [listKey]);
-      queryClient.setQueryData<PermissionsGroup[]>(listKey, (list) =>
-        (list ?? []).filter((group) => group.id !== id)
-      );
-      return snapshot;
-    },
-    // Delete toasts live at the call site. Here we only roll back.
-    onError: (_error, _id, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-    },
     // The group no longer exists, so drop its item subtree instead of
     // invalidating it (a refetch would 404).
     onSettled: (_data, _error, id) => {
@@ -218,30 +132,8 @@ export function useAddGroupMemberMutation() {
 
   return useMutation({
     mutationFn: (vars: AddGroupMemberVars) => fetchers.addGroupMember(vars),
-    // Show a name-only stub row now. The reconciling refetch fills in
-    // the email, username, and account details the server resolves.
-    onMutate: async (vars): Promise<CacheSnapshot> => {
-      const membersKey = makeQueryKeyFor.groupMembers(vars.groupId);
-      const snapshot = await snapshotAndCancel(queryClient, [membersKey]);
-      const isLocal = "localUserId" in vars;
-      const optimisticMember: GroupMember = {
-        userId: isLocal ? vars.localUserId : nextOptimisticId(),
-        name: vars.name,
-        email: "",
-        username: isLocal ? "" : vars.remoteUserId,
-        userType: isLocal ? "Local" : "Remote",
-        createdAt: null,
-      };
-      queryClient.setQueryData<GroupMember[]>(membersKey, (list) => [
-        ...(list ?? []),
-        optimisticMember,
-      ]);
-      return snapshot;
-    },
-    onError: (error, _vars, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not add member" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not add member" }),
     onSettled: (_member, _error, vars) =>
       queryClient.invalidateQueries({
         queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
@@ -256,18 +148,8 @@ export function useRemoveGroupMemberMutation() {
   return useMutation({
     mutationFn: (vars: { groupId: number; userId: number }) =>
       fetchers.removeGroupMember(vars.groupId, vars.userId),
-    onMutate: async (vars): Promise<CacheSnapshot> => {
-      const membersKey = makeQueryKeyFor.groupMembers(vars.groupId);
-      const snapshot = await snapshotAndCancel(queryClient, [membersKey]);
-      queryClient.setQueryData<GroupMember[]>(membersKey, (list) =>
-        (list ?? []).filter((member) => member.userId !== vars.userId)
-      );
-      return snapshot;
-    },
-    onError: (error, _vars, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not remove member" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not remove member" }),
     onSettled: (_data, _error, vars) =>
       queryClient.invalidateQueries({
         queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
@@ -281,35 +163,8 @@ export function useAddGroupEntryMutation() {
 
   return useMutation({
     mutationFn: fetchers.addGroupEntry,
-    // Insert the value now and bump the list's count to match.
-    onMutate: async (vars): Promise<CacheSnapshot> => {
-      const entriesKey = makeQueryKeyFor.groupEntries(vars.groupId);
-      const listKey = makeQueryKeyFor.groupsList();
-      const snapshot = await snapshotAndCancel(queryClient, [
-        entriesKey,
-        listKey,
-      ]);
-      const optimisticEntry: PermissionsGroupEntry = {
-        id: nextOptimisticId(),
-        value: vars.value,
-      };
-      queryClient.setQueryData<PermissionsGroupEntry[]>(entriesKey, (list) => [
-        ...(list ?? []),
-        optimisticEntry,
-      ]);
-      queryClient.setQueryData<PermissionsGroup[]>(listKey, (list) =>
-        (list ?? []).map((group) =>
-          group.id === vars.groupId
-            ? { ...group, entries_count: group.entries_count + 1 }
-            : group
-        )
-      );
-      return snapshot;
-    },
-    onError: (error, _vars, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not add value" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not add value" }),
     // The list shows entries_count, so it goes stale along with the entries.
     onSettled: (_entry, _error, vars) =>
       Promise.all([
@@ -330,20 +185,8 @@ export function useUpdateGroupEntryMutation() {
 
   return useMutation({
     mutationFn: fetchers.updateGroupEntry,
-    onMutate: async (vars): Promise<CacheSnapshot> => {
-      const entriesKey = makeQueryKeyFor.groupEntries(vars.groupId);
-      const snapshot = await snapshotAndCancel(queryClient, [entriesKey]);
-      queryClient.setQueryData<PermissionsGroupEntry[]>(entriesKey, (list) =>
-        (list ?? []).map((entry) =>
-          entry.id === vars.entryId ? { ...entry, value: vars.value } : entry
-        )
-      );
-      return snapshot;
-    },
-    onError: (error, _vars, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not update value" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not update value" }),
     onSettled: (_entry, _error, vars) =>
       queryClient.invalidateQueries({
         queryKey: makeQueryKeyFor.groupEntries(vars.groupId),
@@ -358,30 +201,8 @@ export function useRemoveGroupEntryMutation() {
   return useMutation({
     mutationFn: (vars: { groupId: number; entryId: number }) =>
       fetchers.removeGroupEntry(vars.groupId, vars.entryId),
-    // Drop the value now and lower the list's count to match.
-    onMutate: async (vars): Promise<CacheSnapshot> => {
-      const entriesKey = makeQueryKeyFor.groupEntries(vars.groupId);
-      const listKey = makeQueryKeyFor.groupsList();
-      const snapshot = await snapshotAndCancel(queryClient, [
-        entriesKey,
-        listKey,
-      ]);
-      queryClient.setQueryData<PermissionsGroupEntry[]>(entriesKey, (list) =>
-        (list ?? []).filter((entry) => entry.id !== vars.entryId)
-      );
-      queryClient.setQueryData<PermissionsGroup[]>(listKey, (list) =>
-        (list ?? []).map((group) =>
-          group.id === vars.groupId
-            ? { ...group, entries_count: Math.max(0, group.entries_count - 1) }
-            : group
-        )
-      );
-      return snapshot;
-    },
-    onError: (error, _vars, context) => {
-      if (context) restoreSnapshot(queryClient, context);
-      toastStore.error(error.message, { title: "Could not remove value" });
-    },
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not remove value" }),
     // The list shows entries_count, so it goes stale along with the entries.
     onSettled: (_data, _error, vars) =>
       Promise.all([

@@ -30,6 +30,7 @@
           variant="primary"
           type="submit"
           :disabled="!canSubmit || isPending">
+          <LoaderCircleIcon v-if="isPending" class="size-4 animate-spin ml-2" />
           {{ isEditing ? "Save Changes" : "Create Group" }}
         </Button>
       </div>
@@ -50,6 +51,7 @@ import {
   useUpdateGroupMutation,
 } from "./groupQueries";
 import { GroupTypeValues, PermissionsGroup, SelectOption } from "@/types";
+import { LoaderCircleIcon } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
