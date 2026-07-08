@@ -35,6 +35,18 @@
         class="my-4"
         :options="permissionOptions" />
 
+      <p
+        v-if="grantAtDestination"
+        role="alert"
+        class="my-4 flex items-center gap-2 rounded-md bg-warning-container px-3 py-2 text-sm text-on-warning-container">
+        <TriangleAlertIcon class="size-4 shrink-0" />
+        <span>
+          This group already has
+          <b>{{ levelLabelToReplace ?? "a permission" }}</b>
+          on this collection. Saving will replace it.
+        </span>
+      </p>
+
       <div class="flex items-center justify-end gap-2">
         <Button variant="tertiary" type="button" @click="handleClose">
           Cancel
@@ -62,6 +74,7 @@ import { useRouter } from "vue-router";
 import Modal from "@/components/Modal/Modal.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
+import { TriangleAlertIcon } from "lucide-vue-next";
 import { useQuery } from "@tanstack/vue-query";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { useToastStore } from "@/stores/toastStore";
@@ -72,6 +85,8 @@ import {
 } from "@/helpers/collectionHelpers";
 import { groupsQuery } from "./groupQueries";
 import {
+  collectionGrantsQuery,
+  instanceGrantsQuery,
   permissionLevelsQuery,
   useCreateRuleMutation,
   useUpdateRuleMutation,
@@ -97,6 +112,9 @@ const ALL_COLLECTIONS_ID = "all";
 const { data: groups } = useQuery(groupsQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
 const { data: instanceNav } = useInstanceQuery();
+// Both grant lists are already in the query cache from the Rules table.
+const { data: instanceGrants } = useQuery(instanceGrantsQuery());
+const { data: collectionGrants } = useQuery(collectionGrantsQuery());
 const createRule = useCreateRuleMutation();
 const updateRule = useUpdateRuleMutation();
 
@@ -222,6 +240,39 @@ const canSubmit = computed(
     form.value.permissionLevelId !== null
 );
 
+// The grant already sitting at the picked group + collection, if any,
+// excluding the rule being edited (its own spot is not a conflict). A
+// pair holds at most one grant, so saving over another one replaces
+// it: the form warns, and submit updates that grant instead.
+const grantAtDestination = computed(() => {
+  const { collectionId, groupId } = form.value;
+  if (collectionId === null || groupId === null) return null;
+
+  const destinationScope =
+    collectionId === ALL_COLLECTIONS_ID ? "instance" : "collection";
+  const found =
+    destinationScope === "instance"
+      ? (instanceGrants.value ?? []).find((grant) => grant.groupId === groupId)
+      : (collectionGrants.value ?? []).find(
+          (grant) =>
+            grant.collectionId === collectionId && grant.groupId === groupId
+        );
+  if (!found) return null;
+
+  const isRuleBeingEdited =
+    props.rule?.scope === destinationScope && props.rule?.grantId === found.id;
+  return isRuleBeingEdited ? null : found;
+});
+
+const levelLabelToReplace = computed((): string | null => {
+  const grant = grantAtDestination.value;
+  if (!grant) return null;
+  const level = (permissionLevels.value ?? []).find(
+    (candidate) => candidate.id === grant.permissionLevelId
+  );
+  return level?.label ?? null;
+});
+
 function handleClose() {
   // Esc reaches both stacked modals, so the rule modal holds still
   // while the group modal is the one on top.
@@ -230,14 +281,25 @@ function handleClose() {
   emit("close");
 }
 
+// Close only after a successful save settles, so the changed row is
+// already in the table when it regains focus. A failure leaves the
+// form open for a retry.
+function closeWhenSaved(grant: unknown, error: Error | null): void {
+  if (!error && grant) {
+    offerGroupSetupToast();
+    emit("close");
+  }
+}
+
 function handleSubmit() {
   const { collectionId, groupId, permissionLevelId } = form.value;
   if (collectionId === null || groupId === null || permissionLevelId === null) {
     return;
   }
 
-  // wait for the list invalidation to settle before closing so the
-  // changed row is already there when the table regains focus
+  const targetCollectionId =
+    collectionId === ALL_COLLECTIONS_ID ? null : collectionId;
+
   if (props.rule) {
     updateRule.mutate(
       {
@@ -247,34 +309,41 @@ function handleSubmit() {
           collectionId: props.rule.collectionId,
           groupId: props.rule.groupId,
         },
-        collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+        collectionId: targetCollectionId,
+        groupId,
+        permissionLevelId,
+        // moving onto an occupied pair replaces the grant there,
+        // matching the warning above
+        replaceGrantId: grantAtDestination.value?.id,
+      },
+      { onSettled: closeWhenSaved }
+    );
+  } else if (grantAtDestination.value) {
+    // a pair holds at most one grant, so creating over an existing one
+    // replaces it (matching the warning above) instead of 409ing
+    const existing = grantAtDestination.value;
+    updateRule.mutate(
+      {
+        original: {
+          scope: targetCollectionId === null ? "instance" : "collection",
+          grantId: existing.id,
+          collectionId: targetCollectionId,
+          groupId,
+        },
+        collectionId: targetCollectionId,
         groupId,
         permissionLevelId,
       },
-      {
-        onSettled: (grant, error) => {
-          if (!error && grant) {
-            offerGroupSetupToast();
-            emit("close");
-          }
-        },
-      }
+      { onSettled: closeWhenSaved }
     );
   } else {
     createRule.mutate(
       {
-        collectionId: collectionId === ALL_COLLECTIONS_ID ? null : collectionId,
+        collectionId: targetCollectionId,
         groupId,
         permissionLevelId,
       },
-      {
-        onSettled: (grant, error) => {
-          if (!error && grant) {
-            offerGroupSetupToast();
-            emit("close");
-          }
-        },
-      }
+      { onSettled: closeWhenSaved }
     );
   }
 }

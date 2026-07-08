@@ -1235,17 +1235,19 @@ export async function createCollectionGrant(
   return res.data.collectionGrant;
 }
 
-// Only the level is mutable on a grant. Moving a grant to another group
-// or collection is a delete + create.
-export interface UpdateGrantPayload {
+// PUT replaces the whole grant, and the API validates every field as
+// required, so the payload carries the unchanged ids too.
+export interface UpdateInstanceGrantPayload {
+  groupId: number;
   permissionLevelId: number;
 }
 
 export async function updateInstanceGrant(
   grantId: number,
-  payload: UpdateGrantPayload
+  payload: UpdateInstanceGrantPayload
 ): Promise<InstanceGrant> {
   const params = new URLSearchParams();
+  params.append("groupId", String(payload.groupId));
   params.append("permissionLevelId", String(payload.permissionLevelId));
 
   const res = await axios.put<{ instanceGrant: InstanceGrant }>(
@@ -1256,11 +1258,19 @@ export async function updateInstanceGrant(
   return res.data.instanceGrant;
 }
 
+export interface UpdateCollectionGrantPayload {
+  collectionId: number;
+  groupId: number;
+  permissionLevelId: number;
+}
+
 export async function updateCollectionGrant(
   grantId: number,
-  payload: UpdateGrantPayload
+  payload: UpdateCollectionGrantPayload
 ): Promise<CollectionGrant> {
   const params = new URLSearchParams();
+  params.append("collectionId", String(payload.collectionId));
+  params.append("groupId", String(payload.groupId));
   params.append("permissionLevelId", String(payload.permissionLevelId));
 
   const res = await axios.put<{ collectionGrant: CollectionGrant }>(

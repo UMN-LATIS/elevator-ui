@@ -1,10 +1,25 @@
 import { createColumnHelper } from "@tanstack/vue-table";
 import { RouterLink } from "vue-router";
-import { PencilIcon, TrashIcon } from "lucide-vue-next";
+import {
+  BanIcon,
+  DotIcon,
+  DownloadIcon,
+  EyeIcon,
+  LayersIcon,
+  PencilIcon,
+  SearchIcon,
+  ShieldCheckIcon,
+  SquarePenIcon,
+  TrashIcon,
+  UploadIcon,
+} from "lucide-vue-next";
+import type { LucideIcon } from "lucide-vue-next";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { ColHeader } from "./ColHeader";
+import Chip from "@/components/Chip/Chip.vue";
+import { PERM } from "@/types";
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
 
@@ -45,9 +60,32 @@ export const createRuleColumns = (
     id: "permission",
     header: () => <ColHeader text="Permission" />,
     meta: { filterPlaceholder: "Filter permission", widthClass: "w-[20%]" },
-    cell: (ctx) => (
-      <div class="text-sm text-on-surface-variant">{ctx.getValue()}</div>
-    ),
+    cell: (ctx) => {
+      const level = ctx.row.original.permissionLevelNumber;
+
+      const dotClassMap: Record<number, string> = {
+        [PERM.NOPERM]: "bg-gray-500",
+        [PERM.SEARCH]: "bg-green-500",
+        [PERM.VIEWDERIVATIVES]: "bg-green-500",
+        [PERM.DERIVATIVES_GROUP_2]: "bg-green-500",
+        [PERM.CREATEDRAWERS]: "bg-yellow-500",
+        [PERM.ORIGINALS]: "bg-yellow-500",
+        [PERM.ADDASSETS]: "bg-orange-500",
+        [PERM.ADMIN]: "bg-red-500",
+      };
+
+      const dotClass = dotClassMap[level] ?? "bg-black";
+
+      return (
+        <Chip
+          class={cn([
+            "w-32 flex gap-1 items-center border border-outline-variant bg-surface-container text-on-surface",
+          ])}>
+          <i class={["size-2 shrink-0 rounded-full", dotClass]} />
+          <span class="truncate">{ctx.getValue()}</span>
+        </Chip>
+      );
+    },
   }),
   {
     id: "actions",

@@ -100,6 +100,10 @@ export type UpdateRuleInput = {
   collectionId: number | null;
   groupId: number;
   permissionLevelId: number;
+  // The id of a different grant already at the destination. When set,
+  // the move replaces that grant instead of tripping the API's
+  // duplicate 409.
+  replaceGrantId?: number;
 };
 
 export function useUpdateRuleMutation() {
@@ -113,11 +117,44 @@ export function useUpdateRuleMutation() {
         input.collectionId === original.collectionId &&
         input.groupId === original.groupId;
 
+      // Same place and a null collectionId can only be the instance
+      // scope, so the null check doubles as the scope switch.
       if (isSamePlace) {
-        const payload = { permissionLevelId: input.permissionLevelId };
-        return original.scope === "instance"
-          ? fetchers.updateInstanceGrant(original.grantId, payload)
-          : fetchers.updateCollectionGrant(original.grantId, payload);
+        return input.collectionId === null
+          ? fetchers.updateInstanceGrant(original.grantId, {
+              groupId: input.groupId,
+              permissionLevelId: input.permissionLevelId,
+            })
+          : fetchers.updateCollectionGrant(original.grantId, {
+              collectionId: input.collectionId,
+              groupId: input.groupId,
+              permissionLevelId: input.permissionLevelId,
+            });
+      }
+
+      // A move onto an occupied destination replaces the grant there:
+      // PUT it first so a failure leaves the original untouched, then
+      // drop the original so the rule doesn't exist in two places.
+      if (input.replaceGrantId !== undefined) {
+        const replaced =
+          input.collectionId === null
+            ? await fetchers.updateInstanceGrant(input.replaceGrantId, {
+                groupId: input.groupId,
+                permissionLevelId: input.permissionLevelId,
+              })
+            : await fetchers.updateCollectionGrant(input.replaceGrantId, {
+                collectionId: input.collectionId,
+                groupId: input.groupId,
+                permissionLevelId: input.permissionLevelId,
+              });
+
+        if (original.scope === "instance") {
+          await fetchers.deleteInstanceGrant(original.grantId);
+        } else {
+          await fetchers.deleteCollectionGrant(original.grantId);
+        }
+
+        return replaced;
       }
 
       // A moved rule changes rows (and possibly tables), so compose it:

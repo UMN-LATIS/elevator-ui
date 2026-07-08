@@ -54,9 +54,26 @@ export function isManageableGroup(group: PermissionsGroup): boolean {
   return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
 }
 
+// The numeric permission tiers, mirroring the API's PERM_* constants in
+// application/config/constants.php (same names, so they grep across both
+// repos). The API also defines aliases DERIVATIVES_GROUP_1 (20) and
+// ORIGINALSWITHOUTDERIVATIVES (25), omitted here.
+export const PERM = {
+  NOPERM: 0,
+  SEARCH: 10,
+  VIEWDERIVATIVES: 20,
+  DERIVATIVES_GROUP_2: 25,
+  CREATEDRAWERS: 30,
+  ORIGINALS: 40,
+  ADDASSETS: 50,
+  ADMIN: 60,
+} as const;
+
+export type PermLevelNumber = (typeof PERM)[keyof typeof PERM];
+
 // A permission tier from GET /adminPermissions/permissionLevels. `level` is
-// the numeric strength (0 no permission … 60 admin) that access checks
-// compare; grants reference tiers by `id`.
+// the numeric strength (a PERM value) that access checks compare; grants
+// reference tiers by `id`.
 export interface PermissionLevel {
   id: number;
   level: number;
