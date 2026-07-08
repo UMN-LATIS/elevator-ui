@@ -213,7 +213,7 @@ import {
   groupTypesQuery,
   useDeleteGroupMutation,
 } from "./groupQueries";
-import { GROUP_TYPES } from "@/types";
+import { GROUP_TYPES, isAuthHelperGroupType, isManageableGroup } from "@/types";
 import type {
   GroupTypeValues,
   GroupTypeDetails,
@@ -258,20 +258,6 @@ const groupRows = computed((): GroupRow[] =>
     };
   })
 );
-
-// Auth-helper types are defined per campus by the backend's AuthHelper
-// classes, so the UI can only recognize them as "not one of the built-in
-// GROUP_TYPES". The backend rejects entry writes on other types anyway.
-function isAuthHelperGroupType(group: PermissionsGroup): boolean {
-  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
-  return !builtInTypes.includes(group.type);
-}
-
-// A row expands only when there is something to manage inside: User
-// groups manage members, auth-helper groups manage match values.
-function isManageableGroup(group: PermissionsGroup): boolean {
-  return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
-}
 
 const editingGroup = ref<PermissionsGroup | null>(null);
 const isGroupModalOpen = ref(false);

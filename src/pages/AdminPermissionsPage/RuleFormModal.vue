@@ -11,12 +11,22 @@
         placeholder="Select a collection…"
         :options="collectionOptions" />
 
-      <SelectGroup
-        v-model="form.groupId"
-        label="Group"
-        placeholder="Select a group…"
-        class="my-4"
-        :options="groupOptions" />
+      <div class="my-4 flex items-end gap-2">
+        <SelectGroup
+          v-model="form.groupId"
+          label="Group"
+          placeholder="Select a group…"
+          class="flex-1"
+          :options="groupOptions" />
+        <Button
+          variant="secondary"
+          type="button"
+          class="whitespace-nowrap text-sm py-2"
+          data-rule-new-group
+          @click="isGroupModalOpen = true">
+          New Group
+        </Button>
+      </div>
 
       <SelectGroup
         v-model="form.permissionLevelId"
@@ -38,15 +48,24 @@
       </div>
     </form>
   </Modal>
+
+  <!-- Renders after the rule modal so its teleported layer stacks on top. -->
+  <GroupFormModal
+    :isOpen="isGroupModalOpen"
+    @close="isGroupModalOpen = false"
+    @created="handleGroupCreated" />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import Modal from "@/components/Modal/Modal.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import { useQuery } from "@tanstack/vue-query";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { useToastStore } from "@/stores/toastStore";
+import GroupFormModal from "./GroupFormModal.vue";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -58,7 +77,8 @@ import {
   useUpdateRuleMutation,
 } from "./ruleQueries";
 import { ALL_COLLECTIONS_LABEL, PermissionRuleRow } from "./buildRuleRows";
-import type { SelectOption } from "@/types";
+import { GROUP_TYPES, isManageableGroup } from "@/types";
+import type { PermissionsGroup, SelectOption } from "@/types";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -97,6 +117,12 @@ const form = ref<RuleForm>({
   permissionLevelId: null,
 });
 
+const isGroupModalOpen = ref(false);
+
+// the group created mid-rule, held so closing the rule modal can offer
+// the jump to member or entry setup
+const createdGroup = ref<PermissionsGroup | null>(null);
+
 // fill the form each time the modal opens, prefilling from the rule in
 // edit mode and starting blank in create mode
 watch(
@@ -110,9 +136,40 @@ watch(
       groupId: props.rule?.groupId ?? null,
       permissionLevelId: props.rule?.permissionLevelId ?? null,
     };
+    createdGroup.value = null;
   },
   { immediate: true }
 );
+
+// GroupFormModal emits this after the groups list refetch settles, so
+// the new id is already among groupOptions when it becomes the pick.
+function handleGroupCreated(group: PermissionsGroup): void {
+  createdGroup.value = group;
+  form.value.groupId = group.id;
+}
+
+const router = useRouter();
+const toastStore = useToastStore();
+
+// A group created mid-rule has no members or entries yet, and that setup
+// lives on the Groups tab. Offer the jump once the rule modal is out of
+// the way, via the ?group deep link the Groups tab already handles.
+function offerGroupSetupToast(): void {
+  const group = createdGroup.value;
+  createdGroup.value = null;
+  // global types hold no members or entries, nothing to set up
+  if (!group || !isManageableGroup(group)) return;
+
+  const noun = group.type === GROUP_TYPES.USER ? "members" : "entries";
+  toastStore.addToast({
+    message: `"${group.label}" has no ${noun} yet.`,
+    // longer than the default so it outlives the rule-created toast
+    duration: 8000,
+    url: router.resolve({ query: { tab: "groups", group: String(group.id) } })
+      .fullPath,
+    urlText: noun === "members" ? "Add members" : "Add entries",
+  });
+}
 
 const collectionOptions = computed((): SelectOption<string | number>[] => {
   const flat = flattenCollections(
@@ -166,6 +223,10 @@ const canSubmit = computed(
 );
 
 function handleClose() {
+  // Esc reaches both stacked modals, so the rule modal holds still
+  // while the group modal is the one on top.
+  if (isGroupModalOpen.value) return;
+  offerGroupSetupToast();
   emit("close");
 }
 
@@ -192,7 +253,10 @@ function handleSubmit() {
       },
       {
         onSettled: (grant, error) => {
-          if (!error && grant) emit("close");
+          if (!error && grant) {
+            offerGroupSetupToast();
+            emit("close");
+          }
         },
       }
     );
@@ -205,7 +269,10 @@ function handleSubmit() {
       },
       {
         onSettled: (grant, error) => {
-          if (!error && grant) emit("close");
+          if (!error && grant) {
+            offerGroupSetupToast();
+            emit("close");
+          }
         },
       }
     );

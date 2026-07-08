@@ -39,6 +39,21 @@ export interface PermissionsGroup {
   entries_count: number;
 }
 
+// Auth-helper types are defined per campus by the backend's AuthHelper
+// classes, so the UI can only recognize them as "not one of the built-in
+// GROUP_TYPES". The backend rejects entry writes on other types anyway.
+export function isAuthHelperGroupType(group: PermissionsGroup): boolean {
+  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
+  return !builtInTypes.includes(group.type);
+}
+
+// A group with something to manage inside: User groups manage members,
+// auth-helper groups manage match values. Global types match everyone
+// and hold nothing.
+export function isManageableGroup(group: PermissionsGroup): boolean {
+  return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
+}
+
 // A permission tier from GET /adminPermissions/permissionLevels. `level` is
 // the numeric strength (0 no permission … 60 admin) that access checks
 // compare; grants reference tiers by `id`.
