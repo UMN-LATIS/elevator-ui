@@ -134,6 +134,7 @@ import type {
 } from "@tanstack/vue-table";
 import {
   FlexRender,
+  functionalUpdate,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
@@ -279,12 +280,10 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
   onSortingChange: (updater) => {
-    sorting.value =
-      typeof updater === "function" ? updater(sorting.value) : updater;
+    sorting.value = functionalUpdate(updater, sorting.value);
   },
   onColumnFiltersChange: (updater) => {
-    columnFilters.value =
-      typeof updater === "function" ? updater(columnFilters.value) : updater;
+    columnFilters.value = functionalUpdate(updater, columnFilters.value);
   },
   state: {
     get sorting() {

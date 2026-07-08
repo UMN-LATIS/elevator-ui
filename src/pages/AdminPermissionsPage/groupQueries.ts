@@ -11,7 +11,6 @@ import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 // every group, and ["groups", "item"] targets all items but not the
 // list. See https://tkdodo.eu/blog/effective-react-query-keys
 export const makeQueryKeyFor = {
-  all: ["groups"] as const,
   groupsList: () => ["groups", "list"] as const,
   groupDetails: (groupId: number) => ["groups", "item", groupId] as const,
   groupEntries: (groupId: number) =>

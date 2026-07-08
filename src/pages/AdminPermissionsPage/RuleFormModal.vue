@@ -111,7 +111,7 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
-// The select stores numbers for collections; "All Collections" needs a
+// The select stores numbers for collections. "All Collections" needs a
 // non-numeric sentinel so SelectGroup passes it through as a string.
 const ALL_COLLECTIONS_ID = "all";
 

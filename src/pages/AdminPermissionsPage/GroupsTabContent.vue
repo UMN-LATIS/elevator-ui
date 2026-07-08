@@ -187,6 +187,7 @@ import type {
 } from "@tanstack/vue-table";
 import {
   FlexRender,
+  functionalUpdate,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
@@ -336,23 +337,19 @@ const table = useVueTable({
   globalFilterFn: "includesString",
   onSortingChange: (updater) => {
     currentGroupId.value = null;
-    sorting.value =
-      typeof updater === "function" ? updater(sorting.value) : updater;
+    sorting.value = functionalUpdate(updater, sorting.value);
   },
   onColumnFiltersChange: (updater) => {
     currentGroupId.value = null;
-    columnFilters.value =
-      typeof updater === "function" ? updater(columnFilters.value) : updater;
+    columnFilters.value = functionalUpdate(updater, columnFilters.value);
   },
   onExpandedChange: (updater) => {
     currentGroupId.value = null;
-    expanded.value =
-      typeof updater === "function" ? updater(expanded.value) : updater;
+    expanded.value = functionalUpdate(updater, expanded.value);
   },
   onGlobalFilterChange: (updater) => {
     currentGroupId.value = null;
-    searchGroupText.value =
-      typeof updater === "function" ? updater(searchGroupText.value) : updater;
+    searchGroupText.value = functionalUpdate(updater, searchGroupText.value);
   },
   state: {
     get sorting() {

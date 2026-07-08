@@ -148,7 +148,7 @@ function isAlreadyMember(match: UserAutocompleteMatch): boolean {
   return match.localUserId !== null && memberIds.value.has(match.localUserId);
 }
 
-// only an existing member is unpickable; the create row is always actionable
+// only an existing member is unpickable, the create row is always actionable
 function isOptionDisabled(option: MemberOption): boolean {
   return option.kind === "match" && isAlreadyMember(option.match);
 }
@@ -221,7 +221,7 @@ function commitAdd(option: MemberOption): void {
 
   const { match } = option;
 
-  // a local match adds by id; a directory match with no local row yet
+  // a local match adds by id, a directory match with no local row yet
   // provisions through its remote username
   addGroupMember(
     match.localUserId !== null

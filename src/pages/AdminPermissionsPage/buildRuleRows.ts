@@ -51,11 +51,10 @@ export function buildRuleRows({
   const levelById = new Map(permissionLevels.map((level) => [level.id, level]));
 
   const getLevelLabel = (levelId: number): string =>
-    levelById?.get(levelId)?.label ?? `Level id ${levelId}`;
+    levelById.get(levelId)?.label ?? `Level id ${levelId}`;
 
-  // 10, 20, ... not id
-  const getLevelNumber = (levelId: number): number =>
-    levelById?.get(levelId)?.level ?? 0;
+  const getLevelStrength = (levelId: number): number =>
+    levelById.get(levelId)?.level ?? 0;
 
   const rows: PermissionRuleRow[] = [];
 
@@ -70,7 +69,7 @@ export function buildRuleRows({
       groupId: grant.groupId,
       groupLabel: groupLabelById.get(grant.groupId) ?? `Group ${grant.groupId}`,
       permissionLevelId: grant.permissionLevelId,
-      permissionLevelNumber: getLevelNumber(grant.permissionLevelId),
+      permissionLevelNumber: getLevelStrength(grant.permissionLevelId),
       permissionLabel: getLevelLabel(grant.permissionLevelId),
     });
   }
@@ -94,7 +93,7 @@ export function buildRuleRows({
       groupId: grant.groupId,
       groupLabel: groupLabelById.get(grant.groupId) ?? `Group ${grant.groupId}`,
       permissionLevelId: grant.permissionLevelId,
-      permissionLevelNumber: getLevelNumber(grant.permissionLevelId),
+      permissionLevelNumber: getLevelStrength(grant.permissionLevelId),
       permissionLabel: getLevelLabel(grant.permissionLevelId),
     });
   }
