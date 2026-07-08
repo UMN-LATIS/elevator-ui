@@ -1,15 +1,11 @@
 <template>
   <Modal
     :isOpen="isOpen"
-    :label="isEditing ? 'Edit Rule' : 'Create Rule'"
+    label="Create Rule"
     class="max-w-md"
     @close="handleClose">
     <form @submit.prevent="handleSubmit">
-      <SelectGroup
-        v-model="form.scope"
-        label="Scope"
-        :disabled="isEditing"
-        :options="scopeOptions" />
+      <SelectGroup v-model="form.scope" label="Scope" :options="scopeOptions" />
 
       <SelectGroup
         v-if="form.scope === 'collection'"
@@ -17,7 +13,6 @@
         label="Collection"
         placeholder="Select a collection…"
         class="mt-4"
-        :disabled="isEditing"
         :options="collectionOptions" />
 
       <div class="my-4 flex items-end gap-2">
@@ -26,10 +21,8 @@
           label="Group"
           placeholder="Select a group…"
           class="flex-1"
-          :disabled="isEditing"
           :options="groupOptions" />
         <Button
-          v-if="!isEditing"
           variant="secondary"
           type="button"
           class="whitespace-nowrap text-sm py-2"
@@ -65,7 +58,7 @@
           variant="primary"
           type="submit"
           :disabled="!canSubmit || isPending">
-          {{ isEditing ? "Save Changes" : "Create Rule" }}
+          Create Rule
         </Button>
       </div>
     </form>
@@ -90,7 +83,6 @@ import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { useToastStore } from "@/stores/toastStore";
 import GroupFormModal from "./GroupFormModal.vue";
 import PermissionSelect from "./PermissionSelect.vue";
-import type { PermissionSelectOption } from "./PermissionSelect.vue";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -102,7 +94,8 @@ import {
   permissionLevelsQuery,
   useSaveRuleMutation,
 } from "./ruleQueries";
-import { PermissionRuleRow } from "./buildRuleRows";
+import type { RuleScope } from "./ruleQueries";
+import { buildPermissionOptions } from "./buildPermissionOptions";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
 import type {
   CollectionGrant,
@@ -113,9 +106,6 @@ import type {
 
 const props = defineProps<{
   isOpen: boolean;
-  // when present the modal edits this rule's level, otherwise it creates
-  // a rule
-  rule?: PermissionRuleRow | null;
 }>();
 const emit = defineEmits<{
   (e: "close"): void;
@@ -134,22 +124,25 @@ const { data: instanceGrants } = useQuery(instanceGrantsQuery());
 const { data: collectionGrants } = useQuery(collectionGrantsQuery());
 const saveRule = useSaveRuleMutation();
 
-const isEditing = computed(() => Boolean(props.rule));
 const isPending = saveRule.isPending;
 
 type RuleForm = {
-  scope: PermissionRuleRow["scope"];
+  scope: RuleScope;
   collectionId: number | null;
   groupId: number | null;
   permissionLevelId: number | null;
 };
 
-const form = ref<RuleForm>({
-  scope: "instance",
-  collectionId: null,
-  groupId: null,
-  permissionLevelId: null,
-});
+function blankForm(): RuleForm {
+  return {
+    scope: "instance",
+    collectionId: null,
+    groupId: null,
+    permissionLevelId: null,
+  };
+}
+
+const form = ref<RuleForm>(blankForm());
 
 const isGroupModalOpen = ref(false);
 
@@ -157,18 +150,12 @@ const isGroupModalOpen = ref(false);
 // the jump to member or entry setup
 const createdGroup = ref<PermissionsGroup | null>(null);
 
-// fill the form each time the modal opens, prefilling from the rule in
-// edit mode and starting blank in create mode
+// start each open from a blank form
 watch(
-  () => [props.isOpen, props.rule] as const,
-  ([isOpen]) => {
+  () => props.isOpen,
+  (isOpen) => {
     if (!isOpen) return;
-    form.value = {
-      scope: props.rule?.scope ?? "instance",
-      collectionId: props.rule?.collectionId ?? null,
-      groupId: props.rule?.groupId ?? null,
-      permissionLevelId: props.rule?.permissionLevelId ?? null,
-    };
+    form.value = blankForm();
     createdGroup.value = null;
   },
   { immediate: true }
@@ -208,26 +195,10 @@ const collectionOptions = computed((): SelectOption<string | number>[] => {
   const flat = flattenCollections(
     normalizeAssetCollections(instanceNav.value?.collections ?? [])
   );
-  const options: SelectOption<string | number>[] = flat.map((collection) => ({
+  return flat.map((collection) => ({
     id: collection.id,
     label: collection.title,
   }));
-
-  // An edited rule can sit on a collection missing from the nav list
-  // (not browsable by this admin). Append it so the locked select still
-  // shows the rule's collection instead of the placeholder.
-  const ruleCollectionId = props.rule?.collectionId;
-  if (
-    ruleCollectionId != null &&
-    !options.some((option) => option.id === ruleCollectionId)
-  ) {
-    options.push({
-      id: ruleCollectionId,
-      label: props.rule?.collectionLabel ?? `Collection ${ruleCollectionId}`,
-    });
-  }
-
-  return options;
 });
 
 const groupOptions = computed((): SelectOption<number>[] =>
@@ -237,12 +208,8 @@ const groupOptions = computed((): SelectOption<number>[] =>
   }))
 );
 
-// Level 0 (noperm) is omitted: grants only add access under max-merge
-// resolution, so a level-0 rule does nothing.
-const permissionOptions = computed((): PermissionSelectOption[] =>
-  (permissionLevels.value ?? [])
-    .filter((level) => level.level > 0)
-    .map((level) => ({ id: level.id, label: level.label, level: level.level }))
+const permissionOptions = computed(() =>
+  buildPermissionOptions(permissionLevels.value ?? [])
 );
 
 const canSubmit = computed((): boolean => {
@@ -260,10 +227,6 @@ const canSubmit = computed((): boolean => {
 // A pair holds at most one grant.
 const grantBeingOverwritten = computed(
   (): InstanceGrant | CollectionGrant | null => {
-    // Editing locks collection and group, so the only grant at the
-    // pair is the rule's own.
-    if (isEditing.value) return null;
-
     const { scope, collectionId, groupId } = form.value;
     if (groupId === null) return null;
 
@@ -302,9 +265,9 @@ function handleClose() {
   emit("close");
 }
 
-// Close only after a successful save settles, so the changed row is
-// already in the table when it regains focus. A failure leaves the
-// form open for a retry.
+// Close only after a successful save settles, so the new row is already
+// in the table when it regains focus. A failure leaves the form open for
+// a retry.
 function closeWhenSaved(grant: unknown, error: Error | null): void {
   if (!error && grant) {
     offerGroupSetupToast();
@@ -323,12 +286,7 @@ function handleSubmit() {
     permissionLevelId,
   };
 
-  if (props.rule) {
-    saveRule.mutate(
-      { kind: "update", grantId: props.rule.grantId, rule },
-      { onSettled: closeWhenSaved }
-    );
-  } else if (grantBeingOverwritten.value) {
+  if (grantBeingOverwritten.value) {
     // creating onto an occupied pair replaces the grant there,
     // matching the warning above
     saveRule.mutate(

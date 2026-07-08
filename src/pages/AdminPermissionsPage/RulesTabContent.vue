@@ -99,10 +99,7 @@
       </Table>
     </div>
 
-    <RuleFormModal
-      :isOpen="isRuleModalOpen"
-      :rule="editingRule"
-      @close="isRuleModalOpen = false" />
+    <RuleFormModal :isOpen="isRuleModalOpen" @close="isRuleModalOpen = false" />
 
     <ConfirmModal
       :isOpen="Boolean(rulePendingDelete)"
@@ -166,27 +163,54 @@ import {
   instanceGrantsQuery,
   permissionLevelsQuery,
   useDeleteRuleMutation,
+  useSaveRuleMutation,
 } from "./ruleQueries";
 import { buildRuleRows } from "./buildRuleRows";
 import type { PermissionRuleRow } from "./buildRuleRows";
+import { buildPermissionOptions } from "./buildPermissionOptions";
 import { createRuleColumns } from "./RulesTableColumns";
 
 // Placeholder rows shown while the rule lists load.
 const SKELETON_ROW_COUNT = 3;
 
+// The modal now only creates rules; editing happens inline in the table.
 const isRuleModalOpen = ref(false);
 
-// the rule being edited, or null for create mode
-const editingRule = ref<PermissionRuleRow | null>(null);
-
 function openCreate() {
-  editingRule.value = null;
   isRuleModalOpen.value = true;
 }
 
-function openEdit(rule: PermissionRuleRow) {
-  editingRule.value = rule;
-  isRuleModalOpen.value = true;
+// Inline permission editing: the row whose permission cell is open, plus
+// the level picked in it. Only one row edits at a time.
+const editingKey = ref<string | null>(null);
+const draftLevelId = ref<number | null>(null);
+const saveRule = useSaveRuleMutation();
+
+function startEdit(rule: PermissionRuleRow) {
+  editingKey.value = rule.key;
+  draftLevelId.value = rule.permissionLevelId;
+}
+
+function cancelEdit() {
+  editingKey.value = null;
+  draftLevelId.value = null;
+}
+
+function saveEdit(rule: PermissionRuleRow) {
+  const levelId = draftLevelId.value;
+  cancelEdit();
+  // nothing to save when the level is unchanged
+  if (levelId === null || levelId === rule.permissionLevelId) return;
+
+  saveRule.mutate({
+    kind: "update",
+    grantId: rule.grantId,
+    rule: {
+      collectionId: rule.collectionId,
+      groupId: rule.groupId,
+      permissionLevelId: levelId,
+    },
+  });
 }
 
 const toastStore = useToastStore();
@@ -220,8 +244,6 @@ function confirmDelete() {
   );
   rulePendingDelete.value = null;
 }
-
-const ruleColumns = createRuleColumns(openEdit, handleDelete);
 
 const { data: instanceGrants, isLoading: isLoadingInstanceGrants } = useQuery(
   instanceGrantsQuery()
@@ -264,6 +286,21 @@ const ruleRows = computed(() =>
     collectionTitleById: collectionTitleById.value,
   })
 );
+
+// Options for the inline permission editor, same source as the create modal.
+const permissionOptions = computed(() =>
+  buildPermissionOptions(permissionLevels.value ?? [])
+);
+
+const ruleColumns = createRuleColumns({
+  editingKey,
+  draftLevelId,
+  permissionOptions,
+  onEdit: startEdit,
+  onCancel: cancelEdit,
+  onSave: saveEdit,
+  onDelete: handleDelete,
+});
 
 // "All Collections" sorts to the top under the default ascending sort.
 const sorting = ref<SortingState>([{ id: "collection", desc: false }]);

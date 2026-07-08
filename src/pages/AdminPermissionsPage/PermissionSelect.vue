@@ -1,6 +1,10 @@
 <template>
   <div class="flex flex-col gap-1">
-    <label class="text-xs uppercase font-medium text-on-surface">
+    <label
+      :class="[
+        'text-xs uppercase font-medium text-on-surface',
+        { 'sr-only': !showLabel },
+      ]">
       {{ label }}
     </label>
     <SelectRoot :modelValue="modelValue" @update:modelValue="handleSelect">
@@ -76,21 +80,20 @@ import {
 } from "reka-ui";
 import { ChevronsUpDownIcon, CheckIcon } from "lucide-vue-next";
 import { permissionDotClass } from "./permissionDotClass";
+import type { PermissionSelectOption } from "./buildPermissionOptions";
 
-export interface PermissionSelectOption {
-  id: number;
-  label: string;
-  // the numeric strength (a PERM value), shown as the secondary number and
-  // driving the dot color
-  level: number;
-}
-
-const props = defineProps<{
-  modelValue: number | null;
-  options: PermissionSelectOption[];
-  label: string;
-  placeholder?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    modelValue: number | null;
+    options: PermissionSelectOption[];
+    label: string;
+    placeholder?: string;
+    // hide the label visually (kept for screen readers) when the column
+    // header already names the field, as in the inline table editor
+    showLabel?: boolean;
+  }>(),
+  { showLabel: true, placeholder: "" }
+);
 
 const emit = defineEmits<{ "update:modelValue": [value: number] }>();
 
