@@ -424,9 +424,6 @@ watch(
 );
 </script>
 <style scoped>
-/* Draw the eye to the aria-current row, then settle into its
-   persistent tint. Same visual language as the DragDropList
-   post-move flash. */
 .group-row--current {
   animation: current-group-flash 0.5s ease-out;
 }

@@ -30,7 +30,7 @@
           variant="primary"
           type="submit"
           :disabled="!canSubmit || isPending">
-          <LoaderCircleIcon v-if="isPending" class="size-4 animate-spin ml-2" />
+          <LoaderCircleIcon v-if="isPending" class="size-4 animate-spin mr-2" />
           {{ isEditing ? "Save Changes" : "Create Group" }}
         </Button>
       </div>

@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-col gap-1">
     <label
+      :id="labelId"
       :class="[
         'text-xs uppercase font-medium text-on-surface',
         { 'sr-only': !showLabel },
@@ -9,6 +10,7 @@
     </label>
     <SelectRoot :modelValue="modelValue" @update:modelValue="handleSelect">
       <SelectTrigger
+        :aria-labelledby="labelId"
         class="flex items-center gap-2 w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2 text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary data-[placeholder]:text-on-surface-variant">
         <template v-if="selectedOption">
           <i
@@ -65,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, useId } from "vue";
 import {
   SelectRoot,
   SelectTrigger,
@@ -96,6 +98,8 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{ "update:modelValue": [value: number] }>();
+
+const labelId = useId();
 
 const selectedOption = computed(() =>
   props.options.find((option) => option.id === props.modelValue)
