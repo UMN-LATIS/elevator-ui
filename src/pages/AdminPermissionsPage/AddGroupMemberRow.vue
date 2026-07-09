@@ -20,7 +20,7 @@
             :blurOnSelect="false"
             :minChars="2"
             placeholder="Add member by name, email, or username…"
-            :inputClass="`w-full bg-surface border-outline group-member-add__input--${group.id}`"
+            :inputClass="`w-full bg-surface border-outline-variant group-member-add__input--${group.id}`"
             @update:modelValue="handleSearchInput"
             @select="handleSelect">
             <template #option="{ item }">
@@ -148,16 +148,17 @@ function isAlreadyMember(match: UserAutocompleteMatch): boolean {
   return match.localUserId !== null && memberIds.value.has(match.localUserId);
 }
 
-// only an existing member is unpickable; the create row is always actionable
+// only an existing member is unpickable, the create row is always actionable
 function isOptionDisabled(option: MemberOption): boolean {
   return option.kind === "match" && isAlreadyMember(option.match);
 }
 
-// The picked option, held until Save commits it. Selecting fills the input
-// (with the username, the one field that stays meaningful as plain text)
-// rather than saving, mirroring the entries row's fill-on-select behavior.
+// the picked option, held until Save commits it
 const stagedOption = ref<MemberOption | null>(null);
 
+// Selecting fills the input with the username (the one field that stays
+// meaningful as plain text) rather than saving, mirroring the entries
+// row's fill-on-select behavior.
 function handleSelect(option: MemberOption): void {
   stagedOption.value = option;
   search.value = option.kind === "match" ? option.match.username : option.query;
@@ -220,7 +221,7 @@ function commitAdd(option: MemberOption): void {
 
   const { match } = option;
 
-  // a local match adds by id; a directory match with no local row yet
+  // a local match adds by id, a directory match with no local row yet
   // provisions through its remote username
   addGroupMember(
     match.localUserId !== null

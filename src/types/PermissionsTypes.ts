@@ -39,6 +39,64 @@ export interface PermissionsGroup {
   entries_count: number;
 }
 
+// Auth-helper types are defined per campus by the backend's AuthHelper
+// classes, so the UI can only recognize them as "not one of the built-in
+// GROUP_TYPES". The backend rejects entry writes on other types anyway.
+export function isAuthHelperGroupType(group: PermissionsGroup): boolean {
+  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
+  return !builtInTypes.includes(group.type);
+}
+
+// A group with something to manage inside: User groups manage members,
+// auth-helper groups manage match values. Global types match everyone
+// and hold nothing.
+export function isManageableGroup(group: PermissionsGroup): boolean {
+  return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
+}
+
+// The numeric permission tiers, mirroring the API's PERM_* constants in
+// application/config/constants.php (same names, so they grep across both
+// repos). The API also defines aliases DERIVATIVES_GROUP_1 (20) and
+// ORIGINALSWITHOUTDERIVATIVES (25), omitted here.
+export const PERM = {
+  NOPERM: 0,
+  SEARCH: 10,
+  VIEWDERIVATIVES: 20,
+  DERIVATIVES_GROUP_2: 25,
+  CREATEDRAWERS: 30,
+  ORIGINALS: 40,
+  ADDASSETS: 50,
+  ADMIN: 60,
+} as const;
+
+// A permission tier from GET /adminPermissions/permissionLevels. `level` is
+// the numeric strength (a PERM value) that access checks compare; grants
+// reference tiers by `id`.
+export interface PermissionLevel {
+  id: number;
+  level: number;
+  name: string;
+  label: string;
+}
+
+// A stored grant row from GET /adminPermissions/instanceGrants: the group
+// holds the level on every collection in the instance. The id fields are
+// null on orphaned legacy rows whose group or level was deleted.
+export interface InstanceGrant {
+  id: number;
+  groupId: number | null;
+  permissionLevelId: number | null;
+}
+
+// A stored grant row from GET /adminPermissions/collectionGrants: the group
+// holds the level on one collection and its descendants.
+export interface CollectionGrant {
+  id: number;
+  collectionId: number | null;
+  groupId: number | null;
+  permissionLevelId: number | null;
+}
+
 // A user-autocomplete suggestion. `localUserId` is the local user id, or
 // null for someone the directory knows but who has no local row yet.
 export interface UserAutocompleteMatch {

@@ -8,10 +8,12 @@
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            class="bg-surface-container-low"
-            :class="{
-              'cursor-pointer select-none': header.column.getCanSort(),
-            }"
+            :class="[
+              'border-b border-outline-variant',
+              {
+                'cursor-pointer select-none': header.column.getCanSort(),
+              },
+            ]"
             @click="header.column.getToggleSortingHandler()?.($event)">
             <div class="flex items-center gap-2">
               <FlexRender
@@ -59,6 +61,12 @@
                after the empty message so the trigger stays the last row -->
           <slot />
         </template>
+        <!-- slot for extra rows such as the add-member form or the "add entry"
+          button. Keep it OUTSIDE of the `<template v-*>` blocks so that
+          it renders regardless of whether the table is loading or empty.
+          This permits `tryFocus` to find the add button immediately after
+          creating a new group. -->
+        <slot />
       </TableBody>
     </Table>
   </div>

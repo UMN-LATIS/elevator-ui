@@ -53,6 +53,9 @@ import {
   type UserAutocompleteMatch,
   type GroupMember,
   type PermissionsGroupEntry,
+  type PermissionLevel,
+  type InstanceGrant,
+  type CollectionGrant,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1164,6 +1167,128 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
   );
 
   return res.data.groups;
+}
+
+export async function fetchPermissionLevels(): Promise<PermissionLevel[]> {
+  const res = await axios.get<{ permissionLevels: PermissionLevel[] }>(
+    `${BASE_URL}/adminPermissions/permissionLevels`
+  );
+
+  return res.data.permissionLevels;
+}
+
+export async function fetchInstanceGrants(): Promise<InstanceGrant[]> {
+  const res = await axios.get<{ instanceGrants: InstanceGrant[] }>(
+    `${BASE_URL}/adminPermissions/instanceGrants`
+  );
+
+  return res.data.instanceGrants;
+}
+
+export async function fetchCollectionGrants(): Promise<CollectionGrant[]> {
+  const res = await axios.get<{ collectionGrants: CollectionGrant[] }>(
+    `${BASE_URL}/adminPermissions/collectionGrants`
+  );
+
+  return res.data.collectionGrants;
+}
+
+export interface CreateInstanceGrantPayload {
+  groupId: number;
+  permissionLevelId: number;
+}
+
+export async function createInstanceGrant(
+  payload: CreateInstanceGrantPayload
+): Promise<InstanceGrant> {
+  const params = new URLSearchParams();
+  params.append("groupId", String(payload.groupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.post<{ instanceGrant: InstanceGrant }>(
+    `${BASE_URL}/adminPermissions/instanceGrants`,
+    params
+  );
+
+  return res.data.instanceGrant;
+}
+
+export interface CreateCollectionGrantPayload {
+  collectionId: number;
+  groupId: number;
+  permissionLevelId: number;
+}
+
+export async function createCollectionGrant(
+  payload: CreateCollectionGrantPayload
+): Promise<CollectionGrant> {
+  const params = new URLSearchParams();
+  params.append("collectionId", String(payload.collectionId));
+  params.append("groupId", String(payload.groupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.post<{ collectionGrant: CollectionGrant }>(
+    `${BASE_URL}/adminPermissions/collectionGrants`,
+    params
+  );
+
+  return res.data.collectionGrant;
+}
+
+// PUT replaces the whole grant, and the API validates every field as
+// required, so the payload carries the unchanged ids too.
+export interface UpdateInstanceGrantPayload {
+  groupId: number;
+  permissionLevelId: number;
+}
+
+export async function updateInstanceGrant(
+  grantId: number,
+  payload: UpdateInstanceGrantPayload
+): Promise<InstanceGrant> {
+  const params = new URLSearchParams();
+  params.append("groupId", String(payload.groupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.put<{ instanceGrant: InstanceGrant }>(
+    `${BASE_URL}/adminPermissions/instanceGrants/${grantId}`,
+    params
+  );
+
+  return res.data.instanceGrant;
+}
+
+export interface UpdateCollectionGrantPayload {
+  collectionId: number;
+  groupId: number;
+  permissionLevelId: number;
+}
+
+export async function updateCollectionGrant(
+  grantId: number,
+  payload: UpdateCollectionGrantPayload
+): Promise<CollectionGrant> {
+  const params = new URLSearchParams();
+  params.append("collectionId", String(payload.collectionId));
+  params.append("groupId", String(payload.groupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.put<{ collectionGrant: CollectionGrant }>(
+    `${BASE_URL}/adminPermissions/collectionGrants/${grantId}`,
+    params
+  );
+
+  return res.data.collectionGrant;
+}
+
+export async function deleteInstanceGrant(grantId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/adminPermissions/instanceGrants/${grantId}`);
+}
+
+export async function deleteCollectionGrant(grantId: number): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/adminPermissions/collectionGrants/${grantId}`
+  );
 }
 
 // Fetch user suggestions for a group's member field. The backend returns

@@ -76,6 +76,15 @@ function openAddMemberForm(): void {
 
 const removeMutation = useRemoveGroupMemberMutation();
 
+// The member being removed shows a "(removing…)" marker until the refetch
+// drops the row. isPending holds through the refetch because onSettled
+// returns its promise.
+const removingUserId = computed((): number | null =>
+  removeMutation.isPending.value
+    ? removeMutation.variables.value?.userId ?? null
+    : null
+);
+
 const memberToRemove = ref<GroupMember | null>(null);
 
 function remove(member: GroupMember) {
@@ -93,5 +102,5 @@ function confirmRemove() {
   memberToRemove.value = null;
 }
 
-const columns = createGroupMemberColumns(remove);
+const columns = createGroupMemberColumns(remove, removingUserId);
 </script>

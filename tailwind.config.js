@@ -78,7 +78,9 @@ export default {
         },
         primary: {
           DEFAULT: "var(--primary)",
+          muted: "var(--primary-muted)",
           container: "var(--primary-container)",
+          "container-muted": "var(--primary-container-muted)",
         },
         "on-primary": {
           DEFAULT: "var(--on-primary)",

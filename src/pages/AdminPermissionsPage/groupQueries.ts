@@ -11,7 +11,6 @@ import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 // every group, and ["groups", "item"] targets all items but not the
 // list. See https://tkdodo.eu/blog/effective-react-query-keys
 export const makeQueryKeyFor = {
-  all: ["groups"] as const,
   groupsList: () => ["groups", "list"] as const,
   groupDetails: (groupId: number) => ["groups", "item", groupId] as const,
   groupEntries: (groupId: number) =>
@@ -64,16 +63,10 @@ export function groupTypesQuery() {
   });
 }
 
-function useErrorToast(title: string): (error: Error) => void {
-  const toastStore = useToastStore();
-  return (error) =>
-    toastStore.addToast({
-      title,
-      message: error.message ?? "Something went wrong. Unknown error.",
-      variant: "error",
-      duration: Infinity,
-    });
-}
+// Mutations reconcile by invalidating in onSettled instead of patching the
+// cache optimistically. Call sites render in-flight feedback from isPending,
+// which stays true until the promise returned by onSettled (the reconciling
+// refetch) resolves, so pending markers hold until fresh data lands.
 
 export function useCreateGroupMutation() {
   const queryClient = useQueryClient();
@@ -81,12 +74,9 @@ export function useCreateGroupMutation() {
 
   return useMutation({
     mutationFn: fetchers.createGroup,
-    onSuccess: (group) =>
-      toastStore.addToast({
-        message: `Group "${group.label}" created.`,
-        variant: "success",
-      }),
-    onError: useErrorToast("Could not create group"),
+    onSuccess: (group) => toastStore.success(`Group "${group.label}" created.`),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not create group" }),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: makeQueryKeyFor.groupsList() }),
   });
@@ -99,12 +89,9 @@ export function useUpdateGroupMutation() {
   return useMutation({
     mutationFn: (vars: { id: number; payload: UpdateGroupPayload }) =>
       fetchers.updateGroup(vars.id, vars.payload),
-    onSuccess: (group) =>
-      toastStore.addToast({
-        message: `Group "${group.label}" updated.`,
-        variant: "success",
-      }),
-    onError: useErrorToast("Could not update group"),
+    onSuccess: (group) => toastStore.success(`Group "${group.label}" updated.`),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not update group" }),
     // The list shows label and type, so it goes stale along with the item.
     onSettled: (_group, _error, vars) =>
       Promise.all([
@@ -141,10 +128,12 @@ export type AddGroupMemberVars = AddGroupMemberInput & { name: string };
 
 export function useAddGroupMemberMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: (vars: AddGroupMemberVars) => fetchers.addGroupMember(vars),
-    onError: useErrorToast("Could not add member"),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not add member" }),
     onSettled: (_member, _error, vars) =>
       queryClient.invalidateQueries({
         queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
@@ -154,11 +143,13 @@ export function useAddGroupMemberMutation() {
 
 export function useRemoveGroupMemberMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: (vars: { groupId: number; userId: number }) =>
       fetchers.removeGroupMember(vars.groupId, vars.userId),
-    onError: useErrorToast("Could not remove member"),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not remove member" }),
     onSettled: (_data, _error, vars) =>
       queryClient.invalidateQueries({
         queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
@@ -168,10 +159,12 @@ export function useRemoveGroupMemberMutation() {
 
 export function useAddGroupEntryMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: fetchers.addGroupEntry,
-    onError: useErrorToast("Could not add value"),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not add value" }),
     // The list shows entries_count, so it goes stale along with the entries.
     onSettled: (_entry, _error, vars) =>
       Promise.all([
@@ -188,10 +181,12 @@ export function useAddGroupEntryMutation() {
 // Editing a value in place leaves entries_count alone, so the list stays fresh.
 export function useUpdateGroupEntryMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: fetchers.updateGroupEntry,
-    onError: useErrorToast("Could not update value"),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not update value" }),
     onSettled: (_entry, _error, vars) =>
       queryClient.invalidateQueries({
         queryKey: makeQueryKeyFor.groupEntries(vars.groupId),
@@ -201,11 +196,13 @@ export function useUpdateGroupEntryMutation() {
 
 export function useRemoveGroupEntryMutation() {
   const queryClient = useQueryClient();
+  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: (vars: { groupId: number; entryId: number }) =>
       fetchers.removeGroupEntry(vars.groupId, vars.entryId),
-    onError: useErrorToast("Could not remove value"),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not remove value" }),
     // The list shows entries_count, so it goes stale along with the entries.
     onSettled: (_data, _error, vars) =>
       Promise.all([

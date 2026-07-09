@@ -1,26 +1,28 @@
+import type { Ref } from "vue";
 import { createColumnHelper } from "@tanstack/vue-table";
 import { TrashIcon } from "lucide-vue-next";
-import type { CSSClass, GroupMember } from "@/types";
-import { cn } from "@/lib/utils";
+import type { GroupMember } from "@/types";
 import IconButton from "@/components/IconButton/IconButton.vue";
+import { ColHeader } from "./ColHeader";
 
 const columnHelper = createColumnHelper<GroupMember>();
 
-const ColHeader = (props: { text: string; class?: CSSClass }) => (
-  <div
-    class={cn(["font-medium uppercase text-xs tracking-wider", props.class])}>
-    {props.text}
-  </div>
-);
-
+// removingUserId marks the member whose removal is in flight, so the name
+// cell shows "(removing…)" until the refetch drops the row.
 export const createGroupMemberColumns = (
-  onRemove: (member: GroupMember) => void
+  onRemove: (member: GroupMember) => void,
+  removingUserId: Ref<number | null>
 ) => [
   columnHelper.accessor("name", {
     header: () => <ColHeader text="Name" />,
-    cell: (ctx) => (
-      <div class="text-sm text-on-surface font-medium">{ctx.getValue()}</div>
-    ),
+    cell: (ctx) =>
+      ctx.row.original.userId === removingUserId.value ? (
+        <div class="text-sm text-on-surface-variant">
+          <s>{ctx.getValue()}</s> (removing…)
+        </div>
+      ) : (
+        <div class="text-sm text-on-surface font-medium">{ctx.getValue()}</div>
+      ),
   }),
   columnHelper.accessor("email", {
     header: () => <ColHeader text="Email" />,
@@ -53,7 +55,7 @@ export const createGroupMemberColumns = (
   }),
   {
     id: "actions",
-    header: () => <ColHeader text="" />,
+    header: () => null,
     enableSorting: false,
     cell: ({ row }: { row: { original: GroupMember } }) => (
       <div class="flex justify-end">

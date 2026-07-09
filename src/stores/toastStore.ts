@@ -23,5 +23,24 @@ export const useToastStore = defineStore("toastStore", {
 
       this.toasts.splice(index, 1);
     },
+
+    error(
+      message: string,
+      options?: Omit<Toast, "id" | "message" | "variant">
+    ) {
+      this.addToast({
+        duration: Infinity,
+        ...options,
+        message,
+        variant: "error",
+      });
+    },
+
+    success(
+      message: string,
+      options?: Omit<Toast, "id" | "message" | "variant">
+    ) {
+      this.addToast({ ...options, message, variant: "success" });
+    },
   },
 });

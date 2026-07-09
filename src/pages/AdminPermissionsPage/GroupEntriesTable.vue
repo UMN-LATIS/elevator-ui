@@ -3,11 +3,10 @@
     <Table class="w-full">
       <TableHeader>
         <TableHead
-          class="font-medium uppercase text-xs tracking-wider border-b border-outline-variant bg-surface-container-low">
+          class="font-medium uppercase text-xs tracking-wider border-b border-outline-variant">
           Value
         </TableHead>
-        <TableHead
-          class="border-b border-outline-variant bg-surface-container-low">
+        <TableHead class="border-b border-outline-variant">
           <span class="sr-only">Actions</span>
         </TableHead>
       </TableHeader>
@@ -24,15 +23,17 @@
             v-for="entry in entries"
             :key="entry.id"
             :entry="entry"
-            class="hover:bg-surface-container"
             :group="group" />
           <TableEmpty v-if="!entries.length && showEmptyMessage" :colspan="2">
             No entries yet.
           </TableEmpty>
-          <!-- extra rows such as the add-entry form and its trigger, kept
-               after the empty message so the trigger stays the last row -->
-          <slot />
         </template>
+        <!-- slot for extra rows such as the add-member form or the "add entry"
+          button. Keep it OUTSIDE of the `<template v-*>` blocks so that
+          it renders regardless of whether the table is loading or empty.
+          This permits `tryFocus` to find the add button immediately after
+          creating a new group. -->
+        <slot />
       </TableBody>
     </Table>
   </div>
