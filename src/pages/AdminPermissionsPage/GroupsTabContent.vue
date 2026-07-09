@@ -250,6 +250,18 @@ const groupRows = computed((): GroupRow[] =>
 const editingGroup = ref<PermissionsGroup | null>(null);
 const isGroupModalOpen = ref(false);
 
+function getGroupDescription(group: PermissionsGroup): string {
+  return groupTypesMap.value.get(group.type)?.description ?? "";
+}
+
+// Auth-helper types are defined per campus by the backend's AuthHelper
+// classes, so the UI can only recognize them as "not one of the built-in
+// GROUP_TYPES". The backend rejects entry writes on other types anyway.
+function isAuthHelperGroupType(group: PermissionsGroup): boolean {
+  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
+  return !builtInTypes.includes(group.type);
+}
+
 function openCreate() {
   editingGroup.value = null;
   isGroupModalOpen.value = true;
