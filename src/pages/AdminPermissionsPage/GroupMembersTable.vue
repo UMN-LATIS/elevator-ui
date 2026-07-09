@@ -39,7 +39,7 @@
             </TableCell>
           </TableRow>
         </template>
-        <template v-else-if="table.getRowModel().rows?.length">
+        <template v-else>
           <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
               <FlexRender
@@ -47,15 +47,17 @@
                 :props="cell.getContext()" />
             </TableCell>
           </TableRow>
-        </template>
-        <template v-else>
-          <TableRow>
+          <TableRow
+            v-if="!table.getRowModel().rows?.length && showEmptyMessage">
             <TableCell
               :colspan="columns.length"
               class="h-16 text-center text-sm text-on-surface-variant">
               No members yet.
             </TableCell>
           </TableRow>
+          <!-- extra rows such as the add-member form and its trigger, kept
+               after the empty message so the trigger stays the last row -->
+          <slot />
         </template>
       </TableBody>
     </Table>
@@ -85,12 +87,18 @@ import Skeleton from "@/components/Skeleton/Skeleton.vue";
 // Placeholder rows shown while the member list loads.
 const SKELETON_ROW_COUNT = 3;
 
-const props = defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ColumnDef<TData, any>[];
-  data: TData[];
-  isLoading?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    columns: ColumnDef<TData, any>[];
+    data: TData[];
+    isLoading?: boolean;
+    // pass false while a slotted row (add form, in-flight member) occupies
+    // the body, so "No members yet." doesn't show beside it
+    showEmptyMessage?: boolean;
+  }>(),
+  { showEmptyMessage: true }
+);
 
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);
 

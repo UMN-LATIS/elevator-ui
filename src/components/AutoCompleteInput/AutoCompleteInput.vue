@@ -44,21 +44,21 @@
         :sideOffset="4">
         <div
           v-if="needsMoreChars"
-          class="p-4 text-sm text-muted-foreground text-center">
+          class="p-4 text-sm text-on-surface-variant text-center">
           Type at least {{ minChars }}
           {{ minChars === 1 ? "character" : "characters" }} to see suggestions.
         </div>
 
         <div
           v-else-if="isLoading"
-          class="flex items-center justify-center gap-2 p-4">
+          class="flex items-center justify-center gap-2 p-4 text-on-surface-variant text-sm">
           <SpinnerIcon class="size-4" />
           <span class="text-sm">Loading suggestions...</span>
         </div>
 
         <div
           v-else-if="items.length === 0"
-          class="p-4 text-sm text-muted-foreground text-center">
+          class="p-4 text-sm text-on-surface-variant text-center">
           No suggestions found.
         </div>
 

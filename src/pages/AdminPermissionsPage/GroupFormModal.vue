@@ -43,9 +43,12 @@ import Modal from "@/components/Modal/Modal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
-import { useGroupTypesQuery } from "@/queries/useGroupTypesQuery";
-import { useCreateGroupMutation } from "@/queries/useCreateGroupMutation";
-import { useUpdateGroupMutation } from "@/queries/useUpdateGroupMutation";
+import { useQuery } from "@tanstack/vue-query";
+import {
+  groupTypesQuery,
+  useCreateGroupMutation,
+  useUpdateGroupMutation,
+} from "./groupQueries";
 import { GroupTypeValues, PermissionsGroup, SelectOption } from "@/types";
 
 const props = defineProps<{
@@ -58,7 +61,7 @@ const emit = defineEmits<{
   (e: "created", group: PermissionsGroup): void;
 }>();
 
-const { data: labelledGroupTypes } = useGroupTypesQuery();
+const { data: labelledGroupTypes } = useQuery(groupTypesQuery());
 const createMutation = useCreateGroupMutation();
 const updateMutation = useUpdateGroupMutation();
 
@@ -107,24 +110,12 @@ function isSubmittable(
 
 const canSubmit = computed((): boolean => isSubmittable(form.value));
 
-// implemented types
-const ENABLED_GROUP_TYPES: GroupTypeValues[] = [
-  "All",
-  "Authed",
-  "Authed_remote",
-  "User",
-];
-
 const typeOptions = computed((): SelectOption[] =>
   (labelledGroupTypes.value ?? []).map((groupType) => {
-    const isEnabled = ENABLED_GROUP_TYPES.includes(groupType.type);
     return {
       id: groupType.type,
-      label: isEnabled
-        ? groupType.label
-        : `${groupType.label} (not implemented)`,
+      label: groupType.label,
       description: groupType.description,
-      disabled: !isEnabled,
     };
   })
 );
@@ -145,13 +136,23 @@ function handleSubmit() {
   if (props.group) {
     updateMutation.mutate(
       { id: props.group.id, payload: { type, label } },
-      { onSuccess: () => emit("close") }
+      {
+        // wait for updateMutation invalidations to settle before closing
+        onSettled: (_group, error) => {
+          if (!error) emit("close");
+        },
+      }
     );
   } else {
     createMutation.mutate(
       { type, label, values: [] },
       {
-        onSuccess: (group) => {
+        // updateMutation isn't doing an optimistic updates, so we
+        // need to wait until the invalidation settles before
+        // closing the modal, otherwise `tryFocus` in the parent
+        // won't be able to find the member input for the updated group
+        onSettled: (group) => {
+          if (!group) return;
           emit("created", group);
           emit("close");
         },
