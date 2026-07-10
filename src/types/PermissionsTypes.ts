@@ -35,6 +35,8 @@ export interface PermissionsGroup {
   type: GroupTypeValues;
   label: string;
   entries_count: number;
+  // auto-created personal group
+  is_personal?: boolean;
 }
 
 // Auth-helper types are defined by the backend's AuthHelper

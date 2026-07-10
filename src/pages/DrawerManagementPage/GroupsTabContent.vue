@@ -195,9 +195,12 @@ const groupRows = computed((): DrawerGroupRow[] =>
     return {
       group,
       name: group.label || group.type,
-      typeLabel: typeDetails?.label ?? group.type,
+      typeLabel: group.is_personal
+        ? "Personal"
+        : typeDetails?.label ?? group.type,
       entriesCount: group.entries_count,
       isGlobal: GLOBAL_GROUP_TYPES.includes(group.type),
+      isPersonal: group.is_personal ?? false,
     };
   })
 );

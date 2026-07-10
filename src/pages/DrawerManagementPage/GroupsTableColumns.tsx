@@ -12,6 +12,7 @@ export interface DrawerGroupRow {
   typeLabel: string;
   entriesCount: number;
   isGlobal: boolean; // e.g. `All`, `Authed`, `Users`, ...
+  isPersonal: boolean;
 }
 
 const columnHelper = createColumnHelper<DrawerGroupRow>();
@@ -62,23 +63,29 @@ export const createDrawerGroupColumns = (
     header: () => null,
     enableSorting: false,
     meta: { widthClass: "w-20" },
-    cell: ({ row }: { row: { original: DrawerGroupRow } }) => (
-      <div class="flex justify-end">
-        <IconButton
-          onClick={() => onEdit(row.original.group)}
-          title="Edit Group"
-          data-group-edit={row.original.group.id}
-          showTooltip={false}>
-          <PencilIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          onClick={() => onDelete(row.original.group)}
-          title="Delete Group"
-          showTooltip={false}
-          class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
-          <TrashIcon class="size-4" />
-        </IconButton>
-      </div>
-    ),
+    cell: ({ row }: { row: { original: DrawerGroupRow } }) => {
+      // The personal group is read-only
+      if (row.original.isPersonal) {
+        return null;
+      }
+      return (
+        <div class="flex justify-end">
+          <IconButton
+            onClick={() => onEdit(row.original.group)}
+            title="Edit Group"
+            data-group-edit={row.original.group.id}
+            showTooltip={false}>
+            <PencilIcon class="size-4" />
+          </IconButton>
+          <IconButton
+            onClick={() => onDelete(row.original.group)}
+            title="Delete Group"
+            showTooltip={false}
+            class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
+            <TrashIcon class="size-4" />
+          </IconButton>
+        </div>
+      );
+    },
   },
 ];
