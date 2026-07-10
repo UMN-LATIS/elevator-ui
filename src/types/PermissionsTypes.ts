@@ -1,4 +1,4 @@
-import { ISODateTime } from ".";
+import type { ISODateTime } from ".";
 
 export const GROUP_TYPES = {
   ALL: "All",
