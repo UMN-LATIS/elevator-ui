@@ -3,20 +3,18 @@ import { computed, toValue, type MaybeRefOrGetter } from "vue";
 import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
+import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
 import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 
-// Invalidation matches keys by prefix. The kind ("list" or "item")
-// comes right after the resource so list data and item data are
-// separate branches: the list can be refreshed without refetching
-// every group, and ["groups", "item"] targets all items but not the
-// list. See https://tkdodo.eu/blog/effective-react-query-keys
+const groupKeys = makeQueryKeysFor("groups");
+
 export const makeQueryKeyFor = {
-  groupsList: () => ["groups", "list"] as const,
-  groupDetails: (groupId: number) => ["groups", "item", groupId] as const,
+  groupsList: groupKeys.list,
+  groupDetails: groupKeys.item,
   groupEntries: (groupId: number) =>
-    [...makeQueryKeyFor.groupDetails(groupId), "entries"] as const,
+    [...groupKeys.item(groupId), "entries"] as const,
   groupMembers: (groupId: number) =>
-    [...makeQueryKeyFor.groupDetails(groupId), "members"] as const,
+    [...groupKeys.item(groupId), "members"] as const,
   groupTypes: () => ["groupTypes"] as const,
 };
 
