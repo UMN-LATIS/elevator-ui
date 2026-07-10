@@ -40,7 +40,7 @@ type ValidTab = (typeof VALID_TABS)[number];
 const route = useRoute();
 const router = useRouter();
 
-// helper for TS since route.query.tab could be array
+// route.query.tab can be an array, so narrow to a single valid tab
 const isValidTab = (x: unknown): x is ValidTab =>
   VALID_TABS.some((tab) => tab === x);
 
@@ -54,7 +54,7 @@ const activeTabId = computed<ValidTab>({
     router.replace({
       query: {
         ...route.query,
-        // only include tabId in query if it's not the default (first tab)
+        // keep the default tab's URL clean by omitting the param
         tab: tabId === VALID_TABS[0] ? undefined : tabId,
       },
     });

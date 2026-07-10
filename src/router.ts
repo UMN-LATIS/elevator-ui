@@ -87,8 +87,6 @@ const createAdminPermissionsRoutes = (): RouteRecordRaw[] => {
   ];
 };
 
-// Flag-off URLs 404 via the catchall, same reasoning as
-// createAdminPermissionsRoutes above.
 const createDrawerManagementRoutes = (): RouteRecordRaw[] => {
   if (!config.features.drawerManagement) return [];
   return [
