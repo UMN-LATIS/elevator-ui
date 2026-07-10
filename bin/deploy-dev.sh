@@ -30,7 +30,7 @@ if [ ! -f .env ]; then
 
   echo "→ enabling admin permissions feature flag in .env..."
   echo "VITE_FEATURE_ADMIN_PERMISSIONS=true" >> .env
-  echo "VITE_FEATURE_DRAWER_GROUPS=true" >> .env
+  echo "VITE_FEATURE_DRAWER_MANAGEMENT=true" >> .env
 fi
 
 echo "→ Installing dependencies..."
