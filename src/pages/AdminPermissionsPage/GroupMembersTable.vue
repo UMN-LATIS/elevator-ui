@@ -57,9 +57,6 @@
               No members yet.
             </TableCell>
           </TableRow>
-          <!-- extra rows such as the add-member form and its trigger, kept
-               after the empty message so the trigger stays the last row -->
-          <slot />
         </template>
         <!-- slot for extra rows such as the add-member form or the "add entry"
           button. Keep it OUTSIDE of the `<template v-*>` blocks so that
