@@ -648,7 +648,15 @@ export async function startDrawerDownload(drawerId: number) {
 }
 
 export async function logout() {
-  const res = await axios.post(`${BASE_URL}/loginManager/logout`);
+  // logout clears the session then answers with a 303 to an absolute,
+  // cross-origin URL the dev proxy can't follow, so the browser reports a
+  // network error even though we're logged out. Handle it in LogoutPage
+  // instead of surfacing the global connection-error modal.
+  const res = await axios.post(
+    `${BASE_URL}/loginManager/logout`,
+    undefined,
+    { skipErrorNotifications: true } as CustomAxiosRequestConfig
+  );
   return res.data;
 }
 
