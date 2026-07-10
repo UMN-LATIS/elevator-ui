@@ -103,7 +103,6 @@ export interface GroupMember {
 export interface CreateGroupPayload {
   type: GroupTypeValues;
   label: string;
-  values: string[];
 }
 
 export interface UpdateGroupPayload {

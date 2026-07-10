@@ -147,7 +147,7 @@ function handleSubmit() {
     );
   } else {
     createMutation.mutate(
-      { type, label, values: [] },
+      { type, label },
       {
         // createMutation has no optimistic update, so wait for the list
         // invalidation to settle before closing, otherwise tryFocus in

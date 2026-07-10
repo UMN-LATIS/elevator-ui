@@ -164,8 +164,7 @@ function handleSubmit() {
     );
   } else {
     createMutation.mutate(
-      // the drawer form has no member picker, so groups start empty
-      { type, label, values: [] },
+      { type, label },
       {
         // close only after the list refetch lands, otherwise tryFocus
         // in the parent can't find the new group's row yet
