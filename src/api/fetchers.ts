@@ -1509,3 +1509,101 @@ export async function updateDrawerGroup(
 export async function deleteDrawerGroup(groupId: number): Promise<void> {
   await axios.delete(`${BASE_URL}/drawerPermissions/groups/${groupId}`);
 }
+
+// The drawer-manager twin of fetchUserAutocomplete: same shape, but the
+// endpoint is open to any drawer manager, not just instance admins.
+export async function fetchDrawerUserAutocomplete(
+  query: string,
+  options?: { signal?: AbortSignal }
+): Promise<UserAutocompleteMatch[]> {
+  const res = await axios.get<{ matches: UserAutocompleteMatch[] }>(
+    `${BASE_URL}/drawerPermissions/userAutocomplete`,
+    { params: { q: query }, signal: options?.signal }
+  );
+
+  return res.data.matches;
+}
+
+export async function fetchDrawerGroupMembers(
+  groupId: number
+): Promise<GroupMember[]> {
+  const res = await axios.get<{ members: GroupMember[] }>(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}/members`
+  );
+
+  return res.data.members;
+}
+
+export async function addDrawerGroupMember(
+  input: AddGroupMemberInput
+): Promise<GroupMember> {
+  const params = new URLSearchParams();
+  if ("localUserId" in input) {
+    params.append("localUserId", String(input.localUserId));
+  } else {
+    params.append("remoteUserId", input.remoteUserId);
+  }
+
+  const res = await axios.post<{ member: GroupMember }>(
+    `${BASE_URL}/drawerPermissions/groups/${input.groupId}/members`,
+    params
+  );
+
+  return res.data.member;
+}
+
+export async function removeDrawerGroupMember(
+  groupId: number,
+  userId: number
+): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}/members/${userId}`
+  );
+}
+
+export async function fetchDrawerGroupEntries(
+  groupId: PermissionsGroup["id"]
+): Promise<PermissionsGroupEntry[]> {
+  const res = await axios.get<{ entries: PermissionsGroupEntry[] }>(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}/entries`
+  );
+  return res.data.entries;
+}
+
+export async function addDrawerGroupEntry({
+  groupId,
+  value,
+}: AddGroupEntryInput): Promise<PermissionsGroupEntry> {
+  const payload = new URLSearchParams({ value });
+
+  const res = await axios.post<{ entry: PermissionsGroupEntry }>(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}/entries`,
+    payload
+  );
+
+  return res.data.entry;
+}
+
+export async function updateDrawerGroupEntry({
+  groupId,
+  entryId,
+  value,
+}: UpdateGroupEntryInput): Promise<PermissionsGroupEntry> {
+  const payload = new URLSearchParams({ value });
+
+  const res = await axios.put<{ entry: PermissionsGroupEntry }>(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}/entries/${entryId}`,
+    payload
+  );
+
+  return res.data.entry;
+}
+
+export async function removeDrawerGroupEntry(
+  groupId: PermissionsGroup["id"],
+  entryId: PermissionsGroupEntry["id"]
+): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}/entries/${entryId}`
+  );
+}
