@@ -4,12 +4,14 @@ import type { PermissionsGroup } from "@/types";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import Chip from "@/components/Chip/Chip.vue";
+import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import { ColHeader } from "../AdminPermissionsPage/ColHeader";
 
 export interface DrawerGroupRow {
   group: PermissionsGroup;
   name: string;
   typeLabel: string;
+  description: string;
   entriesCount: number;
   isGlobal: boolean; // e.g. `All`, `Authed`, `Users`, ...
   isPersonal: boolean;
@@ -21,10 +23,32 @@ export const createDrawerGroupColumns = (
   onEdit: (group: PermissionsGroup) => void,
   onDelete: (group: PermissionsGroup) => void
 ) => [
+  columnHelper.display({
+    id: "expander",
+    header: () => null,
+    enableSorting: false,
+    meta: { widthClass: "w-10" },
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
+        <button
+          type="button"
+          aria-expanded={row.getIsExpanded()}
+          aria-label={`Toggle details for ${row.original.name}`}
+          class="flex size-8 items-center justify-center rounded-full hover:bg-surface-container-highest focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          onClick={row.getToggleExpandedHandler()}>
+          <ChevronRightIcon
+            class={cn(
+              "!size-4 text-on-surface-variant transition-transform",
+              row.getIsExpanded() && "rotate-90"
+            )}
+          />
+        </button>
+      ) : null,
+  }),
   columnHelper.accessor("name", {
     id: "name",
     header: () => <ColHeader text="Name" />,
-    meta: { widthClass: "w-[42%]" },
+    meta: { widthClass: "w-[38%]" },
     cell: (ctx) => (
       <div class="text-sm font-medium text-on-surface">{ctx.getValue()}</div>
     ),
@@ -32,7 +56,7 @@ export const createDrawerGroupColumns = (
   columnHelper.accessor("typeLabel", {
     id: "type",
     header: () => <ColHeader text="Type" />,
-    meta: { widthClass: "w-[42%]" },
+    meta: { widthClass: "w-[38%]" },
     cell: (ctx) => (
       <div class="text-sm text-on-surface-variant">{ctx.getValue()}</div>
     ),
@@ -42,7 +66,7 @@ export const createDrawerGroupColumns = (
     header: () => <ColHeader text="Members / Entries" />,
     enableColumnFilter: false,
     enableGlobalFilter: false,
-    meta: { widthClass: "w-[16%]" },
+    meta: { widthClass: "w-[14%]" },
     cell: (ctx) =>
       ctx.row.original.isGlobal ? (
         <div class="text-sm text-on-surface-variant">—</div>
