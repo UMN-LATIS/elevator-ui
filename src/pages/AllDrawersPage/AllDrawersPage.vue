@@ -5,10 +5,20 @@
         v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="p-8 px-4">
-      <h1 class="text-4xl font-bold my-8">Drawers</h1>
-      <nav v-if="currentUser?.canManageDrawers" class="mb-4">
-        <CreateDrawerButton />
-      </nav>
+      <div class="flex items-center justify-between gap-4 flex-wrap mt-8 mb-4">
+        <h1 class="text-4xl font-bold">Drawers</h1>
+        <nav
+          v-if="currentUser?.canManageDrawers"
+          class="flex items-center gap-2">
+          <Button
+            v-if="config.features.drawerManagement"
+            variant="secondary"
+            to="/drawers/manage">
+            Manage Drawers
+          </Button>
+          <CreateDrawerButton />
+        </nav>
+      </div>
       <div ref="gridContainer" class="grid grid-cols-2 gap-2">
         <TransitionGroup name="fade">
           <p v-if="drawerStore.isReady && !drawers.length" key="no-drawers">
@@ -45,6 +55,8 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import Link from "@/components/Link/Link.vue";
+import Button from "@/components/Button/Button.vue";
+import config from "@/config";
 import { useResizeObserver } from "@vueuse/core";
 import DeleteDrawerButton from "./DeleteDrawerButton.vue";
 import CreateDrawerButton from "./CreateDrawerButton.vue";

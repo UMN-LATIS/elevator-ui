@@ -2,7 +2,7 @@
   <div>
     <div class="flex justify-between items-center gap-x-8 gap-y-4 flex-wrap">
       <p class="text-sm flex-1">
-        Create a group to manage permissions for a set of users.
+        Create a group to manage who your drawers are shared with.
       </p>
       <div class="flex gap-2 items-center flex-wrap">
         <InputGroup
@@ -68,51 +68,23 @@
             </TableRow>
           </template>
           <template v-else>
-            <template v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableRow
-                :data-group-row="row.original.group.id"
-                tabindex="-1"
-                :aria-current="
-                  isCurrentGroup(row.original.group.id) ? 'true' : undefined
-                "
-                :class="{
-                  'border-b-transparent': row.getIsExpanded(),
-                  'group-row--current': isCurrentGroup(row.original.group.id),
-                  'opacity-50 pointer-events-none':
-                    row.original.group.id === deletingGroupId,
-                }">
-                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                  <FlexRender
-                    :render="cell.column.columnDef.cell"
-                    :props="cell.getContext()" />
-                </TableCell>
-              </TableRow>
-              <TableRow
-                v-if="row.getIsExpanded()"
-                :class="{
-                  'group-row--current': isCurrentGroup(row.original.group.id),
-                }">
-                <TableCell
-                  :colspan="row.getVisibleCells().length"
-                  class="px-4 pb-4 pl-12">
-                  <p
-                    v-if="row.original.description"
-                    class="mb-4 text-sm text-on-surface-variant">
-                    {{ row.original.description }}
-                  </p>
-                  <GroupMemberManager
-                    v-if="row.original.group.type === GROUP_TYPES.USER"
-                    :group="row.original.group"
-                    :isOpen="row.getIsExpanded()"
-                    class="bg-surface-container" />
-                  <GroupEntriesManager
-                    v-else-if="isAuthHelperGroupType(row.original.group)"
-                    :group="row.original.group"
-                    :isOpen="row.getIsExpanded()"
-                    class="bg-surface-container" />
-                </TableCell>
-              </TableRow>
-            </template>
+            <TableRow
+              v-for="row in table.getRowModel().rows"
+              :key="row.id"
+              :aria-current="
+                isCurrentGroup(row.original.group.id) ? 'true' : undefined
+              "
+              :class="{
+                'group-row--current': isCurrentGroup(row.original.group.id),
+                'opacity-50 pointer-events-none':
+                  row.original.group.id === deletingGroupId,
+              }">
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <FlexRender
+                  :render="cell.column.columnDef.cell"
+                  :props="cell.getContext()" />
+              </TableCell>
+            </TableRow>
             <TableRow v-if="!table.getRowModel().rows.length">
               <TableCell
                 :colspan="groupColumns.length"
@@ -128,11 +100,6 @@
         </TableBody>
       </Table>
     </div>
-
-    <p class="mt-2 text-xs text-on-surface-variant">
-      Global groups (All, Authenticated Users) apply to everyone and have no
-      members to manage.
-    </p>
 
     <GroupFormModal
       :isOpen="isGroupModalOpen"
@@ -156,14 +123,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type {
-  ColumnDef,
-  ExpandedState,
-  SortingState,
-} from "@tanstack/vue-table";
+import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
   FlexRender,
   functionalUpdate,
@@ -186,14 +148,12 @@ import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import GroupFormModal from "./GroupFormModal.vue";
-import GroupMemberManager from "./GroupMemberManager.vue";
-import GroupEntriesManager from "./GroupEntriesManager.vue";
 import {
-  groupsQuery,
-  groupTypesQuery,
-  useDeleteGroupMutation,
-} from "./groupQueries";
-import { GROUP_TYPES, isAuthHelperGroupType, isManageableGroup } from "@/types";
+  drawerGroupsQuery,
+  drawerGroupTypesQuery,
+  useDeleteDrawerGroupMutation,
+} from "./drawerGroupQueries";
+import { GROUP_TYPES } from "@/types";
 import type {
   GroupTypeValues,
   GroupTypeDetails,
@@ -201,14 +161,11 @@ import type {
 } from "@/types";
 import { tryFocus } from "@/helpers/tryFocus";
 import { useToastStore } from "@/stores/toastStore";
-import { createGroupColumns } from "./GroupsTableColumns";
-import type { GroupRow } from "./GroupsTableColumns";
+import { createDrawerGroupColumns } from "./GroupsTableColumns";
+import type { DrawerGroupRow } from "./GroupsTableColumns";
 
-// Placeholder rows shown while the group list loads.
 const SKELETON_ROW_COUNT = 3;
 
-// Global groups match everyone by definition, so their rows show no
-// member or entry count.
 const GLOBAL_GROUP_TYPES: GroupTypeValues[] = [
   GROUP_TYPES.ALL,
   GROUP_TYPES.AUTHED,
@@ -216,12 +173,11 @@ const GLOBAL_GROUP_TYPES: GroupTypeValues[] = [
 ];
 
 const toastStore = useToastStore();
-const { data: groups, isLoading } = useQuery(groupsQuery());
-const { data: groupTypes } = useQuery(groupTypesQuery());
-const deleteGroupMutation = useDeleteGroupMutation();
+const { data: groups, isLoading } = useQuery(drawerGroupsQuery());
+const { data: groupTypes } = useQuery(drawerGroupTypesQuery());
+const deleteGroupMutation = useDeleteDrawerGroupMutation();
 
-// The row being deleted grays out until the refetch drops it. isPending
-// holds through the refetch because onSettled returns its promise.
+// the group being deleted
 const deletingGroupId = computed((): number | null =>
   deleteGroupMutation.isPending.value
     ? deleteGroupMutation.variables.value ?? null
@@ -233,16 +189,18 @@ const groupTypesMap = computed((): Map<GroupTypeValues, GroupTypeDetails> => {
   return new Map(entries);
 });
 
-const groupRows = computed((): GroupRow[] =>
+const groupRows = computed((): DrawerGroupRow[] =>
   (groups.value ?? []).map((group) => {
     const typeDetails = groupTypesMap.value.get(group.type);
     return {
       group,
       name: group.label || group.type,
-      typeLabel: typeDetails?.label ?? group.type,
-      description: typeDetails?.description ?? "",
+      typeLabel: group.is_personal
+        ? "Personal"
+        : typeDetails?.label ?? group.type,
       entriesCount: group.entries_count,
       isGlobal: GLOBAL_GROUP_TYPES.includes(group.type),
+      isPersonal: group.is_personal ?? false,
     };
   })
 );
@@ -292,18 +250,13 @@ function confirmDelete() {
   groupPendingDelete.value = null;
 }
 
-const groupColumns = createGroupColumns(openEdit, handleDelete);
+const groupColumns = createDrawerGroupColumns(openEdit, handleDelete);
 
 const searchGroupText = ref("");
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);
-// ids of the currently expanded rows, so each group fetches its members
-// or entries only when its detail panel is open
-const expanded = ref<ExpandedState>({});
 
-// The group the admin was just brought to (a Rules-tab link or a fresh
-// create). Its row carries aria-current and a highlight so "which one
-// was it?" stays answered. Any table interaction means the admin has
-// moved on, so the table's change handlers clear it.
+// the group the user just created. Sorting or filtering means the user
+// has moved on, so the table's change handlers clear it.
 const currentGroupId = ref<number | null>(null);
 
 function isCurrentGroup(groupId: number): boolean {
@@ -314,9 +267,8 @@ const table = useVueTable({
   get data() {
     return groupRows.value;
   },
-  columns: groupColumns as ColumnDef<GroupRow, unknown>[],
+  columns: groupColumns as ColumnDef<DrawerGroupRow, unknown>[],
   getRowId: (row) => String(row.group.id),
-  getRowCanExpand: (row) => isManageableGroup(row.original.group),
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -324,10 +276,6 @@ const table = useVueTable({
   onSortingChange: (updater) => {
     currentGroupId.value = null;
     sorting.value = functionalUpdate(updater, sorting.value);
-  },
-  onExpandedChange: (updater) => {
-    currentGroupId.value = null;
-    expanded.value = functionalUpdate(updater, expanded.value);
   },
   onGlobalFilterChange: (updater) => {
     currentGroupId.value = null;
@@ -337,91 +285,25 @@ const table = useVueTable({
     get sorting() {
       return sorting.value;
     },
-    get expanded() {
-      return expanded.value;
-    },
     get globalFilter() {
       return searchGroupText.value;
     },
   },
 });
 
-// A User group's add-member row, an auth-helper group's add-entry row,
-// or the edit button for global groups, which have no detail panel.
-function focusSelectorForNewGroup(group: PermissionsGroup): string {
-  if (group.type === GROUP_TYPES.USER) {
-    return `[data-group-add-member="${group.id}"]`;
-  }
-  if (isAuthHelperGroupType(group)) {
-    return `[data-group-entry-add-button="${group.id}"]`;
-  }
-  return `[data-group-edit="${group.id}"]`;
-}
-
-// Reveal a freshly created group and put focus where the admin works
-// next.
+// Reveal a freshly created group and focus its edit button.
 async function handleCreated(group: PermissionsGroup) {
-  // an active search could hide the new row, so it resets
+  // an active search could hide the new row, so clear the search
   searchGroupText.value = "";
   currentGroupId.value = group.id;
 
-  if (isManageableGroup(group)) {
-    const groupId = String(group.id);
-    const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-    expanded.value = { ...currentlyExpanded, [groupId]: true };
-  }
-
-  // The row, its detail panel, and the button mount across several
-  // frames, so tryFocus retries until focus lands rather than
-  // guessing a single tick.
   try {
-    const focused = await tryFocus(focusSelectorForNewGroup(group));
+    const focused = await tryFocus(`[data-group-edit="${group.id}"]`);
     focused.scrollIntoView({ block: "nearest" });
-    if (isManageableGroup(group)) {
-      // clicking the add row opens its form, which then moves focus
-      // into the input field
-      focused.click();
-    }
   } catch (error) {
     console.warn(`Could not focus new ${group.type} group`, error);
   }
 }
-
-const route = useRoute();
-const router = useRouter();
-
-// Deep link from the Rules tab: ?group=<id> reveals that group's row.
-watch(
-  [groups, () => route.query.group],
-  async ([groupList, groupParam]) => {
-    // the link can arrive before the groups query has loaded, so this
-    // watch also runs on groups and waits for both
-    if (!groupList || typeof groupParam !== "string") return;
-
-    // drop the param right away so a refresh or back navigation
-    // doesn't replay the jump
-    router.replace({ query: { ...route.query, group: undefined } });
-
-    const group = groupList.find((g) => String(g.id) === groupParam);
-    if (!group) return;
-
-    // an active search could hide the row, so it resets
-    searchGroupText.value = "";
-    currentGroupId.value = group.id;
-    if (isManageableGroup(group)) {
-      const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-      expanded.value = { ...currentlyExpanded, [groupParam]: true };
-    }
-
-    try {
-      const focused = await tryFocus(`[data-group-row="${group.id}"]`);
-      focused.scrollIntoView({ block: "center" });
-    } catch (error) {
-      console.warn(`Could not focus group ${groupParam}`, error);
-    }
-  },
-  { immediate: true }
-);
 </script>
 <style scoped>
 .group-row--current {

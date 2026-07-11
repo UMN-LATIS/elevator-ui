@@ -8,7 +8,7 @@
       <InputGroup
         v-model="form.label"
         label="Name"
-        placeholder="e.g. Library Staff"
+        placeholder="e.g. Spring Seminar"
         :error="wasTouched.label ? errors.label : null"
         required
         @blur="wasTouched.label = true" />
@@ -45,12 +45,18 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import Button from "@/components/Button/Button.vue";
 import { useQuery } from "@tanstack/vue-query";
+import { useInstanceStore } from "@/stores/instanceStore";
 import {
-  groupTypesQuery,
-  useCreateGroupMutation,
-  useUpdateGroupMutation,
-} from "./groupQueries";
-import { GroupTypeValues, PermissionsGroup, SelectOption } from "@/types";
+  drawerGroupTypesQuery,
+  useCreateDrawerGroupMutation,
+  useUpdateDrawerGroupMutation,
+} from "./drawerGroupQueries";
+import {
+  GroupTypeDetails,
+  GroupTypeValues,
+  PermissionsGroup,
+  SelectOption,
+} from "@/types";
 import { LoaderCircleIcon } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -63,9 +69,14 @@ const emit = defineEmits<{
   (e: "created", group: PermissionsGroup): void;
 }>();
 
-const { data: labelledGroupTypes } = useQuery(groupTypesQuery());
-const createMutation = useCreateGroupMutation();
-const updateMutation = useUpdateGroupMutation();
+const { data: labelledGroupTypes } = useQuery(drawerGroupTypesQuery());
+const createMutation = useCreateDrawerGroupMutation();
+const updateMutation = useUpdateDrawerGroupMutation();
+
+const instanceStore = useInstanceStore();
+const isInstanceAdmin = computed(
+  () => instanceStore.currentUser?.isAdmin ?? false
+);
 
 const isEditing = computed(() => Boolean(props.group));
 const isPending = computed(
@@ -80,8 +91,7 @@ type GroupForm = {
 const form = ref<GroupForm>({ label: "", type: "" });
 const wasTouched = reactive({ label: false, type: false });
 
-// fill the form each time the modal opens, prefilling from the group in edit
-// mode and starting blank in create mode
+// reset the form each time the modal opens
 watch(
   () => [props.isOpen, props.group] as const,
   ([isOpen]) => {
@@ -112,14 +122,21 @@ function isSubmittable(
 
 const canSubmit = computed((): boolean => isSubmittable(form.value));
 
+// adminOnly types are disabled for non-admins. The API rejects them
+// server-side regardless.
+function toTypeSelectOption(groupType: GroupTypeDetails): SelectOption {
+  return {
+    id: groupType.type,
+    label: groupType.adminOnly
+      ? `${groupType.label} (admin only)`
+      : groupType.label,
+    description: groupType.description,
+    disabled: groupType.adminOnly && !isInstanceAdmin.value,
+  };
+}
+
 const typeOptions = computed((): SelectOption[] =>
-  (labelledGroupTypes.value ?? []).map((groupType) => {
-    return {
-      id: groupType.type,
-      label: groupType.label,
-      description: groupType.description,
-    };
-  })
+  (labelledGroupTypes.value ?? []).map(toTypeSelectOption)
 );
 
 function handleClose() {
@@ -149,9 +166,8 @@ function handleSubmit() {
     createMutation.mutate(
       { type, label },
       {
-        // createMutation has no optimistic update, so wait for the list
-        // invalidation to settle before closing, otherwise tryFocus in
-        // the parent can't find the new group's row yet
+        // close only after the list refetch lands, otherwise tryFocus
+        // in the parent can't find the new group's row yet
         onSettled: (group) => {
           if (!group) return;
           emit("created", group);

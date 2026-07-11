@@ -56,6 +56,7 @@ import {
   type PermissionLevel,
   type InstanceGrant,
   type CollectionGrant,
+  type ManageableDrawer,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -647,7 +648,15 @@ export async function startDrawerDownload(drawerId: number) {
 }
 
 export async function logout() {
-  const res = await axios.post(`${BASE_URL}/loginManager/logout`);
+  // logout clears the session then answers with a 303 to an absolute,
+  // cross-origin URL the dev proxy can't follow, so the browser reports a
+  // network error even though we're logged out. Handle it in LogoutPage
+  // instead of surfacing the global connection-error modal.
+  const res = await axios.post(
+    `${BASE_URL}/loginManager/logout`,
+    undefined,
+    { skipErrorNotifications: true } as CustomAxiosRequestConfig
+  );
   return res.data;
 }
 
@@ -1311,9 +1320,6 @@ export async function createGroup(
   const params = new URLSearchParams();
   params.append("label", payload.label);
   params.append("type", payload.type);
-  for (const value of payload.values) {
-    params.append("values[]", value);
-  }
 
   const res = await axios.post<{ group: PermissionsGroup }>(
     `${BASE_URL}/adminPermissions/groups`,
@@ -1323,6 +1329,7 @@ export async function createGroup(
   return res.data.group;
 }
 
+// Changing the type clears the group's existing members server-side.
 export async function updateGroup(
   groupId: number,
   payload: UpdateGroupPayload
@@ -1442,4 +1449,63 @@ export async function removeGroupEntry(
   await axios.delete(
     `${BASE_URL}/adminPermissions/groups/${groupId}/entries/${entryId}`
   );
+}
+export async function fetchDrawerGroupTypes(): Promise<GroupTypeDetails[]> {
+  const res = await axios.get<{ groupTypes: GroupTypeDetails[] }>(
+    `${BASE_URL}/drawerPermissions/groupTypes`
+  );
+
+  return res.data.groupTypes;
+}
+
+export async function fetchManageableDrawers(): Promise<ManageableDrawer[]> {
+  const res = await axios.get<{ drawers: ManageableDrawer[] }>(
+    `${BASE_URL}/drawerPermissions/drawers`
+  );
+
+  return res.data.drawers;
+}
+
+export async function fetchDrawerGroups(): Promise<PermissionsGroup[]> {
+  const res = await axios.get<{ groups: PermissionsGroup[] }>(
+    `${BASE_URL}/drawerPermissions/groups`
+  );
+
+  return res.data.groups;
+}
+
+export async function createDrawerGroup(
+  payload: CreateGroupPayload
+): Promise<PermissionsGroup> {
+  const params = new URLSearchParams();
+  params.append("label", payload.label);
+  params.append("type", payload.type);
+
+  const res = await axios.post<{ group: PermissionsGroup }>(
+    `${BASE_URL}/drawerPermissions/groups`,
+    params
+  );
+
+  return res.data.group;
+}
+
+// Changing the type clears the group's existing members server-side.
+export async function updateDrawerGroup(
+  groupId: number,
+  payload: UpdateGroupPayload
+): Promise<PermissionsGroup> {
+  const params = new URLSearchParams();
+  params.append("label", payload.label);
+  params.append("type", payload.type);
+
+  const res = await axios.put<{ group: PermissionsGroup }>(
+    `${BASE_URL}/drawerPermissions/groups/${groupId}`,
+    params
+  );
+
+  return res.data.group;
+}
+
+export async function deleteDrawerGroup(groupId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/drawerPermissions/groups/${groupId}`);
 }

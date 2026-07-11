@@ -11,7 +11,13 @@ const drawerStore = useDrawerStore();
 const router = useRouter();
 
 onMounted(async () => {
-  await api.logout();
+  try {
+    await api.logout();
+  } catch {
+    // logout clears the session server-side before issuing a
+    // cross-origin 303 the dev proxy can't follow, so a network
+    // error here still means we're logged out
+  }
 
   // do a full reload to clear any cached state
   api.clearCache();

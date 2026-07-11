@@ -1,12 +1,13 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
+import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
 import type { CollectionGrant, InstanceGrant } from "@/types";
 
 // A "rule" in the UI is a "grant" in the backend: instance or collection scope.
 export const makeQueryKeyFor = {
-  instanceGrantsList: () => ["instanceGrants", "list"] as const,
-  collectionGrantsList: () => ["collectionGrants", "list"] as const,
+  instanceGrantsList: makeQueryKeysFor("instanceGrants").list,
+  collectionGrantsList: makeQueryKeysFor("collectionGrants").list,
   permissionLevels: () => ["permissionLevels"] as const,
 };
 

@@ -62,6 +62,8 @@ const defaultConfig: AppConfig = {
   features: {
     adminPermissions:
       import.meta.env.VITE_FEATURE_ADMIN_PERMISSIONS?.toLowerCase() === "true",
+    drawerManagement:
+      import.meta.env.VITE_FEATURE_DRAWER_MANAGEMENT?.toLowerCase() === "true",
   },
 };
 

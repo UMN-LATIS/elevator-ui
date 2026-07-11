@@ -21,6 +21,15 @@
           Drawers
         </AppMenuItem>
 
+        <AppMenuItem
+          v-if="
+            config.features.drawerManagement && currentUser?.canManageDrawers
+          "
+          to="/drawers/manage"
+          class="app-menu__manage-drawers">
+          Manage Drawers
+        </AppMenuItem>
+
         <EditNavSection
           v-if="currentUser?.canManageAssets"
           :currentUser="currentUser"
@@ -42,6 +51,7 @@
 import { watch } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
+import config from "@/config";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { useAssetStore } from "@/stores/assetStore";
 import AppMenuPure from "./AppMenuPure.vue";

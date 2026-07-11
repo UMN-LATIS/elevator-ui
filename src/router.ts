@@ -87,6 +87,22 @@ const createAdminPermissionsRoutes = (): RouteRecordRaw[] => {
   ];
 };
 
+const createDrawerManagementRoutes = (): RouteRecordRaw[] => {
+  if (!config.features.drawerManagement) return [];
+  return [
+    {
+      name: "drawerManagement",
+      path: "/drawers/manage",
+      component: () =>
+        import("@/pages/DrawerManagementPage/DrawerManagementPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.canManageDrawers,
+      },
+    },
+  ];
+};
+
 const router = createRouter({
   history: createWebHistory(config.instance.base.path),
   scrollBehavior(to, from, savedPosition) {
@@ -354,6 +370,7 @@ const router = createRouter({
       props: { templateId: null },
     },
     ...createAdminPermissionsRoutes(),
+    ...createDrawerManagementRoutes(),
     {
       name: "mapClusterTest",
       path: "/tests/map",

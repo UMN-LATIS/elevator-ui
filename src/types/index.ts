@@ -58,6 +58,7 @@ export interface AppConfig {
   isUsingMockServer?: boolean;
   features: {
     adminPermissions: boolean;
+    drawerManagement: boolean;
   };
 }
 
