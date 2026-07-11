@@ -68,23 +68,51 @@
             </TableRow>
           </template>
           <template v-else>
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-              :aria-current="
-                isCurrentGroup(row.original.group.id) ? 'true' : undefined
-              "
-              :class="{
-                'group-row--current': isCurrentGroup(row.original.group.id),
-                'opacity-50 pointer-events-none':
-                  row.original.group.id === deletingGroupId,
-              }">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()" />
-              </TableCell>
-            </TableRow>
+            <template v-for="row in table.getRowModel().rows" :key="row.id">
+              <TableRow
+                :data-group-row="row.original.group.id"
+                tabindex="-1"
+                :aria-current="
+                  isCurrentGroup(row.original.group.id) ? 'true' : undefined
+                "
+                :class="{
+                  'border-b-transparent': row.getIsExpanded(),
+                  'group-row--current': isCurrentGroup(row.original.group.id),
+                  'opacity-50 pointer-events-none':
+                    row.original.group.id === deletingGroupId,
+                }">
+                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                  <FlexRender
+                    :render="cell.column.columnDef.cell"
+                    :props="cell.getContext()" />
+                </TableCell>
+              </TableRow>
+              <TableRow
+                v-if="row.getIsExpanded()"
+                :class="{
+                  'group-row--current': isCurrentGroup(row.original.group.id),
+                }">
+                <TableCell
+                  :colspan="row.getVisibleCells().length"
+                  class="px-4 pb-4 pl-12">
+                  <p
+                    v-if="row.original.description"
+                    class="mb-4 text-sm text-on-surface-variant">
+                    {{ row.original.description }}
+                  </p>
+                  <GroupMemberManager
+                    v-if="row.original.group.type === GROUP_TYPES.USER"
+                    :group="row.original.group"
+                    :isOpen="row.getIsExpanded()"
+                    class="bg-surface-container" />
+                  <GroupEntriesManager
+                    v-else-if="isAuthHelperGroupType(row.original.group)"
+                    :group="row.original.group"
+                    :isOpen="row.getIsExpanded()"
+                    class="bg-surface-container" />
+                </TableCell>
+              </TableRow>
+            </template>
             <TableRow v-if="!table.getRowModel().rows.length">
               <TableCell
                 :colspan="groupColumns.length"
@@ -125,7 +153,11 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
+import type {
+  ColumnDef,
+  ExpandedState,
+  SortingState,
+} from "@tanstack/vue-table";
 import {
   FlexRender,
   functionalUpdate,
@@ -148,12 +180,14 @@ import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import GroupFormModal from "./GroupFormModal.vue";
+import GroupMemberManager from "./GroupMemberManager.vue";
+import GroupEntriesManager from "./GroupEntriesManager.vue";
 import {
   drawerGroupsQuery,
   drawerGroupTypesQuery,
   useDeleteDrawerGroupMutation,
 } from "./drawerGroupQueries";
-import { GROUP_TYPES } from "@/types";
+import { GROUP_TYPES, isAuthHelperGroupType, isManageableGroup } from "@/types";
 import type {
   GroupTypeValues,
   GroupTypeDetails,
@@ -198,6 +232,7 @@ const groupRows = computed((): DrawerGroupRow[] =>
       typeLabel: group.is_personal
         ? "Personal"
         : typeDetails?.label ?? group.type,
+      description: typeDetails?.description ?? "",
       entriesCount: group.entries_count,
       isGlobal: GLOBAL_GROUP_TYPES.includes(group.type),
       isPersonal: group.is_personal ?? false,
@@ -254,13 +289,22 @@ const groupColumns = createDrawerGroupColumns(openEdit, handleDelete);
 
 const searchGroupText = ref("");
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);
+// ids of the currently expanded rows, so each group fetches its members
+// or entries only when its detail panel is open
+const expanded = ref<ExpandedState>({});
 
-// the group the user just created. Sorting or filtering means the user
-// has moved on, so the table's change handlers clear it.
+// the group the user just created. Sorting, filtering, or expanding means
+// the user has moved on, so the table's change handlers clear it.
 const currentGroupId = ref<number | null>(null);
 
 function isCurrentGroup(groupId: number): boolean {
   return groupId === currentGroupId.value;
+}
+
+// The personal group backs the owner's access to their own drawers, so
+// the API refuses to touch it and the row offers nothing to manage.
+function canExpandGroup(row: DrawerGroupRow): boolean {
+  return !row.isPersonal && isManageableGroup(row.group);
 }
 
 const table = useVueTable({
@@ -269,6 +313,7 @@ const table = useVueTable({
   },
   columns: groupColumns as ColumnDef<DrawerGroupRow, unknown>[],
   getRowId: (row) => String(row.group.id),
+  getRowCanExpand: (row) => canExpandGroup(row.original),
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -276,6 +321,10 @@ const table = useVueTable({
   onSortingChange: (updater) => {
     currentGroupId.value = null;
     sorting.value = functionalUpdate(updater, sorting.value);
+  },
+  onExpandedChange: (updater) => {
+    currentGroupId.value = null;
+    expanded.value = functionalUpdate(updater, expanded.value);
   },
   onGlobalFilterChange: (updater) => {
     currentGroupId.value = null;
@@ -285,21 +334,50 @@ const table = useVueTable({
     get sorting() {
       return sorting.value;
     },
+    get expanded() {
+      return expanded.value;
+    },
     get globalFilter() {
       return searchGroupText.value;
     },
   },
 });
 
-// Reveal a freshly created group and focus its edit button.
+// A User group's add-member row, an auth-helper group's add-entry row,
+// or the edit button for global groups, which have no detail panel.
+function focusSelectorForNewGroup(group: PermissionsGroup): string {
+  if (group.type === GROUP_TYPES.USER) {
+    return `[data-group-add-member="${group.id}"]`;
+  }
+  if (isAuthHelperGroupType(group)) {
+    return `[data-group-entry-add-button="${group.id}"]`;
+  }
+  return `[data-group-edit="${group.id}"]`;
+}
+
+// Reveal a freshly created group and put focus where the user works next.
 async function handleCreated(group: PermissionsGroup) {
   // an active search could hide the new row, so clear the search
   searchGroupText.value = "";
   currentGroupId.value = group.id;
 
+  if (isManageableGroup(group)) {
+    const groupId = String(group.id);
+    const currentlyExpanded = expanded.value === true ? {} : expanded.value;
+    expanded.value = { ...currentlyExpanded, [groupId]: true };
+  }
+
+  // The row, its detail panel, and the button mount across several
+  // frames, so tryFocus retries until focus lands rather than
+  // guessing a single tick.
   try {
-    const focused = await tryFocus(`[data-group-edit="${group.id}"]`);
+    const focused = await tryFocus(focusSelectorForNewGroup(group));
     focused.scrollIntoView({ block: "nearest" });
+    if (isManageableGroup(group)) {
+      // clicking the add row opens its form, which then moves focus
+      // into the input field
+      focused.click();
+    }
   } catch (error) {
     console.warn(`Could not focus new ${group.type} group`, error);
   }
