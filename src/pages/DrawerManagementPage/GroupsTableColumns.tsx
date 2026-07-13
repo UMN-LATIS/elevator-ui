@@ -88,10 +88,6 @@ export const createDrawerGroupColumns = (
     enableSorting: false,
     meta: { widthClass: "w-20" },
     cell: ({ row }: { row: { original: DrawerGroupRow } }) => {
-      // The personal group is read-only
-      if (row.original.isPersonal) {
-        return null;
-      }
       return (
         <div class="flex justify-end">
           <IconButton

@@ -307,7 +307,7 @@ function isCurrentGroup(groupId: number): boolean {
 // The personal group backs the owner's access to their own drawers, so
 // the API refuses to touch it and the row offers nothing to manage.
 function canExpandGroup(row: DrawerGroupRow): boolean {
-  return !row.isPersonal && isManageableGroup(row.group);
+  return isManageableGroup(row.group);
 }
 
 const table = useVueTable({
