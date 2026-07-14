@@ -61,8 +61,8 @@
         <Button
           title="Save"
           type="submit"
-          variant="secondary"
-          class="py-2 border border-secondary-container"
+          variant="primary"
+          class="py-2"
           :data-group-add-member-save="group.id"
           aria-label="Save new member">
           <CheckIcon class="size-4" />

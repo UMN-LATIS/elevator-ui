@@ -61,7 +61,7 @@
         <Button
           title="Save"
           type="submit"
-          variant="secondary"
+          variant="primary"
           class="py-2 border border-secondary-container"
           :data-group-add-member-save="group.id"
           aria-label="Save new member">
