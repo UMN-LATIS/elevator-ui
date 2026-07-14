@@ -304,19 +304,13 @@ function isCurrentGroup(groupId: number): boolean {
   return groupId === currentGroupId.value;
 }
 
-// The personal group backs the owner's access to their own drawers, so
-// the API refuses to touch it and the row offers nothing to manage.
-function canExpandGroup(row: DrawerGroupRow): boolean {
-  return isManageableGroup(row.group);
-}
-
 const table = useVueTable({
   get data() {
     return groupRows.value;
   },
   columns: groupColumns as ColumnDef<DrawerGroupRow, unknown>[],
   getRowId: (row) => String(row.group.id),
-  getRowCanExpand: (row) => canExpandGroup(row.original),
+  getRowCanExpand: (row) => isManageableGroup(row.original.group),
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
