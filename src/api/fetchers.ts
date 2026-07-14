@@ -652,11 +652,9 @@ export async function logout() {
   // cross-origin URL the dev proxy can't follow, so the browser reports a
   // network error even though we're logged out. Handle it in LogoutPage
   // instead of surfacing the global connection-error modal.
-  const res = await axios.post(
-    `${BASE_URL}/loginManager/logout`,
-    undefined,
-    { skipErrorNotifications: true } as CustomAxiosRequestConfig
-  );
+  const res = await axios.post(`${BASE_URL}/loginManager/logout`, undefined, {
+    skipErrorNotifications: true,
+  } as CustomAxiosRequestConfig);
   return res.data;
 }
 
