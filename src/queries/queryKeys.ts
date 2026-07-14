@@ -12,3 +12,4 @@ export const FIELD_TYPES_QUERY_KEY = "fieldTypes";
 export const FILE_DOWNLOADS_QUERY_KEY = "fileDownloads";
 export const ORIGINAL_STORAGE_STATUS_QUERY_KEY = "originalStorageStatus";
 export const USER_AUTOCOMPLETE_QUERY_KEY = "userAutocomplete";
+export const DRAWER_USER_AUTOCOMPLETE_QUERY_KEY = "drawerUserAutocomplete";

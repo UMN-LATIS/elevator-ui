@@ -8,9 +8,6 @@
       <Tabs
         v-model:activeTabId="activeTabId"
         labelsClass="border-b border-outline-variant">
-        <Tab id="drawers" label="Drawers">
-          <DrawersTabContent />
-        </Tab>
         <Tab id="rules" label="Rules">
           <RulesTabContent />
         </Tab>
@@ -30,11 +27,10 @@ import Tabs from "@/components/Tabs/Tabs.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import DrawersTabContent from "./DrawersTabContent.vue";
 import RulesTabContent from "./RulesTabContent.vue";
 import GroupsTabContent from "./GroupsTabContent.vue";
 
-const VALID_TABS = ["drawers", "rules", "groups"] as const;
+const VALID_TABS = ["rules", "groups"] as const;
 type ValidTab = (typeof VALID_TABS)[number];
 
 const route = useRoute();

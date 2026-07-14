@@ -34,9 +34,12 @@
                 v-for="header in headerGroup.headers"
                 :key="header.id"
                 class="bg-surface-container-low"
-                :class="{
-                  'cursor-pointer select-none': header.column.getCanSort(),
-                }"
+                :class="[
+                  header.column.columnDef.meta?.widthClass,
+                  {
+                    'cursor-pointer select-none': header.column.getCanSort(),
+                  },
+                ]"
                 @click="header.column.getToggleSortingHandler()?.($event)">
                 <div class="flex items-center gap-2">
                   <FlexRender
