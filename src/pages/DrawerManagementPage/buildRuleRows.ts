@@ -1,15 +1,22 @@
-import type {
-  DrawerGrant,
-  DrawerGrantGroup,
-  ManageableDrawer,
-  PermissionLevel,
-} from "@/types";
+import type { DrawerGrant, ManageableDrawer, PermissionLevel } from "@/types";
+import { toDrawerTitle } from "./toDrawerTitle";
 
+// One row of the Rules table: a drawer group's permission level on one
+// drawer the caller manages. Grants come from a single resource, so the
+// grant id alone identifies a row.
 export interface DrawerRuleRow {
   id: number;
-  drawer: ManageableDrawer;
-  group: DrawerGrantGroup;
-  permission: PermissionLevel;
+  drawerId: number;
+  drawerTitle: string;
+  groupId: number;
+  groupLabel: string;
+  // Managing a drawer carries the right to edit and revoke grants on it,
+  // including grants for groups owned by someone else.
+  isOwnGroup: boolean;
+  ownerName: string | null;
+  permissionLevelId: number;
+  permissionLevelNumber: number;
+  permissionLabel: string;
 }
 
 interface BuildRuleRowsInput {
@@ -40,14 +47,20 @@ export function buildRuleRows({
     if (!grant.group) continue;
 
     const drawer = drawerById.get(grant.drawerId);
-    const permission = levelById.get(grant.permissionLevelId);
-    if (!drawer || !permission) continue;
+    const level = levelById.get(grant.permissionLevelId);
+    if (!drawer || !level) continue;
 
     rows.push({
       id: grant.id,
-      drawer,
-      group: grant.group,
-      permission,
+      drawerId: drawer.id,
+      drawerTitle: toDrawerTitle(drawer),
+      groupId: grant.group.id,
+      groupLabel: grant.group.label || grant.group.type,
+      isOwnGroup: grant.group.ownedByCurrentUser,
+      ownerName: grant.group.ownerName,
+      permissionLevelId: level.id,
+      permissionLevelNumber: level.level,
+      permissionLabel: level.label,
     });
   }
 

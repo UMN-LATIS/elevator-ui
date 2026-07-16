@@ -1,58 +1,186 @@
-import type { ColumnDef } from "@tanstack/vue-table";
+import type { Ref } from "vue";
 import { createColumnHelper } from "@tanstack/vue-table";
-import { PencilIcon, TrashIcon } from "lucide-vue-next";
+import {
+  CheckIcon,
+  LoaderCircleIcon,
+  LockIcon,
+  PencilIcon,
+  TrashIcon,
+  XIcon,
+} from "lucide-vue-next";
+import Chip from "@/components/Chip/Chip.vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
+import Link from "@/components/Link/Link.vue";
+import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
+import { permissionDotClass } from "@/components/PermissionSelect/permissionDotClass";
+import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
 import { ColHeader } from "../AdminPermissionsPage/ColHeader";
 import type { DrawerRuleRow } from "./buildRuleRows";
-import { toDrawerTitle } from "./toDrawerTitle";
 
 const columnHelper = createColumnHelper<DrawerRuleRow>();
 
-export const createRuleColumns = (
-  onEdit: (rule: DrawerRuleRow) => void,
-  onDelete: (rule: DrawerRuleRow) => void
-): ColumnDef<DrawerRuleRow, string>[] => [
-  columnHelper.accessor((row) => toDrawerTitle(row.drawer), {
+// The Edit action swaps a row's permission cell for an inline select
+// instead of opening a modal. Only one row edits at a time, so a single
+// draft level and editing id drive every cell.
+export interface RuleColumnsDeps {
+  editingRuleId: Ref<number | null>;
+  draftLevelId: Ref<number | null>;
+  // the row whose save is in flight, and the level label it submitted, so
+  // the permission cell shows the new value with a spinner instead of
+  // snapping back to the old one while the refetch runs
+  savingRuleId: Ref<number | null>;
+  savingLevelLabel: Ref<string>;
+  permissionOptions: Ref<PermissionSelectOption[]>;
+  onEdit: (rule: DrawerRuleRow) => void;
+  onCancel: () => void;
+  onSave: (rule: DrawerRuleRow) => void;
+  onDelete: (rule: DrawerRuleRow) => void;
+}
+
+export const createRuleColumns = (deps: RuleColumnsDeps) => [
+  columnHelper.accessor("drawerTitle", {
     id: "drawer",
     header: () => <ColHeader text="Drawer" />,
-    meta: { widthClass: "w-[40%]" },
+    meta: { widthClass: "w-[30%]" },
     cell: (ctx) => (
-      <div class="text-sm font-medium text-on-surface">{ctx.getValue()}</div>
+      <Link
+        to={`/drawers/viewDrawer/${ctx.row.original.drawerId}`}
+        class="text-sm font-medium">
+        {ctx.getValue()}
+      </Link>
     ),
   }),
-  columnHelper.accessor((row) => row.group.label || row.group.type, {
+  columnHelper.accessor("groupLabel", {
     id: "group",
     header: () => <ColHeader text="Group" />,
-    meta: { widthClass: "w-[30%]" },
-    cell: (ctx) => <div class="text-sm text-on-surface">{ctx.getValue()}</div>,
+    meta: { widthClass: "w-[25%]" },
+    cell: (ctx) => {
+      const rule = ctx.row.original;
+
+      // The Groups tab lists only the caller's own groups, so linking
+      // someone else's would land on a row that is not there. Their
+      // grant is still editable, it just has no group page to visit.
+      if (!rule.isOwnGroup) {
+        return (
+          <div>
+            <div class="flex items-center gap-1.5">
+              <LockIcon
+                aria-hidden="true"
+                class="size-3 shrink-0 text-on-surface-variant"
+              />
+              <span class="truncate text-sm text-on-surface">
+                {ctx.getValue()}
+              </span>
+            </div>
+            {rule.ownerName ? (
+              <div class="truncate pl-[1.125rem] text-xs text-on-surface-variant">
+                Owned by {rule.ownerName}
+              </div>
+            ) : null}
+          </div>
+        );
+      }
+
+      // The Groups tab consumes ?group=<id> and reveals that group's row.
+      return (
+        <Link
+          to={{ query: { tab: "groups", group: String(rule.groupId) } }}
+          class="text-sm">
+          {ctx.getValue()}
+        </Link>
+      );
+    },
   }),
-  columnHelper.accessor((row) => row.permission.label, {
+  columnHelper.accessor("permissionLabel", {
     id: "permission",
     header: () => <ColHeader text="Permission" />,
     meta: { widthClass: "w-[30%]" },
-    cell: (ctx) => <div class="text-sm text-on-surface">{ctx.getValue()}</div>,
+    cell: (ctx) => {
+      const rule = ctx.row.original;
+
+      if (deps.editingRuleId.value === rule.id) {
+        return (
+          <PermissionSelect
+            modelValue={deps.draftLevelId.value}
+            onUpdate:modelValue={(value: number) => {
+              deps.draftLevelId.value = value;
+            }}
+            options={deps.permissionOptions.value}
+            label="Permission"
+            showLabel={false}
+            placeholder="Select a permission…"
+          />
+        );
+      }
+
+      if (deps.savingRuleId.value === rule.id) {
+        return (
+          <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface-variant">
+            <LoaderCircleIcon class="size-3 shrink-0 animate-spin" />
+            <span class="truncate">{deps.savingLevelLabel.value}</span>
+          </Chip>
+        );
+      }
+
+      return (
+        <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface">
+          <i
+            class={[
+              "size-2 shrink-0 rounded-full",
+              permissionDotClass(rule.permissionLevelNumber),
+            ]}
+          />
+          <span class="truncate">{ctx.getValue()}</span>
+        </Chip>
+      );
+    },
   }),
   {
     id: "actions",
     header: () => null,
     enableSorting: false,
     meta: { widthClass: "w-20" },
-    cell: ({ row }: { row: { original: DrawerRuleRow } }) => (
-      <div class="flex justify-end">
-        <IconButton
-          onClick={() => onEdit(row.original)}
-          title="Edit Rule"
-          showTooltip={false}>
-          <PencilIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          onClick={() => onDelete(row.original)}
-          title="Delete Rule"
-          showTooltip={false}
-          class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
-          <TrashIcon class="size-4" />
-        </IconButton>
-      </div>
-    ),
+    cell: ({ row }: { row: { original: DrawerRuleRow } }) => {
+      const rule = row.original;
+
+      if (deps.editingRuleId.value === rule.id) {
+        return (
+          <div class="flex justify-end">
+            <IconButton
+              onClick={() => deps.onSave(rule)}
+              disabled={deps.draftLevelId.value === null}
+              title="Save"
+              showTooltip={false}
+              class="enabled:hover:bg-primary-container enabled:hover:text-on-primary-container">
+              <CheckIcon class="size-4" />
+            </IconButton>
+            <IconButton
+              onClick={() => deps.onCancel()}
+              title="Cancel"
+              showTooltip={false}>
+              <XIcon class="size-4" />
+            </IconButton>
+          </div>
+        );
+      }
+
+      return (
+        <div class="flex justify-end">
+          <IconButton
+            onClick={() => deps.onEdit(rule)}
+            title="Edit Rule"
+            showTooltip={false}>
+            <PencilIcon class="size-4" />
+          </IconButton>
+          <IconButton
+            onClick={() => deps.onDelete(rule)}
+            title="Delete Rule"
+            showTooltip={false}
+            class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
+            <TrashIcon class="size-4" />
+          </IconButton>
+        </div>
+      );
+    },
   },
 ];
