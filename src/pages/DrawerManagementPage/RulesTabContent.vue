@@ -23,6 +23,32 @@
       </div>
     </div>
 
+    <div class="mt-4 flex flex-wrap items-end gap-3">
+      <MultiSelect
+        v-model="drawerIds"
+        label="Drawer"
+        placeholder="All drawers"
+        class="w-52"
+        emptyText="No drawers in these rules"
+        :options="drawerFilterOptions" />
+      <MultiSelect
+        v-model="groupIds"
+        label="Group"
+        placeholder="All groups"
+        class="w-52"
+        emptyText="No groups in these rules"
+        :options="groupFilterOptions" />
+      <SegmentedControl
+        v-model="groupOwner"
+        label="Group owner"
+        labelClass="text-xs uppercase font-medium"
+        class="flex-col items-start gap-1"
+        :options="GROUP_OWNER_OPTIONS" />
+      <Button v-if="isFiltered" variant="tertiary" @click="clearFilters">
+        Clear filters
+      </Button>
+    </div>
+
     <div class="mt-4 border border-outline-variant rounded-md">
       <Table class="w-full table-fixed">
         <TableHeader>
@@ -142,6 +168,8 @@ import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import MultiSelect from "@/components/MultiSelect/MultiSelect.vue";
+import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { useInstanceStore } from "@/stores/instanceStore";
@@ -157,9 +185,19 @@ import {
   useUpdateDrawerGrantMutation,
 } from "./drawerGrantQueries";
 import { manageableDrawersQuery } from "./drawerGroupQueries";
+import { filterRuleRows, toFilterOptions } from "./ruleFilters";
+import type { GroupOwnerFilter } from "./ruleFilters";
+import { useRuleFilters } from "./useRuleFilters";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
+import type { SelectOption } from "@/types";
 
 const SKELETON_ROW_COUNT = 3;
+
+const GROUP_OWNER_OPTIONS: SelectOption<GroupOwnerFilter>[] = [
+  { id: "all", label: "All" },
+  { id: "mine", label: "Mine" },
+  { id: "others", label: "Others" },
+];
 
 // the modal only creates rules, editing is inline in the table
 const isRuleModalOpen = ref(false);
@@ -202,12 +240,42 @@ const ruleRows = computed(() =>
   })
 );
 
+const {
+  groupOwner,
+  drawerIds,
+  groupIds,
+  filters,
+  isFiltered,
+  clear: clearFilters,
+} = useRuleFilters();
+
+const visibleRules = computed((): DrawerRuleRow[] =>
+  filterRuleRows(ruleRows.value, filters.value)
+);
+
+// Only what the rules actually reach is worth offering: a drawer with no
+// rule filters the table down to nothing, and the drawer list can run to
+// every drawer in the instance for an admin.
+const drawerFilterOptions = computed((): SelectOption<number>[] =>
+  toFilterOptions(ruleRows.value, (rule) => ({
+    id: rule.drawerId,
+    label: rule.drawerTitle,
+  }))
+);
+
+const groupFilterOptions = computed((): SelectOption<number>[] =>
+  toFilterOptions(ruleRows.value, (rule) => ({
+    id: rule.groupId,
+    label: rule.groupLabel,
+  }))
+);
+
 const emptyMessage = computed((): string => {
   if (isError.value) return "Could not load rules.";
   // the table renders this only when no row is visible, so rules that
-  // exist are rules the search hid
-  const isSearchHidingEveryRule = ruleRows.value.length > 0;
-  if (isSearchHidingEveryRule) return "No rules match your filters.";
+  // exist are rules a filter hid
+  const isFilterHidingEveryRule = ruleRows.value.length > 0;
+  if (isFilterHidingEveryRule) return "No rules match your filters.";
   return "No rules yet.";
 });
 
@@ -319,7 +387,7 @@ const searchText = ref("");
 
 const table = useVueTable({
   get data() {
-    return ruleRows.value;
+    return visibleRules.value;
   },
   columns: ruleColumns as ColumnDef<DrawerRuleRow, unknown>[],
   getRowId: (row) => String(row.id),

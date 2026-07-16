@@ -86,10 +86,10 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
         );
       }
 
-      // The Groups tab consumes ?group=<id> and reveals that group's row.
+      // The Groups tab consumes ?revealGroup and opens that group's row.
       return (
         <Link
-          to={{ query: { tab: "groups", group: String(rule.groupId) } }}
+          to={{ query: { tab: "groups", revealGroup: String(rule.groupId) } }}
           class="text-sm">
           {ctx.getValue()}
         </Link>

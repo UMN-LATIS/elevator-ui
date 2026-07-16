@@ -152,7 +152,7 @@ const toastStore = useToastStore();
 
 // A group created mid-rule has no members or entries yet, and that setup
 // lives on the Groups tab. Offer the jump once the rule modal is out of
-// the way, via the ?group deep link the Groups tab already handles.
+// the way, via the ?revealGroup link the Groups tab already handles.
 function offerGroupSetupToast(): void {
   const group = createdGroup.value;
   createdGroup.value = null;
@@ -164,8 +164,9 @@ function offerGroupSetupToast(): void {
     message: `"${group.label}" has no ${noun} yet.`,
     // longer than the default so it outlives the rule-created toast
     duration: 8000,
-    url: router.resolve({ query: { tab: "groups", group: String(group.id) } })
-      .fullPath,
+    url: router.resolve({
+      query: { tab: "groups", revealGroup: String(group.id) },
+    }).fullPath,
     urlText: `Add ${noun}`,
   });
 }

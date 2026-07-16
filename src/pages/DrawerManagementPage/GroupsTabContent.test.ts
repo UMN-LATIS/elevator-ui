@@ -105,26 +105,31 @@ describe("GroupsTabContent deep link", () => {
 
   // Arriving from the Rules tab: its group list is already cached, so the
   // watch has its data during setup.
-  it("focuses the row named by ?group with the list already cached", async () => {
-    const { wrapper, router } = await mountGroupsTab("/?tab=groups&group=5", {
-      isCacheWarm: true,
-    });
+  it("focuses the row named by ?revealGroup with the list already cached", async () => {
+    const { wrapper, router } = await mountGroupsTab(
+      "/?tab=groups&revealGroup=5",
+      {
+        isCacheWarm: true,
+      }
+    );
 
     expect(document.activeElement?.getAttribute("data-group-row")).toBe("5");
-    expect(router.currentRoute.value.query.group).toBeUndefined();
+    expect(router.currentRoute.value.query.revealGroup).toBeUndefined();
     expect(router.currentRoute.value.query.tab).toBe("groups");
 
     wrapper.unmount();
   });
 
-  it("focuses the row named by ?group", async () => {
-    const { wrapper, router } = await mountGroupsTab("/?tab=groups&group=5");
+  it("focuses the row named by ?revealGroup", async () => {
+    const { wrapper, router } = await mountGroupsTab(
+      "/?tab=groups&revealGroup=5"
+    );
 
     const focusedRow = document.activeElement;
     expect(focusedRow?.getAttribute("data-group-row")).toBe("5");
 
     // the param is spent, so a refresh does not replay the jump
-    expect(router.currentRoute.value.query.group).toBeUndefined();
+    expect(router.currentRoute.value.query.revealGroup).toBeUndefined();
     // and the tab it arrived on survives the cleanup
     expect(router.currentRoute.value.query.tab).toBe("groups");
 
@@ -132,7 +137,7 @@ describe("GroupsTabContent deep link", () => {
   });
 
   it("expands the linked group so its members are in reach", async () => {
-    const { wrapper } = await mountGroupsTab("/?tab=groups&group=5");
+    const { wrapper } = await mountGroupsTab("/?tab=groups&revealGroup=5");
 
     const linkedRow = document.querySelector('[data-group-row="5"]');
     expect(linkedRow?.getAttribute("aria-current")).toBe("true");
@@ -187,13 +192,13 @@ describe("GroupsTabContent deep link", () => {
     });
     await flushPromises();
 
-    await router.push("/?tab=groups&group=5");
+    await router.push("/?tab=groups&revealGroup=5");
     await flushPromises();
     await new Promise((resolve) => setTimeout(resolve, 50));
     await flushPromises();
 
     expect(document.activeElement?.getAttribute("data-group-row")).toBe("5");
-    expect(router.currentRoute.value.query.group).toBeUndefined();
+    expect(router.currentRoute.value.query.revealGroup).toBeUndefined();
     expect(router.currentRoute.value.query.tab).toBe("groups");
 
     wrapper.unmount();

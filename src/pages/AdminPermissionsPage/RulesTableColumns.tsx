@@ -81,11 +81,14 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
     id: "group",
     header: () => <ColHeader text="Group" />,
     meta: { widthClass: "w-[20%]" },
-    // The Groups tab consumes ?group=<id> and reveals that group's row.
+    // The Groups tab consumes ?revealGroup and opens that group's row.
     cell: (ctx) => (
       <RouterLink
         to={{
-          query: { tab: "groups", group: String(ctx.row.original.groupId) },
+          query: {
+            tab: "groups",
+            revealGroup: String(ctx.row.original.groupId),
+          },
         }}
         class="text-sm text-primary underline-offset-2 hover:underline">
         {ctx.getValue()}
