@@ -154,11 +154,8 @@ export interface CreateDrawerGrantPayload {
   permissionLevelId: number;
 }
 
-// PUT /drawerPermissions/grants/{id}. A grant stays on the drawer it was
-// created for.
+// PUT /drawerPermissions/grants/{id}. A grant stays on the drawer and the
+// group it was created for, so its level is all that changes.
 export interface UpdateDrawerGrantPayload {
   permissionLevelId: number;
-  // omit to leave the grant on the group it already names, which is the
-  // only way to re-level a grant on a group the caller does not own
-  drawerGroupId?: number;
 }
