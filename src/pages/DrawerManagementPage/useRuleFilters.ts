@@ -2,6 +2,7 @@ import { computed } from "vue";
 import type { ComputedRef, WritableComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
+  DEFAULT_GROUP_OWNER,
   parseIdList,
   toGroupOwnerFilter,
   toIdParam,
@@ -40,8 +41,9 @@ export function useRuleFilters(): RuleFilterControls {
 
   const groupOwner = computed<GroupOwnerFilter>({
     get: () => toGroupOwnerFilter(route.query.owner),
-    // "all" is the default, so it stays out of the URL
-    set: (value) => setQuery({ owner: value === "all" ? undefined : value }),
+    // the default stays out of the URL, as ?tab does
+    set: (value) =>
+      setQuery({ owner: value === DEFAULT_GROUP_OWNER ? undefined : value }),
   });
 
   const drawerIds = computed<number[]>({
@@ -62,7 +64,7 @@ export function useRuleFilters(): RuleFilterControls {
 
   const isFiltered = computed(
     (): boolean =>
-      groupOwner.value !== "all" ||
+      groupOwner.value !== DEFAULT_GROUP_OWNER ||
       drawerIds.value.length > 0 ||
       groupIds.value.length > 0
   );

@@ -8,69 +8,79 @@
       ]">
       {{ label }}
     </label>
-    <SelectRoot
+    <ComboboxRoot
       multiple
+      ignoreFilter
       :modelValue="modelValue"
-      @update:modelValue="handleSelect">
-      <SelectTrigger
-        :aria-labelledby="labelId"
-        class="flex items-center gap-2 w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2 text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-        <span
-          class="flex-1 truncate"
-          :class="
-            modelValue.length ? 'text-on-surface' : 'text-on-surface-variant'
-          ">
-          {{ triggerText }}
-        </span>
-        <SelectIcon class="shrink-0 text-on-surface-variant">
-          <ChevronsUpDownIcon class="w-4 h-4" />
-        </SelectIcon>
-      </SelectTrigger>
+      :open="isOpen"
+      @update:modelValue="handleSelect"
+      @update:open="handleOpen">
+      <ComboboxAnchor>
+        <ComboboxTrigger
+          :aria-labelledby="labelId"
+          class="flex items-center gap-2 w-full rounded-md border border-outline-variant bg-surface-container px-3 py-2 text-sm text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <span
+            class="flex-1 truncate"
+            :class="
+              modelValue.length ? 'text-on-surface' : 'text-on-surface-variant'
+            ">
+            {{ triggerText }}
+          </span>
+          <ChevronsUpDownIcon
+            class="w-4 h-4 shrink-0 text-on-surface-variant" />
+        </ComboboxTrigger>
+      </ComboboxAnchor>
 
-      <SelectPortal>
-        <SelectContent
+      <ComboboxPortal>
+        <ComboboxContent
           position="popper"
           :sideOffset="4"
-          class="z-[100] min-w-[var(--reka-select-trigger-width)] max-w-[calc(100vw_-_2rem)] max-h-[var(--reka-select-content-available-height)] overflow-y-auto rounded-md bg-surface-container py-1 shadow-lg ring-1 ring-outline-variant">
-          <SelectViewport>
-            <SelectItem
-              v-for="opt in options"
+          class="z-[100] min-w-[var(--reka-popper-anchor-width)] max-w-[calc(100vw_-_2rem)] rounded-md bg-surface-container shadow-lg ring-1 ring-outline-variant">
+          <div class="border-b border-outline-variant p-1">
+            <ComboboxInput
+              v-model="searchTerm"
+              :placeholder="searchPlaceholder"
+              class="w-full rounded-sm bg-transparent px-2 py-1 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none" />
+          </div>
+
+          <ComboboxViewport class="max-h-60 overflow-y-auto py-1">
+            <ComboboxItem
+              v-for="opt in matchingOptions"
               :key="opt.id"
               :value="opt.id"
               class="flex items-center gap-2 px-3 py-2 text-sm cursor-default select-none text-on-surface-variant data-[highlighted]:bg-surface-container-high data-[highlighted]:text-on-surface data-[state=checked]:font-medium data-[state=checked]:text-on-surface focus:outline-none">
               <span class="size-4 shrink-0">
-                <SelectItemIndicator>
+                <ComboboxItemIndicator>
                   <CheckIcon class="w-4 h-4 text-primary" />
-                </SelectItemIndicator>
+                </ComboboxItemIndicator>
               </span>
-              <SelectItemText class="flex-1 truncate">
-                {{ opt.label }}
-              </SelectItemText>
-            </SelectItem>
+              <span class="flex-1 truncate">{{ opt.label }}</span>
+            </ComboboxItem>
+
             <p
-              v-if="!options.length"
+              v-if="!matchingOptions.length"
               class="px-3 py-2 text-sm text-on-surface-variant">
-              {{ emptyText }}
+              {{ options.length ? "No matches" : emptyText }}
             </p>
-          </SelectViewport>
-        </SelectContent>
-      </SelectPortal>
-    </SelectRoot>
+          </ComboboxViewport>
+        </ComboboxContent>
+      </ComboboxPortal>
+    </ComboboxRoot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, useId } from "vue";
+import { computed, ref, useId } from "vue";
 import {
-  SelectRoot,
-  SelectTrigger,
-  SelectIcon,
-  SelectPortal,
-  SelectContent,
-  SelectViewport,
-  SelectItem,
-  SelectItemText,
-  SelectItemIndicator,
+  ComboboxRoot,
+  ComboboxAnchor,
+  ComboboxTrigger,
+  ComboboxInput,
+  ComboboxPortal,
+  ComboboxContent,
+  ComboboxViewport,
+  ComboboxItem,
+  ComboboxItemIndicator,
   type AcceptableValue,
 } from "reka-ui";
 import { ChevronsUpDownIcon, CheckIcon } from "lucide-vue-next";
@@ -83,16 +93,34 @@ const props = withDefaults(
     label: string;
     placeholder?: string;
     // hide the label visually, kept for screen readers, when the control
-    // sits in a row of filters that names itself
+    // sits under a heading that already names it
     showLabel?: boolean;
+    searchPlaceholder?: string;
     emptyText?: string;
   }>(),
-  { showLabel: true, placeholder: "", emptyText: "Nothing to filter by" }
+  {
+    showLabel: true,
+    placeholder: "",
+    searchPlaceholder: "Search…",
+    emptyText: "Nothing to filter by",
+  }
 );
 
 const emit = defineEmits<{ "update:modelValue": [value: number[]] }>();
 
 const labelId = useId();
+const isOpen = ref(false);
+const searchTerm = ref("");
+
+// Each option carries a numeric id, so reka's own filter would match on
+// the id rather than the label. `ignoreFilter` hands the job here.
+const matchingOptions = computed((): SelectOption<number>[] => {
+  const term = searchTerm.value.trim().toLowerCase();
+  if (!term) return props.options;
+  return props.options.filter((option) =>
+    option.label.toLowerCase().includes(term)
+  );
+});
 
 // One pick reads better as itself than as a count.
 const triggerText = computed((): string => {
@@ -101,13 +129,19 @@ const triggerText = computed((): string => {
     const onlyPick = props.options.find(
       (option) => option.id === props.modelValue[0]
     );
-    return onlyPick?.label ?? `1 selected`;
+    return onlyPick?.label ?? "1 selected";
   }
   return `${props.modelValue.length} selected`;
 });
 
-// reka-ui yields untyped AcceptableValues, and every SelectItem here
-// carries a numeric id, so narrow before emitting.
+function handleOpen(open: boolean): void {
+  isOpen.value = open;
+  // a stale term would hide most of the list on the next open
+  if (!open) searchTerm.value = "";
+}
+
+// reka-ui yields untyped AcceptableValues, and every item here carries a
+// numeric id, so narrow before emitting.
 function handleSelect(value: AcceptableValue | AcceptableValue[]): void {
   const picks = Array.isArray(value) ? value : [value];
   emit(

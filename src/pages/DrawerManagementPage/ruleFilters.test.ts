@@ -34,14 +34,14 @@ const noFilters: RuleFilters = {
 
 describe("toGroupOwnerFilter", () => {
   it("reads the filters it knows", () => {
-    expect(toGroupOwnerFilter("mine")).toBe("mine");
     expect(toGroupOwnerFilter("others")).toBe("others");
+    expect(toGroupOwnerFilter("all")).toBe("all");
   });
 
-  it("falls back to all for anything else", () => {
-    expect(toGroupOwnerFilter(undefined)).toBe("all");
-    expect(toGroupOwnerFilter("nonsense")).toBe("all");
-    expect(toGroupOwnerFilter(["mine"])).toBe("all");
+  it("falls back to the caller's own groups for anything else", () => {
+    expect(toGroupOwnerFilter(undefined)).toBe("mine");
+    expect(toGroupOwnerFilter("nonsense")).toBe("mine");
+    expect(toGroupOwnerFilter(["others"])).toBe("mine");
   });
 });
 

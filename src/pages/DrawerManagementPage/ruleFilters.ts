@@ -3,9 +3,13 @@ import type { DrawerRuleRow } from "./buildRuleRows";
 
 // Whose group a rule reaches, which decides what the caller can do with
 // it, so it is worth a filter of its own.
-export type GroupOwnerFilter = "all" | "mine" | "others";
+export type GroupOwnerFilter = "mine" | "others" | "all";
 
-const GROUP_OWNER_FILTERS: GroupOwnerFilter[] = ["all", "mine", "others"];
+const GROUP_OWNER_FILTERS: GroupOwnerFilter[] = ["mine", "others", "all"];
+
+// The rules for your own groups are the ones you can act on fully, so
+// the table opens on them. Everything else is a widening.
+export const DEFAULT_GROUP_OWNER: GroupOwnerFilter = "mine";
 
 export interface RuleFilters {
   groupOwner: GroupOwnerFilter;
@@ -15,7 +19,10 @@ export interface RuleFilters {
 }
 
 export function toGroupOwnerFilter(value: unknown): GroupOwnerFilter {
-  return GROUP_OWNER_FILTERS.find((filter) => filter === value) ?? "all";
+  return (
+    GROUP_OWNER_FILTERS.find((filter) => filter === value) ??
+    DEFAULT_GROUP_OWNER
+  );
 }
 
 /**

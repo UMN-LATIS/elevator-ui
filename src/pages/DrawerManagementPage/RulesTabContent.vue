@@ -1,16 +1,37 @@
 <template>
   <div>
-    <div class="flex justify-between items-center gap-x-8 gap-y-4 flex-wrap">
-      <p class="text-sm flex-1">
-        Share a drawer by granting one of your groups a permission on it.
-      </p>
-      <div class="flex gap-2 items-center flex-wrap">
+    <div class="flex flex-wrap items-end gap-x-3 gap-y-4">
+      <MultiSelect
+        v-model="drawerIds"
+        label="Drawer"
+        placeholder="All drawers"
+        searchPlaceholder="Search drawers…"
+        emptyText="No drawers in these rules"
+        class="min-w-40 flex-1 sm:w-44 sm:flex-none"
+        :options="drawerFilterOptions" />
+      <MultiSelect
+        v-model="groupIds"
+        label="Group"
+        placeholder="All groups"
+        searchPlaceholder="Search groups…"
+        emptyText="No groups in these rules"
+        class="min-w-40 flex-1 sm:w-44 sm:flex-none"
+        :options="groupFilterOptions" />
+      <SegmentedControl
+        v-model="groupOwner"
+        label="Group owner"
+        labelClass="text-xs uppercase font-medium"
+        optionClass="py-2 text-sm"
+        class="flex-col items-start gap-1"
+        :options="GROUP_OWNER_OPTIONS" />
+
+      <div class="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
         <InputGroup
           v-model="searchText"
           label="Search Rules"
           placeholder="Search rules"
           :labelHidden="true"
-          class="max-w-sm"
+          class="flex-1 sm:w-52"
           type="search"
           :disabled="isLoading">
           <template #prepend>
@@ -23,30 +44,8 @@
       </div>
     </div>
 
-    <div class="mt-4 flex flex-wrap items-end gap-3">
-      <MultiSelect
-        v-model="drawerIds"
-        label="Drawer"
-        placeholder="All drawers"
-        class="w-52"
-        emptyText="No drawers in these rules"
-        :options="drawerFilterOptions" />
-      <MultiSelect
-        v-model="groupIds"
-        label="Group"
-        placeholder="All groups"
-        class="w-52"
-        emptyText="No groups in these rules"
-        :options="groupFilterOptions" />
-      <SegmentedControl
-        v-model="groupOwner"
-        label="Group owner"
-        labelClass="text-xs uppercase font-medium"
-        class="flex-col items-start gap-1"
-        :options="GROUP_OWNER_OPTIONS" />
-      <Button v-if="isFiltered" variant="tertiary" @click="clearFilters">
-        Clear filters
-      </Button>
+    <div v-if="isFiltered" class="mt-3">
+      <Button variant="tertiary" @click="clearFilters">Clear filters</Button>
     </div>
 
     <div class="mt-4 border border-outline-variant rounded-md">
@@ -194,9 +193,9 @@ import type { SelectOption } from "@/types";
 const SKELETON_ROW_COUNT = 3;
 
 const GROUP_OWNER_OPTIONS: SelectOption<GroupOwnerFilter>[] = [
-  { id: "all", label: "All" },
-  { id: "mine", label: "Mine" },
+  { id: "mine", label: "Me" },
   { id: "others", label: "Others" },
+  { id: "all", label: "All" },
 ];
 
 // the modal only creates rules, editing is inline in the table

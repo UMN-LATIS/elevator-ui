@@ -20,7 +20,9 @@
           <IconButton
             :to="{
               path: '/drawers/manage',
-              query: { tab: 'rules', drawer: String(drawerId) },
+              // every rule on this drawer, not just the ones for groups
+              // the viewer owns, which is what the tab opens on by default
+              query: { tab: 'rules', drawer: String(drawerId), owner: 'all' },
             }"
             title="Edit Permissions">
             <UsersIcon class="!w-5 !h-5" />
