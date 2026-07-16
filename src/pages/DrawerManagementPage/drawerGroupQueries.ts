@@ -4,6 +4,7 @@ import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
+import { drawerGrantKeys } from "./drawerGrantQueries";
 import { toDrawerTitle } from "./toDrawerTitle";
 import type {
   ManageableDrawer,
@@ -87,10 +88,19 @@ export function useCreateManageableDrawerMutation() {
       toastStore.success(`Drawer "${toDrawerTitle(drawer)}" created.`),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not create drawer" }),
+    // Creating a drawer also grants the caller's personal group manage
+    // access on it, which is a rule, and creates that group when they had
+    // none. So the rule and group lists go stale along with the drawers.
     onSettled: () =>
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.manageableDrawers(),
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.manageableDrawers(),
+        }),
+        queryClient.invalidateQueries({ queryKey: drawerGrantKeys.list() }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.drawerGroupsList(),
+        }),
+      ]),
   });
 }
 

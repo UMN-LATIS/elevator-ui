@@ -59,9 +59,14 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
       const rule = ctx.row.original;
 
       // The Groups tab lists only the caller's own groups, so linking
-      // someone else's would land on a row that is not there. Their
-      // grant is still editable, it just has no group page to visit.
+      // someone else's would land on a row that is not there. The lock
+      // needs a reason either way, and a global group type has no owner
+      // to name.
       if (!rule.isOwnGroup) {
+        const ownership = rule.ownerName
+          ? `Owned by ${rule.ownerName}`
+          : "Not one of your groups";
+
         return (
           <div>
             <div class="flex items-center gap-1.5">
@@ -73,11 +78,9 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
                 {ctx.getValue()}
               </span>
             </div>
-            {rule.ownerName ? (
-              <div class="truncate pl-[1.125rem] text-xs text-on-surface-variant">
-                Owned by {rule.ownerName}
-              </div>
-            ) : null}
+            <div class="truncate pl-[1.125rem] text-xs text-on-surface-variant">
+              {ownership}
+            </div>
           </div>
         );
       }

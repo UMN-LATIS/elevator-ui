@@ -80,6 +80,23 @@ describe("buildRuleRows", () => {
     expect(rows[0].ownerName).toBe("Bo Diddley");
   });
 
+  it("keeps a revoked rule, which reads as No Permissions", () => {
+    const noPermissions: PermissionLevel = {
+      id: 1,
+      level: PERM.NOPERM,
+      name: "noperm",
+      label: "No Permissions",
+    };
+    const rows = buildRuleRows({
+      grants: [makeGrant({ permissionLevelId: 1 })],
+      drawers,
+      permissionLevels: [...permissionLevels, noPermissions],
+    });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].permissionLabel).toBe("No Permissions");
+    expect(rows[0].permissionLevelNumber).toBe(PERM.NOPERM);
+  });
+
   it("drops grants that cannot be resolved to a row", () => {
     const unresolvable: DrawerGrant[] = [
       makeGrant({ id: 1, group: null }),
