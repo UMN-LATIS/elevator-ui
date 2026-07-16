@@ -2,12 +2,9 @@ import { createColumnHelper } from "@tanstack/vue-table";
 import type { ManageableDrawer } from "@/types";
 import Link from "@/components/Link/Link.vue";
 import { ColHeader } from "../AdminPermissionsPage/ColHeader";
+import { toDrawerTitle } from "./toDrawerTitle";
 
 const columnHelper = createColumnHelper<ManageableDrawer>();
-
-function toDrawerTitle(drawer: ManageableDrawer): string {
-  return drawer.title || `Drawer ${drawer.id}`;
-}
 
 export const drawerColumns = [
   columnHelper.accessor(toDrawerTitle, {

@@ -92,10 +92,10 @@ import { groupsQuery } from "./groupQueries";
 import {
   collectionGrantsQuery,
   instanceGrantsQuery,
-  permissionLevelsQuery,
   useSaveRuleMutation,
 } from "./ruleQueries";
 import type { RuleScope } from "./ruleQueries";
+import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { buildPermissionOptions } from "./buildPermissionOptions";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
 import type {

@@ -157,10 +157,10 @@ import { groupsQuery } from "./groupQueries";
 import {
   collectionGrantsQuery,
   instanceGrantsQuery,
-  permissionLevelsQuery,
   useDeleteRuleMutation,
   useSaveRuleMutation,
 } from "./ruleQueries";
+import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { buildRuleRows, ruleRowKey } from "./buildRuleRows";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { buildPermissionOptions } from "./buildPermissionOptions";

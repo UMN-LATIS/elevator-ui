@@ -116,3 +116,23 @@ export interface ManageableDrawer {
   id: number;
   title: string | null;
 }
+
+// The group a drawer grant reaches. It rides along inline on the grant
+// because /drawerPermissions/groups only lists the caller's own groups,
+// so another owner's group could not be joined client-side.
+export interface DrawerGrantGroup {
+  id: number;
+  label: string;
+  type: GroupTypeValues;
+  ownedByCurrentUser: boolean;
+}
+
+// GET /drawerPermissions/grants: one drawer group's permission level on
+// one drawer the caller can manage. drawerId and permissionLevelId join
+// against the drawers list and the permission level catalog.
+export interface DrawerGrant {
+  id: number;
+  drawerId: number | null;
+  permissionLevelId: number | null;
+  group: DrawerGrantGroup | null;
+}

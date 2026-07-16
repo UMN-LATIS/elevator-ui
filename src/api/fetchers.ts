@@ -57,6 +57,7 @@ import {
   type InstanceGrant,
   type CollectionGrant,
   type ManageableDrawer,
+  type DrawerGrant,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1176,9 +1177,11 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
   return res.data.groups;
 }
 
+// /permissions/permissionLevels is open to any authed user, so drawer
+// managers can read it too, unlike the admin-only /adminPermissions one.
 export async function fetchPermissionLevels(): Promise<PermissionLevel[]> {
   const res = await axios.get<{ permissionLevels: PermissionLevel[] }>(
-    `${BASE_URL}/adminPermissions/permissionLevels`
+    `${BASE_URL}/permissions/permissionLevels`
   );
 
   return res.data.permissionLevels;
@@ -1457,11 +1460,11 @@ export async function fetchDrawerGroupTypes(): Promise<GroupTypeDetails[]> {
 }
 
 export async function fetchManageableDrawers(): Promise<ManageableDrawer[]> {
-  const res = await axios.get<{ drawers: ManageableDrawer[] }>(
-    `${BASE_URL}/drawerPermissions/drawers`
+  const res = await axios.get<{ manageableDrawers: ManageableDrawer[] }>(
+    `${BASE_URL}/drawerPermissions/manageableDrawers`
   );
 
-  return res.data.drawers;
+  return res.data.manageableDrawers;
 }
 
 export async function fetchDrawerGroups(): Promise<PermissionsGroup[]> {
@@ -1470,6 +1473,14 @@ export async function fetchDrawerGroups(): Promise<PermissionsGroup[]> {
   );
 
   return res.data.groups;
+}
+
+export async function fetchDrawerGrants(): Promise<DrawerGrant[]> {
+  const res = await axios.get<{ grants: DrawerGrant[] }>(
+    `${BASE_URL}/drawerPermissions/grants`
+  );
+
+  return res.data.grants;
 }
 
 export async function createDrawerGroup(

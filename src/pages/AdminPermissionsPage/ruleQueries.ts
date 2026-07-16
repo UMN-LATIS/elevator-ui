@@ -8,7 +8,6 @@ import type { CollectionGrant, InstanceGrant } from "@/types";
 export const makeQueryKeyFor = {
   instanceGrantsList: makeQueryKeysFor("instanceGrants").list,
   collectionGrantsList: makeQueryKeysFor("collectionGrants").list,
-  permissionLevels: () => ["permissionLevels"] as const,
 };
 
 export function instanceGrantsQuery() {
@@ -22,15 +21,6 @@ export function collectionGrantsQuery() {
   return queryOptions({
     queryKey: makeQueryKeyFor.collectionGrantsList(),
     queryFn: fetchers.fetchCollectionGrants,
-  });
-}
-
-export function permissionLevelsQuery() {
-  return queryOptions({
-    queryKey: makeQueryKeyFor.permissionLevels(),
-    queryFn: fetchers.fetchPermissionLevels,
-    // Levels never change over a page's life, so fetch once and reuse.
-    staleTime: Infinity,
   });
 }
 
