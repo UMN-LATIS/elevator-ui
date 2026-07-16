@@ -66,7 +66,13 @@
             </TableRow>
           </template>
           <template v-else>
-            <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
+            <TableRow
+              v-for="row in table.getRowModel().rows"
+              :key="row.id"
+              :class="{
+                'opacity-50 pointer-events-none':
+                  row.original.id === deletingRuleId,
+              }">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                 <FlexRender
                   :render="cell.column.columnDef.cell"
@@ -85,6 +91,40 @@
         </TableBody>
       </Table>
     </div>
+
+    <ConfirmModal
+      :isOpen="Boolean(rulePendingDelete)"
+      :title="
+        isDeletingAnotherOwnersRule
+          ? 'Delete Someone Else’s Rule'
+          : 'Delete Rule'
+      "
+      type="danger"
+      confirmLabel="Delete"
+      @close="rulePendingDelete = null"
+      @confirm="confirmDelete">
+      <p>
+        Are you sure you want to delete the rule granting
+        <b>{{ rulePendingDelete?.groupLabel }}</b>
+        the
+        <b>{{ rulePendingDelete?.permissionLabel }}</b>
+        permission on
+        <b>{{ rulePendingDelete?.drawerTitle }}?</b>
+      </p>
+      <p
+        v-if="isDeletingAnotherOwnersRule"
+        role="alert"
+        class="mt-3 flex items-start gap-2 rounded-md bg-error-container px-3 py-2 text-sm text-on-error-container">
+        <TriangleAlertIcon class="mt-0.5 size-4 shrink-0" />
+        <span>
+          This group belongs to
+          <b>{{ pendingDeleteOwnerName }}</b>
+          , and everyone in it loses access immediately. You will not be able to
+          put this rule back: a new rule can only use a group you own.
+        </span>
+      </p>
+      <p v-else class="mt-3">This action cannot be undone.</p>
+    </ConfirmModal>
   </div>
 </template>
 <script setup lang="ts">
@@ -107,15 +147,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  FilterIcon,
+  TriangleAlertIcon,
+} from "lucide-vue-next";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
+import { useToastStore } from "@/stores/toastStore";
 import { createRuleColumns } from "./RulesTableColumns";
 import { buildRuleRows } from "./buildRuleRows";
 import type { DrawerRuleRow } from "./buildRuleRows";
 import {
   drawerGrantsQuery,
+  useDeleteDrawerGrantMutation,
   useSaveDrawerGrantMutation,
 } from "./drawerGrantQueries";
 import { manageableDrawersQuery } from "./drawerGroupQueries";
@@ -215,9 +264,51 @@ const savingLevelLabel = computed((): string => {
   return submittedLevel?.label ?? "";
 });
 
-function handleDelete(rule: DrawerRuleRow): void {
-  // TODO: delete confirmation
-  console.log("delete rule", rule.id);
+const toastStore = useToastStore();
+const deleteGrant = useDeleteDrawerGrantMutation();
+
+// The row being deleted grays out until the refetch drops it.
+const deletingRuleId = computed((): number | null => {
+  if (!deleteGrant.isPending.value) return null;
+  return deleteGrant.variables.value ?? null;
+});
+
+// the rule awaiting delete confirmation, doubling as the modal's open state
+const rulePendingDelete = ref<DrawerRuleRow | null>(null);
+
+// Managing a drawer carries the right to revoke a grant for a group the
+// caller does not own, but not to recreate one: a new rule can only name
+// a group they own. Deleting is one-way, so the dialog says so.
+const isDeletingAnotherOwnersRule = computed((): boolean => {
+  const rule = rulePendingDelete.value;
+  return rule !== null && !rule.isOwnGroup;
+});
+
+const pendingDeleteOwnerName = computed(
+  (): string => rulePendingDelete.value?.ownerName ?? "another user"
+);
+
+function handleDelete(rule: DrawerRuleRow) {
+  rulePendingDelete.value = rule;
+}
+
+function confirmDelete() {
+  const rule = rulePendingDelete.value;
+  if (!rule) return;
+  deleteGrant.mutate(rule.id, {
+    onSuccess: () =>
+      toastStore.addToast({
+        message: "Rule deleted.",
+        variant: "success",
+      }),
+    onError: (error) =>
+      toastStore.addToast({
+        title: "Delete Rule Failed",
+        message: `Failed to delete rule: ${error.message}`,
+        variant: "error",
+      }),
+  });
+  rulePendingDelete.value = null;
 }
 
 const ruleColumns = createRuleColumns({
