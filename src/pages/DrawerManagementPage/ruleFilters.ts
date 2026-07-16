@@ -73,6 +73,14 @@ export function toFilterOptions(
   );
 }
 
+export function toDrawerOption(rule: DrawerRuleRow): SelectOption<number> {
+  return { id: rule.drawerId, label: rule.drawerTitle };
+}
+
+export function toGroupOption(rule: DrawerRuleRow): SelectOption<number> {
+  return { id: rule.groupId, label: rule.groupLabel };
+}
+
 export function filterRuleRows(
   rows: DrawerRuleRow[],
   { groupOwner, drawerIds, groupIds }: RuleFilters

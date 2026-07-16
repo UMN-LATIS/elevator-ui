@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   filterRuleRows,
   parseIdList,
+  toDrawerOption,
   toFilterOptions,
+  toGroupOption,
   toGroupOwnerFilter,
   toIdParam,
 } from "./ruleFilters";
@@ -100,6 +102,14 @@ describe("toFilterOptions", () => {
     expect(toFilterOptions([], (rule) => ({ id: rule.id, label: "" }))).toEqual(
       []
     );
+  });
+});
+
+describe("toDrawerOption / toGroupOption", () => {
+  it("names a drawer by its title and a group by its label", () => {
+    const rule = makeRule();
+    expect(toDrawerOption(rule)).toEqual({ id: 10, label: "Field Notes" });
+    expect(toGroupOption(rule)).toEqual({ id: 100, label: "Botany Students" });
   });
 });
 

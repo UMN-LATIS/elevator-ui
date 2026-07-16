@@ -8,7 +8,7 @@
         searchPlaceholder="Search drawers…"
         emptyText="No drawers in these rules"
         class="min-w-40 flex-1 sm:w-44 sm:flex-none"
-        :options="drawerFilterOptions" />
+        :sections="drawerFilterSections" />
       <MultiSelect
         v-model="groupIds"
         label="Group"
@@ -16,7 +16,7 @@
         searchPlaceholder="Search groups…"
         emptyText="No groups in these rules"
         class="min-w-40 flex-1 sm:w-44 sm:flex-none"
-        :options="groupFilterOptions" />
+        :sections="groupFilterSections" />
       <SegmentedControl
         v-model="groupOwner"
         label="Group owner"
@@ -168,6 +168,7 @@ import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import MultiSelect from "@/components/MultiSelect/MultiSelect.vue";
+import type { MultiSelectSection } from "@/components/MultiSelect/MultiSelect.vue";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
@@ -184,7 +185,12 @@ import {
   useUpdateDrawerGrantMutation,
 } from "./drawerGrantQueries";
 import { manageableDrawersQuery } from "./drawerGroupQueries";
-import { filterRuleRows, toFilterOptions } from "./ruleFilters";
+import {
+  filterRuleRows,
+  toDrawerOption,
+  toFilterOptions,
+  toGroupOption,
+} from "./ruleFilters";
 import type { GroupOwnerFilter } from "./ruleFilters";
 import { useRuleFilters } from "./useRuleFilters";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
@@ -255,19 +261,27 @@ const visibleRules = computed((): DrawerRuleRow[] =>
 // Only what the rules actually reach is worth offering: a drawer with no
 // rule filters the table down to nothing, and the drawer list can run to
 // every drawer in the instance for an admin.
-const drawerFilterOptions = computed((): SelectOption<number>[] =>
-  toFilterOptions(ruleRows.value, (rule) => ({
-    id: rule.drawerId,
-    label: rule.drawerTitle,
-  }))
-);
+const drawerFilterSections = computed((): MultiSelectSection[] => [
+  { options: toFilterOptions(ruleRows.value, toDrawerOption) },
+]);
 
-const groupFilterOptions = computed((): SelectOption<number>[] =>
-  toFilterOptions(ruleRows.value, (rule) => ({
-    id: rule.groupId,
-    label: rule.groupLabel,
-  }))
-);
+// Whose group it is decides what you can do with its rules, so the two
+// kinds are worth telling apart while picking.
+const groupFilterSections = computed((): MultiSelectSection[] => {
+  const ownGroupRules = ruleRows.value.filter((rule) => rule.isOwnGroup);
+  const otherGroupRules = ruleRows.value.filter((rule) => !rule.isOwnGroup);
+
+  return [
+    {
+      label: "My Groups",
+      options: toFilterOptions(ownGroupRules, toGroupOption),
+    },
+    {
+      label: "Other Groups",
+      options: toFilterOptions(otherGroupRules, toGroupOption),
+    },
+  ];
+});
 
 const emptyMessage = computed((): string => {
   if (isError.value) return "Could not load rules.";

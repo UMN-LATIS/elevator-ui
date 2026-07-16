@@ -44,23 +44,37 @@
           </div>
 
           <ComboboxViewport class="max-h-60 overflow-y-auto py-1">
-            <ComboboxItem
-              v-for="opt in matchingOptions"
-              :key="opt.id"
-              :value="opt.id"
-              class="flex items-center gap-2 px-3 py-2 text-sm cursor-default select-none text-on-surface-variant data-[highlighted]:bg-surface-container-high data-[highlighted]:text-on-surface data-[state=checked]:font-medium data-[state=checked]:text-on-surface focus:outline-none">
-              <span class="size-4 shrink-0">
-                <ComboboxItemIndicator>
-                  <CheckIcon class="w-4 h-4 text-primary" />
-                </ComboboxItemIndicator>
-              </span>
-              <span class="flex-1 truncate">{{ opt.label }}</span>
-            </ComboboxItem>
+            <template
+              v-for="(section, index) in matchingSections"
+              :key="section.label ?? index">
+              <ComboboxSeparator
+                v-if="index > 0"
+                class="my-1 h-px bg-outline-variant" />
+              <ComboboxGroup>
+                <ComboboxLabel
+                  v-if="section.label"
+                  class="px-3 py-1 text-xs font-medium uppercase text-on-surface-variant">
+                  {{ section.label }}
+                </ComboboxLabel>
+                <ComboboxItem
+                  v-for="opt in section.options"
+                  :key="opt.id"
+                  :value="opt.id"
+                  class="flex items-center gap-2 px-3 py-2 text-sm cursor-default select-none text-on-surface-variant data-[highlighted]:bg-surface-container-high data-[highlighted]:text-on-surface data-[state=checked]:font-medium data-[state=checked]:text-on-surface focus:outline-none">
+                  <span class="size-4 shrink-0">
+                    <ComboboxItemIndicator>
+                      <CheckIcon class="w-4 h-4 text-primary" />
+                    </ComboboxItemIndicator>
+                  </span>
+                  <span class="flex-1 truncate">{{ opt.label }}</span>
+                </ComboboxItem>
+              </ComboboxGroup>
+            </template>
 
             <p
-              v-if="!matchingOptions.length"
+              v-if="!matchingSections.length"
               class="px-3 py-2 text-sm text-on-surface-variant">
-              {{ options.length ? "No matches" : emptyText }}
+              {{ hasAnyOption ? "No matches" : emptyText }}
             </p>
           </ComboboxViewport>
         </ComboboxContent>
@@ -79,6 +93,9 @@ import {
   ComboboxPortal,
   ComboboxContent,
   ComboboxViewport,
+  ComboboxGroup,
+  ComboboxLabel,
+  ComboboxSeparator,
   ComboboxItem,
   ComboboxItemIndicator,
   type AcceptableValue,
@@ -86,10 +103,17 @@ import {
 import { ChevronsUpDownIcon, CheckIcon } from "lucide-vue-next";
 import type { SelectOption } from "@/types";
 
+// A run of options under one heading. A list that needs no heading is a
+// single section without a label.
+export interface MultiSelectSection {
+  label?: string;
+  options: SelectOption<number>[];
+}
+
 const props = withDefaults(
   defineProps<{
     modelValue: number[];
-    options: SelectOption<number>[];
+    sections: MultiSelectSection[];
     label: string;
     placeholder?: string;
     // hide the label visually, kept for screen readers, when the control
@@ -112,21 +136,34 @@ const labelId = useId();
 const isOpen = ref(false);
 const searchTerm = ref("");
 
+const hasAnyOption = computed((): boolean =>
+  props.sections.some((section) => section.options.length > 0)
+);
+
 // Each option carries a numeric id, so reka's own filter would match on
 // the id rather than the label. `ignoreFilter` hands the job here.
-const matchingOptions = computed((): SelectOption<number>[] => {
+// A section with nothing left in it drops out, heading and all.
+const matchingSections = computed((): MultiSelectSection[] => {
   const term = searchTerm.value.trim().toLowerCase();
-  if (!term) return props.options;
-  return props.options.filter((option) =>
-    option.label.toLowerCase().includes(term)
-  );
+
+  return props.sections
+    .map((section) => ({
+      ...section,
+      options: term
+        ? section.options.filter((option) =>
+            option.label.toLowerCase().includes(term)
+          )
+        : section.options,
+    }))
+    .filter((section) => section.options.length > 0);
 });
 
 // One pick reads better as itself than as a count.
 const triggerText = computed((): string => {
   if (props.modelValue.length === 0) return props.placeholder;
   if (props.modelValue.length === 1) {
-    const onlyPick = props.options.find(
+    const everyOption = props.sections.flatMap((section) => section.options);
+    const onlyPick = everyOption.find(
       (option) => option.id === props.modelValue[0]
     );
     return onlyPick?.label ?? "1 selected";
