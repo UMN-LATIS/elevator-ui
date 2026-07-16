@@ -103,7 +103,8 @@ import {
 } from "./drawerGroupQueries";
 import {
   drawerGrantsQuery,
-  useSaveDrawerGrantMutation,
+  useCreateDrawerGrantMutation,
+  useUpdateDrawerGrantMutation,
 } from "./drawerGrantQueries";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
@@ -126,9 +127,12 @@ const { data: drawers } = useQuery(manageableDrawersQuery());
 const { data: groups } = useQuery(drawerGroupsQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
 const { data: grants } = useQuery(drawerGrantsQuery());
-const saveGrant = useSaveDrawerGrantMutation();
+const createGrant = useCreateDrawerGrantMutation();
+const updateGrant = useUpdateDrawerGrantMutation();
 
-const isPending = saveGrant.isPending;
+const isPending = computed(
+  () => createGrant.isPending.value || updateGrant.isPending.value
+);
 
 type RuleForm = {
   drawerId: number | null;
@@ -160,8 +164,6 @@ watch(
   { immediate: true }
 );
 
-// Both modals emit this after their list refetch settles, so the new id
-// is already among the options when it becomes the pick.
 function handleGroupCreated(group: PermissionsGroup): void {
   createdGroup.value = group;
   form.value.groupId = group.id;
@@ -190,7 +192,7 @@ function offerGroupSetupToast(): void {
     duration: 8000,
     url: router.resolve({ query: { tab: "groups", group: String(group.id) } })
       .fullPath,
-    urlText: noun === "members" ? "Add members" : "Add entries",
+    urlText: `Add ${noun}`,
   });
 }
 
@@ -243,8 +245,8 @@ const levelLabelToReplace = computed((): string | null => {
 });
 
 function handleClose() {
-  // Esc reaches every stacked modal, so the rule modal holds still while
-  // one of the others is the one on top.
+  // Esc reaches every stacked modal, so the rule modal stays open while
+  // the group or drawer modal is on top.
   if (isGroupModalOpen.value || isDrawerModalOpen.value) return;
   offerGroupSetupToast();
   emit("close");
@@ -268,21 +270,18 @@ function handleSubmit() {
 
   const existingGrant = grantBeingOverwritten.value;
 
-  // creating onto an occupied pair replaces the grant there, matching
-  // the warning above
+  // creating onto an occupied pair replaces the grant there, matching the
+  // "Saving will replace it" warning
   if (existingGrant) {
-    saveGrant.mutate(
-      { kind: "update", grantId: existingGrant.id, permissionLevelId },
+    updateGrant.mutate(
+      { grantId: existingGrant.id, permissionLevelId },
       { onSettled: closeWhenSaved }
     );
     return;
   }
 
-  saveGrant.mutate(
-    {
-      kind: "create",
-      grant: { drawerId, drawerGroupId: groupId, permissionLevelId },
-    },
+  createGrant.mutate(
+    { drawerId, drawerGroupId: groupId, permissionLevelId },
     { onSettled: closeWhenSaved }
   );
 }

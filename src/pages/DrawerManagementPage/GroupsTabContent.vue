@@ -341,6 +341,13 @@ const table = useVueTable({
   },
 });
 
+// `expanded` is either true, meaning every row, or a per-row map, so
+// opening one row has to preserve whichever it currently holds.
+function expandGroupRow(groupId: number): void {
+  const currentlyExpanded = expanded.value === true ? {} : expanded.value;
+  expanded.value = { ...currentlyExpanded, [String(groupId)]: true };
+}
+
 // A User group's add-member row, an auth-helper group's add-entry row,
 // or the edit button for global groups, which have no detail panel.
 function focusSelectorForNewGroup(group: PermissionsGroup): string {
@@ -360,9 +367,7 @@ async function handleCreated(group: PermissionsGroup) {
   currentGroupId.value = group.id;
 
   if (isManageableGroup(group)) {
-    const groupId = String(group.id);
-    const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-    expanded.value = { ...currentlyExpanded, [groupId]: true };
+    expandGroupRow(group.id);
   }
 
   // The row, its detail panel, and the button mount across several
@@ -399,12 +404,11 @@ watch(
     const group = groupList.find((g) => String(g.id) === groupParam);
     if (!group) return;
 
-    // an active search could hide the row, so it resets
+    // an active search could hide the row, so the search resets
     searchGroupText.value = "";
     currentGroupId.value = group.id;
     if (isManageableGroup(group)) {
-      const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-      expanded.value = { ...currentlyExpanded, [groupParam]: true };
+      expandGroupRow(group.id);
     }
 
     try {
