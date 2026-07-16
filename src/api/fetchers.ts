@@ -58,6 +58,7 @@ import {
   type CollectionGrant,
   type ManageableDrawer,
   type DrawerGrant,
+  type CreateDrawerGrantPayload,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1481,6 +1482,43 @@ export async function fetchDrawerGrants(): Promise<DrawerGrant[]> {
   );
 
   return res.data.grants;
+}
+
+export async function createDrawerGrant(
+  payload: CreateDrawerGrantPayload
+): Promise<DrawerGrant> {
+  const params = new URLSearchParams();
+  params.append("drawerId", String(payload.drawerId));
+  params.append("drawerGroupId", String(payload.drawerGroupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.post<{ grant: DrawerGrant }>(
+    `${BASE_URL}/drawerPermissions/grants`,
+    params
+  );
+
+  return res.data.grant;
+}
+
+// A grant's drawer and group are fixed once created, so only the level
+// can change.
+export async function updateDrawerGrant(
+  grantId: number,
+  permissionLevelId: number
+): Promise<DrawerGrant> {
+  const params = new URLSearchParams();
+  params.append("permissionLevelId", String(permissionLevelId));
+
+  const res = await axios.put<{ grant: DrawerGrant }>(
+    `${BASE_URL}/drawerPermissions/grants/${grantId}`,
+    params
+  );
+
+  return res.data.grant;
+}
+
+export async function deleteDrawerGrant(grantId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/drawerPermissions/grants/${grantId}`);
 }
 
 export async function createDrawerGroup(

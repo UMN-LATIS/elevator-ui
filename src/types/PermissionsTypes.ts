@@ -125,6 +125,8 @@ export interface DrawerGrantGroup {
   label: string;
   type: GroupTypeValues;
   ownedByCurrentUser: boolean;
+  // null for a global group type, which has no owner
+  ownerName: string | null;
 }
 
 // GET /drawerPermissions/grants: one drawer group's permission level on
@@ -135,4 +137,13 @@ export interface DrawerGrant {
   drawerId: number | null;
   permissionLevelId: number | null;
   group: DrawerGrantGroup | null;
+}
+
+// POST /drawerPermissions/grants. The drawer must be one the caller
+// manages and the group one they own, so a grant can only be created
+// from the caller's own groups even though existing ones stay editable.
+export interface CreateDrawerGrantPayload {
+  drawerId: number;
+  drawerGroupId: number;
+  permissionLevelId: number;
 }
