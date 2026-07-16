@@ -14,11 +14,9 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import PermissionChip from "@/components/PermissionChip/PermissionChip.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
-import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import { VerticalDotsIcon } from "@/icons";
 import { cn } from "@/lib/utils";
-import type { GroupTypeValues, SelectOption } from "@/types";
 import { ColHeader } from "../AdminPermissionsPage/ColHeader";
 import type { GroupAccessRow } from "./buildGroupAccessRows";
 import { toGroupSummary } from "./toGroupSummary";
@@ -37,17 +35,15 @@ export interface SavingRow {
   levelLabel: string;
 }
 
-// The Edit action turns a row into its own editor: the group's name and
-// type where the summary was, the level where the chip was. Only one row
+// The Edit action turns a row into its own editor: the group's name
+// where the summary was, the level where the chip was. Only one row
 // edits at a time, so one set of drafts and one editing id drive every
 // cell.
 export interface GroupAccessColumnsDeps {
   editingRowId: Ref<number | null>;
   draftLabel: Ref<string>;
-  draftType: Ref<GroupTypeValues | "">;
   draftLevelId: Ref<number | null>;
   savingRow: Ref<SavingRow | null>;
-  typeOptions: Ref<SelectOption[]>;
   permissionOptions: Ref<PermissionSelectOption[]>;
   onEdit: (row: GroupAccessRow) => void;
   onCancel: () => void;
@@ -116,8 +112,10 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
           );
         }
 
+        // A group's type is fixed at creation, since its members belong
+        // to that type, so only the name is up for editing.
         return (
-          <div class="flex items-start gap-2">
+          <div>
             <InputGroup<string>
               modelValue={deps.draftLabel.value}
               onUpdate:modelValue={(value: string) => {
@@ -126,19 +124,10 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
               placeholder="Group name"
               label="Group name"
               labelHidden={true}
-              class="min-w-0 flex-1"
             />
-            <SelectGroup<GroupTypeValues | "">
-              modelValue={deps.draftType.value}
-              onUpdate:modelValue={(value: GroupTypeValues | "") => {
-                deps.draftType.value = value;
-              }}
-              options={deps.typeOptions.value}
-              label="Group type"
-              showLabel={false}
-              placeholder="Type…"
-              class="w-40 shrink-0"
-            />
+            <div class="mt-1 truncate text-xs text-on-surface-variant">
+              {toGroupSummary(row.group, row.typeLabel)}
+            </div>
           </div>
         );
       }
@@ -186,13 +175,7 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
 
       const savingRow = deps.savingRow.value;
       if (savingRow?.id === row.id) {
-        return (
-          <PermissionChip
-            levelNumber={row.permissionLevelNumber}
-            label={savingRow.levelLabel}
-            isPending
-          />
-        );
+        return <PermissionChip label={savingRow.levelLabel} isPending />;
       }
 
       // No access is the absence of a permission, so it reads as quiet
@@ -220,13 +203,12 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
       const accessRow = row.original;
 
       if (deps.editingRowId.value === accessRow.id) {
-        // A group needs a name and a type, and an empty field is a
-        // mistake rather than an intent to clear one.
+        // A group needs a name, and an empty field is a mistake rather
+        // than an intent to clear one.
         const isIncomplete =
           deps.draftLevelId.value === null ||
           (accessRow.group.ownedByCurrentUser &&
-            (deps.draftLabel.value.trim() === "" ||
-              deps.draftType.value === ""));
+            deps.draftLabel.value.trim() === "");
 
         return (
           <div class="flex justify-end">

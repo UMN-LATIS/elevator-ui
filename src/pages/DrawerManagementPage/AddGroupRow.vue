@@ -53,6 +53,7 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { useToastStore } from "@/stores/toastStore";
 import {
   drawerGroupTypesQuery,
   useCreateDrawerGroupMutation,
@@ -77,6 +78,7 @@ const emit = defineEmits<{
 const isOpen = defineModel<boolean>("open", { required: true });
 
 const instanceStore = useInstanceStore();
+const toastStore = useToastStore();
 const { data: groupTypes } = useQuery(drawerGroupTypesQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
 const createGroup = useCreateDrawerGroupMutation();
@@ -98,9 +100,17 @@ function blankDraft(): GroupDraft {
 
 const draft = ref<GroupDraft>(blankDraft());
 
+// The group this form already created, kept so a retry after a failed
+// grant reuses it instead of creating a second one. Editing the name and
+// retrying only resends the grant: renaming is the table editor's job.
+const createdGroup = ref<PermissionsGroup | null>(null);
+
 // start each open from an empty form
 watch(isOpen, (open) => {
-  if (open) draft.value = blankDraft();
+  if (open) {
+    draft.value = blankDraft();
+    createdGroup.value = null;
+  }
 });
 
 const typeOptions = computed((): SelectOption[] =>
@@ -109,9 +119,6 @@ const typeOptions = computed((): SelectOption[] =>
   })
 );
 
-// Level 0 grants no access, since access resolves to the highest matching
-// level. A rule can still hold it: the legacy editor starts every drawer
-// permission there, so this form can put a group in the same state.
 const permissionOptions = computed(() =>
   buildPermissionOptions(permissionLevels.value ?? [], {
     includesNoPermissions: true,
@@ -135,19 +142,44 @@ async function handleSave(): Promise<void> {
   if (label === "" || type === "" || permissionLevelId === null) return;
 
   // The group has to exist before anything can be granted to it, so the
-  // two saves run in order rather than together. Each mutation toasts its
-  // own failure, and a failed create leaves the form up to try again.
+  // two saves run in order rather than together.
   try {
-    const group = await createGroup.mutateAsync({ label, type });
-    await createGrant.mutateAsync({
-      drawerId: props.drawerId,
-      drawerGroupId: group.id,
-      permissionLevelId,
-    });
+    if (createdGroup.value === null) {
+      createdGroup.value = await createGroup.mutateAsync(
+        { label, type },
+        {
+          onError: (error) =>
+            toastStore.error(error.message, {
+              title: `Could not create group "${label}"`,
+            }),
+        }
+      );
+    }
+    const group = createdGroup.value;
+
+    await createGrant.mutateAsync(
+      {
+        drawerId: props.drawerId,
+        drawerGroupId: group.id,
+        permissionLevelId,
+      },
+      {
+        // The group survives a failed grant, so say so: the retry grants
+        // access to that group rather than creating a second one.
+        onError: (error) =>
+          toastStore.error(
+            `Group "${group.label}" was created, but its access could not be saved: ${error.message}`,
+            { title: "Could not save access" }
+          ),
+      }
+    );
+
+    toastStore.success(`Group "${group.label}" created.`);
     isOpen.value = false;
     emit("created", group);
   } catch {
-    // the mutation's own onError already said so
+    // a failed save toasted from its own onError, this only keeps the
+    // form up to try again
   }
 }
 </script>

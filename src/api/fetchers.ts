@@ -1536,13 +1536,13 @@ export async function createDrawerGroup(
 }
 
 // Changing the type clears the group's existing members server-side.
-export async function updateDrawerGroup(
+// A group's type is fixed at creation, so its name is all this changes.
+export async function renameDrawerGroup(
   groupId: number,
-  payload: UpdateGroupPayload
+  label: string
 ): Promise<PermissionsGroup> {
   const params = new URLSearchParams();
-  params.append("label", payload.label);
-  params.append("type", payload.type);
+  params.append("label", label);
 
   const res = await axios.put<{ group: PermissionsGroup }>(
     `${BASE_URL}/drawerPermissions/groups/${groupId}`,

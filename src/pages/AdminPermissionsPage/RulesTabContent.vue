@@ -165,7 +165,6 @@ import { buildRuleRows, ruleRowKey } from "./buildRuleRows";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { createRuleColumns } from "./RulesTableColumns";
-import type { SavingLevel } from "./RulesTableColumns";
 
 // Placeholder rows shown while the rule lists load.
 const SKELETON_ROW_COUNT = 3;
@@ -306,25 +305,22 @@ const savingKey = computed((): string | null => {
   return ruleRowKey(scope, input.grantId);
 });
 
-// The level that save submitted, which the cell shows in place of the
+// The level that save submitted, which the cell names in place of the
 // stale one the list still holds.
-const savingLevel = computed((): SavingLevel => {
+const savingLevelLabel = computed((): string => {
   const input = saveRule.variables.value;
-  if (input?.kind !== "update") return { label: "", level: 0 };
+  if (input?.kind !== "update") return "";
   const submittedLevel = permissionOptions.value.find(
     (option) => option.id === input.rule.permissionLevelId
   );
-  return {
-    label: submittedLevel?.label ?? "",
-    level: submittedLevel?.level ?? 0,
-  };
+  return submittedLevel?.label ?? "";
 });
 
 const ruleColumns = createRuleColumns({
   editingKey,
   draftLevelId,
   savingKey,
-  savingLevel,
+  savingLevelLabel,
   permissionOptions,
   onEdit: startEdit,
   onCancel: cancelEdit,

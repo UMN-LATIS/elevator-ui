@@ -1,6 +1,5 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
-import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
 import type { UpdateDrawerGrantPayload } from "@/types";
 
@@ -25,17 +24,15 @@ export type UpdateDrawerGrantVars = UpdateDrawerGrantPayload & {
 };
 
 // Mutations reconcile by invalidating rather than patching the cache
-// optimistically. Call sites render in-flight feedback from isPending.
+// optimistically. Call sites render in-flight feedback from isPending and
+// raise their own toasts: one form can fire several of these, and only the
+// call site knows which group the user acted on.
 
 export function useCreateDrawerGrantMutation() {
   const queryClient = useQueryClient();
-  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: fetchers.createDrawerGrant,
-    onSuccess: () => toastStore.success("Rule created."),
-    onError: (error) =>
-      toastStore.error(error.message, { title: "Could not save rule" }),
     // return the promise so isPending stays true while the refetch is
     // in flight
     onSettled: () =>
@@ -45,14 +42,10 @@ export function useCreateDrawerGrantMutation() {
 
 export function useUpdateDrawerGrantMutation() {
   const queryClient = useQueryClient();
-  const toastStore = useToastStore();
 
   return useMutation({
     mutationFn: ({ grantId, ...payload }: UpdateDrawerGrantVars) =>
       fetchers.updateDrawerGrant(grantId, payload),
-    onSuccess: () => toastStore.success("Rule updated."),
-    onError: (error) =>
-      toastStore.error(error.message, { title: "Could not save rule" }),
     // return the promise so isPending stays true while the refetch is
     // in flight
     onSettled: () =>
@@ -60,7 +53,6 @@ export function useUpdateDrawerGrantMutation() {
   });
 }
 
-// Toasts for delete live at the call site, next to the confirm dialog.
 export function useDeleteDrawerGrantMutation() {
   const queryClient = useQueryClient();
 

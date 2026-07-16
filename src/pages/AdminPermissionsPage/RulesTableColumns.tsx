@@ -13,11 +13,6 @@ import type { PermissionSelectOption } from "@/components/PermissionSelect/build
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
 
-export interface SavingLevel {
-  label: string;
-  level: number;
-}
-
 // The Edit action swaps a row's permission cell for an inline select
 // instead of opening a modal. Only one row edits at a time, so a single
 // draft level and editing key drive every cell.
@@ -25,7 +20,7 @@ export interface RuleColumnsDeps {
   editingKey: Ref<string | null>;
   draftLevelId: Ref<number | null>;
   savingKey: Ref<string | null>;
-  savingLevel: Ref<SavingLevel>;
+  savingLevelLabel: Ref<string>;
   permissionOptions: Ref<PermissionSelectOption[]>;
   onEdit: (rule: PermissionRuleRow) => void;
   onCancel: () => void;
@@ -118,14 +113,7 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
       }
 
       if (deps.savingKey.value === rule.key) {
-        const savingLevel = deps.savingLevel.value;
-        return (
-          <PermissionChip
-            levelNumber={savingLevel.level}
-            label={savingLevel.label}
-            isPending
-          />
-        );
+        return <PermissionChip label={deps.savingLevelLabel.value} isPending />;
       }
 
       return (

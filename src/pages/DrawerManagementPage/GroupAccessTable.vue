@@ -7,13 +7,14 @@
       </p>
       <div class="flex flex-wrap items-center gap-2">
         <InputGroup
-          v-model="searchText"
+          :modelValue="searchText"
           label="Search Groups"
           placeholder="Search groups"
           :labelHidden="true"
           class="max-w-sm"
           type="search"
-          :disabled="isLoading">
+          :disabled="isLoading"
+          @update:modelValue="searchGroups">
           <template #prepend>
             <FilterIcon class="size-4 text-on-surface-variant" />
           </template>
@@ -206,25 +207,17 @@ import {
   drawerGroupsQuery,
   drawerGroupTypesQuery,
   useDeleteDrawerGroupMutation,
-  useUpdateDrawerGroupMutation,
+  useRenameDrawerGroupMutation,
 } from "./drawerGroupQueries";
-import { toGroupTypeOptions } from "./toGroupTypeOptions";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
-import { useInstanceStore } from "@/stores/instanceStore";
 import { useToastStore } from "@/stores/toastStore";
 import { GROUP_TYPES, PERM, isManageableGroup } from "@/types";
-import type {
-  DrawerGrantGroup,
-  GroupTypeValues,
-  PermissionsGroup,
-  SelectOption,
-} from "@/types";
+import type { DrawerGrantGroup, PermissionsGroup } from "@/types";
 
 const SKELETON_ROW_COUNT = 3;
 
 const props = defineProps<{ drawerId: number }>();
 
-const instanceStore = useInstanceStore();
 const toastStore = useToastStore();
 
 const {
@@ -306,21 +299,12 @@ function openAddGroupForm() {
 // only one row edits at a time, so one set of drafts covers the table
 const editingRowId = ref<number | null>(null);
 const draftLabel = ref("");
-const draftType = ref<GroupTypeValues | "">("");
 const draftLevelId = ref<number | null>(null);
 const createGrant = useCreateDrawerGrantMutation();
 const updateGrant = useUpdateDrawerGrantMutation();
 const deleteGrant = useDeleteDrawerGrantMutation();
-const updateGroup = useUpdateDrawerGroupMutation();
+const renameGroup = useRenameDrawerGroupMutation();
 
-const typeOptions = computed((): SelectOption[] =>
-  toGroupTypeOptions(groupTypes.value ?? [], {
-    isAdmin: instanceStore.currentUser?.isAdmin ?? false,
-  })
-);
-
-// Level 0 is offered as the way to take access away, since it reads the
-// same as holding no rule at all.
 const permissionOptions = computed(() =>
   buildPermissionOptions(permissionLevels.value ?? [], {
     includesNoPermissions: true,
@@ -345,14 +329,12 @@ function toEditableLevelId(row: GroupAccessRow): number | null {
 function startEdit(row: GroupAccessRow) {
   editingRowId.value = row.id;
   draftLabel.value = row.group.label;
-  draftType.value = row.group.type;
   draftLevelId.value = toEditableLevelId(row);
 }
 
 function cancelEdit() {
   editingRowId.value = null;
   draftLabel.value = "";
-  draftType.value = "";
   draftLevelId.value = null;
 }
 
@@ -360,7 +342,6 @@ function cancelEdit() {
 // so one Save can send one request, the other, or both.
 function saveEdit(row: GroupAccessRow) {
   const label = draftLabel.value.trim();
-  const type = draftType.value;
   const levelId = draftLevelId.value;
   cancelEdit();
 
@@ -372,23 +353,30 @@ function saveEdit(row: GroupAccessRow) {
     levelLabel: toLevelLabel(levelId),
   };
 
-  saveGroupIdentity(row, label, type);
+  saveGroupName(row, label);
   if (levelId !== null) {
     saveAccess(row, levelId);
   }
 }
 
-function saveGroupIdentity(
-  row: GroupAccessRow,
-  label: string,
-  type: GroupTypeValues | ""
-) {
+function saveGroupName(row: GroupAccessRow, label: string) {
   // renaming reaches the caller's own groups only
   if (!row.group.ownedByCurrentUser) return;
-  if (!label || type === "") return;
-  if (label === row.group.label && type === row.group.type) return;
+  if (!label) return;
+  if (label === row.group.label) return;
 
-  updateGroup.mutate({ id: row.id, payload: { label, type } });
+  renameGroup.mutate(
+    { id: row.id, label },
+    {
+      onSuccess: () =>
+        toastStore.success(`Group "${row.group.label}" renamed to "${label}".`),
+      onError: (error) =>
+        toastStore.error(
+          `Failed to rename group "${row.group.label}": ${error.message}`,
+          { title: "Rename Group Failed" }
+        ),
+    }
+  );
 }
 
 // Level 0 is a level like any other here: the legacy editor writes rules
@@ -397,16 +385,34 @@ function saveGroupIdentity(
 function saveAccess(row: GroupAccessRow, levelId: number) {
   if (levelId === toEditableLevelId(row)) return;
 
+  const accessToasts = {
+    onSuccess: () =>
+      toastStore.success(
+        `"${row.groupLabel}" access set to ${toLevelLabel(levelId)}.`
+      ),
+    onError: (error: Error) =>
+      toastStore.error(
+        `Failed to set access for "${row.groupLabel}": ${error.message}`,
+        { title: "Save Access Failed" }
+      ),
+  };
+
   if (row.grantId === null) {
-    createGrant.mutate({
-      drawerId: props.drawerId,
-      drawerGroupId: row.id,
-      permissionLevelId: levelId,
-    });
+    createGrant.mutate(
+      {
+        drawerId: props.drawerId,
+        drawerGroupId: row.id,
+        permissionLevelId: levelId,
+      },
+      accessToasts
+    );
     return;
   }
 
-  updateGrant.mutate({ grantId: row.grantId, permissionLevelId: levelId });
+  updateGrant.mutate(
+    { grantId: row.grantId, permissionLevelId: levelId },
+    accessToasts
+  );
 }
 
 // What the row that was saved submitted, which its cells show while the
@@ -417,7 +423,7 @@ const submittedRow = ref<SavingRow | null>(null);
 // can be the one still running.
 const isSaveInFlight = computed(
   (): boolean =>
-    updateGroup.isPending.value ||
+    renameGroup.isPending.value ||
     createGrant.isPending.value ||
     updateGrant.isPending.value ||
     deleteGrant.isPending.value
@@ -446,22 +452,55 @@ function removePermissions(row: GroupAccessRow) {
   if (row.grantId === null) return;
 
   const noAccessLevelId = toNoAccessLevelId();
+
+  if (row.group.ownedByCurrentUser) {
+    submittedRow.value = {
+      id: row.id,
+      groupLabel: row.groupLabel,
+      levelLabel: toLevelLabel(noAccessLevelId),
+    };
+    deleteGrant.mutate(row.grantId, {
+      onSuccess: () =>
+        toastStore.success(`Permissions removed from "${row.groupLabel}".`),
+      onError: (error) =>
+        toastStore.error(
+          `Failed to remove permissions from "${row.groupLabel}": ${error.message}`,
+          { title: "Remove Permissions Failed" }
+        ),
+    });
+    return;
+  }
+
+  // Levelling to 0 is the only way to revoke another owner's rule, so
+  // without that level there is nothing to submit.
+  if (noAccessLevelId === null) {
+    toastStore.error(
+      "This instance has no No Permissions level to revoke access with.",
+      { title: "Remove Permissions Failed" }
+    );
+    return;
+  }
+
   submittedRow.value = {
     id: row.id,
     groupLabel: row.groupLabel,
     levelLabel: toLevelLabel(noAccessLevelId),
   };
-
-  if (row.group.ownedByCurrentUser) {
-    deleteGrant.mutate(row.grantId);
-    return;
-  }
-
-  if (noAccessLevelId === null) return;
-  updateGrant.mutate({
-    grantId: row.grantId,
-    permissionLevelId: noAccessLevelId,
-  });
+  updateGrant.mutate(
+    {
+      grantId: row.grantId,
+      permissionLevelId: noAccessLevelId,
+    },
+    {
+      onSuccess: () =>
+        toastStore.success(`Permissions removed from "${row.groupLabel}".`),
+      onError: (error) =>
+        toastStore.error(
+          `Failed to remove permissions from "${row.groupLabel}": ${error.message}`,
+          { title: "Remove Permissions Failed" }
+        ),
+    }
+  );
 }
 
 // the group awaiting delete confirmation, doubling as the modal's open state
@@ -496,10 +535,8 @@ const deletingGroupId = computed((): number | null => {
 const groupAccessColumns = createGroupAccessColumns({
   editingRowId,
   draftLabel,
-  draftType,
   draftLevelId,
   savingRow,
-  typeOptions,
   permissionOptions,
   onEdit: startEdit,
   onCancel: cancelEdit,
@@ -520,8 +557,16 @@ const searchText = ref("");
 const expanded = ref<ExpandedState>({});
 
 // the group the user just created. Sorting, searching, or expanding means
-// the user has moved on, so the table's change handlers clear it.
+// the user has moved on, so those handlers clear it.
 const currentGroupId = ref<number | null>(null);
+
+// Typing in the search box means the user moved on from the group they
+// just created. revealNewGroup writes searchText directly, since it
+// clears the box to show that group rather than to leave it.
+function searchGroups(text: string): void {
+  searchText.value = text;
+  currentGroupId.value = null;
+}
 
 function isCurrentGroup(groupId: number): boolean {
   return groupId === currentGroupId.value;
@@ -551,10 +596,6 @@ const table = useVueTable({
   onExpandedChange: (updater) => {
     currentGroupId.value = null;
     expanded.value = functionalUpdate(updater, expanded.value);
-  },
-  onGlobalFilterChange: (updater) => {
-    currentGroupId.value = null;
-    searchText.value = functionalUpdate(updater, searchText.value);
   },
   state: {
     get sorting() {
