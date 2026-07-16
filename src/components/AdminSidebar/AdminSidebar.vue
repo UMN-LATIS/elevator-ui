@@ -12,7 +12,7 @@
           Pages
         </SidebarNavItem>
       </li>
-      <li v-if="config.features.adminPermissions">
+      <li>
         <SidebarNavItem :to="{ name: 'adminPermissions' }" :icon="LockIcon">
           Permissions
         </SidebarNavItem>
