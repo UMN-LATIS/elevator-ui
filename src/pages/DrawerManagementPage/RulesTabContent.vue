@@ -144,6 +144,7 @@ import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
+import { useInstanceStore } from "@/stores/instanceStore";
 import { useToastStore } from "@/stores/toastStore";
 import RuleFormModal from "./RuleFormModal.vue";
 import { createRuleColumns } from "./RulesTableColumns";
@@ -289,10 +290,21 @@ function confirmDelete() {
   rulePendingDelete.value = null;
 }
 
+const instanceStore = useInstanceStore();
+
+// The API lets an admin delete any grant, matching canManageEveryDrawer
+// there. A manager is held to their own groups, which they could put
+// back.
+const canDeleteAnyRule = computed((): boolean => {
+  const currentUser = instanceStore.currentUser;
+  return Boolean(currentUser?.isAdmin || currentUser?.isSuperAdmin);
+});
+
 const ruleColumns = createRuleColumns({
   editingRuleId,
   draftLevelId,
   savingRule,
+  canDeleteAnyRule,
   permissionOptions,
   onEdit: startEdit,
   onCancel: cancelEdit,

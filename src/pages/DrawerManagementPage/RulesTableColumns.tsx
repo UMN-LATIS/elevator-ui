@@ -29,6 +29,9 @@ export interface RuleColumnsDeps {
   editingRuleId: Ref<number | null>;
   draftLevelId: Ref<number | null>;
   savingRule: Ref<SavingRule | null>;
+  // admins reach every drawer, so they may delete a rule for a group
+  // they do not own
+  canDeleteAnyRule: Ref<boolean>;
   permissionOptions: Ref<PermissionSelectOption[]>;
   onEdit: (rule: DrawerRuleRow) => void;
   onCancel: () => void;
@@ -171,10 +174,11 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
             showTooltip={false}>
             <PencilIcon class="size-4" />
           </IconButton>
-          {/* Deleting another owner's rule is one-way, since a new rule
-              can only name a group the caller owns. Editing it to No
-              Permissions revokes the access and leaves the rule to them. */}
-          {rule.isOwnGroup ? (
+          {/* Deleting another owner's rule is one-way for a manager,
+              since a new rule can only name a group they own. Editing it
+              to No Permissions revokes the access and leaves the rule to
+              its owner. */}
+          {rule.isOwnGroup || deps.canDeleteAnyRule.value ? (
             <IconButton
               onClick={() => deps.onDelete(rule)}
               title="Delete Rule"
