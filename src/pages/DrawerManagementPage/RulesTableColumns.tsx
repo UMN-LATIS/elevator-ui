@@ -19,17 +19,18 @@ import type { DrawerRuleRow } from "./buildRuleRows";
 
 const columnHelper = createColumnHelper<DrawerRuleRow>();
 
+export interface SavingRule {
+  id: number;
+  levelLabel: string;
+}
+
 // The Edit action swaps a row's permission cell for an inline select
 // instead of opening a modal. Only one row edits at a time, so a single
 // draft level and editing id drive every cell.
 export interface RuleColumnsDeps {
   editingRuleId: Ref<number | null>;
   draftLevelId: Ref<number | null>;
-  // the row whose save is in flight, and the level label it submitted, so
-  // the permission cell shows the new value with a spinner instead of
-  // snapping back to the old one while the refetch runs
-  savingRuleId: Ref<number | null>;
-  savingLevelLabel: Ref<string>;
+  savingRule: Ref<SavingRule | null>;
   permissionOptions: Ref<PermissionSelectOption[]>;
   onEdit: (rule: DrawerRuleRow) => void;
   onCancel: () => void;
@@ -113,11 +114,12 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
         );
       }
 
-      if (deps.savingRuleId.value === rule.id) {
+      const savingRule = deps.savingRule.value;
+      if (savingRule?.id === rule.id) {
         return (
           <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface-variant">
             <LoaderCircleIcon class="size-3 shrink-0 animate-spin" />
-            <span class="truncate">{deps.savingLevelLabel.value}</span>
+            <span class="truncate">{savingRule.levelLabel}</span>
           </Chip>
         );
       }
@@ -172,13 +174,18 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
             showTooltip={false}>
             <PencilIcon class="size-4" />
           </IconButton>
-          <IconButton
-            onClick={() => deps.onDelete(rule)}
-            title="Delete Rule"
-            showTooltip={false}
-            class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
-            <TrashIcon class="size-4" />
-          </IconButton>
+          {/* Deleting another owner's rule is one-way, since a new rule
+              can only name a group the caller owns. Editing it to No
+              Permissions revokes the access and leaves the rule to them. */}
+          {rule.isOwnGroup ? (
+            <IconButton
+              onClick={() => deps.onDelete(rule)}
+              title="Delete Rule"
+              showTooltip={false}
+              class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container">
+              <TrashIcon class="size-4" />
+            </IconButton>
+          ) : null}
         </div>
       );
     },

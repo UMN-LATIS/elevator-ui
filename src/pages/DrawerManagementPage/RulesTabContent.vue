@@ -101,11 +101,7 @@
 
     <ConfirmModal
       :isOpen="Boolean(rulePendingDelete)"
-      :title="
-        isDeletingAnotherOwnersRule
-          ? 'Delete Someone Else’s Rule'
-          : 'Delete Rule'
-      "
+      title="Delete Rule"
       type="danger"
       confirmLabel="Delete"
       @close="rulePendingDelete = null"
@@ -117,20 +113,8 @@
         <b>{{ rulePendingDelete?.permissionLabel }}</b>
         permission on
         <b>{{ rulePendingDelete?.drawerTitle }}?</b>
+        This action cannot be undone.
       </p>
-      <p
-        v-if="isDeletingAnotherOwnersRule"
-        role="alert"
-        class="mt-3 flex items-start gap-2 rounded-md bg-error-container px-3 py-2 text-sm text-on-error-container">
-        <TriangleAlertIcon class="mt-0.5 size-4 shrink-0" />
-        <span>
-          This group belongs to
-          <b>{{ pendingDeleteOwnerName }}</b>
-          , and everyone in it loses access immediately. You will not be able to
-          put this rule back: a new rule can only use a group you own.
-        </span>
-      </p>
-      <p v-else class="mt-3">This action cannot be undone.</p>
     </ConfirmModal>
   </div>
 </template>
@@ -154,13 +138,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  FilterIcon,
-  TriangleAlertIcon,
-} from "lucide-vue-next";
+import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
@@ -169,20 +147,20 @@ import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermi
 import { useToastStore } from "@/stores/toastStore";
 import RuleFormModal from "./RuleFormModal.vue";
 import { createRuleColumns } from "./RulesTableColumns";
+import type { SavingRule } from "./RulesTableColumns";
 import { buildRuleRows } from "./buildRuleRows";
 import type { DrawerRuleRow } from "./buildRuleRows";
 import {
   drawerGrantsQuery,
   useDeleteDrawerGrantMutation,
-  useSaveDrawerGrantMutation,
+  useUpdateDrawerGrantMutation,
 } from "./drawerGrantQueries";
 import { manageableDrawersQuery } from "./drawerGroupQueries";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 
-// Placeholder rows shown while the rule list loads.
 const SKELETON_ROW_COUNT = 3;
 
-// The modal only creates rules; editing happens inline in the table.
+// the modal only creates rules, editing is inline in the table
 const isRuleModalOpen = ref(false);
 
 function openCreate() {
@@ -225,20 +203,25 @@ const ruleRows = computed(() =>
 
 const emptyMessage = computed((): string => {
   if (isError.value) return "Could not load rules.";
-  if (ruleRows.value.length) return "No rules match your filters.";
+  // the table renders this only when no row is visible, so rules that
+  // exist are rules the search hid
+  const isSearchHidingEveryRule = ruleRows.value.length > 0;
+  if (isSearchHidingEveryRule) return "No rules match your filters.";
   return "No rules yet.";
 });
 
-// Options for the inline permission editor.
+// A rule for a group the caller does not own cannot be deleted, so the
+// editor offers No Permissions as the way to revoke one in place.
 const permissionOptions = computed(() =>
-  buildPermissionOptions(permissionLevels.value ?? [])
+  buildPermissionOptions(permissionLevels.value ?? [], {
+    includesNoPermissions: true,
+  })
 );
 
-// Inline permission editing: the row whose permission cell is open, plus
-// the level picked in it. Only one row edits at a time.
+// only one row edits at a time
 const editingRuleId = ref<number | null>(null);
 const draftLevelId = ref<number | null>(null);
-const saveGrant = useSaveDrawerGrantMutation();
+const updateGrant = useUpdateDrawerGrantMutation();
 
 function startEdit(rule: DrawerRuleRow) {
   editingRuleId.value = rule.id;
@@ -253,37 +236,28 @@ function cancelEdit() {
 function saveEdit(rule: DrawerRuleRow) {
   const levelId = draftLevelId.value;
   cancelEdit();
-  // nothing to save when the level is unchanged
   if (levelId === null || levelId === rule.permissionLevelId) return;
 
-  saveGrant.mutate({
-    kind: "update",
-    grantId: rule.id,
-    permissionLevelId: levelId,
-  });
+  updateGrant.mutate({ grantId: rule.id, permissionLevelId: levelId });
 }
 
-// The row whose inline save is in flight. Its permission cell shows the
-// submitted level with a spinner until the refetch lands.
-const savingRuleId = computed((): number | null => {
-  const input = saveGrant.variables.value;
-  if (!saveGrant.isPending.value || input?.kind !== "update") return null;
-  return input.grantId;
-});
+// The row whose inline save is in flight, with the level it submitted.
+// Its permission cell shows that level rather than the stale one the
+// list still holds until the refetch lands.
+const savingRule = computed((): SavingRule | null => {
+  const vars = updateGrant.variables.value;
+  if (!updateGrant.isPending.value || !vars) return null;
 
-const savingLevelLabel = computed((): string => {
-  const input = saveGrant.variables.value;
-  if (input?.kind !== "update") return "";
   const submittedLevel = permissionOptions.value.find(
-    (option) => option.id === input.permissionLevelId
+    (option) => option.id === vars.permissionLevelId
   );
-  return submittedLevel?.label ?? "";
+  return { id: vars.grantId, levelLabel: submittedLevel?.label ?? "" };
 });
 
 const toastStore = useToastStore();
 const deleteGrant = useDeleteDrawerGrantMutation();
 
-// The row being deleted grays out until the refetch drops it.
+// the rule being deleted
 const deletingRuleId = computed((): number | null => {
   if (!deleteGrant.isPending.value) return null;
   return deleteGrant.variables.value ?? null;
@@ -291,18 +265,6 @@ const deletingRuleId = computed((): number | null => {
 
 // the rule awaiting delete confirmation, doubling as the modal's open state
 const rulePendingDelete = ref<DrawerRuleRow | null>(null);
-
-// Managing a drawer carries the right to revoke a grant for a group the
-// caller does not own, but not to recreate one: a new rule can only name
-// a group they own. Deleting is one-way, so the dialog says so.
-const isDeletingAnotherOwnersRule = computed((): boolean => {
-  const rule = rulePendingDelete.value;
-  return rule !== null && !rule.isOwnGroup;
-});
-
-const pendingDeleteOwnerName = computed(
-  (): string => rulePendingDelete.value?.ownerName ?? "another user"
-);
 
 function handleDelete(rule: DrawerRuleRow) {
   rulePendingDelete.value = rule;
@@ -330,8 +292,7 @@ function confirmDelete() {
 const ruleColumns = createRuleColumns({
   editingRuleId,
   draftLevelId,
-  savingRuleId,
-  savingLevelLabel,
+  savingRule,
   permissionOptions,
   onEdit: startEdit,
   onCancel: cancelEdit,
