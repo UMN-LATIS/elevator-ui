@@ -4,18 +4,23 @@
       <p class="text-sm flex-1">
         Share a drawer by granting one of your groups a permission on it.
       </p>
-      <InputGroup
-        v-model="searchText"
-        label="Search Rules"
-        placeholder="Search rules"
-        :labelHidden="true"
-        class="max-w-sm"
-        type="search"
-        :disabled="isLoading">
-        <template #prepend>
-          <FilterIcon class="size-4 text-on-surface-variant" />
-        </template>
-      </InputGroup>
+      <div class="flex gap-2 items-center flex-wrap">
+        <InputGroup
+          v-model="searchText"
+          label="Search Rules"
+          placeholder="Search rules"
+          :labelHidden="true"
+          class="max-w-sm"
+          type="search"
+          :disabled="isLoading">
+          <template #prepend>
+            <FilterIcon class="size-4 text-on-surface-variant" />
+          </template>
+        </InputGroup>
+        <Button variant="primary" class="whitespace-nowrap" @click="openCreate">
+          Create Rule
+        </Button>
+      </div>
     </div>
 
     <div class="mt-4 border border-outline-variant rounded-md">
@@ -92,6 +97,8 @@
       </Table>
     </div>
 
+    <RuleFormModal :isOpen="isRuleModalOpen" @close="isRuleModalOpen = false" />
+
     <ConfirmModal
       :isOpen="Boolean(rulePendingDelete)"
       :title="
@@ -154,11 +161,13 @@ import {
   FilterIcon,
   TriangleAlertIcon,
 } from "lucide-vue-next";
+import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { useToastStore } from "@/stores/toastStore";
+import RuleFormModal from "./RuleFormModal.vue";
 import { createRuleColumns } from "./RulesTableColumns";
 import { buildRuleRows } from "./buildRuleRows";
 import type { DrawerRuleRow } from "./buildRuleRows";
@@ -172,6 +181,13 @@ import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 
 // Placeholder rows shown while the rule list loads.
 const SKELETON_ROW_COUNT = 3;
+
+// The modal only creates rules; editing happens inline in the table.
+const isRuleModalOpen = ref(false);
+
+function openCreate() {
+  isRuleModalOpen.value = true;
+}
 
 const {
   data: grants,

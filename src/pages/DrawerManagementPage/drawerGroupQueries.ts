@@ -4,7 +4,12 @@ import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
-import type { UpdateGroupPayload, PermissionsGroup } from "@/types";
+import { toDrawerTitle } from "./toDrawerTitle";
+import type {
+  ManageableDrawer,
+  UpdateGroupPayload,
+  PermissionsGroup,
+} from "@/types";
 
 // "drawerGroups", not "groups", which the instance page already uses
 const drawerGroupKeys = makeQueryKeysFor("drawerGroups");
@@ -64,6 +69,28 @@ export function manageableDrawersQuery() {
   return queryOptions({
     queryKey: queryKeys.manageableDrawers(),
     queryFn: fetchers.fetchManageableDrawers,
+  });
+}
+
+// Creating a drawer makes the caller its manager, so it joins the list a
+// rule can pick from.
+export function useCreateManageableDrawerMutation() {
+  const queryClient = useQueryClient();
+  const toastStore = useToastStore();
+
+  return useMutation({
+    mutationFn: async (title: string): Promise<ManageableDrawer> => {
+      const created = await fetchers.createDrawer(title);
+      return { id: created.drawerId, title: created.drawerTitle };
+    },
+    onSuccess: (drawer) =>
+      toastStore.success(`Drawer "${toDrawerTitle(drawer)}" created.`),
+    onError: (error) =>
+      toastStore.error(error.message, { title: "Could not create drawer" }),
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.manageableDrawers(),
+      }),
   });
 }
 

@@ -154,7 +154,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
 import type {
   ColumnDef,
@@ -379,6 +380,42 @@ async function handleCreated(group: PermissionsGroup) {
     console.warn(`Could not focus new ${group.type} group`, error);
   }
 }
+
+const route = useRoute();
+const router = useRouter();
+
+// Deep link from the Rules tab: ?group=<id> reveals that group's row.
+watch(
+  [groups, () => route.query.group],
+  async ([groupList, groupParam]) => {
+    // the link can arrive before the groups query has loaded, so this
+    // watch also runs on groups and waits for both
+    if (!groupList || typeof groupParam !== "string") return;
+
+    // drop the param right away so a refresh or back navigation
+    // doesn't replay the jump
+    router.replace({ query: { ...route.query, group: undefined } });
+
+    const group = groupList.find((g) => String(g.id) === groupParam);
+    if (!group) return;
+
+    // an active search could hide the row, so it resets
+    searchGroupText.value = "";
+    currentGroupId.value = group.id;
+    if (isManageableGroup(group)) {
+      const currentlyExpanded = expanded.value === true ? {} : expanded.value;
+      expanded.value = { ...currentlyExpanded, [groupParam]: true };
+    }
+
+    try {
+      const focused = await tryFocus(`[data-group-row="${group.id}"]`);
+      focused.scrollIntoView({ block: "center" });
+    } catch (error) {
+      console.warn(`Could not focus group ${groupParam}`, error);
+    }
+  },
+  { immediate: true }
+);
 </script>
 <style scoped>
 .group-row--current {
