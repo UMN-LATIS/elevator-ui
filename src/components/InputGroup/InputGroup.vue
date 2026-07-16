@@ -18,6 +18,7 @@
         v-model="model"
         :type="type"
         :name="id"
+        :placeholder="placeholder"
         :required="required"
         :disabled="disabled"
         :class="
@@ -53,6 +54,7 @@ withDefaults(
     id?: string;
     label: string;
     labelHidden?: boolean;
+    placeholder?: string;
     type?: string;
     inputClass?: CSSClass;
     labelClass?: CSSClass;
@@ -63,6 +65,7 @@ withDefaults(
   {
     id: () => useId(),
     labelHidden: false,
+    placeholder: "",
     type: "text",
     required: false,
     disabled: false,

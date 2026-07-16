@@ -1,10 +1,12 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
+import type { QueryClient } from "@tanstack/vue-query";
 import { computed, toValue, type MaybeRefOrGetter } from "vue";
 import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
-import type { UpdateGroupPayload, PermissionsGroup } from "@/types";
+import { drawerGrantQueryKeys } from "./drawerGrantQueries";
+import type { UpdateGroupPayload } from "@/types";
 
 // "drawerGroups", not "groups", which the instance page already uses
 const drawerGroupKeys = makeQueryKeysFor("drawerGroups");
@@ -95,15 +97,12 @@ export function useUpdateDrawerGroupMutation() {
     onSuccess: (group) => toastStore.success(`Group "${group.label}" updated.`),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not update group" }),
-    // The list shows label and type, so it goes stale along with the item.
     onSettled: (_group, _error, vars) =>
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: queryKeys.drawerGroupItem(vars.id),
         }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.drawerGroupsList(),
-        }),
+        ...invalidateGroupLists(queryClient),
       ]),
   });
 }
@@ -113,18 +112,35 @@ export function useDeleteDrawerGroupMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: PermissionsGroup["id"]) => fetchers.deleteDrawerGroup(id),
+    mutationFn: (groupId: number) => fetchers.deleteDrawerGroup(groupId),
     // The group no longer exists, so drop its item subtree instead of
     // invalidating it (a refetch would 404).
-    onSettled: (_data, _error, id) => {
+    onSettled: (_data, _error, groupId) => {
       queryClient.removeQueries({
-        queryKey: queryKeys.drawerGroupItem(id),
+        queryKey: queryKeys.drawerGroupItem(groupId),
       });
-      return queryClient.invalidateQueries({
-        queryKey: queryKeys.drawerGroupsList(),
-      });
+      return Promise.all(invalidateGroupLists(queryClient));
     },
   });
+}
+
+/**
+ * Mark both lists that describe a group stale.
+ *
+ * A group reaches the sharing table by two routes: a shared group's row
+ * reads the name, type, and entry count copied onto its grant, and a
+ * group with no rule reads the groups list. Anything that changes a
+ * group, or removes it, changes what both of them say.
+ */
+function invalidateGroupLists(queryClient: QueryClient): Promise<void>[] {
+  return [
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.drawerGroupsList(),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: drawerGrantQueryKeys.drawerGrantsList(),
+    }),
+  ];
 }
 
 // The member's display name rides along so the in-flight row can show it.
@@ -140,16 +156,12 @@ export function useAddDrawerGroupMemberMutation() {
       fetchers.addDrawerGroupMember(vars),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not add member" }),
-    // The list's count chip tallies members, so it goes stale along with
-    // the member list.
     onSettled: (_member, _error, vars) =>
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: queryKeys.drawerGroupMembers(vars.groupId),
         }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.drawerGroupsList(),
-        }),
+        ...invalidateGroupLists(queryClient),
       ]),
   });
 }
@@ -168,9 +180,7 @@ export function useRemoveDrawerGroupMemberMutation() {
         queryClient.invalidateQueries({
           queryKey: queryKeys.drawerGroupMembers(vars.groupId),
         }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.drawerGroupsList(),
-        }),
+        ...invalidateGroupLists(queryClient),
       ]),
   });
 }
@@ -183,20 +193,16 @@ export function useAddDrawerGroupEntryMutation() {
     mutationFn: fetchers.addDrawerGroupEntry,
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not add value" }),
-    // The list shows entries_count, so it goes stale along with the entries.
     onSettled: (_entry, _error, vars) =>
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: queryKeys.drawerGroupEntries(vars.groupId),
         }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.drawerGroupsList(),
-        }),
+        ...invalidateGroupLists(queryClient),
       ]),
   });
 }
 
-// Editing a value in place leaves entries_count alone, so the list stays fresh.
 export function useUpdateDrawerGroupEntryMutation() {
   const queryClient = useQueryClient();
   const toastStore = useToastStore();
@@ -221,15 +227,12 @@ export function useRemoveDrawerGroupEntryMutation() {
       fetchers.removeDrawerGroupEntry(vars.groupId, vars.entryId),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not remove value" }),
-    // The list shows entries_count, so it goes stale along with the entries.
     onSettled: (_data, _error, vars) =>
       Promise.all([
         queryClient.invalidateQueries({
           queryKey: queryKeys.drawerGroupEntries(vars.groupId),
         }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.drawerGroupsList(),
-        }),
+        ...invalidateGroupLists(queryClient),
       ]),
   });
 }

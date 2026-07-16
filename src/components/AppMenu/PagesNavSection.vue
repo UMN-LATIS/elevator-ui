@@ -57,23 +57,23 @@ const byTitle = (a: { name: string }, b: { name: string }) =>
 
 function convertPagesToNavItems(pages: Page[]): NavItem[] {
   return pages
-.map((page) => {
-    const parentNavItem = toNavItem(page);
+    .map((page) => {
+      const parentNavItem = toNavItem(page);
 
-    if (!page.children || page.children.length === 0) {
-      return parentNavItem;
-    }
+      if (!page.children || page.children.length === 0) {
+        return parentNavItem;
+      }
 
-    return {
-      ...parentNavItem,
-      children: [
-        // the first page of the children group should be
-        // the parent page, then all the child pages follow sorted
-        parentNavItem,
-        ...page.children.map(toNavItem).sort(byTitle),
-      ],
-    };
-  })
+      return {
+        ...parentNavItem,
+        children: [
+          // the first page of the children group should be
+          // the parent page, then all the child pages follow sorted
+          parentNavItem,
+          ...page.children.map(toNavItem).sort(byTitle),
+        ],
+      };
+    })
     .sort(byTitle);
 }
 

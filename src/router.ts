@@ -92,9 +92,12 @@ const createDrawerManagementRoutes = (): RouteRecordRaw[] => {
   return [
     {
       name: "drawerManagement",
-      path: "/drawers/manage",
+      path: "/drawers/:drawerId(\\d+)/manage",
       component: () =>
         import("@/pages/DrawerManagementPage/DrawerManagementPage.vue"),
+      props: (route) => ({
+        drawerId: parseIntFromParam(route.params.drawerId),
+      }),
       meta: {
         requiresAuth: true,
         canAccess: (user: User) => user.canManageDrawers,

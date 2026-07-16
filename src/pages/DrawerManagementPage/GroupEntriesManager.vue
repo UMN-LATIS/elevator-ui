@@ -17,14 +17,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type { PermissionsGroup } from "@/types";
+import type { DrawerGrantGroup } from "@/types";
 import { drawerGroupEntriesQuery } from "./drawerGroupQueries";
 import GroupEntriesTable from "./GroupEntriesTable.vue";
 import AddGroupEntryRow from "./AddGroupEntryRow.vue";
 import AddRowButton from "../AdminPermissionsPage/AddRowButton.vue";
 import { tryFocus } from "@/helpers/tryFocus";
 
-const props = defineProps<{ group: PermissionsGroup; isOpen: boolean }>();
+const props = defineProps<{ group: DrawerGrantGroup; isOpen: boolean }>();
 
 const isAddingEntry = ref(false);
 

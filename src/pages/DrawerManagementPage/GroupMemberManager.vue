@@ -47,10 +47,10 @@ import {
   useRemoveDrawerGroupMemberMutation,
 } from "./drawerGroupQueries";
 import { tryFocus } from "@/helpers/tryFocus";
-import type { GroupMember, PermissionsGroup } from "@/types";
+import type { GroupMember, DrawerGrantGroup } from "@/types";
 
 const props = defineProps<{
-  group: PermissionsGroup;
+  group: DrawerGrantGroup;
   isOpen: boolean;
 }>();
 

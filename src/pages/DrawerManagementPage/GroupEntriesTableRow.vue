@@ -77,7 +77,7 @@
   </TableRow>
 </template>
 <script setup lang="ts">
-import type { PermissionsGroup, PermissionsGroupEntry } from "@/types";
+import type { DrawerGrantGroup, PermissionsGroupEntry } from "@/types";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { ref } from "vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
@@ -90,7 +90,7 @@ import {
 } from "./drawerGroupQueries";
 
 const props = defineProps<{
-  group: PermissionsGroup;
+  group: DrawerGrantGroup;
   entry: PermissionsGroupEntry;
 }>();
 

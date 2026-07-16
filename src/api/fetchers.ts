@@ -59,6 +59,7 @@ import {
   type ManageableDrawer,
   type DrawerGrant,
   type CreateDrawerGrantPayload,
+  type UpdateDrawerGrantPayload,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1500,14 +1501,18 @@ export async function createDrawerGrant(
   return res.data.grant;
 }
 
-// A grant's drawer and group are fixed once created, so only the level
-// can change.
+// A grant's drawer is fixed once created. Its group can move, but only
+// onto a group the caller owns, so omit drawerGroupId to leave a grant on
+// a group they do not.
 export async function updateDrawerGrant(
   grantId: number,
-  permissionLevelId: number
+  payload: UpdateDrawerGrantPayload
 ): Promise<DrawerGrant> {
   const params = new URLSearchParams();
-  params.append("permissionLevelId", String(permissionLevelId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+  if (payload.drawerGroupId !== undefined) {
+    params.append("drawerGroupId", String(payload.drawerGroupId));
+  }
 
   const res = await axios.put<{ grant: DrawerGrant }>(
     `${BASE_URL}/drawerPermissions/grants/${grantId}`,

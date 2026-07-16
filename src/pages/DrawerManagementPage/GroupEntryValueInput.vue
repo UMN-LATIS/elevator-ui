@@ -53,11 +53,11 @@ import {
   isEntryValueOptionDisabled,
   type EntryValueOption,
 } from "../AdminPermissionsPage/buildEntryValueOptions";
-import type { CSSClass, PermissionsGroup } from "@/types";
+import type { CSSClass, DrawerGrantGroup } from "@/types";
 import { cn } from "@/lib/utils";
 
 const props = defineProps<{
-  group: PermissionsGroup;
+  group: DrawerGrantGroup;
   inputId: string;
   // visually hidden, for the accessible name
   label: string;

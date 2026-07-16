@@ -18,12 +18,8 @@
           v-if="instanceStore.currentUser?.canManageDrawers"
           class="flex items-center gap-2 bg-surface-container-low p-1 rounded-md">
           <IconButton
-            :to="{
-              path: '/drawers/manage',
-              // every rule on this drawer, not just the ones for groups
-              // the viewer owns, which is what the tab opens on by default
-              query: { tab: 'rules', drawer: String(drawerId), owner: 'all' },
-            }"
+            v-if="config.features.drawerManagement"
+            :to="`/drawers/${drawerId}/manage`"
             title="Edit Permissions">
             <UsersIcon class="!w-5 !h-5" />
             <span class="sr-only">Edit Permissions</span>

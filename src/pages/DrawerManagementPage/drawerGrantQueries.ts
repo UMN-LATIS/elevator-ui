@@ -2,9 +2,16 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
+import type { UpdateDrawerGrantPayload } from "@/types";
 
-// A "rule" in the UI is a "grant" in the backend.
+// A grant is one group's permission level on one drawer, which the
+// sharing table shows as that group's row rather than as a thing of its
+// own.
 const drawerGrantKeys = makeQueryKeysFor("drawerGrants");
+
+export const drawerGrantQueryKeys = {
+  drawerGrantsList: drawerGrantKeys.list,
+};
 
 export function drawerGrantsQuery() {
   return queryOptions({
@@ -13,9 +20,8 @@ export function drawerGrantsQuery() {
   });
 }
 
-export type UpdateDrawerGrantVars = {
+export type UpdateDrawerGrantVars = UpdateDrawerGrantPayload & {
   grantId: number;
-  permissionLevelId: number;
 };
 
 // Mutations reconcile by invalidating rather than patching the cache
@@ -42,8 +48,8 @@ export function useUpdateDrawerGrantMutation() {
   const toastStore = useToastStore();
 
   return useMutation({
-    mutationFn: (vars: UpdateDrawerGrantVars) =>
-      fetchers.updateDrawerGrant(vars.grantId, vars.permissionLevelId),
+    mutationFn: ({ grantId, ...payload }: UpdateDrawerGrantVars) =>
+      fetchers.updateDrawerGrant(grantId, payload),
     onSuccess: () => toastStore.success("Rule updated."),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not save rule" }),

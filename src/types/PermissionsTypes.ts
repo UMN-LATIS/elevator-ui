@@ -39,16 +39,20 @@ export interface PermissionsGroup {
   is_personal?: boolean;
 }
 
+// The type predicates below sort groups by type alone, and the two group
+// shapes the API returns disagree on everything else.
+type TypedGroup = { type: GroupTypeValues };
+
 // Auth-helper types are defined by the backend's AuthHelper
 // classes, so the UI can only recognize them as "not one of the built-in
 // GROUP_TYPES". The backend rejects entry writes on other types anyway.
-export function isAuthHelperGroupType(group: PermissionsGroup): boolean {
+export function isAuthHelperGroupType(group: TypedGroup): boolean {
   const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
   return !builtInTypes.includes(group.type);
 }
 
 // A group with something to manage inside: members, entries
-export function isManageableGroup(group: PermissionsGroup): boolean {
+export function isManageableGroup(group: TypedGroup): boolean {
   return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
 }
 
@@ -127,6 +131,8 @@ export interface DrawerGrantGroup {
   ownedByCurrentUser: boolean;
   // null for a global group type, which has no owner
   ownerName: string | null;
+  // A User group stores its members as entries, so one count covers both.
+  entries_count: number;
 }
 
 // GET /drawerPermissions/grants: one drawer group's permission level on
@@ -146,4 +152,13 @@ export interface CreateDrawerGrantPayload {
   drawerId: number;
   drawerGroupId: number;
   permissionLevelId: number;
+}
+
+// PUT /drawerPermissions/grants/{id}. A grant stays on the drawer it was
+// created for.
+export interface UpdateDrawerGrantPayload {
+  permissionLevelId: number;
+  // omit to leave the grant on the group it already names, which is the
+  // only way to re-level a grant on a group the caller does not own
+  drawerGroupId?: number;
 }

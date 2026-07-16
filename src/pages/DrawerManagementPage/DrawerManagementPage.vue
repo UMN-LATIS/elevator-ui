@@ -1,59 +1,58 @@
 <template>
   <DefaultLayout>
     <PageContent class="max-w-screen-lg">
-      <PageHeader
-        title="Drawer Management"
-        description="Manage your drawers and the groups you share them with" />
+      <Link
+        :to="`/drawers/viewDrawer/${drawerId}`"
+        class="flex items-center gap-1 mb-4 hover:no-underline">
+        <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
+        Back to Drawer
+      </Link>
 
-      <Tabs
-        v-model:activeTabId="activeTabId"
-        labelsClass="border-b border-outline-variant">
-        <Tab id="rules" label="Rules">
-          <RulesTabContent />
-        </Tab>
-        <Tab id="groups" label="Groups">
-          <GroupsTabContent />
-        </Tab>
-      </Tabs>
+      <PageHeader :title="pageTitle" />
+
+      <p v-if="isUnmanageable" class="text-sm text-on-surface-variant">
+        You cannot manage the sharing for this drawer.
+      </p>
+      <GroupAccessTable v-else :drawerId="drawerId" />
     </PageContent>
   </DefaultLayout>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { useQuery } from "@tanstack/vue-query";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
-import Tabs from "@/components/Tabs/Tabs.vue";
-import Tab from "@/components/Tabs/Tab.vue";
-import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import RulesTabContent from "./RulesTabContent.vue";
-import GroupsTabContent from "./GroupsTabContent.vue";
+import Link from "@/components/Link/Link.vue";
+import { ArrowForwardIcon } from "@/icons";
+import GroupAccessTable from "./GroupAccessTable.vue";
+import { manageableDrawersQuery } from "./drawerGroupQueries";
+import { toDrawerTitle } from "./toDrawerTitle";
 
-const VALID_TABS = ["rules", "groups"] as const;
-type ValidTab = (typeof VALID_TABS)[number];
+const props = defineProps<{
+  drawerId: number;
+}>();
 
-const route = useRoute();
-const router = useRouter();
+const { data: drawers, isSuccess: isDrawerListLoaded } = useQuery(
+  manageableDrawersQuery()
+);
 
-// route.query.tab can be an array, so narrow to a single valid tab
-const isValidTab = (x: unknown): x is ValidTab =>
-  VALID_TABS.some((tab) => tab === x);
+const drawer = computed(() =>
+  (drawers.value ?? []).find((candidate) => candidate.id === props.drawerId)
+);
 
-// let route be the source of truth for the active tab.
-const activeTabId = computed<ValidTab>({
-  get() {
-    const tab = route.query.tab;
-    return isValidTab(tab) ? tab : VALID_TABS[0];
-  },
-  set(tabId) {
-    router.replace({
-      query: {
-        ...route.query,
-        // keep the default tab's URL clean by omitting the param
-        tab: tabId === VALID_TABS[0] ? undefined : tabId,
-      },
-    });
-  },
+// The list holds every drawer the caller manages, so a drawer missing
+// from it is one they cannot share. Wait for the list: before it lands,
+// every drawer looks missing.
+const isUnmanageable = computed(
+  (): boolean => isDrawerListLoaded.value && !drawer.value
+);
+
+// The drawer's title arrives with the list, so the header names the
+// drawer only once it can.
+const pageTitle = computed((): string => {
+  if (!drawer.value) return "Drawer Permissions";
+  return `Drawer Permissions: ${toDrawerTitle(drawer.value)}`;
 });
 </script>

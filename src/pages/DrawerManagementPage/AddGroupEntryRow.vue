@@ -38,7 +38,7 @@
   </TableRow>
 </template>
 <script setup lang="ts">
-import type { PermissionsGroup } from "@/types";
+import type { DrawerGrantGroup } from "@/types";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { computed, ref } from "vue";
 import { XIcon, CheckIcon } from "lucide-vue-next";
@@ -47,7 +47,7 @@ import { useAddDrawerGroupEntryMutation } from "./drawerGroupQueries";
 import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
-  defineProps<{ group: PermissionsGroup; colspan?: number }>(),
+  defineProps<{ group: DrawerGrantGroup; colspan?: number }>(),
   {
     colspan: 2,
   }
