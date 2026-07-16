@@ -5,21 +5,11 @@
     class="max-w-md"
     @close="handleClose">
     <form @submit.prevent="handleSubmit">
-      <div class="flex items-end gap-2">
-        <SelectGroup
-          v-model="form.drawerId"
-          label="Drawer"
-          placeholder="Select a drawer…"
-          class="flex-1"
-          :options="drawerOptions" />
-        <Button
-          variant="secondary"
-          type="button"
-          class="whitespace-nowrap text-sm py-2"
-          @click="isDrawerModalOpen = true">
-          New Drawer
-        </Button>
-      </div>
+      <SelectGroup
+        v-model="form.drawerId"
+        label="Drawer"
+        placeholder="Select a drawer…"
+        :options="drawerOptions" />
 
       <div class="my-4 flex items-end gap-2">
         <SelectGroup
@@ -71,16 +61,11 @@
     </form>
   </Modal>
 
-  <!-- Rendered after the rule modal so their teleported layers stack on top. -->
+  <!-- Rendered after the rule modal so its teleported layer stacks on top. -->
   <GroupFormModal
     :isOpen="isGroupModalOpen"
     @close="isGroupModalOpen = false"
     @created="handleGroupCreated" />
-
-  <DrawerFormModal
-    :isOpen="isDrawerModalOpen"
-    @close="isDrawerModalOpen = false"
-    @created="handleDrawerCreated" />
 </template>
 
 <script setup lang="ts">
@@ -95,7 +80,6 @@ import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { useToastStore } from "@/stores/toastStore";
 import GroupFormModal from "./GroupFormModal.vue";
-import DrawerFormModal from "./DrawerFormModal.vue";
 import { toDrawerTitle } from "./toDrawerTitle";
 import {
   drawerGroupsQuery,
@@ -108,12 +92,7 @@ import {
 } from "./drawerGrantQueries";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
-import type {
-  DrawerGrant,
-  ManageableDrawer,
-  PermissionsGroup,
-  SelectOption,
-} from "@/types";
+import type { DrawerGrant, PermissionsGroup, SelectOption } from "@/types";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -147,7 +126,6 @@ function blankForm(): RuleForm {
 const form = ref<RuleForm>(blankForm());
 
 const isGroupModalOpen = ref(false);
-const isDrawerModalOpen = ref(false);
 
 // the group created mid-rule, held so closing the rule modal can offer
 // the jump to member or entry setup
@@ -167,10 +145,6 @@ watch(
 function handleGroupCreated(group: PermissionsGroup): void {
   createdGroup.value = group;
   form.value.groupId = group.id;
-}
-
-function handleDrawerCreated(drawer: ManageableDrawer): void {
-  form.value.drawerId = drawer.id;
 }
 
 const router = useRouter();
@@ -245,9 +219,9 @@ const levelLabelToReplace = computed((): string | null => {
 });
 
 function handleClose() {
-  // Esc reaches every stacked modal, so the rule modal stays open while
-  // the group or drawer modal is on top.
-  if (isGroupModalOpen.value || isDrawerModalOpen.value) return;
+  // Esc reaches both stacked modals, so the rule modal stays open while
+  // the group modal is the one on top.
+  if (isGroupModalOpen.value) return;
   offerGroupSetupToast();
   emit("close");
 }

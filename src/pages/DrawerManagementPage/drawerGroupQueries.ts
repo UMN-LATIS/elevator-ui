@@ -4,13 +4,7 @@ import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
-import { drawerGrantKeys } from "./drawerGrantQueries";
-import { toDrawerTitle } from "./toDrawerTitle";
-import type {
-  ManageableDrawer,
-  UpdateGroupPayload,
-  PermissionsGroup,
-} from "@/types";
+import type { UpdateGroupPayload, PermissionsGroup } from "@/types";
 
 // "drawerGroups", not "groups", which the instance page already uses
 const drawerGroupKeys = makeQueryKeysFor("drawerGroups");
@@ -70,37 +64,6 @@ export function manageableDrawersQuery() {
   return queryOptions({
     queryKey: queryKeys.manageableDrawers(),
     queryFn: fetchers.fetchManageableDrawers,
-  });
-}
-
-// Creating a drawer makes the caller its manager, so it joins the list a
-// rule can pick from.
-export function useCreateManageableDrawerMutation() {
-  const queryClient = useQueryClient();
-  const toastStore = useToastStore();
-
-  return useMutation({
-    mutationFn: async (title: string): Promise<ManageableDrawer> => {
-      const created = await fetchers.createDrawer(title);
-      return { id: created.drawerId, title: created.drawerTitle };
-    },
-    onSuccess: (drawer) =>
-      toastStore.success(`Drawer "${toDrawerTitle(drawer)}" created.`),
-    onError: (error) =>
-      toastStore.error(error.message, { title: "Could not create drawer" }),
-    // Creating a drawer also grants the caller's personal group manage
-    // access on it, which is a rule, and creates that group when they had
-    // none. So the rule and group lists go stale along with the drawers.
-    onSettled: () =>
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.manageableDrawers(),
-        }),
-        queryClient.invalidateQueries({ queryKey: drawerGrantKeys.list() }),
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.drawerGroupsList(),
-        }),
-      ]),
   });
 }
 

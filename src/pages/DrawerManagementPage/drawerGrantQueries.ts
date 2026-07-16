@@ -4,7 +4,7 @@ import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
 
 // A "rule" in the UI is a "grant" in the backend.
-export const drawerGrantKeys = makeQueryKeysFor("drawerGrants");
+const drawerGrantKeys = makeQueryKeysFor("drawerGrants");
 
 export function drawerGrantsQuery() {
   return queryOptions({
