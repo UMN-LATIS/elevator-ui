@@ -83,7 +83,7 @@ import { useQuery } from "@tanstack/vue-query";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { useToastStore } from "@/stores/toastStore";
 import GroupFormModal from "./GroupFormModal.vue";
-import PermissionSelect from "./PermissionSelect.vue";
+import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -96,7 +96,7 @@ import {
 } from "./ruleQueries";
 import type { RuleScope } from "./ruleQueries";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
-import { buildPermissionOptions } from "./buildPermissionOptions";
+import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
 import type {
   CollectionGrant,

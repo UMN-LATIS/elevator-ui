@@ -163,7 +163,7 @@ import {
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { buildRuleRows, ruleRowKey } from "./buildRuleRows";
 import type { PermissionRuleRow } from "./buildRuleRows";
-import { buildPermissionOptions } from "./buildPermissionOptions";
+import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { createRuleColumns } from "./RulesTableColumns";
 
 // Placeholder rows shown while the rule lists load.

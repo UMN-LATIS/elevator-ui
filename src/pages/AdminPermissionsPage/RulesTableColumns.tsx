@@ -13,9 +13,9 @@ import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { ColHeader } from "./ColHeader";
 import Chip from "@/components/Chip/Chip.vue";
-import { permissionDotClass } from "./permissionDotClass";
-import PermissionSelect from "./PermissionSelect.vue";
-import type { PermissionSelectOption } from "./buildPermissionOptions";
+import { permissionDotClass } from "@/components/PermissionSelect/permissionDotClass";
+import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
+import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
 
