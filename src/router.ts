@@ -346,7 +346,8 @@ const router = createRouter({
       component: () =>
         import("@/pages/DrawerManagementPage/DrawerManagementPage.vue"),
       props: (route) => ({
-        drawerId: parseIntFromParam(route.params.drawerId),
+        // the path's \d+ constraint sends a non-numeric to 404
+        drawerId: Number(route.params.drawerId),
       }),
       meta: {
         requiresAuth: true,
