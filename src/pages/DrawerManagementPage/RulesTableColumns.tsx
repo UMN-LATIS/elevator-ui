@@ -2,17 +2,15 @@ import type { Ref } from "vue";
 import { createColumnHelper } from "@tanstack/vue-table";
 import {
   CheckIcon,
-  LoaderCircleIcon,
   LockIcon,
   PencilIcon,
   TrashIcon,
   XIcon,
 } from "lucide-vue-next";
-import Chip from "@/components/Chip/Chip.vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import Link from "@/components/Link/Link.vue";
+import PermissionChip from "@/components/PermissionChip/PermissionChip.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
-import { permissionDotClass } from "@/components/PermissionSelect/permissionDotClass";
 import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
 import { ColHeader } from "../AdminPermissionsPage/ColHeader";
 import type { DrawerRuleRow } from "./buildRuleRows";
@@ -120,23 +118,19 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
       const savingRule = deps.savingRule.value;
       if (savingRule?.id === rule.id) {
         return (
-          <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface-variant">
-            <LoaderCircleIcon class="size-3 shrink-0 animate-spin" />
-            <span class="truncate">{savingRule.levelLabel}</span>
-          </Chip>
+          <PermissionChip
+            levelNumber={rule.permissionLevelNumber}
+            label={savingRule.levelLabel}
+            isPending
+          />
         );
       }
 
       return (
-        <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface">
-          <i
-            class={[
-              "size-2 shrink-0 rounded-full",
-              permissionDotClass(rule.permissionLevelNumber),
-            ]}
-          />
-          <span class="truncate">{ctx.getValue()}</span>
-        </Chip>
+        <PermissionChip
+          levelNumber={rule.permissionLevelNumber}
+          label={ctx.getValue()}
+        />
       );
     },
   }),

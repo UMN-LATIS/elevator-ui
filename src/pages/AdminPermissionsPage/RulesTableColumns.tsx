@@ -1,23 +1,22 @@
 import type { Ref } from "vue";
 import { createColumnHelper } from "@tanstack/vue-table";
 import { RouterLink } from "vue-router";
-import {
-  PencilIcon,
-  TrashIcon,
-  CheckIcon,
-  XIcon,
-  LoaderCircleIcon,
-} from "lucide-vue-next";
+import { PencilIcon, TrashIcon, CheckIcon, XIcon } from "lucide-vue-next";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { ColHeader } from "./ColHeader";
 import Chip from "@/components/Chip/Chip.vue";
-import { permissionDotClass } from "@/components/PermissionSelect/permissionDotClass";
+import PermissionChip from "@/components/PermissionChip/PermissionChip.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
+
+export interface SavingLevel {
+  label: string;
+  level: number;
+}
 
 // The Edit action swaps a row's permission cell for an inline select
 // instead of opening a modal. Only one row edits at a time, so a single
@@ -25,11 +24,8 @@ const columnHelper = createColumnHelper<PermissionRuleRow>();
 export interface RuleColumnsDeps {
   editingKey: Ref<string | null>;
   draftLevelId: Ref<number | null>;
-  // the row whose save is in flight, and the level label it submitted, so
-  // the permission cell shows the new value with a spinner instead of
-  // snapping back to the old one while the refetch runs
   savingKey: Ref<string | null>;
-  savingLevelLabel: Ref<string>;
+  savingLevel: Ref<SavingLevel>;
   permissionOptions: Ref<PermissionSelectOption[]>;
   onEdit: (rule: PermissionRuleRow) => void;
   onCancel: () => void;
@@ -119,20 +115,21 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
       }
 
       if (deps.savingKey.value === rule.key) {
+        const savingLevel = deps.savingLevel.value;
         return (
-          <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface-variant">
-            <LoaderCircleIcon class="size-3 shrink-0 animate-spin" />
-            <span class="truncate">{deps.savingLevelLabel.value}</span>
-          </Chip>
+          <PermissionChip
+            levelNumber={savingLevel.level}
+            label={savingLevel.label}
+            isPending
+          />
         );
       }
 
-      const dotClass = permissionDotClass(rule.permissionLevelNumber);
       return (
-        <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface">
-          <i class={["size-2 shrink-0 rounded-full", dotClass]} />
-          <span class="truncate">{ctx.getValue()}</span>
-        </Chip>
+        <PermissionChip
+          levelNumber={rule.permissionLevelNumber}
+          label={ctx.getValue()}
+        />
       );
     },
   }),
