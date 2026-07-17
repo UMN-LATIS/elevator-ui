@@ -68,10 +68,7 @@ export function manageableDrawersQuery() {
 }
 
 // Mutations reconcile by invalidating rather than patching the cache
-// optimistically. Call sites render in-flight feedback from isPending and
-// raise their own toasts: one form can fire several of these, and only the
-// call site knows what the user set out to do.
-
+// optimistically.
 export function useCreateDrawerGroupMutation() {
   const queryClient = useQueryClient();
 

@@ -2,8 +2,8 @@
   <div>
     <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
       <p class="flex-1 text-sm">
-        Set what each group can do on this drawer. Expand a group to change who
-        is in it.
+        Share a drawer by assigning permissions to an existing drawer group or
+        creating a new one.
       </p>
       <div class="flex flex-wrap items-center gap-2">
         <InputGroup
