@@ -3,8 +3,11 @@ import { createBaseTable } from "./baseTable";
 
 // Art History Students hold View Derivatives (Group 1) on My Drawer.
 // Library Staff hold no grant, so its row starts at No Permissions.
+// The second grant puts admin's group on the curator's drawer, so the
+// curator manages a grant on a group they do not own.
 const drawerGrantSeeds: MockDrawerGrant[] = [
   { id: 301, drawerId: 1, groupId: 201, permissionLevelId: 5 },
+  { id: 302, drawerId: 2, groupId: 201, permissionLevelId: 5 },
 ];
 
 export function createDrawerGrantsTable() {

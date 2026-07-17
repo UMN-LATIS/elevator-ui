@@ -131,13 +131,57 @@ test.describe("Drawer sharing", () => {
     page,
     request,
   }) => {
-    // the curator can manage drawers in general, but owns none of them
+    // the curator can manage drawers in general, but not this one
     await loginUser({ request, page, workerId, username: "curator" });
     await page.goto(DRAWER_MANAGEMENT_URL);
 
     await expect(
       page.getByText("You cannot manage the sharing for this drawer.")
     ).toBeVisible();
+  });
+
+  test("revokes another owner's group by levelling it to no access", async ({
+    page,
+    request,
+  }) => {
+    // The curator manages the seeded Slide Library but admin owns the
+    // granted group, and the mock refuses a foreign delete, so the
+    // success toast proves the level-to-zero update ran instead.
+    await loginUser({ request, page, workerId, username: "curator" });
+    await page.goto("/drawers/2/manage");
+    await expect(
+      page.getByRole("heading", { name: "Drawer Permissions: Slide Library" })
+    ).toBeVisible();
+
+    const foreignRow = groupRow(page, "Art History Students");
+    await expect(foreignRow).toContainText("Created by Admin User");
+    await expect(foreignRow).toContainText("View Derivatives (Group 1)");
+
+    await openRowMenu(page, "Art History Students");
+    await page.getByRole("menuitem", { name: "Remove Permissions" }).click();
+
+    await expect(
+      page.getByText('Permissions removed from "Art History Students".')
+    ).toBeVisible();
+    await expect(foreignRow).toContainText("No Permissions");
+  });
+
+  test("reports a failed removal and keeps the group's access", async ({
+    page,
+  }) => {
+    await page.route("**/drawerPermissions/grants/*", (route) =>
+      route.fulfill({ status: 500, json: { error: "boom" } })
+    );
+
+    await openRowMenu(page, "Art History Students");
+    await page.getByRole("menuitem", { name: "Remove Permissions" }).click();
+
+    await expect(
+      page.getByText(/Failed to remove permissions from "Art History Students"/)
+    ).toBeVisible();
+    await expect(groupRow(page, "Art History Students")).toContainText(
+      "View Derivatives (Group 1)"
+    );
   });
 });
 
