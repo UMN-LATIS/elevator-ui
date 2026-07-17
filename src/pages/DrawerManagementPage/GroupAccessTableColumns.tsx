@@ -117,8 +117,8 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
       const name =
         savingRow?.id === row.id ? savingRow.groupLabel : row.groupLabel;
 
-      return (
-        <div>
+      const details = (
+        <>
           <div class="truncate text-sm font-medium text-on-surface">{name}</div>
           <div class="truncate text-xs text-on-surface-variant">
             {toGroupSummary(row.group, row.typeLabel)}
@@ -128,7 +128,20 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
               {creator}
             </div>
           ) : null}
-        </div>
+        </>
+      );
+
+      if (!ctx.row.getCanExpand()) return <div>{details}</div>;
+
+      // the group's text is a larger target for the chevron's toggle
+      return (
+        <button
+          type="button"
+          aria-expanded={ctx.row.getIsExpanded()}
+          class="block w-full cursor-pointer text-left"
+          onClick={ctx.row.getToggleExpandedHandler()}>
+          {details}
+        </button>
       );
     },
   }),
