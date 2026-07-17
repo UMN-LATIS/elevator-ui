@@ -120,9 +120,7 @@ const typeOptions = computed((): SelectOption[] =>
 );
 
 const permissionOptions = computed(() =>
-  buildPermissionOptions(permissionLevels.value ?? [], {
-    includesNoPermissions: true,
-  })
+  buildPermissionOptions(permissionLevels.value ?? [])
 );
 
 const canSubmit = computed(

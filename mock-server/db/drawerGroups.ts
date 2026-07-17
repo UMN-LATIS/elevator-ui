@@ -1,8 +1,6 @@
 import { MockDrawerGroup, MockGroupEntry } from "../types";
 import { createBaseTable } from "./baseTable";
 
-// Both groups belong to the admin user. "Art History Students" holds
-// Regular User (id 2) as a member, "Library Staff" matches on a unit code.
 const drawerGroupSeeds: MockDrawerGroup[] = [
   {
     id: 201,

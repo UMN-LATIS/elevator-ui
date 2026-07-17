@@ -5,8 +5,6 @@ import { PERMISSION_LEVELS } from "../db/permissionLevels";
 
 const app = new Hono<MockServerContext>();
 
-// GET /permissions/permissionLevels: the level catalog, sorted by level
-// like the real endpoint
 app.get("/permissionLevels", async (c) => {
   await delay(100);
 

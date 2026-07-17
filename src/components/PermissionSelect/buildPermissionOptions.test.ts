@@ -9,23 +9,10 @@ const levels: PermissionLevel[] = [
   { id: 3, level: PERM.ADMIN, name: "admin", label: "Admin" },
 ];
 
-function optionLabels(options: { label: string }[]): string[] {
-  return options.map((option) => option.label);
-}
-
 describe("buildPermissionOptions", () => {
-  it("omits No Permissions by default", () => {
-    expect(optionLabels(buildPermissionOptions(levels))).toEqual([
-      "Search",
-      "Admin",
-    ]);
-  });
-
-  it("offers No Permissions when asked, for revoking a rule in place", () => {
-    const options = buildPermissionOptions(levels, {
-      includesNoPermissions: true,
-    });
-    expect(optionLabels(options)).toEqual([
+  it("offers every level", () => {
+    const options = buildPermissionOptions(levels);
+    expect(options.map((option) => option.label)).toEqual([
       "No Permissions",
       "Search",
       "Admin",

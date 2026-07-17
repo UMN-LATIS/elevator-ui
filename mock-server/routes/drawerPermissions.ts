@@ -10,14 +10,10 @@ import type {
 import type { DB } from "../db/index";
 import { findPermissionLevel } from "../db/permissionLevels";
 
-// Mock of the real DrawerPermissions controller: group and grant
-// management scoped to the drawers the signed-in user can manage.
 const app = new Hono<MockServerContext>();
 
 const USER_TYPE = "User";
 
-// Mirrors GroupTypeCatalog: the built-in types plus one auth-helper type
-// ("Unit") so the entries UI has a type to exercise.
 const GROUP_TYPES = [
   {
     type: "All",
@@ -59,9 +55,10 @@ const GROUP_TYPES = [
   },
 ];
 
+const BUILT_IN_GROUP_TYPES = ["All", "Authed", "Authed_remote", USER_TYPE];
+
 const AUTH_HELPER_TYPES = GROUP_TYPES.filter(
-  (details) =>
-    !["All", "Authed", "Authed_remote", USER_TYPE].includes(details.type)
+  (details) => !BUILT_IN_GROUP_TYPES.includes(details.type)
 ).map((details) => details.type);
 
 // People the directory knows but who have no local account yet, for the
@@ -79,7 +76,7 @@ function isAdmin(user: MockUser): boolean {
   return user.isInstanceAdmin || user.isSuperAdmin;
 }
 
-// Admins manage every drawer; everyone else manages the drawers they
+// Admins manage every drawer. Everyone else manages the drawers they
 // own, the mock's stand-in for the real per-drawer permission map.
 function getManageableDrawers(db: DB, user: MockUser) {
   return isAdmin(user) ? db.drawers.getAll() : db.drawers.getByUserId(user.id);
@@ -91,28 +88,31 @@ function canManageDrawer(db: DB, user: MockUser, drawerId: number): boolean {
   );
 }
 
-function grantPayload(db: DB, grant: MockDrawerGrant, currentUser: MockUser) {
-  const group = db.drawerGroups.get(grant.groupId) ?? null;
-  const owner = group ? db.users.get(group.userId) : undefined;
+function toGrantPayload(db: DB, grant: MockDrawerGrant, currentUser: MockUser) {
+  // deleting a group cascades to its grants, so a grant's group always exists
+  const group = db.drawerGroups.get(grant.groupId);
+  if (!group) {
+    throw new Error(`grant ${grant.id} references a missing group`);
+  }
+
+  const owner = db.users.get(group.userId);
 
   return {
     id: grant.id,
     drawerId: grant.drawerId,
     permissionLevelId: grant.permissionLevelId,
-    group: group
-      ? {
-          id: group.id,
-          label: group.label,
-          type: group.type,
-          ownedByCurrentUser: group.userId === currentUser.id,
-          ownerName: owner?.displayName ?? null,
-          entries_count: group.entries.length,
-        }
-      : null,
+    group: {
+      id: group.id,
+      label: group.label,
+      type: group.type,
+      ownedByCurrentUser: group.userId === currentUser.id,
+      ownerName: owner?.displayName ?? null,
+      entries_count: group.entries.length,
+    },
   };
 }
 
-function groupPayload(group: MockDrawerGroup) {
+function toGroupPayload(group: MockDrawerGroup) {
   return {
     id: group.id,
     type: group.type,
@@ -122,14 +122,14 @@ function groupPayload(group: MockDrawerGroup) {
   };
 }
 
-function memberPayload(user: MockUser) {
+function toMemberPayload(user: MockUser) {
   return {
     userId: user.id,
     name: user.displayName,
     email: user.email ?? "",
     username: user.username,
     userType: user.userType ?? "Local",
-    createdAt: user.createdAt ?? null,
+    createdAt: null,
   };
 }
 
@@ -152,7 +152,7 @@ function findOwnGroup(
   return group?.userId === user.id ? group : undefined;
 }
 
-// every route requires a signed-in user who can manage at least one drawer
+// every route requires a signed-in user with drawer-management rights
 app.use("*", async (c, next) => {
   const user = c.get("user");
   if (!user) {
@@ -168,13 +168,11 @@ app.use("*", async (c, next) => {
   await next();
 });
 
-// GET /drawerPermissions/groupTypes
 app.get("/groupTypes", async (c) => {
   await delay(100);
   return c.json({ groupTypes: GROUP_TYPES });
 });
 
-// GET /drawerPermissions/userAutocomplete?q=...
 app.get("/userAutocomplete", async (c) => {
   await delay(100);
   const db = c.get("db");
@@ -203,7 +201,6 @@ app.get("/userAutocomplete", async (c) => {
   return c.json({ matches: [...localMatches, ...directoryMatches] });
 });
 
-// GET /drawerPermissions/manageableDrawers
 app.get("/manageableDrawers", async (c) => {
   await delay(100);
   const db = c.get("db");
@@ -216,7 +213,6 @@ app.get("/manageableDrawers", async (c) => {
   return c.json({ manageableDrawers });
 });
 
-// GET /drawerPermissions/grants
 app.get("/grants", async (c) => {
   await delay(100);
   const db = c.get("db");
@@ -224,12 +220,11 @@ app.get("/grants", async (c) => {
 
   const grants = db.drawerGrants
     .filter((grant) => canManageDrawer(db, user, grant.drawerId))
-    .map((grant) => grantPayload(db, grant, user));
+    .map((grant) => toGrantPayload(db, grant, user));
 
   return c.json({ grants });
 });
 
-// POST /drawerPermissions/grants
 app.post("/grants", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -275,12 +270,12 @@ app.post("/grants", async (c) => {
     permissionLevelId,
   });
 
-  return c.json({ grant: grantPayload(db, grant, user) }, 201);
+  return c.json({ grant: toGrantPayload(db, grant, user) }, 201);
 });
 
-// PUT|PATCH /drawerPermissions/grants/:grantId, re-level only. Drawer
-// manage access is the whole gate, so another owner's grant is editable.
-app.on(["PUT", "PATCH"], "/grants/:grantId", async (c) => {
+// Re-level only. Drawer manage access is the whole gate, so another
+// owner's grant is editable.
+app.put("/grants/:grantId", async (c) => {
   await delay(150);
   const db = c.get("db");
   const user = requireUser(c);
@@ -301,11 +296,11 @@ app.on(["PUT", "PATCH"], "/grants/:grantId", async (c) => {
 
   grant.permissionLevelId = permissionLevelId;
 
-  return c.json({ grant: grantPayload(db, grant, user) });
+  return c.json({ grant: toGrantPayload(db, grant, user) });
 });
 
-// DELETE /drawerPermissions/grants/:grantId. Unlike update, a manager can
-// only delete grants on their own groups; admins can delete any.
+// Unlike update, a manager can only delete grants on their own
+// groups. Admins can delete any.
 app.delete("/grants/:grantId", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -330,18 +325,17 @@ app.delete("/grants/:grantId", async (c) => {
   return c.json({ removed: grant.id });
 });
 
-// GET /drawerPermissions/groups: the caller's own groups
+// the caller's own groups
 app.get("/groups", async (c) => {
   await delay(100);
   const db = c.get("db");
   const user = requireUser(c);
 
-  const groups = db.drawerGroups.getByUserId(user.id).map(groupPayload);
+  const groups = db.drawerGroups.getByUserId(user.id).map(toGroupPayload);
 
   return c.json({ groups });
 });
 
-// POST /drawerPermissions/groups
 app.post("/groups", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -364,12 +358,11 @@ app.post("/groups", async (c) => {
 
   const group = db.drawerGroups.create({ userId: user.id, type, label });
 
-  return c.json({ group: groupPayload(group) }, 201);
+  return c.json({ group: toGroupPayload(group) }, 201);
 });
 
-// PUT|PATCH /drawerPermissions/groups/:groupId: rename only, the type is
-// fixed at creation
-app.on(["PUT", "PATCH"], "/groups/:groupId", async (c) => {
+// Rename only, the type is fixed at creation.
+app.put("/groups/:groupId", async (c) => {
   await delay(150);
   const db = c.get("db");
   const user = requireUser(c);
@@ -387,10 +380,9 @@ app.on(["PUT", "PATCH"], "/groups/:groupId", async (c) => {
 
   group.label = label;
 
-  return c.json({ group: groupPayload(group) });
+  return c.json({ group: toGroupPayload(group) });
 });
 
-// DELETE /drawerPermissions/groups/:groupId
 app.delete("/groups/:groupId", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -407,7 +399,6 @@ app.delete("/groups/:groupId", async (c) => {
   return c.json({ deleted: group.id });
 });
 
-// GET /drawerPermissions/groups/:groupId/members
 app.get("/groups/:groupId/members", async (c) => {
   await delay(100);
   const db = c.get("db");
@@ -418,23 +409,23 @@ app.get("/groups/:groupId/members", async (c) => {
     return c.json({ error: "Group not found" }, 404);
   }
 
-  // only User groups hold user ids; other types have no members
+  // only User groups hold user ids, other types have no members
   if (group.type !== USER_TYPE) {
     return c.json({ members: [] });
   }
 
-  const members = group.entries
-    .flatMap((entry) => {
-      const member = db.users.get(Number(entry.value));
-      return member ? [memberPayload(member)] : [];
-    })
+  const memberUsers = group.entries
+    .map((entry) => db.users.get(Number(entry.value)))
+    .filter((member): member is MockUser => member !== undefined);
+  const members = memberUsers
+    .map(toMemberPayload)
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return c.json({ members });
 });
 
-// POST /drawerPermissions/groups/:groupId/members: exactly one of
-// localUserId (an existing user) or remoteUserId (a username to provision)
+// Takes exactly one of localUserId (an existing user) or
+// remoteUserId (a username to provision).
 app.post("/groups/:groupId/members", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -451,7 +442,11 @@ app.post("/groups/:groupId/members", async (c) => {
   const body = await c.req.parseBody();
   const localUserId = String(body.localUserId ?? "");
   const remoteUserId = String(body.remoteUserId ?? "").trim();
-  if ((localUserId !== "") === (remoteUserId !== "")) {
+  const hasLocalUserId = localUserId !== "";
+  const hasRemoteUserId = remoteUserId !== "";
+
+  // the field name carries the intent, so require exactly one
+  if (hasLocalUserId === hasRemoteUserId) {
     return c.json(
       { error: "Provide exactly one of localUserId or remoteUserId" },
       422
@@ -459,19 +454,21 @@ app.post("/groups/:groupId/members", async (c) => {
   }
 
   let member: MockUser | undefined;
-  if (localUserId !== "") {
+  if (hasLocalUserId) {
     member = db.users.get(Number(localUserId));
     if (!member) {
       return c.json({ error: "User not found" }, 422);
     }
   } else {
-    // not local yet: provision a Remote user from the typed username
-    const directoryPerson = DIRECTORY_ONLY_MATCHES.find(
-      (person) => person.username === remoteUserId
-    );
-    member =
-      db.users.getByUsername(remoteUserId) ??
-      db.users.create({
+    const existingUser = db.users.getByUsername(remoteUserId);
+    if (existingUser) {
+      member = existingUser;
+    } else {
+      // not local yet: provision a Remote user from the typed username
+      const directoryPerson = DIRECTORY_ONLY_MATCHES.find(
+        (person) => person.username === remoteUserId
+      );
+      member = db.users.create({
         displayName: directoryPerson?.name ?? remoteUserId,
         username: remoteUserId,
         password: "",
@@ -481,6 +478,7 @@ app.post("/groups/:groupId/members", async (c) => {
         userType: "Remote",
         permissions: { canSearchAndBrowse: true },
       });
+    }
   }
 
   const memberId = member.id;
@@ -493,10 +491,9 @@ app.post("/groups/:groupId/members", async (c) => {
 
   db.drawerGroups.addEntry(group, String(memberId));
 
-  return c.json({ member: memberPayload(member) }, 201);
+  return c.json({ member: toMemberPayload(member) }, 201);
 });
 
-// DELETE /drawerPermissions/groups/:groupId/members/:userId
 app.delete("/groups/:groupId/members/:userId", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -523,7 +520,6 @@ app.delete("/groups/:groupId/members/:userId", async (c) => {
   return c.json({ removed: memberId });
 });
 
-// GET /drawerPermissions/groups/:groupId/entries
 app.get("/groups/:groupId/entries", async (c) => {
   await delay(100);
   const db = c.get("db");
@@ -540,7 +536,6 @@ app.get("/groups/:groupId/entries", async (c) => {
   return c.json({ entries: group.entries });
 });
 
-// POST /drawerPermissions/groups/:groupId/entries
 app.post("/groups/:groupId/entries", async (c) => {
   await delay(150);
   const db = c.get("db");
@@ -565,8 +560,7 @@ app.post("/groups/:groupId/entries", async (c) => {
   return c.json({ entry }, 201);
 });
 
-// PUT|PATCH /drawerPermissions/groups/:groupId/entries/:entryId
-app.on(["PUT", "PATCH"], "/groups/:groupId/entries/:entryId", async (c) => {
+app.put("/groups/:groupId/entries/:entryId", async (c) => {
   await delay(150);
   const db = c.get("db");
   const user = requireUser(c);
@@ -594,7 +588,6 @@ app.on(["PUT", "PATCH"], "/groups/:groupId/entries/:entryId", async (c) => {
   return c.json({ entry });
 });
 
-// DELETE /drawerPermissions/groups/:groupId/entries/:entryId
 app.delete("/groups/:groupId/entries/:entryId", async (c) => {
   await delay(150);
   const db = c.get("db");

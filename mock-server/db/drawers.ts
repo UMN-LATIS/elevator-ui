@@ -13,8 +13,6 @@ const drawerSeeds: MockDrawer[] = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-  // The curator's drawer gives the sharing tests a manager who is not an
-  // admin, so admin-only shortcuts cannot mask a wrong code path.
   {
     id: 2,
     name: "Slide Library",

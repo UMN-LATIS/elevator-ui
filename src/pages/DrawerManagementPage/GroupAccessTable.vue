@@ -306,9 +306,7 @@ const deleteGrant = useDeleteDrawerGrantMutation();
 const renameGroup = useRenameDrawerGroupMutation();
 
 const permissionOptions = computed(() =>
-  buildPermissionOptions(permissionLevels.value ?? [], {
-    includesNoPermissions: true,
-  })
+  buildPermissionOptions(permissionLevels.value ?? [])
 );
 
 // Level 0 is what "no access" submits, since a rule granting nothing and

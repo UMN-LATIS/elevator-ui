@@ -5,8 +5,6 @@ export interface MockPermissionLevel {
   label: string;
 }
 
-// Mirrors the permissions rows the real backend seeds in
-// docker/postgresQueries, ids included, so mock grants join the same way.
 export const PERMISSION_LEVELS: MockPermissionLevel[] = [
   { id: 3, level: 0, name: "noperm", label: "No Permissions" },
   { id: 4, level: 10, name: "search", label: "Search and Browse" },
