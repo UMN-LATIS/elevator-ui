@@ -58,8 +58,6 @@ withDefaults(
     options: SelectOption<TValue>[];
     labelClass?: CSSClass;
     showLabel?: boolean;
-    // for matching the height of neighbouring form controls, which sit
-    // taller than this control's default
     optionClass?: CSSClass;
   }>(),
   {

@@ -5,7 +5,6 @@
       <form
         v-else
         class="flex flex-wrap items-end gap-2"
-        data-add-group-form
         @submit.prevent="handleSave">
         <InputGroup
           v-model="draft.label"

@@ -1,4 +1,5 @@
-import { MockDrawerGroup, MockGroupEntry } from "../types";
+import { MockDrawerGroup } from "../types";
+import { PermissionsGroupEntry } from "../../src/types";
 import { createBaseTable } from "./baseTable";
 
 const drawerGroupSeeds: MockDrawerGroup[] = [
@@ -42,8 +43,8 @@ export function createDrawerGroupsTable() {
       baseTable.set(group.id, group);
       return group;
     },
-    addEntry: (group: MockDrawerGroup, value: string): MockGroupEntry => {
-      const entry: MockGroupEntry = { id: nextEntryId++, value };
+    addEntry: (group: MockDrawerGroup, value: string): PermissionsGroupEntry => {
+      const entry: PermissionsGroupEntry = { id: nextEntryId++, value };
       group.entries.push(entry);
       return entry;
     },

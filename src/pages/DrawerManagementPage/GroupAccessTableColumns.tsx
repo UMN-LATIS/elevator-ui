@@ -91,27 +91,9 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
           ? `Created by ${row.group.ownerName}`
           : null;
 
-      if (deps.editingRowId.value === row.id) {
-        // Renaming reaches the caller's own groups only, so someone
-        // else's keeps its name and type in place of the fields.
-        if (!row.group.ownedByCurrentUser) {
-          return (
-            <div>
-              <div class="truncate text-sm font-medium text-on-surface">
-                {row.groupLabel}
-              </div>
-              <div class="truncate text-xs text-on-surface-variant">
-                {toGroupSummary(row.group, row.typeLabel)}
-              </div>
-              {creator ? (
-                <div class="truncate text-xs text-on-surface-variant">
-                  {creator}
-                </div>
-              ) : null}
-            </div>
-          );
-        }
-
+      // Renaming reaches the caller's own groups only, so someone
+      // else's row keeps the plain display below while it edits.
+      if (deps.editingRowId.value === row.id && row.group.ownedByCurrentUser) {
         // A group's type is fixed at creation, since its members belong
         // to that type, so only the name is up for editing.
         return (

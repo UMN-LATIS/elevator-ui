@@ -4,7 +4,7 @@ import { computed, toValue, type MaybeRefOrGetter } from "vue";
 import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
-import { drawerGrantQueryKeys } from "./drawerGrantQueries";
+import { drawerGrantKeys } from "./drawerGrantQueries";
 
 // "drawerGroups", not "groups", which the instance page already uses
 const drawerGroupKeys = makeQueryKeysFor("drawerGroups");
@@ -129,7 +129,7 @@ function invalidateGroupLists(queryClient: QueryClient): Promise<void>[] {
       queryKey: queryKeys.drawerGroupsList(),
     }),
     queryClient.invalidateQueries({
-      queryKey: drawerGrantQueryKeys.drawerGrantsList(),
+      queryKey: drawerGrantKeys.list(),
     }),
   ];
 }

@@ -1,11 +1,6 @@
-export interface MockPermissionLevel {
-  id: number;
-  level: number;
-  name: string;
-  label: string;
-}
+import type { PermissionLevel } from "../../src/types";
 
-export const PERMISSION_LEVELS: MockPermissionLevel[] = [
+export const PERMISSION_LEVELS: PermissionLevel[] = [
   { id: 3, level: 0, name: "noperm", label: "No Permissions" },
   { id: 4, level: 10, name: "search", label: "Search and Browse" },
   {
@@ -28,6 +23,6 @@ export const PERMISSION_LEVELS: MockPermissionLevel[] = [
 
 export function findPermissionLevel(
   levelId: number
-): MockPermissionLevel | undefined {
+): PermissionLevel | undefined {
   return PERMISSION_LEVELS.find((level) => level.id === levelId);
 }

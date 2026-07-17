@@ -38,7 +38,7 @@
   </TableRow>
 </template>
 <script setup lang="ts">
-import type { DrawerGrantGroup } from "@/types";
+import type { PermissionsGroup } from "@/types";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { computed, ref } from "vue";
 import { XIcon, CheckIcon } from "lucide-vue-next";
@@ -48,7 +48,7 @@ import { useToastStore } from "@/stores/toastStore";
 import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
-  defineProps<{ group: DrawerGrantGroup; colspan?: number }>(),
+  defineProps<{ group: PermissionsGroup; colspan?: number }>(),
   {
     colspan: 2,
   }

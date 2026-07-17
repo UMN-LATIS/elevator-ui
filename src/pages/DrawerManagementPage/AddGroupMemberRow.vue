@@ -95,7 +95,7 @@ import {
   drawerGroupMembersQuery,
   useAddDrawerGroupMemberMutation,
 } from "./drawerGroupQueries";
-import type { DrawerGrantGroup, UserAutocompleteMatch } from "@/types";
+import type { PermissionsGroup, UserAutocompleteMatch } from "@/types";
 import Button from "@/components/Button/Button.vue";
 
 // A row in the add-member dropdown: a person to pick, or the pinned action
@@ -105,7 +105,7 @@ type MemberOption =
   | { kind: "create"; query: string };
 
 const props = defineProps<{
-  group: DrawerGrantGroup;
+  group: PermissionsGroup;
   colspan: number;
 }>();
 

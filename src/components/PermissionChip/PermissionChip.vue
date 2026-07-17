@@ -32,13 +32,13 @@ const props = withDefaults(
     // without claiming the color of a level that may not stick
     isPending?: boolean;
   }>(),
-  { isPending: false, levelNumber: undefined }
+  { isPending: false, levelNumber: PERM.NOPERM }
 );
 
 const toneClass = computed((): string => {
   if (props.isPending) {
     return "border-outline-variant bg-surface text-on-surface-variant";
   }
-  return permissionChipClass(props.levelNumber ?? PERM.NOPERM);
+  return permissionChipClass(props.levelNumber);
 });
 </script>

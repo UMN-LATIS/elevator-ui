@@ -6,11 +6,7 @@ import type { UpdateDrawerGrantPayload } from "@/types";
 // A grant is one group's permission level on one drawer, which the
 // sharing table shows as that group's row rather than as a thing of its
 // own.
-const drawerGrantKeys = makeQueryKeysFor("drawerGrants");
-
-export const drawerGrantQueryKeys = {
-  drawerGrantsList: drawerGrantKeys.list,
-};
+export const drawerGrantKeys = makeQueryKeysFor("drawerGrants");
 
 export function drawerGrantsQuery() {
   return queryOptions({

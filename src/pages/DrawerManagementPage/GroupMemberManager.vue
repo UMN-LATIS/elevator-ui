@@ -48,10 +48,10 @@ import {
 } from "./drawerGroupQueries";
 import { tryFocus } from "@/helpers/tryFocus";
 import { useToastStore } from "@/stores/toastStore";
-import type { GroupMember, DrawerGrantGroup } from "@/types";
+import type { GroupMember, PermissionsGroup } from "@/types";
 
 const props = defineProps<{
-  group: DrawerGrantGroup;
+  group: PermissionsGroup;
   isOpen: boolean;
 }>();
 

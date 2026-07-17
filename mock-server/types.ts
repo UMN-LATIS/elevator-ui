@@ -1,3 +1,5 @@
+import type { PermissionsGroupEntry } from "../src/types";
+
 export interface MockUser {
   id: number;
   displayName: string;
@@ -16,17 +18,12 @@ export interface MockUser {
   };
 }
 
-export interface MockGroupEntry {
-  id: number;
-  value: string;
-}
-
 export interface MockDrawerGroup {
   id: number;
   userId: number;
   type: string;
   label: string;
-  entries: MockGroupEntry[];
+  entries: PermissionsGroupEntry[];
 }
 
 // One group's permission level on one drawer (the backend's DrawerPermission)

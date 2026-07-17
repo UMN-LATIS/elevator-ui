@@ -34,25 +34,24 @@ export interface PermissionsGroup {
   id: number;
   type: GroupTypeValues;
   label: string;
+  // A User group stores its members as entries, so one count covers both.
   entries_count: number;
   // auto-created personal group
   is_personal?: boolean;
 }
 
-// The type predicates below sort groups by type alone, and the two group
-// shapes the API returns disagree on everything else.
-type TypedGroup = { type: GroupTypeValues };
-
 // Auth-helper types are defined by the backend's AuthHelper
 // classes, so the UI can only recognize them as "not one of the built-in
 // GROUP_TYPES". The backend rejects entry writes on other types anyway.
-export function isAuthHelperGroupType(group: TypedGroup): boolean {
-  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
+// The type is string, not GroupTypeValues, because auth-helper types are
+// by definition outside that union.
+export function isAuthHelperGroupType(group: { type: string }): boolean {
+  const builtInTypes: string[] = Object.values(GROUP_TYPES);
   return !builtInTypes.includes(group.type);
 }
 
 // A group with something to manage inside: members, entries
-export function isManageableGroup(group: TypedGroup): boolean {
+export function isManageableGroup(group: { type: string }): boolean {
   return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
 }
 
@@ -124,15 +123,10 @@ export interface ManageableDrawer {
 // The group a drawer grant reaches. It rides along inline on the grant
 // because /drawerPermissions/groups only lists the caller's own groups,
 // so another owner's group could not be joined client-side.
-export interface DrawerGrantGroup {
-  id: number;
-  label: string;
-  type: GroupTypeValues;
+export interface DrawerGrantGroup extends PermissionsGroup {
   ownedByCurrentUser: boolean;
   // null for a global group type, which has no owner
   ownerName: string | null;
-  // A User group stores its members as entries, so one count covers both.
-  entries_count: number;
 }
 
 // GET /drawerPermissions/grants: one drawer group's permission level on

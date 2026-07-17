@@ -96,10 +96,7 @@ export function buildGroupAccessRows({
     rows.push({
       id: group.id,
       group: {
-        id: group.id,
-        label: group.label,
-        type: group.type,
-        entries_count: group.entries_count,
+        ...group,
         // the list holds the caller's own groups and nobody else's
         ownedByCurrentUser: true,
         ownerName: null,

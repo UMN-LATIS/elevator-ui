@@ -9,6 +9,7 @@ import type {
 } from "../types";
 import type { DB } from "../db/index";
 import { findPermissionLevel } from "../db/permissionLevels";
+import { isAuthHelperGroupType } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
@@ -54,12 +55,6 @@ const GROUP_TYPES = [
     adminOnly: false,
   },
 ];
-
-const BUILT_IN_GROUP_TYPES = ["All", "Authed", "Authed_remote", USER_TYPE];
-
-const AUTH_HELPER_TYPES = GROUP_TYPES.filter(
-  (details) => !BUILT_IN_GROUP_TYPES.includes(details.type)
-).map((details) => details.type);
 
 // People the directory knows but who have no local account yet, for the
 // autocomplete's provision-a-remote-user path.
@@ -218,8 +213,11 @@ app.get("/grants", async (c) => {
   const db = c.get("db");
   const user = requireUser(c);
 
+  const manageableDrawerIds = new Set(
+    getManageableDrawers(db, user).map((drawer) => drawer.id)
+  );
   const grants = db.drawerGrants
-    .filter((grant) => canManageDrawer(db, user, grant.drawerId))
+    .filter((grant) => manageableDrawerIds.has(grant.drawerId))
     .map((grant) => toGrantPayload(db, grant, user));
 
   return c.json({ grants });
@@ -529,7 +527,7 @@ app.get("/groups/:groupId/entries", async (c) => {
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
-  if (!AUTH_HELPER_TYPES.includes(group.type)) {
+  if (!isAuthHelperGroupType(group)) {
     return c.json({ error: "Only auth-helper group types take entries" }, 422);
   }
 
@@ -545,7 +543,7 @@ app.post("/groups/:groupId/entries", async (c) => {
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
-  if (!AUTH_HELPER_TYPES.includes(group.type)) {
+  if (!isAuthHelperGroupType(group)) {
     return c.json({ error: "Only auth-helper group types take entries" }, 422);
   }
 

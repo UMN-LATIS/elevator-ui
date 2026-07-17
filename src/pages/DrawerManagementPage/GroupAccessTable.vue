@@ -451,21 +451,25 @@ function removePermissions(row: GroupAccessRow) {
 
   const noAccessLevelId = toNoAccessLevelId();
 
+  const removalToasts = {
+    onSuccess: () =>
+      toastStore.success(`Permissions removed from "${row.groupLabel}".`),
+    onError: (error: Error) =>
+      toastStore.error(
+        `Failed to remove permissions from "${row.groupLabel}": ${error.message}`,
+        { title: "Remove Permissions Failed" }
+      ),
+  };
+
+  const removal: SavingRow = {
+    id: row.id,
+    groupLabel: row.groupLabel,
+    levelLabel: toLevelLabel(noAccessLevelId),
+  };
+
   if (row.group.ownedByCurrentUser) {
-    submittedRow.value = {
-      id: row.id,
-      groupLabel: row.groupLabel,
-      levelLabel: toLevelLabel(noAccessLevelId),
-    };
-    deleteGrant.mutate(row.grantId, {
-      onSuccess: () =>
-        toastStore.success(`Permissions removed from "${row.groupLabel}".`),
-      onError: (error) =>
-        toastStore.error(
-          `Failed to remove permissions from "${row.groupLabel}": ${error.message}`,
-          { title: "Remove Permissions Failed" }
-        ),
-    });
+    submittedRow.value = removal;
+    deleteGrant.mutate(row.grantId, removalToasts);
     return;
   }
 
@@ -479,25 +483,10 @@ function removePermissions(row: GroupAccessRow) {
     return;
   }
 
-  submittedRow.value = {
-    id: row.id,
-    groupLabel: row.groupLabel,
-    levelLabel: toLevelLabel(noAccessLevelId),
-  };
+  submittedRow.value = removal;
   updateGrant.mutate(
-    {
-      grantId: row.grantId,
-      permissionLevelId: noAccessLevelId,
-    },
-    {
-      onSuccess: () =>
-        toastStore.success(`Permissions removed from "${row.groupLabel}".`),
-      onError: (error) =>
-        toastStore.error(
-          `Failed to remove permissions from "${row.groupLabel}": ${error.message}`,
-          { title: "Remove Permissions Failed" }
-        ),
-    }
+    { grantId: row.grantId, permissionLevelId: noAccessLevelId },
+    removalToasts
   );
 }
 

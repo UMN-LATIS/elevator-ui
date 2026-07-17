@@ -39,7 +39,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { DrawerGrantGroup, PermissionsGroupEntry } from "@/types";
+import type { PermissionsGroup, PermissionsGroupEntry } from "@/types";
 import {
   Table,
   TableHeader,
@@ -54,7 +54,7 @@ import GroupEntriesTableRow from "./GroupEntriesTableRow.vue";
 
 withDefaults(
   defineProps<{
-    group: DrawerGrantGroup;
+    group: PermissionsGroup;
     entries: PermissionsGroupEntry[];
     isLoading: boolean;
     // pass false while a slotted row (add form, in-flight entry) occupies
