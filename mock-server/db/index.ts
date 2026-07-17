@@ -1,6 +1,8 @@
 import { createAssetsTable } from "./assets";
 import { createCollectionsTable } from "./collections";
 import { createCustomPagesTable } from "./customPages";
+import { createDrawerGrantsTable } from "./drawerGrants";
+import { createDrawerGroupsTable } from "./drawerGroups";
 import { createDrawersTable } from "./drawers";
 import { createFilesTable } from "./files";
 import { createInstancesTable } from "./instances";
@@ -24,6 +26,8 @@ const makeDb = () => {
     instances: createInstancesTable(),
     files: createFilesTable(),
     drawers: createDrawersTable(),
+    drawerGroups: createDrawerGroupsTable(),
+    drawerGrants: createDrawerGrantsTable(),
     uploads: createUploadsTable(),
   };
 

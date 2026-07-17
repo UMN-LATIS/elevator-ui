@@ -5,11 +5,40 @@ export interface MockUser {
   password: string;
   isInstanceAdmin: boolean;
   isSuperAdmin: boolean;
+  email?: string;
+  // Remote marks a user provisioned from the directory rather than
+  // created locally, mirroring the real users.usertype column
+  userType?: "Local" | "Remote";
+  createdAt?: string;
   permissions: {
     canManageAssets?: boolean;
     canCreateDrawers?: boolean;
     canSearchAndBrowse?: boolean;
   };
+}
+
+export interface MockGroupEntry {
+  id: number;
+  value: string;
+}
+
+// A drawer group stores members and match values in one entries list,
+// like the real backend's grouped GroupEntry rows: a User group's entry
+// values are user ids, an auth-helper group's are raw match strings.
+export interface MockDrawerGroup {
+  id: number;
+  userId: number;
+  type: string;
+  label: string;
+  entries: MockGroupEntry[];
+}
+
+// One group's permission level on one drawer (the backend's DrawerPermission)
+export interface MockDrawerGrant {
+  id: number;
+  drawerId: number;
+  groupId: number;
+  permissionLevelId: number;
 }
 
 export interface MockSession {
