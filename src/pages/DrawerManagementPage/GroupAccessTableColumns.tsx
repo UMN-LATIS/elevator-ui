@@ -105,7 +105,6 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
               }}
               placeholder="Group name"
               label="Group name"
-              labelHidden={true}
             />
             <div class="mt-1 truncate text-xs text-on-surface-variant">
               {toGroupSummary(row.group, row.typeLabel)}
@@ -149,7 +148,6 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
             }}
             options={deps.permissionOptions.value}
             label="Permission"
-            showLabel={false}
             placeholder="Select a permission…"
           />
         );

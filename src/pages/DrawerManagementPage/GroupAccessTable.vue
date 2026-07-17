@@ -90,7 +90,10 @@
                   'opacity-50 pointer-events-none':
                     row.original.id === deletingGroupId,
                 }">
-                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <TableCell
+                  v-for="cell in row.getVisibleCells()"
+                  :key="cell.id"
+                  :class="{ 'align-top': editingRowId === row.original.id }">
                   <FlexRender
                     :render="cell.column.columnDef.cell"
                     :props="cell.getContext()" />
