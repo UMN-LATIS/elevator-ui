@@ -60,7 +60,12 @@ import {
 import { useCreateDrawerGrantMutation } from "./drawerGrantQueries";
 import { toGroupTypeOptions } from "./toGroupTypeOptions";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
-import type { GroupTypeValues, PermissionsGroup, SelectOption } from "@/types";
+import {
+  PERM,
+  type GroupTypeValues,
+  type PermissionsGroup,
+  type SelectOption,
+} from "@/types";
 
 const props = defineProps<{
   drawerId: number;
@@ -118,9 +123,12 @@ const typeOptions = computed((): SelectOption[] =>
   })
 );
 
-const permissionOptions = computed(() =>
-  buildPermissionOptions(permissionLevels.value ?? [])
-);
+const permissionOptions = computed(() => {
+  const allLevels = permissionLevels.value ?? [];
+  return buildPermissionOptions(
+    allLevels.filter((l) => l.level <= PERM.ORIGINALS)
+  );
+});
 
 const canSubmit = computed(
   (): boolean =>
