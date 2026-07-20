@@ -5,9 +5,21 @@
         <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
         Back to Collections
       </Link>
-      <h2 v-if="collection?.title" class="text-4xl font-bold mt-4">
-        Browsing {{ collection?.title }}
-      </h2>
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
+        <h2 v-if="collection?.title" class="text-4xl font-bold">
+          Browsing {{ collection?.title }}
+        </h2>
+        <Button
+          v-if="collection && instanceStore.currentUser?.isAdmin"
+          variant="secondary"
+          class="whitespace-nowrap"
+          :to="{
+            name: 'adminPermissions',
+            query: { collection: String(collection.id) },
+          }">
+          Manage Permissions
+        </Button>
+      </div>
 
       <SanitizedHTML
         v-if="collection?.description"
@@ -23,6 +35,7 @@
 import { watch, ref } from "vue";
 import { AssetCollection } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
+import Button from "@/components/Button/Button.vue";
 import Link from "@/components/Link/Link.vue";
 import { ArrowForwardIcon } from "@/icons";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
