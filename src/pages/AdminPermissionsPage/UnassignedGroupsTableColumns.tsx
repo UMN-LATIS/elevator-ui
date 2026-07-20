@@ -20,10 +20,6 @@ import type { UnassignedGroupRow } from "./buildPermissionsPageRows";
 
 const columnHelper = createColumnHelper<UnassignedGroupRow>();
 
-// Each menu item lays its icon out inside its own row, since the item
-// itself is a block that the dropdown sizes and pads.
-const MENU_ITEM_CLASS = "flex items-center gap-2";
-
 // A group whose in-flight rename should already read as its new name.
 export interface SavingGroup {
   groupId: number;
@@ -175,7 +171,7 @@ export const createUnassignedGroupColumns = (
                     is="button"
                     type="button"
                     onClick={() => deps.onEdit(groupRow)}>
-                    <span class={MENU_ITEM_CLASS}>
+                    <span class="flex items-center gap-2">
                       <PencilIcon class="size-4 shrink-0" />
                       Edit Group
                     </span>
@@ -184,7 +180,7 @@ export const createUnassignedGroupColumns = (
                     is="button"
                     type="button"
                     onClick={() => deps.onAddPermission(groupRow)}>
-                    <span class={MENU_ITEM_CLASS}>
+                    <span class="flex items-center gap-2">
                       <PlusIcon class="size-4 shrink-0" />
                       Add Permission
                     </span>
@@ -193,7 +189,7 @@ export const createUnassignedGroupColumns = (
                     is="button"
                     type="button"
                     onClick={() => deps.onDeleteGroup(groupRow)}>
-                    <span class={cn(MENU_ITEM_CLASS, "text-error")}>
+                    <span class="flex items-center gap-2 text-error">
                       <TrashIcon class="size-4 shrink-0" />
                       Delete Group
                     </span>

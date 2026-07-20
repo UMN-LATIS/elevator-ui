@@ -36,10 +36,6 @@ declare module "@tanstack/vue-table" {
 
 const columnHelper = createColumnHelper<PermissionRow>();
 
-// Each menu item lays its icon out inside its own row, since the item
-// itself is a block that the dropdown sizes and pads.
-const MENU_ITEM_CLASS = "flex items-center gap-2";
-
 // What a row's in-flight save submitted, which its cells show in place
 // of the stale values the list holds until the refetch lands.
 export interface SavingRow {
@@ -63,16 +59,6 @@ export interface PermissionColumnsDeps {
   onRemovePermission: (row: PermissionRow) => void;
   onDeleteGroup: (row: PermissionRow) => void;
 }
-
-const scopeLabelByScope = {
-  instance: "Instance",
-  collection: "Collection",
-} as const;
-
-const scopeChipClassByScope = {
-  instance: "bg-secondary-container text-on-secondary-container",
-  collection: "bg-tertiary-container text-on-tertiary-container",
-} as const;
 
 export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
   columnHelper.display({
@@ -101,15 +87,20 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
     id: "scope",
     header: () => <ColHeader text="Scope" />,
     meta: { widthClass: "w-[12%]" },
-    cell: (ctx) => (
-      <Chip
-        class={cn(
-          "border border-outline-variant bg-surface-container",
-          scopeChipClassByScope[ctx.getValue()]
-        )}>
-        {scopeLabelByScope[ctx.getValue()]}
-      </Chip>
-    ),
+    cell: (ctx) => {
+      const isInstance = ctx.getValue() === "instance";
+      return (
+        <Chip
+          class={cn(
+            "border border-outline-variant",
+            isInstance
+              ? "bg-secondary-container text-on-secondary-container"
+              : "bg-tertiary-container text-on-tertiary-container"
+          )}>
+          {isInstance ? "Instance" : "Collection"}
+        </Chip>
+      );
+    },
   }),
   columnHelper.accessor(
     // Instance rules span every collection, shown and filtered as "*"
@@ -293,7 +284,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
                     is="button"
                     type="button"
                     onClick={() => deps.onEdit(permissionRow)}>
-                    <span class={MENU_ITEM_CLASS}>
+                    <span class="flex items-center gap-2">
                       <PencilIcon class="size-4 shrink-0" />
                       Edit Group
                     </span>
@@ -302,7 +293,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
                     is="button"
                     type="button"
                     onClick={() => deps.onRemovePermission(permissionRow)}>
-                    <span class={MENU_ITEM_CLASS}>
+                    <span class="flex items-center gap-2">
                       <CircleMinusIcon class="size-4 shrink-0" />
                       Remove Permission
                     </span>
@@ -311,7 +302,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
                     is="button"
                     type="button"
                     onClick={() => deps.onDeleteGroup(permissionRow)}>
-                    <span class={cn(MENU_ITEM_CLASS, "text-error")}>
+                    <span class="flex items-center gap-2 text-error">
                       <TrashIcon class="size-4 shrink-0" />
                       Delete Group
                     </span>
