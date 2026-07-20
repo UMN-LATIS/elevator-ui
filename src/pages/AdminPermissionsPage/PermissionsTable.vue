@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-      <p class="flex-1 text-sm">
-        Grant groups access to the whole instance or a single collection.
-      </p>
+    <div class="flex flex-wrap items-center justify-end gap-x-8 gap-y-4">
       <div class="flex flex-wrap items-center gap-2">
         <InputGroup
           :modelValue="searchText"
@@ -13,11 +10,7 @@
           class="max-w-sm"
           type="search"
           :disabled="isLoading"
-          @update:modelValue="searchPermissions">
-          <template #prepend>
-            <FilterIcon class="size-4 text-on-surface-variant" />
-          </template>
-        </InputGroup>
+          @update:modelValue="searchPermissions"></InputGroup>
         <Button
           variant="primary"
           class="whitespace-nowrap"
@@ -26,6 +19,45 @@
         </Button>
       </div>
     </div>
+    <section
+      aria-label="Permission filters"
+      class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md p-3"
+      :class="
+        isAdvancedSearchActive
+          ? 'bg-primary-muted'
+          : 'border-outline-variant bg-surface-container-low'
+      ">
+      <FilterIcon
+        class="size-4"
+        :class="
+          isAdvancedSearchActive ? 'text-primary' : 'text-on-surface-variant'
+        " />
+      <SelectGroup
+        v-model="collectionFilterValue"
+        label="Collection"
+        :showLabel="false"
+        class="w-56"
+        :disabled="isLoading"
+        :selectClass="{
+          'border-outline': isAdvancedSearchActive,
+        }"
+        :options="collectionFilterOptions" />
+      <Toggle
+        v-if="collectionFilterId !== null"
+        v-model="showInstancePermissions"
+        settingLabel="Show instance-wide permissions"
+        onLabel="Instance permissions"
+        onLabelClass="text-sm"
+        class="whitespace-nowrap" />
+      <Button
+        v-if="hasActiveFilters"
+        variant="tertiary"
+        class="whitespace-nowrap border border-primary ml-auto"
+        @click="clearFilters">
+        <XIcon class="size-4" />
+        Clear Filters
+      </Button>
+    </section>
 
     <div class="mt-4 border border-outline-variant rounded-md">
       <Table class="w-full table-fixed">
@@ -131,6 +163,7 @@
             <AddPermissionRow
               v-model:open="isAddingPermission"
               :prefillGroup="prefillGroup"
+              :prefillCollectionId="collectionFilterId"
               :colspan="permissionColumns.length"
               @created="revealSavedPermission" />
             <AddRowButton
@@ -143,7 +176,11 @@
       </Table>
     </div>
 
-    <section v-if="!isLoading && unassignedGroupRows.length" class="mt-8">
+    <section
+      v-if="
+        !isLoading && unassignedGroupRows.length && collectionFilterId === null
+      "
+      class="mt-8">
       <h2 class="text-base font-medium text-on-surface">Unassigned Groups</h2>
       <p class="mt-1 text-sm text-on-surface-variant">
         Groups that hold no permissions yet.
@@ -198,6 +235,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
 import type {
   ColumnDef,
@@ -220,10 +258,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  FilterIcon,
+  XIcon,
+} from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
+import Toggle from "@/components/Toggle/Toggle.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { tryFocus } from "@/helpers/tryFocus";
@@ -246,6 +292,7 @@ import {
 } from "./buildPermissionsPageRows";
 import type { PermissionRow } from "./buildPermissionsPageRows";
 import { createPermissionColumns } from "./PermissionsTableColumns";
+import { useCollectionFilter } from "./useCollectionFilter";
 import type { SavingRow } from "./PermissionsTableColumns";
 import {
   collectionGrantsQuery,
@@ -314,14 +361,65 @@ const isError = computed(
     isLevelsError.value
 );
 
-// Breadcrumb titles ("Parent › Child") for the collection column. The nav
-// list only holds collections this admin can browse, so a grant's
-// collection can be missing here.
-const collectionTitleById = computed(() => {
-  const flat = flattenCollections(
+const flatCollections = computed(() =>
+  flattenCollections(
     normalizeAssetCollections(instanceNav.value?.collections ?? [])
-  );
-  return new Map(flat.map((collection) => [collection.id, collection.title]));
+  )
+);
+
+const collectionTitleById = computed(
+  () =>
+    new Map(
+      flatCollections.value.map((collection) => [
+        collection.id,
+        collection.title,
+      ])
+    )
+);
+
+const route = useRoute();
+const router = useRouter();
+
+// shared with the page header, which titles itself after the filter
+const { collectionFilterId } = useCollectionFilter();
+
+const ALL_COLLECTIONS_FILTER = 0;
+
+const collectionFilterValue = computed<number>({
+  get: () => collectionFilterId.value ?? ALL_COLLECTIONS_FILTER,
+  set(value) {
+    collectionFilterId.value = value === ALL_COLLECTIONS_FILTER ? null : value;
+  },
+});
+
+const collectionFilterOptions = computed(() => [
+  { id: ALL_COLLECTIONS_FILTER, label: "All Collections" },
+  ...flatCollections.value.map((collection) => ({
+    id: collection.id,
+    label: collection.title,
+  })),
+]);
+
+// should filtered collections include instance-wide permissions
+const SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT = true;
+
+// instance filter state lives in the URL
+const showInstancePermissions = computed<boolean>({
+  get() {
+    const raw = route.query.instance;
+    if (raw === "1") return true;
+    if (raw === "0") return false;
+    return SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT;
+  },
+  set(isShown) {
+    const isDefault = isShown === SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT;
+    router.replace({
+      query: {
+        ...route.query,
+        instance: isDefault ? undefined : isShown ? "1" : "0",
+      },
+    });
+  },
 });
 
 const pageRows = computed(() =>
@@ -338,12 +436,44 @@ const pageRows = computed(() =>
 const permissionRows = computed(() => pageRows.value.permissionRows);
 const unassignedGroupRows = computed(() => pageRows.value.unassignedGroupRows);
 
+// determine when active so that we can light it up
+const isAdvancedSearchActive = computed(
+  (): boolean =>
+    collectionFilterId.value !== null ||
+    showInstancePermissions.value !== SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT
+);
+
+const hasActiveFilters = computed(
+  (): boolean => isAdvancedSearchActive.value || searchText.value !== ""
+);
+
+function clearFilters(): void {
+  searchText.value = "";
+  currentRowKey.value = null;
+  // one replace resets both URL-backed filters
+  router.replace({
+    query: { ...route.query, collection: undefined, instance: undefined },
+  });
+}
+
+const visiblePermissionRows = computed((): PermissionRow[] => {
+  const collectionId = collectionFilterId.value;
+  if (collectionId === null) return permissionRows.value;
+  return permissionRows.value.filter((row) => {
+    if (row.scope === "instance") return showInstancePermissions.value;
+    return row.collectionId === collectionId;
+  });
+});
+
 const emptyMessage = computed((): string => {
   if (isError.value) return "Could not load permissions.";
   // the table renders this only when no row is visible, so rows that
   // exist are rows the search hid
-  if (permissionRows.value.length > 0) {
+  if (visiblePermissionRows.value.length > 0) {
     return "No permissions match your search.";
+  }
+  if (collectionFilterId.value !== null) {
+    return "No permissions for this collection yet. Add one to get started.";
   }
   return "No permissions yet. Add one to get started.";
 });
@@ -569,7 +699,7 @@ function isCurrentRow(key: string): boolean {
 
 const table = useVueTable({
   get data() {
-    return permissionRows.value;
+    return visiblePermissionRows.value;
   },
   columns: permissionColumns as ColumnDef<PermissionRow, unknown>[],
   getRowId: (row) => row.key,
