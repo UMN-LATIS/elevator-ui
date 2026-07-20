@@ -143,10 +143,17 @@ export function useAddGroupMemberMutation() {
     mutationFn: (vars: AddGroupMemberVars) => fetchers.addGroupMember(vars),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not add member" }),
+    // A User group stores members as entries, so the list's entries_count
+    // goes stale along with the members.
     onSettled: (_member, _error, vars) =>
-      queryClient.invalidateQueries({
-        queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupsList(),
+        }),
+      ]),
   });
 }
 
@@ -159,10 +166,17 @@ export function useRemoveGroupMemberMutation() {
       fetchers.removeGroupMember(vars.groupId, vars.userId),
     onError: (error) =>
       toastStore.error(error.message, { title: "Could not remove member" }),
+    // A User group stores members as entries, so the list's entries_count
+    // goes stale along with the members.
     onSettled: (_data, _error, vars) =>
-      queryClient.invalidateQueries({
-        queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupMembers(vars.groupId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupsList(),
+        }),
+      ]),
   });
 }
 
