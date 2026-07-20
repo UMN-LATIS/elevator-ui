@@ -143,6 +143,9 @@ const props = defineProps<{
   // group to prefill from a row's "Add Permission" action, null for a
   // blank form
   prefillGroup: PermissionsGroup | null;
+  // the page's active collection filter, which a new permission is
+  // presumably for, null when unfiltered
+  prefillCollectionId: number | null;
 }>();
 
 const emit = defineEmits<{
@@ -211,6 +214,10 @@ watch(isOpen, (open) => {
   selectedGroup.value = props.prefillGroup;
   if (props.prefillGroup) {
     draft.value.groupText = toDisplayLabel(props.prefillGroup);
+  }
+  if (props.prefillCollectionId !== null) {
+    draft.value.scope = "collection";
+    draft.value.collectionId = props.prefillCollectionId;
   }
 });
 
