@@ -61,6 +61,7 @@ import {
   type CreateDrawerGrantPayload,
   type UpdateDrawerGrantPayload,
   type CollectionAdminSummary,
+  type CollectionAdminDetail,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1671,4 +1672,72 @@ export async function deleteCollection(collectionId: number): Promise<void> {
   await axios.delete(
     `${BASE_URL}/adminCollections/collections/${collectionId}`
   );
+}
+
+export async function fetchAdminCollection(
+  collectionId: number
+): Promise<CollectionAdminDetail> {
+  const res = await axios.get<{ collection: CollectionAdminDetail }>(
+    `${BASE_URL}/adminCollections/collections/${collectionId}`
+  );
+
+  return res.data.collection;
+}
+
+export interface SaveCollectionPayload {
+  title: string;
+  // null means top level, sent as the API's 0 sentinel
+  parentId: number | null;
+  showInBrowse: boolean;
+  description: string;
+  previewImageId: string;
+  bucket: string;
+  bucketRegion: string;
+  s3Key: string;
+  s3Secret: string;
+}
+
+function toCollectionParams(payload: SaveCollectionPayload): URLSearchParams {
+  const params = new URLSearchParams();
+  params.append("title", payload.title);
+  params.append("parentId", String(payload.parentId ?? 0));
+  params.append("showInBrowse", String(payload.showInBrowse));
+  params.append("description", payload.description);
+  params.append("previewImageId", payload.previewImageId);
+  params.append("bucket", payload.bucket);
+  params.append("bucketRegion", payload.bucketRegion);
+  params.append("s3Key", payload.s3Key);
+  params.append("s3Secret", payload.s3Secret);
+  return params;
+}
+
+export async function createCollection(
+  payload: SaveCollectionPayload
+): Promise<CollectionAdminDetail> {
+  const params = toCollectionParams(payload);
+
+  // the API falls back to the instance's S3 defaults for omitted
+  // fields, so a blank field means "use the default" on create
+  for (const field of ["bucket", "bucketRegion", "s3Key", "s3Secret"]) {
+    if (params.get(field) === "") params.delete(field);
+  }
+
+  const res = await axios.post<{ collection: CollectionAdminDetail }>(
+    `${BASE_URL}/adminCollections/collections`,
+    params
+  );
+
+  return res.data.collection;
+}
+
+export async function updateCollection(
+  collectionId: number,
+  payload: SaveCollectionPayload
+): Promise<CollectionAdminDetail> {
+  const res = await axios.put<{ collection: CollectionAdminDetail }>(
+    `${BASE_URL}/adminCollections/collections/${collectionId}`,
+    toCollectionParams(payload)
+  );
+
+  return res.data.collection;
 }

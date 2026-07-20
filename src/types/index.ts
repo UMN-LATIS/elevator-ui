@@ -747,6 +747,15 @@ export type CollectionAdminSummary = Pick<
   "id" | "title" | "parentId" | "showInBrowse" | "previewImageId"
 >;
 
+// The detail response adds settings only instance admins see.
+export interface CollectionAdminDetail extends CollectionAdminSummary {
+  description: string | null;
+  bucket: string | null;
+  bucketRegion: string | null;
+  s3Key: string | null;
+  s3Secret: string | null;
+}
+
 export interface Page {
   title: string;
   id: number;
