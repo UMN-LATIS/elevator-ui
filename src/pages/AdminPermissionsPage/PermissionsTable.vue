@@ -1,6 +1,27 @@
 <template>
   <div>
-    <div class="flex flex-wrap items-center justify-end gap-x-8 gap-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+      <div
+        aria-label="Permission filters"
+        class="flex flex-wrap items-center gap-x-2 gap-y-2 rounded-md">
+        <SelectGroup
+          v-model="collectionFilterValue"
+          label="Collection"
+          :showLabel="false"
+          class="w-56"
+          :disabled="isLoading"
+          :selectClass="{
+            'border-primary border-2 bg-primary-muted': isAdvancedSearchActive,
+          }"
+          :options="collectionFilterOptions" />
+        <Button
+          v-if="hasActiveFilters"
+          variant="tertiary"
+          class="whitespace-nowrap"
+          @click="clearFilters">
+          Reset
+        </Button>
+      </div>
       <div class="flex flex-wrap items-center gap-2">
         <InputGroup
           :modelValue="searchText"
@@ -19,38 +40,6 @@
         </Button>
       </div>
     </div>
-    <section
-      aria-label="Permission filters"
-      class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md p-3"
-      :class="
-        isAdvancedSearchActive
-          ? 'bg-primary-muted'
-          : 'border-outline-variant bg-surface-container-low'
-      ">
-      <FilterIcon
-        class="size-4"
-        :class="
-          isAdvancedSearchActive ? 'text-primary' : 'text-on-surface-variant'
-        " />
-      <SelectGroup
-        v-model="collectionFilterValue"
-        label="Collection"
-        :showLabel="false"
-        class="w-56"
-        :disabled="isLoading"
-        :selectClass="{
-          'border-outline': isAdvancedSearchActive,
-        }"
-        :options="collectionFilterOptions" />
-      <Button
-        v-if="hasActiveFilters"
-        variant="tertiary"
-        class="whitespace-nowrap border border-primary ml-auto"
-        @click="clearFilters">
-        <XIcon class="size-4" />
-        Clear Filters
-      </Button>
-    </section>
 
     <div class="mt-4 border border-outline-variant rounded-md">
       <Table class="w-full table-fixed">
@@ -423,13 +412,11 @@ function clearFilters(): void {
   });
 }
 
-// instance-wide permissions apply to every collection, so they stay
-// visible when a collection filter is active
 const visiblePermissionRows = computed((): PermissionRow[] => {
   const collectionId = collectionFilterId.value;
   if (collectionId === null) return permissionRows.value;
   return permissionRows.value.filter(
-    (row) => row.scope === "instance" || row.collectionId === collectionId
+    (row) => row.collectionId === collectionId
   );
 });
 
