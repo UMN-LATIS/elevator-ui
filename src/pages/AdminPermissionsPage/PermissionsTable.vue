@@ -3,15 +3,23 @@
     <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
       <div
         aria-label="Permission filters"
-        class="flex flex-wrap items-center gap-x-2 gap-y-2 rounded-md">
+        :class="[
+          'flex flex-wrap items-center gap-x-2 gap-y-2 rounded-md',
+          {
+            'bg-primary-muted px-2 py-1': collectionFilterId !== null,
+          },
+        ]">
+        <FilterIcon
+          v-if="collectionFilterId !== null"
+          class="h-4 w-4 text-on-surface-variant"
+          :class="{ 'text-primary': collectionFilterId !== null }" />
         <SelectGroup
           v-model="collectionFilterValue"
           label="Collection"
           :showLabel="false"
-          class="w-56 flex-row"
           :disabled="isLoading"
           :selectClass="{
-            'border-primary border-2 bg-primary-muted':
+            'border-primary bg-transparent text-on-surface':
               collectionFilterId !== null,
           }"
           :options="collectionFilterOptions" />
@@ -42,8 +50,8 @@
       </div>
     </div>
 
-    <div class="mt-4 border border-outline-variant rounded-md">
-      <Table class="w-full table-fixed">
+    <div class="mt-4 border border-outline-variant rounded-md overflow-x-auto">
+      <Table class="w-full min-w-[44rem] table-fixed">
         <TableHeader>
           <template
             v-for="headerGroup in table.getHeaderGroups()"
@@ -240,7 +248,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
+import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
