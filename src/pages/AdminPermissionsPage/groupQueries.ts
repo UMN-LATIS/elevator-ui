@@ -4,6 +4,7 @@ import * as fetchers from "@/api/fetchers";
 import type { AddGroupMemberInput } from "@/api/fetchers";
 import { useToastStore } from "@/stores/toastStore";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
+import { makeQueryKeyFor as ruleQueryKeyFor } from "./ruleQueries";
 import type { PermissionsGroup, UpdateGroupPayload } from "@/types";
 
 const groupKeys = makeQueryKeysFor("groups");
@@ -113,9 +114,19 @@ export function useDeleteGroupMutation() {
     // invalidating it (a refetch would 404).
     onSettled: (_data, _error, id) => {
       queryClient.removeQueries({ queryKey: makeQueryKeyFor.groupDetails(id) });
-      return queryClient.invalidateQueries({
-        queryKey: makeQueryKeyFor.groupsList(),
-      });
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: makeQueryKeyFor.groupsList(),
+        }),
+        // the backend cascades the group's grants, so both grant lists
+        // hold dead entries too
+        queryClient.invalidateQueries({
+          queryKey: ruleQueryKeyFor.instanceGrantsList(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ruleQueryKeyFor.collectionGrantsList(),
+        }),
+      ]);
     },
   });
 }

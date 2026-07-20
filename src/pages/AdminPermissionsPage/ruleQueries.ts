@@ -103,10 +103,10 @@ export function useSaveRuleMutation() {
         : updateGrant(input.grantId, input.rule),
     onSuccess: (_grant, input) =>
       toastStore.success(
-        input.kind === "create" ? "Rule created." : "Rule updated."
+        input.kind === "create" ? "Permission added." : "Permission updated."
       ),
     onError: (error) =>
-      toastStore.error(error.message, { title: "Could not save rule" }),
+      toastStore.error(error.message, { title: "Could not save permission" }),
     // Only the list the rule lives in goes stale.
     onSettled: (_grant, _error, input) =>
       queryClient.invalidateQueries({
