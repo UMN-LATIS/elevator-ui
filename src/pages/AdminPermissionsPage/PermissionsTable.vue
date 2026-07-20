@@ -8,7 +8,7 @@
           v-model="collectionFilterValue"
           label="Collection"
           :showLabel="false"
-          class="w-56"
+          class="w-56 flex-row"
           :disabled="isLoading"
           :selectClass="{
             'border-primary border-2 bg-primary-muted':

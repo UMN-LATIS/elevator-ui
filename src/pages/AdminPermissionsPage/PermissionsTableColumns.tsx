@@ -86,7 +86,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
   columnHelper.accessor("scope", {
     id: "scope",
     header: () => <ColHeader text="Scope" />,
-    meta: { widthClass: "w-[12%]" },
+    meta: { widthClass: "w-28" },
     cell: (ctx) => {
       const isInstance = ctx.getValue() === "instance";
       return (
@@ -109,7 +109,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
     {
       id: "collection",
       header: () => <ColHeader text="Collection" />,
-      meta: { widthClass: "w-[20%]" },
+      meta: { widthClass: "w-40" },
       cell: (ctx) => {
         const row = ctx.row.original;
 
@@ -136,7 +136,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
   columnHelper.accessor((row) => `${row.groupLabel} ${row.typeLabel}`, {
     id: "group",
     header: () => <ColHeader text="Group" />,
-    meta: { widthClass: "w-[32%]" },
+    meta: { widthClass: "w-56" },
     cell: (ctx) => {
       const row = ctx.row.original;
 
@@ -190,7 +190,7 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
   columnHelper.accessor("permissionLabel", {
     id: "permission",
     header: () => <ColHeader text="Permission" />,
-    meta: { widthClass: "w-[20%]" },
+    meta: { widthClass: "w-40" },
     cell: (ctx) => {
       const row = ctx.row.original;
 
