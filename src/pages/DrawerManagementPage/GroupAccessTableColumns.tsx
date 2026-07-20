@@ -225,7 +225,8 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
 
       return (
         <div class="flex justify-end">
-          <DropDown showChevron={false} labelClass="!p-1 rounded-full">
+          {/* portal, so the table's overflow container cannot clip the menu */}
+          <DropDown showChevron={false} portal labelClass="!p-1 rounded-full">
             {{
               label: () => (
                 <>
