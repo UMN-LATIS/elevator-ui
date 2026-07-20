@@ -88,11 +88,14 @@ import {
   useUpdateDrawerGroupEntryMutation,
   useRemoveDrawerGroupEntryMutation,
 } from "./drawerGroupQueries";
+import { useToastStore } from "@/stores/toastStore";
 
 const props = defineProps<{
   group: PermissionsGroup;
   entry: PermissionsGroupEntry;
 }>();
+
+const toastStore = useToastStore();
 
 const isEditing = ref(false);
 const isConfirmingRemoval = ref(false);
@@ -119,11 +122,24 @@ function handleSave(): void {
 
   if (trimmedDraft === props.entry.value) return;
 
-  updateGroupEntry({
-    groupId: props.group.id,
-    entryId: props.entry.id,
-    value: trimmedDraft,
-  });
+  const previousValue = props.entry.value;
+
+  updateGroupEntry(
+    {
+      groupId: props.group.id,
+      entryId: props.entry.id,
+      value: trimmedDraft,
+    },
+    {
+      onSuccess: () =>
+        toastStore.success(`"${previousValue}" changed to "${trimmedDraft}".`),
+      onError: (error) =>
+        toastStore.error(
+          `Failed to change "${previousValue}": ${error.message}`,
+          { title: "Save Value Failed" }
+        ),
+    }
+  );
 }
 
 function handleDelete(): void {
@@ -131,10 +147,25 @@ function handleDelete(): void {
 }
 
 function confirmRemove(): void {
-  removeGroupEntry({
-    groupId: props.group.id,
-    entryId: props.entry.id,
-  });
+  const removedValue = props.entry.value;
+
+  removeGroupEntry(
+    {
+      groupId: props.group.id,
+      entryId: props.entry.id,
+    },
+    {
+      onSuccess: () =>
+        toastStore.success(
+          `"${removedValue}" removed from ${props.group.label}.`
+        ),
+      onError: (error) =>
+        toastStore.error(
+          `Failed to remove "${removedValue}" from ${props.group.label}: ${error.message}`,
+          { title: "Remove Value Failed" }
+        ),
+    }
+  );
   // Close the confirm modal right away. The row shows "(removing…)" until
   // the refetch drops it, and a failure surfaces as an error toast.
   isConfirmingRemoval.value = false;

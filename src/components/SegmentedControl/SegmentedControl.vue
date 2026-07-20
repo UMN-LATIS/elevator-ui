@@ -21,14 +21,17 @@
       <label
         v-for="opt in options"
         :key="opt.id"
-        :class="[
-          'relative flex items-center px-3 py-1 text-xs cursor-pointer select-none transition-colors',
-          'not-first:border-l not-first:border-outline-variant',
-          modelValue === opt.id
-            ? 'bg-primary text-on-primary font-medium'
-            : 'bg-surface-container text-on-surface hover:bg-surface-container-high',
-          opt.disabled && 'opacity-50 cursor-not-allowed',
-        ]">
+        :class="
+          cn([
+            'relative flex items-center px-3 py-1 text-xs cursor-pointer select-none transition-colors',
+            'not-first:border-l not-first:border-outline-variant',
+            modelValue === opt.id
+              ? 'bg-primary text-on-primary font-medium'
+              : 'bg-surface-container text-on-surface hover:bg-surface-container-high',
+            opt.disabled && 'opacity-50 cursor-not-allowed',
+            optionClass,
+          ])
+        ">
         <input
           type="radio"
           :name="groupName"
@@ -55,10 +58,12 @@ withDefaults(
     options: SelectOption<TValue>[];
     labelClass?: CSSClass;
     showLabel?: boolean;
+    optionClass?: CSSClass;
   }>(),
   {
     labelClass: "",
     showLabel: true,
+    optionClass: "",
   }
 );
 

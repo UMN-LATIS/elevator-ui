@@ -34,6 +34,7 @@ export interface PermissionsGroup {
   id: number;
   type: GroupTypeValues;
   label: string;
+  // A User group stores its members as entries, so one count covers both.
   entries_count: number;
   // auto-created personal group
   is_personal?: boolean;
@@ -42,13 +43,15 @@ export interface PermissionsGroup {
 // Auth-helper types are defined by the backend's AuthHelper
 // classes, so the UI can only recognize them as "not one of the built-in
 // GROUP_TYPES". The backend rejects entry writes on other types anyway.
-export function isAuthHelperGroupType(group: PermissionsGroup): boolean {
-  const builtInTypes: GroupTypeValues[] = Object.values(GROUP_TYPES);
+// The type is string, not GroupTypeValues, because auth-helper types are
+// by definition outside that union.
+export function isAuthHelperGroupType(group: { type: string }): boolean {
+  const builtInTypes: string[] = Object.values(GROUP_TYPES);
   return !builtInTypes.includes(group.type);
 }
 
 // A group with something to manage inside: members, entries
-export function isManageableGroup(group: PermissionsGroup): boolean {
+export function isManageableGroup(group: { type: string }): boolean {
   return group.type === GROUP_TYPES.USER || isAuthHelperGroupType(group);
 }
 
@@ -115,4 +118,38 @@ export interface UpdateGroupPayload {
 export interface ManageableDrawer {
   id: number;
   title: string | null;
+}
+
+// The group a drawer grant reaches. It rides along inline on the grant
+// because /drawerPermissions/groups only lists the caller's own groups,
+// so another owner's group could not be joined client-side.
+export interface DrawerGrantGroup extends PermissionsGroup {
+  ownedByCurrentUser: boolean;
+  // null for a global group type, which has no owner
+  ownerName: string | null;
+}
+
+// GET /drawerPermissions/grants: one drawer group's permission level on
+// one drawer the caller can manage. drawerId and permissionLevelId join
+// against the drawers list and the permission level catalog.
+export interface DrawerGrant {
+  id: number;
+  drawerId: number | null;
+  permissionLevelId: number | null;
+  group: DrawerGrantGroup | null;
+}
+
+// POST /drawerPermissions/grants. The drawer must be one the caller
+// manages and the group one they own, so a grant can only be created
+// from the caller's own groups even though existing ones stay editable.
+export interface CreateDrawerGrantPayload {
+  drawerId: number;
+  drawerGroupId: number;
+  permissionLevelId: number;
+}
+
+// PUT /drawerPermissions/grants/{id}. A grant stays on the drawer and the
+// group it was created for, so its level is all that changes.
+export interface UpdateDrawerGrantPayload {
+  permissionLevelId: number;
 }

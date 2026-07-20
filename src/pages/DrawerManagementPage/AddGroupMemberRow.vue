@@ -90,6 +90,7 @@ import { TableRow, TableCell } from "@/components/ui/table";
 import { XIcon, CheckIcon, PlusIcon } from "lucide-vue-next";
 import { AutoCompleteInput } from "@/components/AutoCompleteInput";
 import { useDrawerUserAutocompleteQuery } from "@/queries/useUserAutocompleteQuery";
+import { useToastStore } from "@/stores/toastStore";
 import {
   drawerGroupMembersQuery,
   useAddDrawerGroupMemberMutation,
@@ -113,6 +114,7 @@ const props = defineProps<{
 // while the add is still settling.
 const isOpen = defineModel<boolean>("open", { required: true });
 
+const toastStore = useToastStore();
 const search = ref("");
 const debouncedSearch = useDebounce(search, 300);
 const { data: matches, isFetching } =
@@ -210,6 +212,21 @@ function handleSave(): void {
   commitAdd({ kind: "create", query: typed });
 }
 
+// Close only on success so a failed add keeps the form up for a retry.
+function toAddMemberCallbacks(name: string) {
+  return {
+    onSuccess: () => {
+      closeForm();
+      toastStore.success(`${name} added to "${props.group.label}".`);
+    },
+    onError: (error: Error) =>
+      toastStore.error(
+        `Failed to add ${name} to "${props.group.label}": ${error.message}`,
+        { title: "Add Member Failed" }
+      ),
+  };
+}
+
 function commitAdd(option: MemberOption): void {
   // the create row's text is the remote id to provision, a netid the user
   // typed at a school whose directory the search can't reach
@@ -220,7 +237,7 @@ function commitAdd(option: MemberOption): void {
         remoteUserId: option.query,
         name: option.query,
       },
-      { onSuccess: closeForm }
+      toAddMemberCallbacks(option.query)
     );
     return;
   }
@@ -241,7 +258,7 @@ function commitAdd(option: MemberOption): void {
           remoteUserId: match.username,
           name: match.name,
         },
-    { onSuccess: closeForm }
+    toAddMemberCallbacks(match.name)
   );
 }
 

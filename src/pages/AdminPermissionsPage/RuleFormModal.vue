@@ -83,7 +83,7 @@ import { useQuery } from "@tanstack/vue-query";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { useToastStore } from "@/stores/toastStore";
 import GroupFormModal from "./GroupFormModal.vue";
-import PermissionSelect from "./PermissionSelect.vue";
+import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -92,11 +92,11 @@ import { groupsQuery } from "./groupQueries";
 import {
   collectionGrantsQuery,
   instanceGrantsQuery,
-  permissionLevelsQuery,
   useSaveRuleMutation,
 } from "./ruleQueries";
 import type { RuleScope } from "./ruleQueries";
-import { buildPermissionOptions } from "./buildPermissionOptions";
+import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
+import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
 import type {
   CollectionGrant,
@@ -174,7 +174,7 @@ const toastStore = useToastStore();
 
 // A group created mid-rule has no members or entries yet, and that setup
 // lives on the Groups tab. Offer the jump once the rule modal is out of
-// the way, via the ?group deep link the Groups tab already handles.
+// the way, via the ?revealGroup link the Groups tab already handles.
 function offerGroupSetupToast(): void {
   const group = createdGroup.value;
   createdGroup.value = null;
@@ -186,8 +186,9 @@ function offerGroupSetupToast(): void {
     message: `"${group.label}" has no ${noun} yet.`,
     // longer than the default so it outlives the rule-created toast
     duration: 8000,
-    url: router.resolve({ query: { tab: "groups", group: String(group.id) } })
-      .fullPath,
+    url: router.resolve({
+      query: { tab: "groups", revealGroup: String(group.id) },
+    }).fullPath,
     urlText: noun === "members" ? "Add members" : "Add entries",
   });
 }

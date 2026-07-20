@@ -10,12 +10,6 @@
         <nav
           v-if="currentUser?.canManageDrawers"
           class="flex items-center gap-2">
-          <Button
-            v-if="config.features.drawerManagement"
-            variant="secondary"
-            to="/drawers/manage">
-            Manage Drawers
-          </Button>
           <CreateDrawerButton />
         </nav>
       </div>
@@ -55,8 +49,6 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import Link from "@/components/Link/Link.vue";
-import Button from "@/components/Button/Button.vue";
-import config from "@/config";
 import { useResizeObserver } from "@vueuse/core";
 import DeleteDrawerButton from "./DeleteDrawerButton.vue";
 import CreateDrawerButton from "./CreateDrawerButton.vue";

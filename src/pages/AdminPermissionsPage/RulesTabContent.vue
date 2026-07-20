@@ -157,13 +157,13 @@ import { groupsQuery } from "./groupQueries";
 import {
   collectionGrantsQuery,
   instanceGrantsQuery,
-  permissionLevelsQuery,
   useDeleteRuleMutation,
   useSaveRuleMutation,
 } from "./ruleQueries";
+import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { buildRuleRows, ruleRowKey } from "./buildRuleRows";
 import type { PermissionRuleRow } from "./buildRuleRows";
-import { buildPermissionOptions } from "./buildPermissionOptions";
+import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { createRuleColumns } from "./RulesTableColumns";
 
 // Placeholder rows shown while the rule lists load.
@@ -305,6 +305,8 @@ const savingKey = computed((): string | null => {
   return ruleRowKey(scope, input.grantId);
 });
 
+// The level that save submitted, which the cell names in place of the
+// stale one the list still holds.
 const savingLevelLabel = computed((): string => {
   const input = saveRule.variables.value;
   if (input?.kind !== "update") return "";

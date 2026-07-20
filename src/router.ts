@@ -64,45 +64,6 @@ const createHomeRoute = (): RouteRecordRaw => {
   };
 };
 
-/**
- * Routes that only exist when the adminPermissions feature flag is on.
- * Returning an empty array when the flag is off means the URL falls
- * through to the catchall 404 — instead of triggering sign-in or 403
- * via the auth meta, which would be inconsistent with how other
- * flag-gated URLs behave (they 404).
- */
-const createAdminPermissionsRoutes = (): RouteRecordRaw[] => {
-  if (!config.features.adminPermissions) return [];
-  return [
-    {
-      name: "adminPermissions",
-      path: "/admin/permissions",
-      component: () =>
-        import("@/pages/AdminPermissionsPage/AdminPermissionsPage.vue"),
-      meta: {
-        requiresAuth: true,
-        canAccess: (user: User) => user.isAdmin,
-      },
-    },
-  ];
-};
-
-const createDrawerManagementRoutes = (): RouteRecordRaw[] => {
-  if (!config.features.drawerManagement) return [];
-  return [
-    {
-      name: "drawerManagement",
-      path: "/drawers/manage",
-      component: () =>
-        import("@/pages/DrawerManagementPage/DrawerManagementPage.vue"),
-      meta: {
-        requiresAuth: true,
-        canAccess: (user: User) => user.canManageDrawers,
-      },
-    },
-  ];
-};
-
 const router = createRouter({
   history: createWebHistory(config.instance.base.path),
   scrollBehavior(to, from, savedPosition) {
@@ -369,8 +330,30 @@ const router = createRouter({
         import("@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"),
       props: { templateId: null },
     },
-    ...createAdminPermissionsRoutes(),
-    ...createDrawerManagementRoutes(),
+    {
+      name: "adminPermissions",
+      path: "/admin/permissions",
+      component: () =>
+        import("@/pages/AdminPermissionsPage/AdminPermissionsPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
+    },
+    {
+      name: "drawerManagement",
+      path: "/drawers/:drawerId(\\d+)/manage",
+      component: () =>
+        import("@/pages/DrawerManagementPage/DrawerManagementPage.vue"),
+      props: (route) => ({
+        // the path's \d+ constraint sends a non-numeric to 404
+        drawerId: Number(route.params.drawerId),
+      }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.canManageDrawers,
+      },
+    },
     {
       name: "mapClusterTest",
       path: "/tests/map",

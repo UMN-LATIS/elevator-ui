@@ -81,7 +81,7 @@ import {
   type AcceptableValue,
 } from "reka-ui";
 import { ChevronsUpDownIcon, CheckIcon } from "lucide-vue-next";
-import { permissionDotClass } from "./permissionDotClass";
+import { permissionDotClass } from "@/helpers/permissionLevelColors";
 import type { PermissionSelectOption } from "./buildPermissionOptions";
 
 const props = withDefaults(

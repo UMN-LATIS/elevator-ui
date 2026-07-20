@@ -44,6 +44,7 @@ import { computed, ref } from "vue";
 import { XIcon, CheckIcon } from "lucide-vue-next";
 import GroupEntryValueInput from "./GroupEntryValueInput.vue";
 import { useAddDrawerGroupEntryMutation } from "./drawerGroupQueries";
+import { useToastStore } from "@/stores/toastStore";
 import Button from "@/components/Button/Button.vue";
 
 const props = withDefaults(
@@ -52,6 +53,8 @@ const props = withDefaults(
     colspan: 2,
   }
 );
+
+const toastStore = useToastStore();
 
 // The in-flight "(saving...)" row renders here from the mutation, so the
 // parent toggles `open` instead of v-if. Unmounting would drop that row
@@ -87,7 +90,17 @@ function handleSave(): void {
   // typed value still in place for a retry.
   addGroupEntry(
     { groupId: props.group.id, value: trimmedDraft },
-    { onSuccess: closeForm }
+    {
+      onSuccess: () => {
+        closeForm();
+        toastStore.success(`"${trimmedDraft}" added to ${props.group.label}.`);
+      },
+      onError: (error) =>
+        toastStore.error(
+          `Failed to add "${trimmedDraft}" to ${props.group.label}: ${error.message}`,
+          { title: "Add Value Failed" }
+        ),
+    }
   );
 }
 </script>

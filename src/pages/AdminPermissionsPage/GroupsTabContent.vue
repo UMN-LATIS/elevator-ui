@@ -393,9 +393,9 @@ async function handleCreated(group: PermissionsGroup) {
 const route = useRoute();
 const router = useRouter();
 
-// Deep link from the Rules tab: ?group=<id> reveals that group's row.
+// Deep link from the Rules tab: ?revealGroup opens that group's row.
 watch(
-  [groups, () => route.query.group],
+  [groups, () => route.query.revealGroup],
   async ([groupList, groupParam]) => {
     // the link can arrive before the groups query has loaded, so this
     // watch also runs on groups and waits for both
@@ -403,7 +403,7 @@ watch(
 
     // drop the param right away so a refresh or back navigation
     // doesn't replay the jump
-    router.replace({ query: { ...route.query, group: undefined } });
+    router.replace({ query: { ...route.query, revealGroup: undefined } });
 
     const group = groupList.find((g) => String(g.id) === groupParam);
     if (!group) return;

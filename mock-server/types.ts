@@ -1,3 +1,5 @@
+import type { PermissionsGroupEntry } from "../src/types";
+
 export interface MockUser {
   id: number;
   displayName: string;
@@ -5,11 +7,31 @@ export interface MockUser {
   password: string;
   isInstanceAdmin: boolean;
   isSuperAdmin: boolean;
+  email?: string;
+  // Remote marks a user provisioned from the directory rather than
+  // created locally
+  userType?: "Local" | "Remote";
   permissions: {
     canManageAssets?: boolean;
     canCreateDrawers?: boolean;
     canSearchAndBrowse?: boolean;
   };
+}
+
+export interface MockDrawerGroup {
+  id: number;
+  userId: number;
+  type: string;
+  label: string;
+  entries: PermissionsGroupEntry[];
+}
+
+// One group's permission level on one drawer (the backend's DrawerPermission)
+export interface MockDrawerGrant {
+  id: number;
+  drawerId: number;
+  groupId: number;
+  permissionLevelId: number;
 }
 
 export interface MockSession {

@@ -18,7 +18,7 @@
           v-if="instanceStore.currentUser?.canManageDrawers"
           class="flex items-center gap-2 bg-surface-container-low p-1 rounded-md">
           <IconButton
-            :href="`${BASE_URL}/permissions/edit/drawer/${drawerId}`"
+            :to="`/drawers/${drawerId}/manage`"
             title="Edit Permissions">
             <UsersIcon class="!w-5 !h-5" />
             <span class="sr-only">Edit Permissions</span>

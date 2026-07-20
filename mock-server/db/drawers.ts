@@ -13,6 +13,16 @@ const drawerSeeds: MockDrawer[] = [
     createdAt: new Date(),
     updatedAt: new Date(),
   },
+  {
+    id: 2,
+    name: "Slide Library",
+    description: "The curator's drawer",
+    userId: 3,
+    assetIds: [],
+    isPublic: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
 ];
 
 export function createDrawersTable() {
@@ -20,7 +30,7 @@ export function createDrawersTable() {
     (drawer: MockDrawer) => drawer.id,
     drawerSeeds
   );
-  let nextDrawerId = 2;
+  let nextDrawerId = 3;
 
   return {
     ...baseTable,
@@ -62,7 +72,7 @@ export function createDrawersTable() {
     // Override reset to also reset the counter
     reset: (): void => {
       baseTable.reset();
-      nextDrawerId = 2;
+      nextDrawerId = 3;
     },
   };
 }

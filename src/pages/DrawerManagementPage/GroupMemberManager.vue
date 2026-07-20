@@ -47,12 +47,15 @@ import {
   useRemoveDrawerGroupMemberMutation,
 } from "./drawerGroupQueries";
 import { tryFocus } from "@/helpers/tryFocus";
+import { useToastStore } from "@/stores/toastStore";
 import type { GroupMember, PermissionsGroup } from "@/types";
 
 const props = defineProps<{
   group: PermissionsGroup;
   isOpen: boolean;
 }>();
+
+const toastStore = useToastStore();
 
 // isPending is true only before the first data arrives. Refetches after
 // add/remove keep the old list on screen, so no skeleton flash.
@@ -92,11 +95,26 @@ function remove(member: GroupMember) {
 }
 
 function confirmRemove() {
-  if (!memberToRemove.value) return;
-  removeMutation.mutate({
-    groupId: props.group.id,
-    userId: memberToRemove.value.userId,
-  });
+  const member = memberToRemove.value;
+  if (!member) return;
+
+  removeMutation.mutate(
+    {
+      groupId: props.group.id,
+      userId: member.userId,
+    },
+    {
+      onSuccess: () =>
+        toastStore.success(
+          `${member.name} removed from "${props.group.label}".`
+        ),
+      onError: (error) =>
+        toastStore.error(
+          `Failed to remove ${member.name} from "${props.group.label}": ${error.message}`,
+          { title: "Remove Member Failed" }
+        ),
+    }
+  );
   // Close the confirm modal right away. The row stays until the refetch
   // drops it, and a failure surfaces as an error toast.
   memberToRemove.value = null;

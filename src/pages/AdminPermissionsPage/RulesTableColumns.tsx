@@ -1,21 +1,15 @@
 import type { Ref } from "vue";
 import { createColumnHelper } from "@tanstack/vue-table";
 import { RouterLink } from "vue-router";
-import {
-  PencilIcon,
-  TrashIcon,
-  CheckIcon,
-  XIcon,
-  LoaderCircleIcon,
-} from "lucide-vue-next";
+import { PencilIcon, TrashIcon, CheckIcon, XIcon } from "lucide-vue-next";
 import { cn } from "@/lib/utils";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import type { PermissionRuleRow } from "./buildRuleRows";
 import { ColHeader } from "./ColHeader";
 import Chip from "@/components/Chip/Chip.vue";
-import { permissionDotClass } from "./permissionDotClass";
-import PermissionSelect from "./PermissionSelect.vue";
-import type { PermissionSelectOption } from "./buildPermissionOptions";
+import PermissionChip from "@/components/PermissionChip/PermissionChip.vue";
+import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
+import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
 
 const columnHelper = createColumnHelper<PermissionRuleRow>();
 
@@ -25,9 +19,6 @@ const columnHelper = createColumnHelper<PermissionRuleRow>();
 export interface RuleColumnsDeps {
   editingKey: Ref<string | null>;
   draftLevelId: Ref<number | null>;
-  // the row whose save is in flight, and the level label it submitted, so
-  // the permission cell shows the new value with a spinner instead of
-  // snapping back to the old one while the refetch runs
   savingKey: Ref<string | null>;
   savingLevelLabel: Ref<string>;
   permissionOptions: Ref<PermissionSelectOption[]>;
@@ -85,11 +76,14 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
     id: "group",
     header: () => <ColHeader text="Group" />,
     meta: { widthClass: "w-[20%]" },
-    // The Groups tab consumes ?group=<id> and reveals that group's row.
+    // The Groups tab consumes ?revealGroup and opens that group's row.
     cell: (ctx) => (
       <RouterLink
         to={{
-          query: { tab: "groups", group: String(ctx.row.original.groupId) },
+          query: {
+            tab: "groups",
+            revealGroup: String(ctx.row.original.groupId),
+          },
         }}
         class="text-sm text-primary underline-offset-2 hover:underline">
         {ctx.getValue()}
@@ -119,20 +113,14 @@ export const createRuleColumns = (deps: RuleColumnsDeps) => [
       }
 
       if (deps.savingKey.value === rule.key) {
-        return (
-          <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface-variant">
-            <LoaderCircleIcon class="size-3 shrink-0 animate-spin" />
-            <span class="truncate">{deps.savingLevelLabel.value}</span>
-          </Chip>
-        );
+        return <PermissionChip label={deps.savingLevelLabel.value} isPending />;
       }
 
-      const dotClass = permissionDotClass(rule.permissionLevelNumber);
       return (
-        <Chip class="w-full flex gap-1 items-center border border-outline-variant bg-surface text-on-surface">
-          <i class={["size-2 shrink-0 rounded-full", dotClass]} />
-          <span class="truncate">{ctx.getValue()}</span>
-        </Chip>
+        <PermissionChip
+          levelNumber={rule.permissionLevelNumber}
+          label={ctx.getValue()}
+        />
       );
     },
   }),

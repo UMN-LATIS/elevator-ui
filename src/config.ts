@@ -59,12 +59,6 @@ const defaultConfig: AppConfig = {
   isUsingMockServer: import.meta.env.VITE_IS_USING_MOCK_SERVER
     ? import.meta.env.VITE_IS_USING_MOCK_SERVER.toLowerCase() === "true"
     : false,
-  features: {
-    adminPermissions:
-      import.meta.env.VITE_FEATURE_ADMIN_PERMISSIONS?.toLowerCase() === "true",
-    drawerManagement:
-      import.meta.env.VITE_FEATURE_DRAWER_MANAGEMENT?.toLowerCase() === "true",
-  },
 };
 
 const globalConfig = globalThis?.Elevator?.config ?? {};

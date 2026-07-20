@@ -57,6 +57,9 @@ import {
   type InstanceGrant,
   type CollectionGrant,
   type ManageableDrawer,
+  type DrawerGrant,
+  type CreateDrawerGrantPayload,
+  type UpdateDrawerGrantPayload,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1176,9 +1179,11 @@ export async function fetchGroups(): Promise<PermissionsGroup[]> {
   return res.data.groups;
 }
 
+// /permissions/permissionLevels is open to any authed user, so drawer
+// managers can read it too, unlike the admin-only /adminPermissions one.
 export async function fetchPermissionLevels(): Promise<PermissionLevel[]> {
   const res = await axios.get<{ permissionLevels: PermissionLevel[] }>(
-    `${BASE_URL}/adminPermissions/permissionLevels`
+    `${BASE_URL}/permissions/permissionLevels`
   );
 
   return res.data.permissionLevels;
@@ -1457,11 +1462,11 @@ export async function fetchDrawerGroupTypes(): Promise<GroupTypeDetails[]> {
 }
 
 export async function fetchManageableDrawers(): Promise<ManageableDrawer[]> {
-  const res = await axios.get<{ drawers: ManageableDrawer[] }>(
-    `${BASE_URL}/drawerPermissions/drawers`
+  const res = await axios.get<{ manageableDrawers: ManageableDrawer[] }>(
+    `${BASE_URL}/drawerPermissions/manageableDrawers`
   );
 
-  return res.data.drawers;
+  return res.data.manageableDrawers;
 }
 
 export async function fetchDrawerGroups(): Promise<PermissionsGroup[]> {
@@ -1470,6 +1475,49 @@ export async function fetchDrawerGroups(): Promise<PermissionsGroup[]> {
   );
 
   return res.data.groups;
+}
+
+export async function fetchDrawerGrants(): Promise<DrawerGrant[]> {
+  const res = await axios.get<{ grants: DrawerGrant[] }>(
+    `${BASE_URL}/drawerPermissions/grants`
+  );
+
+  return res.data.grants;
+}
+
+export async function createDrawerGrant(
+  payload: CreateDrawerGrantPayload
+): Promise<DrawerGrant> {
+  const params = new URLSearchParams();
+  params.append("drawerId", String(payload.drawerId));
+  params.append("drawerGroupId", String(payload.drawerGroupId));
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.post<{ grant: DrawerGrant }>(
+    `${BASE_URL}/drawerPermissions/grants`,
+    params
+  );
+
+  return res.data.grant;
+}
+
+export async function updateDrawerGrant(
+  grantId: number,
+  payload: UpdateDrawerGrantPayload
+): Promise<DrawerGrant> {
+  const params = new URLSearchParams();
+  params.append("permissionLevelId", String(payload.permissionLevelId));
+
+  const res = await axios.put<{ grant: DrawerGrant }>(
+    `${BASE_URL}/drawerPermissions/grants/${grantId}`,
+    params
+  );
+
+  return res.data.grant;
+}
+
+export async function deleteDrawerGrant(grantId: number): Promise<void> {
+  await axios.delete(`${BASE_URL}/drawerPermissions/grants/${grantId}`);
 }
 
 export async function createDrawerGroup(
@@ -1488,13 +1536,13 @@ export async function createDrawerGroup(
 }
 
 // Changing the type clears the group's existing members server-side.
-export async function updateDrawerGroup(
+// A group's type is fixed at creation, so its name is all this changes.
+export async function renameDrawerGroup(
   groupId: number,
-  payload: UpdateGroupPayload
+  label: string
 ): Promise<PermissionsGroup> {
   const params = new URLSearchParams();
-  params.append("label", payload.label);
-  params.append("type", payload.type);
+  params.append("label", label);
 
   const res = await axios.put<{ group: PermissionsGroup }>(
     `${BASE_URL}/drawerPermissions/groups/${groupId}`,
