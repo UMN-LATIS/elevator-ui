@@ -740,6 +740,13 @@ export interface AssetCollection {
   canEdit: boolean;
 }
 
+// One collection as the adminCollections management API lists it: the
+// AssetCollection contract minus the browse-only fields.
+export type CollectionAdminSummary = Pick<
+  AssetCollection,
+  "id" | "title" | "parentId" | "showInBrowse" | "previewImageId"
+>;
+
 export interface Page {
   title: string;
   id: number;
