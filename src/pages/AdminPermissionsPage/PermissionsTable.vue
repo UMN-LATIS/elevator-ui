@@ -42,13 +42,6 @@
           'border-outline': isAdvancedSearchActive,
         }"
         :options="collectionFilterOptions" />
-      <Toggle
-        v-if="collectionFilterId !== null"
-        v-model="showInstancePermissions"
-        settingLabel="Show instance-wide permissions"
-        onLabel="Instance permissions"
-        onLabelClass="text-sm"
-        class="whitespace-nowrap" />
       <Button
         v-if="hasActiveFilters"
         variant="tertiary"
@@ -269,7 +262,6 @@ import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import Toggle from "@/components/Toggle/Toggle.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { tryFocus } from "@/helpers/tryFocus";
@@ -400,28 +392,6 @@ const collectionFilterOptions = computed(() => [
   })),
 ]);
 
-// should filtered collections include instance-wide permissions
-const SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT = true;
-
-// instance filter state lives in the URL
-const showInstancePermissions = computed<boolean>({
-  get() {
-    const raw = route.query.instance;
-    if (raw === "1") return true;
-    if (raw === "0") return false;
-    return SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT;
-  },
-  set(isShown) {
-    const isDefault = isShown === SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT;
-    router.replace({
-      query: {
-        ...route.query,
-        instance: isDefault ? undefined : isShown ? "1" : "0",
-      },
-    });
-  },
-});
-
 const pageRows = computed(() =>
   buildPermissionsPageRows({
     instanceGrants: instanceGrants.value ?? [],
@@ -438,9 +408,7 @@ const unassignedGroupRows = computed(() => pageRows.value.unassignedGroupRows);
 
 // determine when active so that we can light it up
 const isAdvancedSearchActive = computed(
-  (): boolean =>
-    collectionFilterId.value !== null ||
-    showInstancePermissions.value !== SHOW_INSTANCE_PERMISSIONS_BY_DEFAULT
+  (): boolean => collectionFilterId.value !== null
 );
 
 const hasActiveFilters = computed(
@@ -450,19 +418,19 @@ const hasActiveFilters = computed(
 function clearFilters(): void {
   searchText.value = "";
   currentRowKey.value = null;
-  // one replace resets both URL-backed filters
   router.replace({
-    query: { ...route.query, collection: undefined, instance: undefined },
+    query: { ...route.query, collection: undefined },
   });
 }
 
+// instance-wide permissions apply to every collection, so they stay
+// visible when a collection filter is active
 const visiblePermissionRows = computed((): PermissionRow[] => {
   const collectionId = collectionFilterId.value;
   if (collectionId === null) return permissionRows.value;
-  return permissionRows.value.filter((row) => {
-    if (row.scope === "instance") return showInstancePermissions.value;
-    return row.collectionId === collectionId;
-  });
+  return permissionRows.value.filter(
+    (row) => row.scope === "instance" || row.collectionId === collectionId
+  );
 });
 
 const emptyMessage = computed((): string => {
