@@ -11,7 +11,8 @@
           class="w-56"
           :disabled="isLoading"
           :selectClass="{
-            'border-primary border-2 bg-primary-muted': isAdvancedSearchActive,
+            'border-primary border-2 bg-primary-muted':
+              collectionFilterId !== null,
           }"
           :options="collectionFilterOptions" />
         <Button
@@ -217,7 +218,6 @@
 </template>
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
 import type {
   ColumnDef,
@@ -240,13 +240,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  FilterIcon,
-  XIcon,
-} from "lucide-vue-next";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
@@ -358,9 +352,6 @@ const collectionTitleById = computed(
     )
 );
 
-const route = useRoute();
-const router = useRouter();
-
 // shared with the page header, which titles itself after the filter
 const { collectionFilterId } = useCollectionFilter();
 
@@ -395,21 +386,14 @@ const pageRows = computed(() =>
 const permissionRows = computed(() => pageRows.value.permissionRows);
 const unassignedGroupRows = computed(() => pageRows.value.unassignedGroupRows);
 
-// determine when active so that we can light it up
-const isAdvancedSearchActive = computed(
-  (): boolean => collectionFilterId.value !== null
-);
-
 const hasActiveFilters = computed(
-  (): boolean => isAdvancedSearchActive.value || searchText.value !== ""
+  (): boolean => collectionFilterId.value !== null || searchText.value !== ""
 );
 
 function clearFilters(): void {
   searchText.value = "";
   currentRowKey.value = null;
-  router.replace({
-    query: { ...route.query, collection: undefined },
-  });
+  collectionFilterId.value = null;
 }
 
 const visiblePermissionRows = computed((): PermissionRow[] => {
