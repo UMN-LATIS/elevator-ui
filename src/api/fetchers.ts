@@ -60,6 +60,7 @@ import {
   type DrawerGrant,
   type CreateDrawerGrantPayload,
   type UpdateDrawerGrantPayload,
+  type CollectionAdminSummary,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1651,5 +1652,23 @@ export async function removeDrawerGroupEntry(
 ): Promise<void> {
   await axios.delete(
     `${BASE_URL}/drawerPermissions/groups/${groupId}/entries/${entryId}`
+  );
+}
+
+export async function fetchAdminCollections(): Promise<
+  CollectionAdminSummary[]
+> {
+  const res = await axios.get<{ collections: CollectionAdminSummary[] }>(
+    `${BASE_URL}/adminCollections/collections`
+  );
+
+  return res.data.collections;
+}
+
+// Children of a deleted collection move to the top level (the API
+// mirrors the legacy cascade).
+export async function deleteCollection(collectionId: number): Promise<void> {
+  await axios.delete(
+    `${BASE_URL}/adminCollections/collections/${collectionId}`
   );
 }
