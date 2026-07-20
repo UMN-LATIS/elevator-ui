@@ -1,4 +1,5 @@
 import type { Ref } from "vue";
+import { RouterLink } from "vue-router";
 import { createColumnHelper } from "@tanstack/vue-table";
 import type { RowData } from "@tanstack/vue-table";
 import {
@@ -118,15 +119,25 @@ export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
       id: "collection",
       header: () => <ColHeader text="Collection" />,
       meta: { widthClass: "w-[20%]" },
-      cell: (ctx) => (
-        <div
-          class={cn(
-            "text-sm text-on-surface font-medium",
-            ctx.row.original.scope === "instance" && "italic"
-          )}>
-          {ctx.getValue()}
-        </div>
-      ),
+      cell: (ctx) => {
+        const row = ctx.row.original;
+
+        if (row.scope === "instance" || row.collectionId === null) {
+          return (
+            <div class="text-sm text-on-surface font-medium italic">
+              {ctx.getValue()}
+            </div>
+          );
+        }
+
+        return (
+          <RouterLink
+            to={`/collections/browseCollection/${row.collectionId}`}
+            class="text-sm font-medium text-primary underline-offset-2 hover:underline">
+            {ctx.getValue()}
+          </RouterLink>
+        );
+      },
     }
   ),
   // The name leads the accessor so the column sorts by it, and the type
