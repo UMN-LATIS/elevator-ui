@@ -211,6 +211,8 @@ watch(
   () => {
     hasHydratedForm.value = false;
     form.value = makeEmptyCollectionForm();
+    // never carry one collection's revealed secret to the next
+    isS3SecretRevealed.value = false;
   }
 );
 
