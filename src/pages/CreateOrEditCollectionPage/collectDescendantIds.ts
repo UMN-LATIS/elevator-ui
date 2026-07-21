@@ -1,4 +1,4 @@
-import type { CollectionAdminSummary } from "@/types";
+import type { AdminCollectionSummary } from "@/types";
 
 /**
  * Ids of every collection nested under `rootId`, however deep.
@@ -7,7 +7,7 @@ import type { CollectionAdminSummary } from "@/types";
  * API rejects a parent that would create a cycle.
  */
 export function collectDescendantIds(
-  collections: CollectionAdminSummary[],
+  collections: AdminCollectionSummary[],
   rootId: number
 ): Set<number> {
   const childIdsByParentId = new Map<number, number[]>();

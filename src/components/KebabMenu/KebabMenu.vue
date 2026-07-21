@@ -4,7 +4,7 @@ import type { FunctionalComponent } from "vue";
 export interface KebabMenuItem {
   label: string;
   icon?: FunctionalComponent;
-  variant?: "default" | "danger";
+  variant?: "danger";
   onSelect: () => void;
 }
 </script>

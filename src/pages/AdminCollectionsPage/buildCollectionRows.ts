@@ -1,10 +1,9 @@
-import type { CollectionAdminSummary } from "@/types";
+import type { AdminCollectionSummary } from "@/types";
 
 // One row of the admin collections table.
 export interface CollectionRow {
   id: number;
   title: string;
-  parentId: number | null;
   // "" for top-level collections
   parentTitle: string;
   showInBrowse: boolean;
@@ -14,7 +13,7 @@ export interface CollectionRow {
 }
 
 export function buildCollectionRows(
-  collections: CollectionAdminSummary[]
+  collections: AdminCollectionSummary[]
 ): CollectionRow[] {
   const titleById = new Map(
     collections.map((collection) => [collection.id, collection.title])
@@ -23,15 +22,15 @@ export function buildCollectionRows(
     collections.map((collection) => collection.parentId)
   );
 
+  function parentTitleOf(parentId: number | null): string {
+    if (parentId === null) return "";
+    return titleById.get(parentId) ?? `Collection ${parentId}`;
+  }
+
   return collections.map((collection) => ({
     id: collection.id,
     title: collection.title,
-    parentId: collection.parentId,
-    parentTitle:
-      collection.parentId === null
-        ? ""
-        : titleById.get(collection.parentId) ??
-          `Collection ${collection.parentId}`,
+    parentTitle: parentTitleOf(collection.parentId),
     showInBrowse: collection.showInBrowse,
     hasChildren: parentIds.has(collection.id),
   }));

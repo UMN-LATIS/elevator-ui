@@ -138,13 +138,13 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import EyeOffIcon from "@/icons/EyeOffIcon.vue";
 import type { SaveCollectionPayload } from "@/api/fetchers";
-import type { CollectionAdminDetail, SelectOption } from "@/types";
+import type { AdminCollectionDetail, SelectOption } from "@/types";
 import {
   adminCollectionQuery,
   adminCollectionsQuery,
-  useSaveCollectionMutation,
-} from "../AdminCollectionsPage/collectionAdminQueries";
-import type { SaveCollectionMutationInput } from "../AdminCollectionsPage/collectionAdminQueries";
+  useCreateCollectionMutation,
+  useUpdateCollectionMutation,
+} from "../AdminCollectionsPage/adminCollectionQueries";
 import { collectDescendantIds } from "./collectDescendantIds";
 
 const props = defineProps<{
@@ -155,7 +155,7 @@ const router = useRouter();
 
 const isEditMode = computed(() => props.collectionId !== null);
 
-// the sibling list feeds the parent select
+// the full collection list feeds the parent select
 const { data: collections } = useQuery(adminCollectionsQuery());
 
 const {
@@ -169,7 +169,7 @@ const {
   }))
 );
 
-function emptyCollectionForm(): SaveCollectionPayload {
+function makeEmptyCollectionForm(): SaveCollectionPayload {
   return {
     title: "",
     parentId: null,
@@ -184,10 +184,10 @@ function emptyCollectionForm(): SaveCollectionPayload {
   };
 }
 
-const form = ref<SaveCollectionPayload>(emptyCollectionForm());
+const form = ref<SaveCollectionPayload>(makeEmptyCollectionForm());
 
 function toSaveCollectionPayload(
-  detail: CollectionAdminDetail
+  detail: AdminCollectionDetail
 ): SaveCollectionPayload {
   return {
     title: detail.title,
@@ -210,13 +210,12 @@ watch(
   () => props.collectionId,
   () => {
     hasHydratedForm.value = false;
-    form.value = emptyCollectionForm();
+    form.value = makeEmptyCollectionForm();
   }
 );
 
-// Hydrate exactly once per collection (immediately, because a cached
-// detail can already be present on mount). A background refetch must
-// not clobber in-progress edits. Create mode never hydrates.
+// Hydrate exactly once per collection. A background refetch must not
+// clobber in-progress edits.
 watch(
   collectionDetail,
   (detail) => {
@@ -226,6 +225,7 @@ watch(
     hasHydratedForm.value = true;
     form.value = toSaveCollectionPayload(detail);
   },
+  // immediate: a cached detail can already be present on mount
   { immediate: true }
 );
 
@@ -270,21 +270,28 @@ const parentOptions = computed((): SelectOption<number>[] => {
   ];
 });
 
-const saveCollection = useSaveCollectionMutation();
-const isSaving = computed(() => saveCollection.isPending.value);
+const createCollectionMutation = useCreateCollectionMutation();
+const updateCollectionMutation = useUpdateCollectionMutation();
+const isSaving = computed(
+  () =>
+    createCollectionMutation.isPending.value ||
+    updateCollectionMutation.isPending.value
+);
 
 function handleSave() {
-  const input: SaveCollectionMutationInput =
-    props.collectionId === null
-      ? { kind: "create", collection: { ...form.value } }
-      : {
-          kind: "update",
-          collectionId: props.collectionId,
-          collection: { ...form.value },
-        };
+  const goToCollectionsIndex = () => router.push({ name: "adminCollections" });
 
-  saveCollection.mutate(input, {
-    onSuccess: () => router.push({ name: "adminCollections" }),
-  });
+  if (props.collectionId === null) {
+    createCollectionMutation.mutate(
+      { ...form.value },
+      { onSuccess: goToCollectionsIndex }
+    );
+    return;
+  }
+
+  updateCollectionMutation.mutate(
+    { collectionId: props.collectionId, collection: { ...form.value } },
+    { onSuccess: goToCollectionsIndex }
+  );
 }
 </script>

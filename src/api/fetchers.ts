@@ -60,8 +60,8 @@ import {
   type DrawerGrant,
   type CreateDrawerGrantPayload,
   type UpdateDrawerGrantPayload,
-  type CollectionAdminSummary,
-  type CollectionAdminDetail,
+  type AdminCollectionSummary,
+  type AdminCollectionDetail,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1657,9 +1657,9 @@ export async function removeDrawerGroupEntry(
 }
 
 export async function fetchAdminCollections(): Promise<
-  CollectionAdminSummary[]
+  AdminCollectionSummary[]
 > {
-  const res = await axios.get<{ collections: CollectionAdminSummary[] }>(
+  const res = await axios.get<{ collections: AdminCollectionSummary[] }>(
     `${BASE_URL}/adminCollections/collections`
   );
 
@@ -1676,8 +1676,8 @@ export async function deleteCollection(collectionId: number): Promise<void> {
 
 export async function fetchAdminCollection(
   collectionId: number
-): Promise<CollectionAdminDetail> {
-  const res = await axios.get<{ collection: CollectionAdminDetail }>(
+): Promise<AdminCollectionDetail> {
+  const res = await axios.get<{ collection: AdminCollectionDetail }>(
     `${BASE_URL}/adminCollections/collections/${collectionId}`
   );
 
@@ -1715,8 +1715,8 @@ function toCollectionParams(payload: SaveCollectionPayload): URLSearchParams {
 
 export async function createCollection(
   payload: SaveCollectionPayload
-): Promise<CollectionAdminDetail> {
-  const res = await axios.post<{ collection: CollectionAdminDetail }>(
+): Promise<AdminCollectionDetail> {
+  const res = await axios.post<{ collection: AdminCollectionDetail }>(
     `${BASE_URL}/adminCollections/collections`,
     toCollectionParams(payload)
   );
@@ -1727,8 +1727,8 @@ export async function createCollection(
 export async function updateCollection(
   collectionId: number,
   payload: SaveCollectionPayload
-): Promise<CollectionAdminDetail> {
-  const res = await axios.put<{ collection: CollectionAdminDetail }>(
+): Promise<AdminCollectionDetail> {
+  const res = await axios.put<{ collection: AdminCollectionDetail }>(
     `${BASE_URL}/adminCollections/collections/${collectionId}`,
     toCollectionParams(payload)
   );
