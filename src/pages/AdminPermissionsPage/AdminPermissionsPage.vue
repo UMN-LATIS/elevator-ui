@@ -2,58 +2,61 @@
   <AdminLayout>
     <PageContent class="max-w-screen-lg">
       <PageHeader
-        title="Permissions"
+        :title="pageTitle"
+        :eyebrow="pageEyebrow"
         description="Grant access to any collection in this instance" />
-
-      <Tabs
-        v-model:activeTabId="activeTabId"
-        labelsClass="border-b border-outline-variant">
-        <Tab id="rules" label="Rules">
-          <RulesTabContent />
-        </Tab>
-        <Tab id="groups" label="Groups">
-          <GroupsTabContent />
-        </Tab>
-      </Tabs>
+      <PermissionsTable />
     </PageContent>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
-import Tabs from "@/components/Tabs/Tabs.vue";
-import Tab from "@/components/Tabs/Tab.vue";
-import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import GroupsTabContent from "./GroupsTabContent.vue";
-import RulesTabContent from "./RulesTabContent.vue";
+import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import {
+  flattenCollections,
+  normalizeAssetCollections,
+} from "@/helpers/collectionHelpers";
+import PermissionsTable from "./PermissionsTable.vue";
+import { useCollectionFilter } from "./useCollectionFilter";
 
-const VALID_TABS = ["rules", "groups"] as const;
-type ValidTab = (typeof VALID_TABS)[number];
+const { collectionFilterId } = useCollectionFilter();
+const { data: instanceNav } = useInstanceQuery();
 
-const route = useRoute();
-const router = useRouter();
+// flattenCollections builds nested titles as "Parent › Child"
+const COLLECTION_PATH_SEPARATOR = " › ";
 
-// helper for TS since route.query.tab could be array
-const isValidTab = (x: unknown): x is ValidTab =>
-  VALID_TABS.some((tab) => tab === x);
+// the filtered collection's title as path segments, ["Parent", "Leaf"],
+// or [] when unfiltered
+const filteredCollectionPath = computed((): string[] => {
+  const collectionId = collectionFilterId.value;
+  if (collectionId === null) return [];
 
-// let route be the source of truth for the active tab.
-const activeTabId = computed<ValidTab>({
-  get() {
-    const tab = route.query.tab;
-    return isValidTab(tab) ? tab : VALID_TABS[0];
-  },
-  set(tabId) {
-    router.replace({
-      query: {
-        ...route.query,
-        // only include tabId in query if it's not the default (first tab)
-        tab: tabId === VALID_TABS[0] ? undefined : tabId,
-      },
-    });
-  },
+  const flat = flattenCollections(
+    normalizeAssetCollections(instanceNav.value?.collections ?? [])
+  );
+  const breadcrumbTitle = flat.find(
+    (collection) => collection.id === collectionId
+  )?.title;
+  return breadcrumbTitle
+    ? breadcrumbTitle.split(COLLECTION_PATH_SEPARATOR)
+    : [];
+});
+
+// only the leaf collection in the page title
+const pageTitle = computed((): string => {
+  const path = filteredCollectionPath.value;
+  if (path.length === 0) return "Permissions";
+  return `${path[path.length - 1]} Permissions`;
+});
+
+// any ancestor collections go in the eyebrow
+const pageEyebrow = computed((): string | undefined => {
+  const ancestors = filteredCollectionPath.value.slice(0, -1);
+  if (ancestors.length === 0) return undefined;
+  return ancestors.join(COLLECTION_PATH_SEPARATOR);
 });
 </script>

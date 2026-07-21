@@ -1,5 +1,7 @@
 import type { Ref } from "vue";
+import { RouterLink } from "vue-router";
 import { createColumnHelper } from "@tanstack/vue-table";
+import type { RowData } from "@tanstack/vue-table";
 import {
   CheckIcon,
   CircleMinusIcon,
@@ -7,6 +9,8 @@ import {
   TrashIcon,
   XIcon,
 } from "lucide-vue-next";
+import { cn } from "@/lib/utils";
+import Chip from "@/components/Chip/Chip.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
 import IconButton from "@/components/IconButton/IconButton.vue";
@@ -16,43 +20,47 @@ import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue
 import type { PermissionSelectOption } from "@/components/PermissionSelect/buildPermissionOptions";
 import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import { VerticalDotsIcon } from "@/icons";
-import { cn } from "@/lib/utils";
-import { ColHeader } from "../AdminPermissionsPage/ColHeader";
-import type { GroupAccessRow } from "./buildGroupAccessRows";
-import { toGroupSummary } from "./toGroupSummary";
+import { toGroupSummary } from "../DrawerManagementPage/toGroupSummary";
+import { ColHeader } from "./ColHeader";
+import type { PermissionRow } from "./buildPermissionsPageRows";
 
-const columnHelper = createColumnHelper<GroupAccessRow>();
+declare module "@tanstack/vue-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
+    // Tailwind width class applied to the column's header cells. The
+    // tables use table-fixed layout so widths hold steady while
+    // filtering adds and removes rows.
+    widthClass?: string;
+  }
+}
 
-// Each menu item lays its icon out inside its own row, since the item
-// itself is a block that the dropdown sizes and pads.
-const MENU_ITEM_CLASS = "flex items-center gap-2";
+const columnHelper = createColumnHelper<PermissionRow>();
 
 // What a row's in-flight save submitted, which its cells show in place
 // of the stale values the list holds until the refetch lands.
 export interface SavingRow {
-  id: number;
+  key: string;
   groupLabel: string;
   levelLabel: string;
 }
 
 // The Edit action turns a row into its own editor: the group's name
-// where the summary was, the level where the chip was. Only one row
-// edits at a time, so one set of drafts and one editing id drive every
-// cell.
-export interface GroupAccessColumnsDeps {
-  editingRowId: Ref<number | null>;
+// where the label was, the level where the chip was. Only one row edits
+// at a time, so one set of drafts and one editing key drive every cell.
+export interface PermissionColumnsDeps {
+  editingKey: Ref<string | null>;
   draftLabel: Ref<string>;
   draftLevelId: Ref<number | null>;
   savingRow: Ref<SavingRow | null>;
   permissionOptions: Ref<PermissionSelectOption[]>;
-  onEdit: (row: GroupAccessRow) => void;
+  onEdit: (row: PermissionRow) => void;
   onCancel: () => void;
-  onSave: (row: GroupAccessRow) => void;
-  onRemovePermissions: (row: GroupAccessRow) => void;
-  onDeleteGroup: (row: GroupAccessRow) => void;
+  onSave: (row: PermissionRow) => void;
+  onRemovePermission: (row: PermissionRow) => void;
+  onDeleteGroup: (row: PermissionRow) => void;
 }
 
-export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
+export const createPermissionColumns = (deps: PermissionColumnsDeps) => [
   columnHelper.display({
     id: "expander",
     header: () => null,
@@ -63,7 +71,7 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
         <button
           type="button"
           aria-expanded={row.getIsExpanded()}
-          aria-label={`Toggle members of ${row.original.groupLabel}`}
+          aria-label={`Toggle details for ${row.original.groupLabel}`}
           class="flex size-8 items-center justify-center rounded-full hover:bg-surface-container-highest focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           onClick={row.getToggleExpandedHandler()}>
           <ChevronRightIcon
@@ -75,25 +83,64 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
         </button>
       ) : null,
   }),
+  columnHelper.accessor("scope", {
+    id: "scope",
+    header: () => <ColHeader text="Scope" />,
+    meta: { widthClass: "w-28" },
+    cell: (ctx) => {
+      const isInstance = ctx.getValue() === "instance";
+      return (
+        <Chip
+          class={cn(
+            "border border-outline-variant",
+            isInstance
+              ? "bg-secondary-container text-on-secondary-container"
+              : "bg-tertiary-container text-on-tertiary-container"
+          )}>
+          {isInstance ? "Instance" : "Collection"}
+        </Chip>
+      );
+    },
+  }),
+  columnHelper.accessor(
+    // Instance rules span every collection, shown and filtered as "*"
+    // rather than a title.
+    (row) => (row.scope === "instance" ? "*" : row.collectionLabel),
+    {
+      id: "collection",
+      header: () => <ColHeader text="Collection" />,
+      meta: { widthClass: "w-40" },
+      cell: (ctx) => {
+        const row = ctx.row.original;
+
+        if (row.scope === "instance" || row.collectionId === null) {
+          return (
+            <div class="text-sm text-on-surface font-medium italic">
+              {ctx.getValue()}
+            </div>
+          );
+        }
+
+        return (
+          <RouterLink
+            to={`/collections/browseCollection/${row.collectionId}`}
+            class="text-sm font-medium text-primary underline-offset-2 hover:underline">
+            {ctx.getValue()}
+          </RouterLink>
+        );
+      },
+    }
+  ),
   // The name leads the accessor so the column sorts by it, and the type
   // trails so the one search box still reaches a group by what it is.
   columnHelper.accessor((row) => `${row.groupLabel} ${row.typeLabel}`, {
     id: "group",
     header: () => <ColHeader text="Group" />,
-    meta: { widthClass: "w-[50%]" },
+    meta: { widthClass: "w-56" },
     cell: (ctx) => {
       const row = ctx.row.original;
 
-      // Who made a group is not who may manage it, so the creator is a
-      // way to tell two like-named groups apart rather than a warning.
-      const creator =
-        row.group.ownerName && !row.group.ownedByCurrentUser
-          ? `Created by ${row.group.ownerName}`
-          : null;
-
-      // Renaming reaches the caller's own groups only, so someone
-      // else's row keeps the plain display below while it edits.
-      if (deps.editingRowId.value === row.id && row.group.ownedByCurrentUser) {
+      if (deps.editingKey.value === row.key) {
         // A group's type is fixed at creation, since its members belong
         // to that type, so only the name is up for editing.
         return (
@@ -115,7 +162,7 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
 
       const savingRow = deps.savingRow.value;
       const name =
-        savingRow?.id === row.id ? savingRow.groupLabel : row.groupLabel;
+        savingRow?.key === row.key ? savingRow.groupLabel : row.groupLabel;
 
       const details = (
         <>
@@ -123,11 +170,6 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
           <div class="truncate text-xs text-on-surface-variant">
             {toGroupSummary(row.group, row.typeLabel)}
           </div>
-          {creator ? (
-            <div class="truncate text-xs text-on-surface-variant">
-              {creator}
-            </div>
-          ) : null}
         </>
       );
 
@@ -148,11 +190,11 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
   columnHelper.accessor("permissionLabel", {
     id: "permission",
     header: () => <ColHeader text="Permission" />,
-    meta: { widthClass: "w-[30%]" },
+    meta: { widthClass: "w-40" },
     cell: (ctx) => {
       const row = ctx.row.original;
 
-      if (deps.editingRowId.value === row.id) {
+      if (deps.editingKey.value === row.key) {
         return (
           <PermissionSelect
             modelValue={deps.draftLevelId.value}
@@ -161,18 +203,19 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
             }}
             options={deps.permissionOptions.value}
             label="Permission"
+            showLabel={false}
             placeholder="Select a permission…"
           />
         );
       }
 
       const savingRow = deps.savingRow.value;
-      if (savingRow?.id === row.id) {
+      if (savingRow?.key === row.key && savingRow.levelLabel) {
         return <PermissionChip label={savingRow.levelLabel} isPending />;
       }
 
-      // No access is the absence of a permission, so it reads as quiet
-      // text rather than as a chip claiming the group holds something.
+      // A level 0 grant permits nothing, so it reads as quiet text
+      // rather than as a chip claiming the group holds something.
       if (row.permissionLevelNumber === 0) {
         return (
           <span class="text-sm text-on-surface-muted">{ctx.getValue()}</span>
@@ -192,21 +235,20 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
     header: () => null,
     enableSorting: false,
     meta: { widthClass: "w-20" },
-    cell: ({ row }: { row: { original: GroupAccessRow } }) => {
-      const accessRow = row.original;
+    cell: ({ row }: { row: { original: PermissionRow } }) => {
+      const permissionRow = row.original;
 
-      if (deps.editingRowId.value === accessRow.id) {
+      if (deps.editingKey.value === permissionRow.key) {
         // A group needs a name, and an empty field is a mistake rather
         // than an intent to clear one.
         const isIncomplete =
-          deps.draftLevelId.value === null ||
-          (accessRow.group.ownedByCurrentUser &&
-            deps.draftLabel.value.trim() === "");
+          deps.draftLabel.value.trim() === "" ||
+          deps.draftLevelId.value === null;
 
         return (
           <div class="flex justify-end">
             <IconButton
-              onClick={() => deps.onSave(accessRow)}
+              onClick={() => deps.onSave(permissionRow)}
               disabled={isIncomplete}
               title="Save"
               showTooltip={false}
@@ -232,7 +274,7 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
                 <>
                   <VerticalDotsIcon />
                   <span class="sr-only">
-                    More options for {accessRow.groupLabel}
+                    More options for {permissionRow.groupLabel}
                   </span>
                 </>
               ),
@@ -241,37 +283,30 @@ export const createGroupAccessColumns = (deps: GroupAccessColumnsDeps) => [
                   <DropDownItem
                     is="button"
                     type="button"
-                    onClick={() => deps.onEdit(accessRow)}>
-                    <span class={MENU_ITEM_CLASS}>
+                    onClick={() => deps.onEdit(permissionRow)}>
+                    <span class="flex items-center gap-2">
                       <PencilIcon class="size-4 shrink-0" />
                       Edit Group
                     </span>
                   </DropDownItem>
-                  {/* A group with no rule has no permissions to take away. */}
-                  {accessRow.grantId !== null ? (
-                    <DropDownItem
-                      is="button"
-                      type="button"
-                      onClick={() => deps.onRemovePermissions(accessRow)}>
-                      <span class={MENU_ITEM_CLASS}>
-                        <CircleMinusIcon class="size-4 shrink-0" />
-                        Remove Permissions
-                      </span>
-                    </DropDownItem>
-                  ) : null}
-                  {/* Deleting reaches the caller's own groups only, so
-                      someone else's is never theirs to remove. */}
-                  {accessRow.group.ownedByCurrentUser ? (
-                    <DropDownItem
-                      is="button"
-                      type="button"
-                      onClick={() => deps.onDeleteGroup(accessRow)}>
-                      <span class={cn(MENU_ITEM_CLASS, "text-error")}>
-                        <TrashIcon class="size-4 shrink-0" />
-                        Delete Group
-                      </span>
-                    </DropDownItem>
-                  ) : null}
+                  <DropDownItem
+                    is="button"
+                    type="button"
+                    onClick={() => deps.onRemovePermission(permissionRow)}>
+                    <span class="flex items-center gap-2">
+                      <CircleMinusIcon class="size-4 shrink-0" />
+                      Remove Permission
+                    </span>
+                  </DropDownItem>
+                  <DropDownItem
+                    is="button"
+                    type="button"
+                    onClick={() => deps.onDeleteGroup(permissionRow)}>
+                    <span class="flex items-center gap-2 text-error">
+                      <TrashIcon class="size-4 shrink-0" />
+                      Delete Group
+                    </span>
+                  </DropDownItem>
                 </>
               ),
             }}

@@ -5,6 +5,7 @@
       shift
       flip
       zIndex="99"
+      :portal="portal"
       :offset="4"
       enter="transition ease-out duration-100"
       enterFrom="transform opacity-0 scale-95"
@@ -47,6 +48,9 @@ withDefaults(
     label?: string;
     alignment?: "left" | "right";
     showChevron?: boolean;
+    // Teleport the menu to body so an overflow container (a scrolling
+    // table) cannot clip it.
+    portal?: boolean;
     labelClass?: string | string[] | Record<string, boolean>;
     chevronClass?: string | string[] | Record<string, boolean>;
   }>(),
@@ -54,6 +58,7 @@ withDefaults(
     label: "Options",
     alignment: "right",
     showChevron: true,
+    portal: false,
     labelClass: "",
     chevronClass: "",
   }
