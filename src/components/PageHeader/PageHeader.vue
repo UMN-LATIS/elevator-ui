@@ -1,6 +1,11 @@
 <template>
   <header class="flex justify-between items-end gap-4 flex-wrap mb-6">
     <div class="min-w-0 flex-1">
+      <p
+        v-if="eyebrow"
+        class="text-xs uppercase font-medium tracking-wide text-on-surface-variant mb-1">
+        {{ eyebrow }}
+      </p>
       <h1 class="text-3xl font-bold tracking-tight leading-[1.15] m-0">
         {{ title }}
       </h1>
@@ -20,5 +25,7 @@
 defineProps<{
   title: string;
   description?: string;
+  // small context line above the title, e.g. a parent-collection path
+  eyebrow?: string;
 }>();
 </script>

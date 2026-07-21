@@ -60,7 +60,8 @@ import {
   type DrawerGrant,
   type CreateDrawerGrantPayload,
   type UpdateDrawerGrantPayload,
-  type CollectionAdminSummary,
+  type AdminCollectionSummary,
+  type AdminCollectionDetail,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
@@ -1656,9 +1657,9 @@ export async function removeDrawerGroupEntry(
 }
 
 export async function fetchAdminCollections(): Promise<
-  CollectionAdminSummary[]
+  AdminCollectionSummary[]
 > {
-  const res = await axios.get<{ collections: CollectionAdminSummary[] }>(
+  const res = await axios.get<{ collections: AdminCollectionSummary[] }>(
     `${BASE_URL}/adminCollections/collections`
   );
 
@@ -1671,4 +1672,66 @@ export async function deleteCollection(collectionId: number): Promise<void> {
   await axios.delete(
     `${BASE_URL}/adminCollections/collections/${collectionId}`
   );
+}
+
+export async function fetchAdminCollection(
+  collectionId: number
+): Promise<AdminCollectionDetail> {
+  const res = await axios.get<{ collection: AdminCollectionDetail }>(
+    `${BASE_URL}/adminCollections/collections/${collectionId}`
+  );
+
+  return res.data.collection;
+}
+
+export interface SaveCollectionPayload {
+  title: string;
+  // null means top level, sent as the API's 0 sentinel
+  parentId: number | null;
+  showInBrowse: boolean;
+  description: string;
+  previewImageId: string;
+  // The API treats a blank S3 field as absent: create falls back to
+  // the instance defaults, update keeps the stored value.
+  bucket: string;
+  bucketRegion: string;
+  s3Key: string;
+  s3Secret: string;
+}
+
+function toCollectionParams(payload: SaveCollectionPayload): URLSearchParams {
+  const params = new URLSearchParams();
+  params.append("title", payload.title);
+  params.append("parentId", String(payload.parentId ?? 0));
+  params.append("showInBrowse", String(payload.showInBrowse));
+  params.append("description", payload.description);
+  params.append("previewImageId", payload.previewImageId);
+  params.append("bucket", payload.bucket);
+  params.append("bucketRegion", payload.bucketRegion);
+  params.append("s3Key", payload.s3Key);
+  params.append("s3Secret", payload.s3Secret);
+  return params;
+}
+
+export async function createCollection(
+  payload: SaveCollectionPayload
+): Promise<AdminCollectionDetail> {
+  const res = await axios.post<{ collection: AdminCollectionDetail }>(
+    `${BASE_URL}/adminCollections/collections`,
+    toCollectionParams(payload)
+  );
+
+  return res.data.collection;
+}
+
+export async function updateCollection(
+  collectionId: number,
+  payload: SaveCollectionPayload
+): Promise<AdminCollectionDetail> {
+  const res = await axios.put<{ collection: AdminCollectionDetail }>(
+    `${BASE_URL}/adminCollections/collections/${collectionId}`,
+    toCollectionParams(payload)
+  );
+
+  return res.data.collection;
 }

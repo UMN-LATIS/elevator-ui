@@ -8,7 +8,7 @@
         v-if="searchStore.status === 'error'"
         class="my-8" />
       <template v-else>
-        <div class="flex justify-between items-center my-8">
+        <div class="my-8">
           <BrowseCollectionHeader
             v-if="searchStore.browsingCollectionId"
             :collectionId="searchStore.browsingCollectionId" />
@@ -122,7 +122,15 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { watch, computed, onMounted, nextTick, ref, defineAsyncComponent, h } from "vue";
+import {
+  watch,
+  computed,
+  onMounted,
+  nextTick,
+  ref,
+  defineAsyncComponent,
+  h,
+} from "vue";
 import { useRouter, useRoute } from "vue-router";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
