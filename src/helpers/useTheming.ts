@@ -44,12 +44,15 @@ let pendingTheme: string | null = null;
 // Never persisted, so a full reload always reverts.
 const previewTheme = ref<string | null>(null);
 
-// Fetch a theme's stylesheet without activating the theme. Safe to call for
-// a theme that is already loaded or in flight. When the fetch settles, the
-// handler activates the theme only if it is still the one `pendingTheme`
-// wants, so preloading never flips the page and activation is never lost to
-// a preload that started first.
-function loadThemeCss(theme: string): void {
+/**
+ * Fetch a theme's stylesheet without activating the theme. Safe to call for
+ * a theme that is already loaded or in flight. A successful fetch activates
+ * the theme only if it is still the one `pendingTheme` wants, so preloading
+ * never flips the page and activation is never lost to a preload that
+ * started first. A failed fetch is discarded, so a later call retries
+ * instead of activating a theme whose CSS never arrived.
+ */
+export function loadThemeCss(theme: string): void {
   const href = themeUrlLookup[theme];
   if (!href || loadedThemes.has(theme) || inFlightThemes.has(theme)) return;
   inFlightThemes.add(theme);
@@ -59,24 +62,19 @@ function loadThemeCss(theme: string): void {
   link.href = href;
   link.setAttribute(THEME_LINK_ATTR, theme);
 
-  const onReady = () => {
+  const onLoad = () => {
     inFlightThemes.delete(theme);
     loadedThemes.add(theme);
     if (pendingTheme !== theme) return;
     document.documentElement?.setAttribute("data-theme", theme);
   };
-  link.addEventListener("load", onReady, { once: true });
-  link.addEventListener("error", onReady, { once: true });
+  const onError = () => {
+    inFlightThemes.delete(theme);
+    link.remove();
+  };
+  link.addEventListener("load", onLoad, { once: true });
+  link.addEventListener("error", onError, { once: true });
   document.head.appendChild(link);
-}
-
-/**
- * Fetch every theme's stylesheet without activating any of them. The theme
- * cards on the instance settings page render each theme's colors and fonts
- * from its own CSS, so all of it must be present.
- */
-export function loadAllThemeCss(): void {
-  ALL_THEMES.forEach(loadThemeCss);
 }
 
 /**
@@ -84,7 +82,8 @@ export function loadAllThemeCss(): void {
  * for it to load before flipping the `data-theme` attribute — otherwise the
  * attribute would point at a theme whose rules haven't arrived, briefly
  * rendering the default baseline. For already-loaded themes, the attribute
- * flip is immediate.
+ * flip is immediate. If the fetch fails, the page stays on the current theme
+ * and the next activation retries.
  */
 function applyTheme(theme: string) {
   pendingTheme = theme;
