@@ -1,4 +1,4 @@
-import { watch, computed } from "vue";
+import { watch, computed, ref } from "vue";
 import { useStorage } from "@vueuse/core";
 import { useInstanceQuery } from "@/queries/useInstanceQuery";
 import { ALL_THEMES } from "@/config";
@@ -37,6 +37,16 @@ const inFlightThemes = new Set<string>();
 // superseded theme must NOT apply its attribute — otherwise rapid
 // theme-switching can briefly flash to a stale in-flight theme.
 let pendingTheme: string | null = null;
+
+// An admin's temporary theme override. Module-scoped so a preview outlives
+// any single page: remounts re-run each consumer's immediate watch below,
+// which re-applies the preview instead of resetting to the stored theme.
+// Never persisted, so a full reload always reverts.
+const previewTheme = ref<string | null>(null);
+
+// The instance whose settings page started the preview, so the preview
+// pill can link back to it.
+const previewInstanceId = ref<number | null>(null);
 
 /**
  * Activate a theme. On first activation, fetches the theme's CSS and waits
@@ -97,22 +107,46 @@ export function useTheming() {
     null
   );
 
+  // The theme the UI actually shows: the preview when one is active,
+  // otherwise the saved choice.
+  const effectiveTheme = computed(
+    () => previewTheme.value ?? activeTheme.value
+  );
+
   watch(
-    [activeTheme, instanceData],
+    [activeTheme, previewTheme, instanceData],
     () => {
       if (!instanceData.value) return;
       activeTheme.value = activeTheme.value || defaultTheme.value;
-      applyTheme(activeTheme.value);
+      applyTheme(effectiveTheme.value ?? defaultTheme.value);
     },
     { immediate: true }
   );
 
   return {
     activeTheme,
+    effectiveTheme,
+    previewTheme,
+    previewInstanceId,
     availableThemes,
     isEnabled,
-    setTheme(theme: string) {
+    setTheme(theme: string): void {
+      // choosing a theme outright ends any preview
+      previewTheme.value = null;
+      previewInstanceId.value = null;
       activeTheme.value = theme;
+    },
+    /**
+     * Preview a theme without touching the saved choice. The instanceId
+     * ties the preview back to the settings page that started it.
+     */
+    startPreview(theme: string, instanceId: number): void {
+      previewTheme.value = theme;
+      previewInstanceId.value = instanceId;
+    },
+    endPreview(): void {
+      previewTheme.value = null;
+      previewInstanceId.value = null;
     },
   };
 }

@@ -22,6 +22,7 @@ import ThemeIcon from "@/icons/ThemeIcon.vue";
 import DropDown from "../DropDown/DropDown.vue";
 import DropDownItem from "../DropDown/DropDownItem.vue";
 import { useTheming } from "@/helpers/useTheming";
+import { prettyThemeName } from "@/helpers/prettyThemeName";
 
 const {
   activeTheme,
@@ -29,15 +30,4 @@ const {
   setTheme,
   isEnabled: isThemingEnabled,
 } = useTheming();
-
-function capitalize(str: string) {
-  return str
-    .split(" ")
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(" ");
-}
-
-function prettyThemeName(theme: string) {
-  return capitalize(theme.replace(/-/g, " "));
-}
 </script>

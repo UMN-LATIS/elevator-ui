@@ -43,7 +43,7 @@ const emit = defineEmits<{
 
 const uploadStore = useUploadStore();
 
-const { activeTheme } = useTheming();
+const { effectiveTheme } = useTheming();
 
 // Explicit list of themes that should use Uppy's dark color scheme.
 const DARK_THEMES = new Set([
@@ -57,7 +57,7 @@ const DARK_THEMES = new Set([
 ]);
 
 const uppyTheme = computed<"dark" | "light">(() =>
-  DARK_THEMES.has(activeTheme.value ?? "") ? "dark" : "light"
+  DARK_THEMES.has(effectiveTheme.value ?? "") ? "dark" : "light"
 );
 
 // Local index: filename → uploadId.

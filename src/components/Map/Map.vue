@@ -128,12 +128,12 @@ const mapStyles = {
   },
 };
 
-const { activeTheme } = useTheming();
+const { effectiveTheme } = useTheming();
 
 // Determine default map style based on theme
 const defaultMapStyle = computed<keyof typeof mapStyles>(() => {
   // If theme name contains "dark", use dark map style
-  return activeTheme.value?.includes("dark") ? "dark" : "light";
+  return effectiveTheme.value?.includes("dark") ? "dark" : "light";
 });
 
 // Track whether user has manually selected a style
