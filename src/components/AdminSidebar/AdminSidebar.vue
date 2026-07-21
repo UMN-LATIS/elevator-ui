@@ -26,7 +26,7 @@
       </li>
       <li>
         <SidebarNavItem
-          :href="`${BASE_URL}/collectionManager`"
+          :to="{ name: 'adminCollections' }"
           :icon="FolderCogIcon">
           Collections
         </SidebarNavItem>
