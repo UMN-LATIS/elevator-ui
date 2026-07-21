@@ -156,12 +156,11 @@ import { useToastStore } from "@/stores/toastStore";
 import {
   adminCollectionsQuery,
   useDeleteCollectionMutation,
-} from "./collectionAdminQueries";
+} from "./adminCollectionQueries";
 import { buildCollectionRows } from "./buildCollectionRows";
 import type { CollectionRow } from "./buildCollectionRows";
 import { createCollectionColumns } from "./CollectionsTableColumns";
 
-// Placeholder rows shown while the collection list loads.
 const SKELETON_ROW_COUNT = 3;
 
 const router = useRouter();
@@ -182,17 +181,16 @@ function openEdit(collection: CollectionRow) {
 
 const deleteCollectionMutation = useDeleteCollectionMutation();
 
-// The row being deleted grays out until the refetch drops it.
+// the collection being deleted
 const deletingId = computed((): number | null => {
   if (!deleteCollectionMutation.isPending.value) return null;
   return deleteCollectionMutation.variables.value ?? null;
 });
 
-// the collection awaiting delete confirmation, doubling as the modal's
-// open state
+// doubles as the confirm modal's open state
 const collectionPendingDelete = ref<CollectionRow | null>(null);
 
-function handleDelete(collection: CollectionRow) {
+function askToDeleteCollection(collection: CollectionRow) {
   collectionPendingDelete.value = collection;
 }
 
@@ -217,12 +215,11 @@ function confirmDelete() {
 
 const collectionColumns = createCollectionColumns({
   onEdit: openEdit,
-  onDelete: handleDelete,
+  onDelete: askToDeleteCollection,
 });
 
 const sorting = ref<SortingState>([{ id: "title", desc: false }]);
 
-// One search box filters across the title and parent columns.
 const searchText = ref("");
 
 const table = useVueTable({
@@ -237,9 +234,6 @@ const table = useVueTable({
   globalFilterFn: "includesString",
   onSortingChange: (updater) => {
     sorting.value = functionalUpdate(updater, sorting.value);
-  },
-  onGlobalFilterChange: (updater) => {
-    searchText.value = functionalUpdate(updater, searchText.value);
   },
   state: {
     get sorting() {
