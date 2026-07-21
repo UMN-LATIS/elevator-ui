@@ -5,7 +5,14 @@
         v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="p-8 px-4">
-      <h1 class="text-4xl font-bold my-8">Collections</h1>
+      <div class="flex flex-wrap items-center justify-between gap-4 my-8">
+        <h1 class="text-4xl font-bold">Collections</h1>
+        <div
+          v-if="instanceStore.currentUser?.isAdmin"
+          class="flex items-center gap-2">
+          <Button to="/admin/collections">Manage Collections</Button>
+        </div>
+      </div>
       <SanitizedHTML
         v-if="collectionPageContent?.content"
         class="mb-8"
@@ -34,6 +41,7 @@ import { useResizeObserver } from "@vueuse/core";
 import { ApiStaticPageResponse, ShowCustomHeaderMode } from "@/types";
 import api from "@/api";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import Button from "@/components/Button/Button.vue";
 
 const instanceStore = useInstanceStore();
 const collectionGrid = useTemplateRef("collectionGrid");

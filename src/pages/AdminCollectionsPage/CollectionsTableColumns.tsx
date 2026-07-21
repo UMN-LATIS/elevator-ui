@@ -1,5 +1,6 @@
 import { createColumnHelper } from "@tanstack/vue-table";
-import { CheckIcon, PencilIcon, TrashIcon } from "lucide-vue-next";
+import { RouterLink } from "vue-router";
+import { CheckIcon, LockIcon, PencilIcon, TrashIcon } from "lucide-vue-next";
 import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
 import { ColHeader } from "../AdminPermissionsPage/ColHeader";
 import type { CollectionRow } from "./buildCollectionRows";
@@ -9,6 +10,7 @@ const columnHelper = createColumnHelper<CollectionRow>();
 export interface CollectionColumnsDeps {
   onEdit: (collection: CollectionRow) => void;
   onDelete: (collection: CollectionRow) => void;
+  onPermissions: (collection: CollectionRow) => void;
 }
 
 export const createCollectionColumns = (deps: CollectionColumnsDeps) => [
@@ -17,7 +19,11 @@ export const createCollectionColumns = (deps: CollectionColumnsDeps) => [
     header: () => <ColHeader text="Collection" />,
     meta: { widthClass: "w-[45%]" },
     cell: (ctx) => (
-      <div class="text-sm text-on-surface font-medium">{ctx.getValue()}</div>
+      <RouterLink
+        to={`/collections/browseCollection/${ctx.row.original.id}`}
+        class="text-sm font-medium text-primary underline-offset-2 hover:underline">
+        {ctx.getValue()}
+      </RouterLink>
     ),
   }),
   columnHelper.accessor("parentTitle", {
@@ -55,6 +61,11 @@ export const createCollectionColumns = (deps: CollectionColumnsDeps) => [
                 label: "Edit",
                 icon: PencilIcon,
                 onSelect: () => deps.onEdit(collection),
+              },
+              {
+                label: "Permissions",
+                icon: LockIcon,
+                onSelect: () => deps.onPermissions(collection),
               },
               {
                 label: "Delete",

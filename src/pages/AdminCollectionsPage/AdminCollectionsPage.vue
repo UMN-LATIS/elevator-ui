@@ -3,7 +3,12 @@
     <PageContent class="max-w-screen-lg">
       <PageHeader
         title="Collections"
-        description="Organize this instance's assets into collections" />
+        description="Organize this instance's assets into collections">
+        <template #actions>
+          <Button :to="{ name: 'listCollections' }">Browse Collections</Button>
+          <Button :to="{ name: 'adminPermissions' }">Permissions</Button>
+        </template>
+      </PageHeader>
 
       <div class="flex justify-end items-center gap-2 flex-wrap">
         <InputGroup
@@ -179,6 +184,13 @@ function openEdit(collection: CollectionRow) {
   });
 }
 
+function openCollectionPermissions(collection: CollectionRow) {
+  router.push({
+    name: "adminPermissions",
+    query: { collection: collection.id },
+  });
+}
+
 const deleteCollectionMutation = useDeleteCollectionMutation();
 
 // the collection being deleted
@@ -216,6 +228,7 @@ function confirmDelete() {
 const collectionColumns = createCollectionColumns({
   onEdit: openEdit,
   onDelete: askToDeleteCollection,
+  onPermissions: openCollectionPermissions,
 });
 
 const sorting = ref<SortingState>([{ id: "title", desc: false }]);
