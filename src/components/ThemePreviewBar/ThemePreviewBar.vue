@@ -13,12 +13,6 @@
         {{ prettyThemeName(theme) }}
       </option>
     </select>
-    <RouterLink
-      v-if="settingsRoute"
-      :to="settingsRoute"
-      class="text-sm underline">
-      Theme settings
-    </RouterLink>
     <Button
       variant="secondary"
       type="button"
@@ -37,8 +31,7 @@ import { useTheming } from "@/helpers/useTheming";
 import { prettyThemeName } from "@/helpers/prettyThemeName";
 import { ALL_THEMES } from "@/config";
 
-const { previewTheme, previewInstanceId, startPreview, endPreview } =
-  useTheming();
+const { previewTheme, startPreview, endPreview } = useTheming();
 
 // Every theme, not just the enabled ones: the point of previewing is
 // judging a theme before enabling it.
@@ -62,18 +55,8 @@ onUnmounted(() => {
   document.body.style.paddingBottom = "";
 });
 
-const settingsRoute = computed(() => {
-  if (previewInstanceId.value === null) return null;
-  return {
-    name: "editInstanceSettingsPage",
-    params: { instanceId: previewInstanceId.value },
-    hash: "#user-interface",
-  };
-});
-
 function handleThemeChange(event: Event): void {
   const select = event.target as HTMLSelectElement;
-  if (previewInstanceId.value === null) return;
-  startPreview(select.value, previewInstanceId.value);
+  startPreview(select.value);
 }
 </script>

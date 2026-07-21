@@ -240,31 +240,17 @@
                     Toggle All
                   </Button>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
-                  <div
+                <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <ThemeCard
                     v-for="theme in allThemes.toSorted()"
                     :key="theme"
-                    class="flex items-center gap-2 text-sm">
-                    <label class="flex flex-1 items-center gap-2">
-                      <input
-                        type="checkbox"
-                        :value="theme"
-                        :checked="form.availableThemes?.includes(theme)"
-                        class="rounded border-outline text-primary focus:ring-m3-primary"
-                        @change="toggleTheme(theme)" />
-                      {{ theme }}
-                    </label>
-                    <IconButton
-                      :title="`Preview ${theme}`"
-                      class="p-1"
-                      :class="{
-                        'bg-primary-container text-on-primary-container':
-                          previewTheme === theme,
-                      }"
-                      @click="startPreview(theme, instanceId)">
-                      <EyeIcon class="w-4 h-4" />
-                    </IconButton>
-                  </div>
+                    :theme="theme"
+                    :isAvailable="
+                      form.availableThemes?.includes(theme) ?? false
+                    "
+                    :isPreviewing="previewTheme === theme"
+                    @toggleAvailable="toggleTheme(theme)"
+                    @preview="startPreview(theme)" />
                 </div>
               </div>
             </template>
@@ -327,8 +313,8 @@ import { FormSection, FormToc } from "@/components/Form";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
-import IconButton from "@/components/IconButton/IconButton.vue";
-import { useTheming } from "@/helpers/useTheming";
+import ThemeCard from "./ThemeCard.vue";
+import { useTheming, loadAllThemeCss } from "@/helpers/useTheming";
 
 const props = defineProps<{
   instanceId: number;
@@ -340,6 +326,7 @@ const toastStore = useToastStore();
 const instanceStore = useInstanceStore();
 
 const { startPreview, previewTheme } = useTheming();
+loadAllThemeCss();
 
 const {
   data: settingsData,

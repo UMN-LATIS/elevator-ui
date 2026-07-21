@@ -44,29 +44,14 @@ let pendingTheme: string | null = null;
 // Never persisted, so a full reload always reverts.
 const previewTheme = ref<string | null>(null);
 
-// The instance whose settings page started the preview, so the preview
-// pill can link back to it.
-const previewInstanceId = ref<number | null>(null);
-
-/**
- * Activate a theme. On first activation, fetches the theme's CSS and waits
- * for it to load before flipping the `data-theme` attribute — otherwise the
- * attribute would point at a theme whose rules haven't arrived, briefly
- * rendering the default baseline. For already-loaded themes, the attribute
- * flip is immediate.
- */
-function applyTheme(theme: string) {
-  pendingTheme = theme;
-
+// Fetch a theme's stylesheet without activating the theme. Safe to call for
+// a theme that is already loaded or in flight. When the fetch settles, the
+// handler activates the theme only if it is still the one `pendingTheme`
+// wants, so preloading never flips the page and activation is never lost to
+// a preload that started first.
+function loadThemeCss(theme: string): void {
   const href = themeUrlLookup[theme];
-  if (!href || loadedThemes.has(theme)) {
-    document.documentElement?.setAttribute("data-theme", theme);
-    return;
-  }
-
-  // Fetch already in flight from a previous call — its existing onReady will
-  // check `pendingTheme` when it fires.
-  if (inFlightThemes.has(theme)) return;
+  if (!href || loadedThemes.has(theme) || inFlightThemes.has(theme)) return;
   inFlightThemes.add(theme);
 
   const link = document.createElement("link");
@@ -83,6 +68,33 @@ function applyTheme(theme: string) {
   link.addEventListener("load", onReady, { once: true });
   link.addEventListener("error", onReady, { once: true });
   document.head.appendChild(link);
+}
+
+/**
+ * Fetch every theme's stylesheet without activating any of them. The theme
+ * cards on the instance settings page render each theme's colors and fonts
+ * from its own CSS, so all of it must be present.
+ */
+export function loadAllThemeCss(): void {
+  ALL_THEMES.forEach(loadThemeCss);
+}
+
+/**
+ * Activate a theme. On first activation, fetches the theme's CSS and waits
+ * for it to load before flipping the `data-theme` attribute — otherwise the
+ * attribute would point at a theme whose rules haven't arrived, briefly
+ * rendering the default baseline. For already-loaded themes, the attribute
+ * flip is immediate.
+ */
+function applyTheme(theme: string) {
+  pendingTheme = theme;
+
+  const href = themeUrlLookup[theme];
+  if (!href || loadedThemes.has(theme)) {
+    document.documentElement?.setAttribute("data-theme", theme);
+    return;
+  }
+  loadThemeCss(theme);
 }
 
 export function useTheming() {
@@ -127,26 +139,19 @@ export function useTheming() {
     activeTheme,
     effectiveTheme,
     previewTheme,
-    previewInstanceId,
     availableThemes,
     isEnabled,
     setTheme(theme: string): void {
       // choosing a theme outright ends any preview
       previewTheme.value = null;
-      previewInstanceId.value = null;
       activeTheme.value = theme;
     },
-    /**
-     * Preview a theme without touching the saved choice. The instanceId
-     * ties the preview back to the settings page that started it.
-     */
-    startPreview(theme: string, instanceId: number): void {
+    /** Preview a theme without touching the saved choice. */
+    startPreview(theme: string): void {
       previewTheme.value = theme;
-      previewInstanceId.value = instanceId;
     },
     endPreview(): void {
       previewTheme.value = null;
-      previewInstanceId.value = null;
     },
   };
 }
