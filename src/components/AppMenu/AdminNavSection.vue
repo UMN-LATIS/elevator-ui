@@ -7,9 +7,7 @@
     <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/reports`">Reports</AppMenuItem>
     <AppMenuItem to="/templates">Edit Templates</AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/collectionManager`">
-      Edit Collections
-    </AppMenuItem>
+    <AppMenuItem to="/admin/collections">Edit Collections</AppMenuItem>
     <AppMenuItem :href="`${BASE_URL}/assetManager/importFromCSV`">
       Import from CSV
     </AppMenuItem>

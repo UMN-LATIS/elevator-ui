@@ -341,6 +341,44 @@ const router = createRouter({
       },
     },
     {
+      name: "adminCollections",
+      path: "/admin/collections",
+      component: () =>
+        import("@/pages/AdminCollectionsPage/AdminCollectionsPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
+    },
+    {
+      name: "adminCollectionsCreate",
+      path: "/admin/collections/edit",
+      component: () =>
+        import(
+          "@/pages/CreateOrEditCollectionPage/CreateOrEditCollectionPage.vue"
+        ),
+      props: { collectionId: null },
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
+    },
+    {
+      name: "adminCollectionsEdit",
+      // the \d+ constraint sends a non-numeric id to 404 instead of
+      // silently rendering the create form
+      path: "/admin/collections/edit/:id(\\d+)",
+      component: () =>
+        import(
+          "@/pages/CreateOrEditCollectionPage/CreateOrEditCollectionPage.vue"
+        ),
+      props: (route) => ({ collectionId: parseIntFromParam(route.params.id) }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
+    },
+    {
       name: "drawerManagement",
       path: "/drawers/:drawerId(\\d+)/manage",
       component: () =>
