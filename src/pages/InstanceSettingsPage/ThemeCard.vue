@@ -37,12 +37,15 @@
 import IconButton from "@/components/IconButton/IconButton.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import { prettyThemeName } from "@/helpers/prettyThemeName";
+import { loadThemeCss } from "@/helpers/useTheming";
 
-defineProps<{
+const props = defineProps<{
   theme: string;
   isAvailable: boolean;
   isPreviewing: boolean;
 }>();
+
+loadThemeCss(props.theme);
 
 defineEmits<{
   (e: "toggleAvailable"): void;

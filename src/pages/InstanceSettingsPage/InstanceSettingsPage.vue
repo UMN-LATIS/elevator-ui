@@ -314,7 +314,7 @@ import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 import ThemeCard from "./ThemeCard.vue";
-import { useTheming, loadAllThemeCss } from "@/helpers/useTheming";
+import { useTheming } from "@/helpers/useTheming";
 
 const props = defineProps<{
   instanceId: number;
@@ -326,7 +326,6 @@ const toastStore = useToastStore();
 const instanceStore = useInstanceStore();
 
 const { startPreview, previewTheme } = useTheming();
-loadAllThemeCss();
 
 const {
   data: settingsData,
