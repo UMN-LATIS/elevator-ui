@@ -1691,6 +1691,8 @@ export interface SaveCollectionPayload {
   showInBrowse: boolean;
   description: string;
   previewImageId: string;
+  // The API treats a blank S3 field as absent: create falls back to
+  // the instance defaults, update keeps the stored value.
   bucket: string;
   bucketRegion: string;
   s3Key: string;
@@ -1714,17 +1716,9 @@ function toCollectionParams(payload: SaveCollectionPayload): URLSearchParams {
 export async function createCollection(
   payload: SaveCollectionPayload
 ): Promise<CollectionAdminDetail> {
-  const params = toCollectionParams(payload);
-
-  // the API falls back to the instance's S3 defaults for omitted
-  // fields, so a blank field means "use the default" on create
-  for (const field of ["bucket", "bucketRegion", "s3Key", "s3Secret"]) {
-    if (params.get(field) === "") params.delete(field);
-  }
-
   const res = await axios.post<{ collection: CollectionAdminDetail }>(
     `${BASE_URL}/adminCollections/collections`,
-    params
+    toCollectionParams(payload)
   );
 
   return res.data.collection;

@@ -169,18 +169,22 @@ const {
   }))
 );
 
-const form = ref<SaveCollectionPayload>({
-  title: "",
-  parentId: null,
-  // legacy parity: new collections default to browseable
-  showInBrowse: true,
-  description: "",
-  previewImageId: "",
-  bucket: "",
-  bucketRegion: "",
-  s3Key: "",
-  s3Secret: "",
-});
+function emptyCollectionForm(): SaveCollectionPayload {
+  return {
+    title: "",
+    parentId: null,
+    // legacy parity: new collections default to browseable
+    showInBrowse: true,
+    description: "",
+    previewImageId: "",
+    bucket: "",
+    bucketRegion: "",
+    s3Key: "",
+    s3Secret: "",
+  };
+}
+
+const form = ref<SaveCollectionPayload>(emptyCollectionForm());
 
 function toSaveCollectionPayload(
   detail: CollectionAdminDetail
@@ -198,14 +202,27 @@ function toSaveCollectionPayload(
   };
 }
 
-// Hydrate exactly once (immediately, because a cached detail can
-// already be present on mount). A background refetch must not clobber
-// in-progress edits.
+// Router reuses this component across create/edit routes, so the form
+// re-seeds whenever the target collection changes. Without this a
+// previous collection's edits would linger on the next one.
 const hasHydratedForm = ref(false);
+watch(
+  () => props.collectionId,
+  () => {
+    hasHydratedForm.value = false;
+    form.value = emptyCollectionForm();
+  }
+);
+
+// Hydrate exactly once per collection (immediately, because a cached
+// detail can already be present on mount). A background refetch must
+// not clobber in-progress edits. Create mode never hydrates.
 watch(
   collectionDetail,
   (detail) => {
-    if (!detail || hasHydratedForm.value) return;
+    if (props.collectionId === null || !detail || hasHydratedForm.value) {
+      return;
+    }
     hasHydratedForm.value = true;
     form.value = toSaveCollectionPayload(detail);
   },

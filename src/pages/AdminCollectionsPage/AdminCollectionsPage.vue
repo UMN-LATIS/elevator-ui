@@ -238,9 +238,6 @@ const table = useVueTable({
   onSortingChange: (updater) => {
     sorting.value = functionalUpdate(updater, sorting.value);
   },
-  onGlobalFilterChange: (updater) => {
-    searchText.value = functionalUpdate(updater, searchText.value);
-  },
   state: {
     get sorting() {
       return sorting.value;
