@@ -1,7 +1,8 @@
 <template>
   <div
     v-if="previewTheme"
-    class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 rounded-full bg-inverse-surface text-inverse-on-surface pl-4 pr-2 py-2 shadow-lg">
+    ref="barRef"
+    class="fixed bottom-0 inset-x-0 z-50 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-inverse-surface text-inverse-on-surface px-4 py-2 border-t border-outline">
     <label for="theme-preview-select" class="text-sm">Previewing</label>
     <select
       id="theme-preview-select"
@@ -29,7 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watchEffect, onUnmounted } from "vue";
+import { useElementSize } from "@vueuse/core";
 import Button from "@/components/Button/Button.vue";
 import { useTheming } from "@/helpers/useTheming";
 import { prettyThemeName } from "@/helpers/prettyThemeName";
@@ -41,6 +43,24 @@ const { previewTheme, previewInstanceId, startPreview, endPreview } =
 // Every theme, not just the enabled ones: the point of previewing is
 // judging a theme before enabling it.
 const themeOptions = computed(() => ALL_THEMES.toSorted());
+
+const barRef = ref<HTMLElement | null>(null);
+
+// Reserve the bar's height at the bottom of the page so it never covers
+// content. Measured rather than hard-coded because themes change fonts,
+// and with them the bar's height.
+const { height: barHeight } = useElementSize(
+  barRef,
+  { width: 0, height: 0 },
+  { box: "border-box" }
+);
+watchEffect(() => {
+  document.body.style.paddingBottom =
+    previewTheme.value && barHeight.value ? `${barHeight.value}px` : "";
+});
+onUnmounted(() => {
+  document.body.style.paddingBottom = "";
+});
 
 const settingsRoute = computed(() => {
   if (previewInstanceId.value === null) return null;

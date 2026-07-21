@@ -13,7 +13,7 @@
     <Teleport to="body">
       <ErrorModal />
       <ToastRoot class="z-[60]" />
-      <ThemePreviewPill />
+      <ThemePreviewBar />
     </Teleport>
     <ErrorBoundary>
       <RouterView v-if="instanceStore.hasData && drawerStore.isReady" />
@@ -28,7 +28,7 @@ import { useTheming } from "./helpers/useTheming";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
 import ErrorModal from "@/components/ErrorModal/ErrorModal.vue";
 import ToastRoot from "@/components/ToastRoot/ToastRoot.vue";
-import ThemePreviewPill from "@/components/ThemePreviewPill/ThemePreviewPill.vue";
+import ThemePreviewBar from "@/components/ThemePreviewBar/ThemePreviewBar.vue";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import { useCustomCSS } from "./composables/useCustomCSS";
