@@ -105,10 +105,10 @@ const props = withDefaults(
 
 const id = computed(() => props.modelValue.id || useId());
 
-const { activeTheme } = useTheming();
+const { effectiveTheme } = useTheming();
 
 const getDefaultMapStyle = (): keyof typeof mapStyles =>
-  activeTheme.value.includes("dark") ? "dark" : "light";
+  effectiveTheme.value?.includes("dark") ? "dark" : "light";
 
 const roundFloat = (value: number, decimalPlaces: number): number =>
   Number(value.toFixed(decimalPlaces));

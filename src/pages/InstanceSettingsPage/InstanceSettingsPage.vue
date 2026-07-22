@@ -240,19 +240,17 @@
                     Toggle All
                   </Button>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
-                  <label
+                <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <ThemeCard
                     v-for="theme in allThemes.toSorted()"
                     :key="theme"
-                    class="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      :value="theme"
-                      :checked="form.availableThemes?.includes(theme)"
-                      class="rounded border-outline text-primary focus:ring-m3-primary"
-                      @change="toggleTheme(theme)" />
-                    {{ theme }}
-                  </label>
+                    :theme="theme"
+                    :isAvailable="
+                      form.availableThemes?.includes(theme) ?? false
+                    "
+                    :isPreviewing="previewTheme === theme"
+                    @toggleAvailable="toggleTheme(theme)"
+                    @preview="startPreview(theme)" />
                 </div>
               </div>
             </template>
@@ -315,6 +313,8 @@ import { FormSection, FormToc } from "@/components/Form";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
+import ThemeCard from "./ThemeCard.vue";
+import { useTheming } from "@/helpers/useTheming";
 
 const props = defineProps<{
   instanceId: number;
@@ -324,6 +324,8 @@ const toastStore = useToastStore();
 
 // for easier access to logo url
 const instanceStore = useInstanceStore();
+
+const { startPreview, previewTheme } = useTheming();
 
 const {
   data: settingsData,

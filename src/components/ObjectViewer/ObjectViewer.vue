@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import config from "@/config";
 import { useTheming } from "@/helpers/useTheming";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
 withDefaults(
   defineProps<{
@@ -43,7 +43,7 @@ const theme = useTheming();
 const iframeBackground = ref("white");
 // recalcuate iframe background when theme changes
 watch(
-  theme.activeTheme,
+  theme.effectiveTheme,
   () => {
     const surfaceContainerColor = getComputedStyle(
       document.documentElement

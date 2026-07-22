@@ -17,7 +17,14 @@
  * @see https://m3.material.io/styles/color/roles
  */
 
-:root {
+/*
+ * Also scoped to [data-theme] so a nested themed element (the settings
+ * page theme cards) starts from this baseline instead of inheriting
+ * tokens its theme doesn't set from the page's active theme. Theme files
+ * still win: equal specificity, loaded later.
+ */
+:root,
+[data-theme] {
   /* ============================================
    * SURFACE - Background colors
    *
