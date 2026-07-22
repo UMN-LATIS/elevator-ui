@@ -28,13 +28,13 @@ export function validateLngInput(input: string): string {
   const value = parseFloat(input);
   if (isNaN(value)) return `Longitude must be a number`;
   if (!isInRange(value, LNG_MIN, LNG_MAX)) {
-    return `Longtitude must be between ${LNG_MIN} and ${LNG_MAX}`;
+    return `Longitude must be between ${LNG_MIN} and ${LNG_MAX}`;
   }
   return "";
 }
 
 export function validateLatInput(input: string): string {
-    const value = parseFloat(input);
+  const value = parseFloat(input);
   if (isNaN(value)) return `Latitude must be a number`;
   if (!isInRange(value, LAT_MIN, LAT_MAX)) {
     return `Latitude must be between ${LAT_MIN} and ${LAT_MAX}`;
