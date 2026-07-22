@@ -1,5 +1,5 @@
 <template>
-  <section v-if="browsableChildren.length" class="my-8">
+  <section v-if="isPanelEnabled && browsableChildren.length" class="my-8">
     <h2 class="text-xl font-bold mb-4">Sub-Collections</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
       <CollectionItem
@@ -21,6 +21,11 @@ const props = defineProps<{
 }>();
 
 const instanceStore = useInstanceStore();
+
+// Instance admins can turn the browse panel off for the whole instance.
+const isPanelEnabled = computed(
+  () => instanceStore.instance.showChildCollections
+);
 
 // Same predicate the All Collections page uses for its top level, so the
 // panel and the full page agree on which children are shown.
