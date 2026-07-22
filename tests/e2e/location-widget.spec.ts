@@ -24,8 +24,10 @@ test.describe("Location Widget", () => {
       "Invalid Location Asset"
     );
 
-    const longitudeInput = page.getByLabel("Longitude");
-    const latitudeInput = page.getByLabel("Latitude");
+    // The "All Fields Test" template renders two location widgets. Target
+    // the first, which holds this asset's seeded out-of-range coordinates.
+    const longitudeInput = page.getByLabel("Longitude").first();
+    const latitudeInput = page.getByLabel("Latitude").first();
 
     await longitudeInput.fill("190");
     await latitudeInput.fill("95");
@@ -35,13 +37,22 @@ test.describe("Location Widget", () => {
 
     const saveButton = page.getByRole("button", { name: "Save" });
     await expect(saveButton).toBeEnabled();
+
+    // Wait for the submission to persist before reloading. Reloading first
+    // aborts the in-flight save and reads back the seeded coordinates.
+    const saveResponse = page.waitForResponse(
+      (response) =>
+        response.url().includes("/assetManager/submission/true") &&
+        response.request().method() === "POST"
+    );
     await saveButton.click();
+    await saveResponse;
 
     await expect(page).toHaveURL(new RegExp(`/assetManager/editAsset/${assetId}`));
     await page.reload();
 
-    await expect(page.getByLabel("Longitude")).toHaveValue("190");
-    await expect(page.getByLabel("Latitude")).toHaveValue("95");
+    await expect(longitudeInput).toHaveValue("190");
+    await expect(latitudeInput).toHaveValue("95");
     await expect(page.getByText(/between -180 and 180/i)).toBeVisible();
     await expect(page.getByText(/between -90 and 90/i)).toBeVisible();
     expect(pageErrors).toHaveLength(0);
