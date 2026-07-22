@@ -1,6 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { filterCollections } from "./collectionHelpers";
+import { filterCollections, toCollectionAncestry } from "./collectionHelpers";
 import type { AssetCollection } from "@/types";
+
+function makeCollection(
+  partial: Partial<AssetCollection> & Pick<AssetCollection, "id">
+): AssetCollection {
+  return {
+    title: `Collection ${partial.id}`,
+    description: null,
+    previewImageId: null,
+    children: [],
+    parentId: null,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+    ...partial,
+  };
+}
+
+function toIndex(
+  collections: AssetCollection[]
+): { [id: number]: AssetCollection } {
+  return Object.fromEntries(collections.map((c) => [c.id, c]));
+}
 
 describe("filterCollections", () => {
 
@@ -480,5 +502,52 @@ describe("filterCollections", () => {
     // Second child should be the promoted grandchild
     expect(result[0].children![1].id).toBe(4);
     expect(result[0].children![1].parentId).toBe(1);
+  });
+});
+
+describe("toCollectionAncestry", () => {
+  it("returns empty array when the id is not indexed", () => {
+    const result = toCollectionAncestry(
+      toIndex([makeCollection({ id: 1 })]),
+      99
+    );
+
+    expect(result).toEqual([]);
+  });
+
+  it("returns just the collection when it is a root", () => {
+    const root = makeCollection({ id: 1, parentId: null });
+
+    const result = toCollectionAncestry(toIndex([root]), 1);
+
+    expect(result.map((c) => c.id)).toEqual([1]);
+  });
+
+  it("walks parentId from the top-most ancestor down to the collection", () => {
+    const root = makeCollection({ id: 1, parentId: null });
+    const middle = makeCollection({ id: 2, parentId: 1 });
+    const leaf = makeCollection({ id: 3, parentId: 2 });
+
+    const result = toCollectionAncestry(toIndex([root, middle, leaf]), 3);
+
+    expect(result.map((c) => c.id)).toEqual([1, 2, 3]);
+  });
+
+  it("stops when a parent is missing from the index", () => {
+    // parentId points at 1, which is not in the index
+    const orphan = makeCollection({ id: 2, parentId: 1 });
+
+    const result = toCollectionAncestry(toIndex([orphan]), 2);
+
+    expect(result.map((c) => c.id)).toEqual([2]);
+  });
+
+  it("stops on a cycle instead of looping forever", () => {
+    const a = makeCollection({ id: 1, parentId: 2 });
+    const b = makeCollection({ id: 2, parentId: 1 });
+
+    const result = toCollectionAncestry(toIndex([a, b]), 1);
+
+    expect(result.map((c) => c.id)).toEqual([2, 1]);
   });
 });

@@ -18,6 +18,7 @@ import Link from "@/components/Link/Link.vue";
 import { computed } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { AssetCollection } from "@/types";
+import { toCollectionAncestry } from "@/helpers/collectionHelpers";
 
 const props = defineProps<{
   label: string;
@@ -26,29 +27,9 @@ const props = defineProps<{
 
 const instanceStore = useInstanceStore();
 
-// create a path to the collection
-// so we can display it as a breadcrumb
-// like "Collection A / Collection B / Collection C"
-const collectionPath = computed(() => {
-  if (!props.collectionId) return null;
-
-  const collection = instanceStore.collectionIndex[props.collectionId];
-
-  if (!collection) {
-    throw new Error(
-      `Collection ${props.collectionId} not found in instanceStore`
-    );
-  }
-
-  // construct a path to this collection
-  const path = [collection];
-  let child = collection;
-  while (child.parentId) {
-    child = instanceStore.collectionIndex[child.parentId];
-    path.unshift(child);
-  }
-
-  return path;
-});
+// breadcrumb path like "Collection A / Collection B / Collection C"
+const collectionPath = computed((): AssetCollection[] =>
+  toCollectionAncestry(instanceStore.collectionIndex, props.collectionId)
+);
 </script>
 <style scoped></style>
