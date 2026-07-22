@@ -39,16 +39,30 @@
           :id="`${id}-longitude`"
           v-model="state.lngInput"
           label="Longitude"
-          placeholder="Enter longitude" />
-        <p v-if="lngError" class="text-red-500 text-xs">{{ lngError }}</p>
+          placeholder="Enter longitude"
+          :aria-invalid="lngError ? 'true' : undefined"
+          :aria-describedby="lngError ? `${id}-longitude-error` : undefined" />
+        <p
+          v-if="lngError"
+          :id="`${id}-longitude-error`"
+          class="text-red-500 text-xs">
+          {{ lngError }}
+        </p>
       </div>
       <div>
         <InputGroup
           :id="`${id}-latitude`"
           v-model="state.latInput"
           label="Latitude"
-          placeholder="Enter latitude" />
-        <p v-if="latError" class="text-red-500 text-xs">{{ latError }}</p>
+          placeholder="Enter latitude"
+          :aria-invalid="latError ? 'true' : undefined"
+          :aria-describedby="latError ? `${id}-latitude-error` : undefined" />
+        <p
+          v-if="latError"
+          :id="`${id}-latitude-error`"
+          class="text-red-500 text-xs">
+          {{ latError }}
+        </p>
       </div>
     </div>
     <div>
