@@ -34,16 +34,22 @@
       " />
 
     <div class="grid grid-cols-2 gap-4">
-      <InputGroup
-        :id="`${id}-longitude`"
-        v-model="state.lngInput"
-        label="Longitude"
-        placeholder="Enter longitude" />
-      <InputGroup
-        :id="`${id}-latitude`"
-        v-model="state.latInput"
-        label="Latitude"
-        placeholder="Enter latitude" />
+      <div>
+        <InputGroup
+          :id="`${id}-longitude`"
+          v-model="state.lngInput"
+          label="Longitude"
+          placeholder="Enter longitude" />
+        <p v-if="lngError" class="text-red-500 text-xs">{{ lngError }}</p>
+      </div>
+      <div>
+        <InputGroup
+          :id="`${id}-latitude`"
+          v-model="state.latInput"
+          label="Latitude"
+          placeholder="Enter latitude" />
+        <p v-if="latError" class="text-red-500 text-xs">{{ latError }}</p>
+      </div>
     </div>
     <div>
       <label
@@ -91,6 +97,11 @@ import invariant from "tiny-invariant";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
 import { LocationWidgetContent, WithId, LngLat, Coordinates } from "@/types";
+import {
+  toLngLat,
+  validateLatInput,
+  validateLngInput,
+} from "@/helpers/coordinates";
 
 const props = withDefaults(
   defineProps<{
@@ -132,12 +143,23 @@ const mapStyles = {
   },
 };
 
-// Input fields for manual coordinate entry
+// Input fields for manual coordinate entry. Stored coordinates may be an
+// empty or partial array, so optional-chain each entry.
 const state = reactive({
-  lngInput: props.modelValue.loc?.coordinates?.[0].toString() ?? "", // local state for text input
-  latInput: props.modelValue.loc?.coordinates?.[1].toString() ?? "",
+  lngInput: props.modelValue.loc?.coordinates?.[0]?.toString() ?? "",
+  latInput: props.modelValue.loc?.coordinates?.[1]?.toString() ?? "",
   locationLabel: props.modelValue.locationLabel,
   activeMapStyleKey: "light" as keyof typeof mapStyles,
+});
+
+// Empty input means "no location", only non-empty input can be invalid.
+const lngError = computed((): string => {
+  if (state.lngInput.trim() === "") return "";
+  return validateLngInput(state.lngInput);
+});
+const latError = computed((): string => {
+  if (state.latInput.trim() === "") return "";
+  return validateLatInput(state.latInput);
 });
 
 const map = shallowRef<maplibregl.Map | null>(null);
@@ -171,11 +193,18 @@ watch([() => state.lngInput, () => state.latInput], () => {
     return;
   }
 
-  // Update the modelValue with the new coordinates
+  // Update the modelValue with the new coordinates (even if they are
+  // out of range. If we don't do this, we may save -9 when the user types
+  // -92.
   emitCoordinateUpdate({
     lng,
     lat,
   });
+
+  // out-of-range input shows an error instead of moving the map
+  if (lngError.value || latError.value) {
+    return;
+  }
 
   // fly to the new coordinates
   invariant(map.value, "Map is not initialized");
@@ -192,12 +221,13 @@ watch(
 
     const coordinates = props.modelValue.loc?.coordinates ?? null;
 
-    // sync local inputs
-    state.lngInput = coordinates?.[0].toString() ?? "";
-    state.latInput = coordinates?.[1].toString() ?? "";
+    // sync local inputs, even out-of-range values, so the user can fix them
+    state.lngInput = coordinates?.[0]?.toString() ?? "";
+    state.latInput = coordinates?.[1]?.toString() ?? "";
 
-    // if no coordinates, remove marker
-    if (!coordinates) {
+    // absent, malformed, or out-of-range coordinates get no marker
+    const center = toLngLat(coordinates);
+    if (!center) {
       marker.value?.remove();
       marker.value = null;
       return;
@@ -205,13 +235,13 @@ watch(
 
     // if there's a marker, update its position
     if (marker.value) {
-      marker.value.setLngLat(coordinates);
+      marker.value.setLngLat(center);
       return;
     }
 
     // if no marker, create one
     marker.value = new maplibregl.Marker({ draggable: true })
-      .setLngLat(coordinates)
+      .setLngLat(center)
       .addTo(map.value)
       .on("dragend", () => {
         const lngLat = marker.value?.getLngLat() ?? null;
@@ -220,7 +250,7 @@ watch(
 
     // fly to the new coordinates
     map.value.flyTo({
-      center: coordinates,
+      center,
       animate: true,
     });
   },
