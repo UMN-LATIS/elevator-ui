@@ -608,6 +608,8 @@ export interface ApiInstanceNavResponse {
   customHeaderText: string | null; // html
   customFooterText: string | null; // html
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
+  // optional so an older API build still works
+  showChildCollections?: boolean;
   useCustomCSS: boolean; // whether or not to use custom CSS
   customHeaderCSS: string | null; // custom CSS for header if useCustomCSS is true
   theming: {
@@ -649,6 +651,7 @@ export interface ElevatorInstance {
   templates: { id: number; name: string }[];
   showCollectionInSearchResults: boolean; // whether or not to show collection in search results
   showTemplateInSearchResults: boolean; // whether or not to show template in search results
+  showChildCollections: boolean; // whether to list child collections when browsing
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
   theming: {
     enabled: boolean;
@@ -677,6 +680,7 @@ export interface InstanceSettings {
   // Display options
   showCollectionInSearchResults: boolean;
   showTemplateInSearchResults: boolean;
+  showChildCollections: boolean;
   showPreviousNextSearchResults: boolean;
   hideVideoAudio: boolean;
   allowIndexing: boolean;

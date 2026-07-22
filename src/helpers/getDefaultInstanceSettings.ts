@@ -20,6 +20,7 @@ export function getDefaultInstanceSettings(
     bucketRegion: null,
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: false,
+    showChildCollections: true,
     showPreviousNextSearchResults: true,
     hideVideoAudio: false,
     allowIndexing: true,

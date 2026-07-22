@@ -32,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef } from "vue";
-import CollectionItem from "./CollectionItem.vue";
+import CollectionItem from "@/components/CollectionItem/CollectionItem.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";

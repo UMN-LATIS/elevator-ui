@@ -1,10 +1,31 @@
 <template>
   <div class="search-results-page__browser-collection-header">
     <header class="pb-8 my-8">
-      <Link :to="`/search/listCollections`" class="flex items-center gap-1">
-        <ArrowForwardIcon class="transform rotate-180 h-4 w-4" />
-        Back to Collections
-      </Link>
+      <nav aria-label="Breadcrumb">
+        <ol
+          class="flex flex-wrap items-center gap-1 text-sm text-on-surface-variant">
+          <li>
+            <Link :to="`/search/listCollections`">Collections</Link>
+          </li>
+          <li
+            v-for="(crumb, index) in ancestry"
+            :key="crumb.id"
+            class="flex items-center gap-1">
+            <span aria-hidden="true">&rsaquo;</span>
+            <Link
+              v-if="index < ancestry.length - 1"
+              :to="`/collections/browseCollection/${crumb.id}`">
+              {{ crumb.title }}
+            </Link>
+            <span
+              v-else
+              aria-current="page"
+              class="font-semibold text-on-surface">
+              {{ crumb.title }}
+            </span>
+          </li>
+        </ol>
+      </nav>
       <div class="mt-4 flex flex-wrap items-center justify-between gap-4">
         <h2 v-if="collection?.title" class="text-4xl font-bold">
           Browsing {{ collection?.title }}
@@ -32,12 +53,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { watch, ref, computed } from "vue";
 import { AssetCollection } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { toCollectionAncestry } from "@/helpers/collectionHelpers";
 import Button from "@/components/Button/Button.vue";
 import Link from "@/components/Link/Link.vue";
-import { ArrowForwardIcon } from "@/icons";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
@@ -47,6 +68,10 @@ const props = defineProps<{
 
 const instanceStore = useInstanceStore();
 const collection = ref<AssetCollection | null>(null);
+
+const ancestry = computed((): AssetCollection[] =>
+  toCollectionAncestry(instanceStore.collectionIndex, props.collectionId)
+);
 
 watch(
   [() => props.collectionId, () => instanceStore.isReady],

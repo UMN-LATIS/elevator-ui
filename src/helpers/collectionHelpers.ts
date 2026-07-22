@@ -41,6 +41,34 @@ export function toCollectionIndex(collections: AssetCollection[] | null): {
 }
 
 /**
+ * Ancestry path from the top-most ancestor down to the given collection,
+ * for rendering a breadcrumb trail.
+ *
+ * @returns [rootAncestor, ..., collection], or [] when the id is not indexed.
+ */
+export function toCollectionAncestry(
+  collectionIndex: { [id: number]: AssetCollection },
+  collectionId: number
+): AssetCollection[] {
+  const collection = collectionIndex[collectionId];
+  if (!collection) return [];
+
+  const ancestry = [collection];
+  const seen = new Set<number>([collection.id]);
+  let node = collection;
+  while (node.parentId != null) {
+    const parent = collectionIndex[node.parentId];
+    // A collection tree is acyclic, so stop if a parent is missing from the
+    // index or a malformed tree points back at a collection already seen.
+    if (!parent || seen.has(parent.id)) break;
+    ancestry.unshift(parent);
+    seen.add(parent.id);
+    node = parent;
+  }
+  return ancestry;
+}
+
+/**
  * list of collections with titles that include their parent titles
  */
 export function flattenCollections(

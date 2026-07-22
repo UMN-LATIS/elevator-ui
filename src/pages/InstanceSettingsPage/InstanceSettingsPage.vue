@@ -150,6 +150,12 @@
             @update:modelValue="form.featuredAssetText = $event || null" />
         </FormSection>
 
+        <FormSection id="collections" title="Collections">
+          <ToggleGroup
+            v-model="form.showChildCollections"
+            label="Show Sub-Collections When Browsing" />
+        </FormSection>
+
         <FormSection id="search-settings" title="Search">
           <ToggleGroup
             v-model="form.showCollectionInSearchResults"
@@ -452,6 +458,7 @@ const tocSections: TocItem[] = [
   { id: "customization", label: "Customization" },
   { id: "storage", label: "Storage" },
   { id: "featured-asset", label: "Featured Asset" },
+  { id: "collections", label: "Collections" },
   { id: "search-settings", label: "Search" },
   { id: "assets", label: "Assets" },
   { id: "user-interface", label: "User Interface" },

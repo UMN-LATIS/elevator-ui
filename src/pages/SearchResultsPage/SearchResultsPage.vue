@@ -19,6 +19,10 @@
           <Skeleton v-else class="!w-1/2 !h-12" />
         </div>
 
+        <BrowseChildCollections
+          v-if="searchStore.browsingCollectionId"
+          :collectionId="searchStore.browsingCollectionId" />
+
         <DidYouMeanSuggestions
           v-if="searchStore.isReady"
           :searchTerm="searchStore.currentSearchTerm" />
@@ -136,6 +140,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import config from "@/config";
 import BrowseCollectionHeader from "./BrowseCollectionHeader.vue";
+import BrowseChildCollections from "./BrowseChildCollections.vue";
 import Tab from "@/components/Tabs/Tab.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
 import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.vue";
