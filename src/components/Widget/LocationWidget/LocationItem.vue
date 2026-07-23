@@ -22,7 +22,8 @@
 
   <Modal :isOpen="isOpen" :label="locationLabel" @close="isOpen = false">
     <Map
-      :center="mapCenter"
+      v-if="lngLat"
+      :center="lngLat"
       :zoom="10"
       mapStyle="streets"
       :apiKey="config.arcgis.apiKey"
@@ -30,8 +31,8 @@
       mapContainerClass="!h-[50vh]">
       <MapMarker
         :id="`locationItem-${locationLabel}`"
-        :lng="mapCenter.lng"
-        :lat="mapCenter.lat" />
+        :lng="lngLat.lng"
+        :lat="lngLat.lat" />
     </Map>
     <div class="w-min flex gap-4 my-4">
       <Tuple label="Latitude" class="w-auto">{{ latStr }}</Tuple>
@@ -48,6 +49,7 @@ import config from "@/config";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Button from "@/components/Button/Button.vue";
 import Accordion from "@/components/Accordion/Accordion.vue";
+import { toLngLat } from "@/helpers/coordinates";
 
 const Map = defineAsyncComponent(() => import("@/components/Map/Map.vue"));
 const MapMarker = defineAsyncComponent(
@@ -61,23 +63,18 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const lat = computed((): number => {
-  return props.locationContent.loc?.coordinates?.[1] ?? 0;
+// (0,0) doubles as "no location" in stored data, treat it as absent
+const lngLat = computed((): LngLat | null => {
+  const stored = toLngLat(props.locationContent.loc?.coordinates);
+  const isZeroLngLat = stored?.lng === 0 && stored?.lat === 0;
+  return isZeroLngLat ? null : stored;
 });
 
-const lng = computed((): number => {
-  return props.locationContent.loc?.coordinates?.[0] ?? 0;
-});
-
-const lngStr = computed((): string => (lng.value ? lng.value.toFixed(4) : "-"));
-const latStr = computed((): string => (lat.value ? lat.value.toFixed(4) : "-"));
-
-const mapCenter = computed(
-  () =>
-    ({
-      lng: lng.value,
-      lat: lat.value,
-    } as LngLat)
+const lngStr = computed((): string =>
+  lngLat.value ? lngLat.value.lng.toFixed(4) : "-"
+);
+const latStr = computed((): string =>
+  lngLat.value ? lngLat.value.lat.toFixed(4) : "-"
 );
 
 const locationLabel = computed(
@@ -86,9 +83,7 @@ const locationLabel = computed(
     null
 );
 
-const hasLocation = computed(() => {
-  return lng.value !== 0 && lat.value !== 0;
-});
+const hasLocation = computed(() => lngLat.value !== null);
 
 const isOpen = ref(false);
 </script>
