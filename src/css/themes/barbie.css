@@ -88,10 +88,6 @@
     border-bottom: 3px solid oklch(75% 0.15 340);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(90% 0.06 350);
-  }
-
   & body {
     font-family: "Nunito", sans-serif;
   }

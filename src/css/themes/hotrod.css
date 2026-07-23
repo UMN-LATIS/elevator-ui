@@ -87,10 +87,6 @@
     border-bottom: 3px solid oklch(52% 0.22 25);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(10% 0.01 30);
-  }
-
   & body {
     font-family: "Chakra Petch", sans-serif;
   }

@@ -91,9 +91,6 @@
     border-bottom: 1px solid oklch(85% 0.01 240);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(94% 0.006 240);
-  }
 
   & body {
     font-family: "DM Sans", sans-serif;

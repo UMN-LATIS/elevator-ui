@@ -88,10 +88,6 @@
     border-bottom: 2px solid oklch(40% 0.05 130);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(92% 0.025 85);
-  }
-
   & body {
     font-family: "Outfit", sans-serif;
   }

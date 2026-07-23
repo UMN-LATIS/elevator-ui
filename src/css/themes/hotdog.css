@@ -78,9 +78,6 @@
     border-bottom: 2px solid var(--outline-variant);
   }
 
-  .app-header__secondary-nav {
-    background: var(--surface);
-  }
 
   & body {
     font-family: "Comic Sans MS", cursive;

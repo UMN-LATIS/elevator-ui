@@ -108,10 +108,6 @@
     }
   }
 
-  .app-header__secondary-nav {
-    background: var(--badger-dark);
-  }
-
   .app-menu-button {
     color: white;
     background: var(--badger-red);

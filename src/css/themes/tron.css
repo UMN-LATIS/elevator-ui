@@ -92,10 +92,6 @@
     border-bottom: 1px solid oklch(60% 0.12 195 / 0.6);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(8% 0.02 240);
-  }
-
   & body {
     font-family: "Exo 2", sans-serif;
   }

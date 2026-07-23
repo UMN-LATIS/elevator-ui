@@ -102,11 +102,6 @@
     border-bottom: 3px solid oklch(8% 0 0);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(96% 0.015 85);
-    border-bottom: 2px solid oklch(8% 0 0);
-  }
-
   /* --- Buttons: thick borders + hard shadow --- */
   .button {
     border: 3px solid oklch(8% 0 0) !important;
