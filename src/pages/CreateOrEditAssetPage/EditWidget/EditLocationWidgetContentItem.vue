@@ -45,7 +45,7 @@
         <p
           v-if="lngError"
           :id="`${id}-longitude-error`"
-          class="text-red-500 text-xs">
+          class="text-error text-xs">
           {{ lngError }}
         </p>
       </div>
@@ -60,7 +60,7 @@
         <p
           v-if="latError"
           :id="`${id}-latitude-error`"
-          class="text-red-500 text-xs">
+          class="text-error text-xs">
           {{ latError }}
         </p>
       </div>
