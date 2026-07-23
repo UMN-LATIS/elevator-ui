@@ -192,6 +192,9 @@
             v-model="form.automaticAltText"
             label="Auto-generate Alt Text and Captions" />
           <ToggleGroup
+            v-model="form.showThumbnailDescription"
+            label="Show Description below Thumbnails" />
+          <ToggleGroup
             v-model="form.useVoyagerViewer"
             label="Use Smithsonian Voyager for 3D" />
           <ToggleGroup
@@ -391,12 +394,19 @@ const form = ref<InstanceSettings>(
   getDefaultInstanceSettings(props.instanceId)
 );
 
+// getInstance returns a partial settings object, so fill gaps with defaults.
+// toggles need a real boolean, and edit-tracking compares against this shape.
+const savedSettings = computed<InstanceSettings>(() => ({
+  ...getDefaultInstanceSettings(props.instanceId),
+  ...(settingsData.value ?? {}),
+}));
+
 // Sync form with fetched data
 watch(
   settingsData,
   (newData) => {
     if (newData) {
-      form.value = { ...newData };
+      form.value = { ...savedSettings.value };
     }
   },
   { immediate: true }
@@ -405,13 +415,13 @@ watch(
 // Track unsaved changes by comparing form to saved data
 const hasUnsavedChanges = computed(() => {
   if (!settingsData.value) return false;
-  return JSON.stringify(form.value) !== JSON.stringify(settingsData.value);
+  return JSON.stringify(form.value) !== JSON.stringify(savedSettings.value);
 });
 
 // Reset form to saved state
 function handleCancel() {
   if (!settingsData.value) return;
-  form.value = { ...settingsData.value };
+  form.value = { ...savedSettings.value };
   selectedHeaderImage.value = null;
 }
 

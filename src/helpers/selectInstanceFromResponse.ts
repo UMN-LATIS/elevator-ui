@@ -19,6 +19,7 @@ export function selectInstanceFromResponse(
     templates,
     useVoyagerViewer,
     showChildCollections,
+    showThumbnailDescription,
     theming,
   } = apiResponse;
 
@@ -56,8 +57,8 @@ export function selectInstanceFromResponse(
     showCollectionInSearchResults: instanceShowCollectionInSearchResults,
     showTemplateInSearchResults: instanceShowTemplateInSearchResults,
     useVoyagerViewer, // whether or not to use the Voyager viewer
-    // default on so a nav payload without the field keeps the panel showing
     showChildCollections: showChildCollections ?? true,
+    showThumbnailDescription: showThumbnailDescription ?? false,
     theming,
   };
 }

@@ -45,6 +45,7 @@ const createState = () => ({
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: true,
     showChildCollections: true,
+    showThumbnailDescription: false,
     useVoyagerViewer: false, // whether or not to use the Voyager viewer
     theming: {
       enabled: true,
