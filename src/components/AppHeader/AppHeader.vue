@@ -19,8 +19,7 @@
     </div>
     <div
       v-if="$slots.default"
-      class="app-header__secondary-nav bg-surface-container text-on-surface-container">
-      <slot />
+      class="app-header__secondary-nav bg-surface-container text-on-surface">
     </div>
   </header>
 </template>
