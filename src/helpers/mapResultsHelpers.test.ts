@@ -55,5 +55,30 @@ describe("mapResultsHelpers", () => {
         { lng: 7, lat: 8 },
       ]);
     });
+    it("drops out-of-range coordinates", () => {
+      const match: Partial<SearchResultMatch> = {
+        locations: [
+          {
+            label: "Bad and good locations",
+            entries: [
+              {
+                loc: {
+                  type: "Point",
+                  coordinates: [181, 95],
+                },
+              },
+              {
+                loc: {
+                  type: "Point",
+                  coordinates: [45, 45],
+                },
+              },
+            ],
+          },
+        ],
+      };
+      const result = convertSearchResultToLngLats(match as SearchResultMatch);
+      expect(result).toEqual([{ lng: 45, lat: 45 }]);
+    });
   });
 });

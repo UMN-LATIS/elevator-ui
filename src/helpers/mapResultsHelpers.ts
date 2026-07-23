@@ -1,4 +1,5 @@
 import { SearchResultMatch, LngLat } from "@/types";
+import { toLngLat } from "@/helpers/coordinates";
 
 export function convertSearchResultToLngLats(
   match: SearchResultMatch
@@ -9,14 +10,9 @@ export function convertSearchResultToLngLats(
     .flatMap((location) => {
       if (!location.entries) return [];
 
-      return location.entries.map((locationEntry) => {
-        if (!locationEntry.loc) return null;
-
-        return {
-          lng: locationEntry.loc.coordinates[0],
-          lat: locationEntry.loc.coordinates[1],
-        };
-      });
+      return location.entries.map((locationEntry) =>
+        toLngLat(locationEntry.loc?.coordinates)
+      );
     })
     .filter((lngLat): lngLat is LngLat => lngLat !== null);
 }
