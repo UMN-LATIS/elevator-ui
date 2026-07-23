@@ -1,15 +1,13 @@
 import { createColumnHelper } from "@tanstack/vue-table";
 import type { CSSClass, TemplateSummary } from "@/types";
 import {
-  ArrowUpDownIcon,
   CopyPlusIcon,
   PencilIcon,
   RefreshCcwDotIcon,
   Trash2,
 } from "lucide-vue-next";
-import IconButton from "@/components/IconButton/IconButton.vue";
+import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
 import { cn } from "@/lib/utils";
-import config from "@/config";
 
 const columnHelper = createColumnHelper<TemplateSummary>();
 
@@ -17,14 +15,22 @@ const ColHeader = (props: { text: string; class?: CSSClass }) => (
   <div class={cn(["font-medium", props.class])}>{props.text}</div>
 );
 
-export const createColumns = (onDelete: (templateId: number) => void) => [
+export interface TemplateColumnsDeps {
+  onEdit: (template: TemplateSummary) => void;
+  onDuplicate: (template: TemplateSummary) => void;
+  onReindex: (template: TemplateSummary) => void;
+  onDelete: (template: TemplateSummary) => void;
+}
+
+export const createColumns = (deps: TemplateColumnsDeps) => [
   columnHelper.accessor("id", {
     header: () => <ColHeader text="ID" />,
     cell: (ctx) => (
       <div class="text-sm text-muted-foreground">{ctx.getValue()}</div>
     ),
-    maxSize: 64,
+    meta: { widthClass: "w-16" },
   }),
+  // No widthClass: table-fixed gives this column all the leftover width.
   columnHelper.accessor("name", {
     header: () => <ColHeader text="Name" />,
     cell: (ctx) => (
@@ -41,7 +47,7 @@ export const createColumns = (onDelete: (templateId: number) => void) => [
         </div>
       );
     },
-    maxSize: 96,
+    meta: { widthClass: "w-28" },
   }),
   columnHelper.accessor("modifiedAt", {
     header: () => <ColHeader text="Modified" />,
@@ -53,56 +59,42 @@ export const createColumns = (onDelete: (templateId: number) => void) => [
         </div>
       );
     },
-    maxSize: 96,
+    meta: { widthClass: "w-28" },
   }),
   {
     id: "actions",
-    header: () => <ColHeader text="Actions" class=" w-full text-center" />,
+    header: () => <ColHeader text="Actions" class="sr-only" />,
     enableSorting: false,
     cell: ({ row }: { row: { original: TemplateSummary } }) => (
-      <div class="flex gap-2 items-center justify-center">
-        <IconButton
-          to={{ name: "templatesEdit", params: { id: row.original.id } }}
-          showTooltip={false}
-          title="Edit">
-          <PencilIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          href={`${config.instance.base.url}/templates/sort/${row.original.id}`}
-          showTooltip={false}
-          title="Reorder Widgets">
-          <ArrowUpDownIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          href={`${config.instance.base.url}/templates/copy/${row.original.id}`}
-          showTooltip={false}
-          title="Duplicate">
-          <CopyPlusIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            if (
-              !window.confirm(
-                "Are you sure you wish to reindex this template and any related templates?"
-              )
-            ) {
-              return;
-            }
-            window.location.href = `${config.instance.base.url}/templates/forceRecache/${row.original.id}`;
-          }}
-          showTooltip={false}
-          title="Reindex">
-          <RefreshCcwDotIcon class="size-4" />
-        </IconButton>
-        <IconButton
-          onClick={() => onDelete(row.original.id)}
-          class="enabled:text-error enabled:hover:bg-error-container enabled:hover:text-on-error-container"
-          showTooltip={false}
-          title="Delete">
-          <Trash2 class="size-4" />
-        </IconButton>
+      <div class="flex items-center justify-end">
+        <KebabMenu
+          label={`Actions for ${row.original.name}`}
+          items={[
+            {
+              label: "Edit",
+              icon: PencilIcon,
+              onSelect: () => deps.onEdit(row.original),
+            },
+            {
+              label: "Duplicate",
+              icon: CopyPlusIcon,
+              onSelect: () => deps.onDuplicate(row.original),
+            },
+            {
+              label: "Reindex",
+              icon: RefreshCcwDotIcon,
+              onSelect: () => deps.onReindex(row.original),
+            },
+            {
+              label: "Delete",
+              icon: Trash2,
+              variant: "danger",
+              onSelect: () => deps.onDelete(row.original),
+            },
+          ]}
+        />
       </div>
     ),
-    maxSize: 128,
+    meta: { widthClass: "w-16" },
   },
 ];
