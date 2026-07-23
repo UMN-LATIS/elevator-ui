@@ -4,7 +4,7 @@
       <TooltipTrigger asChild>
         <slot />
       </TooltipTrigger>
-      <TooltipContent v-if="tip || $slots.content">
+      <TooltipContent v-if="tip || $slots.content" :class="props.class">
         <slot name="content">
           {{ tip }}
         </slot>
@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CSSClass } from "@/types";
 import { computed } from "vue";
 
 const props = withDefaults(
@@ -26,11 +27,13 @@ const props = withDefaults(
     openDelay?: number;
     delayDuration?: number;
     tip?: string;
+    class?: CSSClass;
   }>(),
   {
     openDelay: undefined, // previous api
     delayDuration: 300, // current api
     tip: "",
+    class: "",
   }
 );
 

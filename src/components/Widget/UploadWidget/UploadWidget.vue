@@ -46,6 +46,7 @@
       <Tooltip
         v-for="(content, key) in contents"
         :key="key"
+        class="max-w-sm"
         :tip="content.fileDescription">
         <button
           class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline w-24"
