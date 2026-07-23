@@ -4,7 +4,7 @@
   "description": "Mock API server for Elevator UI development and testing",
   "type": "module",
   "scripts": {
-    "serve:watch": "tsx watch server.ts",
+    "serve:watch": "tsx watch --env-file-if-exists=../.env server.ts",
     "build": "tsc",
     "type-check": "tsc --noEmit"
   },
