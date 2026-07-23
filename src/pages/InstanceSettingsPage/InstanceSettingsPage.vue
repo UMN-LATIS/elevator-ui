@@ -193,7 +193,7 @@
             label="Auto-generate Alt Text and Captions" />
           <ToggleGroup
             v-model="form.showThumbnailDescription"
-            label="Show Description below Upload Thumbnails" />
+            label="Show Description below Thumbnails" />
           <ToggleGroup
             v-model="form.useVoyagerViewer"
             label="Use Smithsonian Voyager for 3D" />
