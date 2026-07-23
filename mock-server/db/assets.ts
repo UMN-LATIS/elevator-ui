@@ -306,6 +306,38 @@ const assetSeeds: WithMeta<Asset>[] = [
       timezone: "UTC",
     },
   },
+  // Asset with out-of-range coordinates for location widget fallback tests
+  {
+    ...baseAsset,
+    title_1: [
+      {
+        isPrimary: false,
+        fieldContents: "Invalid Location Asset",
+      },
+    ],
+    location_1: [
+      {
+        isPrimary: false,
+        locationLabel: null,
+        address: null,
+        loc: {
+          type: "Point",
+          coordinates: [181, 95],
+        },
+      },
+    ],
+    assetId: "6875871d4eb080a4880a0abc",
+    firstFileHandlerId: "handler_invalid_location_001",
+    title: ["Invalid Location Asset"],
+    templateId: 68, // All Fields Test template (includes a location widget)
+    modified: {
+      date: "2025-07-14 22:40:25.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Auth-required asset for testing 401 / login-redirect flows
   {
     ...baseAsset,
