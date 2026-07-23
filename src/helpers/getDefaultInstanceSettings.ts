@@ -21,6 +21,7 @@ export function getDefaultInstanceSettings(
     showCollectionInSearchResults: true,
     showTemplateInSearchResults: false,
     showChildCollections: true,
+    showThumbnailDescription: false,
     showPreviousNextSearchResults: true,
     hideVideoAudio: false,
     allowIndexing: true,

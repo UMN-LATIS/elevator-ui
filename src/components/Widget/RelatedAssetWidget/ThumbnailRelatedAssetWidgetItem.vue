@@ -16,6 +16,7 @@
       <ThumbnailGeneric v-else :isActive="isActiveObject" />
 
       <SanitizedHTML
+        v-if="instanceStore.instance.showThumbnailDescription"
         class="whitespace-nowrap text-xs mt-1 truncate overflow-hidden w-full text-center"
         :html="title" />
     </RouterLink>
@@ -27,6 +28,7 @@ import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
+import { useInstanceStore } from "@/stores/instanceStore";
 import { RelatedAssetCacheItem } from "@/types";
 
 defineProps<{
@@ -35,5 +37,7 @@ defineProps<{
   isActiveObject: boolean;
   assetCacheItem: RelatedAssetCacheItem | null;
 }>();
+
+const instanceStore = useInstanceStore();
 </script>
 <style scoped></style>
