@@ -88,10 +88,6 @@
     border-bottom: 1px solid oklch(40% 0.15 145);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(6% 0.01 145);
-  }
-
   & body {
     font-family: "Source Code Pro", monospace;
   }

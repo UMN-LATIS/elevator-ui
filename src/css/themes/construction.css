@@ -90,10 +90,6 @@
     border-bottom: 4px solid oklch(72% 0.2 55);
   }
 
-  .app-header__secondary-nav {
-    background: oklch(15% 0.01 80);
-  }
-
   & body {
     font-family: "Barlow", sans-serif;
   }

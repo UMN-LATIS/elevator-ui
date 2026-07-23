@@ -88,10 +88,6 @@
     border-bottom: 2px solid oklch(60% 0.2 340 / 0.4);
   }
 
-  .app-header__secondary-nav {
-    background: var(--surface-container);
-  }
-
   & body {
     font-family: "Quicksand", sans-serif;
   }

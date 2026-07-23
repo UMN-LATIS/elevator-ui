@@ -93,9 +93,4 @@
       }
     }
   }
-
-  .app-header__secondary-nav {
-    background: oklch(95% 0 0);
-    border-bottom: 3px solid oklch(0% 0 0);
-  }
 }

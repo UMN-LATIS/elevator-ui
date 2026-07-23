@@ -161,9 +161,6 @@
     border-bottom: 2px solid var(--outline-variant);
   }
 
-  .app-header__secondary-nav {
-    background: var(--surface);
-  }
   .app-menu-button {
     background: hsla(0 0 0 / 0.1);
     color: black;

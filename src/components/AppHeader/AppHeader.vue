@@ -17,8 +17,9 @@
         <AppMenuButton />
       </div>
     </div>
-    <div v-if="$slots.default" class="app-header__secondary-nav">
-      <slot />
+    <div
+      v-if="$slots.default"
+      class="app-header__secondary-nav bg-surface-container text-on-surface">
     </div>
   </header>
 </template>
@@ -35,8 +36,4 @@ const instanceStore = useInstanceStore();
 
 const currentUser = computed(() => instanceStore.currentUser);
 </script>
-<style scoped>
-.app-header__secondary-nav {
-  background: transparent;
-}
-</style>
+<style scoped></style>
