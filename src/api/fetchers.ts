@@ -1071,6 +1071,16 @@ export async function deleteTemplate(templateId: number) {
   return res.data;
 }
 
+// Both routes are legacy templates-controller actions, hit today as GET
+// links, so we call them the same way here rather than POST.
+export async function copyTemplate(templateId: number): Promise<void> {
+  await axios.get(`${BASE_URL}/templates/copy/${templateId}`);
+}
+
+export async function reindexTemplate(templateId: number): Promise<void> {
+  await axios.get(`${BASE_URL}/templates/forceRecache/${templateId}`);
+}
+
 export async function fetchAdminTemplate(
   templateId: number
 ): Promise<AdminTemplate> {

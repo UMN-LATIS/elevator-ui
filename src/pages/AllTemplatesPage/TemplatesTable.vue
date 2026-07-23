@@ -16,11 +16,13 @@
             <TableHead
               v-for="header in headerGroup.headers"
               :key="header.id"
-              :style="{ width: `${header.getSize()}px` }"
               class="bg-surface-container-lowest"
-              :class="{
-                'cursor-pointer select-none': header.column.getCanSort(),
-              }"
+              :class="[
+                header.column.columnDef.meta?.widthClass,
+                {
+                  'cursor-pointer select-none': header.column.getCanSort(),
+                },
+              ]"
               @click="header.column.getToggleSortingHandler()?.($event)">
               <div class="flex items-center gap-2">
                 <FlexRender
@@ -98,11 +100,11 @@ const props = defineProps<{
   data: TData[];
 }>();
 
-const isLgScreen = useMediaQuery("(min-width: 1024px)");
+const isMdScreen = useMediaQuery("(min-width: 768px)");
 
 const columnVisibility = computed<VisibilityState>(() => ({
-  createdAt: isLgScreen.value,
-  modifiedAt: isLgScreen.value,
+  createdAt: isMdScreen.value,
+  modifiedAt: isMdScreen.value,
 }));
 
 const sorting = ref<SortingState>([{ id: "name", desc: false }]);

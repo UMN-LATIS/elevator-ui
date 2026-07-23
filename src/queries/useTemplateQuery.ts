@@ -1,8 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
-import { INSTANCE_QUERY_KEY, TEMPLATES_QUERY_KEY, FIELD_TYPES_QUERY_KEY } from "./queryKeys";
-import type { TemplateSummary, AdminTemplate, TemplatePayload, FieldType } from "@/types";
+import {
+  INSTANCE_QUERY_KEY,
+  TEMPLATES_QUERY_KEY,
+  FIELD_TYPES_QUERY_KEY,
+} from "./queryKeys";
+import type {
+  TemplateSummary,
+  AdminTemplate,
+  TemplatePayload,
+  FieldType,
+} from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useTemplateQuery(
@@ -50,6 +59,28 @@ export function useDeleteTemplateMutation() {
       const instanceStore = useInstanceStore();
       instanceStore.refresh();
     },
+  });
+}
+
+export function useCopyTemplateMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (templateId: number) => fetchers.copyTemplate(templateId),
+    onSuccess: () => {
+      // A copy appears in both the list and the instance nav.
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+      const instanceStore = useInstanceStore();
+      instanceStore.refresh();
+    },
+  });
+}
+
+// Reindex rebuilds search data server-side, so no cached query goes stale.
+export function useReindexTemplateMutation() {
+  return useMutation({
+    mutationFn: (templateId: number) => fetchers.reindexTemplate(templateId),
   });
 }
 
