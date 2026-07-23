@@ -405,4 +405,56 @@ app.delete("/delete/:templateId", (c) => {
   return c.json({ success: true });
 });
 
+// GET /templates/copy/:templateId — mirrors Templates::copy() legacy route
+// Persist a real duplicate so the client's invalidated list query shows it.
+app.get("/copy/:templateId", (c) => {
+  const user = c.get("user");
+
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user.isInstanceAdmin && !user.isSuperAdmin)
+    return c.json({ error: "Forbidden" }, 403);
+
+  const db = c.get("db");
+  const templateId = Number(c.req.param("templateId"));
+  const source = db.templates.get(templateId) as AdminTemplateSeed | undefined;
+
+  if (!source) return c.json({ error: "Template not found" }, 404);
+
+  const now = new Date().toISOString();
+  const copy = (db.templates as ReturnType<typeof createTemplatesTable>).create(
+    {
+      ...source,
+      templateName: `${source.templateName} (copy)`,
+      createdAt: now,
+      modifiedAt: now,
+    }
+  );
+
+  const summary: TemplateSummary = {
+    id: copy.templateId,
+    name: copy.templateName,
+    createdAt: copy.createdAt,
+    modifiedAt: copy.modifiedAt,
+  };
+  return c.json(summary, 201);
+});
+
+// GET /templates/forceRecache/:templateId — mirrors Templates::forceRecache()
+// Reindex only rebuilds search data, so there is nothing to persist here.
+app.get("/forceRecache/:templateId", (c) => {
+  const user = c.get("user");
+
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user.isInstanceAdmin && !user.isSuperAdmin)
+    return c.json({ error: "Forbidden" }, 403);
+
+  const db = c.get("db");
+  const templateId = Number(c.req.param("templateId"));
+  const template = db.templates.get(templateId);
+
+  if (!template) return c.json({ error: "Template not found" }, 404);
+
+  return c.json({ success: true });
+});
+
 export default app;
