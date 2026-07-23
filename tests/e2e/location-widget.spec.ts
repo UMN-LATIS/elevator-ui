@@ -38,15 +38,19 @@ test.describe("Location Widget", () => {
     const saveButton = page.getByRole("button", { name: "Save" });
     await expect(saveButton).toBeEnabled();
 
-    // Wait for the submission to persist before reloading. Reloading first
-    // aborts the in-flight save and reads back the seeded coordinates.
-    const saveResponse = page.waitForResponse(
+    // Editing fires two submission POSTs: the inline child asset first, then
+    // the parent. The parent POST is only sent after the child save resolves,
+    // so wait for the PARENT save (its body carries this assetId) before
+    // reloading. Waiting on the first response reloads before the parent POST
+    // leaves the browser, and the seeded coordinates survive.
+    const parentSave = page.waitForResponse(
       (response) =>
         response.url().includes("/assetManager/submission/true") &&
-        response.request().method() === "POST"
+        response.request().method() === "POST" &&
+        !!response.request().postData()?.includes(assetId)
     );
     await saveButton.click();
-    await saveResponse;
+    await parentSave;
 
     await expect(page).toHaveURL(new RegExp(`/assetManager/editAsset/${assetId}`));
     await page.reload();
@@ -80,6 +84,14 @@ test.describe("Location Widget", () => {
       0
     );
 
-    expect(pageErrors).toHaveLength(0);
+    // The ObjectViewer embeds the app in an iframe pointed at the instance's
+    // absolute base URL. Under dev:mock the app runs on :5173 while the mock
+    // API is on :3001, so the iframe's app-shell calls are cross-origin and
+    // reject with "Network Error". Filter this out since it doesn't pertain
+    // to our lnglat test.
+    const crashErrors = pageErrors.filter(
+      (err) => !/network error/i.test(err.message)
+    );
+    expect(crashErrors).toHaveLength(0);
   });
 });
