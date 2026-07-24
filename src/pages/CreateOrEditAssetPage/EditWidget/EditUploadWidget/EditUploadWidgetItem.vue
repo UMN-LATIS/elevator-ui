@@ -5,7 +5,7 @@
         <img
           v-if="item.fileId && previewImageUrl"
           :src="previewImageUrl"
-          :alt="`thumbnail for item: ${item.fileDescription}`"
+          :alt="`thumbnail for item: ${item.fileDescription ?? ''}`"
           class="w-full h-full app-object-fit" />
         <div
           v-else

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { hasUploadContent } from "./hasWidgetContent";
+import { hasUploadContent, hasDateContent } from "./hasWidgetContent";
 
 describe("hasUploadContent", () => {
   // Reproduces #554. A CSV-imported file can carry fileDescription: null
@@ -29,5 +29,22 @@ describe("hasUploadContent", () => {
     ];
 
     expect(hasUploadContent(contents)).toBe(false);
+  });
+});
+
+describe("hasDateContent", () => {
+  // A date with real start/end dates is content even when its label is null,
+  // like a required date field that was never given a label.
+  it("counts a date with a null label but a valid start date as content", () => {
+    const contents = [
+      {
+        label: null,
+        start: { text: "2024-01-01", numeric: "1704067200" },
+        end: { text: null, numeric: null },
+        isPrimary: false,
+      },
+    ];
+
+    expect(hasDateContent(contents)).toBe(true);
   });
 });

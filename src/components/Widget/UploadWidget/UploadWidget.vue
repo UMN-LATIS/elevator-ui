@@ -47,7 +47,7 @@
         v-for="(content, key) in contents"
         :key="key"
         class="max-w-sm"
-        :tip="isDescriptionVisible ? content.fileDescription ?? '' : ''">
+        :tip="descriptionTip(content)">
         <button
           class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline w-24"
           :class="{
@@ -111,6 +111,11 @@ const isDownloadingAll = ref(false);
 const isDescriptionVisible = computed(
   () => instanceStore.instance.showThumbnailDescription
 );
+
+function descriptionTip(content: UploadWidgetContent): string {
+  if (!isDescriptionVisible.value) return "";
+  return content.fileDescription ?? "";
+}
 
 const activeIndex = computed(() =>
   props.contents.findIndex((content) => isFileActive(content.fileId))
