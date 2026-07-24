@@ -16,6 +16,19 @@
       <TemplatesTable v-else :columns="columns" :data="templates" />
 
       <ConfirmModal
+        :isOpen="Boolean(templatePendingDuplicate)"
+        title="Duplicate Template"
+        confirmLabel="Duplicate"
+        @close="templatePendingDuplicate = null"
+        @confirm="confirmDuplicate">
+        <p>
+          Create a copy of
+          <b>{{ templatePendingDuplicate?.name }}</b>
+          ?
+        </p>
+      </ConfirmModal>
+
+      <ConfirmModal
         :isOpen="Boolean(templatePendingReindex)"
         title="Reindex Template"
         type="warning"
@@ -74,8 +87,15 @@ const openEdit = (template: TemplateSummary): void => {
 };
 
 const duplicateMutation = useCopyTemplateMutation();
+const templatePendingDuplicate = ref<TemplateSummary | null>(null);
 
-const duplicateTemplate = (template: TemplateSummary): void => {
+const askToDuplicateTemplate = (template: TemplateSummary): void => {
+  templatePendingDuplicate.value = template;
+};
+
+const confirmDuplicate = (): void => {
+  const template = templatePendingDuplicate.value;
+  if (!template) return;
   duplicateMutation.mutate(template.id, {
     onSuccess: () =>
       toastStore.addToast({
@@ -91,6 +111,7 @@ const duplicateTemplate = (template: TemplateSummary): void => {
         variant: "error",
       }),
   });
+  templatePendingDuplicate.value = null;
 };
 
 const reindexMutation = useReindexTemplateMutation();
@@ -151,7 +172,7 @@ const confirmDelete = (): void => {
 
 const columns = createColumns({
   onEdit: openEdit,
-  onDuplicate: duplicateTemplate,
+  onDuplicate: askToDuplicateTemplate,
   onReindex: askToReindexTemplate,
   onDelete: askToDeleteTemplate,
 });
