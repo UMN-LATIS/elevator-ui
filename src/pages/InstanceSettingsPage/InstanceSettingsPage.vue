@@ -193,7 +193,8 @@
             label="Auto-generate Alt Text and Captions" />
           <ToggleGroup
             v-model="form.showThumbnailDescription"
-            label="Show Description below Thumbnails" />
+            label="Show Description below Thumbnails"
+            helpText="When on, a file's description shows below its thumbnail and serves as the image's alt text. When off, the description is used as alt text for screen readers only." />
           <ToggleGroup
             v-model="form.useVoyagerViewer"
             label="Use Smithsonian Voyager for 3D" />
