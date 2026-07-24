@@ -111,6 +111,8 @@ import Button from "@/components/Button/Button.vue";
 import EditUploadWidgetItemSidecars from "./EditUploadWidgetItemSidecars.vue";
 import { usePreviewImage } from "@/helpers/usePreviewImage";
 import { useFileMetadataQuery } from "@/queries/useFileMetadataQuery";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
+import { hasSavedFileInWidget } from "./hasSavedFileInWidget";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { computed } from "vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
@@ -143,7 +145,22 @@ const emit = defineEmits<{
 // Use the new preview image composable
 const { previewImageUrl } = usePreviewImage(() => props.item.fileId);
 
-const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId);
+const assetEditor = useAssetEditor();
+
+// The API can only answer for a file once a save has linked it to its asset.
+// A file appears in savedAsset exactly when that link exists, so wait for it
+// rather than asking a question the server will reject.
+const isFileSaved = computed(() =>
+  hasSavedFileInWidget(
+    assetEditor.savedAsset,
+    props.widgetDef.fieldTitle,
+    props.item.fileId
+  )
+);
+
+const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId, {
+  enabled: isFileSaved,
+});
 
 function handleDescriptionUpdate(value: string) {
   emit("update:item", {

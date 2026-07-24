@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -23,35 +23,61 @@ test.describe("Upload widget file metadata", () => {
   test("does not request file metadata before the asset is saved", async ({
     page,
   }) => {
-    // The API can only answer for a file once a save has linked it to its
-    // parent asset. Before that link exists it reports the file as unknown,
-    // so asking early is a request we know the server will reject.
-    let hasSubmissionCompleted = false;
-    const earlyMetadataRequests: string[] = [];
-
-    page.on("response", (response) => {
-      if (response.url().includes(SUBMISSION_URL_PART)) {
-        hasSubmissionCompleted = true;
-      }
-    });
-
-    page.on("request", (request) => {
-      const isMetadataRequest = request
-        .url()
-        .includes(FILE_METADATA_URL_PART);
-
-      if (isMetadataRequest && !hasSubmissionCompleted) {
-        earlyMetadataRequests.push(request.url());
-      }
-    });
+    const metadataRequests = watchMetadataRequestsAroundSave(page);
 
     await uploadOneFileToNewAsset(page);
 
-    expect(earlyMetadataRequests).toEqual([]);
+    expect(metadataRequests.beforeSave).toEqual([]);
+  });
+
+  test("requests file metadata once the asset is saved", async ({ page }) => {
+    const metadataRequests = watchMetadataRequestsAroundSave(page);
+
+    await uploadOneFileToNewAsset(page);
+
+    expect(metadataRequests.afterSave.length).toBeGreaterThan(0);
   });
 });
 
-async function uploadOneFileToNewAsset(page: import("@playwright/test").Page) {
+/**
+ * Splits file metadata requests by whether the save that authorizes them had
+ * already landed.
+ *
+ * The API can only answer for a file once a save has linked it to its parent
+ * asset, so a request in `beforeSave` is one the server was always going to
+ * reject. An empty `afterSave` means the widget stopped asking altogether.
+ */
+function watchMetadataRequestsAroundSave(page: Page): {
+  beforeSave: string[];
+  afterSave: string[];
+} {
+  let hasSubmissionCompleted = false;
+  const beforeSave: string[] = [];
+  const afterSave: string[] = [];
+
+  page.on("response", (response) => {
+    if (response.url().includes(SUBMISSION_URL_PART)) {
+      hasSubmissionCompleted = true;
+    }
+  });
+
+  page.on("request", (request) => {
+    if (!request.url().includes(FILE_METADATA_URL_PART)) {
+      return;
+    }
+
+    if (hasSubmissionCompleted) {
+      afterSave.push(request.url());
+      return;
+    }
+
+    beforeSave.push(request.url());
+  });
+
+  return { beforeSave, afterSave };
+}
+
+async function uploadOneFileToNewAsset(page: Page): Promise<void> {
   await page.getByLabel("Template").selectOption({ index: 1 });
   await page.getByLabel("Collection").selectOption({ index: 1 });
 
@@ -59,7 +85,9 @@ async function uploadOneFileToNewAsset(page: import("@playwright/test").Page) {
   await expect(continueButton).toBeEnabled({ timeout: 5000 });
   await continueButton.click();
 
-  await expect(page.getByRole("heading", { name: "Create Asset" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Create Asset" })
+  ).toBeVisible();
   await page.getByLabel("Title").first().fill("File metadata test asset");
 
   const uploadWidget = page
