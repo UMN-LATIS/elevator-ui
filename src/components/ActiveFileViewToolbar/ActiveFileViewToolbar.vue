@@ -10,7 +10,10 @@
           v-if="assetId && fileHandlerId"
           :assetId="assetId"
           :fileObjectId="fileHandlerId" />
-        <ShareFileButton v-if="fileHandlerId" :fileObjectId="fileHandlerId" />
+        <ShareFileButton
+          v-if="fileHandlerId"
+          :fileObjectId="fileHandlerId"
+          :embedTitle="embedTitle" />
         <AddToDrawerButton
           v-if="instanceStore.currentUser?.canManageDrawers && assetId"
           :assetId="assetId" />
@@ -29,6 +32,8 @@ import AddToDrawerButton from "@/components/AddToDrawerButton/AddToDrawerButton.
 import AddToEmbeddedPluginButton from "../AddToEmbeddedPluginButton/AddToEmbeddedPluginButton.vue";
 import { useElevatorSessionStorage } from "@/helpers/useElevatorSessionStorage";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { useAssetStore } from "@/stores/assetStore";
+import { computed } from "vue";
 
 defineProps<{
   fileHandlerId: string | null;
@@ -36,6 +41,15 @@ defineProps<{
 }>();
 
 const instanceStore = useInstanceStore();
+const assetStore = useAssetStore();
 const { isInEmbedMode } = useElevatorSessionStorage();
+
+// titles the copyable embed snippet's iframe
+const embedTitle = computed(
+  () =>
+    assetStore.activeFileDescription ||
+    assetStore.activeTitle ||
+    "Embedded asset"
+);
 </script>
 <style scoped></style>

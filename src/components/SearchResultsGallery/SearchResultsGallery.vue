@@ -45,7 +45,8 @@
           <ObjectViewer
             v-if="slide.primaryHandlerId && (isActive || isPrev || isNext)"
             class="border w-full h-full"
-            :fileHandlerId="slide.primaryHandlerId" />
+            :fileHandlerId="slide.primaryHandlerId"
+            :title="slide.title" />
           <div
             v-else
             class="w-full h-full flex items-center justify-center -mt-12">
