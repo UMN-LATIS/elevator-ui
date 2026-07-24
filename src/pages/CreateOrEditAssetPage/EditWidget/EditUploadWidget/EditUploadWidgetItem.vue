@@ -21,7 +21,7 @@
         <TextAreaGroup
           :label="isDescriptionVisible ? 'Description / Alt Text' : 'Alt Text'"
           :helpText="descriptionFieldHelp"
-          :modelValue="item.fileDescription"
+          :modelValue="item.fileDescription ?? ''"
           @update:modelValue="handleDescriptionUpdate" />
       </div>
       <div class="col-span-3">

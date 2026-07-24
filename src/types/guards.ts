@@ -77,7 +77,8 @@ export function isDateWidgetContent(
   return (
     isWidgetContent(value) &&
     "label" in value &&
-    typeof (value as DateWidgetContent).label === "string" &&
+    ((value as DateWidgetContent).label === null ||
+      typeof (value as DateWidgetContent).label === "string") &&
     "start" in value &&
     isDateMoment((value as DateWidgetContent).start) &&
     "end" in value &&
@@ -166,7 +167,8 @@ export function isUploadWidgetContent(
     "fileId" in value &&
     typeof (value as UploadWidgetContent).fileId === "string" &&
     "fileDescription" in value &&
-    typeof (value as UploadWidgetContent).fileDescription === "string" &&
+    ((value as UploadWidgetContent).fileDescription === null ||
+      typeof (value as UploadWidgetContent).fileDescription === "string") &&
     "fileType" in value &&
     typeof (value as UploadWidgetContent).fileType === "string"
   );

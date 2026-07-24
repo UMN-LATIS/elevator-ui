@@ -243,7 +243,7 @@ export interface DateMoment {
   numeric: string | null; // unix timestamp, actually a string
 }
 export interface DateWidgetContent extends WidgetContent {
-  label: string;
+  label: string | null;
   start: DateMoment;
   end: DateMoment;
 }
@@ -293,7 +293,7 @@ export interface TextAreaWidgetContent extends WidgetContent {
 
 export interface UploadWidgetContent extends WidgetContent {
   fileId: string; // hash
-  fileDescription: string;
+  fileDescription: string | null;
   fileType: string;
   searchData: string | null;
   loc: LocationObject | null;
