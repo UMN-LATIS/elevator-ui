@@ -18,6 +18,7 @@
       <TagsInput
         :modelValue="(item.tags as string[])"
         :addOnBlur="true"
+        :addOnPaste="true"
         class="tags-input !py-0"
         @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
         <TagsInputItem
