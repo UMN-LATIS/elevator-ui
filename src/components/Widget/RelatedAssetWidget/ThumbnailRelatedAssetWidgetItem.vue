@@ -1,5 +1,5 @@
 <template>
-  <Tooltip :tip="title">
+  <Tooltip :tip="isTitleVisible ? title : ''">
     <RouterLink
       class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline hover:bg-primary-container hover:text-primary w-24 text-on-surface-variant"
       :class="{
@@ -8,21 +8,25 @@
           isActiveObject,
       }"
       :to="`#${assetId}`">
+      <!-- When the title text renders below, it is the link's accessible
+        name, so alt is empty to avoid a double announcement. See
+        https://www.w3.org/WAI/tutorials/images/functional/ example 2 -->
       <ThumbnailImage
         v-if="assetCacheItem?.primaryHandler"
         :src="getTinyURL(assetCacheItem.primaryHandler)"
-        :alt="title"
+        :alt="isTitleVisible ? '' : title"
         class="thumbnail-related-asset-widget__image max-w-full" />
       <ThumbnailGeneric v-else :isActive="isActiveObject" />
 
       <SanitizedHTML
-        v-if="instanceStore.instance.showThumbnailDescription"
+        v-if="isTitleVisible"
         class="whitespace-nowrap text-xs mt-1 truncate overflow-hidden w-full text-center"
         :html="title" />
     </RouterLink>
   </Tooltip>
 </template>
 <script setup lang="ts">
+import { computed } from "vue";
 import { getTinyURL } from "@/helpers/displayUtils";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
@@ -39,5 +43,10 @@ defineProps<{
 }>();
 
 const instanceStore = useInstanceStore();
+
+// with the title hidden, the text serves as alt text only
+const isTitleVisible = computed(
+  () => instanceStore.instance.showThumbnailDescription
+);
 </script>
 <style scoped></style>
