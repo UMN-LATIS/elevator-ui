@@ -5,7 +5,7 @@
         <img
           v-if="item.fileId && previewImageUrl"
           :src="previewImageUrl"
-          :alt="`thumbnail for item: ${item.fileDescription}`"
+          :alt="`thumbnail for item: ${item.fileDescription ?? ''}`"
           class="w-full h-full app-object-fit" />
         <div
           v-else
@@ -21,7 +21,7 @@
         <TextAreaGroup
           :label="isDescriptionVisible ? 'Description / Alt Text' : 'Alt Text'"
           :helpText="descriptionFieldHelp"
-          :modelValue="item.fileDescription"
+          :modelValue="item.fileDescription ?? ''"
           @update:modelValue="handleDescriptionUpdate" />
       </div>
       <div class="col-span-3">
