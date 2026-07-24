@@ -13,6 +13,10 @@
     @close="isFileInfoOpen = false">
     <Transition name="fade">
       <div v-if="isFileMetaDataReady">
+        <Tuple v-if="fileDescription" label="Description" class="mb-6">
+          <SanitizedHTML :html="fileDescription" />
+        </Tuple>
+
         <span v-if="!fileMetaData">No meta data found.</span>
 
         <section v-if="fileMetaData?.exif" class="flex flex-col gap-6">
@@ -67,12 +71,14 @@ import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import api from "@/api";
 import Tuple from "../Tuple/Tuple.vue";
+import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import config from "@/config";
 import InfoIcon from "@/icons/InfoIcon.vue";
 import {
   shouldExtractLocation,
   filterGpsFromExif,
 } from "@/helpers/templateHelpers";
+import { getFileDescription } from "@/helpers/displayUtils";
 
 const props = defineProps<{
   fileObjectId: string;
@@ -86,6 +92,7 @@ const MapMarker = defineAsyncComponent(
 
 const isFileInfoOpen = ref(false);
 const fileMetaData = ref<FileMetaData | null | undefined>(undefined);
+const fileDescription = ref("");
 const shouldShowLocation = ref(true);
 const isFileMetaDataReady = computed(() => fileMetaData.value !== undefined);
 
@@ -96,7 +103,8 @@ const displayExif = computed(() => {
 });
 
 const displayFileMetaData = computed(() => {
-  if (!fileMetaData.value || shouldShowLocation.value) return fileMetaData.value;
+  if (!fileMetaData.value || shouldShowLocation.value)
+    return fileMetaData.value;
   const { coordinates: _coordinates, exif, ...rest } = fileMetaData.value;
   return {
     ...rest,
@@ -110,11 +118,17 @@ async function handleInfoButtonClick() {
   if (!isFileInfoOpen.value) return;
 
   fileMetaData.value = undefined;
+  fileDescription.value = "";
   shouldShowLocation.value = true;
 
   if (props.assetId) {
-    const { template } = await api.getAssetWithTemplate(props.assetId);
+    const { asset, template } = await api.getAssetWithTemplate(props.assetId);
     shouldShowLocation.value = shouldExtractLocation(template);
+    fileDescription.value = getFileDescription(
+      asset,
+      template,
+      props.fileObjectId
+    );
   }
 
   fileMetaData.value = await api.getFileMetaData(props.fileObjectId);
