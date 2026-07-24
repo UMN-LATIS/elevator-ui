@@ -80,7 +80,7 @@ test.describe("EditUploadWidget", () => {
     // Now look for description field in edit mode - try different possible selectors
     const descriptionField = page
       .getByRole("textbox", {
-        name: "Description / Alt Text ?",
+        name: "Description / Alt Text",
       })
       .first();
     await expect(descriptionField).toBeVisible({ timeout: 5000 });
@@ -105,7 +105,7 @@ test.describe("EditUploadWidget", () => {
     // After refresh, verify the file and description are still there
     const description = page
       .getByRole("textbox", {
-        name: "Description / Alt Text ?",
+        name: "Description / Alt Text",
       })
       .first();
     await description.scrollIntoViewIfNeeded();

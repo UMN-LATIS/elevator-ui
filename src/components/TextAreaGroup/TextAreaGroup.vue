@@ -2,16 +2,26 @@
   <div class="text-area">
     <div class="flex justify-between items-baseline">
       <slot :id="`textarea-${id}`" name="label">
-        <label
-          :for="`textarea-${id}`"
-          :class="
-            cn(
-              'block text-xs font-medium text-on-surface uppercase mb-1',
-              labelClass
-            )
-          ">
-          {{ label }}
-        </label>
+        <div>
+          <label
+            :for="`textarea-${id}`"
+            :class="
+              cn(
+                'text-xs font-medium text-on-surface uppercase cursor-pointer',
+                labelClass
+              )
+            ">
+            {{ label }}
+          </label>
+          <Tooltip v-if="helpText" :tip="helpText" class="max-w-xs">
+            <button
+              type="button"
+              :aria-label="`More information about ${label}`"
+              class="inline-flex items-center ml-1 rounded-full text-on-surface-variant hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
+              <HelpCircleIcon class="size-4" />
+            </button>
+          </Tooltip>
+        </div>
       </slot>
       <div>
         <slot name="corner" />
@@ -41,6 +51,8 @@
 import { useId } from "vue";
 import { cn } from "@/lib/utils";
 import { CSSClass } from "@/types";
+import Tooltip from "../Tooltip/Tooltip.vue";
+import { HelpCircleIcon } from "lucide-vue-next";
 
 withDefaults(
   defineProps<{
@@ -50,12 +62,14 @@ withDefaults(
     inputClass?: CSSClass;
     labelClass?: CSSClass;
     readonly?: boolean;
+    helpText?: string;
   }>(),
   {
     placeholder: "",
     inputClass: "",
     labelClass: "",
     readonly: false,
+    helpText: "",
   }
 );
 

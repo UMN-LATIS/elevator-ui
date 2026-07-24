@@ -5,6 +5,9 @@ import {
   WidgetContent,
   Template,
   UnsavedAsset,
+  UploadWidgetDef,
+  UploadWidgetContent,
+  WIDGET_TYPES,
 } from "@/types";
 import config from "@/config";
 
@@ -127,6 +130,33 @@ export function getWidgetsForDisplay({
 export function getAssetTitle(asset: Asset): string {
   const title = asset?.title?.[0] ?? "(No Title)";
   return convertHtmlToText(title);
+}
+
+/**
+ * Finds a file's description within an asset's upload widget contents.
+ *
+ * @returns the description, or "" when the file has none or is not found
+ */
+export function getFileDescription(
+  asset: Asset | null,
+  template: Template | null,
+  fileId: string | null
+): string {
+  if (!asset || !template || !fileId) return "";
+
+  const uploadWidgetDefs = template.widgetArray.filter(
+    (widget): widget is UploadWidgetDef => widget.type === WIDGET_TYPES.UPLOAD
+  );
+
+  for (const widgetDef of uploadWidgetDefs) {
+    const contents = asset[widgetDef.fieldTitle] as
+      | UploadWidgetContent[]
+      | undefined;
+    const match = contents?.find((content) => content.fileId === fileId);
+    if (match?.fileDescription) return match.fileDescription;
+  }
+
+  return "";
 }
 
 export function convertHtmlToText(html: string): string {

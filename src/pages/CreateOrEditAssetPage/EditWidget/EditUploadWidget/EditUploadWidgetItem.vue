@@ -18,23 +18,11 @@
       </div>
 
       <div class="col-span-2 flex flex-col gap-1">
-        <label
-          :for="`${item.id}-description`"
-          class="block text-xs font-medium uppercase">
-          Description / Alt Text
-          <Tooltip
-            tip="Used by screen readers to describe the content of the file.">
-            <div
-              class="inline-flex size-4 items-center justify-center bg-surface-container-lowest text-on-surface rounded-full text-xs">
-              ?
-            </div>
-          </Tooltip>
-        </label>
-        <textarea
-          :id="`${item.id}-description`"
-          :value="item.fileDescription"
-          class="bg-surface-container focus:bg-surface-bright border-outline-variant rounded-md w-full text-sm font-mono flex-1 placeholder:text-on-surface-variant"
-          @input="handleDescriptionUpdate" />
+        <TextAreaGroup
+          :label="isDescriptionVisible ? 'Description / Alt Text' : 'Alt Text'"
+          :helpText="descriptionFieldHelp"
+          :modelValue="item.fileDescription"
+          @update:modelValue="handleDescriptionUpdate" />
       </div>
       <div class="col-span-3">
         <Tuple
@@ -112,7 +100,6 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import config from "@/config";
-import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import {
   ChevronDownIcon,
   FileCogIcon,
@@ -124,12 +111,29 @@ import Button from "@/components/Button/Button.vue";
 import EditUploadWidgetItemSidecars from "./EditUploadWidgetItemSidecars.vue";
 import { usePreviewImage } from "@/helpers/usePreviewImage";
 import { useFileMetadataQuery } from "@/queries/useFileMetadataQuery";
+import { useInstanceStore } from "@/stores/instanceStore";
+import { computed } from "vue";
+import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 
 const props = defineProps<{
   item: Type.WithId<Type.UploadWidgetContent>;
   widgetDef: Type.UploadWidgetDef;
   isShowingDetails: boolean;
 }>();
+
+const instanceStore = useInstanceStore();
+
+// the instance setting decides whether this text is shown on the asset
+// page or serves as alt text only, so the field label matches
+const isDescriptionVisible = computed(
+  () => instanceStore.instance.showThumbnailDescription
+);
+
+const descriptionFieldHelp = computed(() =>
+  isDescriptionVisible.value
+    ? "Shown below the file's thumbnail and used by screen readers to describe the content of the file."
+    : "Used by screen readers to describe the content of the file. Not displayed on the page."
+);
 
 const emit = defineEmits<{
   (e: "update:item", item: Type.WithId<Type.UploadWidgetContent>): void;
@@ -141,11 +145,10 @@ const { previewImageUrl } = usePreviewImage(() => props.item.fileId);
 
 const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId);
 
-function handleDescriptionUpdate(event: Event) {
-  const target = event.target as HTMLTextAreaElement;
+function handleDescriptionUpdate(value: string) {
   emit("update:item", {
     ...props.item,
-    fileDescription: target.value,
+    fileDescription: value,
   });
 }
 

@@ -1,13 +1,7 @@
-import {
-  Asset,
-  Template,
-  WIDGET_TYPES,
-  type UploadWidgetDef,
-  type UploadWidgetContent,
-} from "@/types";
+import { Asset, Template } from "@/types";
 import { defineStore } from "pinia";
 import api from "@/api";
-import { getAssetTitle } from "@/helpers/displayUtils";
+import { getAssetTitle, getFileDescription } from "@/helpers/displayUtils";
 import { useAnalytics } from "@/helpers/useAnalytics";
 
 export interface AssetStoreState {
@@ -28,23 +22,11 @@ export const useAssetStore = defineStore("asset2", {
   }),
   getters: {
     activeFileDescription(): string {
-      if (!this.activeAsset || !this.activeTemplate) return "";
-
-      const uploadWidgetDefs = this.activeTemplate.widgetArray.filter(
-        (w): w is UploadWidgetDef => w.type === WIDGET_TYPES.UPLOAD
+      return getFileDescription(
+        this.activeAsset,
+        this.activeTemplate,
+        this.activeFileObjectId
       );
-
-      for (const widgetDef of uploadWidgetDefs) {
-        const contents = this.activeAsset[widgetDef.fieldTitle] as
-          | UploadWidgetContent[]
-          | undefined;
-        const match = contents?.find(
-          (c) => c.fileId === this.activeFileObjectId
-        );
-        if (match?.fileDescription) return match.fileDescription;
-      }
-
-      return "";
     },
     activeTitle(): string {
       if (!this.activeAsset) return "";

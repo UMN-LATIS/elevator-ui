@@ -25,6 +25,7 @@ export const makeInstance = (
     allowIndexing: true,
     useVoyagerViewer: true,
     automaticAltText: true,
+    showThumbnailDescription: true,
     ...instanceOverrides,
     instanceId,
   };

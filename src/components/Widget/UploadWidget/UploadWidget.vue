@@ -47,7 +47,7 @@
         v-for="(content, key) in contents"
         :key="key"
         class="max-w-sm"
-        :tip="content.fileDescription">
+        :tip="isDescriptionVisible ? content.fileDescription : ''">
         <button
           class="thumbnail-related-asset-widget flex flex-col rounded-md border border-transparent p-1 no-underline hover:no-underline w-24"
           :class="{
@@ -56,16 +56,16 @@
               isFileActive(content.fileId),
           }"
           @click="assetStore.activeFileObjectId = content.fileId">
+          <!-- When the description text renders below, it is the button's
+            accessible name, so alt is empty to avoid a double announcement.
+            See https://www.w3.org/WAI/tutorials/images/functional/ example 2 -->
           <ThumbnailImage
             :src="`${config.instance.base.url}/fileManager/tinyImageByFileId/${content.fileId}/true`"
-            :alt="content.fileDescription"
+            :alt="isDescriptionVisible ? '' : content.fileDescription"
             :fileType="content.fileType"
             class="thumbnail-related-asset-widget__image max-w-full" />
           <SanitizedHTML
-            v-if="
-              instanceStore.instance.showThumbnailDescription &&
-              content.fileDescription
-            "
+            v-if="isDescriptionVisible && content.fileDescription"
             class="whitespace-nowrap text-xs mt-1 truncate overflow-hidden w-full text-center"
             :html="content.fileDescription" />
         </button>
@@ -106,6 +106,11 @@ const toastStore = useToastStore();
 const isFileActive = (fileId: string) =>
   assetStore.activeFileObjectId === fileId;
 const isDownloadingAll = ref(false);
+
+// with descriptions hidden, the text serves as alt text only
+const isDescriptionVisible = computed(
+  () => instanceStore.instance.showThumbnailDescription
+);
 
 const activeIndex = computed(() =>
   props.contents.findIndex((content) => isFileActive(content.fileId))

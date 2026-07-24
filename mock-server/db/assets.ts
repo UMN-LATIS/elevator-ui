@@ -463,6 +463,122 @@ const assetSeeds: WithMeta<Asset>[] = [
     },
     _meta: { visibility: "public" },
   },
+  // Child with a deliberately long title to exercise thumbnail truncation
+  {
+    ...baseAsset,
+    title_1: [
+      {
+        isPrimary: true,
+        fieldContents:
+          "View of the Mississippi River gorge from the Washington Avenue Bridge at sunrise, with fog rising off the water",
+      },
+    ],
+    assetId: "thumbnail_child_long_title_001",
+    firstFileHandlerId: "handler_thumb_child_long_001",
+    title: [
+      "View of the Mississippi River gorge from the Washington Avenue Bridge at sunrise, with fog rising off the water",
+    ],
+    templateId: 1,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2026-04-01 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
+  // Parent with thumbnailView related assets and sentence-length upload
+  // descriptions — the UX case for the description-as-alt-text mode switch.
+  // One cached child uses a real thumbnail (goldy-face_001), the rest fall
+  // back to the mock's generated SVG placeholders.
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: true, fieldContents: "Thumbnail Related Parent" }],
+    upload_1: [
+      {
+        loc: null,
+        fileId: "goldy-face_001",
+        fileType: "png",
+        sidecars: [],
+        isPrimary: true,
+        searchData: null,
+        fileDescription:
+          "Goldy Gopher smiling in close-up against a maroon background, wearing a maroon-and-gold striped sweater",
+      },
+      {
+        loc: null,
+        fileId: "thumb_parent_file_002",
+        fileType: "jpg",
+        sidecars: [],
+        isPrimary: false,
+        searchData: null,
+        fileDescription:
+          "Students crossing the Washington Avenue Bridge between the East and West Bank campuses on a snowy winter morning",
+      },
+    ],
+    thumbnailchildren_1: [
+      {
+        isPrimary: false,
+        targetAssetId: "location_asset_minneapolis",
+      },
+      {
+        isPrimary: false,
+        targetAssetId: "location_asset_chicago",
+      },
+      {
+        isPrimary: false,
+        targetAssetId: "location_asset_sf",
+      },
+      {
+        isPrimary: false,
+        targetAssetId: "glacier_asset_001",
+      },
+      {
+        isPrimary: false,
+        targetAssetId: "thumbnail_child_long_title_001",
+      },
+    ],
+    relatedAssetCache: {
+      location_asset_minneapolis: {
+        primaryHandler: "handler_location_mpls",
+        readyForDisplay: true,
+        relatedAssetTitle: ["Minneapolis Institute of Arts"],
+      },
+      location_asset_chicago: {
+        primaryHandler: "handler_location_chi",
+        readyForDisplay: true,
+        relatedAssetTitle: ["Art Institute of Chicago"],
+      },
+      location_asset_sf: {
+        primaryHandler: "handler_location_sf",
+        readyForDisplay: true,
+        relatedAssetTitle: ["SFMOMA"],
+      },
+      glacier_asset_001: {
+        primaryHandler: "goldy-face_001",
+        readyForDisplay: true,
+        relatedAssetTitle: ["Glacier Asset"],
+      },
+      thumbnail_child_long_title_001: {
+        primaryHandler: "handler_thumb_child_long_001",
+        readyForDisplay: true,
+        relatedAssetTitle: [
+          "View of the Mississippi River gorge from the Washington Avenue Bridge at sunrise, with fog rising off the water",
+        ],
+      },
+    },
+    assetId: "thumbnail_related_parent_001",
+    firstFileHandlerId: "goldy-face_001",
+    title: ["Thumbnail Related Parent"],
+    templateId: 104,
+    collectionId: 1,
+    modifiedBy: 1,
+    modified: {
+      date: "2026-04-01 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  },
   // Asset whose original file is archived in glacier (see db/files.ts
   // glacier_file_001) — drives the restore-from-archive download tests
   {
