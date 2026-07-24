@@ -19,7 +19,6 @@
 
       <div class="col-span-2 flex flex-col gap-1">
         <TextAreaGroup
-          :id="`${item.id}-description`"
           :label="isDescriptionVisible ? 'Description / Alt Text' : 'Alt Text'"
           :helpText="descriptionFieldHelp"
           :modelValue="item.fileDescription"
@@ -101,13 +100,11 @@
 <script setup lang="ts">
 import * as Type from "@/types";
 import config from "@/config";
-import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import {
   ChevronDownIcon,
   FileCogIcon,
   FileIcon,
   DownloadIcon,
-  HelpCircleIcon,
 } from "lucide-vue-next";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Button from "@/components/Button/Button.vue";

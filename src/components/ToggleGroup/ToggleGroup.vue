@@ -8,7 +8,12 @@
         {{ label }}
       </label>
       <Tooltip v-if="helpText" :tip="helpText" class="max-w-xs">
-        <HelpCircleIcon class="size-4 text-on-surface-variant inline" />
+        <button
+          type="button"
+          :aria-label="`More information about ${label}`"
+          class="inline-flex items-center rounded-full text-on-surface-variant hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
+          <HelpCircleIcon class="size-4" />
+        </button>
       </Tooltip>
     </div>
     <Toggle
