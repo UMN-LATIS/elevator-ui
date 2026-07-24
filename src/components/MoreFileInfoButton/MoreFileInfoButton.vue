@@ -13,8 +13,9 @@
     @close="isFileInfoOpen = false">
     <Transition name="fade">
       <div v-if="isFileMetaDataReady">
-        <Tuple v-if="fileDescription" label="Description" class="mb-6">
-          <SanitizedHTML :html="fileDescription" />
+        <Tuple label="Description" class="mb-6">
+          <SanitizedHTML v-if="fileDescription" :html="fileDescription" />
+          <template v-else>-</template>
         </Tuple>
 
         <span v-if="!fileMetaData">No meta data found.</span>
