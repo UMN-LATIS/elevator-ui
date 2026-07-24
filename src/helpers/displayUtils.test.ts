@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { getWidgetContents } from "./displayUtils";
-import type { Asset, UploadWidgetDef, UploadWidgetContent } from "@/types";
+import { getWidgetContents, getFileDescription } from "./displayUtils";
+import type {
+  Asset,
+  Template,
+  UploadWidgetDef,
+  UploadWidgetContent,
+} from "@/types";
 
 // Minimal asset/widget shape for testing getWidgetContents
 function makeAsset(uploadEntries: unknown[]): Partial<Asset> {
@@ -87,5 +92,54 @@ describe("getWidgetContents", () => {
     const result = getWidgetContents({ asset, widget: uploadWidget });
     expect(result).toHaveLength(1);
     expect(result?.[0]).toMatchObject({ fileId: "abc123" });
+  });
+});
+
+describe("getFileDescription", () => {
+  const template = { widgetArray: [uploadWidget] } as Template;
+
+  it("returns the description of the matching file", () => {
+    const asset = makeAsset([
+      { ...realEntry, fileId: "other", fileDescription: "other file" },
+      { ...realEntry, fileId: "abc123", fileDescription: "a goldy photo" },
+    ]) as Asset;
+    expect(getFileDescription(asset, template, "abc123")).toBe("a goldy photo");
+  });
+
+  it("returns '' when the file is not in any upload widget", () => {
+    const asset = makeAsset([realEntry]) as Asset;
+    expect(getFileDescription(asset, template, "missing")).toBe("");
+  });
+
+  it("returns '' when the matching file has an empty description", () => {
+    const asset = makeAsset([{ ...realEntry, fileDescription: "" }]) as Asset;
+    expect(getFileDescription(asset, template, "abc123")).toBe("");
+  });
+
+  it("returns '' when asset, template, or fileId is null", () => {
+    const asset = makeAsset([realEntry]) as Asset;
+    expect(getFileDescription(null, template, "abc123")).toBe("");
+    expect(getFileDescription(asset, null, "abc123")).toBe("");
+    expect(getFileDescription(asset, template, null)).toBe("");
+  });
+
+  it("searches across multiple upload widgets", () => {
+    const secondUploadWidget: UploadWidgetDef = {
+      ...uploadWidget,
+      widgetId: 2,
+      fieldTitle: "upload_2",
+    };
+    const multiWidgetTemplate = {
+      widgetArray: [uploadWidget, secondUploadWidget],
+    } as Template;
+    const asset = {
+      upload_1: [realEntry],
+      upload_2: [
+        { ...realEntry, fileId: "def456", fileDescription: "second widget" },
+      ],
+    } as Partial<Asset> as Asset;
+    expect(getFileDescription(asset, multiWidgetTemplate, "def456")).toBe(
+      "second widget"
+    );
   });
 });
