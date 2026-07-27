@@ -8,7 +8,7 @@ export function useFileMetadataQuery(
   { enabled }: { enabled: MaybeRefOrGetter<boolean> }
 ) {
   return useQuery({
-    queryKey: [FILE_METADATA_QUERY_KEY, toValue(fileId)],
+    queryKey: [FILE_METADATA_QUERY_KEY, fileId],
     queryFn: () => fetchers.fetchFileMetaData(toValue(fileId)),
     enabled: () => !!toValue(fileId) && toValue(enabled),
   });
