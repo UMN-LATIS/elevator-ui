@@ -435,17 +435,45 @@ test.describe("Instance Settings Page", () => {
       await loginUser({ request, page, workerId, username: "user" });
     });
 
-    test("shows an error state when a non-admin accesses the page", async ({
+    test("shows the forbidden page when a non-admin accesses the page", async ({
       page,
     }) => {
       await page.goto("/instances/edit/1");
 
-      // The API returns 403, so the page should show its error state
+      await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
       await expect(
-        page.getByText("Failed to load instance settings")
+        page.getByRole("heading", { name: "Forbidden" })
       ).toBeVisible();
 
-      // The form should not be rendered
+      // one treatment, not the page's own load failure on top of it
+      await expect(
+        page.getByText("Failed to load instance settings")
+      ).not.toBeVisible();
+      await expect(page.getByLabel("Instance Name")).not.toBeVisible();
+    });
+  });
+
+  test.describe("Without Authentication", () => {
+    test.beforeEach(async ({ page, request }) => {
+      const workerId = test.info().workerIndex.toString();
+      await setupWorkerHTTPHeader({ page, workerId });
+      await refreshDatabase({ request, workerId });
+
+      // Deliberately NOT logging in — user is unauthenticated
+    });
+
+    test("prompts for sign in instead of reporting a load failure", async ({
+      page,
+    }) => {
+      await page.goto("/instances/edit/1");
+
+      await expect(
+        page.locator("#main").getByRole("heading", { name: "Sign In Required" })
+      ).toBeVisible();
+
+      await expect(
+        page.getByText("Failed to load instance settings")
+      ).not.toBeVisible();
       await expect(page.getByLabel("Instance Name")).not.toBeVisible();
     });
   });
