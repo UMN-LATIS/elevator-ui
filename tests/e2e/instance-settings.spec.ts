@@ -440,14 +440,17 @@ test.describe("Instance Settings Page", () => {
     }) => {
       await page.goto("/instances/edit/1");
 
-      await expect(page.getByRole("heading", { name: "403" })).toBeVisible();
+      const main = page.locator("#main");
       await expect(
-        page.getByRole("heading", { name: "Forbidden" })
+        main.getByRole("heading", { name: "403", exact: true })
+      ).toBeVisible();
+      await expect(
+        main.getByRole("heading", { name: "Forbidden" })
       ).toBeVisible();
 
-      // one treatment, not the page's own load failure on top of it
+      // route meta owns this now, so the page never reports its own failure
       await expect(
-        page.getByText("Failed to load instance settings")
+        main.getByText("Failed to load instance settings")
       ).not.toBeVisible();
       await expect(page.getByLabel("Instance Name")).not.toBeVisible();
     });
