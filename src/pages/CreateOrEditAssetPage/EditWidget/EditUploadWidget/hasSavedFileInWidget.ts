@@ -1,11 +1,11 @@
-import type { Asset, UploadWidgetContent } from "@/types";
+import type { Asset } from "@/types";
+import { isUploadWidgetContent } from "@/types/guards";
 
 /**
- * Whether a saved asset already holds this file in the given upload widget.
+ * Whether the server has linked this file to the asset under the given widget.
  *
- * @param savedAsset - The asset as last returned by the server, or null before
- * the first save.
- * @param fieldTitle - The upload widget's field on the asset.
+ * @param savedAsset - As last returned by the server, null before first save.
+ * @param fieldTitle - The widget's field name on the asset.
  */
 export function hasSavedFileInWidget(
   savedAsset: Asset | null,
@@ -22,6 +22,6 @@ export function hasSavedFileInWidget(
   }
 
   return widgetContents.some(
-    (content) => (content as UploadWidgetContent)?.fileId === fileId
+    (content) => isUploadWidgetContent(content) && content.fileId === fileId
   );
 }

@@ -147,10 +147,7 @@ const { previewImageUrl } = usePreviewImage(() => props.item.fileId);
 
 const assetEditor = useAssetEditor();
 
-// The API can only answer for a file once a save has linked it to its asset.
-// A file appears in savedAsset exactly when that link exists, so wait for it
-// rather than asking a question the server will reject.
-const isFileSaved = computed(() =>
+const isFileSavedInWidget = computed(() =>
   hasSavedFileInWidget(
     assetEditor.savedAsset,
     props.widgetDef.fieldTitle,
@@ -159,11 +156,9 @@ const isFileSaved = computed(() =>
 );
 
 const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId, {
-  // don't query for file metadata until
-  // the asset has been saved and the file is
-  // is linked. Otherwise, the API will
-  // reject the request with a 404.
-  enabled: isFileSaved,
+  // getMetadataForObject 404s until a save links the file to its asset, and
+  // savedAsset is where that link shows up.
+  enabled: isFileSavedInWidget,
 });
 
 function handleDescriptionUpdate(value: string) {

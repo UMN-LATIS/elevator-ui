@@ -7,6 +7,7 @@ const testDir = path.dirname(fileURLToPath(import.meta.url));
 
 const SUBMISSION_URL_PART = "/assetManager/submission/";
 const FILE_METADATA_URL_PART = "/fileManager/getMetadataForObject/";
+const COMPLETE_SOURCE_FILE_URL_PART = "/assetManager/completeSourceFile/";
 
 test.describe("Upload widget file metadata", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -20,32 +21,33 @@ test.describe("Upload widget file metadata", () => {
     await page.goto("/assetManager/addAsset");
   });
 
-  test("does not request file metadata before the asset is saved", async ({
+  test("requests file metadata only after the save that makes it answerable", async ({
     page,
   }) => {
     const metadataRequests = watchMetadataRequestsAroundSave(page);
+    const submission = page.waitForResponse((response) =>
+      response.url().includes(SUBMISSION_URL_PART)
+    );
 
-    await uploadOneFileToNewAsset(page);
+    const uploadedFileId = await uploadOneFileToNewAsset(page);
+    await submission;
 
-    expect(metadataRequests.beforeSave).toEqual([]);
-  });
+    expect(
+      metadataRequests.beforeSave,
+      "no metadata request goes out ahead of the save"
+    ).toEqual([]);
 
-  test("requests file metadata once the asset is saved", async ({ page }) => {
-    const metadataRequests = watchMetadataRequestsAroundSave(page);
-
-    await uploadOneFileToNewAsset(page);
-
-    expect(metadataRequests.afterSave.length).toBeGreaterThan(0);
+    await expect
+      .poll(() => metadataRequests.afterSave, {
+        message: "the gate opens once the save lands",
+      })
+      .toContain(uploadedFileId);
   });
 });
 
 /**
- * Splits file metadata requests by whether the save that authorizes them had
- * already landed.
- *
- * The API can only answer for a file once a save has linked it to its parent
- * asset, so a request in `beforeSave` is one the server was always going to
- * reject. An empty `afterSave` means the widget stopped asking altogether.
+ * Records the file ids asked about, split by whether the save that authorizes
+ * them had already landed.
  */
 function watchMetadataRequestsAroundSave(page: Page): {
   beforeSave: string[];
@@ -66,18 +68,20 @@ function watchMetadataRequestsAroundSave(page: Page): {
       return;
     }
 
+    const requestedFileId = fileIdFromUrl(request.url());
     if (hasSubmissionCompleted) {
-      afterSave.push(request.url());
+      afterSave.push(requestedFileId);
       return;
     }
 
-    beforeSave.push(request.url());
+    beforeSave.push(requestedFileId);
   });
 
   return { beforeSave, afterSave };
 }
 
-async function uploadOneFileToNewAsset(page: Page): Promise<void> {
+/** Returns the id of the file that was uploaded. */
+async function uploadOneFileToNewAsset(page: Page): Promise<string> {
   await page.getByLabel("Template").selectOption({ index: 1 });
   await page.getByLabel("Collection").selectOption({ index: 1 });
 
@@ -96,6 +100,10 @@ async function uploadOneFileToNewAsset(page: Page): Promise<void> {
     .first();
   await uploadWidget.scrollIntoViewIfNeeded();
 
+  const sourceFileCompletion = page.waitForRequest((request) =>
+    request.url().includes(COMPLETE_SOURCE_FILE_URL_PART)
+  );
+
   const fileChooserPromise = page.waitForEvent("filechooser");
   await uploadWidget.getByRole("button", { name: "browse files" }).click();
   const fileChooser = await fileChooserPromise;
@@ -105,8 +113,9 @@ async function uploadOneFileToNewAsset(page: Page): Promise<void> {
 
   await expect(uploadWidget.locator(".edit-upload-widget-item")).toHaveCount(1);
 
-  // the save queue holds a 2s cooldown between saves, so the submission this
-  // upload triggers has not necessarily gone out yet
-  await new Promise((resolve) => setTimeout(resolve, 4000));
-  await page.waitForLoadState("networkidle");
+  return fileIdFromUrl((await sourceFileCompletion).url());
+}
+
+function fileIdFromUrl(url: string): string {
+  return new URL(url).pathname.split("/").filter(Boolean).pop() ?? "";
 }
