@@ -111,6 +111,8 @@ import Button from "@/components/Button/Button.vue";
 import EditUploadWidgetItemSidecars from "./EditUploadWidgetItemSidecars.vue";
 import { usePreviewImage } from "@/helpers/usePreviewImage";
 import { useFileMetadataQuery } from "@/queries/useFileMetadataQuery";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
+import { hasSavedFileInWidget } from "./hasSavedFileInWidget";
 import { useInstanceStore } from "@/stores/instanceStore";
 import { computed } from "vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
@@ -143,7 +145,21 @@ const emit = defineEmits<{
 // Use the new preview image composable
 const { previewImageUrl } = usePreviewImage(() => props.item.fileId);
 
-const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId);
+const assetEditor = useAssetEditor();
+
+const isFileSavedInWidget = computed(() =>
+  hasSavedFileInWidget(
+    assetEditor.savedAsset,
+    props.widgetDef.fieldTitle,
+    props.item.fileId
+  )
+);
+
+const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId, {
+  // getMetadataForObject 404s until a save links the file to its asset, and
+  // savedAsset is where that link shows up.
+  enabled: isFileSavedInWidget,
+});
 
 function handleDescriptionUpdate(value: string) {
   emit("update:item", {

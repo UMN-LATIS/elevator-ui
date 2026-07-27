@@ -3,9 +3,13 @@ import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import { FILE_METADATA_QUERY_KEY } from "./queryKeys";
 
-export function useFileMetadataQuery(fileId: MaybeRefOrGetter<string>) {
+export function useFileMetadataQuery(
+  fileId: MaybeRefOrGetter<string>,
+  { enabled }: { enabled: MaybeRefOrGetter<boolean> }
+) {
   return useQuery({
-    queryKey: [FILE_METADATA_QUERY_KEY, toValue(fileId)],
+    queryKey: [FILE_METADATA_QUERY_KEY, fileId],
     queryFn: () => fetchers.fetchFileMetaData(toValue(fileId)),
+    enabled: () => !!toValue(fileId) && toValue(enabled),
   });
 }
