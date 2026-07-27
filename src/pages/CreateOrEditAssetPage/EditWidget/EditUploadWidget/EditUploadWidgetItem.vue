@@ -159,6 +159,10 @@ const isFileSaved = computed(() =>
 );
 
 const { data: fileMetaData } = useFileMetadataQuery(() => props.item.fileId, {
+  // don't query for file metadata until
+  // the asset has been saved and the file is
+  // is linked. Otherwise, the API will
+  // reject the request with a 404.
   enabled: isFileSaved,
 });
 
