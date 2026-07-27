@@ -5,11 +5,11 @@ import { FILE_METADATA_QUERY_KEY } from "./queryKeys";
 
 export function useFileMetadataQuery(
   fileId: MaybeRefOrGetter<string>,
-  { enabled }: { enabled?: MaybeRefOrGetter<boolean> } = {}
+  { enabled }: { enabled: MaybeRefOrGetter<boolean> }
 ) {
   return useQuery({
     queryKey: [FILE_METADATA_QUERY_KEY, toValue(fileId)],
     queryFn: () => fetchers.fetchFileMetaData(toValue(fileId)),
-    enabled: () => toValue(enabled) ?? true,
+    enabled: () => !!toValue(fileId) && toValue(enabled),
   });
 }
