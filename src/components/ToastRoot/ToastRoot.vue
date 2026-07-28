@@ -1,5 +1,7 @@
 <template>
   <div
+    role="status"
+    aria-live="polite"
     class="toast-root fixed bottom-4 right-0 z-50 p-4 w-full max-w-sm pointer-events-none flex flex-col items-end gap-1">
     <button
       v-if="toastStore.toasts.length > 1"
