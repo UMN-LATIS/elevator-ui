@@ -1,7 +1,5 @@
 <template>
   <div
-    role="status"
-    aria-live="polite"
     class="toast-root fixed bottom-4 right-0 z-50 p-4 w-full max-w-sm pointer-events-none flex flex-col items-end gap-1">
     <button
       v-if="toastStore.toasts.length > 1"
@@ -9,7 +7,14 @@
       @click="toastStore.clearAll()">
       Clear All
     </button>
-    <TransitionGroup name="fade">
+    <!-- Clear All sits outside the live region: it appears and disappears
+         with the toast count, and each change would be announced. -->
+    <TransitionGroup
+      tag="div"
+      name="fade"
+      role="status"
+      aria-live="polite"
+      class="w-full flex flex-col gap-1">
       <Toast
         v-for="toast in toastStore.toasts"
         :key="toast.id"
