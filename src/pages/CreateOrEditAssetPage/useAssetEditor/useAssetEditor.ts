@@ -327,12 +327,15 @@ export const createAssetEditor = () => {
     state.localAsset = applyAssetEdit(state.localAsset, updatedAsset);
   }
 
-  function updateAssetField(
-    field: keyof T.UnsavedAsset,
-    value: T.UnsavedAsset[keyof T.UnsavedAsset]
+  function updateWidgetContents(
+    fieldTitle: T.WidgetDef["fieldTitle"],
+    contents: T.WidgetContent[]
   ): void {
-    invariant(state.localAsset, "Cannot update asset field: no local asset.");
-    state.localAsset[field] = value;
+    invariant(
+      state.localAsset,
+      "Cannot update widget contents: no local asset."
+    );
+    state.localAsset[fieldTitle] = contents;
   }
 
   // this is a hook to allow components to register a callback
@@ -393,7 +396,7 @@ export const createAssetEditor = () => {
     refreshAsset,
     updateLocalAsset,
     updateCollection,
-    updateAssetField,
+    updateWidgetContents,
     onBeforeSave,
     updateModifiedInlineRelatedAsset,
     getWidgetInstanceId,

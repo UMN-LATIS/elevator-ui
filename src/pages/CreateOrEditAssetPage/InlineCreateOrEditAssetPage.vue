@@ -68,7 +68,7 @@
             "
             @update:widgetContents="
               (updatedContents) =>
-                assetEditor.updateAssetField(
+                assetEditor.updateWidgetContents(
                   widgetDef.fieldTitle,
                   updatedContents
                 )
