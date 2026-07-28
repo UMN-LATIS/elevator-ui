@@ -54,7 +54,7 @@ const makeSavedAsset = (overrides: Partial<Asset> = {}): Asset => ({
 });
 
 describe("makeNewLocalAsset", () => {
-  it("returns null modified date for a new unsaved asset", () => {
+  it("builds a new asset with no modified date, since the server has never seen it", () => {
     const asset = makeNewLocalAsset({
       template: emptyTemplate,
       collectionId: 42,
@@ -121,7 +121,7 @@ describe("diffEditableFields", () => {
     expect(diffEditableFields({ draft: draft, savedAsset: savedAsset, template: template })).toEqual({});
   });
 
-  it("never reports identity fields, so a stale draft cannot clear the assetId", () => {
+  it("never reports assetId or modified, so a stale draft cannot clear them", () => {
     const savedAsset = makeSavedAsset({ assetId: "asset-123" });
     const staleDraft = { ...savedAsset, assetId: null, modified: null };
 
@@ -157,7 +157,7 @@ describe("editsWithFieldEdit", () => {
     expect(edits.title_1).toEqual([{ id: "a", fieldContents: "typed" }]);
   });
 
-  it("drops the field when it is set back to its saved value", () => {
+  it("drops the field when it is set back to its saved value, so an undone edit does not read as unsaved work", () => {
     const edited = editsWithFieldEdit({
       edits: {},
       savedAsset,

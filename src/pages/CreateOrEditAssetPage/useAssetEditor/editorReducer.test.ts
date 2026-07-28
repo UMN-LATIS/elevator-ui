@@ -116,6 +116,7 @@ describe("editorReducer", () => {
         collectionId: 42,
       });
 
+      // the bump lets in-flight results from the old session be dropped
       expect(next).toEqual({
         status: "loadingTemplate",
         generation: GENERATION + 1,
@@ -198,6 +199,8 @@ describe("editorReducer", () => {
     });
 
     it("keeps the newest template request rather than the first to resolve", () => {
+      // the user picked again before the first template arrived, so pick
+      // order must win, not network order
       const afterSecondRequest = editorReducer(loadingTemplate, {
         type: "newAssetRequested",
         collectionId: 42,
@@ -337,6 +340,8 @@ describe("editorReducer", () => {
 
       if (loaded.status !== "editingExistingAsset") throw new Error("expected saved");
       if (edited.status !== "editingExistingAsset") throw new Error("expected saved");
+      // an edit that reached the baseline would diff as already saved and
+      // silently never send
       expect(edited.savedAsset).toBe(loaded.savedAsset);
       expect(localAssetOf(edited).title_1).toEqual([
         { id: "a", fieldContents: "changed" },
@@ -345,7 +350,7 @@ describe("editorReducer", () => {
   });
 
   describe("editing", () => {
-    it("keeps an unsaved editor unsaved", () => {
+    it("keeps the assetId null while the user types, so the first save is still a create", () => {
       const next = editorReducer(editingNewAsset(), {
         type: "widgetContentsEdited",
         fieldTitle: "title_1",
@@ -358,7 +363,7 @@ describe("editorReducer", () => {
       expect(next.localAsset.modified).toBeNull();
     });
 
-    it("records a widget edit without touching the saved identity", () => {
+    it("records a widget edit without touching the saved assetId", () => {
       const next = editorReducer(editingExistingAsset(), {
         type: "widgetContentsEdited",
         fieldTitle: "title_1",
@@ -370,8 +375,8 @@ describe("editorReducer", () => {
       expect(localAssetOf(next).title_1).toEqual([
         { fieldContents: "new title" },
       ]);
-      // identity lives on the baseline, so no edit can reach it and turn the
-      // next save into a create
+      // the assetId lives on the baseline, so no edit can reach it and
+      // turn the next save into a create
       expect(localAssetOf(next).assetId).toBe("asset-123");
       expect(next.edits.assetId).toBeUndefined();
       expect(next.edits.modified).toBeUndefined();
@@ -442,7 +447,8 @@ describe("editorReducer", () => {
       // scaffolding does not read as an edit
       expect(next.savedAsset.assetId).toBe("fresh-from-server");
       expect(next.savedAsset.modified).toEqual(savedDate);
-      // the edit made during the save is still pending
+      // typing during the save stays pending rather than being reverted by
+      // the response
       expect(next.edits.title_1).toEqual([
         { fieldContents: "typed during the save" },
       ]);
