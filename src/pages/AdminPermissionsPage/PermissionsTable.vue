@@ -89,7 +89,9 @@
         </TableHeader>
         <TableBody>
           <template v-if="isLoading">
-            <TableRow>
+            <TableRow
+              v-for="row in SKELETON_ROW_COUNT"
+              :key="`skeleton-${row}`">
               <TableCell v-for="(_, index) in permissionColumns" :key="index">
                 <Skeleton height="1rem" width="70%" />
               </TableCell>
@@ -149,6 +151,7 @@
             </TableRow>
           </template>
           <template v-else>
+            <!-- query subscribers refetch on mount, so none belong here -->
             <TableRow>
               <TableCell
                 :colspan="permissionColumns.length"
@@ -159,11 +162,11 @@
           </template>
 
           <!--
-            AddPermissionRow subscribes to the same six queries the
-            branches key on, and mounting a subscriber to a query with no
-            data refetches it. Keeping it outside the branches means no
-            predicate here can trigger that, whatever the predicate says.
-            AddRowButton fetches nothing, so gating it is safe.
+            AddPermissionRow subscribes to the same queries the branches
+            key on, and mounting a subscriber to a query with no data
+            refetches it. Keeping AddPermissionRow outside the branches
+            means no predicate here can trigger that, whatever the
+            predicate says.
           -->
           <AddPermissionRow
             v-model:open="isAddingPermission"
@@ -171,6 +174,7 @@
             :prefillCollectionId="collectionFilterId"
             :colspan="permissionColumns.length"
             @created="revealSavedPermission" />
+          <!-- AddRowButton fetches nothing, so gating it is safe -->
           <AddRowButton
             v-if="isSuccess && !isAddingPermission"
             :colspan="permissionColumns.length"
@@ -342,7 +346,7 @@ const isLoading = computed(() =>
 // `success` is the only status that guarantees data, so the rows branch
 // asks for it positively. Every other state, including an offline pause
 // that leaves isLoading and isError both false, falls through to the
-// error branch, which subscribes to nothing and cannot restart the loop.
+// error branch.
 const isSuccess = computed(() =>
   tableQueries.every((query) => query.isSuccess.value)
 );
