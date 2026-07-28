@@ -6,6 +6,7 @@ import {
   applySaveResult,
   hasAssetChanged as hasAssetChangedPure,
   makeLocalAsset,
+  migrateAssetToTemplate,
 } from "./utils";
 import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
@@ -307,18 +308,7 @@ export const createAssetEditor = () => {
       return;
     }
 
-    // if we have a local asset,  migrate it
-    const defaultAsset = makeLocalAsset({
-      template: newTemplate,
-      collectionId: state.localAsset.collectionId,
-      savedAsset: null,
-    });
-
-    state.localAsset = {
-      ...defaultAsset,
-      ...state.localAsset,
-      templateId: newTemplate.templateId, // Ensure the templateId is updated
-    };
+    state.localAsset = migrateAssetToTemplate(state.localAsset, newTemplate);
 
     // component should handle the saving
   }

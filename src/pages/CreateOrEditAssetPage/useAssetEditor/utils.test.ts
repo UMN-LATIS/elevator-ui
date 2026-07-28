@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { applyAssetEdit, applySaveResult, makeLocalAsset } from "./utils";
+import {
+  applyAssetEdit,
+  applySaveResult,
+  makeLocalAsset,
+  migrateAssetToTemplate,
+} from "./utils";
 import type { Asset, PHPDateTime, Template, UnsavedAsset } from "@/types";
 
 const emptyTemplate = {
@@ -114,6 +119,27 @@ describe("applyAssetEdit", () => {
     const merged = applyAssetEdit(makeUnsavedAsset(), makeUnsavedAsset());
 
     expect(merged.assetId).toBeNull();
+  });
+});
+
+describe("migrateAssetToTemplate", () => {
+  it("keeps the asset's fields and takes the new template's id", () => {
+    const newTemplate = {
+      templateId: 2,
+      widgetArray: [],
+    } as unknown as Template;
+    const asset = makeSavedAsset({
+      templateId: 1,
+      title_1: [{ fieldContents: "survives the migration" }],
+    });
+
+    const migrated = migrateAssetToTemplate(asset, newTemplate);
+
+    expect(migrated.templateId).toBe(2);
+    expect(migrated.assetId).toBe("asset-123");
+    expect(migrated.title_1).toEqual([
+      { fieldContents: "survives the migration" },
+    ]);
   });
 });
 
