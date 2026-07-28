@@ -220,11 +220,10 @@ export function applyAssetEdit(
   currentAsset: Asset | UnsavedAsset,
   edit: Asset | UnsavedAsset
 ): Asset | UnsavedAsset {
-  // the incoming id is good, or we never had one to lose
-  // ("" counts as no id, matching what the server does with an empty objectId)
-  if (edit.assetId || !currentAsset.assetId) {
-    return edit;
-  }
+  // "" counts as no id in both guards, matching the server's read of an
+  // empty objectId. Copies keep the caller's payload separate from state.
+  if (edit.assetId) return { ...edit };
+  if (!currentAsset.assetId) return { ...edit };
 
   // restore the identity fields together so the result is a coherent Asset
   return {
