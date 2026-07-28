@@ -1,6 +1,8 @@
 import * as T from "@/types";
 import {
-  applySaveResult,
+  clearUploadRegenerationFlags,
+  diffEditableFields,
+  editsWithFieldEdit,
   makeLocalAssetFromSaved,
   makeNewLocalAsset,
   migrateAssetToTemplate,
@@ -15,50 +17,88 @@ import {
  * current one.
  */
 export type EditorModel =
-  | { status: "uninitialized"; generation: number }
+  | { status: "idle"; generation: number }
+  | { status: "loadFailed"; generation: number; error: Error }
   | { status: "loadingTemplate"; generation: number; collectionId: number }
   | {
-      status: "editingNew";
+      status: "editingNewAsset";
       generation: number;
       localAsset: T.UnsavedAsset;
       template: T.Template;
     }
   | {
-      status: "editingSaved";
+      status: "editingExistingAsset";
       generation: number;
-      localAsset: T.Asset;
+      /**
+       * What the server has, in editor representation (widget contents
+       * scaffolded and given ids). The baseline edits are measured against.
+       */
       savedAsset: T.Asset;
+      /**
+       * Only the fields the user has changed since. Everything else is read
+       * through from `savedAsset`, so a save response refreshes untouched
+       * fields for free.
+       */
+      edits: Partial<T.Asset>;
       template: T.Template;
     };
 
 export const initialEditorModel: EditorModel = {
-  status: "uninitialized",
+  status: "idle",
   generation: 0,
 };
 
+/** The asset being edited: the saved baseline with pending edits laid over it. */
+export function selectLocalAsset(
+  model: EditorModel
+): T.Asset | T.UnsavedAsset | null {
+  switch (model.status) {
+    case "editingNewAsset":
+      return model.localAsset;
+    case "editingExistingAsset":
+      return { ...model.savedAsset, ...model.edits };
+    default:
+      return null;
+  }
+}
+
+/** The error that left the editor with nothing to edit. */
+export function selectLoadError(model: EditorModel): Error | null {
+  return model.status === "loadFailed" ? model.error : null;
+}
+
+/** An asset that has never been saved always counts as unsaved work. */
+export function selectHasUnsavedEdits(model: EditorModel): boolean {
+  switch (model.status) {
+    case "editingNewAsset":
+      return true;
+    case "editingExistingAsset":
+      return Object.keys(model.edits).length > 0;
+    default:
+      return false;
+  }
+}
+
 /**
- * Something the user did. Any consumer may report one: knowing it happened
- * takes no I/O.
+ * Everything that can change the model.
+ *
+ * A `generation` rides on the events that resolve an operation, so a
+ * resolution belonging to an abandoned session can be dropped.
  */
-export type EditorIntent =
-  | { type: "localAssetEdited"; edit: T.Asset | T.UnsavedAsset }
+export type EditorEvent =
   | {
       type: "widgetContentsEdited";
       fieldTitle: T.WidgetDef["fieldTitle"];
       contents: T.WidgetContent[];
     }
-  | { type: "collectionChanged"; collectionId: number };
-
-/**
- * An operation the shell runs reporting its own progress: it started, it
- * finished, it failed. Only the shell may report these, because only the
- * code running the operation knows.
- */
-export type EffectEvent =
+  | { type: "collectionChanged"; collectionId: number }
+  | { type: "readyForDisplayChanged"; readyForDisplay: boolean }
+  | { type: "availableAfterChanged"; availableAfter: T.PHPDateTime | null }
   | { type: "newAssetRequested"; collectionId: number }
-  | { type: "assetRequested" }
+  | { type: "existingAssetRequested" }
   | { type: "templateLoaded"; generation: number; template: T.Template }
-  | { type: "templateLoadFailed"; generation: number }
+  | { type: "templateLoadFailed"; generation: number; error: Error }
+  | { type: "assetLoadFailed"; generation: number; error: Error }
   | {
       type: "assetLoaded";
       generation: number;
@@ -69,14 +109,13 @@ export type EffectEvent =
   | { type: "saveSucceeded"; generation: number; savedAsset: T.Asset }
   | { type: "resetRequested" };
 
-export type EditorEvent = EditorIntent | EffectEvent;
-
 /**
  * The editor's only state transition function.
  *
- * Effect events from a stale generation or the wrong status are dropped: an
- * operation that resolves after the editor moved on must not resurrect the
- * session it started in. Intents apply only in the editing statuses.
+ * A resolution from a stale generation or the wrong status is dropped: an
+ * operation that finishes after the editor moved on must not resurrect the
+ * session it started in. Events without a generation apply only while an
+ * asset is being edited.
  *
  * Not referentially transparent: arms that build widget contents assign
  * fresh item ids via crypto.randomUUID().
@@ -92,7 +131,7 @@ export function editorReducer(
         generation: model.generation + 1,
         collectionId: event.collectionId,
       };
-    case "assetRequested":
+    case "existingAssetRequested":
       // bump so events from the still-visible previous session are dropped,
       // but stay put: the current asset remains editable while the next
       // one loads
@@ -101,20 +140,28 @@ export function editorReducer(
       return onTemplateLoaded(model, event);
     case "templateLoadFailed":
       return onTemplateLoadFailed(model, event);
+    case "assetLoadFailed":
+      return onLoadFailed(model, event);
     case "assetLoaded":
       return onAssetLoaded(model, event);
     case "templateMigrated":
       return onTemplateMigrated(model, event);
-    case "localAssetEdited":
-      return onLocalAssetEdited(model, event.edit);
     case "widgetContentsEdited":
-      return onWidgetContentsEdited(model, event.fieldTitle, event.contents);
+      return modelWithFieldEdit(model, event.fieldTitle, event.contents);
     case "collectionChanged":
-      return onCollectionChanged(model, event.collectionId);
+      return modelWithFieldEdit(model, "collectionId", event.collectionId);
+    case "readyForDisplayChanged":
+      return modelWithFieldEdit(
+        model,
+        "readyForDisplay",
+        event.readyForDisplay
+      );
+    case "availableAfterChanged":
+      return modelWithFieldEdit(model, "availableAfter", event.availableAfter);
     case "saveSucceeded":
       return onSaveSucceeded(model, event);
     case "resetRequested":
-      return { status: "uninitialized", generation: model.generation + 1 };
+      return { status: "idle", generation: model.generation + 1 };
     default:
       return assertNever(event);
   }
@@ -127,7 +174,7 @@ function onTemplateLoaded(
   if (model.status !== "loadingTemplate") return model;
   if (event.generation !== model.generation) return model;
   return {
-    status: "editingNew",
+    status: "editingNewAsset",
     generation: model.generation,
     template: event.template,
     localAsset: makeNewLocalAsset({
@@ -139,11 +186,22 @@ function onTemplateLoaded(
 
 function onTemplateLoadFailed(
   model: EditorModel,
-  event: { generation: number }
+  event: { generation: number; error: Error }
 ): EditorModel {
   if (model.status !== "loadingTemplate") return model;
+  return onLoadFailed(model, event);
+}
+
+function onLoadFailed(
+  model: EditorModel,
+  event: { generation: number; error: Error }
+): EditorModel {
   if (event.generation !== model.generation) return model;
-  return { status: "uninitialized", generation: model.generation + 1 };
+  return {
+    status: "loadFailed",
+    generation: model.generation + 1,
+    error: event.error,
+  };
 }
 
 function onAssetLoaded(
@@ -152,18 +210,17 @@ function onAssetLoaded(
 ): EditorModel {
   if (event.generation !== model.generation) return model;
   return {
-    status: "editingSaved",
+    status: "editingExistingAsset",
     // bump: the previous asset stayed editable while this one loaded, so
     // operations started in that window must not land on the new asset
     generation: model.generation + 1,
     template: event.template,
-    // clone the baseline so nothing outside shares references with it
-    savedAsset: structuredClone(event.savedAsset),
-    localAsset: makeLocalAssetFromSaved({
+    savedAsset: makeLocalAssetFromSaved({
       template: event.template,
       collectionId: event.savedAsset.collectionId,
       savedAsset: event.savedAsset,
     }),
+    edits: {},
   };
 }
 
@@ -173,80 +230,57 @@ function onTemplateMigrated(
 ): EditorModel {
   if (event.generation !== model.generation) return model;
   switch (model.status) {
-    case "editingNew":
+    case "editingNewAsset":
       return {
         ...model,
         template: event.template,
         localAsset: migrateAssetToTemplate(model.localAsset, event.template),
       };
-    case "editingSaved":
+    case "editingExistingAsset": {
+      // the migrated asset differs from the saved one by its new templateId
+      // and the fields the new template scaffolds, all of which a save must
+      // send
+      const migrated = migrateAssetToTemplate(
+        selectLocalAsset(model) as T.Asset,
+        event.template
+      );
       return {
         ...model,
         template: event.template,
-        localAsset: migrateAssetToTemplate(model.localAsset, event.template),
+        edits: diffEditableFields({
+          draft: migrated,
+          savedAsset: model.savedAsset,
+          template: event.template,
+        }),
       };
+    }
     default:
       return model;
   }
 }
 
-function onLocalAssetEdited(
+/** Write one field, whichever way the current status stores changes. */
+function modelWithFieldEdit(
   model: EditorModel,
-  edit: T.Asset | T.UnsavedAsset
+  assetKey: string,
+  value: unknown
 ): EditorModel {
   switch (model.status) {
-    case "editingNew":
-      // whatever the payload claims, an unsaved editor stays unsaved
+    case "editingNewAsset":
       return {
         ...model,
-        localAsset: { ...edit, assetId: null, modified: null },
+        localAsset: { ...model.localAsset, [assetKey]: value },
       };
-    case "editingSaved":
-      // identity comes from the model, never from a payload: a stale edit
-      // with an empty assetId must not turn the next save into a create
+    case "editingExistingAsset":
       return {
         ...model,
-        localAsset: {
-          ...edit,
-          assetId: model.localAsset.assetId,
-          modified: model.localAsset.modified,
-        },
+        edits: editsWithFieldEdit({
+          edits: model.edits,
+          savedAsset: model.savedAsset,
+          assetKey,
+          value,
+        }),
       };
-    default:
-      return model;
-  }
-}
-
-function onWidgetContentsEdited(
-  model: EditorModel,
-  fieldTitle: T.WidgetDef["fieldTitle"],
-  contents: T.WidgetContent[]
-): EditorModel {
-  switch (model.status) {
-    case "editingNew":
-      return {
-        ...model,
-        localAsset: { ...model.localAsset, [fieldTitle]: contents },
-      };
-    case "editingSaved":
-      return {
-        ...model,
-        localAsset: { ...model.localAsset, [fieldTitle]: contents },
-      };
-    default:
-      return model;
-  }
-}
-
-function onCollectionChanged(
-  model: EditorModel,
-  collectionId: number
-): EditorModel {
-  switch (model.status) {
-    case "editingNew":
-      return { ...model, localAsset: { ...model.localAsset, collectionId } };
-    case "editingSaved":
-      return { ...model, localAsset: { ...model.localAsset, collectionId } };
     default:
       return model;
   }
@@ -256,17 +290,42 @@ function onSaveSucceeded(
   model: EditorModel,
   event: { generation: number; savedAsset: T.Asset }
 ): EditorModel {
-  if (event.generation !== model.generation) return model;
-  if (model.status !== "editingNew" && model.status !== "editingSaved") {
+  if (
+    model.status !== "editingNewAsset" &&
+    model.status !== "editingExistingAsset"
+  ) {
     return model;
   }
-  // the unsaved-to-saved transition as one checked value
+
+  // a create response carries the only copy of the new assetId, so take it
+  // even from an abandoned session: a duplicate asset on the next save is
+  // worse than showing a stale one
+  const isCreateResponse = model.status === "editingNewAsset";
+  if (!isCreateResponse && event.generation !== model.generation) {
+    return model;
+  }
+  const savedAsset = makeLocalAssetFromSaved({
+    template: model.template,
+    collectionId: event.savedAsset.collectionId,
+    savedAsset: event.savedAsset,
+  });
+
+  const latestLocalAsset = clearUploadRegenerationFlags(
+    selectLocalAsset(model) as T.Asset | T.UnsavedAsset,
+    model.template
+  );
+
   return {
-    status: "editingSaved",
+    status: "editingExistingAsset",
     generation: model.generation,
     template: model.template,
-    savedAsset: structuredClone(event.savedAsset),
-    localAsset: applySaveResult(model.localAsset, event.savedAsset),
+    savedAsset,
+    // edits made while the request was in flight are still pending
+    edits: diffEditableFields({
+      draft: latestLocalAsset,
+      savedAsset,
+      template: model.template,
+    }),
   };
 }
 

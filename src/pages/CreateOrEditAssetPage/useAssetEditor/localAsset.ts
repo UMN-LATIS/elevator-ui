@@ -2,8 +2,10 @@ import {
   Asset,
   Template,
   UnsavedAsset,
+  UploadWidgetContent,
   WidgetContent,
   WidgetDef,
+  WIDGET_TYPES,
   PHPDateTime,
   WithId,
 } from "@/types";
@@ -11,90 +13,108 @@ import invariant from "tiny-invariant";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import { equals, omit } from "ramda";
-import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
-export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
-  // remove ids from each widget content item
-  const widgetContentsWithoutIds = template.widgetArray.reduce(
-    (acc, widgetDef) => {
-      const widgetContents = asset[widgetDef.fieldTitle] as
-        | WithId<WidgetContent>[]
-        | undefined;
-      if (!widgetContents) {
-        return acc;
-      }
-      acc[widgetDef.fieldTitle] = widgetContents.map((c) => omit(["id"], c));
-      return acc;
-    },
-    {} as Record<string, WidgetContent[]>
+/**
+ * Asset properties the user can change outside the template's widgets.
+ * `templateId` is here because migrating an asset to another template is an
+ * edit like any other.
+ */
+const EDITABLE_ASSET_PROPERTIES = [
+  "collectionId",
+  "availableAfter",
+  "readyForDisplay",
+  "templateId",
+];
+
+function editableAssetKeys(template: Template): string[] {
+  const widgetKeys = template.widgetArray.map(
+    (widgetDef) => widgetDef.fieldTitle
   );
-
-  return {
-    ...asset,
-    ...widgetContentsWithoutIds,
-  };
+  return [...EDITABLE_ASSET_PROPERTIES, ...widgetKeys];
 }
 
-export function hasAssetChanged(
-  {
-    savedAsset,
-    localAsset,
-    template,
-  }: {
-    savedAsset: Asset | null;
-    localAsset: Asset | UnsavedAsset;
-    template: Template;
-  },
-  { logDifferences = false }: { logDifferences?: boolean } = {}
-): boolean {
-  if (!savedAsset || !localAsset || !template) return true;
-
-  // For create mode, always consider as changed if there's any content
-  if (!savedAsset.assetId) return true;
-
-  const savedAssetWithoutIds = omitWidgetIds(savedAsset, template);
-  const localAssetWithoutIds = omitWidgetIds(localAsset, template);
-
-  // Check if any saved content differs from local content
-  const someSavedContentDiffers = Object.entries(savedAssetWithoutIds).some(
-    ([key, savedValue]) => {
-      const localValue = localAssetWithoutIds[key];
-      return !equals(savedValue, localValue);
-    }
+/**
+ * Widget content ids are generated on the client and never round-trip, so
+ * two contents holding the same values are the same content.
+ */
+function fieldValueWithoutContentIds(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return value.map((item) =>
+    item && typeof item === "object" ? omit(["id"], item) : item
   );
-
-  // Check if local asset has new fields with content not in saved asset
-  const hasNewLocalPropWithContent = Object.entries(localAssetWithoutIds)
-    .filter(([key]) => !(key in savedAssetWithoutIds))
-    .some(([, localValue]) =>
-      hasWidgetContent(localValue as WidgetContent[], "any")
-    );
-
-  const hasChanged = someSavedContentDiffers || hasNewLocalPropWithContent;
-
-  if (logDifferences && hasChanged) {
-    const msg = explainObjectDifferences(
-      savedAssetWithoutIds,
-      localAssetWithoutIds
-    );
-    console.log("Asset differences:", msg);
-  }
-
-  return hasChanged;
 }
 
-export function makeLocalAsset({
+function isFieldUnchanged(draftValue: unknown, savedValue: unknown): boolean {
+  return equals(
+    fieldValueWithoutContentIds(draftValue),
+    fieldValueWithoutContentIds(savedValue)
+  );
+}
+
+/**
+ * The editable fields where `draft` differs from `savedAsset`, which is the
+ * set of changes a save still needs to send.
+ */
+export function diffEditableFields({
+  draft,
+  savedAsset,
   template,
-  collectionId,
-  savedAsset = null,
 }: {
+  draft: Asset | UnsavedAsset;
+  savedAsset: Asset;
   template: Template;
-  collectionId: number;
-  savedAsset: Asset | null;
-}): Asset | UnsavedAsset {
-  return savedAsset
-    ? makeLocalAssetFromSaved({ template, collectionId, savedAsset })
-    : makeNewLocalAsset({ template, collectionId });
+}): Partial<Asset> {
+  const edits: Partial<Asset> = {};
+  editableAssetKeys(template).forEach((assetKey) => {
+    if (isFieldUnchanged(draft[assetKey], savedAsset[assetKey])) return;
+    edits[assetKey] = draft[assetKey];
+  });
+  return edits;
+}
+
+/**
+ * Record one field edit. Setting a field back to its saved value drops it,
+ * so an edit and its undo leave nothing pending.
+ */
+export function editsWithFieldEdit({
+  edits,
+  savedAsset,
+  assetKey,
+  value,
+}: {
+  edits: Partial<Asset>;
+  savedAsset: Asset;
+  assetKey: string;
+  value: unknown;
+}): Partial<Asset> {
+  if (isFieldUnchanged(value, savedAsset[assetKey])) {
+    return omit([assetKey], edits);
+  }
+  return { ...edits, [assetKey]: value };
+}
+
+/**
+ * The flag asks the next save to rebuild derivatives, so once that save has
+ * happened it has served its purpose. It is client-only and never comes back
+ * from the server, so leaving it set would read as an unsaved change forever.
+ */
+export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
+  asset: T,
+  template: Template
+): T {
+  const cleared = { ...asset };
+  template.widgetArray
+    .filter((widgetDef) => widgetDef.type === WIDGET_TYPES.UPLOAD)
+    .forEach((widgetDef) => {
+      const contents = cleared[widgetDef.fieldTitle] as
+        | WithId<UploadWidgetContent>[]
+        | undefined;
+      if (!contents) return;
+      cleared[widgetDef.fieldTitle] = contents.map((item) =>
+        omit(["regenerate"], item)
+      );
+    });
+  return cleared;
 }
 
 export function makeLocalAssetFromSaved({
@@ -157,7 +177,7 @@ export function makeNewLocalAsset({
   return initialAsset;
 }
 
-export function makeWidgetContents(
+function makeWidgetContents(
   widgetDef: WidgetDef,
   currentContents?: WidgetContent[]
 ): WidgetContent[] {
@@ -176,58 +196,6 @@ export function makeWidgetContents(
     : [createDefaultWidgetContent(widgetDef)];
 }
 
-export function getMissingRequiredFields({
-  asset,
-  template,
-}: {
-  asset: Asset | UnsavedAsset;
-  template: Template;
-}) {
-  return template.widgetArray
-    .filter((widgetDef) => widgetDef.required)
-    .filter((widgetDef) => {
-      const fieldTitle = widgetDef.fieldTitle;
-      const widgetContents = asset[fieldTitle] as WidgetContent[];
-      return !hasWidgetContent(widgetContents, widgetDef.type);
-    })
-    .map((widgetDef) => widgetDef.label);
-}
-
-export function doAllRequiredHaveContent(
-  asset: Asset | UnsavedAsset,
-  template: Template
-): boolean {
-  const requiredWidgetDefs = template.widgetArray.filter(
-    (widgetDef) => widgetDef.required
-  );
-
-  return requiredWidgetDefs.every((widgetDef) => {
-    invariant(asset);
-    const fieldTitle = widgetDef.fieldTitle;
-    const contents = asset[fieldTitle] as WidgetContent[];
-    return hasWidgetContent(contents, widgetDef.type);
-  });
-}
-
-/**
- * Merge the fields the server owns into the asset the user is still editing.
- * Widget contents are deliberately not copied: a save takes seconds and the
- * user keeps typing through it.
- */
-export function applySaveResult(
-  localAsset: Asset | UnsavedAsset,
-  savedAsset: Asset
-): Asset {
-  return {
-    ...localAsset,
-    assetId: savedAsset.assetId,
-    title: savedAsset.title,
-    modified: savedAsset.modified,
-    modifiedBy: savedAsset.modifiedBy,
-    firstFileHandlerId: savedAsset.firstFileHandlerId,
-  };
-}
-
 export function migrateAssetToTemplate(asset: Asset, newTemplate: Template): Asset;
 export function migrateAssetToTemplate(
   asset: UnsavedAsset,
@@ -238,10 +206,9 @@ export function migrateAssetToTemplate(
   newTemplate: Template
 ): Asset | UnsavedAsset {
   // Create a new local asset with the new template
-  const localAsset = makeLocalAsset({
+  const localAsset = makeNewLocalAsset({
     template: newTemplate,
     collectionId: asset.collectionId,
-    savedAsset: null,
   });
 
   // Copy over the fields from the old asset to the new one

@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   editorReducer,
   initialEditorModel,
+  selectHasUnsavedEdits,
+  selectLocalAsset,
   type EditorModel,
 } from "./editorReducer";
 import type {
@@ -66,8 +68,8 @@ const makeUnsavedAsset = (
 
 const GENERATION = 5;
 
-const uninitialized: EditorModel = {
-  status: "uninitialized",
+const idle: EditorModel = {
+  status: "idle",
   generation: GENERATION,
 };
 
@@ -77,27 +79,39 @@ const loadingTemplate: EditorModel = {
   collectionId: 42,
 };
 
-const editingNew = (
-  localAsset: UnsavedAsset = makeUnsavedAsset()
+const editingNewAsset = (
+  localAsset: UnsavedAsset = makeUnsavedAsset(),
+  template: Template = emptyTemplate
 ): EditorModel => ({
-  status: "editingNew",
+  status: "editingNewAsset",
   generation: GENERATION,
   localAsset,
-  template: emptyTemplate,
+  template,
 });
 
-const editingSaved = (localAsset: Asset = makeSavedAsset()): EditorModel => ({
-  status: "editingSaved",
+const editingExistingAsset = (
+  savedAsset: Asset = makeSavedAsset(),
+  edits: Partial<Asset> = {},
+  template: Template = emptyTemplate
+): EditorModel => ({
+  status: "editingExistingAsset",
   generation: GENERATION,
-  localAsset,
-  savedAsset: makeSavedAsset(),
-  template: emptyTemplate,
+  savedAsset,
+  edits,
+  template,
 });
+
+/** throws rather than returning null, so tests read without a guard */
+const localAssetOf = (model: EditorModel): Asset | UnsavedAsset => {
+  const asset = selectLocalAsset(model);
+  if (!asset) throw new Error("expected an asset");
+  return asset;
+};
 
 describe("editorReducer", () => {
   describe("starting a new asset", () => {
     it("moves to loadingTemplate and bumps the generation", () => {
-      const next = editorReducer(uninitialized, {
+      const next = editorReducer(idle, {
         type: "newAssetRequested",
         collectionId: 42,
       });
@@ -116,11 +130,11 @@ describe("editorReducer", () => {
         template: emptyTemplate,
       });
 
-      expect(next.status).toBe("editingNew");
-      if (next.status !== "editingNew") return;
-      expect(next.localAsset.assetId).toBeNull();
-      expect(next.localAsset.modified).toBeNull();
-      expect(next.localAsset.collectionId).toBe(42);
+      expect(next.status).toBe("editingNewAsset");
+      if (next.status !== "editingNewAsset") return;
+      expect(localAssetOf(next).assetId).toBeNull();
+      expect(localAssetOf(next).modified).toBeNull();
+      expect(localAssetOf(next).collectionId).toBe(42);
     });
 
     it("scaffolds a field for every widget in the template", () => {
@@ -135,21 +149,34 @@ describe("editorReducer", () => {
         template,
       });
 
-      if (next.status !== "editingNew") throw new Error("expected editingNew");
-      expect(next.localAsset.title_1).toHaveLength(1);
-      expect(next.localAsset.notes_1).toHaveLength(1);
-      const [titleContent] = next.localAsset.title_1 as { id: string }[];
+      if (next.status !== "editingNewAsset") throw new Error("expected editingNewAsset");
+      expect(localAssetOf(next).title_1).toHaveLength(1);
+      expect(localAssetOf(next).notes_1).toHaveLength(1);
+      const [titleContent] = localAssetOf(next).title_1 as { id: string }[];
       expect(titleContent.id).toEqual(expect.any(String));
     });
 
-    it("returns to uninitialized when the template fails to load", () => {
+    it("keeps the error when the template fails to load", () => {
       const next = editorReducer(loadingTemplate, {
         type: "templateLoadFailed",
         generation: GENERATION,
+        error: new Error("network down"),
       });
 
-      expect(next.status).toBe("uninitialized");
+      expect(next.status).toBe("loadFailed");
+      if (next.status !== "loadFailed") return;
+      expect(next.error.message).toBe("network down");
       expect(next.generation).toBe(GENERATION + 1);
+    });
+
+    it("drops a load failure from an abandoned request", () => {
+      const next = editorReducer(loadingTemplate, {
+        type: "templateLoadFailed",
+        generation: GENERATION - 1,
+        error: new Error("too late"),
+      });
+
+      expect(next).toBe(loadingTemplate);
     });
   });
 
@@ -188,13 +215,13 @@ describe("editorReducer", () => {
         generation: afterSecondRequest.generation,
         template: otherTemplate,
       });
-      if (second.status !== "editingNew") throw new Error("expected editingNew");
+      if (second.status !== "editingNewAsset") throw new Error("expected editingNewAsset");
       expect(second.template.templateId).toBe(2);
     });
 
     it("drops a save that resolves into a different editing session", () => {
       // the save was started before the user opened another asset
-      const otherSession = editingSaved(makeSavedAsset({ assetId: "asset-B" }));
+      const otherSession = editingExistingAsset(makeSavedAsset({ assetId: "asset-B" }));
 
       const next = editorReducer(otherSession, {
         type: "saveSucceeded",
@@ -208,20 +235,20 @@ describe("editorReducer", () => {
     });
 
     it("drops an asset that arrives for a superseded request", () => {
-      const next = editorReducer(editingSaved(), {
+      const next = editorReducer(editingExistingAsset(), {
         type: "assetLoaded",
         generation: GENERATION - 1,
         savedAsset: makeSavedAsset({ assetId: "stale" }),
         template: otherTemplate,
       });
 
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
-      expect(next.localAsset.assetId).toBe("asset-123");
+      expect(next.status).toBe("editingExistingAsset");
+      if (next.status !== "editingExistingAsset") return;
+      expect(localAssetOf(next).assetId).toBe("asset-123");
     });
 
     it("drops a migration that arrives for a superseded request", () => {
-      const current = editingSaved();
+      const current = editingExistingAsset();
 
       const next = editorReducer(current, {
         type: "templateMigrated",
@@ -235,160 +262,175 @@ describe("editorReducer", () => {
 
   describe("loading an existing asset", () => {
     it("bumps the generation while the request is in flight", () => {
-      const next = editorReducer(editingSaved(), { type: "assetRequested" });
+      const next = editorReducer(editingExistingAsset(), { type: "existingAssetRequested" });
 
       // the current asset stays editable, but operations started under the
       // old generation can no longer land
-      expect(next.status).toBe("editingSaved");
+      expect(next.status).toBe("editingExistingAsset");
       expect(next.generation).toBe(GENERATION + 1);
     });
 
-    it("starts an editingSaved session for the loaded asset", () => {
+    it("starts an editingExistingAsset session for the loaded asset", () => {
       const savedAsset = makeSavedAsset({ collectionId: 7 });
 
-      const next = editorReducer(uninitialized, {
+      const next = editorReducer(idle, {
         type: "assetLoaded",
         generation: GENERATION,
         savedAsset,
         template: emptyTemplate,
       });
 
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
-      expect(next.localAsset.assetId).toBe("asset-123");
-      expect(next.localAsset.collectionId).toBe(7);
+      expect(next.status).toBe("editingExistingAsset");
+      if (next.status !== "editingExistingAsset") return;
+      expect(localAssetOf(next).assetId).toBe("asset-123");
+      expect(localAssetOf(next).collectionId).toBe(7);
       expect(next.savedAsset).toEqual(savedAsset);
     });
 
-    it("gives the saved baseline its own nested objects", () => {
-      const savedAsset = makeSavedAsset({
-        title_1: [{ id: "a", fieldContents: "original" }],
-      });
-
-      const next = editorReducer(uninitialized, {
+    it("leaves the saved baseline untouched when a field is edited", () => {
+      const template = makeTemplate(1, [{ fieldTitle: "title_1" }]);
+      const loaded = editorReducer(idle, {
         type: "assetLoaded",
         generation: GENERATION,
-        savedAsset,
-        template: makeTemplate(1, [{ fieldTitle: "title_1" }]),
+        savedAsset: makeSavedAsset({
+          title_1: [{ id: "a", fieldContents: "original" }],
+        }),
+        template,
       });
 
-      if (next.status !== "editingSaved") throw new Error("expected saved");
-      const localContents = next.localAsset.title_1 as { id: string }[];
-      const baselineContents = next.savedAsset.title_1 as { id: string }[];
-      // sharing them would let an in-place edit hide itself from
-      // hasAssetChanged, which compares the two
-      expect(localContents[0]).not.toBe(baselineContents[0]);
+      const edited = editorReducer(loaded, {
+        type: "widgetContentsEdited",
+        fieldTitle: "title_1",
+        contents: [{ id: "a", fieldContents: "changed" }],
+      });
+
+      if (loaded.status !== "editingExistingAsset") throw new Error("expected saved");
+      if (edited.status !== "editingExistingAsset") throw new Error("expected saved");
+      expect(edited.savedAsset).toBe(loaded.savedAsset);
+      expect(localAssetOf(edited).title_1).toEqual([
+        { id: "a", fieldContents: "changed" },
+      ]);
     });
   });
 
   describe("editing", () => {
-    it("keeps an unsaved editor unsaved whatever the edit payload claims", () => {
-      const next = editorReducer(editingNew(), {
-        type: "localAssetEdited",
-        edit: makeSavedAsset({ assetId: "smuggled-id" }),
+    it("keeps an unsaved editor unsaved", () => {
+      const next = editorReducer(editingNewAsset(), {
+        type: "widgetContentsEdited",
+        fieldTitle: "title_1",
+        contents: [{ fieldContents: "typed" }],
       });
 
-      expect(next.status).toBe("editingNew");
-      if (next.status !== "editingNew") return;
+      expect(next.status).toBe("editingNewAsset");
+      if (next.status !== "editingNewAsset") return;
       expect(next.localAsset.assetId).toBeNull();
       expect(next.localAsset.modified).toBeNull();
     });
 
-    it("restores the model's assetId and modified when a stale edit arrives", () => {
-      // losing the assetId would make the next save create a duplicate asset
-      const next = editorReducer(editingSaved(), {
-        type: "localAssetEdited",
-        edit: makeUnsavedAsset({ title: ["typed before the save wrote back"] }),
-      });
-
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
-      expect(next.localAsset.assetId).toBe("asset-123");
-      expect(next.localAsset.modified).toEqual(savedDate);
-      expect(next.localAsset.title).toEqual(["typed before the save wrote back"]);
-    });
-
-    it("ignores an edit's own assetId in favor of the model's", () => {
-      const next = editorReducer(editingSaved(), {
-        type: "localAssetEdited",
-        edit: makeSavedAsset({ assetId: "some-other-id" }),
-      });
-
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
-      expect(next.localAsset.assetId).toBe("asset-123");
-    });
-
-    it("drops an edit that arrives when nothing is being edited", () => {
-      const next = editorReducer(uninitialized, {
-        type: "localAssetEdited",
-        edit: makeUnsavedAsset(),
-      });
-
-      expect(next).toBe(uninitialized);
-    });
-
-    it("writes widget contents without touching identity", () => {
-      const next = editorReducer(editingSaved(), {
+    it("records a widget edit without touching the saved identity", () => {
+      const next = editorReducer(editingExistingAsset(), {
         type: "widgetContentsEdited",
         fieldTitle: "title_1",
         contents: [{ fieldContents: "new title" }],
       });
 
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
-      expect(next.localAsset.title_1).toEqual([{ fieldContents: "new title" }]);
-      expect(next.localAsset.assetId).toBe("asset-123");
+      expect(next.status).toBe("editingExistingAsset");
+      if (next.status !== "editingExistingAsset") return;
+      expect(localAssetOf(next).title_1).toEqual([
+        { fieldContents: "new title" },
+      ]);
+      // identity lives on the baseline, so no edit can reach it and turn the
+      // next save into a create
+      expect(localAssetOf(next).assetId).toBe("asset-123");
+      expect(next.edits.assetId).toBeUndefined();
+      expect(next.edits.modified).toBeUndefined();
+    });
+
+    it("drops an edit that arrives when nothing is being edited", () => {
+      const next = editorReducer(idle, {
+        type: "widgetContentsEdited",
+        fieldTitle: "title_1",
+        contents: [{ fieldContents: "typed" }],
+      });
+
+      expect(next).toBe(idle);
     });
 
     it("updates the collection on the asset", () => {
-      const next = editorReducer(editingNew(), {
+      const next = editorReducer(editingNewAsset(), {
         type: "collectionChanged",
         collectionId: 99,
       });
 
-      expect(next.status).toBe("editingNew");
-      if (next.status !== "editingNew") return;
+      expect(next.status).toBe("editingNewAsset");
+      if (next.status !== "editingNewAsset") return;
       expect(next.localAsset.collectionId).toBe(99);
+    });
+
+    it("updates readyForDisplay on the asset", () => {
+      const next = editorReducer(editingExistingAsset(), {
+        type: "readyForDisplayChanged",
+        readyForDisplay: false,
+      });
+
+      if (next.status !== "editingExistingAsset") throw new Error("expected");
+      expect(localAssetOf(next).readyForDisplay).toBe(false);
+      expect(next.edits.readyForDisplay).toBe(false);
+    });
+
+    it("updates availableAfter on the asset", () => {
+      const next = editorReducer(editingExistingAsset(), {
+        type: "availableAfterChanged",
+        availableAfter: savedDate,
+      });
+
+      if (next.status !== "editingExistingAsset") throw new Error("expected");
+      expect(localAssetOf(next).availableAfter).toEqual(savedDate);
     });
   });
 
   describe("saving", () => {
-    it("turns editingNew into editingSaved, keeping in-flight edits", () => {
+    it("turns editingNewAsset into editingExistingAsset, keeping in-flight edits", () => {
       const inFlightEdit = makeUnsavedAsset({
         title_1: [{ fieldContents: "typed during the save" }],
       });
       const savedAsset = makeSavedAsset({ assetId: "fresh-from-server" });
 
-      const next = editorReducer(editingNew(inFlightEdit), {
-        type: "saveSucceeded",
-        generation: GENERATION,
-        savedAsset,
-      });
+      const next = editorReducer(
+        editingNewAsset(inFlightEdit, makeTemplate(1, [{ fieldTitle: "title_1" }])),
+        { type: "saveSucceeded", generation: GENERATION, savedAsset }
+      );
 
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
-      expect(next.localAsset.assetId).toBe("fresh-from-server");
-      expect(next.localAsset.title_1).toEqual([
+      expect(next.status).toBe("editingExistingAsset");
+      if (next.status !== "editingExistingAsset") return;
+      expect(localAssetOf(next).assetId).toBe("fresh-from-server");
+      expect(localAssetOf(next).title_1).toEqual([
         { fieldContents: "typed during the save" },
       ]);
-      expect(next.savedAsset).toEqual(savedAsset);
+      // the baseline is the response in editor representation, so widget
+      // scaffolding does not read as an edit
+      expect(next.savedAsset.assetId).toBe("fresh-from-server");
+      expect(next.savedAsset.modified).toEqual(savedDate);
+      // the edit made during the save is still pending
+      expect(next.edits.title_1).toEqual([
+        { fieldContents: "typed during the save" },
+      ]);
     });
 
     it("drops a save that resolves after a reset", () => {
-      const next = editorReducer(uninitialized, {
+      const next = editorReducer(idle, {
         type: "saveSucceeded",
         generation: GENERATION,
         savedAsset: makeSavedAsset(),
       });
 
-      expect(next).toBe(uninitialized);
+      expect(next).toBe(idle);
     });
   });
 
   describe("migrating templates", () => {
     it("migrates the asset onto the new template", () => {
-      const current = editingSaved(
+      const current = editingExistingAsset(
         makeSavedAsset({
           title_1: [{ fieldContents: "survives the migration" }],
         })
@@ -400,39 +442,51 @@ describe("editorReducer", () => {
         template: otherTemplate,
       });
 
-      expect(next.status).toBe("editingSaved");
-      if (next.status !== "editingSaved") return;
+      expect(next.status).toBe("editingExistingAsset");
+      if (next.status !== "editingExistingAsset") return;
       expect(next.template.templateId).toBe(2);
-      expect(next.localAsset.templateId).toBe(2);
-      expect(next.localAsset.title_1).toEqual([
+      expect(localAssetOf(next).templateId).toBe(2);
+      expect(localAssetOf(next).title_1).toEqual([
         { fieldContents: "survives the migration" },
       ]);
     });
 
     it("scaffolds fields the new template adds", () => {
-      const next = editorReducer(editingNew(), {
+      const next = editorReducer(editingNewAsset(), {
         type: "templateMigrated",
         generation: GENERATION,
         template: makeTemplate(2, [{ fieldTitle: "brand_new_field_1" }]),
       });
 
-      if (next.status !== "editingNew") throw new Error("expected editingNew");
-      expect(next.localAsset.brand_new_field_1).toHaveLength(1);
+      if (next.status !== "editingNewAsset") throw new Error("expected editingNewAsset");
+      expect(localAssetOf(next).brand_new_field_1).toHaveLength(1);
     });
   });
 
-  it("returns to uninitialized on reset", () => {
-    const next = editorReducer(editingSaved(), { type: "resetRequested" });
+  it("records a failure to load an existing asset", () => {
+    const next = editorReducer(editingExistingAsset(), {
+      type: "assetLoadFailed",
+      generation: GENERATION,
+      error: new Error("404"),
+    });
+
+    expect(next.status).toBe("loadFailed");
+    if (next.status !== "loadFailed") return;
+    expect(next.error.message).toBe("404");
+  });
+
+  it("returns to idle on reset", () => {
+    const next = editorReducer(editingExistingAsset(), { type: "resetRequested" });
 
     expect(next).toEqual({
-      status: "uninitialized",
+      status: "idle",
       generation: GENERATION + 1,
     });
   });
 
   it("starts uninitialized at generation zero", () => {
     expect(initialEditorModel).toEqual({
-      status: "uninitialized",
+      status: "idle",
       generation: 0,
     });
   });

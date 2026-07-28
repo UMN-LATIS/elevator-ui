@@ -32,6 +32,15 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <div
+      v-else-if="assetEditor.loadError"
+      class="flex flex-col items-center gap-2 py-12 text-error">
+      <TriangleAlert class="w-8 h-8" />
+      <p>This asset could not be loaded.</p>
+      <p class="text-sm text-on-surface-variant">
+        {{ assetEditor.loadError.message }}
+      </p>
+    </div>
+    <div
       v-else-if="!assetEditor.isInitialized"
       class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
@@ -51,7 +60,11 @@
         @migrateCollection="handleConfirmCollectionChange($event)"
         @save="handleSaveAsset({ showToast: true })"
         @autoSave="handleSaveAsset({ showToast: false })"
-        @update:asset="assetEditor.updateLocalAsset($event)" />
+        @update:widgetContents="
+          assetEditor.updateWidgetContents($event.fieldTitle, $event.contents)
+        "
+        @update:readyForDisplay="assetEditor.updateReadyForDisplay($event)"
+        @update:availableAfter="assetEditor.updateAvailableAfter($event)" />
     </Transition>
     <Teleport to="body">
       <ConfirmModal

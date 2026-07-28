@@ -78,10 +78,7 @@
         label="Status"
         required
         @update:modelValue="
-          $emit('update:asset', {
-            ...asset,
-            readyForDisplay: $event === 'ready',
-          })
+          $emit('update:readyForDisplay', $event === 'ready')
         " />
       <InputGroup
         v-model="localAvailableAfterDate"
@@ -140,7 +137,8 @@ const emit = defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
-  (e: "update:asset", asset: Asset | UnsavedAsset): void;
+  (e: "update:readyForDisplay", readyForDisplay: boolean): void;
+  (e: "update:availableAfter", availableAfter: PHPDateTime | null): void;
   (e: "migrateCollection", collectionId: number): void;
 }>();
 
@@ -194,20 +192,14 @@ const { isAssetValid, missingRequiredFields, invalidFields } =
 
 function handleUpdateAvailableAfter(value: string | number) {
   if (!value) {
-    emit("update:asset", {
-      ...props.asset,
-      availableAfter: null,
-    });
+    emit("update:availableAfter", null);
     return;
   }
 
-  emit("update:asset", {
-    ...props.asset,
-    availableAfter: {
-      date: value.toString(),
-      timezone_type: 3,
-      timezone: "UTC",
-    },
+  emit("update:availableAfter", {
+    date: value.toString(),
+    timezone_type: 3,
+    timezone: "UTC",
   });
 }
 

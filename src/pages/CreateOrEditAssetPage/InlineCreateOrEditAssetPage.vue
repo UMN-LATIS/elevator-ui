@@ -13,8 +13,11 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <Transition v-else name="fade">
+      <div v-if="assetEditor.loadError" class="p-4 text-sm text-error">
+        This related asset could not be loaded.
+      </div>
       <div
-        v-if="!assetEditor.localAsset || !assetEditor.template"
+        v-else-if="!assetEditor.localAsset || !assetEditor.template"
         class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
         <span class="ml-2">Loading...</span>
