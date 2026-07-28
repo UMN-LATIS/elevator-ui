@@ -211,17 +211,26 @@ export function doAllRequiredHaveContent(
 
 /**
  * Merge an incoming edit into the asset being edited.
+ *
+ * An edit payload can be built from a snapshot taken before the first save
+ * wrote the assetId back. Restoring the saved identity fields keeps the next
+ * save an update: the server reads an empty objectId as a create.
  */
 export function applyAssetEdit(
   currentAsset: Asset | UnsavedAsset,
   edit: Asset | UnsavedAsset
 ): Asset | UnsavedAsset {
+  // the incoming id is good, or we never had one to lose
+  // ("" counts as no id, matching what the server does with an empty objectId)
+  if (edit.assetId || !currentAsset.assetId) {
+    return edit;
+  }
+
+  // restore the identity fields together so the result is a coherent Asset
   return {
     ...edit,
-    // if edit contains a stale empty (new) assetId,
-    // but currentAsset has a non-empty assetId, preserve the
-    // non-empty one to prevent accidentally creating a new asset on save.
-    assetId: edit.assetId || currentAsset.assetId,
+    assetId: currentAsset.assetId,
+    modified: currentAsset.modified,
   };
 }
 
