@@ -1,13 +1,6 @@
 import { Hono } from "hono";
-import type { Context } from "hono";
 import { delay } from "../utils/index";
-import type {
-  MockDrawerGrant,
-  MockDrawerGroup,
-  MockServerContext,
-  MockUser,
-} from "../types";
-import type { DB } from "../db/index";
+import type { MockAdminGroup, MockServerContext, MockUser } from "../types";
 import { findPermissionLevel } from "../db/permissionLevels";
 import { GROUP_TYPES, USER_TYPE } from "../db/groupTypes";
 import { DIRECTORY_ONLY_MATCHES } from "../db/directoryPeople";
@@ -15,47 +8,7 @@ import { isAuthHelperGroupType } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
-function isAdmin(user: MockUser): boolean {
-  return user.isInstanceAdmin || user.isSuperAdmin;
-}
-
-// Admins manage every drawer. Everyone else manages the drawers they
-// own, the mock's stand-in for the real per-drawer permission map.
-function getManageableDrawers(db: DB, user: MockUser) {
-  return isAdmin(user) ? db.drawers.getAll() : db.drawers.getByUserId(user.id);
-}
-
-function canManageDrawer(db: DB, user: MockUser, drawerId: number): boolean {
-  return getManageableDrawers(db, user).some(
-    (drawer) => drawer.id === drawerId
-  );
-}
-
-function toGrantPayload(db: DB, grant: MockDrawerGrant, currentUser: MockUser) {
-  // deleting a group cascades to its grants, so a grant's group always exists
-  const group = db.drawerGroups.get(grant.groupId);
-  if (!group) {
-    throw new Error(`grant ${grant.id} references a missing group`);
-  }
-
-  const owner = db.users.get(group.userId);
-
-  return {
-    id: grant.id,
-    drawerId: grant.drawerId,
-    permissionLevelId: grant.permissionLevelId,
-    group: {
-      id: group.id,
-      label: group.label,
-      type: group.type,
-      ownedByCurrentUser: group.userId === currentUser.id,
-      ownerName: owner?.displayName ?? null,
-      entries_count: group.entries.length,
-    },
-  };
-}
-
-function toGroupPayload(group: MockDrawerGroup) {
+function toGroupPayload(group: MockAdminGroup) {
   return {
     id: group.id,
     type: group.type,
@@ -76,35 +29,13 @@ function toMemberPayload(user: MockUser) {
   };
 }
 
-// The auth middleware guarantees a user on every route, so a missing one
-// here is a programming error rather than a request error.
-function requireUser(c: Context<MockServerContext>): MockUser {
-  const user = c.get("user");
-  if (!user) {
-    throw new Error("requireUser called outside the auth middleware");
-  }
-  return user;
-}
-
-function findOwnGroup(
-  db: DB,
-  user: MockUser,
-  groupId: number
-): MockDrawerGroup | undefined {
-  const group = db.drawerGroups.get(groupId);
-  return group?.userId === user.id ? group : undefined;
-}
-
-// every route requires a signed-in user with drawer-management rights
+// every route requires a signed-in instance admin
 app.use("*", async (c, next) => {
   const user = c.get("user");
   if (!user) {
     return c.json({ error: "Not Authenticated" }, 401);
   }
-
-  const canManageDrawers =
-    isAdmin(user) || Boolean(user.permissions.canCreateDrawers);
-  if (!canManageDrawers) {
+  if (!user.isInstanceAdmin && !user.isSuperAdmin) {
     return c.json({ error: "Forbidden" }, 403);
   }
 
@@ -144,140 +75,187 @@ app.get("/userAutocomplete", async (c) => {
   return c.json({ matches: [...localMatches, ...directoryMatches] });
 });
 
-app.get("/manageableDrawers", async (c) => {
+app.get("/instanceGrants", async (c) => {
   await delay(100);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const manageableDrawers = getManageableDrawers(db, user)
-    .map((drawer) => ({ id: drawer.id, title: drawer.name }))
-    .sort((a, b) => a.title.localeCompare(b.title));
-
-  return c.json({ manageableDrawers });
+  return c.json({ instanceGrants: db.instanceGrants.getAll() });
 });
 
-app.get("/grants", async (c) => {
-  await delay(100);
-  const db = c.get("db");
-  const user = requireUser(c);
-
-  const manageableDrawerIds = new Set(
-    getManageableDrawers(db, user).map((drawer) => drawer.id)
-  );
-  const grants = db.drawerGrants
-    .filter((grant) => manageableDrawerIds.has(grant.drawerId))
-    .map((grant) => toGrantPayload(db, grant, user));
-
-  return c.json({ grants });
-});
-
-app.post("/grants", async (c) => {
+app.post("/instanceGrants", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
   const body = await c.req.parseBody();
 
-  const drawerId = Number(body.drawerId);
-  const drawerGroupId = Number(body.drawerGroupId);
+  const groupId = Number(body.groupId);
   const permissionLevelId = Number(body.permissionLevelId);
 
-  const drawer = db.drawers.get(drawerId);
-  if (!drawer) {
-    return c.json({ error: "Drawer not found" }, 404);
-  }
-  if (!canManageDrawer(db, user, drawerId)) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
-
-  // sharing is limited to the caller's own groups
-  const group = findOwnGroup(db, user, drawerGroupId);
-  if (!group) {
+  if (!db.adminGroups.get(groupId)) {
     return c.json({ error: "Group not found" }, 422);
   }
-
   if (!findPermissionLevel(permissionLevelId)) {
     return c.json({ error: "Permission level not found" }, 422);
   }
 
-  const existing = db.drawerGrants.findByDrawerAndGroup(drawerId, group.id);
+  const existing = db.instanceGrants.findByGroupId(groupId);
   if (existing) {
     return c.json(
       {
-        error: "Group already has a grant on this drawer",
+        error: "Group already has an instance grant",
         existingGrantId: existing.id,
       },
       409
     );
   }
 
-  const grant = db.drawerGrants.create({
-    drawerId,
-    groupId: group.id,
-    permissionLevelId,
-  });
+  const grant = db.instanceGrants.create({ groupId, permissionLevelId });
 
-  return c.json({ grant: toGrantPayload(db, grant, user) }, 201);
+  return c.json({ instanceGrant: grant }, 201);
 });
 
-// Re-level only. Drawer manage access is the whole gate, so another
-// owner's grant is editable.
-app.put("/grants/:grantId", async (c) => {
+// PUT replaces the whole grant, so the group id is writable too.
+app.put("/instanceGrants/:grantId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const grant = db.drawerGrants.get(Number(c.req.param("grantId")));
+  const grant = db.instanceGrants.get(Number(c.req.param("grantId")));
   if (!grant) {
     return c.json({ error: "Grant not found" }, 404);
   }
-  if (!canManageDrawer(db, user, grant.drawerId)) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
 
   const body = await c.req.parseBody();
+  const groupId = Number(body.groupId);
   const permissionLevelId = Number(body.permissionLevelId);
+
+  if (!db.adminGroups.get(groupId)) {
+    return c.json({ error: "Group not found" }, 422);
+  }
   if (!findPermissionLevel(permissionLevelId)) {
     return c.json({ error: "Permission level not found" }, 422);
   }
 
+  grant.groupId = groupId;
   grant.permissionLevelId = permissionLevelId;
 
-  return c.json({ grant: toGrantPayload(db, grant, user) });
+  return c.json({ instanceGrant: grant });
 });
 
-// Unlike update, a manager can only delete grants on their own
-// groups. Admins can delete any.
-app.delete("/grants/:grantId", async (c) => {
+app.delete("/instanceGrants/:grantId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const grant = db.drawerGrants.get(Number(c.req.param("grantId")));
+  const grant = db.instanceGrants.get(Number(c.req.param("grantId")));
   if (!grant) {
     return c.json({ error: "Grant not found" }, 404);
   }
-  if (!canManageDrawer(db, user, grant.drawerId)) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
 
-  const group = db.drawerGroups.get(grant.groupId);
-  const isAnotherOwnersGrant = group !== undefined && group.userId !== user.id;
-  if (isAnotherOwnersGrant && !isAdmin(user)) {
-    return c.json({ error: "Cannot delete another owner's grant" }, 403);
-  }
-
-  db.drawerGrants.delete(grant.id);
+  db.instanceGrants.delete(grant.id);
 
   return c.json({ removed: grant.id });
 });
 
-// the caller's own groups
+app.get("/collectionGrants", async (c) => {
+  await delay(100);
+  const db = c.get("db");
+
+  return c.json({ collectionGrants: db.collectionGrants.getAll() });
+});
+
+// Collection ids come from the nav's nested tree, which the mock does
+// not re-walk, so collectionId is taken as sent.
+app.post("/collectionGrants", async (c) => {
+  await delay(150);
+  const db = c.get("db");
+  const body = await c.req.parseBody();
+
+  const collectionId = Number(body.collectionId);
+  const groupId = Number(body.groupId);
+  const permissionLevelId = Number(body.permissionLevelId);
+
+  if (!Number.isInteger(collectionId) || collectionId <= 0) {
+    return c.json({ error: "Collection not found" }, 422);
+  }
+  if (!db.adminGroups.get(groupId)) {
+    return c.json({ error: "Group not found" }, 422);
+  }
+  if (!findPermissionLevel(permissionLevelId)) {
+    return c.json({ error: "Permission level not found" }, 422);
+  }
+
+  const existing = db.collectionGrants.findByCollectionAndGroup(
+    collectionId,
+    groupId
+  );
+  if (existing) {
+    return c.json(
+      {
+        error: "Group already has a grant on this collection",
+        existingGrantId: existing.id,
+      },
+      409
+    );
+  }
+
+  const grant = db.collectionGrants.create({
+    collectionId,
+    groupId,
+    permissionLevelId,
+  });
+
+  return c.json({ collectionGrant: grant }, 201);
+});
+
+// PUT replaces the whole grant, so every id is writable.
+app.put("/collectionGrants/:grantId", async (c) => {
+  await delay(150);
+  const db = c.get("db");
+
+  const grant = db.collectionGrants.get(Number(c.req.param("grantId")));
+  if (!grant) {
+    return c.json({ error: "Grant not found" }, 404);
+  }
+
+  const body = await c.req.parseBody();
+  const collectionId = Number(body.collectionId);
+  const groupId = Number(body.groupId);
+  const permissionLevelId = Number(body.permissionLevelId);
+
+  if (!Number.isInteger(collectionId) || collectionId <= 0) {
+    return c.json({ error: "Collection not found" }, 422);
+  }
+  if (!db.adminGroups.get(groupId)) {
+    return c.json({ error: "Group not found" }, 422);
+  }
+  if (!findPermissionLevel(permissionLevelId)) {
+    return c.json({ error: "Permission level not found" }, 422);
+  }
+
+  grant.collectionId = collectionId;
+  grant.groupId = groupId;
+  grant.permissionLevelId = permissionLevelId;
+
+  return c.json({ collectionGrant: grant });
+});
+
+app.delete("/collectionGrants/:grantId", async (c) => {
+  await delay(150);
+  const db = c.get("db");
+
+  const grant = db.collectionGrants.get(Number(c.req.param("grantId")));
+  if (!grant) {
+    return c.json({ error: "Grant not found" }, 404);
+  }
+
+  db.collectionGrants.delete(grant.id);
+
+  return c.json({ removed: grant.id });
+});
+
 app.get("/groups", async (c) => {
   await delay(100);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const groups = db.drawerGroups.getByUserId(user.id).map(toGroupPayload);
+  const groups = db.adminGroups.getAll().map(toGroupPayload);
 
   return c.json({ groups });
 });
@@ -285,7 +263,6 @@ app.get("/groups", async (c) => {
 app.post("/groups", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
   const body = await c.req.parseBody();
 
   const label = String(body.label ?? "").trim();
@@ -295,36 +272,37 @@ app.post("/groups", async (c) => {
   if (label === "" || !typeDetails) {
     return c.json({ errors: { label: ["Label and type are required"] } }, 422);
   }
-  if (typeDetails.adminOnly && !isAdmin(user)) {
-    return c.json(
-      { error: "Only instance admins can use instance-wide group types" },
-      403
-    );
-  }
 
-  const group = db.drawerGroups.create({ userId: user.id, type, label });
+  const group = db.adminGroups.create({ type, label });
 
   return c.json({ group: toGroupPayload(group) }, 201);
 });
 
-// Rename only, the type is fixed at creation.
 app.put("/groups/:groupId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
 
   const body = await c.req.parseBody();
   const label = String(body.label ?? "").trim();
-  if (label === "") {
-    return c.json({ errors: { label: ["Label is required"] } }, 422);
+  const type = String(body.type ?? "");
+
+  const typeDetails = GROUP_TYPES.find((details) => details.type === type);
+  if (label === "" || !typeDetails) {
+    return c.json({ errors: { label: ["Label and type are required"] } }, 422);
+  }
+
+  // a type change invalidates the members the old type held
+  if (type !== group.type) {
+    group.entries = [];
   }
 
   group.label = label;
+  group.type = type;
 
   return c.json({ group: toGroupPayload(group) });
 });
@@ -332,15 +310,15 @@ app.put("/groups/:groupId", async (c) => {
 app.delete("/groups/:groupId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
 
-  db.drawerGrants.removeByGroupId(group.id);
-  db.drawerGroups.delete(group.id);
+  db.instanceGrants.removeByGroupId(group.id);
+  db.collectionGrants.removeByGroupId(group.id);
+  db.adminGroups.delete(group.id);
 
   return c.json({ deleted: group.id });
 });
@@ -348,9 +326,8 @@ app.delete("/groups/:groupId", async (c) => {
 app.get("/groups/:groupId/members", async (c) => {
   await delay(100);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -375,9 +352,8 @@ app.get("/groups/:groupId/members", async (c) => {
 app.post("/groups/:groupId/members", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -435,7 +411,7 @@ app.post("/groups/:groupId/members", async (c) => {
     return c.json({ error: "User is already a member" }, 409);
   }
 
-  db.drawerGroups.addEntry(group, String(memberId));
+  db.adminGroups.addEntry(group, String(memberId));
 
   return c.json({ member: toMemberPayload(member) }, 201);
 });
@@ -443,9 +419,8 @@ app.post("/groups/:groupId/members", async (c) => {
 app.delete("/groups/:groupId/members/:userId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -461,7 +436,7 @@ app.delete("/groups/:groupId/members/:userId", async (c) => {
     return c.json({ error: "User is not a member" }, 404);
   }
 
-  db.drawerGroups.removeEntry(group, entry.id);
+  db.adminGroups.removeEntry(group, entry.id);
 
   return c.json({ removed: memberId });
 });
@@ -469,9 +444,8 @@ app.delete("/groups/:groupId/members/:userId", async (c) => {
 app.get("/groups/:groupId/entries", async (c) => {
   await delay(100);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -485,9 +459,8 @@ app.get("/groups/:groupId/entries", async (c) => {
 app.post("/groups/:groupId/entries", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -501,7 +474,7 @@ app.post("/groups/:groupId/entries", async (c) => {
     return c.json({ errors: { value: ["Value is required"] } }, 422);
   }
 
-  const entry = db.drawerGroups.addEntry(group, value);
+  const entry = db.adminGroups.addEntry(group, value);
 
   return c.json({ entry }, 201);
 });
@@ -509,9 +482,8 @@ app.post("/groups/:groupId/entries", async (c) => {
 app.put("/groups/:groupId/entries/:entryId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -537,9 +509,8 @@ app.put("/groups/:groupId/entries/:entryId", async (c) => {
 app.delete("/groups/:groupId/entries/:entryId", async (c) => {
   await delay(150);
   const db = c.get("db");
-  const user = requireUser(c);
 
-  const group = findOwnGroup(db, user, Number(c.req.param("groupId")));
+  const group = db.adminGroups.get(Number(c.req.param("groupId")));
   if (!group) {
     return c.json({ error: "Group not found" }, 404);
   }
@@ -550,7 +521,7 @@ app.delete("/groups/:groupId/entries/:entryId", async (c) => {
     return c.json({ error: "Entry not found" }, 404);
   }
 
-  db.drawerGroups.removeEntry(group, entry.id);
+  db.adminGroups.removeEntry(group, entry.id);
 
   return c.json({ removed: entryId });
 });
