@@ -24,6 +24,10 @@ export const useToastStore = defineStore("toastStore", {
       this.toasts.splice(index, 1);
     },
 
+    clearAll() {
+      this.toasts = [];
+    },
+
     error(
       message: string,
       options?: Omit<Toast, "id" | "message" | "variant">
