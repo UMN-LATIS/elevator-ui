@@ -18,6 +18,9 @@ const ADMIN_ROUTES = [
 
 const DESKTOP = { width: 1440, height: 900 };
 const BELOW_XL = { width: 1024, height: 900 };
+// Tall enough that seeded rows cannot push an admin page past the fold, so a
+// scrollbar means the sidebar overflowed rather than the content growing.
+const TALLER_THAN_ANY_SEEDED_PAGE = { width: 1440, height: 1400 };
 
 test.describe("Admin sidebar", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -45,6 +48,7 @@ test.describe("Admin sidebar", () => {
   test("the sidebar runs to the bottom of a page shorter than the screen", async ({
     page,
   }) => {
+    await page.setViewportSize(TALLER_THAN_ANY_SEEDED_PAGE);
     await page.goto("/templates");
     await expect(page.getByRole("navigation", { name: "Admin" })).toBeVisible();
 
@@ -65,7 +69,6 @@ test.describe("Admin sidebar", () => {
     expect(measurements.navBottom).toBeGreaterThanOrEqual(
       measurements.viewportHeight - 1
     );
-    // A short page must not have grown a scrollbar to reach the bottom.
     expect(measurements.documentHeight).toBeLessThanOrEqual(
       measurements.viewportHeight + 1
     );
