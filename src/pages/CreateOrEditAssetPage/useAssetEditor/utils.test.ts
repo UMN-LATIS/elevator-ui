@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { applyAssetEdit, makeLocalAsset } from "./utils";
+import { applyAssetEdit, applySaveResult, makeLocalAsset } from "./utils";
 import type { Asset, PHPDateTime, Template, UnsavedAsset } from "@/types";
 
 const emptyTemplate = {
@@ -114,5 +114,49 @@ describe("applyAssetEdit", () => {
     const merged = applyAssetEdit(makeUnsavedAsset(), makeUnsavedAsset());
 
     expect(merged.assetId).toBeNull();
+  });
+});
+
+describe("applySaveResult", () => {
+  it("takes the server-owned fields from the save response", () => {
+    const saveResponse = makeSavedAsset({
+      assetId: "asset-123",
+      title: ["Saved Title"],
+      modified: savedDate,
+      modifiedBy: 7,
+      firstFileHandlerId: "file-handler-1",
+    });
+
+    const merged = applySaveResult(makeUnsavedAsset(), saveResponse);
+
+    expect(merged.assetId).toBe("asset-123");
+    expect(merged.title).toEqual(["Saved Title"]);
+    expect(merged.modified).toEqual(savedDate);
+    expect(merged.modifiedBy).toBe(7);
+    expect(merged.firstFileHandlerId).toBe("file-handler-1");
+  });
+
+  it("keeps widget contents edited while the save was in flight", () => {
+    const localAsset = makeUnsavedAsset({
+      title_1: [{ fieldContents: "typed during the save" }],
+    });
+    const saveResponse = makeSavedAsset({
+      title_1: [{ fieldContents: "what the server saw at save time" }],
+    });
+
+    const merged = applySaveResult(localAsset, saveResponse);
+
+    expect(merged.title_1).toEqual([
+      { fieldContents: "typed during the save" },
+    ]);
+  });
+
+  it("turns an unsaved asset into a saved one", () => {
+    const merged = applySaveResult(makeUnsavedAsset(), makeSavedAsset());
+
+    // the return type is Asset, so these two only re-assert at runtime what
+    // the compiler already checked
+    expect(merged.assetId).toBe("asset-123");
+    expect(merged.modified).toEqual(savedDate);
   });
 });

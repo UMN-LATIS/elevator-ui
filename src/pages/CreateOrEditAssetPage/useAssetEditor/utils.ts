@@ -234,6 +234,25 @@ export function applyAssetEdit(
   };
 }
 
+/**
+ * Merge the fields the server owns into the asset the user is still editing.
+ * Widget contents are deliberately not copied: a save takes seconds and the
+ * user keeps typing through it.
+ */
+export function applySaveResult(
+  localAsset: Asset | UnsavedAsset,
+  savedAsset: Asset
+): Asset {
+  return {
+    ...localAsset,
+    assetId: savedAsset.assetId,
+    title: savedAsset.title,
+    modified: savedAsset.modified,
+    modifiedBy: savedAsset.modifiedBy,
+    firstFileHandlerId: savedAsset.firstFileHandlerId,
+  };
+}
+
 export function migrateAssetToTemplate(
   asset: Asset | UnsavedAsset,
   newTemplate: Template

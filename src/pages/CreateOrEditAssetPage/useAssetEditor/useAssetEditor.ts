@@ -3,6 +3,7 @@ import { computed, inject, nextTick, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
   applyAssetEdit,
+  applySaveResult,
   hasAssetChanged as hasAssetChangedPure,
   makeLocalAsset,
 } from "./utils";
@@ -252,13 +253,7 @@ export const createAssetEditor = () => {
     invariant(savedAsset, "Expected saved asset to be defined after saveAsset");
 
     state.savedAsset = savedAsset;
-
-    // make some targeted updates to the local asset to avoid unnecessary reactivity
-    state.localAsset.assetId = savedAsset.assetId;
-    state.localAsset.title = savedAsset.title;
-    state.localAsset.modified = savedAsset.modified;
-    state.localAsset.modifiedBy = savedAsset.modifiedBy;
-    state.localAsset.firstFileHandlerId = savedAsset.firstFileHandlerId;
+    state.localAsset = applySaveResult(state.localAsset, savedAsset);
 
     // clear any upload widget `regenerate` flags
     const uploadWidgetItems = state.template.widgetArray
