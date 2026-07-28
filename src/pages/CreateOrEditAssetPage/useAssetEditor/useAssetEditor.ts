@@ -1,43 +1,20 @@
 import * as T from "@/types";
-import { computed, inject, nextTick, reactive, toRefs } from "vue";
+import { computed, inject, nextTick, reactive, ref } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { hasAssetChanged as hasAssetChangedPure } from "./localAsset";
 import {
-  applyAssetEdit,
-  applySaveResult,
-  hasAssetChanged as hasAssetChangedPure,
-  makeLocalAsset,
-  migrateAssetToTemplate,
-} from "./localAsset";
+  editorReducer,
+  initialEditorModel,
+  type EditorEvent,
+  type EditorIntent,
+  type EditorModel,
+} from "./editorReducer";
 import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { createSaveQueue } from "./createSaveQueue";
-
-interface AssetEditorState {
-  editorId: string; // unique ID for this editor instance
-  localAsset: T.Asset | T.UnsavedAsset | null;
-  savedAsset: T.Asset | null;
-  template: T.Template | null;
-  isInitialized: boolean;
-  modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
-  isTemplateLoading?: boolean;
-}
-
-const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
-  editorId: crypto.randomUUID(),
-  localAsset: null,
-  savedAsset: null,
-  template: null,
-  isInitialized: false,
-  isTemplateLoading: false,
-
-  // inline related assets are part of this local asset
-  // so we track widgets that have changed here
-  modifiedInlineRelatedAssetWidgets: new Set(),
-  ...opts,
-});
 
 /**
  * Creates (but does NOT provide) a reactive asset editor state
@@ -46,16 +23,68 @@ const initState = (opts?: Partial<AssetEditorState>): AssetEditorState => ({
  * its own state, so that it can be used in inline related
  * assets without affecting the main asset editor.
  * use `useAssetEditor` in child components to access the parent instance
+ *
+ * Internally the editor is a model plus a reducer. The surface is three
+ * kinds of thing: selectors (nouns) read state, effects (imperative verbs,
+ * async) fetch and then report what happened, and `dispatch` takes an
+ * intent describing what the user did.
  */
 export const createAssetEditor = () => {
-  const state = reactive<AssetEditorState>(initState());
+  // `ref` (not shallowRef) keeps nested widget contents reactive for
+  // components that hold on to content items
+  const model = ref<EditorModel>(initialEditorModel);
 
-  const assetId = computed(
-    (): T.Asset["assetId"] | null => state.localAsset?.assetId ?? null
-  );
+  // state the shell owns, which the reducer has no opinion about
+  interface ShellState {
+    editorId: string; // unique ID for this editor instance
+    isTemplateLoading: boolean;
+
+    // inline related assets are part of this local asset
+    // so we track widgets that have changed here
+    modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
+  }
+  const shellState = reactive<ShellState>({
+    editorId: crypto.randomUUID(),
+    isTemplateLoading: false,
+    modifiedInlineRelatedAssetWidgets: new Set(),
+  });
+
+  function dispatch(event: EditorEvent): void {
+    model.value = editorReducer(model.value, event);
+  }
 
   const instanceStore = useInstanceStore();
   const updateAssetMutation = useUpdateAssetMutation();
+
+  ////////////////////////////////////////////////
+  // SELECTORS
+
+  const localAsset = computed((): T.Asset | T.UnsavedAsset | null =>
+    "localAsset" in model.value ? model.value.localAsset : null
+  );
+
+  const savedAsset = computed((): T.Asset | null =>
+    model.value.status === "editingSaved" ? model.value.savedAsset : null
+  );
+
+  const template = computed((): T.Template | null =>
+    "template" in model.value ? model.value.template : null
+  );
+
+  const isEditing = computed(
+    (): boolean =>
+      model.value.status === "editingNew" ||
+      model.value.status === "editingSaved"
+  );
+
+  const assetId = computed(
+    (): T.Asset["assetId"] | null => localAsset.value?.assetId ?? null
+  );
+
+  // a parameterized selector: derives, never mutates
+  const getWidgetInstanceId = (
+    widgetId: T.WidgetDef["widgetId"]
+  ): T.WidgetInstanceId => `${shellState.editorId}-${widgetId}`;
 
   ////////////////////////////////////////////////
   // COMPUTED
@@ -81,48 +110,47 @@ export const createAssetEditor = () => {
   });
 
   const savedAssetTitle = computed(
-    () => state.savedAsset?.title?.[0] ?? state.savedAsset?.assetId ?? ""
+    () => savedAsset.value?.title?.[0] ?? savedAsset.value?.assetId ?? ""
   );
 
   const localAssetTitle = computed(() => {
-    if (!state.localAsset) return "";
-    const localTitle = state.localAsset.title?.[0];
+    if (!localAsset.value) return "";
+    const localTitle = localAsset.value.title?.[0];
 
     // if there's no title set, try the title widget
     const titleWidget =
-      (state.localAsset.title_1 as T.TextWidgetContent[]) || [];
+      (localAsset.value.title_1 as T.TextWidgetContent[]) || [];
     const localTitleWidgetContent = titleWidget?.[0]?.fieldContents;
 
     return localTitle || localTitleWidgetContent || "";
   });
 
   const hasAssetChanged = computed(() => {
-    if (!state.localAsset || !state.template) return false;
+    if (!localAsset.value || !template.value) return false;
 
     const hasLocalAssetChanged = hasAssetChangedPure({
-      localAsset: state.localAsset,
-      savedAsset: state.savedAsset,
-      template: state.template,
+      localAsset: localAsset.value,
+      savedAsset: savedAsset.value,
+      template: template.value,
     });
 
     // do have any modified inline related assets?
     const haveInlineRelatedAssetsChanged =
-      state.modifiedInlineRelatedAssetWidgets.size > 0;
+      shellState.modifiedInlineRelatedAssetWidgets.size > 0;
     return hasLocalAssetChanged || haveInlineRelatedAssetsChanged;
   });
 
   ////////////////////////////////////////////////
-  // ACTIONS
-
-  const getWidgetInstanceId = (
-    widgetId: T.WidgetDef["widgetId"]
-  ): T.WidgetInstanceId => `${state.editorId}-${widgetId}`;
+  // EFFECTS
 
   /**
    * Reset the state to initial values
    */
-  function reset() {
-    Object.assign(state, initState());
+  function reset(): void {
+    dispatch({ type: "resetRequested" });
+    shellState.editorId = crypto.randomUUID();
+    shellState.isTemplateLoading = false;
+    shellState.modifiedInlineRelatedAssetWidgets = new Set();
   }
 
   /**
@@ -135,24 +163,29 @@ export const createAssetEditor = () => {
     templateId: number;
     collectionId: number;
   }): Promise<void> {
-    state.isInitialized = false;
-    state.isTemplateLoading = true;
-    const template = await fetchers.fetchTemplate(templateId);
-    state.isTemplateLoading = false;
-    invariant(
-      template,
-      `Cannot initialize new asset: no template found with id ${templateId}`
-    );
+    dispatch({ type: "newAssetRequested", collectionId });
+    const generation = model.value.generation;
 
-    state.template = template;
+    shellState.isTemplateLoading = true;
+    let template: T.Template | null;
+    try {
+      template = await fetchers.fetchTemplate(templateId);
+    } catch (error) {
+      dispatch({ type: "templateLoadFailed", generation });
+      throw error;
+    } finally {
+      shellState.isTemplateLoading = false;
+    }
 
-    state.localAsset = makeLocalAsset({
-      template,
-      collectionId,
-      savedAsset: null,
-    });
+    if (!template) {
+      dispatch({ type: "templateLoadFailed", generation });
+      invariant(
+        template,
+        `Cannot initialize new asset: no template found with id ${templateId}`
+      );
+    }
 
-    state.isInitialized = true;
+    dispatch({ type: "templateLoaded", generation, template });
   }
 
   /**
@@ -162,43 +195,46 @@ export const createAssetEditor = () => {
     assetId: T.Asset["assetId"],
     opts: { force?: boolean } = {}
   ): Promise<void> {
-    if (state.localAsset?.assetId === assetId && !opts.force) {
+    if (localAsset.value?.assetId === assetId && !opts.force) {
       return;
     }
 
-    state.savedAsset = await fetchers.fetchAsset(assetId);
+    dispatch({ type: "assetRequested" });
+    const generation = model.value.generation;
 
-    const templateId = state.savedAsset?.templateId ?? null;
+    const fetchedAsset = await fetchers.fetchAsset(assetId);
+    invariant(fetchedAsset, `no asset found with id ${assetId}`);
+
+    const templateId = fetchedAsset.templateId ?? null;
     invariant(templateId, "no templateId on saved asset");
 
     // only fetch a new template if it's not the current one
-    if (state.template?.templateId !== templateId) {
-      state.template = await fetchers.fetchTemplate(templateId);
-    }
+    const nextTemplate =
+      template.value?.templateId === templateId
+        ? template.value
+        : await fetchers.fetchTemplate(templateId);
 
     invariant(
-      state.template,
+      nextTemplate,
       `cannot setAssetId: no template with id ${templateId}`
     );
 
-    const collectionId = state.savedAsset?.collectionId ?? null;
-    invariant(collectionId, "no collectionId on saved asset");
+    invariant(fetchedAsset.collectionId, "no collectionId on saved asset");
 
-    state.localAsset = makeLocalAsset({
-      template: state.template,
-      collectionId,
-      savedAsset: state.savedAsset,
+    dispatch({
+      type: "assetLoaded",
+      generation,
+      savedAsset: fetchedAsset,
+      template: nextTemplate,
     });
-
-    state.isInitialized = true;
   }
 
   /**
    * Reload the current asset from the backend (if it has an assetId)
    */
   async function refreshAsset(): Promise<void> {
-    invariant(state.localAsset?.assetId, "Cannot refresh: no assetId");
-    return initExistingAsset(state.localAsset.assetId, { force: true });
+    invariant(localAsset.value?.assetId, "Cannot refresh: no assetId");
+    return initExistingAsset(localAsset.value.assetId, { force: true });
   }
 
   // Coalescing save queue: at most one save in flight, with a 2s cooldown
@@ -219,28 +255,47 @@ export const createAssetEditor = () => {
   }
 
   async function doSave(): Promise<void> {
-    invariant(state.localAsset, "Cannot save: no local asset");
-    invariant(state.template, "Cannot save: no template");
+    const modelBeforeCallbacks = model.value;
     invariant(
-      state.localAsset.templateId === state.template.templateId,
+      modelBeforeCallbacks.status === "editingNew" ||
+        modelBeforeCallbacks.status === "editingSaved",
+      "Cannot save: no local asset"
+    );
+    invariant(
+      modelBeforeCallbacks.localAsset.templateId ===
+        modelBeforeCallbacks.template.templateId,
       "Cannot save: localAsset.templateId !== template.templateId"
     );
 
     await runBeforeSaveCallbacks();
 
-    // toSaveableFormData uses state.localAsset.assetId (not the route prop) to
-    // decide create vs. update: empty string = create, non-empty = update.
-    // localAsset.assetId is the editor's source of truth — after the first save
-    // populates it, all subsequent saves (including auto-saves from upload
-    // widgets before the URL has been updated) correctly send an update.
-    const formData = toSaveableFormData(state.localAsset, state.template);
-    const isCreate = !state.localAsset.assetId;
+    // callbacks may have dispatched edits, so re-read the model
+    const modelToSave = model.value;
+    invariant(
+      modelToSave.status === "editingNew" ||
+        modelToSave.status === "editingSaved",
+      "Cannot save: editor was reset during before-save callbacks"
+    );
+
+    // captured before the request so a save landing in an abandoned session
+    // is dropped rather than stamped onto a different asset
+    const generation = modelToSave.generation;
+
+    // toSaveableFormData uses the asset's own assetId to decide create vs.
+    // update: empty means create, non-empty means update. The model is the
+    // source of truth, so after the first save populates it, all subsequent
+    // saves correctly send an update.
+    const formData = toSaveableFormData(
+      modelToSave.localAsset,
+      modelToSave.template
+    );
+    const isCreate = !modelToSave.localAsset.assetId;
 
     console.debug("[useAssetEditor] doSave: saving asset", {
       operation: isCreate ? "CREATE" : "UPDATE",
-      assetId: state.localAsset.assetId || "(new)",
-      templateId: state.template.templateId,
-      collectionId: state.localAsset.collectionId,
+      assetId: modelToSave.localAsset.assetId || "(new)",
+      templateId: modelToSave.template.templateId,
+      collectionId: modelToSave.localAsset.collectionId,
     });
 
     const { objectId } = await updateAssetMutation.mutateAsync(formData);
@@ -250,18 +305,29 @@ export const createAssetEditor = () => {
     });
     invariant(objectId, "Expected objectId to be defined after saveAsset");
 
-    const savedAsset = await fetchers.fetchAsset(objectId);
-    invariant(savedAsset, "Expected saved asset to be defined after saveAsset");
+    const fetchedAsset = await fetchers.fetchAsset(objectId);
+    invariant(
+      fetchedAsset,
+      "Expected saved asset to be defined after saveAsset"
+    );
 
-    state.savedAsset = savedAsset;
-    state.localAsset = applySaveResult(state.localAsset, savedAsset);
+    dispatch({
+      type: "saveSucceeded",
+      generation,
+      savedAsset: fetchedAsset,
+    });
 
-    // clear any upload widget `regenerate` flags
-    const uploadWidgetItems = state.template.widgetArray
+    // effect left outside the reducer on purpose: clearing `regenerate` must
+    // mutate the same widget content objects components already hold
+    const afterSave = model.value;
+    if (afterSave.status !== "editingSaved") return;
+    const uploadWidgetItems = afterSave.template.widgetArray
       .filter((w) => w.type === T.WIDGET_TYPES.UPLOAD)
       .flatMap(
         (w) =>
-          state.localAsset?.[w.fieldTitle] as T.WithId<T.UploadWidgetContent>[]
+          afterSave.localAsset[
+            w.fieldTitle
+          ] as T.WithId<T.UploadWidgetContent>[]
       )
       .filter(Boolean);
 
@@ -271,9 +337,9 @@ export const createAssetEditor = () => {
   }
 
   async function updateCollection(newCollectionId: number): Promise<void> {
-    invariant(state.localAsset, "Cannot change collection: no local asset.");
-    invariant(state.template, "Cannot change collection: no current template.");
-    state.localAsset.collectionId = newCollectionId;
+    invariant(localAsset.value, "Cannot change collection: no local asset.");
+    invariant(template.value, "Cannot change collection: no current template.");
+    dispatch({ type: "collectionChanged", collectionId: newCollectionId });
 
     // component should handle the saving and redirecting
   }
@@ -283,32 +349,38 @@ export const createAssetEditor = () => {
    * to the new template.
    */
   async function migrateToTemplate(newTemplateId: number): Promise<void> {
-    invariant(state.localAsset, "Cannot change template: no local asset.");
-    invariant(state.template, "Cannot change template: no current template.");
+    const current = model.value;
+    invariant(
+      current.status === "editingNew" || current.status === "editingSaved",
+      "Cannot change template: no local asset."
+    );
 
     if (
       // if all templateIds are the same, return the current template
-      state.template.templateId === newTemplateId &&
-      state.localAsset.templateId === newTemplateId
+      current.template.templateId === newTemplateId &&
+      current.localAsset.templateId === newTemplateId
     ) {
       return;
     }
 
-    state.isTemplateLoading = true;
-    const newTemplate = await fetchers.fetchTemplate(newTemplateId);
+    const generation = current.generation;
+    shellState.isTemplateLoading = true;
+    let newTemplate: T.Template | null;
+    try {
+      newTemplate = await fetchers.fetchTemplate(newTemplateId);
+    } finally {
+      shellState.isTemplateLoading = false;
+    }
     invariant(
       newTemplate,
       `Cannot update templateId: no template found with id ${newTemplateId}`
     );
 
-    state.template = newTemplate;
-    state.isTemplateLoading = false;
-
-    if (!state.localAsset) {
-      return;
-    }
-
-    state.localAsset = migrateAssetToTemplate(state.localAsset, newTemplate);
+    dispatch({
+      type: "templateMigrated",
+      generation,
+      template: newTemplate,
+    });
 
     // component should handle the saving
   }
@@ -316,15 +388,19 @@ export const createAssetEditor = () => {
   async function updateLocalAsset(
     updatedAsset: T.UnsavedAsset | T.Asset
   ): Promise<void> {
-    invariant(state.localAsset, "Cannot update asset: no local asset.");
+    const current = model.value;
+    invariant(
+      current.status === "editingNew" || current.status === "editingSaved",
+      "Cannot update asset: no local asset."
+    );
 
     // If the templateId has changed, we need to update the template
     // and migrate the asset
-    if (state.localAsset.templateId !== updatedAsset.templateId) {
+    if (current.localAsset.templateId !== updatedAsset.templateId) {
       await migrateToTemplate(updatedAsset.templateId);
     }
 
-    state.localAsset = applyAssetEdit(state.localAsset, updatedAsset);
+    dispatch({ type: "localAssetEdited", edit: updatedAsset });
   }
 
   function updateWidgetContents(
@@ -332,10 +408,10 @@ export const createAssetEditor = () => {
     contents: T.WidgetContent[]
   ): void {
     invariant(
-      state.localAsset,
+      localAsset.value,
       "Cannot update widget contents: no local asset."
     );
-    state.localAsset[fieldTitle] = contents;
+    dispatch({ type: "widgetContentsEdited", fieldTitle, contents });
   }
 
   // this is a hook to allow components to register a callback
@@ -357,25 +433,40 @@ export const createAssetEditor = () => {
     hasChangedSinceSave: boolean
   ): void {
     invariant(
-      state.localAsset,
+      localAsset.value,
       "Cannot set modified inline related asset: no local asset."
     );
 
     hasChangedSinceSave
-      ? state.modifiedInlineRelatedAssetWidgets.add(widgetContentItemId)
-      : state.modifiedInlineRelatedAssetWidgets.delete(widgetContentItemId);
+      ? shellState.modifiedInlineRelatedAssetWidgets.add(widgetContentItemId)
+      : shellState.modifiedInlineRelatedAssetWidgets.delete(
+          widgetContentItemId
+        );
   }
 
   // wrapping in reactive to auto-unwrap refs
   return reactive({
-    // state
-    ...toRefs(state),
+    // state (selectors over the model)
+    editorId: computed(() => shellState.editorId),
+    localAsset,
+    savedAsset,
+    template,
+    isInitialized: isEditing,
+    isTemplateLoading: computed(() => shellState.isTemplateLoading),
+    modifiedInlineRelatedAssetWidgets: computed(
+      () => shellState.modifiedInlineRelatedAssetWidgets
+    ),
+
+    // consumers may report what the user did. An operation's own progress
+    // is the shell's to report, so those events are not in EditorIntent and
+    // cannot be dispatched from outside.
+    dispatch: (intent: EditorIntent) => dispatch(intent),
 
     // computed
     assetId,
-    templateId: computed(() => state.template?.templateId ?? null),
-    collectionId: computed(() => state.localAsset?.collectionId ?? null),
-    isNewAsset: computed(() => !state.localAsset?.assetId),
+    templateId: computed(() => template.value?.templateId ?? null),
+    collectionId: computed(() => localAsset.value?.collectionId ?? null),
+    isNewAsset: computed(() => !localAsset.value?.assetId),
     collectionOptions,
     templateOptions,
     localAssetTitle,
@@ -383,11 +474,11 @@ export const createAssetEditor = () => {
     hasAssetChanged,
     saveAssetIndicator: updateAssetMutation.status,
     lastModified: computed(() => {
-      if (!state.localAsset?.modified?.date) return null;
-      return new Date(state.localAsset.modified.date).toLocaleString();
+      if (!localAsset.value?.modified?.date) return null;
+      return new Date(localAsset.value.modified.date).toLocaleString();
     }),
 
-    // actions
+    // effects
     reset,
     initNewAsset,
     initExistingAsset,

@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  applyAssetEdit,
   applySaveResult,
   makeLocalAsset,
   migrateAssetToTemplate,
@@ -55,60 +54,6 @@ describe("makeLocalAsset", () => {
     });
 
     expect(asset.modified).toBeNull();
-  });
-});
-
-describe("applyAssetEdit", () => {
-  it("takes the assetId from an edit that carries one", () => {
-    const merged = applyAssetEdit(
-      makeSavedAsset({ assetId: "current-id" }),
-      makeSavedAsset({ assetId: "edit-id" })
-    );
-
-    expect(merged.assetId).toBe("edit-id");
-  });
-
-  it("restores the saved assetId and modified date together when the edit has neither", () => {
-    const merged = applyAssetEdit(
-      makeSavedAsset({ assetId: "asset-123", modified: savedDate }),
-      makeUnsavedAsset({ title: ["edited while the first save was in flight"] })
-    );
-
-    expect(merged.assetId).toBe("asset-123");
-    expect(merged.modified).toEqual(savedDate);
-  });
-
-  it("carries the edit's content through", () => {
-    const merged = applyAssetEdit(
-      makeSavedAsset(),
-      makeUnsavedAsset({ title_1: [{ fieldContents: "new title" }] })
-    );
-
-    expect(merged.title_1).toEqual([{ fieldContents: "new title" }]);
-  });
-
-  it("treats an empty-string assetId on the edit as new, not as an id", () => {
-    const merged = applyAssetEdit(
-      makeSavedAsset({ assetId: "asset-123" }),
-      makeSavedAsset({ assetId: "" })
-    );
-
-    expect(merged.assetId).toBe("asset-123");
-  });
-
-  it("drops an empty-string assetId on the current asset rather than keeping it", () => {
-    const merged = applyAssetEdit(
-      makeSavedAsset({ assetId: "" }),
-      makeUnsavedAsset()
-    );
-
-    expect(merged.assetId).toBeNull();
-  });
-
-  it("leaves the assetId null when neither asset has been saved", () => {
-    const merged = applyAssetEdit(makeUnsavedAsset(), makeUnsavedAsset());
-
-    expect(merged.assetId).toBeNull();
   });
 });
 

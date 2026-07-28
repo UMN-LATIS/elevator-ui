@@ -124,7 +124,7 @@ export function makeLocalAssetFromSaved({
   return localAsset;
 }
 
-function makeNewLocalAsset({
+export function makeNewLocalAsset({
   template,
   collectionId,
 }: {
@@ -210,30 +210,6 @@ export function doAllRequiredHaveContent(
 }
 
 /**
- * Merge an incoming edit into the asset being edited.
- *
- * An edit payload can be built from a snapshot taken before the first save
- * wrote the assetId back. Restoring the saved identity fields keeps the next
- * save an update: the server reads an empty objectId as a create.
- */
-export function applyAssetEdit(
-  currentAsset: Asset | UnsavedAsset,
-  edit: Asset | UnsavedAsset
-): Asset | UnsavedAsset {
-  // "" counts as no id in both guards, matching the server's read of an
-  // empty objectId. Copies keep the caller's payload separate from state.
-  if (edit.assetId) return { ...edit };
-  if (!currentAsset.assetId) return { ...edit };
-
-  // restore the identity fields together so the result is a coherent Asset
-  return {
-    ...edit,
-    assetId: currentAsset.assetId,
-    modified: currentAsset.modified,
-  };
-}
-
-/**
  * Merge the fields the server owns into the asset the user is still editing.
  * Widget contents are deliberately not copied: a save takes seconds and the
  * user keeps typing through it.
@@ -252,6 +228,11 @@ export function applySaveResult(
   };
 }
 
+export function migrateAssetToTemplate(asset: Asset, newTemplate: Template): Asset;
+export function migrateAssetToTemplate(
+  asset: UnsavedAsset,
+  newTemplate: Template
+): UnsavedAsset;
 export function migrateAssetToTemplate(
   asset: Asset | UnsavedAsset,
   newTemplate: Template
