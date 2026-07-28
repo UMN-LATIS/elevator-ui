@@ -67,16 +67,16 @@ import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 import { ApiError } from "./ApiError";
+import { chooseErrorNotification } from "./chooseErrorNotification";
+import { getErrorMessage } from "./getErrorMessage";
 import { useErrorStore } from "@/stores/errorStore";
+import { useToastStore } from "@/stores/toastStore";
 import { toClickToSearchUrl } from "@/helpers/displayUtils";
 
 const BASE_URL = config.instance.base.url;
 
 axios.defaults.withCredentials = true;
 
-// this interceptor is used to catch errors from the API
-// convert them into API errors and store them in the error store
-// so that they're displayed to the user
 axios.interceptors.response.use(undefined, async (err: AxiosError) => {
   // A request aborted via AbortSignal (e.g. TanStack Query superseding a
   // stale autocomplete fetch) isn't a failure. Reject quietly so it never
@@ -86,9 +86,10 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     return Promise.reject(err);
   }
 
-  const customConfig = err.config as CustomAxiosRequestConfig;
+  // config is missing when the error came from a request interceptor
+  // rather than a response
+  const customConfig = err.config as CustomAxiosRequestConfig | undefined;
 
-  const errorStore = useErrorStore();
   let apiError: ApiError;
 
   if (err.response) {
@@ -105,13 +106,26 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  if (
-    !customConfig.skipErrorNotifications &&
-    apiError.statusCode !== 401 &&
-    apiError.statusCode !== 410
-  ) {
-    // Add the ApiError to the errorStore
-    errorStore.setError(apiError);
+  if (!customConfig?.skipErrorNotifications) {
+    const notification = chooseErrorNotification(apiError.statusCode);
+
+    if (notification === "modal") {
+      useErrorStore().setError(apiError);
+    }
+
+    if (notification === "toast") {
+      const toastStore = useToastStore();
+      const message = getErrorMessage(apiError);
+      const isMessageAlreadyShowing = toastStore.toasts.some(
+        (toast) => toast.variant === "error" && toast.message === message
+      );
+
+      // A failed query retries, and every attempt lands here, so a message
+      // already on screen means this failure is reported.
+      if (!isMessageAlreadyShowing) {
+        toastStore.error(message);
+      }
+    }
   }
 
   return Promise.reject(apiError);
