@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <AdminLayout>
     <div
       v-if="editor.isLoading.value && editor.isEditMode.value"
       class="flex justify-center items-center py-12">
@@ -17,13 +17,13 @@
       v-else
       @save="handleSave"
       @cancel="router.push({ name: 'templatesIndex' })" />
-  </DefaultLayout>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import { provide } from "vue";
 import { useRouter } from "vue-router";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EditTemplateForm from "./EditTemplateForm/EditTemplateForm.vue";
 import {

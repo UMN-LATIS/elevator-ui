@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <AdminLayout>
     <FormPageLayout :title="isNewPage ? 'Create Page' : 'Edit Page'">
       <div v-if="isLoading" class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
@@ -69,7 +69,7 @@
         <FormToc :sections="tocSections" class="hidden lg:block" />
       </template>
     </FormPageLayout>
-  </DefaultLayout>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
@@ -91,7 +91,7 @@ import {
 } from "@/queries/useCustomPageQuery";
 import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
 import type { SelectOption, TocItem } from "@/types";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
 
 const props = defineProps<{
   pageId: number | null;
