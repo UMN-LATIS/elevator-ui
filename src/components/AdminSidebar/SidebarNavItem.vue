@@ -3,7 +3,7 @@
     :href="href"
     :to="to"
     class="flex items-center gap-2.5 py-2 px-2.5 rounded-[6px] text-[0.8125rem] font-medium text-[--on-surface-variant] no-underline hover:bg-on-surface-hover hover:text-[--on-surface] [&.is-active]:bg-[--primary-container] [&.is-active]:text-[--on-primary-container] [&.is-active]:font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-[--primary] focus-visible:outline-offset-2"
-    activeClass="is-active"
+    :activeClass="to ? 'is-active' : undefined"
     :class="{ 'is-active': isActiveByRouteName }">
     <component
       :is="icon"
