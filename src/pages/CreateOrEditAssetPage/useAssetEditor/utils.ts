@@ -209,6 +209,22 @@ export function doAllRequiredHaveContent(
   });
 }
 
+/**
+ * Merge an incoming edit into the asset being edited.
+ */
+export function applyAssetEdit(
+  currentAsset: Asset | UnsavedAsset,
+  edit: Asset | UnsavedAsset
+): Asset | UnsavedAsset {
+  return {
+    ...edit,
+    // if edit contains a stale empty (new) assetId,
+    // but currentAsset has a non-empty assetId, preserve the
+    // non-empty one to prevent accidentally creating a new asset on save.
+    assetId: edit.assetId || currentAsset.assetId,
+  };
+}
+
 export function migrateAssetToTemplate(
   asset: Asset | UnsavedAsset,
   newTemplate: Template

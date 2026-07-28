@@ -2,6 +2,7 @@ import * as T from "@/types";
 import { computed, inject, nextTick, reactive, toRefs } from "vue";
 import { useInstanceStore } from "@/stores/instanceStore";
 import {
+  applyAssetEdit,
   hasAssetChanged as hasAssetChangedPure,
   makeLocalAsset,
 } from "./utils";
@@ -338,13 +339,7 @@ export const createAssetEditor = () => {
       await migrateToTemplate(updatedAsset.templateId);
     }
 
-    state.localAsset = {
-      ...updatedAsset,
-      // if updatedAsset contains a stale empty (new) assetId,
-      // but current localAsset has a non-empty assetId, preserve the
-      // non-empty one to prevent accidentally creating a new asset on save.
-      assetId: updatedAsset.assetId || state.localAsset.assetId,
-    };
+    state.localAsset = applyAssetEdit(state.localAsset, updatedAsset);
   }
 
   function updateAssetField(
