@@ -5,6 +5,9 @@ import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
 // page issues exactly one getMetadataForObject request we can force to fail.
 const SINGLE_FILE_ASSET_ID = "6875871d4eb080a4880a0f44";
 
+// Five saved files, so a forced 404 yields one error toast per file.
+const MULTI_FILE_ASSET_ID = "glacier_mixed_asset_001";
+
 const METADATA_ROUTE = "**/fileManager/getMetadataForObject/**";
 
 // The friendly text getErrorMessage maps each status to.
@@ -74,5 +77,35 @@ test.describe("error notifications by status", () => {
       errorModal.getByRole("heading", { name: "Error: 500" })
     ).toBeVisible({ timeout: 10000 });
     await expect(errorModal.getByText(SERVER_ERROR_MESSAGE)).toBeVisible();
+  });
+
+  test("Clear All dismisses every toast at once", async ({ page }) => {
+    await stubMetadataStatus(page, 404);
+
+    await page.goto(`/assetManager/editAsset/${MULTI_FILE_ASSET_ID}`);
+
+    const toasts = page.locator(".toast-root__toast");
+    await expect(toasts.nth(1)).toBeVisible({ timeout: 10000 });
+
+    const clearAllButton = page.getByRole("button", { name: "Clear All" });
+    await expect(clearAllButton).toBeVisible();
+
+    await clearAllButton.click();
+
+    await expect(toasts).toHaveCount(0);
+    await expect(clearAllButton).toHaveCount(0);
+  });
+
+  test("Clear All is not offered for a single toast", async ({ page }) => {
+    await stubMetadataStatus(page, 404);
+
+    await page.goto(`/assetManager/editAsset/${SINGLE_FILE_ASSET_ID}`);
+
+    const toasts = page.locator(".toast-root__toast");
+    await expect(toasts).toHaveCount(1, { timeout: 10000 });
+
+    await expect(
+      page.getByRole("button", { name: "Clear All" })
+    ).toHaveCount(0);
   });
 });
