@@ -5,8 +5,11 @@ import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
 // page issues exactly one getMetadataForObject request we can force to fail.
 const SINGLE_FILE_ASSET_ID = "6875871d4eb080a4880a0f44";
 
-// Five saved files, so a forced 404 yields one error toast per file.
+// Five saved files, so several metadata requests fail from one page load.
 const MULTI_FILE_ASSET_ID = "glacier_mixed_asset_001";
+
+// One of the five files on that asset.
+const FORBIDDEN_FILE_ID = "goldy-M";
 
 const METADATA_ROUTE = "**/fileManager/getMetadataForObject/**";
 
@@ -115,14 +118,24 @@ test.describe("error notifications by status", () => {
   });
 
   test("Clear All dismisses every toast at once", async ({ page }) => {
-    await stubMetadataStatus(page, 404);
+    // goldy-M answers 403 and the other four files 404, so two distinct
+    // messages survive the dedupe and there is more than one toast to clear.
+    await page.route(METADATA_ROUTE, (route) => {
+      const isForbiddenFile = route.request().url().includes(FORBIDDEN_FILE_ID);
+
+      return route.fulfill({
+        status: isForbiddenFile ? 403 : 404,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "unknownFile" }),
+      });
+    });
 
     await page.goto(`/assetManager/editAsset/${MULTI_FILE_ASSET_ID}`);
 
-    // All five failures must land before clearing, or a straggler toast
+    // Both failures must land before clearing, or a straggler toast
     // arriving after the click would repopulate the list.
     const toasts = page.locator(".toast-root__toast");
-    await expect(toasts).toHaveCount(5, { timeout: 10000 });
+    await expect(toasts).toHaveCount(2, { timeout: 10000 });
 
     const clearAllButton = page.getByRole("button", { name: "Clear All" });
     await expect(clearAllButton).toBeVisible();

@@ -114,7 +114,17 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     }
 
     if (notification === "toast") {
-      useToastStore().error(getErrorMessage(apiError));
+      const toastStore = useToastStore();
+      const message = getErrorMessage(apiError);
+      const isMessageAlreadyShowing = toastStore.toasts.some(
+        (toast) => toast.variant === "error" && toast.message === message
+      );
+
+      // A failed query retries, and every attempt lands here, so a message
+      // already on screen means this failure is reported.
+      if (!isMessageAlreadyShowing) {
+        toastStore.error(message);
+      }
     }
   }
 
