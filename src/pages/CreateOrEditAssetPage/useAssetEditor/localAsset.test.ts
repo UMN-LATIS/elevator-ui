@@ -4,7 +4,7 @@ import {
   applySaveResult,
   makeLocalAsset,
   migrateAssetToTemplate,
-} from "./utils";
+} from "./localAsset";
 import type { Asset, PHPDateTime, Template, UnsavedAsset } from "@/types";
 
 const emptyTemplate = {

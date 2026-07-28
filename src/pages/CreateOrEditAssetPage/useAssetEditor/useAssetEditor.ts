@@ -7,7 +7,7 @@ import {
   hasAssetChanged as hasAssetChangedPure,
   makeLocalAsset,
   migrateAssetToTemplate,
-} from "./utils";
+} from "./localAsset";
 import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
