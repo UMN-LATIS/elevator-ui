@@ -1,11 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { ref, nextTick } from "vue";
 import { useAssetValidationProvider } from "./useAssetValidation";
-import type { 
-  UnsavedAsset, 
-  Template, 
-  WidgetDef, 
-  PHPDateTime, 
+import type {
+  UnsavedAsset,
+  Template,
+  WidgetDef,
   WidgetInstanceId,
   TextWidgetContent,
   DateWidgetContent
@@ -47,12 +46,6 @@ vi.mock("@/types/guards", () => ({
   }),
 }));
 
-const createMockPHPDateTime = (): PHPDateTime => ({
-  date: "2025-01-01 00:00:00.000000",
-  timezone: "UTC",
-  timezone_type: 3,
-});
-
 const createMockAsset = (
   fieldData: Record<string, unknown> = {}
 ): UnsavedAsset => ({
@@ -61,7 +54,7 @@ const createMockAsset = (
   readyForDisplay: false,
   collectionId: 1,
   availableAfter: null,
-  modified: createMockPHPDateTime(),
+  modified: null,
   modifiedBy: 1,
   createdBy: 1,
   deletedBy: null,
