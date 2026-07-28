@@ -2,10 +2,6 @@
   <nav
     class="bg-surface text-on-surface border-r border-outline-variant w-60"
     aria-label="Admin">
-    <!-- The nav column stretches to the full page so its surface and border
-         reach the bottom on any page. Only the list pins, so the links stay
-         reachable down a long page. top-20 matches FormPageLayout's rail,
-         which sits opposite this one on the editor pages. -->
     <div
       class="sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto py-4 px-3">
       <h2

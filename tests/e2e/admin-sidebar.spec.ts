@@ -16,10 +16,6 @@ const ADMIN_ROUTES = [
   { path: "/instances/edit/1", activeItem: "Instance Settings" },
 ];
 
-// The sidebar is hidden below Tailwind's xl breakpoint, where the AppMenu
-// carries admin navigation instead. 1024 is the interesting width: wide
-// enough to look like a desktop, still too narrow to seat the sidebar
-// beside a form page's action rail.
 const DESKTOP = { width: 1440, height: 900 };
 const BELOW_XL = { width: 1024, height: 900 };
 
@@ -69,7 +65,7 @@ test.describe("Admin sidebar", () => {
     expect(measurements.navBottom).toBeGreaterThanOrEqual(
       measurements.viewportHeight - 1
     );
-    // A short page must not have grown a scrollbar to satisfy the above.
+    // A short page must not have grown a scrollbar to reach the bottom.
     expect(measurements.documentHeight).toBeLessThanOrEqual(
       measurements.viewportHeight + 1
     );
@@ -99,8 +95,6 @@ test.describe("Admin sidebar", () => {
       (el) => el.getBoundingClientRect().top
     );
 
-    // Sticky pins the list, so the first link holds its viewport position
-    // instead of scrolling away with the column.
     expect(topAfterScroll).toBeCloseTo(topBeforeScroll, 0);
     await expect(firstLink).toBeInViewport();
   });
