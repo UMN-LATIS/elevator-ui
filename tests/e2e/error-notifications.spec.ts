@@ -51,7 +51,6 @@ test.describe("error notifications by status", () => {
       timeout: 10000,
     });
 
-    // The blocking modal must not appear for a 404.
     await expect(
       errorModal.getByRole("heading", { name: "Error: 404" })
     ).toHaveCount(0);
@@ -61,7 +60,6 @@ test.describe("error notifications by status", () => {
     await titleField.fill("Still editable behind the toast");
     await expect(titleField).toHaveValue("Still editable behind the toast");
 
-    // The toast itself can be dismissed.
     await toastRoot.getByRole("button", { name: "Close" }).click();
     await expect(toastRoot.getByText(NOT_FOUND_MESSAGE)).toHaveCount(0);
   });
@@ -79,13 +77,33 @@ test.describe("error notifications by status", () => {
     await expect(errorModal.getByText(SERVER_ERROR_MESSAGE)).toBeVisible();
   });
 
+  test("a 410 stays silent: no toast, no modal", async ({ page }) => {
+    await stubMetadataStatus(page, 410);
+
+    const metadataFailure = page.waitForResponse((response) =>
+      response.url().includes("/fileManager/getMetadataForObject/")
+    );
+    await page.goto(`/assetManager/editAsset/${SINGLE_FILE_ASSET_ID}`);
+    await metadataFailure;
+
+    // Settle a render before asserting nothing appeared.
+    await expect(page.getByLabel(/title/i).first()).toBeVisible();
+
+    await expect(page.locator(".toast-root__toast")).toHaveCount(0);
+    await expect(page.locator(".error-modal").getByRole("heading")).toHaveCount(
+      0
+    );
+  });
+
   test("Clear All dismisses every toast at once", async ({ page }) => {
     await stubMetadataStatus(page, 404);
 
     await page.goto(`/assetManager/editAsset/${MULTI_FILE_ASSET_ID}`);
 
+    // All five failures must land before clearing, or a straggler toast
+    // arriving after the click would repopulate the list.
     const toasts = page.locator(".toast-root__toast");
-    await expect(toasts.nth(1)).toBeVisible({ timeout: 10000 });
+    await expect(toasts).toHaveCount(5, { timeout: 10000 });
 
     const clearAllButton = page.getByRole("button", { name: "Clear All" });
     await expect(clearAllButton).toBeVisible();
