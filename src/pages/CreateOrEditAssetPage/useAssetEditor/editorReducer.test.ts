@@ -234,6 +234,37 @@ describe("editorReducer", () => {
       expect(next).toBe(otherSession);
     });
 
+    it("drops an update response that resolves after the user started a new asset, so the new draft cannot silently overwrite the old asset", () => {
+      // the user is editing asset X and a save of it is in flight
+      const editingX = editingExistingAsset(
+        makeSavedAsset({ assetId: "asset-X" })
+      );
+      const saveGeneration = editingX.generation;
+
+      // before the save resolves, the user starts a new asset and its
+      // template (cached, so near-instant) loads
+      const loading = editorReducer(editingX, {
+        type: "newAssetRequested",
+        collectionId: 42,
+      });
+      const freshDraft = editorReducer(loading, {
+        type: "templateLoaded",
+        generation: loading.generation,
+        template: emptyTemplate,
+      });
+
+      // asset X's update response finally lands
+      const next = editorReducer(freshDraft, {
+        type: "saveSucceeded",
+        generation: saveGeneration,
+        savedAsset: makeSavedAsset({ assetId: "asset-X" }),
+      });
+
+      // accepting it would adopt asset X as the baseline under the fresh
+      // draft, so the next save would overwrite asset X with that draft
+      expect(next).toBe(freshDraft);
+    });
+
     it("drops an asset that arrives for a superseded request", () => {
       const next = editorReducer(editingExistingAsset(), {
         type: "assetLoaded",
