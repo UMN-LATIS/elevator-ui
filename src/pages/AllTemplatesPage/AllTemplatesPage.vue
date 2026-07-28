@@ -1,10 +1,13 @@
 <template>
-  <DefaultLayout class="all-templates-page">
-    <div class="max-w-screen-xl w-full py-10 px-4 mx-auto">
-      <div class="flex justify-between items-center">
-        <h1 class="text-4xl font-bold my-8">Templates</h1>
-        <Button variant="primary" to="/templates/edit">Create Template</Button>
-      </div>
+  <AdminLayout class="all-templates-page">
+    <PageContent class="max-w-screen-lg">
+      <PageHeader title="Templates">
+        <template #actions>
+          <Button variant="primary" to="/templates/edit">
+            Create Template
+          </Button>
+        </template>
+      </PageHeader>
       <Skeleton v-if="isPending" height="10rem" />
       <Notification
         v-else-if="isError"
@@ -55,13 +58,15 @@
           ? This action cannot be undone.
         </p>
       </ConfirmModal>
-    </div>
-  </DefaultLayout>
+    </PageContent>
+  </AdminLayout>
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
+import PageContent from "@/components/PageContent/PageContent.vue";
+import PageHeader from "@/components/PageHeader/PageHeader.vue";
 import { useToastStore } from "@/stores/toastStore";
 import { createColumns } from "./TemplatesTableColumns";
 import TemplatesTable from "./TemplatesTable.vue";
