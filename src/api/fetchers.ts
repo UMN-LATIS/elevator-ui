@@ -67,7 +67,10 @@ import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { FileDownloadResponse } from "@/types/FileDownloadTypes";
 import { getExtensionFromFilename } from "@/helpers/getExtensionFromFilename";
 import { ApiError } from "./ApiError";
+import { chooseErrorNotification } from "./chooseErrorNotification";
+import { getErrorMessage } from "./getErrorMessage";
 import { useErrorStore } from "@/stores/errorStore";
+import { useToastStore } from "@/stores/toastStore";
 import { toClickToSearchUrl } from "@/helpers/displayUtils";
 
 const BASE_URL = config.instance.base.url;
@@ -88,7 +91,6 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
 
   const customConfig = err.config as CustomAxiosRequestConfig;
 
-  const errorStore = useErrorStore();
   let apiError: ApiError;
 
   if (err.response) {
@@ -105,13 +107,16 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  if (
-    !customConfig.skipErrorNotifications &&
-    apiError.statusCode !== 401 &&
-    apiError.statusCode !== 410
-  ) {
-    // Add the ApiError to the errorStore
-    errorStore.setError(apiError);
+  if (!customConfig.skipErrorNotifications) {
+    const notification = chooseErrorNotification(apiError.statusCode);
+
+    if (notification === "modal") {
+      useErrorStore().setError(apiError);
+    }
+
+    if (notification === "toast") {
+      useToastStore().error(getErrorMessage(apiError));
+    }
   }
 
   return Promise.reject(apiError);
