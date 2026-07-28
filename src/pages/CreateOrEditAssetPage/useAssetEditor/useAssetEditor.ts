@@ -320,6 +320,7 @@ export const createAssetEditor = () => {
     dispatch({
       type: "saveSucceeded",
       generation,
+      didCreateAsset: isCreate,
       savedAsset: fetchedAsset,
     });
   }

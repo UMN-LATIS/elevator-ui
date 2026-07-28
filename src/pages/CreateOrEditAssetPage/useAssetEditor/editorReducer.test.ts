@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   editorReducer,
   initialEditorModel,
-  selectHasUnsavedEdits,
   selectLocalAsset,
   type EditorModel,
 } from "./editorReducer";
@@ -229,11 +228,27 @@ describe("editorReducer", () => {
       const next = editorReducer(otherSession, {
         type: "saveSucceeded",
         generation: GENERATION - 1,
+        didCreateAsset: false,
         savedAsset: makeSavedAsset({ assetId: "asset-A" }),
       });
 
       // accepting it would stamp asset A's id onto asset B's content, and
       // the next save would then overwrite asset A on the server
+      expect(next).toBe(otherSession);
+    });
+
+    it("drops a late create response once the user is editing an existing asset", () => {
+      const otherSession = editingExistingAsset(
+        makeSavedAsset({ assetId: "asset-B" })
+      );
+
+      const next = editorReducer(otherSession, {
+        type: "saveSucceeded",
+        generation: GENERATION - 1,
+        didCreateAsset: true,
+        savedAsset: makeSavedAsset({ assetId: "asset-A" }),
+      });
+
       expect(next).toBe(otherSession);
     });
 
@@ -260,6 +275,7 @@ describe("editorReducer", () => {
       const next = editorReducer(freshDraft, {
         type: "saveSucceeded",
         generation: saveGeneration,
+        didCreateAsset: false,
         savedAsset: makeSavedAsset({ assetId: "asset-X" }),
       });
 
@@ -434,7 +450,12 @@ describe("editorReducer", () => {
 
       const next = editorReducer(
         editingNewAsset(inFlightEdit, makeTemplate(1, [{ fieldTitle: "title_1" }])),
-        { type: "saveSucceeded", generation: GENERATION, savedAsset }
+        {
+          type: "saveSucceeded",
+          generation: GENERATION,
+          didCreateAsset: true,
+          savedAsset,
+        }
       );
 
       expect(next.status).toBe("editingExistingAsset");
@@ -454,14 +475,28 @@ describe("editorReducer", () => {
       ]);
     });
 
-    it("drops a save that resolves after a reset", () => {
+    it("drops a save that resolves after a reset, even a create", () => {
       const next = editorReducer(idle, {
         type: "saveSucceeded",
         generation: GENERATION,
+        didCreateAsset: true,
         savedAsset: makeSavedAsset(),
       });
 
       expect(next).toBe(idle);
+    });
+
+    it("accepts a late create response while the draft is still unsaved, since it carries the only copy of the new assetId", () => {
+      const next = editorReducer(editingNewAsset(), {
+        type: "saveSucceeded",
+        generation: GENERATION - 1,
+        didCreateAsset: true,
+        savedAsset: makeSavedAsset({ assetId: "created-while-away" }),
+      });
+
+      expect(next.status).toBe("editingExistingAsset");
+      if (next.status !== "editingExistingAsset") return;
+      expect(next.savedAsset.assetId).toBe("created-while-away");
     });
   });
 

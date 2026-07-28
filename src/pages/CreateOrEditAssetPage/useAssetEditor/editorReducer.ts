@@ -106,7 +106,12 @@ export type EditorEvent =
       template: T.Template;
     }
   | { type: "templateMigrated"; generation: number; template: T.Template }
-  | { type: "saveSucceeded"; generation: number; savedAsset: T.Asset }
+  | {
+      type: "saveSucceeded";
+      generation: number;
+      didCreateAsset: boolean;
+      savedAsset: T.Asset;
+    }
   | { type: "resetRequested" };
 
 /**
@@ -288,7 +293,7 @@ function modelWithFieldEdit(
 
 function onSaveSucceeded(
   model: EditorModel,
-  event: { generation: number; savedAsset: T.Asset }
+  event: { generation: number; didCreateAsset: boolean; savedAsset: T.Asset }
 ): EditorModel {
   if (
     model.status !== "editingNewAsset" &&
@@ -297,11 +302,16 @@ function onSaveSucceeded(
     return model;
   }
 
-  // a create response carries the only copy of the new assetId, so take it
-  // even from an abandoned session: a duplicate asset on the next save is
-  // worse than showing a stale one
-  const isCreateResponse = model.status === "editingNewAsset";
-  if (!isCreateResponse && event.generation !== model.generation) {
+  // a create response carries the only copy of the new assetId, so while
+  // the editor still holds an unsaved draft it is taken even from an
+  // abandoned session: a duplicate asset on the next save is worse than
+  // showing a stale one
+  const isCreateResponseForUnsavedDraft =
+    event.didCreateAsset && model.status === "editingNewAsset";
+  if (
+    !isCreateResponseForUnsavedDraft &&
+    event.generation !== model.generation
+  ) {
     return model;
   }
   const savedAsset = makeLocalAssetFromSaved({
