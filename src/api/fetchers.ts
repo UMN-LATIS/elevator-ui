@@ -89,7 +89,9 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     return Promise.reject(err);
   }
 
-  const customConfig = err.config as CustomAxiosRequestConfig;
+  // config is missing when the error came from a request interceptor
+  // rather than a response
+  const customConfig = err.config as CustomAxiosRequestConfig | undefined;
 
   let apiError: ApiError;
 
@@ -107,7 +109,7 @@ axios.interceptors.response.use(undefined, async (err: AxiosError) => {
     apiError = new ApiError(err.message, 0); // Use 0 as the status code to signal a network error.
   }
 
-  if (!customConfig.skipErrorNotifications) {
+  if (!customConfig?.skipErrorNotifications) {
     const notification = chooseErrorNotification(apiError.statusCode);
 
     if (notification === "modal") {
