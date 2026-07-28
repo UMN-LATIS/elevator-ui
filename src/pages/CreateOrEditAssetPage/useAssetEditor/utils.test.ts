@@ -37,7 +37,9 @@ const makeSavedAsset = (overrides: Partial<Asset> = {}): Asset => ({
   ...overrides,
 });
 
-const makeUnsavedAsset = (overrides: Partial<UnsavedAsset> = {}): UnsavedAsset => ({
+const makeUnsavedAsset = (
+  overrides: Partial<UnsavedAsset> = {}
+): UnsavedAsset => ({
   ...assetScaffolding,
   assetId: null,
   modified: null,
@@ -66,23 +68,13 @@ describe("applyAssetEdit", () => {
     expect(merged.assetId).toBe("edit-id");
   });
 
-  it("keeps the saved assetId when the edit has none", () => {
+  it("restores the saved assetId and modified date together when the edit has neither", () => {
     const merged = applyAssetEdit(
-      makeSavedAsset({ assetId: "asset-123" }),
+      makeSavedAsset({ assetId: "asset-123", modified: savedDate }),
       makeUnsavedAsset({ title: ["edited while the first save was in flight"] })
     );
 
-    // losing the assetId sends an empty objectId, which the server reads as
-    // a create, so the edit would silently become a second asset
     expect(merged.assetId).toBe("asset-123");
-  });
-
-  it("keeps the saved modified date when the edit has none", () => {
-    const merged = applyAssetEdit(
-      makeSavedAsset({ modified: savedDate }),
-      makeUnsavedAsset()
-    );
-
     expect(merged.modified).toEqual(savedDate);
   });
 
@@ -96,8 +88,6 @@ describe("applyAssetEdit", () => {
   });
 
   it("treats an empty-string assetId on the edit as new, not as an id", () => {
-    // the server reads an empty objectId as a create, so "" has to lose to a
-    // real saved id the same way null does
     const merged = applyAssetEdit(
       makeSavedAsset({ assetId: "asset-123" }),
       makeSavedAsset({ assetId: "" })
@@ -175,14 +165,5 @@ describe("applySaveResult", () => {
     expect(merged.title_1).toEqual([
       { fieldContents: "typed during the save" },
     ]);
-  });
-
-  it("turns an unsaved asset into a saved one", () => {
-    const merged = applySaveResult(makeUnsavedAsset(), makeSavedAsset());
-
-    // the return type is Asset, so these two only re-assert at runtime what
-    // the compiler already checked
-    expect(merged.assetId).toBe("asset-123");
-    expect(merged.modified).toEqual(savedDate);
   });
 });

@@ -7,7 +7,7 @@ import type {
   WidgetDef,
   WidgetInstanceId,
   TextWidgetContent,
-  DateWidgetContent
+  DateWidgetContent,
 } from "@/types";
 
 // Mock the hasWidgetContent function
@@ -387,7 +387,7 @@ describe("useAssetValidation", () => {
     });
 
     // Wait for debounced validation to complete
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     // Should have the final validation result
     expect(widgetValidations.value[0].isValid).toBe(true);
@@ -439,7 +439,7 @@ describe("useAssetValidation", () => {
     ]);
 
     // Wait for debounced update
-    await new Promise(resolve => setTimeout(resolve, 150));
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
     expect(widgetValidations.value).toHaveLength(1);
     expect(widgetValidations.value[0].id).toBe(mockGetWidgetInstanceId(1));
