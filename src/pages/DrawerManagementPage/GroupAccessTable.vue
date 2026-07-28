@@ -75,7 +75,7 @@
               </TableCell>
             </TableRow>
           </template>
-          <template v-else>
+          <template v-else-if="isSuccess">
             <template v-for="row in table.getRowModel().rows" :key="row.id">
               <TableRow
                 :data-group-row="row.original.id"
@@ -124,23 +124,38 @@
             <TableRow v-if="!table.getRowModel().rows.length">
               <TableCell
                 :colspan="groupAccessColumns.length"
-                class="h-16 text-center text-sm"
-                :class="isError ? 'text-error' : 'text-on-surface-variant'">
+                class="h-16 text-center text-sm text-on-surface-variant">
                 {{ emptyMessage }}
               </TableCell>
             </TableRow>
-
-            <AddGroupRow
-              v-model:open="isAddingGroup"
-              :drawerId="drawerId"
-              :colspan="groupAccessColumns.length"
-              @created="revealNewGroup" />
-            <AddRowButton
-              v-if="!isAddingGroup"
-              :colspan="groupAccessColumns.length"
-              label="New Group"
-              @click="openAddGroupForm" />
           </template>
+          <template v-else>
+            <TableRow>
+              <TableCell
+                :colspan="groupAccessColumns.length"
+                class="h-16 text-center text-sm text-error">
+                Could not load groups.
+              </TableCell>
+            </TableRow>
+          </template>
+
+          <!--
+            AddGroupRow subscribes to the same queries the branches key
+            on, and mounting a subscriber to a query with no data
+            refetches it. Keeping it outside the branches means no
+            predicate here can trigger that, whatever the predicate says.
+            AddRowButton fetches nothing, so gating it is safe.
+          -->
+          <AddGroupRow
+            v-model:open="isAddingGroup"
+            :drawerId="drawerId"
+            :colspan="groupAccessColumns.length"
+            @created="revealNewGroup" />
+          <AddRowButton
+            v-if="isSuccess && !isAddingGroup"
+            :colspan="groupAccessColumns.length"
+            label="New Group"
+            @click="openAddGroupForm" />
         </TableBody>
       </Table>
     </div>
@@ -223,43 +238,36 @@ const props = defineProps<{ drawerId: number }>();
 
 const toastStore = useToastStore();
 
-const {
-  data: grants,
-  isLoading: isLoadingGrants,
-  isError: isGrantsError,
-} = useQuery(drawerGrantsQuery());
-const {
-  data: groups,
-  isLoading: isLoadingGroups,
-  isError: isGroupsError,
-} = useQuery(drawerGroupsQuery());
-const {
-  data: groupTypes,
-  isLoading: isLoadingTypes,
-  isError: isTypesError,
-} = useQuery(drawerGroupTypesQuery());
-const {
-  data: permissionLevels,
-  isLoading: isLoadingLevels,
-  isError: isLevelsError,
-} = useQuery(permissionLevelsQuery());
+const grantsResult = useQuery(drawerGrantsQuery());
+const groupsResult = useQuery(drawerGroupsQuery());
+const groupTypesResult = useQuery(drawerGroupTypesQuery());
+const permissionLevelsResult = useQuery(permissionLevelsQuery());
+
+// the one list every table-wide state derives from, so a query added here
+// cannot reach isLoading while missing from isSuccess
+const tableQueries = [
+  grantsResult,
+  groupsResult,
+  groupTypesResult,
+  permissionLevelsResult,
+];
+
+const { data: grants } = grantsResult;
+const { data: groups } = groupsResult;
+const { data: groupTypes } = groupTypesResult;
+const { data: permissionLevels } = permissionLevelsResult;
 
 // rows join all four sources, so any one still loading means no rows yet
-const isLoading = computed(
-  () =>
-    isLoadingGrants.value ||
-    isLoadingGroups.value ||
-    isLoadingTypes.value ||
-    isLoadingLevels.value
+const isLoading = computed(() =>
+  tableQueries.some((query) => query.isLoading.value)
 );
 
-// each source falls back to [], so one failing looks identical to no groups
-const isError = computed(
-  () =>
-    isGrantsError.value ||
-    isGroupsError.value ||
-    isTypesError.value ||
-    isLevelsError.value
+// `success` is the only status that guarantees data, so the rows branch
+// asks for it positively. Every other state, including an offline pause
+// that leaves isLoading and isError both false, falls through to the
+// error branch, which subscribes to nothing and cannot restart the loop.
+const isSuccess = computed(() =>
+  tableQueries.every((query) => query.isSuccess.value)
 );
 
 const groupRows = computed(() =>
@@ -273,7 +281,6 @@ const groupRows = computed(() =>
 );
 
 const emptyMessage = computed((): string => {
-  if (isError.value) return "Could not load groups.";
   // the table renders this only when no row is visible, so groups that
   // exist are groups the search hid
   if (groupRows.value.length > 0) return "No groups match your search.";

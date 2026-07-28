@@ -89,15 +89,13 @@
         </TableHeader>
         <TableBody>
           <template v-if="isLoading">
-            <TableRow
-              v-for="row in SKELETON_ROW_COUNT"
-              :key="`skeleton-${row}`">
+            <TableRow>
               <TableCell v-for="(_, index) in permissionColumns" :key="index">
                 <Skeleton height="1rem" width="70%" />
               </TableCell>
             </TableRow>
           </template>
-          <template v-else>
+          <template v-else-if="isSuccess">
             <template v-for="row in table.getRowModel().rows" :key="row.id">
               <TableRow
                 :data-permission-row="row.original.key"
@@ -145,31 +143,46 @@
             <TableRow v-if="!table.getRowModel().rows.length">
               <TableCell
                 :colspan="permissionColumns.length"
-                class="h-16 text-center text-sm"
-                :class="isError ? 'text-error' : 'text-on-surface-variant'">
+                class="h-16 text-center text-sm text-on-surface-variant">
                 {{ emptyMessage }}
               </TableCell>
             </TableRow>
-
-            <AddPermissionRow
-              v-model:open="isAddingPermission"
-              :prefillGroup="prefillGroup"
-              :prefillCollectionId="collectionFilterId"
-              :colspan="permissionColumns.length"
-              @created="revealSavedPermission" />
-            <AddRowButton
-              v-if="!isAddingPermission"
-              :colspan="permissionColumns.length"
-              label="Add Permission"
-              @click="openAddPermission()" />
           </template>
+          <template v-else>
+            <TableRow>
+              <TableCell
+                :colspan="permissionColumns.length"
+                class="h-16 text-center text-sm text-error">
+                Could not load permissions.
+              </TableCell>
+            </TableRow>
+          </template>
+
+          <!--
+            AddPermissionRow subscribes to the same six queries the
+            branches key on, and mounting a subscriber to a query with no
+            data refetches it. Keeping it outside the branches means no
+            predicate here can trigger that, whatever the predicate says.
+            AddRowButton fetches nothing, so gating it is safe.
+          -->
+          <AddPermissionRow
+            v-model:open="isAddingPermission"
+            :prefillGroup="prefillGroup"
+            :prefillCollectionId="collectionFilterId"
+            :colspan="permissionColumns.length"
+            @created="revealSavedPermission" />
+          <AddRowButton
+            v-if="isSuccess && !isAddingPermission"
+            :colspan="permissionColumns.length"
+            label="Add Permission"
+            @click="openAddPermission()" />
         </TableBody>
       </Table>
     </div>
 
     <section
       v-if="
-        !isLoading && unassignedGroupRows.length && collectionFilterId === null
+        isSuccess && unassignedGroupRows.length && collectionFilterId === null
       "
       class="mt-8">
       <h2 class="text-base font-medium text-on-surface">Unassigned Groups</h2>
@@ -296,52 +309,42 @@ const SKELETON_ROW_COUNT = 3;
 
 const toastStore = useToastStore();
 
-const {
-  data: instanceGrants,
-  isLoading: isLoadingInstanceGrants,
-  isError: isInstanceGrantsError,
-} = useQuery(instanceGrantsQuery());
-const {
-  data: collectionGrants,
-  isLoading: isLoadingCollectionGrants,
-  isError: isCollectionGrantsError,
-} = useQuery(collectionGrantsQuery());
-const {
-  data: groups,
-  isLoading: isLoadingGroups,
-  isError: isGroupsError,
-} = useQuery(groupsQuery());
-const {
-  data: groupTypes,
-  isLoading: isLoadingTypes,
-  isError: isTypesError,
-} = useQuery(groupTypesQuery());
-const {
-  data: permissionLevels,
-  isLoading: isLoadingLevels,
-  isError: isLevelsError,
-} = useQuery(permissionLevelsQuery());
-const { data: instanceNav, isLoading: isLoadingNav } = useInstanceQuery();
+const instanceGrantsResult = useQuery(instanceGrantsQuery());
+const collectionGrantsResult = useQuery(collectionGrantsQuery());
+const groupsResult = useQuery(groupsQuery());
+const groupTypesResult = useQuery(groupTypesQuery());
+const permissionLevelsResult = useQuery(permissionLevelsQuery());
+const instanceNavResult = useInstanceQuery();
+
+// the one list every table-wide state derives from, so a query added here
+// cannot reach isLoading while missing from isSuccess
+const tableQueries = [
+  instanceGrantsResult,
+  collectionGrantsResult,
+  groupsResult,
+  groupTypesResult,
+  permissionLevelsResult,
+  instanceNavResult,
+];
+
+const { data: instanceGrants } = instanceGrantsResult;
+const { data: collectionGrants } = collectionGrantsResult;
+const { data: groups } = groupsResult;
+const { data: groupTypes } = groupTypesResult;
+const { data: permissionLevels } = permissionLevelsResult;
+const { data: instanceNav } = instanceNavResult;
 
 // rows join every source, so any one still loading means no rows yet
-const isLoading = computed(
-  () =>
-    isLoadingInstanceGrants.value ||
-    isLoadingCollectionGrants.value ||
-    isLoadingGroups.value ||
-    isLoadingTypes.value ||
-    isLoadingLevels.value ||
-    isLoadingNav.value
+const isLoading = computed(() =>
+  tableQueries.some((query) => query.isLoading.value)
 );
 
-// each source falls back to [], so one failing looks identical to no rows
-const isError = computed(
-  () =>
-    isInstanceGrantsError.value ||
-    isCollectionGrantsError.value ||
-    isGroupsError.value ||
-    isTypesError.value ||
-    isLevelsError.value
+// `success` is the only status that guarantees data, so the rows branch
+// asks for it positively. Every other state, including an offline pause
+// that leaves isLoading and isError both false, falls through to the
+// error branch, which subscribes to nothing and cannot restart the loop.
+const isSuccess = computed(() =>
+  tableQueries.every((query) => query.isSuccess.value)
 );
 
 const flatCollections = computed(() =>
@@ -413,7 +416,6 @@ const visiblePermissionRows = computed((): PermissionRow[] => {
 });
 
 const emptyMessage = computed((): string => {
-  if (isError.value) return "Could not load permissions.";
   // the table renders this only when no row is visible, so rows that
   // exist are rows the search hid
   if (visiblePermissionRows.value.length > 0) {
