@@ -26,6 +26,30 @@ export interface MockDrawerGroup {
   entries: PermissionsGroupEntry[];
 }
 
+// An instance-level permission group. Unlike drawer groups these belong
+// to the instance, not a user, so there is no owner id.
+export interface MockAdminGroup {
+  id: number;
+  type: string;
+  label: string;
+  entries: PermissionsGroupEntry[];
+}
+
+// One group's permission level on the whole instance
+export interface MockInstanceGrant {
+  id: number;
+  groupId: number;
+  permissionLevelId: number;
+}
+
+// One group's permission level on one collection
+export interface MockCollectionGrant {
+  id: number;
+  collectionId: number;
+  groupId: number;
+  permissionLevelId: number;
+}
+
 // One group's permission level on one drawer (the backend's DrawerPermission)
 export interface MockDrawerGrant {
   id: number;

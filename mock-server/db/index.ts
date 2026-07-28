@@ -1,3 +1,8 @@
+import {
+  createCollectionGrantsTable,
+  createInstanceGrantsTable,
+} from "./adminGrants";
+import { createAdminGroupsTable } from "./adminGroups";
 import { createAssetsTable } from "./assets";
 import { createCollectionsTable } from "./collections";
 import { createCustomPagesTable } from "./customPages";
@@ -28,6 +33,9 @@ const makeDb = () => {
     drawers: createDrawersTable(),
     drawerGroups: createDrawerGroupsTable(),
     drawerGrants: createDrawerGrantsTable(),
+    adminGroups: createAdminGroupsTable(),
+    instanceGrants: createInstanceGrantsTable(),
+    collectionGrants: createCollectionGrantsTable(),
     uploads: createUploadsTable(),
   };
 
