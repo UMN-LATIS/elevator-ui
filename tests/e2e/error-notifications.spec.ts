@@ -104,8 +104,8 @@ test.describe("error notifications by status", () => {
     const toasts = page.locator(".toast-root__toast");
     await expect(toasts).toHaveCount(1, { timeout: 10000 });
 
-    await expect(
-      page.getByRole("button", { name: "Clear All" })
-    ).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Clear All" })).toHaveCount(
+      0
+    );
   });
 });
