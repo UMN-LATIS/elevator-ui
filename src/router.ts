@@ -225,6 +225,10 @@ const router = createRouter({
       props: (route) => ({
         instanceId: parseIntFromParam(route.params.instanceId),
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "search",
