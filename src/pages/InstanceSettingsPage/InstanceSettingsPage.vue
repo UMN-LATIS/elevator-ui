@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <AdminLayout>
     <FormPageLayout title="Instance Settings">
       <div v-if="isLoading" class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
@@ -296,12 +296,12 @@
         <FormToc :sections="tocSections" class="hidden lg:block" />
       </template>
     </FormPageLayout>
-  </DefaultLayout>
+  </AdminLayout>
 </template>
 
 <script setup lang="tsx">
 import { ref, watch, computed, onUnmounted } from "vue";
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import FormSubSection from "@/components/Form/FormSubSection.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";

@@ -1,12 +1,13 @@
 <template>
-  <DefaultLayout class="all-custom-pages-page">
-    <div class="max-w-screen-xl w-full py-10 px-4 mx-auto">
-      <div class="flex justify-between items-center">
-        <h1 class="text-4xl font-bold my-8">Custom Pages</h1>
-        <RouterLink :to="{ name: 'createCustomPage' }">
-          <Button variant="primary">Create Page</Button>
-        </RouterLink>
-      </div>
+  <AdminLayout class="all-custom-pages-page">
+    <PageContent class="max-w-screen-lg">
+      <PageHeader title="Custom Pages">
+        <template #actions>
+          <Button variant="primary" :to="{ name: 'createCustomPage' }">
+            Create Page
+          </Button>
+        </template>
+      </PageHeader>
       <Skeleton v-if="isPending" height="10rem" />
       <Notification
         v-else-if="isError"
@@ -16,11 +17,13 @@
       </Notification>
       <p v-else-if="!customPages?.length" class="text-lg">No pages found.</p>
       <CustomPagesTable v-else :columns="columns" :data="customPages" />
-    </div>
-  </DefaultLayout>
+    </PageContent>
+  </AdminLayout>
 </template>
 <script setup lang="ts">
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
+import PageContent from "@/components/PageContent/PageContent.vue";
+import PageHeader from "@/components/PageHeader/PageHeader.vue";
 import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
 import { useDeleteCustomPageMutation } from "@/queries/useCustomPageQuery";
 import { useToastStore } from "@/stores/toastStore";
