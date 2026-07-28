@@ -4,10 +4,7 @@
       <div
         v-if="error"
         class="fixed inset-0 z-40 bg-scrim flex items-center justify-center">
-        <SignInRequiredNotice v-if="isCurrentUserUnauthenticated" />
-
         <Notification
-          v-else
           :title="errorTitle"
           :message="error.name"
           type="danger"
@@ -25,7 +22,7 @@ import { computed } from "vue";
 import { useErrorStore } from "@/stores/errorStore";
 import Notification from "../Notification/Notification.vue";
 import { ApiError } from "@/api/ApiError";
-import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
+import { getErrorMessage } from "@/api/getErrorMessage";
 
 const errorStore = useErrorStore();
 
@@ -41,42 +38,7 @@ const errorTitle = computed(() => {
 
   return `Error: ${error.value.statusCode}`;
 });
-const isCurrentUserUnauthenticated = computed(() => {
-  return error.value instanceof ApiError && error.value.statusCode === 401;
-});
 
-const messages: Record<number | string, string> = {
-  0: "There was a problem connecting to the server. If the problem persists, please contact support.",
-  401: "You do not have permission to access this.",
-  403: "You do not have permission to access this.",
-  404: "We couldn't find this. Please check your link and try again.",
-
-  // 4xx errors
-  400: "There was a problem with your request. Please check your input and try again.",
-
-  // 5xx errors
-  500: "There was a problem on our end. Please contact support if the problem persists.",
-};
-
-const message = computed(() => {
-  if (!(error.value instanceof ApiError)) {
-    return error.value?.message || "An unknown error occurred.";
-  }
-
-  const status = error.value.statusCode;
-  if (status in messages) {
-    return messages[status];
-  }
-
-  if (status >= 400 && status < 500) {
-    return messages[400];
-  }
-
-  if (status >= 500 && status < 600) {
-    return messages[500];
-  }
-
-  return error.value.message;
-});
+const message = computed(() => getErrorMessage(error.value));
 </script>
 <style scoped></style>
