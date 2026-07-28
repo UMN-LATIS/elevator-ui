@@ -95,6 +95,25 @@ test.describe("error notifications by status", () => {
     );
   });
 
+  test("repeated identical failures show one toast", async ({ page }) => {
+    await stubMetadataStatus(page, 404);
+
+    const failures: string[] = [];
+    page.on("response", (response) => {
+      if (response.url().includes("/fileManager/getMetadataForObject/")) {
+        failures.push(response.url());
+      }
+    });
+
+    await page.goto(`/assetManager/editAsset/${MULTI_FILE_ASSET_ID}`);
+
+    // Wait for every file to fail before counting, so one toast is the
+    // deduped result rather than the others not having arrived yet.
+    await expect.poll(() => failures.length, { timeout: 10000 }).toBe(5);
+
+    await expect(page.locator(".toast-root__toast")).toHaveCount(1);
+  });
+
   test("Clear All dismisses every toast at once", async ({ page }) => {
     await stubMetadataStatus(page, 404);
 
