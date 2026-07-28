@@ -13,7 +13,8 @@ const messagesByStatus: Record<number, string> = {
  * Map an error to the friendly text shown in the error modal and toasts.
  *
  * Unmapped 4xx and 5xx statuses fall back to the 400 and 500 messages.
- * Anything that is not an ApiError falls back to its own message.
+ * Anything that is not an ApiError falls back to its own message, or a
+ * generic message when there is none.
  */
 export function getErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {

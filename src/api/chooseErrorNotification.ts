@@ -1,4 +1,4 @@
-export type ErrorNotification = "modal" | "toast" | "none";
+type ErrorNotification = "modal" | "toast" | "none";
 
 /**
  * Decide how the global interceptor surfaces a failed request.

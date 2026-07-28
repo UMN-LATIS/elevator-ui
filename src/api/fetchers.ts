@@ -77,9 +77,6 @@ const BASE_URL = config.instance.base.url;
 
 axios.defaults.withCredentials = true;
 
-// this interceptor converts failed responses into ApiErrors and notifies
-// the user per chooseErrorNotification: the blocking modal via errorStore,
-// a toast via toastStore, or nothing
 axios.interceptors.response.use(undefined, async (err: AxiosError) => {
   // A request aborted via AbortSignal (e.g. TanStack Query superseding a
   // stale autocomplete fetch) isn't a failure. Reject quietly so it never
