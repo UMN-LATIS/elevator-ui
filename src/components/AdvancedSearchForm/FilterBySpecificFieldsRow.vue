@@ -2,7 +2,7 @@
   <BaseFilterRow :rowIndex="rowIndex" @remove="handleRemoveFilter">
     <template #label>
       <select
-        class="rounded-md text-sm filter-row__name w-full border-outline bg-transparent"
+        class="select-group__select filter-row__name"
         :value="currentField.id"
         @change="handleFieldChange">
         <option
