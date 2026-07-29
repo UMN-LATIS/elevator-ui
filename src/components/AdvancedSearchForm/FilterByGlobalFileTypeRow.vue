@@ -6,7 +6,8 @@
     <select
       v-if="searchStore.filterBy.globalFileType"
       v-model="searchStore.filterBy.globalFileType.fileType"
-      class="select-group__select">
+      aria-label="File type"
+      class="themed-select">
       <option value="">All</option>
       <option v-for="opt in sortedOptions" :key="opt.label" :value="opt.value">
         {{ opt.label }}
@@ -81,4 +82,3 @@ const sortedOptions = [...fileTypeOptions].sort((a, b) =>
   a.label.localeCompare(b.label)
 ) as FileTypeOption[];
 </script>
-<style scoped></style>

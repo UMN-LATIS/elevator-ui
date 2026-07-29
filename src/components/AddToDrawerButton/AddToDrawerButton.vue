@@ -34,27 +34,6 @@
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             }"
             @update:modelValue="isSelectDrawerTouched = true" />
-
-          <label :for="existingDrawerSelectId" class="text-xs uppercase font-medium">
-            Existing Drawer
-          </label>
-          <select
-            :id="existingDrawerSelectId"
-            v-model="selectedDrawer"
-            class="border border-outline-variant rounded w-full text-sm bg-surface-container-low"
-            :class="{
-              ' !border-error text-error':
-                !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
-            }"
-            @update:modelValue="isSelectDrawerTouched = true">
-            <option value="">-</option>
-            <option
-              v-for="drawer in drawerStore.drawers"
-              :key="drawer.id"
-              :value="drawer.id">
-              {{ drawer.title }}
-            </option>
-          </select>
         </div>
 
         <p
@@ -111,7 +90,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onMounted, Ref, useId } from "vue";
+import { ref, computed, reactive, watch, onMounted, Ref } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -131,7 +110,6 @@ const props = defineProps<{
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
-const existingDrawerSelectId = useId();
 const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 const isAddingExcerpt = ref(false);
