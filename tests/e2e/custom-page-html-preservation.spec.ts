@@ -98,6 +98,27 @@ test.describe("Custom page HTML preservation (#623)", () => {
     );
   });
 
+  test("the notice appears when unsupported HTML is typed into a page that started clean", async ({
+    page,
+  }) => {
+    // page 2 is plain prose, so it opens in the visual editor with no notice
+    await page.goto("/instances/editPage/2");
+    await expect(page.getByTestId("page-body-mode-toggle")).toBeVisible();
+    await expect(page.getByTestId("page-body-source-notice")).toBeHidden();
+
+    await page.getByTestId("page-body-mode-source").click();
+    const textarea = page.getByTestId("page-body-source-textarea");
+    await expect(textarea).toBeVisible();
+    await expect(page.getByTestId("page-body-source-notice")).toBeHidden();
+
+    await textarea.fill('<div id="added">Now unsupported</div>');
+
+    const notice = page.getByTestId("page-body-source-notice");
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText("<div>");
+    await expect(notice).toContainText("id (attribute)");
+  });
+
   test("script tags are removed on save without disturbing other markup", async ({
     page,
     request,
