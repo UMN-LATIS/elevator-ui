@@ -55,7 +55,7 @@
         <DrawerTitleInput
           v-model="newDrawerName"
           class="flex-1 border border-outline rounded"
-          inputClass="bg-surface placeholder-on-surface-variant"
+          inputClass="bg-surface"
           :labelHidden="true" />
 
         <Button type="submit" class="text-sm" :disabled="!isDrawerNameValid">

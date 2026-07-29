@@ -16,7 +16,7 @@
           :class="
             cn([
               'select-group__select',
-              !selected.value && 'text-on-surface-muted',
+              !selected.value && 'text-on-surface-variant',
               selectClass,
             ])
           "
