@@ -235,6 +235,24 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Rich text fixture for prose theme color tests. Template 101 declares
+  // the text area widget that renders `description_1`.
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Rich Text Asset" }],
+    description_1: [
+      {
+        isPrimary: false,
+        fieldContents: "<p><strong>Bold description text</strong></p>",
+      },
+    ],
+    assetId: "rich_text_asset_001",
+    firstFileHandlerId: "handler_rich_text",
+    title: ["Rich Text Asset"],
+    templateId: 101,
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Metadata-only asset (no file uploads)
   {
     ...baseAsset,

@@ -24,7 +24,7 @@
 
         <SanitizedHTML
           :html="page.content ?? ''"
-          class="w-full prose prose-neutral mx-auto" />
+          class="w-full prose mx-auto" />
       </article>
     </div>
     <template #footer>

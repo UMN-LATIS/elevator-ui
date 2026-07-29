@@ -1,4 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+// The mock server and vite both read .env, so a MOCK_SERVER_PORT set there
+// has to reach this process too. Without it `mock-server/config` falls back
+// to its default port and every login and db-refresh call misses the server.
+const envFile = fileURLToPath(new URL(".env", import.meta.url));
+if (existsSync(envFile)) process.loadEnvFile(envFile);
 
 /**
  * @see https://playwright.dev/docs/test-configuration
