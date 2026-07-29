@@ -1,6 +1,7 @@
 <template>
   <select
     :value="selectedOption"
+    :aria-label="valueSelectLabel"
     class="select-group__select"
     @change="handleSelectChange">
     <option value="boolean_true">{{ trueLabel }}</option>
@@ -34,6 +35,10 @@ const field = computed(() => {
     props.filter.fieldId
   );
 });
+
+const valueSelectLabel = computed(() =>
+  field.value ? `${field.value.label} value` : "Field value"
+);
 
 function handleSelectChange(event: Event) {
   const target = event.target as HTMLSelectElement;

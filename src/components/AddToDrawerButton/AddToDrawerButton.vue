@@ -35,8 +35,11 @@
             }"
             @update:modelValue="isSelectDrawerTouched = true" />
 
-          <label class="text-xs uppercase font-medium">Existing Drawer</label>
+          <label :for="existingDrawerSelectId" class="text-xs uppercase font-medium">
+            Existing Drawer
+          </label>
           <select
+            :id="existingDrawerSelectId"
             v-model="selectedDrawer"
             class="border border-outline-variant rounded w-full text-sm bg-surface-container-low"
             :class="{
@@ -108,7 +111,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import { ref, computed, reactive, watch, onMounted, Ref } from "vue";
+import { ref, computed, reactive, watch, onMounted, Ref, useId } from "vue";
 import Button from "@/components/Button/Button.vue";
 import Modal from "@/components/Modal/Modal.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
@@ -128,6 +131,7 @@ const props = defineProps<{
 
 const isModalOpen = ref(false);
 const selectedDrawer = ref("");
+const existingDrawerSelectId = useId();
 const newDrawerName = ref("");
 const fetchStatus = ref<FetchStatus>("idle");
 const isAddingExcerpt = ref(false);

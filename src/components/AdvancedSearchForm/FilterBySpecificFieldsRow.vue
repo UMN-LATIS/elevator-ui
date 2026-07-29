@@ -2,6 +2,7 @@
   <BaseFilterRow :rowIndex="rowIndex" @remove="handleRemoveFilter">
     <template #label>
       <select
+        aria-label="Filter field"
         class="select-group__select filter-row__name"
         :value="currentField.id"
         @change="handleFieldChange">
@@ -55,7 +56,7 @@
           type="checkbox"
           :checked="filter.isFuzzy"
           @change="handleIsFuzzyChange" />
-        <span aria-label="Fuzzy Search">Fuzzy</span>
+        <span>Fuzzy</span>
       </label>
     </template>
   </BaseFilterRow>

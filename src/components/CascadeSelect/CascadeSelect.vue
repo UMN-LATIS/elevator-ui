@@ -6,6 +6,7 @@
       class="flex flex-col gap-1">
       <div v-if="selected.options.length">
         <label
+          :for="`${selectIdPrefix}-${segmentLevel}`"
           :class="[
             'uppercase text-xs font-medium tracking-wider text-on-surface',
             labelClass,
@@ -13,6 +14,7 @@
           {{ selected.label }}
         </label>
         <select
+          :id="`${selectIdPrefix}-${segmentLevel}`"
           :class="
             cn([
               'select-group__select',
@@ -44,7 +46,7 @@
 <script setup lang="ts">
 import { cn } from "@/lib/utils";
 import { path } from "ramda";
-import { reactive, watch } from "vue";
+import { reactive, watch, useId } from "vue";
 
 export interface CascaderSelectOptions {
   [label: string]: string[] | CascaderSelectOptions;
@@ -60,6 +62,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (eventName: "change", selectedValues: string[]): void;
 }>();
+
+// one id per segment select, namespaced per component instance
+const selectIdPrefix = useId();
 
 interface SelectedSegment {
   label: string;

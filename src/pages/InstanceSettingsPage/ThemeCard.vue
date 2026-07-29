@@ -6,7 +6,7 @@
       <input
         type="checkbox"
         :checked="isAvailable"
-        class="shrink-0 rounded border-outline text-primary focus:ring-m3-primary"
+        class="shrink-0 rounded border-outline text-primary focus:ring-primary"
         @change="$emit('toggleAvailable')" />
       <!-- The swatch scope: everything inside renders in the theme's own
            colors and display font. Controls stay outside so they keep the
