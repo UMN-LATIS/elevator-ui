@@ -106,7 +106,11 @@ body {
 .prose img,
 .prose iframe {
   border: 1px solid var(--outline-variant);
-  background: var(--surface-container);
+
+  /* the border is chrome, so it follows the theme, but this backdrop shows
+   * only through transparent images, where dark line art assumes a light
+   * background, so it stays light in every theme */
+  background: #eee;
   border-radius: 0.5rem;
 }
 
