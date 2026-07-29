@@ -3,12 +3,12 @@
     class="inline-flex rounded-md border border-outline-variant overflow-hidden text-xs"
     role="group"
     aria-label="Editor mode"
-    data-cy="page-body-mode-toggle">
+    data-testid="page-body-mode-toggle">
     <button
       type="button"
       :class="buttonClass(mode === 'rich')"
       :aria-pressed="mode === 'rich'"
-      data-cy="page-body-mode-rich"
+      data-testid="page-body-mode-rich"
       @click="emit('update:mode', 'rich')">
       Visual
     </button>
@@ -16,7 +16,7 @@
       type="button"
       :class="buttonClass(mode === 'source')"
       :aria-pressed="mode === 'source'"
-      data-cy="page-body-mode-source"
+      data-testid="page-body-mode-source"
       @click="emit('update:mode', 'source')">
       HTML
     </button>
