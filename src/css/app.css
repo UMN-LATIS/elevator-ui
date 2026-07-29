@@ -65,17 +65,48 @@ body {
   }
 }
 
+/**
+* The typography plugin drives every color in a prose block through these
+* variables, defaulting them to light-mode grays. Mapping them onto M3
+* tokens is what makes rich text follow the active theme, so no theme needs
+* a `dark:` variant or a `prose-invert` of its own.
+*
+* `--tw-prose-kbd-shadows` is left at the plugin default: it holds a bare
+* RGB triplet for `rgb(... / 10%)`, and every M3 token is a complete
+* `oklch()` value that cannot be substituted into one.
+*/
 .prose {
+  --tw-prose-body: var(--on-surface);
   --tw-prose-headings: var(--on-surface);
+  --tw-prose-lead: var(--on-surface-variant);
   --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--on-surface);
+  --tw-prose-counters: var(--on-surface-variant);
+  --tw-prose-bullets: var(--outline);
+  --tw-prose-hr: var(--outline-variant);
+  --tw-prose-quotes: var(--on-surface);
+  --tw-prose-quote-borders: var(--outline-variant);
+  --tw-prose-captions: var(--on-surface-variant);
+  --tw-prose-kbd: var(--on-surface);
+  --tw-prose-code: var(--on-surface);
+
+  /* the plugin pairs light code text with a dark code background whatever
+   * the theme, so these two have to move together or light themes get
+   * light-on-light code blocks */
+  --tw-prose-pre-code: var(--on-surface);
+  --tw-prose-pre-bg: var(--surface-container);
+
+  --tw-prose-th-borders: var(--outline);
+  --tw-prose-td-borders: var(--outline-variant);
+
   max-width: 90ch;
   color: var(--on-surface);
 }
 
 .prose img,
 .prose iframe {
-  border: 1px solid #ccc;
-  background: #eee;
+  border: 1px solid var(--outline-variant);
+  background: var(--surface-container);
   border-radius: 0.5rem;
 }
 
