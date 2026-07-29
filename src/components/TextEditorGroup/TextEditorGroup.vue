@@ -22,7 +22,9 @@
       ref="editorRef"
       :modelValue="modelValue"
       :enableImageInsert="enableImageInsert"
-      @update:modelValue="$emit('update:modelValue', $event)" />
+      :enableHtmlEditButton="enableHtmlEditButton"
+      @update:modelValue="$emit('update:modelValue', $event)"
+      @userInput="$emit('userInput')" />
   </div>
 </template>
 
@@ -41,15 +43,18 @@ withDefaults(
     modelValue: string;
     labelClass?: CSSClass;
     enableImageInsert?: boolean;
+    enableHtmlEditButton?: boolean;
   }>(),
   {
     labelClass: "",
     enableImageInsert: false,
+    enableHtmlEditButton: true,
   }
 );
 
 defineEmits<{
   (eventName: "update:modelValue", value: string): void;
+  (eventName: "userInput"): void;
 }>();
 
 const id = useId();
@@ -59,7 +64,12 @@ function getCleanHtml(): string {
   return editorRef.value?.getCleanHtml() ?? "";
 }
 
+function getSemanticHtml(): string {
+  return editorRef.value?.getSemanticHtml() ?? "";
+}
+
 defineExpose({
   getCleanHtml,
+  getSemanticHtml,
 });
 </script>
