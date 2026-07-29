@@ -4,7 +4,7 @@
          its own matching row for the textarea. Deliberate duplication to
          keep label/control a11y wiring in one place each. -->
     <div v-if="mode === 'source'">
-      <div class="flex justify-between items-baseline mb-1">
+      <div class="flex justify-between items-baseline mb-2">
         <label
           :for="`page-body-source-${id}`"
           class="block text-xs font-medium text-on-surface uppercase">
@@ -14,17 +14,19 @@
       </div>
 
       <Notification
-        v-if="isSourceModeForced"
-        title="This page is HTML-only for now"
+        v-if="markupQuillWouldRemove.length > 0"
+        title="The visual editor can't keep this HTML"
         type="info"
-        class="mb-2"
+        class="mb-2 !max-w-full"
         data-testid="page-body-source-notice">
         <p>
-          The visual editor can't keep some of this page's HTML. Editing here
-          preserves everything. Switching to the visual editor would remove:
+          Editing here preserves everything. Switching to the visual editor
+          would remove:
         </p>
         <ul class="list-disc ml-6 mt-2 font-mono text-sm">
-          <li v-for="item in lostMarkupLabels" :key="item">{{ item }}</li>
+          <li v-for="item in markupQuillWouldRemove" :key="item">
+            {{ toMarkupLabel(item) }}
+          </li>
         </ul>
         <div class="mt-4">
           <Button variant="tertiary" @click="requestRichMode">
@@ -79,7 +81,9 @@
       @confirm="enterRichMode">
       <p>The visual editor will remove HTML it can't represent:</p>
       <ul class="list-disc ml-6 mt-2 font-mono text-sm">
-        <li v-for="item in lostMarkupLabels" :key="item">{{ item }}</li>
+        <li v-for="item in markupPendingRemoval" :key="item">
+          {{ toMarkupLabel(item) }}
+        </li>
       </ul>
     </ConfirmModal>
   </div>
@@ -87,6 +91,7 @@
 
 <script setup lang="ts">
 import { ref, computed, useId } from "vue";
+import { useDebounce } from "@vueuse/core";
 import TextEditorGroup from "@/components/TextEditorGroup/TextEditorGroup.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Notification from "@/components/Notification/Notification.vue";
@@ -118,25 +123,29 @@ const sourceDraft = ref(props.body);
 const richDraft = ref(props.body);
 const richEditorRef = ref<InstanceType<typeof TextEditorGroup>>();
 
-// what quill would destroy, decided once from the stored body
-const lostMarkup = ref(markupLostByQuill(props.body));
+// markupLostByQuill runs clipboard.convert, which costs tens of
+// milliseconds on a large body (measured 48 ms at 13 kB), so the live
+// answer trails typing rather than running on every keystroke.
+const settledSourceDraft = useDebounce(sourceDraft, 400);
+
+/** What the visual editor would strip from the source draft as it stands. */
+const markupQuillWouldRemove = computed(() =>
+  markupLostByQuill(settledSourceDraft.value)
+);
 
 type EditorMode = "source" | "rich";
-const mode = ref<EditorMode>(lostMarkup.value.length ? "source" : "rich");
-
-// the notice explains a decision made for the admin, so it only shows
-// while the forced markup is still at risk
-const isSourceModeForced = computed(
-  () => lostMarkup.value.length > 0 && mode.value === "source"
+const mode = ref<EditorMode>(
+  markupQuillWouldRemove.value.length ? "source" : "rich"
 );
 
 const isConfirmingRichMode = ref(false);
+// captured when the confirm opens, so the dialog names what was actually
+// checked rather than whatever the debounce had settled on
+const markupPendingRemoval = ref<string[]>([]);
 
-const lostMarkupLabels = computed(() =>
-  lostMarkup.value.map((item) =>
-    item.startsWith("@") ? `${item.slice(1)} (attribute)` : `<${item}>`
-  )
-);
+function toMarkupLabel(item: string): string {
+  return item.startsWith("@") ? `${item.slice(1)} (attribute)` : `<${item}>`;
+}
 
 function handleModeToggle(nextMode: EditorMode): void {
   if (nextMode === mode.value) return;
@@ -147,21 +156,23 @@ function handleModeToggle(nextMode: EditorMode): void {
 
   // leaving the visual editor only reads quill out, no confirm needed
   sourceDraft.value = richEditorRef.value?.getSemanticHtml() ?? richDraft.value;
-  lostMarkup.value = markupLostByQuill(sourceDraft.value);
   mode.value = "source";
 }
 
 function requestRichMode(): void {
-  lostMarkup.value = markupLostByQuill(sourceDraft.value);
+  // check the draft as typed, not the debounced copy, in case the admin
+  // clicks within the debounce window
+  const wouldRemove = markupLostByQuill(sourceDraft.value);
 
-  if (lostMarkup.value.length === 0) {
-    // nothing to destroy, no consent needed, and no edited mark either:
-    // an untouched body still saves verbatim
+  if (wouldRemove.length === 0) {
+    // nothing to destroy, so no consent needed, and no edited mark
+    // either: an untouched body still saves verbatim
     richDraft.value = sourceDraft.value;
     mode.value = "rich";
     return;
   }
 
+  markupPendingRemoval.value = wouldRemove;
   isConfirmingRichMode.value = true;
 }
 
