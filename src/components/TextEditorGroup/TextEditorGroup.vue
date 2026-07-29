@@ -60,16 +60,11 @@ defineEmits<{
 const id = useId();
 const editorRef = ref<InstanceType<typeof TextEditor>>();
 
-function getCleanHtml(): string {
-  return editorRef.value?.getCleanHtml() ?? "";
-}
-
 function getSemanticHtml(): string {
   return editorRef.value?.getSemanticHtml() ?? "";
 }
 
 defineExpose({
-  getCleanHtml,
   getSemanticHtml,
 });
 </script>

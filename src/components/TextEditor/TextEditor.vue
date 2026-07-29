@@ -20,7 +20,6 @@
 import { QuillyEditor } from "vue-quilly";
 import Quill from "quill/quill";
 import { ref, onMounted, computed } from "vue";
-import { cleanHtml } from "@/helpers/htmlCleaningHelpers";
 import ImageInsertDialog from "./ImageInsertDialog.vue";
 import "quill-paste-smart";
 import htmlEditButton from "quill-html-edit-button";
@@ -116,15 +115,6 @@ const options = computed(() => ({
 }));
 
 /**
- * Returns the editor content as cleaned semantic HTML.
- * Call this at save time to get properly formatted content.
- */
-function getCleanHtml(): string {
-  if (!quill) return "";
-  return cleanHtml(quill.root.innerHTML);
-}
-
-/**
  * Returns the editor content serialized by quill itself, with no
  * further cleaning. Call this at save time.
  */
@@ -141,8 +131,6 @@ function handleImageInsert(src: string) {
 }
 
 defineExpose({
-  quill,
-  getCleanHtml,
   getSemanticHtml,
 });
 
