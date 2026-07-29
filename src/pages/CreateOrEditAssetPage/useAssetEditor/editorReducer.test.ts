@@ -65,16 +65,16 @@ const makeUnsavedAsset = (
   ...overrides,
 });
 
-const GENERATION = 5;
+const FENCING_TOKEN = 5;
 
 const idle: EditorModel = {
   status: "idle",
-  generation: GENERATION,
+  fencingToken: FENCING_TOKEN,
 };
 
 const loadingTemplate: EditorModel = {
   status: "loadingTemplate",
-  generation: GENERATION,
+  fencingToken: FENCING_TOKEN,
   collectionId: 42,
 };
 
@@ -83,7 +83,7 @@ const editingNewAsset = (
   template: Template = emptyTemplate
 ): EditorModel => ({
   status: "editingNewAsset",
-  generation: GENERATION,
+  fencingToken: FENCING_TOKEN,
   localAsset,
   template,
 });
@@ -94,7 +94,7 @@ const editingExistingAsset = (
   template: Template = emptyTemplate
 ): EditorModel => ({
   status: "editingExistingAsset",
-  generation: GENERATION,
+  fencingToken: FENCING_TOKEN,
   savedAsset,
   edits,
   template,
@@ -109,16 +109,16 @@ const localAssetOf = (model: EditorModel): Asset | UnsavedAsset => {
 
 describe("editorReducer", () => {
   describe("starting a new asset", () => {
-    it("moves to loadingTemplate and bumps the generation", () => {
+    it("moves to loadingTemplate and issues a new fencingToken", () => {
       const next = editorReducer(idle, {
         type: "newAssetRequested",
         collectionId: 42,
       });
 
-      // the bump lets in-flight results from the old session be dropped
+      // the new token lets results still in flight be dropped on arrival
       expect(next).toEqual({
         status: "loadingTemplate",
-        generation: GENERATION + 1,
+        fencingToken: FENCING_TOKEN + 1,
         collectionId: 42,
       });
     });
@@ -126,7 +126,7 @@ describe("editorReducer", () => {
     it("builds a fresh unsaved asset when the requested template loads", () => {
       const next = editorReducer(loadingTemplate, {
         type: "templateLoaded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         template: emptyTemplate,
       });
 
@@ -145,7 +145,7 @@ describe("editorReducer", () => {
 
       const next = editorReducer(loadingTemplate, {
         type: "templateLoaded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         template,
       });
 
@@ -159,20 +159,20 @@ describe("editorReducer", () => {
     it("keeps the error when the template fails to load", () => {
       const next = editorReducer(loadingTemplate, {
         type: "templateLoadFailed",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         error: new Error("network down"),
       });
 
       expect(next.status).toBe("loadFailed");
       if (next.status !== "loadFailed") return;
       expect(next.error.message).toBe("network down");
-      expect(next.generation).toBe(GENERATION + 1);
+      expect(next.fencingToken).toBe(FENCING_TOKEN + 1);
     });
 
     it("drops a load failure from an abandoned request", () => {
       const next = editorReducer(loadingTemplate, {
         type: "templateLoadFailed",
-        generation: GENERATION - 1,
+        fencingToken: FENCING_TOKEN - 1,
         error: new Error("too late"),
       });
 
@@ -180,17 +180,17 @@ describe("editorReducer", () => {
     });
   });
 
-  describe("dropping events from an abandoned session", () => {
+  describe("dropping results that carry an old fencingToken", () => {
     it("drops a template that arrives for a superseded request", () => {
-      // the user picked another template, so this model is one generation on
+      // the user picked another template, so this model holds a newer token
       const superseded: EditorModel = {
         ...loadingTemplate,
-        generation: GENERATION + 1,
+        fencingToken: FENCING_TOKEN + 1,
       };
 
       const next = editorReducer(superseded, {
         type: "templateLoaded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         template: otherTemplate,
       });
 
@@ -207,27 +207,27 @@ describe("editorReducer", () => {
 
       const slowFirst = editorReducer(afterSecondRequest, {
         type: "templateLoaded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         template: emptyTemplate,
       });
       expect(slowFirst).toBe(afterSecondRequest);
 
       const second = editorReducer(afterSecondRequest, {
         type: "templateLoaded",
-        generation: afterSecondRequest.generation,
+        fencingToken: afterSecondRequest.fencingToken,
         template: otherTemplate,
       });
       if (second.status !== "editingNewAsset") throw new Error("expected editingNewAsset");
       expect(second.template.templateId).toBe(2);
     });
 
-    it("drops a save that resolves into a different editing session", () => {
+    it("drops a save that resolves after the user opened a different asset", () => {
       // the save was started before the user opened another asset
       const otherSession = editingExistingAsset(makeSavedAsset({ assetId: "asset-B" }));
 
       const next = editorReducer(otherSession, {
         type: "saveSucceeded",
-        generation: GENERATION - 1,
+        fencingToken: FENCING_TOKEN - 1,
         didCreateAsset: false,
         savedAsset: makeSavedAsset({ assetId: "asset-A" }),
       });
@@ -244,7 +244,7 @@ describe("editorReducer", () => {
 
       const next = editorReducer(otherSession, {
         type: "saveSucceeded",
-        generation: GENERATION - 1,
+        fencingToken: FENCING_TOKEN - 1,
         didCreateAsset: true,
         savedAsset: makeSavedAsset({ assetId: "asset-A" }),
       });
@@ -257,7 +257,7 @@ describe("editorReducer", () => {
       const editingX = editingExistingAsset(
         makeSavedAsset({ assetId: "asset-X" })
       );
-      const saveGeneration = editingX.generation;
+      const saveGeneration = editingX.fencingToken;
 
       // before the save resolves, the user starts a new asset and its
       // template (cached, so near-instant) loads
@@ -267,14 +267,14 @@ describe("editorReducer", () => {
       });
       const freshDraft = editorReducer(loading, {
         type: "templateLoaded",
-        generation: loading.generation,
+        fencingToken: loading.fencingToken,
         template: emptyTemplate,
       });
 
       // asset X's update response finally lands
       const next = editorReducer(freshDraft, {
         type: "saveSucceeded",
-        generation: saveGeneration,
+        fencingToken: saveGeneration,
         didCreateAsset: false,
         savedAsset: makeSavedAsset({ assetId: "asset-X" }),
       });
@@ -287,7 +287,7 @@ describe("editorReducer", () => {
     it("drops an asset that arrives for a superseded request", () => {
       const next = editorReducer(editingExistingAsset(), {
         type: "assetLoaded",
-        generation: GENERATION - 1,
+        fencingToken: FENCING_TOKEN - 1,
         savedAsset: makeSavedAsset({ assetId: "stale" }),
         template: otherTemplate,
       });
@@ -302,7 +302,7 @@ describe("editorReducer", () => {
 
       const next = editorReducer(current, {
         type: "templateMigrated",
-        generation: GENERATION - 1,
+        fencingToken: FENCING_TOKEN - 1,
         template: otherTemplate,
       });
 
@@ -311,21 +311,21 @@ describe("editorReducer", () => {
   });
 
   describe("loading an existing asset", () => {
-    it("bumps the generation while the request is in flight", () => {
+    it("issues a new fencingToken while the request is in flight", () => {
       const next = editorReducer(editingExistingAsset(), { type: "existingAssetRequested" });
 
       // the current asset stays editable, but operations started under the
-      // old generation can no longer land
+      // old fencingToken can no longer land
       expect(next.status).toBe("editingExistingAsset");
-      expect(next.generation).toBe(GENERATION + 1);
+      expect(next.fencingToken).toBe(FENCING_TOKEN + 1);
     });
 
-    it("starts an editingExistingAsset session for the loaded asset", () => {
+    it("moves to editingExistingAsset for the loaded asset", () => {
       const savedAsset = makeSavedAsset({ collectionId: 7 });
 
       const next = editorReducer(idle, {
         type: "assetLoaded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         savedAsset,
         template: emptyTemplate,
       });
@@ -341,7 +341,7 @@ describe("editorReducer", () => {
       const template = makeTemplate(1, [{ fieldTitle: "title_1" }]);
       const loaded = editorReducer(idle, {
         type: "assetLoaded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         savedAsset: makeSavedAsset({
           title_1: [{ id: "a", fieldContents: "original" }],
         }),
@@ -452,7 +452,7 @@ describe("editorReducer", () => {
         editingNewAsset(inFlightEdit, makeTemplate(1, [{ fieldTitle: "title_1" }])),
         {
           type: "saveSucceeded",
-          generation: GENERATION,
+          fencingToken: FENCING_TOKEN,
           didCreateAsset: true,
           savedAsset,
         }
@@ -478,7 +478,7 @@ describe("editorReducer", () => {
     it("drops a save that resolves after a reset, even a create", () => {
       const next = editorReducer(idle, {
         type: "saveSucceeded",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         didCreateAsset: true,
         savedAsset: makeSavedAsset(),
       });
@@ -489,7 +489,7 @@ describe("editorReducer", () => {
     it("accepts a late create response while the draft is still unsaved, since it carries the only copy of the new assetId", () => {
       const next = editorReducer(editingNewAsset(), {
         type: "saveSucceeded",
-        generation: GENERATION - 1,
+        fencingToken: FENCING_TOKEN - 1,
         didCreateAsset: true,
         savedAsset: makeSavedAsset({ assetId: "created-while-away" }),
       });
@@ -510,7 +510,7 @@ describe("editorReducer", () => {
 
       const next = editorReducer(current, {
         type: "templateMigrated",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         template: otherTemplate,
       });
 
@@ -526,7 +526,7 @@ describe("editorReducer", () => {
     it("scaffolds fields the new template adds", () => {
       const next = editorReducer(editingNewAsset(), {
         type: "templateMigrated",
-        generation: GENERATION,
+        fencingToken: FENCING_TOKEN,
         template: makeTemplate(2, [{ fieldTitle: "brand_new_field_1" }]),
       });
 
@@ -538,7 +538,7 @@ describe("editorReducer", () => {
   it("records a failure to load an existing asset", () => {
     const next = editorReducer(editingExistingAsset(), {
       type: "assetLoadFailed",
-      generation: GENERATION,
+      fencingToken: FENCING_TOKEN,
       error: new Error("404"),
     });
 
@@ -552,14 +552,14 @@ describe("editorReducer", () => {
 
     expect(next).toEqual({
       status: "idle",
-      generation: GENERATION + 1,
+      fencingToken: FENCING_TOKEN + 1,
     });
   });
 
-  it("starts uninitialized at generation zero", () => {
+  it("starts uninitialized at fencingToken zero", () => {
     expect(initialEditorModel).toEqual({
       status: "idle",
-      generation: 0,
+      fencingToken: 0,
     });
   });
 });

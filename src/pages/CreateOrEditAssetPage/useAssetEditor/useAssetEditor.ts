@@ -171,14 +171,14 @@ export const createAssetEditor = () => {
     collectionId: number;
   }): Promise<void> {
     dispatch({ type: "newAssetRequested", collectionId });
-    const generation = model.value.generation;
+    const fencingToken = model.value.fencingToken;
 
     shellState.isTemplateLoading = true;
     let template: T.Template | null;
     try {
       template = await fetchTemplateThroughCache(templateId);
     } catch (cause) {
-      dispatch({ type: "templateLoadFailed", generation, error: toError(cause) });
+      dispatch({ type: "templateLoadFailed", fencingToken, error: toError(cause) });
       throw cause;
     } finally {
       shellState.isTemplateLoading = false;
@@ -188,11 +188,11 @@ export const createAssetEditor = () => {
       const error = new Error(
         `Cannot initialize new asset: no template found with id ${templateId}`
       );
-      dispatch({ type: "templateLoadFailed", generation, error });
+      dispatch({ type: "templateLoadFailed", fencingToken, error });
       throw error;
     }
 
-    dispatch({ type: "templateLoaded", generation, template });
+    dispatch({ type: "templateLoaded", fencingToken, template });
   }
 
   /**
@@ -207,7 +207,7 @@ export const createAssetEditor = () => {
     }
 
     dispatch({ type: "existingAssetRequested" });
-    const generation = model.value.generation;
+    const fencingToken = model.value.fencingToken;
 
     let fetchedAsset: T.Asset | null;
     let nextTemplate: T.Template | null;
@@ -228,13 +228,13 @@ export const createAssetEditor = () => {
         `cannot setAssetId: no template with id ${templateId}`
       );
     } catch (cause) {
-      dispatch({ type: "assetLoadFailed", generation, error: toError(cause) });
+      dispatch({ type: "assetLoadFailed", fencingToken, error: toError(cause) });
       throw cause;
     }
 
     dispatch({
       type: "assetLoaded",
-      generation,
+      fencingToken,
       savedAsset: fetchedAsset,
       template: nextTemplate,
     });
@@ -282,9 +282,9 @@ export const createAssetEditor = () => {
       "Cannot save: editor was reset during before-save callbacks"
     );
 
-    // captured before the request so a save landing in an abandoned session
-    // is dropped rather than stamped onto a different asset
-    const generation = modelToSave.generation;
+    // captured before the request so a save that lands after the editor
+    // took in a different asset is dropped rather than stamped onto it
+    const fencingToken = modelToSave.fencingToken;
     const assetToSave = selectLocalAsset(modelToSave);
     invariant(assetToSave, "Cannot save: no local asset");
     invariant(
@@ -319,7 +319,7 @@ export const createAssetEditor = () => {
 
     dispatch({
       type: "saveSucceeded",
-      generation,
+      fencingToken,
       didCreateAsset: isCreate,
       savedAsset: fetchedAsset,
     });
@@ -352,7 +352,7 @@ export const createAssetEditor = () => {
       return;
     }
 
-    const generation = currentModel.generation;
+    const fencingToken = currentModel.fencingToken;
     shellState.isTemplateLoading = true;
     let newTemplate: T.Template | null;
     try {
@@ -360,7 +360,7 @@ export const createAssetEditor = () => {
     } catch (cause) {
       dispatch({
         type: "templateLoadFailed",
-        generation,
+        fencingToken,
         error: toError(cause),
       });
       throw cause;
@@ -372,13 +372,13 @@ export const createAssetEditor = () => {
       const error = new Error(
         `Cannot update templateId: no template found with id ${newTemplateId}`
       );
-      dispatch({ type: "templateLoadFailed", generation, error });
+      dispatch({ type: "templateLoadFailed", fencingToken, error });
       throw error;
     }
 
     dispatch({
       type: "templateMigrated",
-      generation,
+      fencingToken,
       template: newTemplate,
     });
 
