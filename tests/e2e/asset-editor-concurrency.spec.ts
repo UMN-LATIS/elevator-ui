@@ -387,8 +387,9 @@ test.describe("Asset editor concurrency", () => {
 
   // an abandoned draft's editor can outlive its page: its held create resolves,
   // the create-response exception adopts the new asset into that editor, and a
-  // trailing save then writes to the adopted asset. The fencingToken is per
-  // editor instance, so it cannot fence an instance that outlived its page.
+  // trailing save then writes to the adopted asset. The editorGeneration is
+  // per editor instance, so it cannot drop work from an instance that
+  // outlived its page.
   test("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
     page,
   }) => {

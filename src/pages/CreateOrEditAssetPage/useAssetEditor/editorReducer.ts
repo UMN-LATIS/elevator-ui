@@ -11,30 +11,30 @@ import {
 /**
  * The editor is always in exactly one of these states.
  *
- * `fencingToken` is a temporary id for the thing being edited. It stands
- * in for assetId, which cannot tell things apart when it matters most:
- * assetId is null on every draft, absent while nothing is loaded, and
- * unchanged when the same asset is reopened. A new token is issued each
- * time the editor takes in a different asset or draft, or empties out.
+ * `editorGeneration` counts how many times the editor has moved on. It
+ * advances each time the editor takes in a different asset or draft, or
+ * empties out, and stays put while the user edits. assetId cannot do
+ * this job: it is null on every draft, absent while nothing is loaded,
+ * and unchanged when the same asset is reopened.
  *
- * Async work captures the token it starts under and carries it back on
- * its resolution event. A resolution bearing an old token is about a
- * thing the editor no longer holds, so the reducer drops it (fences it
- * out) instead of applying it to the wrong asset.
+ * Async work captures the generation it starts under and carries it back
+ * on its resolution event. A resolution carrying a different generation
+ * is about something the editor no longer holds, so the reducer drops it
+ * instead of applying it to the wrong asset.
  */
 export type EditorModel =
-  | { status: "idle"; fencingToken: number }
-  | { status: "loadFailed"; fencingToken: number; error: Error }
-  | { status: "loadingTemplate"; fencingToken: number; collectionId: number }
+  | { status: "idle"; editorGeneration: number }
+  | { status: "loadFailed"; editorGeneration: number; error: Error }
+  | { status: "loadingTemplate"; editorGeneration: number; collectionId: number }
   | {
       status: "editingNewAsset";
-      fencingToken: number;
+      editorGeneration: number;
       localAsset: T.UnsavedAsset;
       template: T.Template;
     }
   | {
       status: "editingExistingAsset";
-      fencingToken: number;
+      editorGeneration: number;
       /**
        * What the server has, in editor representation (widget contents
        * scaffolded and given ids). The baseline edits are measured against.
@@ -51,7 +51,7 @@ export type EditorModel =
 
 export const initialEditorModel: EditorModel = {
   status: "idle",
-  fencingToken: 0,
+  editorGeneration: 0,
 };
 
 /** The asset being edited: the saved baseline with pending edits laid over it. */
@@ -88,8 +88,8 @@ export function selectHasUnsavedEdits(model: EditorModel): boolean {
 /**
  * Everything that can change the model.
  *
- * A `fencingToken` rides on the events that resolve async work, so a
- * resolution about something the editor no longer holds can be dropped.
+ * The `editorGeneration` rides on the events that resolve async work, so
+ * a resolution about something the editor no longer holds can be dropped.
  */
 export type EditorEvent =
   | {
@@ -102,19 +102,19 @@ export type EditorEvent =
   | { type: "availableAfterChanged"; availableAfter: T.PHPDateTime | null }
   | { type: "newAssetRequested"; collectionId: number }
   | { type: "existingAssetRequested" }
-  | { type: "templateLoaded"; fencingToken: number; template: T.Template }
-  | { type: "templateLoadFailed"; fencingToken: number; error: Error }
-  | { type: "assetLoadFailed"; fencingToken: number; error: Error }
+  | { type: "templateLoaded"; editorGeneration: number; template: T.Template }
+  | { type: "templateLoadFailed"; editorGeneration: number; error: Error }
+  | { type: "assetLoadFailed"; editorGeneration: number; error: Error }
   | {
       type: "assetLoaded";
-      fencingToken: number;
+      editorGeneration: number;
       savedAsset: T.Asset;
       template: T.Template;
     }
-  | { type: "templateMigrated"; fencingToken: number; template: T.Template }
+  | { type: "templateMigrated"; editorGeneration: number; template: T.Template }
   | {
       type: "saveSucceeded";
-      fencingToken: number;
+      editorGeneration: number;
       didCreateAsset: boolean;
       savedAsset: T.Asset;
     }
@@ -123,9 +123,9 @@ export type EditorEvent =
 /**
  * The editor's only state transition function.
  *
- * A resolution bearing an old fencingToken or arriving in the wrong
- * status is dropped: work that finishes after the editor took in a
- * different asset must not touch that asset. Events without a token
+ * A resolution carrying a different editorGeneration or arriving in the
+ * wrong status is dropped: work that finishes after the editor took in a
+ * different asset must not touch that asset. Events without a generation
  * apply only while an asset is being edited.
  *
  * Not referentially transparent: arms that build widget contents assign
@@ -139,14 +139,14 @@ export function editorReducer(
     case "newAssetRequested":
       return {
         status: "loadingTemplate",
-        fencingToken: model.fencingToken + 1,
+        editorGeneration: model.editorGeneration + 1,
         collectionId: event.collectionId,
       };
     case "existingAssetRequested":
-      // issue a new token so results still in flight can no longer land,
-      // but stay put: the current asset remains editable while the next
-      // one loads
-      return { ...model, fencingToken: model.fencingToken + 1 };
+      // advance the generation so results still in flight can no longer
+      // land, but stay put: the current asset remains editable while the
+      // next one loads
+      return { ...model, editorGeneration: model.editorGeneration + 1 };
     case "templateLoaded":
       return onTemplateLoaded(model, event);
     case "templateLoadFailed":
@@ -172,7 +172,7 @@ export function editorReducer(
     case "saveSucceeded":
       return onSaveSucceeded(model, event);
     case "resetRequested":
-      return { status: "idle", fencingToken: model.fencingToken + 1 };
+      return { status: "idle", editorGeneration: model.editorGeneration + 1 };
     default:
       return assertNever(event);
   }
@@ -180,13 +180,13 @@ export function editorReducer(
 
 function onTemplateLoaded(
   model: EditorModel,
-  event: { fencingToken: number; template: T.Template }
+  event: { editorGeneration: number; template: T.Template }
 ): EditorModel {
   if (model.status !== "loadingTemplate") return model;
-  if (event.fencingToken !== model.fencingToken) return model;
+  if (event.editorGeneration !== model.editorGeneration) return model;
   return {
     status: "editingNewAsset",
-    fencingToken: model.fencingToken,
+    editorGeneration: model.editorGeneration,
     template: event.template,
     localAsset: makeNewLocalAsset({
       template: event.template,
@@ -197,7 +197,7 @@ function onTemplateLoaded(
 
 function onTemplateLoadFailed(
   model: EditorModel,
-  event: { fencingToken: number; error: Error }
+  event: { editorGeneration: number; error: Error }
 ): EditorModel {
   if (model.status !== "loadingTemplate") return model;
   return onLoadFailed(model, event);
@@ -205,27 +205,27 @@ function onTemplateLoadFailed(
 
 function onLoadFailed(
   model: EditorModel,
-  event: { fencingToken: number; error: Error }
+  event: { editorGeneration: number; error: Error }
 ): EditorModel {
-  if (event.fencingToken !== model.fencingToken) return model;
+  if (event.editorGeneration !== model.editorGeneration) return model;
   return {
     status: "loadFailed",
-    fencingToken: model.fencingToken + 1,
+    editorGeneration: model.editorGeneration + 1,
     error: event.error,
   };
 }
 
 function onAssetLoaded(
   model: EditorModel,
-  event: { fencingToken: number; savedAsset: T.Asset; template: T.Template }
+  event: { editorGeneration: number; savedAsset: T.Asset; template: T.Template }
 ): EditorModel {
-  if (event.fencingToken !== model.fencingToken) return model;
+  if (event.editorGeneration !== model.editorGeneration) return model;
   return {
     status: "editingExistingAsset",
-    // new token: the previous asset stayed editable while this one
+    // new generation: the previous asset stayed editable while this one
     // loaded, so work started in that window must not land on the new
     // asset
-    fencingToken: model.fencingToken + 1,
+    editorGeneration: model.editorGeneration + 1,
     template: event.template,
     savedAsset: makeLocalAssetFromSaved({
       template: event.template,
@@ -238,9 +238,9 @@ function onAssetLoaded(
 
 function onTemplateMigrated(
   model: EditorModel,
-  event: { fencingToken: number; template: T.Template }
+  event: { editorGeneration: number; template: T.Template }
 ): EditorModel {
-  if (event.fencingToken !== model.fencingToken) return model;
+  if (event.editorGeneration !== model.editorGeneration) return model;
   switch (model.status) {
     case "editingNewAsset":
       return {
@@ -300,7 +300,7 @@ function modelWithFieldEdit(
 
 function onSaveSucceeded(
   model: EditorModel,
-  event: { fencingToken: number; didCreateAsset: boolean; savedAsset: T.Asset }
+  event: { editorGeneration: number; didCreateAsset: boolean; savedAsset: T.Asset }
 ): EditorModel {
   if (
     model.status !== "editingNewAsset" &&
@@ -310,14 +310,14 @@ function onSaveSucceeded(
   }
 
   // a create response carries the only copy of the new assetId, so while
-  // the editor still holds an unsaved draft it is taken even with an old
-  // token: a duplicate asset on the next save is worse than showing a
-  // stale one
+  // the editor still holds an unsaved draft it is taken even from a
+  // superseded generation: a duplicate asset on the next save is worse
+  // than showing a stale one
   const isCreateResponseForUnsavedDraft =
     event.didCreateAsset && model.status === "editingNewAsset";
   if (
     !isCreateResponseForUnsavedDraft &&
-    event.fencingToken !== model.fencingToken
+    event.editorGeneration !== model.editorGeneration
   ) {
     return model;
   }
@@ -334,7 +334,7 @@ function onSaveSucceeded(
 
   return {
     status: "editingExistingAsset",
-    fencingToken: model.fencingToken,
+    editorGeneration: model.editorGeneration,
     template: model.template,
     savedAsset,
     // edits made while the request was in flight are still pending
