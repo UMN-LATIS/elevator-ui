@@ -26,7 +26,7 @@
           <SanitizedHTML
             v-if="page.content"
             :html="page.content"
-            class="prose prose-neutral"
+            class="prose"
             :class="{
               'mx-auto': !featuredAssetId,
             }" />
