@@ -235,9 +235,8 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
-  // Only seed asset with rich text markup, so `.prose` has a `strong` to
-  // style. Template 101 is used because it declares the text area widget
-  // that renders `description_1`.
+  // Rich text fixture for prose theme color tests. Template 101 declares
+  // the text area widget that renders `description_1`.
   {
     ...baseAsset,
     title_1: [{ isPrimary: false, fieldContents: "Rich Text Asset" }],

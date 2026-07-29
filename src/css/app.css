@@ -91,8 +91,8 @@ body {
   --tw-prose-code: var(--on-surface);
 
   /* the plugin pairs light code text with a dark code background whatever
-   * the theme, so these two have to move together or light themes get
-   * light-on-light code blocks */
+   * the theme, so `pre-code` and `pre-bg` have to move together or light
+   * themes get light-on-light code blocks */
   --tw-prose-pre-code: var(--on-surface);
   --tw-prose-pre-bg: var(--surface-container);
 

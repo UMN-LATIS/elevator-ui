@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
+import { setupWorkerHTTPHeader, refreshDatabase } from "../setup";
 
 const RICH_TEXT_ASSET_ID = "rich_text_asset_001";
 
@@ -10,7 +10,6 @@ test.describe("Prose theme colors", () => {
     workerId = test.info().workerIndex.toString();
     await setupWorkerHTTPHeader({ page, workerId });
     await refreshDatabase({ request, workerId });
-    await loginUser({ request, page, workerId });
 
     await page.addInitScript(() => {
       localStorage.setItem(`theme-${window.location.hostname}`, "dark");
@@ -21,7 +20,7 @@ test.describe("Prose theme colors", () => {
     await page.goto(`/asset/viewAsset/${RICH_TEXT_ASSET_ID}`);
 
     // A theme's stylesheet is fetched lazily and `data-theme` is set in its
-    // load handler, so this is what proves the theme's CSS is in effect.
+    // load handler, so waiting on the attribute proves the CSS has landed.
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 
     const boldText = page.locator(".prose strong").first();
