@@ -15,8 +15,8 @@
         <select
           :class="
             cn([
-              'rounded-md text-sm bg-surface-container text-on-surface-container',
-              !selected.value && 'text-on-surface-variant',
+              'select-group__select',
+              !selected.value && 'text-on-surface-muted',
               selectClass,
             ])
           "

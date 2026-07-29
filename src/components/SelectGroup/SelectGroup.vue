@@ -18,12 +18,7 @@
       :id="id"
       :value="modelValue ?? ''"
       :disabled="disabled"
-      :class="
-        cn([
-          'rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2 disabled:opacity-50',
-          selectClass,
-        ])
-      "
+      :class="cn(['select-group__select', selectClass])"
       readonly
       required
       @change="
@@ -88,4 +83,9 @@ function handleUpdateSelection(value: string) {
   return emit("update:modelValue", value as TModelValue);
 }
 </script>
-<style scoped></style>
+<style>
+/* this is available globally so that other components can use (e.g. cascade select) are styled similarly */
+.select-group__select {
+  @apply rounded-md border-outline-variant bg-surface-container text-on-surface disabled:text-on-surface-muted text-sm focus-visible:ring-2 focus:bg-surface-bright disabled:opacity-50 disabled:cursor-not-allowed;
+}
+</style>

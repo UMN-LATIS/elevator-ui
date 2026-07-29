@@ -46,12 +46,13 @@
           placeholder="00:00"
           type="text"
           class="flex-1 text-sm"
-          :inputClass="[
-            '!bg-white border !border-outline-variant',
-            {
-              '!border !border-error': isStartTimeTouched && !startTimeString,
-            },
-          ]"
+          :inputClass="
+            cn([
+              {
+                '!border-error': isStartTimeTouched && !startTimeString,
+              },
+            ])
+          "
           @update:modelValue="
             (str) => {
               isStartTimeTouched = true;
@@ -81,9 +82,8 @@
           type="text"
           class="flex-1 text-sm"
           :inputClass="[
-            '!bg-white border !border-outline-variant',
             {
-              '!border !border-error': isEndTimeTouched && !endTimeString,
+              '!border-error': isEndTimeTouched && !endTimeString,
             },
           ]"
           @update:modelValue="
@@ -127,6 +127,7 @@ import {
   timeStringToSeconds,
 } from "@/helpers/excerptHelpers";
 import ExcerptableIframe from "../ExcerptableIframe/ExcerptableIframe.vue";
+import { cn } from "@/lib/utils.js";
 
 const props = defineProps<{
   isAddingExcerpt: boolean;
