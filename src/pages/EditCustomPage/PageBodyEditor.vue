@@ -18,7 +18,7 @@
         title="This page is HTML-only for now"
         type="info"
         class="mb-2"
-        data-cy="page-body-source-notice">
+        data-testid="page-body-source-notice">
         <p>
           The visual editor can't keep some of this page's HTML. Editing here
           preserves everything. Switching to the visual editor would remove:
@@ -39,12 +39,12 @@
           v-model="sourceDraft"
           rows="20"
           class="w-full font-mono text-sm bg-surface-container border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary focus:outline-none"
-          data-cy="page-body-source-textarea"
+          data-testid="page-body-source-textarea"
           spellcheck="false"
           @input="emit('edited')" />
         <div
           class="border border-outline-variant rounded-lg p-3 overflow-auto"
-          data-cy="page-body-preview">
+          data-testid="page-body-preview">
           <p class="text-xs font-medium text-on-surface-variant uppercase mb-2">
             Preview
           </p>
