@@ -19,11 +19,11 @@
             label="Title"
             required
             placeholder="Page title" />
-          <TextEditorGroup
+          <PageBodyEditor
             ref="bodyEditorRef"
-            v-model="form.body"
+            :body="form.body"
             label="Body"
-            enableImageInsert />
+            @edited="hasAdminEditedBody = true" />
         </FormSection>
 
         <FormSection id="options" title="Options">
@@ -77,7 +77,8 @@ import { ref, watch, computed, toRef } from "vue";
 import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import TextEditorGroup from "@/components/TextEditorGroup/TextEditorGroup.vue";
+import PageBodyEditor from "./PageBodyEditor.vue";
+import { toSaveablePageBody } from "./toSaveablePageBody";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
@@ -168,7 +169,11 @@ const tocSections: TocItem[] = [
   { id: "options", label: "Options" },
 ];
 
-const bodyEditorRef = ref<InstanceType<typeof TextEditorGroup>>();
+const bodyEditorRef = ref<InstanceType<typeof PageBodyEditor>>();
+
+// An unedited body saves back exactly as fetched, bypassing the editor
+// entirely, so opening a page and pressing Save can never destroy it.
+const hasAdminEditedBody = ref(false);
 
 async function handleSave() {
   if (!form.value.title.trim()) {
@@ -180,12 +185,16 @@ async function handleSave() {
     return;
   }
 
+  const bodyToSave = hasAdminEditedBody.value
+    ? toSaveablePageBody(bodyEditorRef.value?.getBodyToSave() ?? "")
+    : form.value.body;
+
   try {
     await saveMutation.mutateAsync(
       {
         id: props.pageId ?? undefined,
         title: form.value.title,
-        body: bodyEditorRef.value?.getCleanHtml() ?? "",
+        body: bodyToSave,
         parent: form.value.parent,
         includeInHeader: form.value.includeInHeader,
       },
