@@ -155,7 +155,9 @@ test.describe("inline child editors and the parent save", () => {
     // the user is creating a second asset, so every save from here is a
     // create. One carrying an objectId is a write to an asset they left.
     expect(
-      saves.slice(savesBeforeSecondParent).filter((save) => save.objectId !== "")
+      saves
+        .slice(savesBeforeSecondParent)
+        .filter((save) => save.objectId !== "")
     ).toEqual([]);
   });
 

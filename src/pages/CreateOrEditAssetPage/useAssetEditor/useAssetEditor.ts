@@ -20,6 +20,18 @@ import { ASSETS_QUERY_KEY, TEMPLATES_QUERY_KEY } from "@/queries/queryKeys";
 import { createSaveQueue } from "./createSaveQueue";
 
 /**
+ * An inline related asset's editor, as its parent needs to see it.
+ *
+ * The parent holds these rather than callbacks so it can ask questions of a
+ * child instead of only firing at it, and so a child that goes away can be
+ * dropped by key.
+ */
+export interface ChildEditor {
+  isDirty: () => boolean;
+  save: () => Promise<void>;
+}
+
+/**
  * Creates (but does NOT provide) a reactive asset editor state
  *  and methods to manage the asset lifecycle
  * Note that each instance of this composable has
@@ -40,14 +52,15 @@ export const createAssetEditor = () => {
     // separate from whether the model has a template (its status)
     isTemplateLoading: boolean;
 
-    // inline related assets have their own editors, so their unsaved
-    // changes never show up in this editor's edits
-    modifiedInlineRelatedAssetWidgets: Set<T.Asset["assetId"]>;
+    // inline related assets have their own editors, so their unsaved changes
+    // and their saves both live outside this editor's model. Keyed by an id
+    // the child mints once, so an entry lasts exactly as long as its editor.
+    childEditors: Map<string, ChildEditor>;
   }
   const shellState = reactive<ShellState>({
     editorId: crypto.randomUUID(),
     isTemplateLoading: false,
-    modifiedInlineRelatedAssetWidgets: new Set(),
+    childEditors: new Map(),
   });
 
   function dispatch(event: EditorEvent): void {
@@ -144,10 +157,11 @@ export const createAssetEditor = () => {
   });
 
   const hasAssetChanged = computed(() => {
-    // do have any modified inline related assets?
-    const haveInlineRelatedAssetsChanged =
-      shellState.modifiedInlineRelatedAssetWidgets.size > 0;
-    return selectHasUnsavedEdits(model.value) || haveInlineRelatedAssetsChanged;
+    const childEditors = [...shellState.childEditors.values()];
+    const hasDirtyChild = childEditors.some((childEditor) =>
+      childEditor.isDirty()
+    );
+    return selectHasUnsavedEdits(model.value) || hasDirtyChild;
   });
 
   /**
@@ -157,7 +171,7 @@ export const createAssetEditor = () => {
     dispatch({ type: "resetRequested" });
     shellState.editorId = crypto.randomUUID();
     shellState.isTemplateLoading = false;
-    shellState.modifiedInlineRelatedAssetWidgets = new Set();
+    shellState.childEditors.clear();
   }
 
   /**
@@ -266,20 +280,20 @@ export const createAssetEditor = () => {
   }
 
   async function doSave(): Promise<void> {
-    const modelBeforeCallbacks = model.value;
+    const modelBeforeChildSaves = model.value;
     invariant(
-      modelBeforeCallbacks.status === "editingNewAsset" ||
-        modelBeforeCallbacks.status === "editingExistingAsset",
+      modelBeforeChildSaves.status === "editingNewAsset" ||
+        modelBeforeChildSaves.status === "editingExistingAsset",
       "Cannot save: no local asset"
     );
-    await runBeforeSaveCallbacks();
+    await saveDirtyChildEditors();
 
-    // callbacks may have dispatched edits, so re-read the model
+    // saving a child may have dispatched edits here, so re-read the model
     const modelToSave = model.value;
     invariant(
       modelToSave.status === "editingNewAsset" ||
         modelToSave.status === "editingExistingAsset",
-      "Cannot save: editor was reset during before-save callbacks"
+      "Cannot save: editor was reset while its children saved"
     );
 
     // captured before the request so a save that lands after the editor
@@ -400,47 +414,38 @@ export const createAssetEditor = () => {
     dispatch({ type: "availableAfterChanged", availableAfter });
   }
 
-  // this is a hook to allow components to register a callback
-  // before the asset is saved. Use case: triggering an automatic
-  // save of a related asset
-  const beforeSaveCallbacks: (() => Promise<void>)[] = [];
-
   /**
-   * Register work to run before this editor saves.
+   * Let an inline related asset's editor be seen and saved by this one.
    *
-   * @returns the function that undoes the registration. Callers must call it
-   * when they go away, or the parent keeps saving an editor nobody can see.
+   * @param childEditorId - minted once by the child and stable for its
+   * lifetime. `editorId` cannot serve, because `reset` reissues it.
+   * @returns the function that undoes the registration. Children must call it
+   * when they unmount, or this editor keeps saving one nobody can see.
    */
-  function onBeforeSave(fn: () => Promise<void>): () => void {
-    beforeSaveCallbacks.push(fn);
+  function registerChildEditor(
+    childEditorId: string,
+    childEditor: ChildEditor
+  ): () => void {
+    shellState.childEditors.set(childEditorId, childEditor);
     return () => {
-      const index = beforeSaveCallbacks.indexOf(fn);
-      if (index !== -1) {
-        beforeSaveCallbacks.splice(index, 1);
-      }
+      shellState.childEditors.delete(childEditorId);
     };
   }
 
-  async function runBeforeSaveCallbacks() {
-    await Promise.allSettled(beforeSaveCallbacks.map((callback) => callback()));
-    // wait for next tick to ensure any state changes are applied
-    await nextTick();
-  }
-
-  function updateModifiedInlineRelatedAsset(
-    widgetContentItemId: T.WithId<T.RelatedAssetWidgetContent>["id"],
-    hasChangedSinceSave: boolean
-  ): void {
-    invariant(
-      localAsset.value,
-      "Cannot set modified inline related asset: no local asset."
+  async function saveDirtyChildEditors(): Promise<void> {
+    const childEditors = [...shellState.childEditors.values()];
+    const dirtyChildEditors = childEditors.filter((childEditor) =>
+      childEditor.isDirty()
     );
 
-    if (hasChangedSinceSave) {
-      shellState.modifiedInlineRelatedAssetWidgets.add(widgetContentItemId);
-    } else {
-      shellState.modifiedInlineRelatedAssetWidgets.delete(widgetContentItemId);
-    }
+    // settled, not all: a child that cannot be saved is independent of this
+    // asset and must not cost the user their edits to it. Children report
+    // their own failures.
+    await Promise.allSettled(
+      dirtyChildEditors.map((childEditor) => childEditor.save())
+    );
+    // wait for next tick to ensure any state changes are applied
+    await nextTick();
   }
 
   // wrapping in reactive to auto-unwrap refs
@@ -452,9 +457,6 @@ export const createAssetEditor = () => {
     template,
     isInitialized,
     isTemplateLoading: computed(() => shellState.isTemplateLoading),
-    modifiedInlineRelatedAssetWidgets: computed(
-      () => shellState.modifiedInlineRelatedAssetWidgets
-    ),
 
     // computed
     assetId,
@@ -484,8 +486,7 @@ export const createAssetEditor = () => {
     updateWidgetContents,
     updateReadyForDisplay,
     updateAvailableAfter,
-    onBeforeSave,
-    updateModifiedInlineRelatedAsset,
+    registerChildEditor,
     getWidgetInstanceId,
   });
 };

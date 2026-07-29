@@ -92,7 +92,6 @@ import {
   reactive,
   ref,
   useTemplateRef,
-  watch,
 } from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import {
@@ -133,18 +132,20 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "update:assetId", assetId: T.Asset["assetId"]): void;
-  (e: "update:relatedAssetDirty", isDirty: boolean): void; // unsaved changes
 }>();
 
-// the parent asset component's editor - used to register the `onBeforeSave`
-// hook
+// the parent asset component's editor, which saves this one along with itself
 const parentAssetEditor = useAssetEditor();
 
 const toastStore = useToastStore();
 
+// this editor's identity to its parent, minted once so the registration lasts
+// exactly as long as this component
+const childEditorId = crypto.randomUUID();
+
 // held from mount to unmount. A registration that outlives this component
 // keeps saving an editor the user can no longer see.
-let unregisterFromParentSave: (() => void) | null = null;
+let unregisterFromParent: (() => void) | null = null;
 
 // unique editor instance for this inline asset
 const assetEditor = createAssetEditor();
@@ -175,17 +176,12 @@ onMounted(async () => {
 
   invariant(parentAssetEditor);
 
-  // register a hook to save the current asset whenever the parent asset is saved
-  unregisterFromParentSave = parentAssetEditor.onBeforeSave(
-    async (): Promise<void> => {
-      // NOTE: unchecked checkbox widget are considered
-      // content, so the form will save if there are any
-      if (isBlank.value) {
-        return;
-      }
-      return handleSaveAsset();
-    }
-  );
+  unregisterFromParent = parentAssetEditor.registerChildEditor(childEditorId, {
+    // NOTE: unchecked checkbox widget are considered
+    // content, so the form will save if there are any
+    isDirty: () => !isBlank.value && assetEditor.hasAssetChanged,
+    save: handleSaveAsset,
+  });
 
   if (props.assetId) {
     try {
@@ -288,9 +284,6 @@ async function handleSaveAsset() {
     "Local asset id must be defined after saving"
   );
 
-  // reset the dirty state now that we've saved
-  emit("update:relatedAssetDirty", false);
-
   // if this is an existing asset, we're done
   if (isExistingAsset) return;
 
@@ -300,19 +293,11 @@ async function handleSaveAsset() {
 }
 
 onUnmounted(() => {
-  unregisterFromParentSave?.();
-  unregisterFromParentSave = null;
+  unregisterFromParent?.();
+  unregisterFromParent = null;
 });
 
 const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
-
-watch(
-  () => assetEditor.hasAssetChanged,
-  (hasChanged) => {
-    // emit the dirty state to the parent component
-    emit("update:relatedAssetDirty", hasChanged);
-  }
-);
 </script>
 <style>
 .inline-edit-asset-page {

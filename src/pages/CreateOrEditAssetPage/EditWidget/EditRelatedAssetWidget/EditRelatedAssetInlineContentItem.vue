@@ -17,14 +17,12 @@
           ...modelValue,
           targetAssetId: $event,
         })
-      "
-      @update:relatedAssetDirty="handleUpdateRelatedAssetDirty" />
+      " />
   </div>
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
 import { computed } from "vue";
-import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import InlineCreateOrEditAssetPage from "../../InlineCreateOrEditAssetPage.vue";
 
 const props = defineProps<{
@@ -44,14 +42,4 @@ defineEmits<{
 const templateId = computed((): Type.Template["templateId"] | null => {
   return props.widgetDef.fieldData.defaultTemplate ?? null;
 });
-
-const parentAssetEditor = useAssetEditor();
-
-function handleUpdateRelatedAssetDirty(isDirty: boolean) {
-  // emit the dirty state to the parent component
-  parentAssetEditor?.updateModifiedInlineRelatedAsset(
-    props.modelValue.id,
-    isDirty
-  );
-}
 </script>

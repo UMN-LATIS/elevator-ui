@@ -473,7 +473,7 @@ async function updateTemplateId() {
 // so that we can have multiple tabs editing different assets
 // without interference. Still, sometimes the child component
 // needs to access the parent asset editor instance to do
-// things like register an `onBeforeSave` callback
+// things like register itself via `registerChildEditor`
 // (e.g. with inline asset editing, we want to save the
 // inline asset before the parent saves)
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
