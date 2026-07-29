@@ -404,8 +404,21 @@ export const createAssetEditor = () => {
   // before the asset is saved. Use case: triggering an automatic
   // save of a related asset
   const beforeSaveCallbacks: (() => Promise<void>)[] = [];
-  function onBeforeSave(fn: () => Promise<void>): void {
+
+  /**
+   * Register work to run before this editor saves.
+   *
+   * @returns the function that undoes the registration. Callers must call it
+   * when they go away, or the parent keeps saving an editor nobody can see.
+   */
+  function onBeforeSave(fn: () => Promise<void>): () => void {
     beforeSaveCallbacks.push(fn);
+    return () => {
+      const index = beforeSaveCallbacks.indexOf(fn);
+      if (index !== -1) {
+        beforeSaveCallbacks.splice(index, 1);
+      }
+    };
   }
 
   async function runBeforeSaveCallbacks() {

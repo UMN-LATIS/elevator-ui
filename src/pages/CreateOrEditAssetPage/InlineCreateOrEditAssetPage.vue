@@ -87,6 +87,7 @@ import {
   computed,
   inject,
   onMounted,
+  onUnmounted,
   provide,
   reactive,
   ref,
@@ -108,6 +109,7 @@ import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
+import { useToastStore } from "@/stores/toastStore";
 
 // Depth tracking to prevent infinite recursion with self-referencing templates
 const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";
@@ -137,6 +139,12 @@ const emit = defineEmits<{
 // the parent asset component's editor - used to register the `onBeforeSave`
 // hook
 const parentAssetEditor = useAssetEditor();
+
+const toastStore = useToastStore();
+
+// held from mount to unmount. A registration that outlives this component
+// keeps saving an editor the user can no longer see.
+let unregisterFromParentSave: (() => void) | null = null;
 
 // unique editor instance for this inline asset
 const assetEditor = createAssetEditor();
@@ -168,14 +176,16 @@ onMounted(async () => {
   invariant(parentAssetEditor);
 
   // register a hook to save the current asset whenever the parent asset is saved
-  parentAssetEditor.onBeforeSave(async (): Promise<void> => {
-    // NOTE: unchecked checkbox widget are considered
-    // content, so the form will save if there are any
-    if (isBlank.value) {
-      return;
+  unregisterFromParentSave = parentAssetEditor.onBeforeSave(
+    async (): Promise<void> => {
+      // NOTE: unchecked checkbox widget are considered
+      // content, so the form will save if there are any
+      if (isBlank.value) {
+        return;
+      }
+      return handleSaveAsset();
     }
-    return handleSaveAsset();
-  });
+  );
 
   if (props.assetId) {
     try {
@@ -258,7 +268,20 @@ function handleCollapseAll() {
 
 async function handleSaveAsset() {
   const isExistingAsset = props.assetId;
-  await assetEditor.saveAsset();
+  try {
+    await assetEditor.saveAsset();
+  } catch (cause) {
+    // the parent's save carries on without this child, and its redirect
+    // clears the error modal the request already raised, so say here which
+    // asset was lost
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to save inline asset: ${reason}`,
+      variant: "error",
+    });
+    return;
+  }
 
   invariant(
     assetEditor.localAsset?.assetId,
@@ -275,6 +298,11 @@ async function handleSaveAsset() {
   const savedAssetId = assetEditor.localAsset.assetId;
   emit("update:assetId", savedAssetId);
 }
+
+onUnmounted(() => {
+  unregisterFromParentSave?.();
+  unregisterFromParentSave = null;
+});
 
 const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
 
