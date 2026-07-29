@@ -235,6 +235,25 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Only seed asset with rich text markup, so `.prose` has a `strong` to
+  // style. Template 101 is used because it declares the text area widget
+  // that renders `description_1`.
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Rich Text Asset" }],
+    description_1: [
+      {
+        isPrimary: false,
+        fieldContents: "<p><strong>Bold description text</strong></p>",
+      },
+    ],
+    assetId: "rich_text_asset_001",
+    firstFileHandlerId: "handler_rich_text",
+    title: ["Rich Text Asset"],
+    templateId: 101,
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Metadata-only asset (no file uploads)
   {
     ...baseAsset,
