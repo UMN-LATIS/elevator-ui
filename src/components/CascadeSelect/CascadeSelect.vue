@@ -20,7 +20,6 @@
               selectClass,
             ])
           "
-          :style="{ width: '100%' }"
           :value="selected.value"
           @change="
             handleSelectChange(

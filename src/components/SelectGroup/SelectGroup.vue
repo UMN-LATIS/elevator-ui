@@ -19,12 +19,11 @@
       :value="modelValue ?? ''"
       :disabled="disabled"
       :class="cn(['select-group__select', selectClass])"
-      readonly
-      required
+      :required="required"
       @change="
         handleUpdateSelection(($event.target as HTMLSelectElement).value)
       ">
-      <option value="" disabled selected>{{ placeholder }}</option>
+      <option value="" disabled>{{ placeholder }}</option>
       <option
         v-for="opt in options"
         :key="opt.id"
@@ -84,8 +83,8 @@ function handleUpdateSelection(value: string) {
 }
 </script>
 <style>
-/* this is available globally so that other components can use (e.g. cascade select) are styled similarly */
+/* global on purpose: raw selects elsewhere (e.g. CascadeSelect) share this styling */
 .select-group__select {
-  @apply rounded-md border-outline-variant bg-surface-container text-on-surface disabled:text-on-surface-muted text-sm focus-visible:ring-2 focus:bg-surface-bright disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply w-full rounded-md border-outline-variant bg-surface-container text-on-surface disabled:text-on-surface-muted text-sm focus-visible:ring-2 focus:bg-surface-bright disabled:opacity-50 disabled:cursor-not-allowed;
 }
 </style>
