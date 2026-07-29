@@ -138,6 +138,20 @@ export default {
           DEFAULT: "var(--outline)",
           variant: "var(--outline-variant)",
         },
+        // shadcn-vue palette names aliased to the M3 tokens above, so
+        // components pasted into src/components/ui/ render themed
+        // without a rewrite
+        background: "var(--surface)",
+        foreground: "var(--on-surface)",
+        muted: {
+          DEFAULT: "var(--surface-container)",
+          foreground: "var(--on-surface-variant)",
+        },
+        accent: {
+          DEFAULT: "var(--primary-container)",
+          foreground: "var(--on-primary-container)",
+        },
+        ring: "var(--primary)",
         "inverse-surface": "var(--inverse-surface)",
         "inverse-on-surface": "var(--inverse-on-surface)",
         "inverse-on-surface-variant":
