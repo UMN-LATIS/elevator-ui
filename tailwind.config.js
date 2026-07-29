@@ -138,7 +138,7 @@ export default {
           DEFAULT: "var(--outline)",
           variant: "var(--outline-variant)",
         },
-        // shadcn-vue palette names aliased to the M3 tokens above, so
+        // shadcn-vue palette names aliased to the M3 theme tokens, so
         // components pasted into src/components/ui/ render themed
         // without a rewrite
         background: "var(--surface)",

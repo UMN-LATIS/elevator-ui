@@ -3,7 +3,7 @@
     <template #label>
       <select
         aria-label="Filter field"
-        class="select-group__select filter-row__name"
+        class="themed-select filter-row__name"
         :value="currentField.id"
         @change="handleFieldChange">
         <option

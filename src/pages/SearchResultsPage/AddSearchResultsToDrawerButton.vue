@@ -26,7 +26,7 @@
           <select
             id="add-results-to-drawer-select"
             v-model="selectedDrawer"
-            class="select-group__select"
+            class="themed-select"
             :class="{
               'text-on-surface-variant': !selectedDrawer,
             }">

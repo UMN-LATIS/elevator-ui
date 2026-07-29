@@ -68,9 +68,9 @@ body {
     color: var(--on-surface-variant);
   }
 
-  /* The checked fill is the plugin's `background-color: currentColor` */
   [type="checkbox"],
   [type="radio"] {
+    /* the plugin's :checked fill is currentColor, so color sets the check */
     color: var(--primary);
     background-color: var(--surface-container);
     border-color: var(--outline);
@@ -80,6 +80,13 @@ body {
   [type="radio"]:focus {
     --tw-ring-color: var(--primary);
     --tw-ring-offset-color: var(--surface);
+  }
+}
+
+@layer components {
+  /* the app-wide select style, used by SelectGroup and raw selects alike */
+  .themed-select {
+    @apply w-full rounded-md border-outline-variant bg-surface-container text-on-surface disabled:text-on-surface-muted text-sm focus-visible:ring-2 focus:bg-surface-bright disabled:opacity-50 disabled:cursor-not-allowed;
   }
 }
 

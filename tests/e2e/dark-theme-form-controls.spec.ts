@@ -16,7 +16,7 @@ const DARK_THEMES = [
 
 // The app reads the saved theme from localStorage at boot, so write it
 // directly and reload rather than driving the settings UI.
-async function activateTheme(page: Page, theme: string) {
+async function activateTheme(page: Page, theme: string): Promise<void> {
   await page.evaluate(
     (themeName) =>
       localStorage.setItem(`theme-${window.location.hostname}`, themeName),
@@ -66,6 +66,9 @@ test.describe("Dark theme form controls", () => {
     await activateTheme(page, "dark");
 
     await page.goto("/assetManager/addAsset");
+    // the navigation reboots the app, so confirm the theme reapplied
+    // before sampling any colors
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await page
       .getByLabel("Template")
       .selectOption({ label: "All Fields with Autocomplete" });
@@ -73,11 +76,12 @@ test.describe("Dark theme form controls", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByLabel(/title/i).first()).toBeVisible();
 
-    const checkbox = page.locator('input[type="checkbox"]').first();
-    await expect(checkbox).toBeVisible();
-    expect(await backgroundColor(checkbox), "checkbox widget input").not.toBe(
-      WHITE
-    );
+    await expect(page.locator('input[type="checkbox"]').first()).toBeVisible();
+    for (const checkbox of await page.locator('input[type="checkbox"]').all()) {
+      expect(await backgroundColor(checkbox), "checkbox widget input").not.toBe(
+        WHITE
+      );
+    }
 
     await page.getByText("Select an asset...").click();
     const comboboxInput = page.getByPlaceholder("Select Related Assets...");

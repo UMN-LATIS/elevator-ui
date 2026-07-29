@@ -2,7 +2,7 @@
   <select
     :value="selectedOption"
     :aria-label="valueSelectLabel"
-    class="select-group__select"
+    class="themed-select"
     @change="handleSelectChange">
     <option v-for="opt in options" :key="opt" :value="opt">
       {{ opt === "" ? "-" : opt }}
@@ -33,7 +33,7 @@ const field = computed(() => {
   );
 });
 
-const valueSelectLabel = computed(() =>
+const valueSelectLabel = computed((): string =>
   field.value ? `${field.value.label} value` : "Field value"
 );
 

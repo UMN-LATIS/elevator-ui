@@ -18,7 +18,7 @@
       :id="id"
       :value="modelValue ?? ''"
       :disabled="disabled"
-      :class="cn(['select-group__select', selectClass])"
+      :class="cn(['themed-select', selectClass])"
       :required="required"
       @change="
         handleUpdateSelection(($event.target as HTMLSelectElement).value)
@@ -82,9 +82,3 @@ function handleUpdateSelection(value: string) {
   return emit("update:modelValue", value as TModelValue);
 }
 </script>
-<style>
-/* global on purpose: raw selects elsewhere (e.g. CascadeSelect) share this styling */
-.select-group__select {
-  @apply w-full rounded-md border-outline-variant bg-surface-container text-on-surface disabled:text-on-surface-muted text-sm focus-visible:ring-2 focus:bg-surface-bright disabled:opacity-50 disabled:cursor-not-allowed;
-}
-</style>

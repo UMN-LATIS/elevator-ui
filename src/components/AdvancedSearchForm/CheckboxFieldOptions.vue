@@ -2,7 +2,7 @@
   <select
     :value="selectedOption"
     :aria-label="valueSelectLabel"
-    class="select-group__select"
+    class="themed-select"
     @change="handleSelectChange">
     <option value="boolean_true">{{ trueLabel }}</option>
     <option value="boolean_false">{{ falseLabel }}</option>
@@ -36,7 +36,7 @@ const field = computed(() => {
   );
 });
 
-const valueSelectLabel = computed(() =>
+const valueSelectLabel = computed((): string =>
   field.value ? `${field.value.label} value` : "Field value"
 );
 

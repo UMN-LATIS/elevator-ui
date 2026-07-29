@@ -9,7 +9,7 @@
       <select
         :id="languageId"
         :value="sidecars.language ?? ''"
-        class="select-group__select"
+        class="themed-select"
         @change="
           $emit('update:sidecars', {
             ...sidecars,

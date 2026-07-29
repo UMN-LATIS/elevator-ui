@@ -16,11 +16,7 @@
         <select
           :id="`${selectIdPrefix}-${segmentLevel}`"
           :class="
-            cn([
-              'select-group__select',
-              !selected.value && 'text-on-surface-variant',
-              selectClass,
-            ])
+            cn(['themed-select', !selected.value && 'text-on-surface-variant'])
           "
           :value="selected.value"
           @change="
@@ -54,7 +50,6 @@ export interface CascaderSelectOptions {
 
 const props = defineProps<{
   options: CascaderSelectOptions;
-  selectClass?: Record<string, boolean> | string[] | string;
   labelClass?: Record<string, boolean> | string[] | string;
   initialSelectedValues?: string[];
 }>();
@@ -63,7 +58,6 @@ const emit = defineEmits<{
   (eventName: "change", selectedValues: string[]): void;
 }>();
 
-// one id per segment select, namespaced per component instance
 const selectIdPrefix = useId();
 
 interface SelectedSegment {
