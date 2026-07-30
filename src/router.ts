@@ -300,12 +300,20 @@ const router = createRouter({
       path: "/instances/customPages",
       component: () =>
         import("@/pages/AllCustomPagesPage/AllCustomPagesPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "createCustomPage",
       path: "/instances/createPage",
       component: () => import("@/pages/EditCustomPage/EditCustomPage.vue"),
       props: () => ({ pageId: null }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "editCustomPage",
@@ -314,11 +322,19 @@ const router = createRouter({
       props: (route) => ({
         pageId: parseIntFromParam(route.params.pageId),
       }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "templatesIndex",
       path: "/templates",
       component: () => import("@/pages/AllTemplatesPage/AllTemplatesPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "templatesEdit",
@@ -326,6 +342,10 @@ const router = createRouter({
       component: () =>
         import("@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"),
       props: (route) => ({ templateId: parseIntFromParam(route.params.id) }),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "templatesCreate",
@@ -333,6 +353,10 @@ const router = createRouter({
       component: () =>
         import("@/pages/CreateOrEditTemplatePage/CreateOrEditTemplatePage.vue"),
       props: { templateId: null },
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isAdmin,
+      },
     },
     {
       name: "adminPermissions",
