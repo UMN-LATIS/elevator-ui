@@ -1,4 +1,4 @@
-import Quill from "quill";
+import { toQuillSimplifiedHtml } from "./toQuillSimplifiedHtml";
 
 // Every tag name and attribute name appearing anywhere in the markup.
 // Attribute names are prefixed with "@" to keep the two namespaces apart.
@@ -16,12 +16,6 @@ function inventoryOf(html: string): Set<string> {
   return found;
 }
 
-function roundTripThroughQuill(html: string): string {
-  const quill = new Quill(document.createElement("div"));
-  quill.setContents(quill.clipboard.convert({ html }));
-  return quill.getSemanticHTML();
-}
-
 /**
  * Names the tags and attributes Quill would destroy if this HTML were
  * loaded into the rich text editor, e.g. ["div", "@id"]. Empty when the
@@ -37,7 +31,7 @@ export function markupLostByQuill(html: string): string[] {
   if (!html.trim()) return [];
 
   const authored = inventoryOf(html);
-  const survived = inventoryOf(roundTripThroughQuill(html));
+  const survived = inventoryOf(toQuillSimplifiedHtml(html));
 
   return [...authored].filter((item) => !survived.has(item));
 }
