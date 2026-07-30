@@ -34,7 +34,7 @@
       </Button>
     </p>
 
-    <div v-if="isCustomHtml">
+    <div v-if="isCustomHtml" class="sm:grid sm:grid-cols-2 gap-4">
       <textarea
         :id="sourceFieldId"
         :value="html"
@@ -45,7 +45,7 @@
         @input="reportSourceEdit" />
 
       <div
-        class="mt-4 border border-outline-variant rounded-lg p-3"
+        class="border border-outline-variant rounded-lg p-3"
         data-testid="page-body-preview">
         <p class="text-xs font-medium text-on-surface-variant uppercase mb-2">
           Preview

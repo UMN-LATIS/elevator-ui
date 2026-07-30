@@ -7,7 +7,7 @@
         props.class
       )
     ">
-    <header>
+    <header :class="headerClass">
       <slot name="header">
         <h2 class="text-lg font-semibold">{{ title }}</h2>
       </slot>
@@ -27,10 +27,12 @@ const props = withDefaults(
     id: string;
     title?: string;
     class?: CSSClass;
+    headerClass?: CSSClass;
   }>(),
   {
     title: "",
     class: "",
+    headerClass: "mb-4",
   }
 );
 </script>
