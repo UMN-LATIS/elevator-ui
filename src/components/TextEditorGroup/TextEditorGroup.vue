@@ -7,6 +7,7 @@
           :class="
             cn(
               'block text-xs font-medium text-on-surface uppercase mb-1',
+              { 'sr-only': labelHidden },
               labelClass
             )
           ">
@@ -42,11 +43,15 @@ withDefaults(
     label: string;
     modelValue: string;
     labelClass?: CSSClass;
+    // for callers that show their own label, keeping this one for
+    // screen readers because it carries the editor's for attribute
+    labelHidden?: boolean;
     enableImageInsert?: boolean;
     enableHtmlEditButton?: boolean;
   }>(),
   {
     labelClass: "",
+    labelHidden: false,
     enableImageInsert: false,
     enableHtmlEditButton: true,
   }

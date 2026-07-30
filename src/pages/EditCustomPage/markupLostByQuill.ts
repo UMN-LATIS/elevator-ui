@@ -35,3 +35,12 @@ export function markupLostByQuill(html: string): string[] {
 
   return [...authored].filter((item) => !survived.has(item));
 }
+
+/** Reads an inventory back to an admin: `<div>, class=..., id=...`. */
+export function toMarkupList(items: string[]): string {
+  return items
+    .map((item) =>
+      item.startsWith("@") ? `${item.slice(1)}=...` : `<${item}>`
+    )
+    .join(", ");
+}
