@@ -16,6 +16,71 @@ body {
   a:hover {
     text-decoration: underline;
   }
+
+  /* @tailwindcss/forms paints bare controls for a light scheme (white fills,
+     gray borders, blue focus rings). Repoint its colors at theme tokens so
+     every control follows the active theme. Selectors mirror the plugin's
+     base rules exactly, so source order decides the tie. */
+  [type="text"],
+  input:where(:not([type])),
+  [type="email"],
+  [type="url"],
+  [type="password"],
+  [type="number"],
+  [type="date"],
+  [type="datetime-local"],
+  [type="month"],
+  [type="search"],
+  [type="tel"],
+  [type="time"],
+  [type="week"],
+  [multiple],
+  textarea,
+  select {
+    background-color: var(--surface-container);
+    border-color: var(--outline-variant);
+    color: var(--on-surface);
+  }
+
+  [type="text"]:focus,
+  input:where(:not([type])):focus,
+  [type="email"]:focus,
+  [type="url"]:focus,
+  [type="password"]:focus,
+  [type="number"]:focus,
+  [type="date"]:focus,
+  [type="datetime-local"]:focus,
+  [type="month"]:focus,
+  [type="search"]:focus,
+  [type="tel"]:focus,
+  [type="time"]:focus,
+  [type="week"]:focus,
+  [multiple]:focus,
+  textarea:focus,
+  select:focus {
+    --tw-ring-color: var(--primary);
+    --tw-ring-offset-color: var(--surface);
+    border-color: var(--primary);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--on-surface-variant);
+  }
+
+  /* The checked fill is the plugin's `background-color: currentColor` */
+  [type="checkbox"],
+  [type="radio"] {
+    color: var(--primary);
+    background-color: var(--surface-container);
+    border-color: var(--outline);
+  }
+
+  [type="checkbox"]:focus,
+  [type="radio"]:focus {
+    --tw-ring-color: var(--primary);
+    --tw-ring-offset-color: var(--surface);
+  }
 }
 
 @layer utilities {
@@ -106,11 +171,7 @@ body {
 .prose img,
 .prose iframe {
   border: 1px solid var(--outline-variant);
-
-  /* the border is chrome, so it follows the theme, but this backdrop shows
-   * only through transparent images, where dark line art assumes a light
-   * background, so it stays light in every theme */
-  background: #eee;
+  background: var(--surface-container);
   border-radius: 0.5rem;
 }
 

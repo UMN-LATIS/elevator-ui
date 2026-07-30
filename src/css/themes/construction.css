@@ -15,6 +15,7 @@
 @import "@fontsource/barlow/700.css";
 
 [data-theme="construction"] {
+  color-scheme: dark;
   /* Surface — dark asphalt gray */
   --surface: oklch(20% 0.01 80);
   --surface-dim: oklch(15% 0.01 80);
