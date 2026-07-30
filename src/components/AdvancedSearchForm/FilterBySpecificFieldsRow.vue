@@ -2,7 +2,8 @@
   <BaseFilterRow :rowIndex="rowIndex" @remove="handleRemoveFilter">
     <template #label>
       <select
-        class="rounded-md text-sm filter-row__name w-full border-outline bg-transparent"
+        aria-label="Filter field"
+        class="themed-select filter-row__name"
         :value="currentField.id"
         @change="handleFieldChange">
         <option
@@ -55,7 +56,7 @@
           type="checkbox"
           :checked="filter.isFuzzy"
           @change="handleIsFuzzyChange" />
-        <span aria-label="Fuzzy Search">Fuzzy</span>
+        <span>Fuzzy</span>
       </label>
     </template>
   </BaseFilterRow>

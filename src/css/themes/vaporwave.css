@@ -13,6 +13,7 @@
 @import "@fontsource/quicksand/700.css";
 
 [data-theme="vaporwave"] {
+  color-scheme: dark;
   /* Surface — deep purple-blue twilight */
   --surface: oklch(18% 0.06 290);
   --surface-dim: oklch(14% 0.05 290);

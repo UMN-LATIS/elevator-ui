@@ -34,24 +34,6 @@
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
             }"
             @update:modelValue="isSelectDrawerTouched = true" />
-
-          <label class="text-xs uppercase font-medium">Existing Drawer</label>
-          <select
-            v-model="selectedDrawer"
-            class="border border-outline-variant rounded w-full text-sm bg-surface-container-low"
-            :class="{
-              ' !border-error text-error':
-                !exactlyOneDrawerIsChosen && isSelectDrawerTouched,
-            }"
-            @update:modelValue="isSelectDrawerTouched = true">
-            <option value="">-</option>
-            <option
-              v-for="drawer in drawerStore.drawers"
-              :key="drawer.id"
-              :value="drawer.id">
-              {{ drawer.title }}
-            </option>
-          </select>
         </div>
 
         <p
@@ -67,7 +49,7 @@
           class="flex-1"
           label="New Drawer"
           :inputClass="[
-            'bg-surface placeholder-on-surface-variant border border-outline-variant rounded border-solid',
+            'bg-surface border border-outline-variant rounded border-solid',
             {
               '!border !border-error !text-error':
                 !exactlyOneDrawerIsChosen && isSelectDrawerTouched,

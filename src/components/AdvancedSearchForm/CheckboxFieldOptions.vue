@@ -1,7 +1,8 @@
 <template>
   <select
     :value="selectedOption"
-    class="rounded-md border-outline"
+    :aria-label="valueSelectLabel"
+    class="themed-select"
     @change="handleSelectChange">
     <option value="boolean_true">{{ trueLabel }}</option>
     <option value="boolean_false">{{ falseLabel }}</option>
@@ -34,6 +35,10 @@ const field = computed(() => {
     props.filter.fieldId
   );
 });
+
+const valueSelectLabel = computed((): string =>
+  field.value ? `${field.value.label} value` : "Field value"
+);
 
 function handleSelectChange(event: Event) {
   const target = event.target as HTMLSelectElement;

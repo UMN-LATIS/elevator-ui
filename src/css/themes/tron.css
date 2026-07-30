@@ -17,6 +17,7 @@
 @import "@fontsource/exo-2/700.css";
 
 [data-theme="tron"] {
+  color-scheme: dark;
   /* Surface — near-black with blue undertone */
   --surface: oklch(8% 0.02 240);
   --surface-dim: oklch(5% 0.01 240);

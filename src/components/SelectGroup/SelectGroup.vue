@@ -18,18 +18,12 @@
       :id="id"
       :value="modelValue ?? ''"
       :disabled="disabled"
-      :class="
-        cn([
-          'rounded-md border-outline-variant bg-surface-container text-sm focus-visible:ring-2 disabled:opacity-50',
-          selectClass,
-        ])
-      "
-      readonly
-      required
+      :class="cn(['themed-select', selectClass])"
+      :required="required"
       @change="
         handleUpdateSelection(($event.target as HTMLSelectElement).value)
       ">
-      <option value="" disabled selected>{{ placeholder }}</option>
+      <option value="" disabled>{{ placeholder }}</option>
       <option
         v-for="opt in options"
         :key="opt.id"
@@ -88,4 +82,3 @@ function handleUpdateSelection(value: string) {
   return emit("update:modelValue", value as TModelValue);
 }
 </script>
-<style scoped></style>

@@ -6,7 +6,7 @@
       :placeholder="placeholder"
       :inputClass="
         cn(
-          'border-outline-variant rounded-b-none placeholder:text-on-surface-variant px-4 py-3',
+          'border-outline-variant rounded-b-none px-4 py-3',
           inputClass
         )
       "

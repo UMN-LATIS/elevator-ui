@@ -15,6 +15,7 @@
 @import "@fontsource/jetbrains-mono/600.css";
 
 [data-theme="nord-dark"] {
+  color-scheme: dark;
   /* Surface — Nord Polar Night (#2e3440 → #4c566a) */
   --surface: oklch(26% 0.02 245);
   --surface-dim: oklch(22% 0.02 245);

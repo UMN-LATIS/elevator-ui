@@ -13,6 +13,7 @@
 @import "@fontsource/source-code-pro/700.css";
 
 [data-theme="matrix"] {
+  color-scheme: dark;
   /* Surface — pure black void */
   --surface: oklch(5% 0.01 145);
   --surface-dim: oklch(3% 0 0);
