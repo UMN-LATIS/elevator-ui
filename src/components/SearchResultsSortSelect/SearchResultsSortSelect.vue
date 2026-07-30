@@ -1,6 +1,6 @@
 <template>
   <div class="search-results-sort-select flex items-baseline gap-2">
-    <label for="location" class="sr-only">Sort</label>
+    <label for="sort" class="sr-only">Sort</label>
     <select
       id="sort"
       name="sort"

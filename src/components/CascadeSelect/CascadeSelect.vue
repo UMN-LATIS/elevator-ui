@@ -6,6 +6,7 @@
       class="flex flex-col gap-1">
       <div v-if="selected.options.length">
         <label
+          :for="`${selectIdPrefix}-${segmentLevel}`"
           :class="[
             'uppercase text-xs font-medium tracking-wider text-on-surface',
             labelClass,
@@ -13,14 +14,10 @@
           {{ selected.label }}
         </label>
         <select
+          :id="`${selectIdPrefix}-${segmentLevel}`"
           :class="
-            cn([
-              'rounded-md text-sm bg-surface-container text-on-surface-container',
-              !selected.value && 'text-on-surface-variant',
-              selectClass,
-            ])
+            cn(['themed-select', !selected.value && 'text-on-surface-variant'])
           "
-          :style="{ width: '100%' }"
           :value="selected.value"
           @change="
             handleSelectChange(
@@ -45,7 +42,7 @@
 <script setup lang="ts">
 import { cn } from "@/lib/utils";
 import { path } from "ramda";
-import { reactive, watch } from "vue";
+import { reactive, watch, useId } from "vue";
 
 export interface CascaderSelectOptions {
   [label: string]: string[] | CascaderSelectOptions;
@@ -53,7 +50,6 @@ export interface CascaderSelectOptions {
 
 const props = defineProps<{
   options: CascaderSelectOptions;
-  selectClass?: Record<string, boolean> | string[] | string;
   labelClass?: Record<string, boolean> | string[] | string;
   initialSelectedValues?: string[];
 }>();
@@ -61,6 +57,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (eventName: "change", selectedValues: string[]): void;
 }>();
+
+const selectIdPrefix = useId();
 
 interface SelectedSegment {
   label: string;

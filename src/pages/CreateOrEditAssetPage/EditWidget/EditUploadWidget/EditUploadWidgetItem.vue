@@ -70,7 +70,6 @@
             <input
               type="checkbox"
               :checked="item.regenerate === 'On'"
-              class="form-checkbox"
               @change="handleRegenerateToggle" />
             Regenerate Derivatives
           </label>

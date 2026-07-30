@@ -25,12 +25,9 @@
         label="Excerpt Name"
         placeholder="Excerpt Name"
         class="flex-1 text-sm"
-        :inputClass="[
-          '!bg-surface-container border !border-outline-variant',
-          {
-            '!border !border-error': !excerptName && isNameTouched,
-          },
-        ]"
+        :inputClass="{
+          '!border-error': !excerptName && isNameTouched,
+        }"
         @update:modelValue="
           (val) => {
             isNameTouched = true;
@@ -46,12 +43,9 @@
           placeholder="00:00"
           type="text"
           class="flex-1 text-sm"
-          :inputClass="[
-            '!bg-white border !border-outline-variant',
-            {
-              '!border !border-error': isStartTimeTouched && !startTimeString,
-            },
-          ]"
+          :inputClass="{
+            '!border-error': isStartTimeTouched && !startTimeString,
+          }"
           @update:modelValue="
             (str) => {
               isStartTimeTouched = true;
@@ -80,12 +74,9 @@
           placeholder="00:00"
           type="text"
           class="flex-1 text-sm"
-          :inputClass="[
-            '!bg-white border !border-outline-variant',
-            {
-              '!border !border-error': isEndTimeTouched && !endTimeString,
-            },
-          ]"
+          :inputClass="{
+            '!border-error': isEndTimeTouched && !endTimeString,
+          }"
           @update:modelValue="
             (str) => {
               isEndTimeTouched = true;
