@@ -279,16 +279,24 @@ async function handleSaveAsset() {
     return;
   }
 
-  invariant(
-    assetEditor.localAsset?.assetId,
-    "Local asset id must be defined after saving"
-  );
-
   // if this is an existing asset, we're done
   if (isExistingAsset) return;
 
+  const savedAssetId = assetEditor.localAsset?.assetId ?? null;
+  if (!savedAssetId) {
+    // this editor took in a different asset while the save was in flight, so
+    // the reducer dropped the new id. The asset exists with nothing pointing
+    // at it, which the user needs to hear about.
+    toastStore.addToast({
+      title: "Error",
+      message:
+        "The inline asset was saved but could not be linked to this asset.",
+      variant: "error",
+    });
+    return;
+  }
+
   // redirect to the edit asset page
-  const savedAssetId = assetEditor.localAsset.assetId;
   emit("update:assetId", savedAssetId);
 }
 

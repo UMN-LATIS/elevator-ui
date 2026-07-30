@@ -80,12 +80,16 @@ export const createAssetEditor = () => {
     });
   }
 
-  function fetchAssetThroughCache(
+  function fetchAssetIntoCache(
     assetId: T.Asset["assetId"]
   ): Promise<T.Asset | null> {
     return queryClient.fetchQuery({
       queryKey: [ASSETS_QUERY_KEY, assetId],
       queryFn: () => fetchers.fetchAsset(assetId),
+      // a save writes back every field the editor holds, so a document read
+      // from the cache would overwrite whatever changed since it was cached.
+      // staleTime 0 refetches while still filling the shared cache.
+      staleTime: 0,
     });
   }
 
@@ -226,7 +230,7 @@ export const createAssetEditor = () => {
     let fetchedAsset: T.Asset | null;
     let nextTemplate: T.Template | null;
     try {
-      fetchedAsset = await fetchAssetThroughCache(assetId);
+      fetchedAsset = await fetchAssetIntoCache(assetId);
       invariant(fetchedAsset, `no asset found with id ${assetId}`);
 
       const templateId = fetchedAsset.templateId ?? null;

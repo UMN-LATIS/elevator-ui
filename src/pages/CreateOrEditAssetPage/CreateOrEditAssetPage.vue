@@ -340,14 +340,16 @@ async function handleSaveAsset({ showToast }: { showToast: boolean }) {
   try {
     await assetEditor.saveAsset();
 
-    invariant(
-      assetEditor.localAsset?.assetId,
-      "Local asset id must be defined after saving"
-    );
-    const savedAssetId = assetEditor.localAsset.assetId;
-
     // if this is an existing asset, we're done
     if (!isNewAsset) {
+      return;
+    }
+
+    const savedAssetId = assetEditor.localAsset?.assetId ?? null;
+    if (!savedAssetId) {
+      // the editor took in a different asset while this save was in flight,
+      // so the reducer dropped its result. The save itself succeeded, and
+      // the redirect below belongs to a page the user has already left.
       return;
     }
 

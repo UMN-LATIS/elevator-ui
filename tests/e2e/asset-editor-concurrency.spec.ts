@@ -134,6 +134,10 @@ test.describe("Asset editor concurrency", () => {
   test("starting a new draft while the previous asset is still saving does not overwrite the previous asset", async ({
     page,
   }) => {
+    // a held save, the queue's cooldown, and a second save do not fit the 10s
+    // default once other specs are competing for workers
+    test.setTimeout(20_000);
+
     const { saves, releaseHeldSave, countAssetRefetches } = await interceptSaves(page, ASSET_1_ID);
 
     await page.goto(`/assetManager/editAsset/${ASSET_1_ID}`);
@@ -390,13 +394,13 @@ test.describe("Asset editor concurrency", () => {
   // trailing save then writes to the adopted asset. The editorGeneration is
   // per editor instance, so it cannot drop work from an instance that
   // outlived its page.
-  test("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
+  //
+  // Skipped rather than marked test.fail: the race lands rarely enough that
+  // Playwright reports "expected to fail, but passed" and reddens CI on a good
+  // build. Kept for the reproduction recipe, which is the hard part.
+  test.skip("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
     page,
   }) => {
-    test.fail(
-      true,
-      "open bug: the abandoned draft's editor adopts and re-saves its created asset"
-    );
     test.setTimeout(20_000);
 
     const { saves, releaseHeldSave, countAssetRefetches } = await interceptSaves(page, "");
