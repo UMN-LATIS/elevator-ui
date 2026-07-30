@@ -1,4 +1,10 @@
-import { test, expect, type APIRequestContext } from "@playwright/test";
+import {
+  test,
+  expect,
+  type APIRequestContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
 import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 import mockServerConfig from "../../mock-server/config";
 
@@ -10,6 +16,10 @@ const SEED_BODY =
   '<div class="wrapper" id="hero"><h2 id="hours">Hours</h2><p data-track="top">Open 9 to 5</p><iframe src="https://example.com/embed"></iframe></div>';
 
 const PAGE_ID = 5;
+
+function customHtmlSwitch(page: Page): Locator {
+  return page.getByRole("switch", { name: "Custom HTML" });
+}
 
 async function fetchStoredBody({
   request,
@@ -38,7 +48,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
     await loginUser({ request, page, workerId, username: "admin" });
   });
 
-  test("a body quill cannot represent opens in custom html with a notice naming the markup", async ({
+  test("a body quill cannot represent opens in custom html, with a warning", async ({
     page,
   }) => {
     await page.goto(`/instances/editPage/${PAGE_ID}`);
@@ -46,15 +56,15 @@ test.describe("Custom page HTML preservation (#623)", () => {
     const textarea = page.getByTestId("page-body-source-textarea");
     await expect(textarea).toBeVisible();
     await expect(textarea).toHaveValue(SEED_BODY);
-    await expect(
-      page.getByRole("radio", { name: "Custom HTML" })
-    ).toBeChecked();
+    await expect(customHtmlSwitch(page)).toBeChecked();
 
-    const notice = page.getByTestId("page-markup-loss-warning");
-    await expect(notice).toBeVisible();
-    await expect(notice).toContainText("<div>");
-    await expect(notice).toContainText("id (attribute)");
-    await expect(notice).toContainText("<iframe>");
+    const warning = page.getByTestId("page-markup-warning");
+    await expect(warning).toBeVisible();
+    await warning.hover();
+    const tip = page.locator("[role=tooltip]");
+    await expect(tip).toContainText("<div>");
+    await expect(tip).toContainText("id=...");
+    await expect(tip).toContainText("<iframe>");
   });
 
   test("saving without editing stores the body byte-identical", async ({
@@ -106,35 +116,55 @@ test.describe("Custom page HTML preservation (#623)", () => {
   test("the notice appears when unsupported HTML is typed into a page that started clean", async ({
     page,
   }) => {
-    // page 2 is plain prose, so it opens in the visual editor with no notice
+    // page 2 is plain prose, so it opens in the visual editor with no warning
     await page.goto("/instances/editPage/2");
-    const markupStyle = page.getByTestId("page-markup-style");
-    await expect(
-      page.getByRole("radio", { name: "Simple formatting" })
-    ).toBeChecked();
-    await expect(page.getByTestId("page-markup-loss-warning")).toBeHidden();
+    await expect(customHtmlSwitch(page)).not.toBeChecked();
+    await expect(page.getByTestId("page-markup-warning")).toBeHidden();
 
-    await markupStyle.getByText("Custom HTML", { exact: true }).click();
+    await customHtmlSwitch(page).click();
     const textarea = page.getByTestId("page-body-source-textarea");
     await expect(textarea).toBeVisible();
-    await expect(page.getByTestId("page-markup-loss-warning")).toBeHidden();
+    await expect(page.getByTestId("page-markup-warning")).toBeHidden();
 
     await textarea.fill('<div id="added">Now unsupported</div>');
 
-    const notice = page.getByTestId("page-markup-loss-warning");
-    await expect(notice).toBeVisible();
-    await expect(notice).toContainText("<div>");
-    await expect(notice).toContainText("id (attribute)");
+    const warning = page.getByTestId("page-markup-warning");
+    await expect(warning).toBeVisible();
+    await warning.hover();
+    await expect(page.locator("[role=tooltip]")).toContainText("<div>");
   });
 
-  test("switching to simple formatting reports the loss and can be undone", async ({
+  test("turning off custom html confirms with a before and after", async ({
     page,
   }) => {
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    const markupStyle = page.getByTestId("page-markup-style");
     await expect(page.getByTestId("page-body-source-textarea")).toBeVisible();
 
-    await markupStyle.getByText("Simple formatting", { exact: true }).click();
+    await customHtmlSwitch(page).click();
+
+    await expect(page.getByTestId("page-markup-diff-before")).toContainText(
+      'class="wrapper"'
+    );
+    const after = page.getByTestId("page-markup-diff-after");
+    await expect(after).toContainText("Hours");
+    await expect(after).not.toContainText("<div");
+
+    // cancelling leaves the body and the switch as they were
+    await page.getByRole("button", { name: "Keep Custom HTML" }).click();
+    await expect(customHtmlSwitch(page)).toBeChecked();
+    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+      SEED_BODY
+    );
+  });
+
+  test("a confirmed switch reports the loss and can be undone", async ({
+    page,
+  }) => {
+    await page.goto(`/instances/editPage/${PAGE_ID}`);
+    await expect(page.getByTestId("page-body-source-textarea")).toBeVisible();
+
+    await customHtmlSwitch(page).click();
+    await page.getByRole("button", { name: "Turn off Custom HTML" }).click();
 
     const report = page.getByTestId("page-markup-loss-report");
     await expect(report).toBeVisible();
@@ -144,9 +174,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
 
     await page.getByTestId("page-markup-undo").click();
 
-    await expect(
-      page.getByRole("radio", { name: "Custom HTML" })
-    ).toBeChecked();
+    await expect(customHtmlSwitch(page)).toBeChecked();
     await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
       SEED_BODY
     );

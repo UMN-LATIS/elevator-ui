@@ -19,16 +19,14 @@
             label="Title"
             required
             placeholder="Page title" />
-          <PageMarkupStyleSetting
-            :markupStyle="markupStyle"
-            :markupLostBySimplifying="markupLostBySimplifying"
-            @chooseMarkupStyle="chooseMarkupStyle"
-            @undoSimplifying="undoSimplifying" />
           <PageBodyEditor
             :html="bodyHtml"
-            :markupStyleName="markupStyle.name"
+            :markupStyle="markupStyle"
+            :markupLostBySimplifying="markupLostBySimplifying"
             label="Body"
-            @update:html="editBody" />
+            @update:html="editBody"
+            @chooseMarkupStyle="chooseMarkupStyle"
+            @undoSimplifying="undoSimplifying" />
         </FormSection>
 
         <FormSection id="options" title="Options">
@@ -83,7 +81,6 @@ import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import PageBodyEditor from "./PageBodyEditor.vue";
-import PageMarkupStyleSetting from "./PageMarkupStyleSetting.vue";
 import { usePageBodyEditor } from "./usePageBodyEditor";
 import { toSaveablePageBody } from "./toSaveablePageBody";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";

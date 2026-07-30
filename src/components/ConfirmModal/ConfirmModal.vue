@@ -30,6 +30,7 @@
             <Notification
               :title="title"
               :type="type"
+              :class="panelClass"
               isDismissable
               @dismiss="handleClose">
               <slot />
@@ -63,6 +64,7 @@ import {
 } from "@headlessui/vue";
 import Notification from "@/components/Notification/Notification.vue";
 import Button from "@/components/Button/Button.vue";
+import type { CSSClass } from "@/types";
 
 withDefaults(
   defineProps<{
@@ -71,11 +73,14 @@ withDefaults(
     type?: "info" | "success" | "warning" | "danger";
     confirmLabel?: string;
     cancelLabel?: string;
+    // the panel is max-w-lg, too narrow for a dialog that shows content
+    panelClass?: CSSClass;
   }>(),
   {
     type: "info",
     confirmLabel: "Confirm",
     cancelLabel: "Cancel",
+    panelClass: "",
   }
 );
 
