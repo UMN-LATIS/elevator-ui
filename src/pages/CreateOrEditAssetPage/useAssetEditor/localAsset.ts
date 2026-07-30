@@ -10,7 +10,6 @@ import {
   WithId,
 } from "@/types";
 import invariant from "tiny-invariant";
-import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import { equals, omit } from "ramda";
 
@@ -117,14 +116,24 @@ export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
   return cleared;
 }
 
+/**
+ * Build the editor's representation of what the server has.
+ *
+ * @param previousAsset - the document the editor already holds, if any. Its
+ * content ids are inherited by position, so a save response does not change
+ * the ids of contents the editor is already showing. Omit when loading a
+ * different asset, where there is no identity to carry over.
+ */
 export function makeLocalAssetFromSaved({
   template,
   collectionId,
   savedAsset,
+  previousAsset,
 }: {
   template: Template;
   collectionId: number;
   savedAsset: Asset;
+  previousAsset?: Asset | UnsavedAsset | null;
 }): Asset {
   invariant(template, "Template is required to initialize local asset");
   const localAsset = { ...savedAsset };
@@ -137,8 +146,15 @@ export function makeLocalAssetFromSaved({
     const currentContents = localAsset[fieldTitle] as
       | WidgetContent[]
       | undefined;
+    const previousContents = previousAsset?.[fieldTitle] as
+      | WidgetContent[]
+      | undefined;
 
-    localAsset[fieldTitle] = makeWidgetContents(widgetDef, currentContents);
+    localAsset[fieldTitle] = makeWidgetContents(
+      widgetDef,
+      currentContents,
+      previousContents
+    );
   });
 
   return localAsset;
@@ -179,14 +195,16 @@ export function makeNewLocalAsset({
 
 function makeWidgetContents(
   widgetDef: WidgetDef,
-  currentContents?: WidgetContent[]
+  currentContents?: WidgetContent[],
+  previousContents?: WidgetContent[]
 ): WidgetContent[] {
   if (currentContents && currentContents.length > 0) {
-    return currentContents.map((content) => {
-      // ensure each content has an id
+    return currentContents.map((content, index) => {
+      // ids never come back from the server, so a rebuilt content would take
+      // a fresh one and remount everything keyed on it. Inherit by position.
       return {
         ...content,
-        id: content.id ?? crypto.randomUUID(),
+        id: content.id ?? previousContents?.[index]?.id ?? crypto.randomUUID(),
       };
     });
   }

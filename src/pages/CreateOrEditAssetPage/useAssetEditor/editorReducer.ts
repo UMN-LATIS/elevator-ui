@@ -321,16 +321,19 @@ function onSaveSucceeded(
   ) {
     return model;
   }
-  const savedAsset = makeLocalAssetFromSaved({
-    template: model.template,
-    collectionId: event.savedAsset.collectionId,
-    savedAsset: event.savedAsset,
-  });
-
   const latestLocalAsset = clearUploadRegenerationFlags(
     selectLocalAsset(model) as T.Asset | T.UnsavedAsset,
     model.template
   );
+
+  const savedAsset = makeLocalAssetFromSaved({
+    template: model.template,
+    collectionId: event.savedAsset.collectionId,
+    savedAsset: event.savedAsset,
+    // the response describes the document just sent, so its contents keep the
+    // ids they already had and the form is not rebuilt around new keys
+    previousAsset: latestLocalAsset,
+  });
 
   return {
     status: "editingExistingAsset",

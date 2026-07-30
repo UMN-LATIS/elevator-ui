@@ -2,11 +2,18 @@ import { describe, it, expect } from "vitest";
 import {
   clearUploadRegenerationFlags,
   diffEditableFields,
+  makeLocalAssetFromSaved,
   makeNewLocalAsset,
   migrateAssetToTemplate,
   editsWithFieldEdit,
 } from "./localAsset";
-import type { Asset, PHPDateTime, Template } from "@/types";
+import type {
+  Asset,
+  PHPDateTime,
+  Template,
+  WidgetContent,
+  WithId,
+} from "@/types";
 import { toSaveableFormData } from "./toSaveableFormData";
 
 const emptyTemplate = {
@@ -61,6 +68,58 @@ describe("makeNewLocalAsset", () => {
     });
 
     expect(asset.modified).toBeNull();
+  });
+});
+
+describe("makeLocalAssetFromSaved", () => {
+  const oneTextWidget = makeTemplate(1, [{}]);
+
+  const contentIds = (asset: Asset, fieldTitle: string): (string | undefined)[] =>
+    (asset[fieldTitle] as WithId<WidgetContent>[]).map((content) => content.id);
+
+  it("inherits the ids the editor already holds, so a save does not rebuild the form", () => {
+    const localAsset = makeLocalAssetFromSaved({
+      template: oneTextWidget,
+      collectionId: 1,
+      savedAsset: makeSavedAsset({
+        field_1: [{ fieldContents: "saved" }],
+      }),
+      previousAsset: makeSavedAsset({
+        field_1: [{ fieldContents: "saved", id: "already-on-screen" }],
+      }),
+    });
+
+    expect(contentIds(localAsset, "field_1")).toEqual(["already-on-screen"]);
+  });
+
+  it("mints ids for contents the editor did not have", () => {
+    const localAsset = makeLocalAssetFromSaved({
+      template: oneTextWidget,
+      collectionId: 1,
+      savedAsset: makeSavedAsset({
+        field_1: [{ fieldContents: "first" }, { fieldContents: "second" }],
+      }),
+      previousAsset: makeSavedAsset({
+        field_1: [{ fieldContents: "first", id: "already-on-screen" }],
+      }),
+    });
+
+    const [first, second] = contentIds(localAsset, "field_1");
+    expect(first).toBe("already-on-screen");
+    expect(second).toEqual(expect.any(String));
+    expect(second).not.toBe("already-on-screen");
+  });
+
+  it("mints ids when loading an asset the editor was not already showing", () => {
+    const localAsset = makeLocalAssetFromSaved({
+      template: oneTextWidget,
+      collectionId: 1,
+      savedAsset: makeSavedAsset({
+        field_1: [{ fieldContents: "loaded" }],
+      }),
+    });
+
+    expect(contentIds(localAsset, "field_1")).toEqual([expect.any(String)]);
   });
 });
 
