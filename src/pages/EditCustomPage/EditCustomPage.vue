@@ -19,11 +19,16 @@
             label="Title"
             required
             placeholder="Page title" />
+          <PageMarkupStyleSetting
+            :markupStyle="markupStyle"
+            :markupLostBySimplifying="markupLostBySimplifying"
+            @chooseMarkupStyle="chooseMarkupStyle"
+            @undoSimplifying="undoSimplifying" />
           <PageBodyEditor
-            ref="bodyEditorRef"
-            :body="form.body"
+            :html="bodyHtml"
+            :markupStyleName="markupStyle.name"
             label="Body"
-            @edited="hasAdminEditedBody = true" />
+            @update:html="editBody" />
         </FormSection>
 
         <FormSection id="options" title="Options">
@@ -78,6 +83,8 @@ import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import PageBodyEditor from "./PageBodyEditor.vue";
+import PageMarkupStyleSetting from "./PageMarkupStyleSetting.vue";
+import { usePageBodyEditor } from "./usePageBodyEditor";
 import { toSaveablePageBody } from "./toSaveablePageBody";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
@@ -124,19 +131,29 @@ const isDeleting = computed(() => deleteMutation.isPending.value);
 
 interface FormState {
   title: string;
-  body: string;
   parent: number | null;
   includeInHeader: boolean;
 }
 
 const getDefaultForm = (): FormState => ({
   title: "",
-  body: "",
   parent: null,
   includeInHeader: false,
 });
 
 const form = ref<FormState>(getDefaultForm());
+
+// The body lives here rather than on the form: it is the only field an
+// editor rewrites, so every way it can change is named in one place.
+const {
+  html: bodyHtml,
+  markupStyle,
+  markupLostBySimplifying,
+  loadStoredBody,
+  editBody,
+  chooseMarkupStyle,
+  undoSimplifying,
+} = usePageBodyEditor();
 
 watch(
   pageData,
@@ -144,10 +161,10 @@ watch(
     if (newData) {
       form.value = {
         title: newData.title,
-        body: newData.body,
         parent: newData.parentId,
         includeInHeader: newData.includeInHeader,
       };
+      loadStoredBody(newData.body);
     }
   },
   { immediate: true }
@@ -169,12 +186,6 @@ const tocSections: TocItem[] = [
   { id: "options", label: "Options" },
 ];
 
-const bodyEditorRef = ref<InstanceType<typeof PageBodyEditor>>();
-
-// An unedited body saves back exactly as fetched, bypassing the editor
-// entirely, so opening a page and pressing Save can never destroy it.
-const hasAdminEditedBody = ref(false);
-
 async function handleSave() {
   if (!form.value.title.trim()) {
     toastStore.addToast({
@@ -185,9 +196,13 @@ async function handleSave() {
     return;
   }
 
-  const bodyToSave = hasAdminEditedBody.value
-    ? toSaveablePageBody(bodyEditorRef.value?.getBodyToSave() ?? "")
-    : form.value.body;
+  // A body the admin never changed goes back exactly as it arrived, so
+  // opening a page and pressing Save cannot alter what is stored.
+  const storedBody = pageData.value?.body;
+  const bodyToSave =
+    bodyHtml.value === storedBody
+      ? storedBody
+      : toSaveablePageBody(bodyHtml.value);
 
   try {
     await saveMutation.mutateAsync(

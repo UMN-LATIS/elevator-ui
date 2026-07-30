@@ -14,13 +14,15 @@ const PAGE_ID = 5;
 async function fetchStoredBody({
   request,
   workerId,
+  pageId = PAGE_ID,
 }: {
   request: APIRequestContext;
   workerId: string;
+  pageId?: number;
 }): Promise<string> {
   // the mock serves the default instance under its base path
   const response = await request.get(
-    `${MOCK_SERVER_BASE}/defaultinstance/instances/getPage/${PAGE_ID}`,
+    `${MOCK_SERVER_BASE}/defaultinstance/instances/getPage/${pageId}`,
     { headers: { "x-worker-id": workerId } }
   );
   expect(response.ok()).toBe(true);
@@ -36,7 +38,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
     await loginUser({ request, page, workerId, username: "admin" });
   });
 
-  test("a body quill cannot represent opens in source mode with a notice naming the markup", async ({
+  test("a body quill cannot represent opens in custom html with a notice naming the markup", async ({
     page,
   }) => {
     await page.goto(`/instances/editPage/${PAGE_ID}`);
@@ -44,8 +46,11 @@ test.describe("Custom page HTML preservation (#623)", () => {
     const textarea = page.getByTestId("page-body-source-textarea");
     await expect(textarea).toBeVisible();
     await expect(textarea).toHaveValue(SEED_BODY);
+    await expect(
+      page.getByRole("radio", { name: "Custom HTML" })
+    ).toBeChecked();
 
-    const notice = page.getByTestId("page-body-source-notice");
+    const notice = page.getByTestId("page-markup-loss-warning");
     await expect(notice).toBeVisible();
     await expect(notice).toContainText("<div>");
     await expect(notice).toContainText("id (attribute)");
@@ -103,20 +108,72 @@ test.describe("Custom page HTML preservation (#623)", () => {
   }) => {
     // page 2 is plain prose, so it opens in the visual editor with no notice
     await page.goto("/instances/editPage/2");
-    await expect(page.getByTestId("page-body-mode-toggle")).toBeVisible();
-    await expect(page.getByTestId("page-body-source-notice")).toBeHidden();
+    const markupStyle = page.getByTestId("page-markup-style");
+    await expect(
+      page.getByRole("radio", { name: "Simple formatting" })
+    ).toBeChecked();
+    await expect(page.getByTestId("page-markup-loss-warning")).toBeHidden();
 
-    await page.getByTestId("page-body-mode-source").click();
+    await markupStyle.getByText("Custom HTML", { exact: true }).click();
     const textarea = page.getByTestId("page-body-source-textarea");
     await expect(textarea).toBeVisible();
-    await expect(page.getByTestId("page-body-source-notice")).toBeHidden();
+    await expect(page.getByTestId("page-markup-loss-warning")).toBeHidden();
 
     await textarea.fill('<div id="added">Now unsupported</div>');
 
-    const notice = page.getByTestId("page-body-source-notice");
+    const notice = page.getByTestId("page-markup-loss-warning");
     await expect(notice).toBeVisible();
     await expect(notice).toContainText("<div>");
     await expect(notice).toContainText("id (attribute)");
+  });
+
+  test("switching to simple formatting reports the loss and can be undone", async ({
+    page,
+  }) => {
+    await page.goto(`/instances/editPage/${PAGE_ID}`);
+    const markupStyle = page.getByTestId("page-markup-style");
+    await expect(page.getByTestId("page-body-source-textarea")).toBeVisible();
+
+    await markupStyle.getByText("Simple formatting", { exact: true }).click();
+
+    const report = page.getByTestId("page-markup-loss-report");
+    await expect(report).toBeVisible();
+    await expect(report).toContainText("<div>");
+    await expect(report).toContainText("<iframe>");
+    await expect(page.getByTestId("page-body-source-textarea")).toBeHidden();
+
+    await page.getByTestId("page-markup-undo").click();
+
+    await expect(
+      page.getByRole("radio", { name: "Custom HTML" })
+    ).toBeChecked();
+    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+      SEED_BODY
+    );
+    await expect(report).toBeHidden();
+  });
+
+  test("the visual editor no longer saves every space as an entity", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+
+    // page 2 is prose, so it opens in the visual editor
+    await page.goto("/instances/editPage/2");
+    const editor = page.locator(".ql-editor");
+    await expect(editor).toBeVisible();
+
+    await editor.click();
+    await editor.pressSequentially(" Open 9 to 5 every weekday.");
+
+    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.waitForURL("**/instances/customPages");
+
+    const storedBody = await fetchStoredBody({ request, workerId, pageId: 2 });
+
+    expect(storedBody).toContain("Open 9 to 5 every weekday.");
+    expect(storedBody).not.toContain("&nbsp;");
   });
 
   test("script tags are removed on save without disturbing other markup", async ({
