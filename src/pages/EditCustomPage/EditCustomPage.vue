@@ -13,7 +13,7 @@
       </div>
 
       <form v-else id="edit-page-form" @submit.prevent="handleSave">
-        <FormSection id="content" title="Page Content">
+        <FormSection id="content" title="Page Content" class="block my-6">
           <InputGroup
             v-model="form.title"
             label="Title"
@@ -29,7 +29,7 @@
             @undoSimplifying="undoSimplifying" />
         </FormSection>
 
-        <FormSection id="options" title="Options">
+        <FormSection id="options" title="Options" class="block my-6">
           <SelectGroup
             :modelValue="form.parent ?? 0"
             :options="parentPageOptions"
