@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { mount, enableAutoUnmount, type VueWrapper } from "@vue/test-utils";
 import { h, nextTick } from "vue";
 import DragDropContainer from "./DragDropContainer.vue";
 import DragDropList from "./DragDropList.vue";
@@ -52,6 +52,10 @@ vi.mock("./utils/dnd", async (importOriginal) => {
 
 const GROUP_ID = "test-group";
 const LIST_ID = "test-list";
+
+// Unmounting is what releases a component's registrations, so a wrapper left
+// mounted would keep watching this group and could emit into a later test.
+enableAutoUnmount(afterEach);
 
 // Every order the list has emitted since the current test began.
 const ordersEmitted: string[][] = [];
@@ -115,7 +119,6 @@ describe("DragDropList", () => {
     dndRegistry.liveMonitors.length = 0;
     dndRegistry.liveElementRegistrations = 0;
     ordersEmitted.length = 0;
-    document.body.innerHTML = "";
   });
 
   it("releases its drag and drop registrations on unmount", () => {

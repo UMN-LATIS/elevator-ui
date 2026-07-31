@@ -14,11 +14,9 @@ import { ref } from "vue";
 
 const buttonRef = ref<HTMLButtonElement | null>(null);
 
-// We want users to see the drag handle focussed on click,
-// so that they can use arrow keys to move an item after
-// click the drag handle and see the focus ring.
-// Safari doesn't focus a button on click, so this is a
-// is a workaround.
+// We want users to see the drag handle focused on click, so that they can
+// see the focus ring and use arrow keys to move an item. Safari doesn't
+// focus a button on click, so this is a workaround.
 function focusHandle(): void {
   buttonRef.value?.focus();
 }
