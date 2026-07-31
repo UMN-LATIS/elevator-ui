@@ -71,16 +71,11 @@ const dragHandleRef = useTemplateRef<{ buttonRef: HTMLButtonElement }>(
   "dragHandleRef"
 );
 
-// cleanup
-type CleanupFn = () => void;
-const cleanupFns = [] as CleanupFn[];
-onUnmounted(dnd.combine(...cleanupFns));
-
 /**
  * Set up the draggable behavior for the list item.
- * @returns {CleanupFn} A function to clean up the draggable behavior.
+ * @returns A function to clean up the draggable behavior.
  */
-function setupDraggable() {
+function setupDraggable(): dnd.CleanupFn {
   invariant(listItemRef.value, "listItemRef is not defined");
   invariant(dragHandleRef.value, "dragHandleRef is not defined");
   invariant(groupId, "groupId is not defined");
@@ -130,9 +125,9 @@ function setupDraggable() {
 
 /**
  * Set up the droppable behavior for the list item.
- * @returns {CleanupFn} A function to clean up the droppable behavior.
+ * @returns A function to clean up the droppable behavior.
  */
-function setupDroppable() {
+function setupDroppable(): dnd.CleanupFn {
   invariant(listItemRef.value, "listItemRef is not defined");
 
   return dnd.dropTargetForElements({
@@ -314,12 +309,13 @@ function moveList(targetListId: HasId["id"]) {
   });
 }
 
-onMounted(() => {
-  const cleanupDraggable = setupDraggable();
-  const cleanupDroppable = setupDroppable();
+let stopDragAndDrop: dnd.CleanupFn | null = null;
 
-  cleanupFns.push(cleanupDraggable, cleanupDroppable);
+onMounted(() => {
+  stopDragAndDrop = dnd.combine(setupDraggable(), setupDroppable());
 });
+
+onUnmounted(() => stopDragAndDrop?.());
 </script>
 <style scoped>
 .drag-drop-list-item {
