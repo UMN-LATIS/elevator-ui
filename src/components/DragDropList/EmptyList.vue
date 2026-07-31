@@ -17,7 +17,6 @@ import {
   computed,
   useTemplateRef,
 } from "vue";
-import type { CleanupFn } from "@atlaskit/pragmatic-drag-and-drop/dist/types/internal-types";
 import * as dnd from "./utils/dnd";
 import { useDragDropStore } from "./useDragDropStore";
 import { GROUP_ID_PROVIDE_KEY } from "./constants";
@@ -34,9 +33,6 @@ invariant(groupId, "groupId must be provided");
 const emptyListRef = useTemplateRef("emptyListRef");
 const isDraggingOver = ref(false);
 
-const cleanupFns = [] as CleanupFn[];
-onUnmounted(dnd.combine(...cleanupFns));
-
 const dragDropStore = useDragDropStore(groupId);
 
 const targetData = computed(() => {
@@ -48,7 +44,7 @@ const targetData = computed(() => {
   });
 });
 
-function setupDropZone() {
+function setupDropZone(): dnd.CleanupFn {
   invariant(emptyListRef.value, "emptyListRef is not defined");
 
   return dnd.dropTargetForElements({
@@ -86,9 +82,13 @@ function setupDropZone() {
   });
 }
 
+let stopDropZone: dnd.CleanupFn | null = null;
+
 onMounted(() => {
-  setupDropZone();
+  stopDropZone = setupDropZone();
 });
+
+onUnmounted(() => stopDropZone?.());
 </script>
 <style scoped>
 .empty-list {

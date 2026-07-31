@@ -1,6 +1,7 @@
 // a centralized location for all the pragmatic drag and drop
 
 export type {
+  CleanupFn,
   DragLocationHistory,
   ElementDragPayload,
   DropTargetRecord,

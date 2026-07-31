@@ -35,7 +35,8 @@
     --on-secondary-container,
     --dnd-color-blue-600
   );
-  --dnd-listItem-border: 1px solid
+  --dnd-listItem-borderWidth: 1px;
+  --dnd-listItem-border: var(--dnd-listItem-borderWidth) solid
     var(--outline-variant, --dnd-color-neutral-200);
   --dnd-emptyList-bg: var(--surface-container-lowest, --dnd-color-neutral-100);
   --dnd-emptyList-border: 1px dashed

@@ -1,5 +1,9 @@
 <template>
-  <button ref="buttonRef" type="button" class="drag-handle">
+  <button
+    ref="buttonRef"
+    type="button"
+    class="drag-handle"
+    @pointerdown="focusHandle">
     <DragHandleIcon class="drag-handle__icon" />
     <span class="sr-only">Drag Handle</span>
   </button>
@@ -9,6 +13,13 @@ import DragHandleIcon from "./DragHandleIcon.vue";
 import { ref } from "vue";
 
 const buttonRef = ref<HTMLButtonElement | null>(null);
+
+// Safari does not focus a button on click (webkit.org/b/22261), so clicking
+// the handle would show no focus ring and no hint that arrow keys now move
+// the item.
+function focusHandle(): void {
+  buttonRef.value?.focus();
+}
 
 // need to expose the ref to the parent component
 defineExpose({ buttonRef });

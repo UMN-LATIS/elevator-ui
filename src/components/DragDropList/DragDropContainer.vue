@@ -33,13 +33,9 @@ const emit = defineEmits<{
 
 provide(GROUP_ID_PROVIDE_KEY, props.groupId);
 
-type CleanupFn = () => void;
-const cleanupFns = [] as CleanupFn[];
-onUnmounted(dnd.combine(...cleanupFns));
-
 const dragDropStore = useDragDropStore(props.groupId);
 
-function setupDragDropMonitor(): CleanupFn {
+function setupDragDropMonitor(): dnd.CleanupFn {
   return dnd.monitorForElements({
     onDrop: ({ source, location }) => {
       const target = location.current.dropTargets[0];
@@ -104,9 +100,14 @@ function setupDragDropMonitor(): CleanupFn {
   });
 }
 
+let stopMonitoring: dnd.CleanupFn | null = null;
+
 onMounted(() => {
-  const cleanupMonitor = setupDragDropMonitor();
-  cleanupFns.push(cleanupMonitor);
+  stopMonitoring = setupDragDropMonitor();
 });
+
+// A monitor that outlives its container still handles every drop, so a
+// remount would leave two of them reordering the same list.
+onUnmounted(() => stopMonitoring?.());
 </script>
 <style scoped></style>

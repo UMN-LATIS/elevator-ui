@@ -22,12 +22,17 @@ defineProps<{
   background: var(--dnd-indicator-color);
 }
 
-.drop-indicator.drop-indicator--top {
-  top: 0;
+/* Below one item and above the next are the same insertion point, so center
+   the line on the border those two items share. Either way the drop lands in
+   the same gap, and the line does not jump as the pointer crosses over. */
+.drop-indicator--top {
+  top: calc(var(--dnd-listItem-borderWidth) / -2);
+  transform: translateY(-50%);
 }
 
-.drop-indicator.drop-indicator--bottom {
-  bottom: 0;
+.drop-indicator--bottom {
+  bottom: calc(var(--dnd-listItem-borderWidth) / -2);
+  transform: translateY(50%);
 }
 
 .drop-indicator::before,
