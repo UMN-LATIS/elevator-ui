@@ -3,11 +3,12 @@
     class="md:grid lg:grid-cols-[minmax(0,1fr),minmax(auto,20rem)] relative min-h-screen">
     <div class="p-4 md:p-8 max-w-4xl mx-auto w-full mb-20 lg:mb-0">
       <Button
+        v-if="backTo"
         variant="tertiary"
         class="mb-4 -ml-2 opacity-75 hover:opacity-100"
-        @click="$router.back()">
+        :to="backTo">
         <ChevronLeftIcon class="w-5 h-5" />
-        Back
+        {{ backLabel }}
       </Button>
       <header v-if="$slots.header || title" class="mb-8">
         <slot name="header">
@@ -32,8 +33,18 @@
 <script setup lang="ts">
 import Button from "@/components/Button/Button.vue";
 import { ChevronLeftIcon } from "@/icons";
+import { type RouteLocationRaw } from "vue-router";
 
-defineProps<{
-  title?: string;
-}>();
+withDefaults(
+  defineProps<{
+    title?: string;
+    backTo?: RouteLocationRaw;
+    backLabel?: string;
+  }>(),
+  {
+    title: undefined,
+    backTo: undefined,
+    backLabel: "Back",
+  }
+);
 </script>

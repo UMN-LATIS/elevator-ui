@@ -1,6 +1,9 @@
 <template>
   <AdminLayout>
-    <FormPageLayout :title="isNewPage ? 'Create Page' : 'Edit Page'">
+    <FormPageLayout
+      :title="isNewPage ? 'Create Page' : 'Edit Page'"
+      :backTo="{ name: 'customPagesIndex' }"
+      backLabel="Custom Pages">
       <div v-if="isLoading" class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
         <span class="ml-2">Loading page...</span>

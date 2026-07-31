@@ -1,13 +1,11 @@
 <template>
   <AdminLayout>
-    <PageContent class="max-w-screen-md">
-      <PageHeader
-        :title="
-          collectionId === null ? 'Create Collection' : 'Edit Collection'
-        " />
-
+    <FormPageLayout
+      :title="isExistingCollection ? 'Edit Collection' : 'Create Collection'"
+      :backTo="{ name: 'adminCollections' }"
+      backLabel="Collections">
       <div
-        v-if="isEditMode && isLoadingCollection"
+        v-if="isExistingCollection && isLoadingCollection"
         class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
         <span class="ml-2">Loading collection...</span>
@@ -16,13 +14,14 @@
       <!-- only when there's no data to edit, a failed background
            refetch must not hide the form mid-edit -->
       <div
-        v-else-if="isEditMode && isLoadError && !collectionDetail"
+        v-else-if="isExistingCollection && isLoadError && !collectionDetail"
         class="text-error p-4 bg-error-container rounded-md border border-outline mt-4">
         Failed to load collection.
       </div>
 
       <form
         v-else
+        id="edit-collection-form"
         class="mt-4 flex flex-col gap-6"
         @submit.prevent="handleSave">
         <InputGroup
@@ -36,7 +35,9 @@
           label="Parent"
           :options="parentOptions" />
 
-        <ToggleGroup v-model="form.showInBrowse" label="Show in Browse" />
+        <ToggleGroup
+          v-model="form.showInBrowse"
+          label="Show on Browse Collections Page" />
 
         <div class="flex flex-col gap-1">
           <!-- span, not label: TextEditor renders no focusable control
@@ -62,16 +63,6 @@
               </span>
             </AccordionTrigger>
             <AccordionContent class="flex flex-col gap-4">
-              <div class="grid sm:grid-cols-2 gap-4">
-                <InputGroup
-                  v-model="form.bucket"
-                  label="Bucket"
-                  :placeholder="s3Placeholder" />
-                <InputGroup
-                  v-model="form.bucketRegion"
-                  label="Bucket Region"
-                  :placeholder="s3Placeholder" />
-              </div>
               <InputGroup
                 v-model="form.s3Key"
                 label="S3 Key"
@@ -94,24 +85,37 @@
                   </button>
                 </template>
               </InputGroup>
+              <InputGroup
+                v-model="form.bucket"
+                label="Bucket"
+                :placeholder="s3Placeholder" />
+              <InputGroup
+                v-model="form.bucketRegion"
+                label="Bucket Region"
+                :placeholder="s3Placeholder" />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
-        <div class="flex justify-end gap-2">
-          <Button variant="tertiary" :to="{ name: 'adminCollections' }">
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            type="submit"
-            :disabled="isSaving || !form.title.trim()">
-            <LoaderCircleIcon v-if="isSaving" class="size-4 animate-spin" />
-            {{ collectionId === null ? "Create Collection" : "Save Changes" }}
-          </Button>
-        </div>
       </form>
-    </PageContent>
+      <template #sidebar-actions>
+        <div class="flex flex-col gap-4">
+          <div
+            class="grid grid-cols-2 gap-2 items-center grid-flow-row-dense mb-4">
+            <Button type="button" :to="{ name: 'adminCollections' }">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="edit-collection-form"
+              variant="primary"
+              :disabled="isSaving || !form.title.trim()">
+              <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
+              {{ isExistingCollection ? "Save" : "Create" }}
+            </Button>
+          </div>
+        </div>
+      </template>
+    </FormPageLayout>
   </AdminLayout>
 </template>
 
@@ -119,10 +123,7 @@
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
-import { LoaderCircleIcon } from "lucide-vue-next";
 import AdminLayout from "@/layouts/AdminLayout.vue";
-import PageContent from "@/components/PageContent/PageContent.vue";
-import PageHeader from "@/components/PageHeader/PageHeader.vue";
 import Button from "@/components/Button/Button.vue";
 import {
   Accordion,
@@ -146,6 +147,7 @@ import {
   useUpdateCollectionMutation,
 } from "../AdminCollectionsPage/adminCollectionQueries";
 import { collectDescendantIds } from "./collectDescendantIds";
+import FormPageLayout from "@/layouts/FormPageLayout.vue";
 
 const props = defineProps<{
   collectionId: number | null;
@@ -153,7 +155,7 @@ const props = defineProps<{
 
 const router = useRouter();
 
-const isEditMode = computed(() => props.collectionId !== null);
+const isExistingCollection = computed(() => props.collectionId !== null);
 
 // the full collection list feeds the parent select
 const { data: collections } = useQuery(adminCollectionsQuery());
@@ -233,7 +235,7 @@ watch(
 
 // blank S3 fields fall back to the instance defaults on create
 const s3Placeholder = computed(() =>
-  isEditMode.value ? "" : "Instance default"
+  isExistingCollection.value ? "" : "Instance default"
 );
 
 const isS3SecretRevealed = ref(false);
