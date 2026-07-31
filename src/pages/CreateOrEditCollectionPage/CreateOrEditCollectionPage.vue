@@ -108,7 +108,7 @@
               type="submit"
               form="edit-collection-form"
               variant="primary"
-              :disabled="isSaving">
+              :disabled="isSaving || !form.title.trim()">
               <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
               {{ isExistingCollection ? "Save" : "Create" }}
             </Button>

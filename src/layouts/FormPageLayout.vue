@@ -33,12 +33,12 @@
 <script setup lang="ts">
 import Button from "@/components/Button/Button.vue";
 import { ChevronLeftIcon } from "@/icons";
-import { RouteLocationRaw } from "vue-router";
+import { type RouteLocationRaw } from "vue-router";
 
 withDefaults(
   defineProps<{
     title?: string;
-    backTo?: string | RouteLocationRaw;
+    backTo?: RouteLocationRaw;
     backLabel?: string;
   }>(),
   {
