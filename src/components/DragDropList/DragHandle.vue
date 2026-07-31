@@ -3,7 +3,7 @@
     ref="buttonRef"
     type="button"
     class="drag-handle"
-    @pointerdown="focusHandle">
+    @click="focusHandle">
     <DragHandleIcon class="drag-handle__icon" />
     <span class="sr-only">Drag Handle</span>
   </button>
@@ -14,9 +14,11 @@ import { ref } from "vue";
 
 const buttonRef = ref<HTMLButtonElement | null>(null);
 
-// Safari does not focus a button on click (webkit.org/b/22261), so clicking
-// the handle would show no focus ring and no hint that arrow keys now move
-// the item.
+// We want users to see the drag handle focussed on click,
+// so that they can use arrow keys to move an item after
+// click the drag handle and see the focus ring.
+// Safari doesn't focus a button on click, so this is a
+// is a workaround.
 function focusHandle(): void {
   buttonRef.value?.focus();
 }
