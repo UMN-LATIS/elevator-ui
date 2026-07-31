@@ -1,5 +1,5 @@
 <template>
-  <FormPageLayout>
+  <FormPageLayout :backTo="{ name: 'templatesIndex' }" backLabel="Templates">
     <template #header>
       <div class="flex justify-between items-baseline">
         <h1 class="text-2xl md:text-4xl font-bold">
