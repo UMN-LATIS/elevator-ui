@@ -1,4 +1,7 @@
-import type { PermissionsGroupEntry } from "../src/types";
+import type {
+  AdminCollectionDetail,
+  PermissionsGroupEntry,
+} from "../src/types";
 
 export interface MockUser {
   id: number;
@@ -40,6 +43,13 @@ export interface MockInstanceGrant {
   id: number;
   groupId: number;
   permissionLevelId: number;
+}
+
+// One collection row. Rows are stored flat and linked by parentId: the
+// admin API lists them as they are, the browse API nests them.
+export interface MockCollection extends AdminCollectionDetail {
+  canView: boolean;
+  canEdit: boolean;
 }
 
 // One group's permission level on one collection

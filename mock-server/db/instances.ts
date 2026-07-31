@@ -77,3 +77,13 @@ export function createInstancesTable() {
 }
 
 export type InstancesTable = ReturnType<typeof createInstancesTable>;
+
+// S3 settings a new collection inherits when its own are left blank.
+// These are backend-only credentials, so they have no place on
+// InstanceSettings, which is the shape the UI receives.
+export const INSTANCE_S3_DEFAULTS = {
+  bucket: "elevator-default-bucket",
+  bucketRegion: "us-east-2",
+  s3Key: "AKIAINSTANCEDEFAULT",
+  s3Secret: "instance-default-secret",
+};

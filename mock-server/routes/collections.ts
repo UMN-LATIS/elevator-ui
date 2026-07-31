@@ -16,7 +16,7 @@ app.get("/collectionHeader/:collectionId/true", async (c) => {
   }
 
   return c.json({
-    collectionDescription: "",
+    collectionDescription: collection.description ?? "",
     collectionTitle: collection.title,
   });
 });

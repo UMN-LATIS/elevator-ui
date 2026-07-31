@@ -54,9 +54,11 @@ export function createSearchesTable({
       {
         totalResultsOverride,
         specificFieldSearch,
+        collectionIds = [],
       }: {
         totalResultsOverride?: number;
         specificFieldSearch?: SpecificFieldSearchItem[];
+        collectionIds?: number[];
       } = {}
     ): SearchResultsResponse => {
       const searchId = crypto.randomUUID();
@@ -64,19 +66,37 @@ export function createSearchesTable({
       // find any matches in the assets
       const allAssets = assets.getAll();
 
+      // a collection search sweeps that collection and everything under
+      // it. No ids means every collection.
+      const searchedCollectionIds = collectionIds.length
+        ? new Set(
+            collectionIds.flatMap((collectionId) =>
+              collections.getSubtreeIds(collectionId)
+            )
+          )
+        : null;
+
       // not a real search
       // just stringify the assets and filter by the query
-      const matchedAssets = allAssets.filter(stupidSearch(query));
-      const allSearchMatches = matchedAssets.map((asset) => {
-        const collection = collections.get(asset.collectionId);
-        const template = templates.get(asset.templateId);
-        if (!collection || !template) {
-          throw new Error(
-            `Collection or template not found for asset ${asset.assetId}`
-          );
+      const matchesQuery = stupidSearch(query);
+      const matchedAssets = allAssets.filter((asset) => {
+        if (
+          searchedCollectionIds &&
+          !searchedCollectionIds.has(asset.collectionId)
+        ) {
+          return false;
         }
+        return matchesQuery(asset);
+      });
+      const allSearchMatches = matchedAssets.flatMap((asset) => {
+        const template = templates.get(asset.templateId);
+        if (!template) return [];
 
-        return assetToSearchResultMatch({ asset, collection, template });
+        // an asset outlives the collection it was in, and keeps its
+        // place in the results with an empty hierarchy
+        const collection = collections.get(asset.collectionId);
+
+        return [assetToSearchResultMatch({ asset, collection, template })];
       });
 
       const searchEntry: SearchEntry = {
@@ -95,7 +115,7 @@ export function createSearchesTable({
       };
 
       // permit override for testing when there's a mismatch between the number of matched assets and the expected total results (e.g. when testing pagination)
-      const totalResults = totalResultsOverride ?? matchedAssets.length;
+      const totalResults = totalResultsOverride ?? allSearchMatches.length;
 
       // Store complete results for pagination
       completeSearchResults.set(searchId, {
