@@ -2,7 +2,6 @@
   <div
     :class="cn('flex items-center justify-between gap-4 flex-wrap', $attrs.class as CSSClass)">
     <span
-      class="text-sm text-on-surface"
       :class="
         cn([
           'text-sm text-on-surface',
@@ -15,7 +14,7 @@
       {{ label }}
     </span>
     <div
-      role="group"
+      role="radiogroup"
       :aria-label="label"
       class="flex rounded-md border border-outline-variant overflow-hidden shrink-0">
       <label

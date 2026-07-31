@@ -13,20 +13,23 @@
       </div>
 
       <form v-else id="edit-page-form" @submit.prevent="handleSave">
-        <FormSection id="content" title="Page Content">
+        <FormSection id="content" title="Page Content" class="block my-6">
           <InputGroup
             v-model="form.title"
             label="Title"
             required
             placeholder="Page title" />
-          <TextEditorGroup
-            ref="bodyEditorRef"
-            v-model="form.body"
+          <PageBodyEditor
+            :html="bodyHtml"
+            :markupStyle="markupStyle"
+            :markupLostBySimplifying="markupLostBySimplifying"
             label="Body"
-            enableImageInsert />
+            @update:html="editBody"
+            @chooseMarkupStyle="chooseMarkupStyle"
+            @undoSimplifying="undoSimplifying" />
         </FormSection>
 
-        <FormSection id="options" title="Options">
+        <FormSection id="options" title="Options" class="block my-6">
           <SelectGroup
             :modelValue="form.parent ?? 0"
             :options="parentPageOptions"
@@ -77,7 +80,9 @@ import { ref, watch, computed, toRef } from "vue";
 import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import TextEditorGroup from "@/components/TextEditorGroup/TextEditorGroup.vue";
+import PageBodyEditor from "./PageBodyEditor.vue";
+import { usePageBodyEditor } from "./usePageBodyEditor";
+import { toSaveablePageBody } from "./toSaveablePageBody";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
@@ -123,19 +128,29 @@ const isDeleting = computed(() => deleteMutation.isPending.value);
 
 interface FormState {
   title: string;
-  body: string;
   parent: number | null;
   includeInHeader: boolean;
 }
 
 const getDefaultForm = (): FormState => ({
   title: "",
-  body: "",
   parent: null,
   includeInHeader: false,
 });
 
 const form = ref<FormState>(getDefaultForm());
+
+// The body lives here rather than on the form: it is the only field an
+// editor rewrites, so every way it can change is named in one place.
+const {
+  html: bodyHtml,
+  markupStyle,
+  markupLostBySimplifying,
+  loadStoredBody,
+  editBody,
+  chooseMarkupStyle,
+  undoSimplifying,
+} = usePageBodyEditor();
 
 watch(
   pageData,
@@ -143,10 +158,10 @@ watch(
     if (newData) {
       form.value = {
         title: newData.title,
-        body: newData.body,
         parent: newData.parentId,
         includeInHeader: newData.includeInHeader,
       };
+      loadStoredBody(newData.body);
     }
   },
   { immediate: true }
@@ -168,8 +183,6 @@ const tocSections: TocItem[] = [
   { id: "options", label: "Options" },
 ];
 
-const bodyEditorRef = ref<InstanceType<typeof TextEditorGroup>>();
-
 async function handleSave() {
   if (!form.value.title.trim()) {
     toastStore.addToast({
@@ -180,12 +193,20 @@ async function handleSave() {
     return;
   }
 
+  // A body the admin never changed goes back exactly as it arrived, so
+  // opening a page and pressing Save cannot alter what is stored.
+  const storedBody = pageData.value?.body;
+  const bodyToSave =
+    bodyHtml.value === storedBody
+      ? storedBody
+      : toSaveablePageBody(bodyHtml.value);
+
   try {
     await saveMutation.mutateAsync(
       {
         id: props.pageId ?? undefined,
         title: form.value.title,
-        body: bodyEditorRef.value?.getCleanHtml() ?? "",
+        body: bodyToSave,
         parent: form.value.parent,
         includeInHeader: form.value.includeInHeader,
       },

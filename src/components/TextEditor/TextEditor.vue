@@ -20,7 +20,6 @@
 import { QuillyEditor } from "vue-quilly";
 import Quill from "quill/quill";
 import { ref, onMounted, computed } from "vue";
-import { cleanHtml } from "@/helpers/htmlCleaningHelpers";
 import ImageInsertDialog from "./ImageInsertDialog.vue";
 import "quill-paste-smart";
 import htmlEditButton from "quill-html-edit-button";
@@ -33,15 +32,19 @@ const props = withDefaults(
     modelValue: string;
     id?: string;
     enableImageInsert?: boolean;
+    enableHtmlEditButton?: boolean;
   }>(),
   {
     id: "",
     enableImageInsert: false,
+    enableHtmlEditButton: true,
   }
 );
 
 const emit = defineEmits<{
   (event: "update:modelValue", value: string): void;
+  // fired only for edits the user made, not for quill's own rewrites
+  (event: "userInput"): void;
 }>();
 
 const editor = ref<InstanceType<typeof QuillyEditor>>();
@@ -64,11 +67,15 @@ const options = computed(() => ({
   theme: "snow",
   // bounds: editor.value ? editor.value.$el : null,
   modules: {
-    htmlEditButton: {
-      buttonHTML: "&lt;/&gt;",
-      okText: "Submit",
-      msg: 'Edit HTML here, when you click "Submit" the quill editor\'s contents will be replaced',
-    },
+    ...(props.enableHtmlEditButton
+      ? {
+          htmlEditButton: {
+            buttonHTML: "&lt;/&gt;",
+            okText: "Submit",
+            msg: 'Edit HTML here, when you click "Submit" the quill editor\'s contents will be replaced',
+          },
+        }
+      : {}),
     toolbar: [
       [
         "bold",
@@ -108,12 +115,11 @@ const options = computed(() => ({
 }));
 
 /**
- * Returns the editor content as cleaned semantic HTML.
- * Call this at save time to get properly formatted content.
+ * Returns the editor content serialized by quill itself, with no
+ * further cleaning. Call this at save time.
  */
-function getCleanHtml(): string {
-  if (!quill) return "";
-  return cleanHtml(quill.root.innerHTML);
+function getSemanticHtml(): string {
+  return quill?.getSemanticHTML() ?? "";
 }
 
 function handleImageInsert(src: string) {
@@ -125,8 +131,7 @@ function handleImageInsert(src: string) {
 }
 
 defineExpose({
-  quill,
-  getCleanHtml,
+  getSemanticHtml,
 });
 
 onMounted(() => {
@@ -135,6 +140,12 @@ onMounted(() => {
   }
 
   quill = editor.value.initialize(Quill);
+
+  quill.on(Quill.events.TEXT_CHANGE, (_delta, _oldContents, source) => {
+    if (source === Quill.sources.USER) {
+      emit("userInput");
+    }
+  });
 
   if (props.enableImageInsert) {
     const toolbar = quill.getModule("toolbar") as {

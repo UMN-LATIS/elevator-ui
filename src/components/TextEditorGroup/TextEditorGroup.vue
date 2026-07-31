@@ -7,6 +7,7 @@
           :class="
             cn(
               'block text-xs font-medium text-on-surface uppercase mb-1',
+              { 'sr-only': labelHidden },
               labelClass
             )
           ">
@@ -22,7 +23,9 @@
       ref="editorRef"
       :modelValue="modelValue"
       :enableImageInsert="enableImageInsert"
-      @update:modelValue="$emit('update:modelValue', $event)" />
+      :enableHtmlEditButton="enableHtmlEditButton"
+      @update:modelValue="$emit('update:modelValue', $event)"
+      @userInput="$emit('userInput')" />
   </div>
 </template>
 
@@ -40,26 +43,33 @@ withDefaults(
     label: string;
     modelValue: string;
     labelClass?: CSSClass;
+    // for callers that show their own label, keeping this one for
+    // screen readers because it carries the editor's for attribute
+    labelHidden?: boolean;
     enableImageInsert?: boolean;
+    enableHtmlEditButton?: boolean;
   }>(),
   {
     labelClass: "",
+    labelHidden: false,
     enableImageInsert: false,
+    enableHtmlEditButton: true,
   }
 );
 
 defineEmits<{
   (eventName: "update:modelValue", value: string): void;
+  (eventName: "userInput"): void;
 }>();
 
 const id = useId();
 const editorRef = ref<InstanceType<typeof TextEditor>>();
 
-function getCleanHtml(): string {
-  return editorRef.value?.getCleanHtml() ?? "";
+function getSemanticHtml(): string {
+  return editorRef.value?.getSemanticHtml() ?? "";
 }
 
 defineExpose({
-  getCleanHtml,
+  getSemanticHtml,
 });
 </script>

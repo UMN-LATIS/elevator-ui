@@ -62,6 +62,18 @@ const customPageSeeds: MockCustomPage[] = [
     createdAt: now,
     modifiedAt: null,
   },
+  {
+    id: 5,
+    title: "Legacy Rich Page",
+    // markup quill cannot represent, kept on one line so e2e tests can
+    // assert the stored body is byte-identical after an unedited save
+    body: '<div class="wrapper" id="hero"><h2 id="hours">Hours</h2><p data-track="top">Open 9 to 5</p><iframe src="https://example.com/embed"></iframe></div>',
+    includeInHeader: false,
+    parentId: null,
+    sortOrder: 4,
+    createdAt: now,
+    modifiedAt: null,
+  },
 ];
 
 export function createCustomPagesTable() {
