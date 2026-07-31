@@ -84,7 +84,6 @@ const options = computed(() => ({
         { list: "bullet" },
         "link",
         ...(props.enableImageInsert ? ["image"] : []),
-        "formula",
         { direction: "rtl" }, // text direction
         "clean",
       ],
