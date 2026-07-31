@@ -325,6 +325,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 import ThemeCard from "./ThemeCard.vue";
 import { useTheming } from "@/helpers/useTheming";
+import { prettyThemeName } from "@/helpers/prettyThemeName";
 
 const props = defineProps<{
   instanceId: number;
@@ -443,7 +444,7 @@ const themeOptions = computed(
   (): SelectOption<string>[] =>
     settingsData.value?.availableThemes?.map((theme) => ({
       id: theme,
-      label: theme,
+      label: prettyThemeName(theme),
     })) ?? []
 );
 
