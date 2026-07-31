@@ -86,6 +86,51 @@ function generateTagAutocompletions(searchTerm: string): string[] {
   return generateAutocompletions(searchTerm, baseTags);
 }
 
+interface SearchRequest {
+  searchText: string;
+  collectionIds: number[];
+}
+
+function toCollectionIds(
+  collection: SearchRequestOptions["collection"]
+): number[] {
+  if (!collection) return [];
+
+  // 0 is the "any collection" sentinel
+  return collection.map(Number).filter((collectionId) => collectionId > 0);
+}
+
+/**
+ * Read a search from either shape the API accepts: a JSON `searchQuery`
+ * field, or the browse page's flat `searchText` plus `collectionId`.
+ * `searchQuery` wins when both are present.
+ */
+function readSearchRequest(body: FormData): SearchRequest {
+  const readField = (name: string): string | null => {
+    const value = body.get(name);
+    return typeof value === "string" ? value : null;
+  };
+
+  const rawSearchQuery = readField("searchQuery");
+  if (rawSearchQuery) {
+    const searchQuery = JSON.parse(rawSearchQuery) as SearchRequestOptions;
+    return {
+      searchText: searchQuery.searchText ?? "",
+      collectionIds: toCollectionIds(searchQuery.collection),
+    };
+  }
+
+  const searchText = readField("searchText");
+  if (searchText === null) {
+    return { searchText: "", collectionIds: [] };
+  }
+
+  return {
+    searchText,
+    collectionIds: toCollectionIds([readField("collectionId") ?? "0"]),
+  };
+}
+
 // POST /search/searchResults
 app.post("/searchResults", async (c) => {
   await delay(300);
@@ -103,12 +148,16 @@ app.post("/searchResults", async (c) => {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
-  const storeOnly = parsed.storeOnly === "true";
-  const searchQuery = parsed.searchQuery as SearchRequestOptions;
+  // parseFormData coerces "true" to a boolean before the route sees it
+  const storeOnly = parsed.storeOnly === true;
+  const { searchText, collectionIds } = readSearchRequest(body);
 
-  console.log(`Search requested: ${searchQuery} (storeOnly: ${storeOnly})`);
+  console.log(
+    `Search requested: "${searchText}" in collections ` +
+      `[${collectionIds}] (storeOnly: ${storeOnly})`
+  );
 
-  const resultsResponse = db.searches.create(searchQuery.searchText ?? "");
+  const resultsResponse = db.searches.create(searchText, { collectionIds });
 
   // create a new search if `storeOnly`
   // and only return the searchId

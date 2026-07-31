@@ -142,7 +142,8 @@ export function assetToSearchResultMatch({
   template,
 }: {
   asset: Asset;
-  collection: AssetCollection;
+  // undefined once the collection is deleted out from under the asset
+  collection: Pick<AssetCollection, "id" | "title"> | undefined;
   template: Template;
 }): SearchResultMatch {
   const collectionHierarchy = collection

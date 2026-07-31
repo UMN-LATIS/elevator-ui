@@ -7,6 +7,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import type { MockServerContext } from "./types";
 import { db, getOrCreateWorkerDb } from "./db/index";
 
+import adminCollectionsRoutes from "./routes/adminCollections";
 import adminPermissionsRoutes from "./routes/adminPermissions";
 import assetRoutes from "./routes/assets";
 import collectionRoutes from "./routes/collections";
@@ -91,6 +92,7 @@ app.route("/defaultinstance/collections", collectionRoutes);
 app.route("/defaultinstance/search", searchRoutes);
 app.route("/defaultinstance/drawers", drawerRoutes);
 app.route("/defaultinstance/drawerPermissions", drawerPermissionsRoutes);
+app.route("/defaultinstance/adminCollections", adminCollectionsRoutes);
 app.route("/defaultinstance/adminPermissions", adminPermissionsRoutes);
 app.route("/defaultinstance/permissions", permissionsRoutes);
 app.route("/defaultinstance/loginManager", authRoutes);

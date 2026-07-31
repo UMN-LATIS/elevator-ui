@@ -1,183 +1,208 @@
-import { AssetCollection, RawAssetCollection } from "../../src/types";
+import { RawAssetCollection } from "../../src/types";
+import { MockCollection } from "../types";
 import { createBaseTable } from "./baseTable";
 
-const collectionSeeds: AssetCollection[] = [
-  {
+type CollectionSeed = Pick<
+  MockCollection,
+  "id" | "title" | "parentId" | "showInBrowse" | "canView" | "canEdit"
+> &
+  Partial<MockCollection>;
+
+function makeCollectionSeed(seed: CollectionSeed): MockCollection {
+  return {
+    previewImageId: "",
+    description: "",
+    // null S3 settings mean the collection uses the instance defaults
+    bucket: null,
+    bucketRegion: null,
+    s3Key: null,
+    s3Secret: null,
+    ...seed,
+  };
+}
+
+const collectionSeeds: MockCollection[] = [
+  makeCollectionSeed({
     id: 1,
     title: "Default Collection",
-    previewImageId: "",
+    description: "<p>Everything that has no home of its own.</p>",
     parentId: null,
     showInBrowse: true,
     canView: true,
     canEdit: true,
-    children: [],
-  },
-  {
+  }),
+  makeCollectionSeed({
     id: 2,
     title: "Second Collection",
-    previewImageId: "",
     parentId: null,
     showInBrowse: true,
     canView: true,
     canEdit: false,
-    children: [],
-  },
-  {
+  }),
+  makeCollectionSeed({
     id: 3,
     title: "Parent Collection",
-    previewImageId: "",
     parentId: null,
     showInBrowse: true,
     canView: true,
     canEdit: true,
-    children: [
-      {
-        id: 30,
-        title: "Child Collection 1",
-        previewImageId: "",
-        parentId: 3,
-        showInBrowse: true,
-        canView: true,
-        canEdit: true,
-        children: [
-          {
-            id: 300,
-            title: "Grandchild Collection",
-            previewImageId: "",
-            children: [],
-            parentId: 30,
-            showInBrowse: true,
-            canView: true,
-            canEdit: true,
-          },
-        ],
-      },
-      {
-        id: 31,
-        title: "Child Collection 2",
-        previewImageId: "",
-        parentId: 3,
-        showInBrowse: true,
-        canView: true,
-        canEdit: true,
-        children: [
-          {
-            id: 310,
-            title: "Grandchild Collection 2",
-            previewImageId: "",
-            children: [],
-            parentId: 31,
-            showInBrowse: true,
-            canView: true,
-            canEdit: true,
-          },
-        ],
-      },
-      {
-        id: 32,
-        title: "Hidden Child Collection",
-        previewImageId: "",
-        parentId: 3,
-        showInBrowse: false,
-        canView: true,
-        canEdit: false,
-        children: [],
-      },
-    ],
-  },
-  {
+  }),
+  makeCollectionSeed({
+    id: 30,
+    title: "Child Collection 1",
+    parentId: 3,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+  }),
+  makeCollectionSeed({
+    id: 300,
+    title: "Grandchild Collection",
+    parentId: 30,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+  }),
+  makeCollectionSeed({
+    id: 31,
+    title: "Child Collection 2",
+    parentId: 3,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+  }),
+  makeCollectionSeed({
+    id: 310,
+    title: "Grandchild Collection 2",
+    parentId: 31,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+  }),
+  makeCollectionSeed({
+    id: 32,
+    title: "Hidden Child Collection",
+    parentId: 3,
+    showInBrowse: false,
+    canView: true,
+    canEdit: false,
+  }),
+  makeCollectionSeed({
     id: 4,
     title: "Non-Browsable Parent Collection",
-    previewImageId: "",
     parentId: null,
     showInBrowse: false, // Not browsable itself
     canView: true,
     canEdit: true,
-    children: [
-      // case 1: has a browseable child, no grandchildren
-      {
-        id: 40,
-        title: "Browsable Child Collection",
-        previewImageId: "",
-        parentId: 4,
-        showInBrowse: false,
-        canView: true,
-        canEdit: true,
-        children: [],
-      },
+  }),
 
-      // case 2: browseable child with non-browsable grandchild
-      {
-        id: 41,
-        title: "Browsable Child with Non-Browsable Grandchild",
-        previewImageId: "",
-        parentId: 4,
-        showInBrowse: true,
-        canView: true,
-        canEdit: true,
-        children: [
-          {
-            id: 410,
-            title: "Non-Browsable Grandchild",
-            previewImageId: "",
-            children: [],
-            parentId: 41,
-            showInBrowse: false,
-            canView: true,
-            canEdit: true,
-          },
-        ],
-      },
-      //case 3: non-browsable child, with a browseable grandchild
-      {
-        id: 42,
-        title: "Non-Browsable Child Collection",
-        previewImageId: "",
-        parentId: 4,
-        showInBrowse: false,
-        canView: true,
-        canEdit: true,
-        children: [
-          {
-            id: 420,
-            title: "Browsable Grandchild",
-            previewImageId: "",
-            children: [],
-            parentId: 42,
-            showInBrowse: true,
-            canView: true,
-            canEdit: true,
-          },
-        ],
-      },
-    ],
-  },
+  // case 1: has a browseable child, no grandchildren
+  makeCollectionSeed({
+    id: 40,
+    title: "Browsable Child Collection",
+    parentId: 4,
+    showInBrowse: false,
+    canView: true,
+    canEdit: true,
+  }),
+
+  // case 2: browseable child with non-browsable grandchild
+  makeCollectionSeed({
+    id: 41,
+    title: "Browsable Child with Non-Browsable Grandchild",
+    parentId: 4,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+  }),
+  makeCollectionSeed({
+    id: 410,
+    title: "Non-Browsable Grandchild",
+    parentId: 41,
+    showInBrowse: false,
+    canView: true,
+    canEdit: true,
+  }),
+
+  // case 3: non-browsable child, with a browseable grandchild
+  makeCollectionSeed({
+    id: 42,
+    title: "Non-Browsable Child Collection",
+    parentId: 4,
+    showInBrowse: false,
+    canView: true,
+    canEdit: true,
+  }),
+  makeCollectionSeed({
+    id: 420,
+    title: "Browsable Grandchild",
+    parentId: 42,
+    showInBrowse: true,
+    canView: true,
+    canEdit: true,
+  }),
 ];
 
-function toRawAssetCollection(collection: AssetCollection): RawAssetCollection {
-  return {
+const firstGeneratedId =
+  Math.max(...collectionSeeds.map((collection) => collection.id)) + 1;
+
+export function createCollectionsTable() {
+  const baseTable = createBaseTable(
+    (collection: MockCollection) => collection.id,
+    collectionSeeds
+  );
+  let nextId = firstGeneratedId;
+
+  const getChildren = (parentId: number | null): MockCollection[] =>
+    baseTable.filter((collection) => collection.parentId === parentId);
+
+  const getSubtreeIds = (collectionId: number): number[] => {
+    const descendantIds = getChildren(collectionId).flatMap((child) =>
+      getSubtreeIds(child.id)
+    );
+    return [collectionId, ...descendantIds];
+  };
+
+  const toRawAssetCollection = (
+    collection: MockCollection
+  ): RawAssetCollection => ({
     id: collection.id,
     title: collection.title,
     previewImageId: collection.previewImageId,
     showInBrowse: collection.showInBrowse,
     canView: collection.canView,
     canEdit: collection.canEdit,
-    children:
-      collection.children?.map(toRawAssetCollection) ??
-      ([] as RawAssetCollection[]),
-  };
-}
-
-export function createCollectionsTable() {
-  const baseTable = createBaseTable(
-    (collection: AssetCollection) => collection.id,
-    collectionSeeds
-  );
+    children: getChildren(collection.id).map(toRawAssetCollection),
+  });
 
   return {
     ...baseTable,
-    getAllAsRawAssetCollections: (): RawAssetCollection[] => {
-      return baseTable.getAll().map(toRawAssetCollection);
+    getChildren,
+    getSubtreeIds,
+    getAllAsRawAssetCollections: (): RawAssetCollection[] =>
+      getChildren(null).map(toRawAssetCollection),
+    create: (data: Omit<MockCollection, "id">): MockCollection => {
+      const collection: MockCollection = { id: nextId++, ...data };
+      baseTable.set(collection.id, collection);
+      return collection;
+    },
+    // replaces the row rather than mutating it, so the seed objects stay
+    // clean for the next reset
+    update: (
+      id: number,
+      data: Partial<Omit<MockCollection, "id">>
+    ): MockCollection | undefined => {
+      const collection = baseTable.get(id);
+      if (!collection) return undefined;
+
+      const updated: MockCollection = { ...collection, ...data };
+      baseTable.set(id, updated);
+      return updated;
+    },
+    reset: (): void => {
+      baseTable.reset();
+      nextId = firstGeneratedId;
+      baseTable.seed();
     },
   };
 }
