@@ -27,7 +27,7 @@ jobs:
         run: cd mock-server && yarn install
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Start mock server with frontend
         run: |
@@ -38,7 +38,7 @@ jobs:
           NODE_ENV: test
 
       - name: Run Playwright tests
-        run: npx playwright test --project=chromium
+        run: npx playwright test
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3001

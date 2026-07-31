@@ -1,7 +1,7 @@
 import { type APIRequestContext, type Page } from "@playwright/test";
 import mockServerConfig from "../mock-server/config";
 
-const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
+export const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
 
 // Simple helper to set up worker-specific test environment
 export async function setupWorkerHTTPHeader({
@@ -70,7 +70,10 @@ export async function loginUser({
           value: sessionMatch[1],
           domain: "localhost",
           path: "/",
-          secure: true,
+          // The suite runs over http, and WebKit drops a secure cookie on an
+          // insecure origin even for localhost. The mock server sets this
+          // cookie insecure for the same reason.
+          secure: false,
           httpOnly: false,
         },
       ]);

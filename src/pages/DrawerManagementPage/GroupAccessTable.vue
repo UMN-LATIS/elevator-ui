@@ -645,17 +645,12 @@ async function revealNewGroup(group: PermissionsGroup): Promise<void> {
   addRow?.click();
 }
 
-// The row, its detail panel, and the button inside it mount across
-// several frames, so tryFocus retries until focus lands rather than
-// guessing a single tick.
 async function focusNewGroup(
   group: PermissionsGroup,
   selector: string
 ): Promise<HTMLElement | null> {
   try {
-    const focused = await tryFocus(selector);
-    focused.scrollIntoView({ block: "nearest" });
-    return focused;
+    return await tryFocus(selector);
   } catch (error) {
     console.warn(`Could not focus new ${group.type} group`, error);
     return null;
