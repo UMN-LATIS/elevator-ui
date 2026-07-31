@@ -14,9 +14,16 @@ defineProps<{
 </script>
 <style scoped>
 .drop-indicator {
+  /* Inset the line so its terminal circles land inside the
+     list item and don't overflow the container triggering
+     scrollbars during drag. */
+  --dnd-indicator-terminalOffset: calc(
+    var(--dnd-indicator-terminalSize) + var(--dnd-indicator-strokeWidth) * 2
+  );
+
   position: absolute;
-  width: 100%;
-  left: 0;
+  left: var(--dnd-indicator-terminalOffset);
+  right: var(--dnd-indicator-terminalOffset);
   z-index: 10;
   height: var(--dnd-indicator-strokeWidth);
   background: var(--dnd-indicator-color);
@@ -45,17 +52,13 @@ defineProps<{
   height: var(--dnd-indicator-terminalSize);
   border-radius: 50%;
   border: var(--dnd-indicator-strokeWidth) solid var(--dnd-indicator-color);
-  --dnd-terminal-position: calc(
-    -1 * calc(var(--dnd-indicator-terminalSize) +
-          var(--dnd-indicator-strokeWidth) * 2)
-  );
 }
 
 .drop-indicator::before {
-  left: var(--dnd-terminal-position);
+  left: calc(-1 * var(--dnd-indicator-terminalOffset));
 }
 
 .drop-indicator::after {
-  right: var(--dnd-terminal-position);
+  right: calc(-1 * var(--dnd-indicator-terminalOffset));
 }
 </style>
