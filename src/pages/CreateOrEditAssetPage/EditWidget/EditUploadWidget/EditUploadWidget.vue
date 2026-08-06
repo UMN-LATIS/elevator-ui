@@ -154,7 +154,9 @@ async function handleDeleteContent(id: string) {
   }
 
   // save the removal first: if the save fails, the asset must not be left
-  // referencing media that is already destroyed
+  // referencing media that is already destroyed. That ordering is why this
+  // saves through the editor rather than emitting to the page like a
+  // completed upload does, since an emit cannot be awaited.
   assetEditor.updateWidgetContents(
     props.widgetDef.fieldTitle,
     ops.deleteWidgetContent(currentContents(), id)

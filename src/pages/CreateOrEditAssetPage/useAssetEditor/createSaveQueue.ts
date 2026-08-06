@@ -89,8 +89,9 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
    * nothing once the request itself is done.
    */
   async function waitForCurrentSaveToSettle(): Promise<void> {
-    // a rejected save still settles, and runSaveLoop owns reporting it
-    await currentSavePromise?.catch(() => {});
+    if (!currentSavePromise) return;
+    // a rejected save has still settled, and runSaveLoop owns reporting it
+    await Promise.allSettled([currentSavePromise]);
   }
 
   return { save, waitForCurrentSaveToSettle };

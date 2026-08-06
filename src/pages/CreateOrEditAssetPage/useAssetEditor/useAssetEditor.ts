@@ -252,18 +252,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     const formData = toSaveableFormData(assetToSave, modelToSave.template);
     const isCreate = !assetToSave.assetId;
 
-    console.debug("[useAssetEditor] saveAssetAndChildren: saving asset", {
-      operation: isCreate ? "CREATE" : "UPDATE",
-      assetId: assetToSave.assetId || "(new)",
-      templateId: modelToSave.template.templateId,
-      collectionId: assetToSave.collectionId,
-    });
-
     const { objectId } = await updateAssetMutation.mutateAsync(formData);
-    console.debug("[useAssetEditor] saveAssetAndChildren: save succeeded", {
-      objectId,
-      operation: isCreate ? "CREATE" : "UPDATE",
-    });
     invariant(objectId, "Expected an objectId back from the save");
 
     if (isCreate) {

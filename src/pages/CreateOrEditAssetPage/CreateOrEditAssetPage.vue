@@ -449,9 +449,14 @@ async function handleSaveAsset({
 
     const savedAssetId = assetEditor.localAsset?.assetId ?? null;
     if (!savedAssetId) {
-      // the editor took in a different asset while this save was in flight,
-      // so the reducer dropped its result. The save itself succeeded, but
-      // the toast belongs to a page the user has already left.
+      // the editor emptied out while this save was in flight, so the reducer
+      // dropped the new id. The save itself succeeded, but the toast belongs
+      // to a draft that is gone.
+      //
+      // This does not catch the editor moving to a *different* asset, where
+      // assetId is that asset's and reads as success. Fixing that needs the
+      // reducer to say it dropped the create rather than the page inferring
+      // it from the model.
       return;
     }
 
