@@ -1,6 +1,10 @@
 import * as T from "@/types";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { isDateWidgetContent } from "@/types/guards";
+import {
+  isDateWidgetContent,
+  isLocationWidgetContent,
+} from "@/types/guards";
+import { doesServerKeepContent } from "./normalizeAssetForSave";
 import {
   computed,
   ComputedRef,
@@ -96,6 +100,51 @@ function validateDateWidget(
         "End date must be after start date"
       );
     }
+
+    // the backend keeps a date row only for a label or a start, so an
+    // end-only row reaches the server and is thrown away
+    const isRowDropped = !doesServerKeepContent(contentItem, T.WIDGET_TYPES.DATE);
+    if (hasEndText && isRowDropped) {
+      errors.addItemFieldError(
+        contentItem.id,
+        "start",
+        "Add a start date or a label, or this date is not saved."
+      );
+    }
+  });
+
+  return errors;
+}
+
+/**
+ * An address the user typed is only stored alongside a label or coordinates,
+ * so warn before a save throws the row away.
+ */
+function validateLocationWidget({
+  content,
+  def,
+  getWidgetInstanceId,
+}: WidgetContentWithDef & {
+  getWidgetInstanceId: (id: number) => T.WidgetInstanceId;
+}): ReturnType<typeof createErrorsObject> {
+  const errors = fallbackValidator({ content, def, getWidgetInstanceId });
+
+  content.forEach((contentItem) => {
+    if (!isLocationWidgetContent(contentItem)) return;
+
+    const hasAddressText = !!contentItem.address?.trim();
+    const isRowDropped = !doesServerKeepContent(
+      contentItem,
+      T.WIDGET_TYPES.LOCATION
+    );
+
+    if (hasAddressText && isRowDropped) {
+      errors.addItemFieldError(
+        contentItem.id,
+        "address",
+        "Pick a point on the map or add a label, or this address is not saved."
+      );
+    }
   });
 
   return errors;
@@ -127,6 +176,8 @@ function validateWidget({
   switch (def.type) {
     case "date":
       return validateDateWidget(content);
+    case "location":
+      return validateLocationWidget({ content, def, getWidgetInstanceId });
     default:
       return fallbackValidator({ content, def, getWidgetInstanceId });
   }
@@ -215,7 +266,6 @@ export function createAssetValidation(
   const widgetValidations = computed(() =>
     validateAsset(asset.value, template.value, getWidgetInstanceId)
   );
-
 
   const isAssetValid = computed(() => {
     return widgetValidations.value.every(

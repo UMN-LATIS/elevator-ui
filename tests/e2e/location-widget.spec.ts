@@ -101,9 +101,6 @@ test.describe("Location Widget", () => {
   test("clearing one coordinate warns instead of leaving a blank box", async ({
     page,
   }) => {
-    // clearing one coordinate of a saved pair silently keeps the old point
-    test.fail();
-
     await page.goto("/assetManager/editAsset/location_asset_minneapolis");
 
     const longitudeInput = page.getByLabel("Longitude").first();
@@ -132,10 +129,6 @@ test.describe("Location Widget", () => {
   });
 
   test("warns that an address alone is not saved", async ({ page }) => {
-    // the backend drops an address with no coordinates and the editor says
-    // nothing
-    test.fail();
-
     // this asset's location row has a label, an address, and coordinates. The
     // server keeps a row only for a label or coordinates, so emptying both
     // leaves an address the next save would throw away.

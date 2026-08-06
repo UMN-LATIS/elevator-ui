@@ -33,6 +33,7 @@
     <template #fieldContents="{ item }">
       <EditLocationWidgetContentItem
         :modelValue="(item as Type.WithId<Type.LocationWidgetContent>)"
+        :widgetDef="widgetDef"
         @update:modelValue="handleItemUpdate" />
     </template>
   </EditWidgetLayout>

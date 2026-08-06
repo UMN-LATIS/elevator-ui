@@ -68,6 +68,10 @@
           {{ latError }}
         </p>
       </div>
+      <p v-if="isCoordinatePairHalfEmpty" class="col-span-2 text-error text-xs">
+        A point needs both a longitude and a latitude, so the saved location is
+        unchanged.
+      </p>
     </div>
     <div>
       <label
@@ -80,6 +84,10 @@
         :initialValue="props.modelValue.address ?? ''"
         :apiKey="config.arcgis.apiKey"
         placeholder="Search for an address"
+        :aria-invalid="addressErrors.length ? 'true' : undefined"
+        :aria-describedby="
+          addressErrors.length ? `${id}-address-error` : undefined
+        "
         @select="
           (geocoderResult) =>
             $emit('update:modelValue', {
@@ -94,6 +102,13 @@
               },
             })
         " />
+      <p
+        v-for="error in addressErrors"
+        :id="`${id}-address-error`"
+        :key="error"
+        class="text-error text-xs">
+        {{ error }}
+      </p>
     </div>
   </div>
 </template>
@@ -114,7 +129,15 @@ import config from "@/config";
 import invariant from "tiny-invariant";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
-import { LocationWidgetContent, WithId, LngLat, Coordinates } from "@/types";
+import {
+  LocationWidgetContent,
+  WithId,
+  LngLat,
+  Coordinates,
+  WidgetDef,
+} from "@/types";
+import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useTheming } from "@/helpers/useTheming";
 import {
   toLngLat,
@@ -125,12 +148,27 @@ import {
 const props = withDefaults(
   defineProps<{
     modelValue: WithId<LocationWidgetContent>;
+    widgetDef?: WidgetDef;
     initialZoom?: number;
   }>(),
   {
     initialZoom: 1,
   }
 );
+
+const { widgetValidations } = useAssetValidation();
+const assetEditor = useAssetEditor();
+
+const addressErrors = computed((): string[] => {
+  if (!props.widgetDef) return [];
+  const widgetInstanceId = assetEditor.getWidgetInstanceId(
+    props.widgetDef.widgetId
+  );
+  const validation = widgetValidations.value.find(
+    (widgetValidation) => widgetValidation.id === widgetInstanceId
+  );
+  return validation?.errors.getItemFieldErrors(props.modelValue.id, "address") ?? [];
+});
 
 const id = computed(() => props.modelValue.id || useId());
 
@@ -184,6 +222,15 @@ const lngError = computed((): string => {
 const latError = computed((): string => {
   if (state.latInput.trim() === "") return "";
   return validateLatInput(state.latInput);
+});
+
+// half a point is not something the asset can store, so the widget holds on
+// to the saved one. Without this the emptied box reads as "no latitude"
+// while the asset still has one.
+const isCoordinatePairHalfEmpty = computed((): boolean => {
+  const isLngEmpty = state.lngInput.trim() === "";
+  const isLatEmpty = state.latInput.trim() === "";
+  return isLngEmpty !== isLatEmpty;
 });
 
 const map = shallowRef<maplibregl.Map | null>(null);

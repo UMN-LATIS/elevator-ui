@@ -123,6 +123,82 @@ describe("validateAsset", () => {
     ]);
   });
 
+  it("warns that an end date with no start is not saved", () => {
+    const template = makeTemplate([{ type: "date" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          id: "row-1",
+          label: "",
+          start: { text: null, numeric: null },
+          end: { text: "2021", numeric: "1609459200" },
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([
+      "Add a start date or a label, or this date is not saved.",
+    ]);
+    expect(validation.isValid).toBe(false);
+  });
+
+  it("keeps an end date with no start when the row has a label", () => {
+    const template = makeTemplate([{ type: "date" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          id: "row-1",
+          label: "Published",
+          start: { text: null, numeric: null },
+          end: { text: "2021", numeric: "1609459200" },
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([]);
+    expect(validation.isValid).toBe(true);
+  });
+
+  it("warns that an address with no coordinates is not saved", () => {
+    const template = makeTemplate([{ type: "location" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          id: "row-1",
+          locationLabel: "",
+          address: "117 Pleasant St SE, Minneapolis",
+          loc: undefined,
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "address")).toEqual([
+      "Pick a point on the map or add a label, or this address is not saved.",
+    ]);
+  });
+
+  it("accepts an address once the row has coordinates", () => {
+    const template = makeTemplate([{ type: "location" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          id: "row-1",
+          locationLabel: "",
+          address: "117 Pleasant St SE, Minneapolis",
+          loc: { type: "Point", coordinates: [-93.235, 44.974] },
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "address")).toEqual(
+      []
+    );
+  });
+
   it("reports one widget per template, so a smaller template reports fewer", () => {
     const asset = makeAsset({
       field_1: [{ id: "row-1", fieldContents: "kept", isPrimary: false }],
