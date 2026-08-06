@@ -1,12 +1,43 @@
 /**
  * get a unix timestamp for a date string with some handling of BC dates
+ *
+ * Every format resolves the typed civil date to UTC.
  */
 export function parseDateString(dateString: string): string | null {
   if (!dateString) return null;
+  const trimmedDateString = dateString.trim();
 
-  const date = Date.parse(dateString);
-  if (!isNaN(date)) {
-    return (date / 1000).toString();
+  const isYearOnly = /^\d{4}$/.test(trimmedDateString);
+  const isIsoDate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedDateString);
+  const hasExplicitZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(trimmedDateString);
+
+  if (isYearOnly || isIsoDate || hasExplicitZone) {
+    // these forms already parse as UTC (or carry their own zone)
+    const date = Date.parse(trimmedDateString);
+    if (!isNaN(date)) {
+      return (date / 1000).toString();
+    }
+  } else {
+    // everything else parses on the local clock, so rebuild the civil
+    // date in UTC
+    const parsedLocalDate = new Date(trimmedDateString);
+    if (!isNaN(parsedLocalDate.getTime())) {
+      // setUTCFullYear rather than Date.UTC, which reads years 0 to 99 as
+      // 1900 to 1999 and would date antiquity to the last century
+      const utcDate = new Date(0);
+      utcDate.setUTCFullYear(
+        parsedLocalDate.getFullYear(),
+        parsedLocalDate.getMonth(),
+        parsedLocalDate.getDate()
+      );
+      utcDate.setUTCHours(
+        parsedLocalDate.getHours(),
+        parsedLocalDate.getMinutes(),
+        parsedLocalDate.getSeconds(),
+        0
+      );
+      return (utcDate.getTime() / 1000).toString();
+    }
   }
 
   // handle BC dates and centuries
