@@ -24,9 +24,6 @@ test.describe("leaving the asset editor with unsaved edits", () => {
   test("asks for confirmation instead of dropping the edits", async ({
     page,
   }) => {
-    // in-app navigation away from unsaved edits leaves silently
-    test.fail();
-
     const titleField = page.getByLabel(/title/i).first();
     await titleField.fill("Asset 1, edited");
 

@@ -118,12 +118,6 @@ test.describe("Asset editor concurrency", () => {
   test("starting a new draft while the previous asset is still saving does not overwrite the previous asset", async ({
     page,
   }) => {
-    // the save response lands on the fresh draft, which then overwrites the
-    // finished asset
-    // fixme, not fail: the confirm this waits for does not exist yet, so the
-    // test hangs instead of failing
-    test.fixme();
-
     // a held save, the queue's cooldown, and a second save do not fit the 10s
     // default once other specs are competing for workers
     test.setTimeout(20_000);
@@ -165,12 +159,6 @@ test.describe("Asset editor concurrency", () => {
   test("a save in flight does not land on the different asset the user moved to", async ({
     page,
   }) => {
-    // a save that resolves after the editor moved on writes to the asset now
-    // open
-    // fixme, not fail: the confirm this waits for does not exist yet, so the
-    // test hangs instead of failing
-    test.fixme();
-
     // creating a real asset plus two queue cooldowns runs close to the 10s default
     test.setTimeout(20_000);
 
@@ -225,12 +213,6 @@ test.describe("Asset editor concurrency", () => {
   test("a create in flight for one draft does not make the next draft adopt its asset", async ({
     page,
   }) => {
-    // the next draft adopts the created asset's id, so asking for two assets
-    // yields one
-    // fixme, not fail: the confirm this waits for does not exist yet, so the
-    // test hangs instead of failing
-    test.fixme();
-
     const { saves, releaseHeldSave, countAssetRefetches } =
       await interceptSaves(page, "");
 
@@ -378,11 +360,6 @@ test.describe("Asset editor concurrency", () => {
   test("a save in flight does not revert edits made after the same asset is reopened", async ({
     page,
   }) => {
-    // the stale save's result overwrites the edits made after it went out
-    // fixme, not fail: the confirm this waits for does not exist yet, so the
-    // test hangs instead of failing
-    test.fixme();
-
     const { saves, releaseHeldSave, countAssetRefetches } =
       await interceptSaves(page, ASSET_1_ID);
 

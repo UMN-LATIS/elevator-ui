@@ -68,11 +68,6 @@ test.describe("inline child editors and the parent save", () => {
   test("a failed inline child save raises an error the user can see", async ({
     page,
   }) => {
-    // the failed child save is swallowed and the parent toasts success
-    // fixme, not fail: the wait for the toast outlasts the test timeout, so the
-    // test hangs instead of failing
-    test.fixme();
-
     await failFirstSave(page);
 
     await page.goto("/assetManager/addAsset");

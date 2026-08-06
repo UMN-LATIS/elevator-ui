@@ -121,13 +121,13 @@
       </ConfirmModal>
       <ConfirmModal
         type="warning"
-        :isOpen="isLeaveConfirmOpen"
-        title="Upload in progress"
+        :isOpen="!!leaveBlocker"
+        :title="leaveBlocker ? leaveConfirmCopy[leaveBlocker].title : ''"
         confirmLabel="Leave"
         cancelLabel="Stay"
         @confirm="handleLeaveConfirm"
         @close="handleLeaveCancel">
-        Navigating away will cancel your upload. Are you sure you want to leave?
+        {{ leaveBlocker ? leaveConfirmCopy[leaveBlocker].body : "" }}
       </ConfirmModal>
     </Teleport>
   </DefaultLayout>
@@ -144,6 +144,7 @@ import {
   onBeforeRouteUpdate,
   useRoute,
   useRouter,
+  type RouteLocationNormalized,
 } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
@@ -211,14 +212,30 @@ function handleRestored() {
   }
 }
 
-const isLeaveConfirmOpen = ref(false);
-// Holds the resolve function for the pending onBeforeRouteLeave promise.
+/** What the user would lose by leaving, or null when nothing is at stake. */
+type LeaveBlocker = "activeUpload" | "unsavedEdits";
+const leaveBlocker = ref<LeaveBlocker | null>(null);
+
+const leaveConfirmCopy: Record<LeaveBlocker, { title: string; body: string }> =
+  {
+    activeUpload: {
+      title: "Upload in progress",
+      body: "Navigating away will cancel your upload. Are you sure you want to leave?",
+    },
+    unsavedEdits: {
+      title: "Unsaved changes",
+      body: "Your unsaved changes will be lost if you leave. Are you sure?",
+    },
+  };
+
+// Holds the resolve function for the pending navigation guard promise.
 let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
 
 // Trigger the browser's native "Leave site?" dialog when the user tries to
-// close the tab, reload, or navigate to an external URL while an upload is running.
+// close the tab, reload, or navigate to an external URL while an upload is
+// running or edits are unsaved.
 watchEffect((onCleanup) => {
-  if (!uploadStore.hasActiveUploads) return;
+  if (!uploadStore.hasActiveUploads && !assetEditor.hasUnsavedChanges) return;
   const handler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
   };
@@ -230,25 +247,52 @@ watchEffect((onCleanup) => {
   onCleanup(() => window.removeEventListener("beforeunload", handler));
 });
 
-// Show our custom ConfirmModal for in-app (Vue Router) navigation.
-onBeforeRouteLeave(async () => {
-  if (!uploadStore.hasActiveUploads) return true;
-  isLeaveConfirmOpen.value = true;
+/**
+ * Show our custom ConfirmModal before in-app (Vue Router) navigation that
+ * would cancel an upload or drop unsaved edits.
+ */
+async function confirmLeavingWorkBehind(
+  to: RouteLocationNormalized
+): Promise<boolean> {
+  // the redirect onto the asset this editor just created reuses the
+  // component and carries every pending edit and upload with it, so
+  // nothing is being left behind
+  const isTargetTheAssetBeingEdited =
+    to.name === "editAsset" &&
+    to.params.assetId === assetEditor.localAsset?.assetId;
+  if (isTargetTheAssetBeingEdited) return true;
+
+  if (uploadStore.hasActiveUploads) {
+    return askBeforeLeaving("activeUpload");
+  }
+
+  if (assetEditor.hasUnsavedChanges) {
+    return askBeforeLeaving("unsavedEdits");
+  }
+  return true;
+}
+
+function askBeforeLeaving(blocker: LeaveBlocker): Promise<boolean> {
+  leaveBlocker.value = blocker;
   return new Promise<boolean>((resolve) => {
     resolveLeaveGuard = resolve;
   });
-});
+}
 
-function handleLeaveConfirm() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(true);
+onBeforeRouteLeave(confirmLeavingWorkBehind);
+
+function settleLeaveGuard(canLeave: boolean) {
+  leaveBlocker.value = null;
+  resolveLeaveGuard?.(canLeave);
   resolveLeaveGuard = null;
 }
 
+function handleLeaveConfirm() {
+  settleLeaveGuard(true);
+}
+
 function handleLeaveCancel() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(false);
-  resolveLeaveGuard = null;
+  settleLeaveGuard(false);
 }
 
 watch(
@@ -496,16 +540,16 @@ async function updateTemplateId() {
 
 usePageAssetIdProvider(() => props.assetId ?? null);
 
-onBeforeRouteUpdate(async (to, _from, next) => {
-  if (to.fullPath !== "/assetManager/addAsset") {
-    // if not navigating to create asset, just proceed
-    return next();
+// moving between assets reuses this component, so route updates need the
+// same protection as route leaves
+onBeforeRouteUpdate(async (to) => {
+  const canProceed = await confirmLeavingWorkBehind(to);
+  if (!canProceed) return false;
+
+  if (to.fullPath === "/assetManager/addAsset") {
+    assetEditor.reset();
   }
-
-  // reset the asset state
-  assetEditor.reset();
-
-  next();
+  return true;
 });
 </script>
 <style scoped>

@@ -14,11 +14,6 @@ test.describe("navigating away while a create is in flight", () => {
   test("the resolved save does not pull the user back into the editor", async ({
     page,
   }) => {
-    // the resolved create's redirect yanks the user back into the editor
-    // fixme, not fail: the confirm this waits for does not exist yet, so the
-    // test hangs instead of failing
-    test.fixme();
-
     await page.goto("/assetManager/addAsset");
     // a template with no inline related asset, so exactly one editor saves
     await page.getByLabel("Template").selectOption({ label: "Some Fields" });
