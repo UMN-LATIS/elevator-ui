@@ -4,7 +4,6 @@ import {
   UnsavedAsset,
   WidgetContent,
   WidgetDef,
-  PHPDateTime,
   WithId,
 } from "@/types";
 import invariant from "tiny-invariant";
@@ -226,11 +225,4 @@ export function migrateAssetToTemplate(
     ...asset,
     templateId: newTemplate.templateId, // Ensure the templateId is updated
   };
-}
-
-export function phpDateToString(phpDateTime: PHPDateTime | null): string {
-  if (!phpDateTime?.date) {
-    return "";
-  }
-  return new Date(phpDateTime.date).toISOString().split("T")[0];
 }

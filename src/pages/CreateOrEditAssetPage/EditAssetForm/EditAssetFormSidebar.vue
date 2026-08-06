@@ -122,7 +122,7 @@ import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
-import { phpDateToString } from "../useAssetEditor/utils";
+import { phpDateToString } from "@/helpers/phpDateToString";
 import invariant from "tiny-invariant";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
