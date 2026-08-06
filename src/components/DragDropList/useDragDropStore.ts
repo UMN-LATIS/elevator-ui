@@ -100,8 +100,12 @@ export function useDragDropStore(groupId: string | number) {
       return;
     }
 
-    // remove item from source list
-    const [item] = fromList.items.splice(sourceIndex, 1);
+    // remove item from source list without mutating the caller's array,
+    // which the prop sync stores by reference
+    const item = fromList.items[sourceIndex];
+    fromList.items = fromList.items.filter(
+      (_, index) => index !== sourceIndex
+    );
 
     // then reorder the target list using the closest edge of the target
     toList.items = dnd.reorderWithEdge({

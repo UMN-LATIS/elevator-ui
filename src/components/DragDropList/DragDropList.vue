@@ -25,7 +25,7 @@
 import type { CSSClass, HasId } from "./dndTypes";
 import DragDropListItem from "./DragDropListItem.vue";
 import { useDragDropStore } from "./useDragDropStore";
-import { watch, inject, computed } from "vue";
+import { watch, inject, computed, onUnmounted } from "vue";
 import { GROUP_ID_PROVIDE_KEY } from "./constants";
 import EmptyList from "./EmptyList.vue";
 
@@ -74,9 +74,16 @@ watch(
   { immediate: true }
 );
 
-// watch for changes in the store and emit the new items
+// The prop sync stores the prop's own array, so a reference match means
+// this change came from outside and echoing it back would double every
+// edit.
 watch(items, (newItems) => {
+  if (newItems === props.modelValue) return;
   emit("update:modelValue", newItems);
+});
+
+onUnmounted(() => {
+  dragDropStore.removeList(props.listId);
 });
 </script>
 <style scoped>
