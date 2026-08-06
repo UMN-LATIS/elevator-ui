@@ -11,7 +11,12 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true, // tsx handles compilation, no need for tsc output
     "isolatedModules": true, // Better compatibility with tsx
-    "verbatimModuleSyntax": false // Allow flexible imports
+    "verbatimModuleSyntax": false, // Allow flexible imports
+    // imported src modules (normalizeAssetForSave) use the app's @ alias
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["../src/*"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist", "../src/types/index.ts"]

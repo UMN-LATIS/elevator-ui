@@ -285,6 +285,12 @@ export interface SelectWidgetContent extends WidgetContent {
 
 export interface TagListWidgetContent extends WidgetContent {
   tags: string[] | null;
+  /**
+   * Tag text typed but not yet committed with enter, comma, or blur.
+   * Client-only, like content ids: a save folds it into `tags`, so typed
+   * text is never lost to focus order.
+   */
+  pendingText?: string;
 }
 
 export interface TextAreaWidgetContent extends WidgetContent {
