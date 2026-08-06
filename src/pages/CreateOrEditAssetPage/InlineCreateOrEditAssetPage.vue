@@ -103,6 +103,7 @@ import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { useToastStore } from "@/stores/toastStore";
+import { getErrorMessage } from "@/api/getErrorMessage";
 
 // Depth tracking to prevent infinite recursion with self-referencing templates
 const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";
@@ -255,10 +256,9 @@ async function handleSaveAsset() {
     // the parent's save carries on without this child, and its redirect
     // clears the error modal the request already raised, so say here which
     // asset was lost
-    const reason = cause instanceof Error ? cause.message : String(cause);
     toastStore.addToast({
       title: "Error",
-      message: `Failed to save inline asset: ${reason}`,
+      message: `Failed to save inline asset: ${getErrorMessage(cause)}`,
       variant: "error",
     });
     return;

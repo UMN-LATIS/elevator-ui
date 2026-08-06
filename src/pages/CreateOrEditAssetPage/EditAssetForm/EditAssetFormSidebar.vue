@@ -93,7 +93,7 @@
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
-        v-model="state.localCollectionId"
+        :modelValue="displayCollectionId"
         :options="collectionOptions"
         selectClass="bg-surface-container"
         label="Collection"
@@ -108,7 +108,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
@@ -133,6 +133,7 @@ const props = defineProps<{
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   selectedTemplateId?: number | null;
+  selectedCollectionId?: number | null;
 }>();
 
 const emit = defineEmits<{
@@ -143,10 +144,6 @@ const emit = defineEmits<{
   (e: "update:availableAfter", availableAfter: PHPDateTime | null): void;
   (e: "migrateCollection", collectionId: number): void;
 }>();
-
-const state = reactive({
-  localCollectionId: props.asset.collectionId,
-});
 
 // Hold success/error visible for a few seconds after a save, then reset to idle.
 // This is pure UI state — the raw mutation status resets only on the next save.
@@ -178,11 +175,10 @@ const displayTemplateId = computed(
   () => props.selectedTemplateId ?? props.asset.templateId
 );
 
-watch(
-  () => props.asset.collectionId,
-  (newCollectionId) => {
-    state.localCollectionId = newCollectionId;
-  }
+// same for the collection: a pending migration choice, otherwise the asset's
+// collection, so a canceled migration falls back on its own
+const displayCollectionId = computed(
+  () => props.selectedCollectionId ?? props.asset.collectionId
 );
 
 const localAvailableAfterDate = ref("");

@@ -31,9 +31,6 @@ test.describe("collection migration", () => {
   test("canceling the confirm puts the selection back on the asset's collection", async ({
     page,
   }) => {
-    // the select keeps the declined collection instead of the asset's own
-    test.fail();
-
     await collectionSelect(page).selectOption({ label: "Parent Collection" });
     await expect(confirmModal(page)).toBeVisible();
 
@@ -46,9 +43,6 @@ test.describe("collection migration", () => {
   test("a failed migration save reverts the collection edit instead of leaving it pending", async ({
     page,
   }) => {
-    // a failed migration leaves the new collection selected as if it had worked
-    test.fail();
-
     test.setTimeout(30_000);
 
     // fail only the migration's save. 400 rather than 500, because a 500

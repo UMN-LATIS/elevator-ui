@@ -60,6 +60,7 @@
         :saveStatus="saveStatus"
         :hasUnsavedChanges="hasUnsavedChanges"
         :selectedTemplateId="selectedTemplateId"
+        :selectedCollectionId="selectedCollectionId"
         @save="$emit('save')"
         @cancel="$emit('cancel')"
         @update:templateId="$emit('update:templateId', $event)"
@@ -94,6 +95,7 @@ const props = defineProps<{
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   selectedTemplateId?: number | null;
+  selectedCollectionId?: number | null;
 }>();
 
 defineEmits<{

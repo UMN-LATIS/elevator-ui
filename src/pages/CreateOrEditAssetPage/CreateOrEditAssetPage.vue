@@ -49,6 +49,7 @@
     <Transition v-else name="fade">
       <EditAssetForm
         :selectedTemplateId="state.selectedTemplateId"
+        :selectedCollectionId="state.selectedCollectionId"
         :template="assetEditor.template!"
         :asset="assetEditor.localAsset!"
         :savedAssetTitle="savedAssetTitle"
@@ -103,7 +104,9 @@
         @close="
           () => {
             state.isConfirmingMigrateCollection = false;
-            state.destCollectionId = null;
+            // the user declined, so clear the selection and let the
+            // sidebar fall back to the asset's current collection
+            state.selectedCollectionId = null;
           }
         ">
         <div class="flex flex-col gap-4">
@@ -329,7 +332,6 @@ const state = reactive({
 
   // confirm collection migration
   isConfirmingMigrateCollection: false,
-  destCollectionId: null as number | null,
 });
 
 // Sync selectedTemplateId with the current asset's templateId when editing
@@ -375,15 +377,25 @@ onMounted(() => {
   }
 });
 
-function handleInitNewAsset() {
+async function handleInitNewAsset() {
   invariant(
     state.selectedTemplateId && state.selectedCollectionId,
     "Template and collection must be selected to create a new asset"
   );
-  assetEditor.initNewAsset({
-    templateId: state.selectedTemplateId,
-    collectionId: state.selectedCollectionId,
-  });
+  try {
+    await assetEditor.initNewAsset({
+      templateId: state.selectedTemplateId,
+      collectionId: state.selectedCollectionId,
+    });
+  } catch (error) {
+    invariant(error instanceof Error);
+    console.error("Error starting new asset:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: `Could not load the template: ${error.message}`,
+      variant: "error",
+    });
+  }
 }
 
 const channelName = computed(() => route.query.channelName as string);
@@ -478,8 +490,28 @@ async function migrateCollection() {
     state.selectedCollectionId,
     "Selected collection ID must be set to confirm migration"
   );
-  await assetEditor.updateCollection(state.selectedCollectionId);
-  await assetEditor.saveAsset();
+  const collectionIdBeforeMigration = assetEditor.localAsset?.collectionId;
+  assetEditor.updateCollection(state.selectedCollectionId);
+
+  try {
+    await assetEditor.saveAsset();
+  } catch (error) {
+    invariant(error instanceof Error);
+    console.error("Error migrating collection:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to move asset: ${error.message}`,
+      variant: "error",
+    });
+    // undo the collection edit, or the failed migration would sit as an
+    // unsaved change and quietly go through on the next save
+    if (collectionIdBeforeMigration) {
+      assetEditor.updateCollection(collectionIdBeforeMigration);
+    }
+    state.selectedCollectionId = null;
+    return;
+  }
+
   toastStore.addToast({
     message: "Migration started. This may take a few minutes.",
   });
@@ -509,15 +541,21 @@ async function handleConfirmTemplateChange(templateId: number) {
     sourceTemplateId,
     "Source template ID must be defined to compare templates"
   );
-  const comparison = await fetchTemplateComparison(
-    sourceTemplateId,
-    templateId
-  );
-
-  // handle [] returned from API
-  state.templateComparison = isEmpty(comparison)
-    ? null
-    : (comparison as TemplateComparison);
+  try {
+    const comparison = await fetchTemplateComparison(
+      sourceTemplateId,
+      templateId
+    );
+    // handle [] returned from API
+    state.templateComparison = isEmpty(comparison)
+      ? null
+      : (comparison as TemplateComparison);
+  } catch (error) {
+    // the modal still warns about data loss in general, just without the
+    // list of affected fields
+    console.error("Error comparing templates:", error);
+    state.templateComparison = null;
+  }
 }
 
 async function updateTemplateId() {

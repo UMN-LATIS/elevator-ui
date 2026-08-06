@@ -72,6 +72,7 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import api from "@/api";
 import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import { useToastStore } from "@/stores/toastStore";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
@@ -161,10 +162,9 @@ async function handleDeleteContent(id: string) {
   try {
     await assetEditor.saveAsset();
   } catch (cause) {
-    const reason = cause instanceof Error ? cause.message : String(cause);
     toastStore.addToast({
       title: "Error",
-      message: `The file was not deleted because the asset could not be saved: ${reason}`,
+      message: `The file was not deleted because the asset could not be saved: ${getErrorMessage(cause)}`,
       variant: "error",
     });
     return;
