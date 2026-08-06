@@ -58,8 +58,8 @@
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
-        @save="handleSaveAsset({ showToast: true })"
-        @autoSave="handleSaveAsset({ showToast: false })"
+        @save="handleSaveAsset({ shouldConfirmSave: true })"
+        @autoSave="handleSaveAsset({ shouldConfirmSave: false })"
         @update:widgetContents="
           assetEditor.updateWidgetContents($event.fieldTitle, $event.contents)
         "
@@ -153,6 +153,7 @@ import { TriangleAlert } from "lucide-vue-next";
 import { provideAssetEditor } from "./useAssetEditor/provideAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
 import { ApiError } from "@/api/ApiError";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import type { DeletedAssetInfo } from "@/types";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
@@ -415,7 +416,16 @@ function handleAssetCreated(assetId: string) {
   });
 }
 
-async function handleSaveAsset({ showToast }: { showToast: boolean }) {
+/**
+ * @param shouldConfirmSave - whether a successful save says so. An auto-save
+ * the user did not ask for stays quiet when it works, but never when it
+ * fails.
+ */
+async function handleSaveAsset({
+  shouldConfirmSave,
+}: {
+  shouldConfirmSave: boolean;
+}) {
   const isNewAsset = !props.assetId;
   try {
     await assetEditor.saveAsset();
@@ -433,7 +443,7 @@ async function handleSaveAsset({ showToast }: { showToast: boolean }) {
       return;
     }
 
-    if (showToast) {
+    if (shouldConfirmSave) {
       toastStore.addToast({
         title: "Saved",
         message: `Asset saved successfully.`,
@@ -445,13 +455,11 @@ async function handleSaveAsset({ showToast }: { showToast: boolean }) {
     invariant(error instanceof Error);
     console.error("Error saving asset:", error);
 
-    if (showToast) {
-      toastStore.addToast({
-        title: "Error",
-        message: `Failed to save asset: ${error.message}`,
-        variant: "error",
-      });
-    }
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to save asset: ${getErrorMessage(error)}`,
+      variant: "error",
+    });
   }
 }
 
@@ -535,7 +543,7 @@ async function updateTemplateId() {
   }
 
   // save and replace route
-  handleSaveAsset({ showToast: true });
+  handleSaveAsset({ shouldConfirmSave: true });
 }
 
 usePageAssetIdProvider(() => props.assetId ?? null);

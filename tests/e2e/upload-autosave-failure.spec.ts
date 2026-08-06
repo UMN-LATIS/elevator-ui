@@ -18,9 +18,6 @@ test.describe("an upload whose auto-save fails", () => {
   });
 
   test("tells the user the asset was not saved", async ({ page }) => {
-    // the auto-save an upload triggers can fail in silence
-    test.fail();
-
     test.setTimeout(30_000);
 
     // 404 rather than 500, because vue-query retries 500s and the backoff

@@ -64,12 +64,14 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref, defineAsyncComponent } from "vue";
+import { computed, ref, defineAsyncComponent } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
+import { useToastStore } from "@/stores/toastStore";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
@@ -102,7 +104,20 @@ const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
+const assetEditor = useAssetEditor();
+const toastStore = useToastStore();
+
+/**
+ * This widget's rows as the model holds them right now. Props lag by a
+ * render, so two uploads completing in the same flush would each read the
+ * pre-update array and the second would overwrite the first.
+ */
+function currentContents(): Type.WithId<Type.UploadWidgetContent>[] {
+  return (assetEditor.localAsset?.[props.widgetDef.fieldTitle] ??
+    []) as Type.WithId<Type.UploadWidgetContent>[];
+}
+
+function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
@@ -113,14 +128,10 @@ async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
     searchData: "", // Initialize searchData as an empty string
   };
 
-  emit("update:widgetContents", [
-    ...props.widgetContents,
+  assetEditor.updateWidgetContents(props.widgetDef.fieldTitle, [
+    ...currentContents(),
     uploadedItem,
-  ] as Type.WithId<Type.UploadWidgetContent>[]);
-
-  // Wait for Vue to flush the state update into localAsset before saving,
-  // so the new file is included in the save payload.
-  await nextTick();
+  ]);
   emit("save");
 }
 
@@ -133,7 +144,7 @@ async function handleDeleteContent(id: string) {
     return;
   }
 
-  const item = props.widgetContents.find((item) => item.id === id);
+  const item = currentContents().find((item) => item.id === id);
 
   if (!item) {
     throw new Error(
@@ -141,16 +152,35 @@ async function handleDeleteContent(id: string) {
     );
   }
 
-  // Call the API to delete the file object
-  await api.deleteFileObject(item.fileId);
-
-  emit(
-    "update:widgetContents",
-    ops.deleteWidgetContent(props.widgetContents, id)
+  // save the removal first: if the save fails, the asset must not be left
+  // referencing media that is already destroyed
+  assetEditor.updateWidgetContents(
+    props.widgetDef.fieldTitle,
+    ops.deleteWidgetContent(currentContents(), id)
   );
+  try {
+    await assetEditor.saveAsset();
+  } catch (cause) {
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    toastStore.addToast({
+      title: "Error",
+      message: `The file was not deleted because the asset could not be saved: ${reason}`,
+      variant: "error",
+    });
+    return;
+  }
 
-  await nextTick();
-  emit("save");
+  try {
+    await api.deleteFileObject(item.fileId);
+  } catch (cause) {
+    console.error("Error deleting file object:", cause);
+    toastStore.addToast({
+      title: "Error",
+      message:
+        "The file was removed from the asset but could not be deleted from storage.",
+      variant: "error",
+    });
+  }
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {

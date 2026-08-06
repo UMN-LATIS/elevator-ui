@@ -60,8 +60,9 @@ const uppyTheme = computed<"dark" | "light">(() =>
   DARK_THEMES.has(effectiveTheme.value ?? "") ? "dark" : "light"
 );
 
-// Local index: filename → uploadId.
-const filenameToUploadId = new Map<string, string>();
+// Local index keyed by uppy's per-file id: two files can share a name,
+// and keying by name would cross their part signatures.
+const uploadIdsByUppyFileId = new Map<string, string>();
 
 const note = computed(() => {
   if (props.maxNumberOfFiles) {
@@ -129,7 +130,7 @@ const uppy = new Uppy({
       uploadStatus: "in-progress",
     };
 
-    filenameToUploadId.set(file.name, uploadId);
+    uploadIdsByUppyFileId.set(file.id, uploadId);
     uploadStore.register(fileRecord);
 
     emit("start", fileRecord);
@@ -143,11 +144,7 @@ const uppy = new Uppy({
     url: string;
     headers?: Record<string, string>;
   }> {
-    if (!file.name) {
-      throw new Error("File name is required to sign a part.");
-    }
-
-    const uploadId = filenameToUploadId.get(file.name);
+    const uploadId = uploadIdsByUppyFileId.get(file.id);
 
     if (!uploadId) {
       throw new Error(
@@ -177,11 +174,7 @@ const uppy = new Uppy({
   async completeMultipartUpload(file): Promise<{
     location?: string; // S3 URL of the uploaded file
   }> {
-    if (!file.name) {
-      throw new Error("File name is required to complete a multipart upload.");
-    }
-
-    const uploadId = filenameToUploadId.get(file.name);
+    const uploadId = uploadIdsByUppyFileId.get(file.id);
 
     if (!uploadId) {
       throw new Error(
@@ -218,7 +211,7 @@ const uppy = new Uppy({
       // emit the complete event with the updated file record
       emit("complete", completedRecord);
     } finally {
-      filenameToUploadId.delete(file.name);
+      uploadIdsByUppyFileId.delete(file.id);
       uploadStore.remove(uploadId);
     }
 
@@ -226,11 +219,7 @@ const uppy = new Uppy({
   },
 
   async abortMultipartUpload(file): Promise<void> {
-    if (!file.name) {
-      throw new Error("File name is required to abort a multipart upload.");
-    }
-
-    const uploadId = filenameToUploadId.get(file.name);
+    const uploadId = uploadIdsByUppyFileId.get(file.id);
 
     if (!uploadId) {
       throw new Error(
@@ -253,7 +242,7 @@ const uppy = new Uppy({
       contentType: record.contentType,
     });
 
-    filenameToUploadId.delete(file.name);
+    uploadIdsByUppyFileId.delete(file.id);
     uploadStore.remove(uploadId);
   },
 });
@@ -270,10 +259,12 @@ uppy.on("error", (error) => {
 });
 
 // If the component is destroyed while uploads are in flight (e.g. user confirmed
-// leaving in the navigation dialog), remove any orphaned records from the store.
+// leaving in the navigation dialog), remove any orphaned records from the store
+// and tear uppy down so its handlers cannot fire into a dead component.
 onBeforeUnmount(() => {
-  filenameToUploadId.forEach((uploadId) => uploadStore.remove(uploadId));
-  filenameToUploadId.clear();
+  uploadIdsByUppyFileId.forEach((uploadId) => uploadStore.remove(uploadId));
+  uploadIdsByUppyFileId.clear();
+  uppy.destroy();
 });
 </script>
 

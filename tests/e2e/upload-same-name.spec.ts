@@ -24,10 +24,6 @@ test.describe("two uploads sharing a filename", () => {
   test("both files keep their own identity in the saved asset", async ({
     page,
   }) => {
-    // in-flight uploads are keyed by filename, so two of one name corrupt each
-    // other
-    test.fail();
-
     test.setTimeout(30_000);
 
     // the fileIds each save carries, one array per submission
