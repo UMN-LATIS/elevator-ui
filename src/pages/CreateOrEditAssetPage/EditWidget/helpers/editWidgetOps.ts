@@ -1,5 +1,24 @@
 import * as Type from "@/types";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
+import { parseDateString } from "@/helpers/parseDateString";
+
+/**
+ * Both endpoints re-parsed from their own text.
+ *
+ * Editing one endpoint alone would leave the other's numeric as whatever an
+ * older parse produced, and parseDateString has not always resolved text to
+ * the same epoch basis. Two bases in one row compare as start after end for
+ * a single civil day, so every edit re-parses the pair together.
+ */
+export function dateRowWithNumericsFromText<
+  T extends Type.DateWidgetContent
+>(row: T): T {
+  return {
+    ...row,
+    start: { ...row.start, numeric: parseDateString(row.start.text ?? "") },
+    end: { ...row.end, numeric: parseDateString(row.end.text ?? "") },
+  };
+}
 
 export function makeSetPrimaryContentPayload<
   T extends Type.WithId<Type.WidgetContent>

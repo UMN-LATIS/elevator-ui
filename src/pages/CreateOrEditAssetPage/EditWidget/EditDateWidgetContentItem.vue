@@ -67,10 +67,8 @@
 import * as Type from "@/types";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import {
-  parseDateString,
-  unixTimestampToFormattedDate,
-} from "@/helpers/parseDateString";
+import { unixTimestampToFormattedDate } from "@/helpers/parseDateString";
+import { dateRowWithNumericsFromText } from "./helpers/editWidgetOps";
 import { computed, ref } from "vue";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
@@ -162,16 +160,13 @@ const parsedStartDate = computed(() => {
 });
 
 const handleUpdateStartDate = (startDateText: string) => {
-  const startDateNumeric = parseDateString(startDateText);
-
-  emit("update:modelValue", {
-    ...props.modelValue,
-    start: {
-      ...props.modelValue.start,
-      text: startDateText,
-      numeric: startDateNumeric,
-    },
-  });
+  emit(
+    "update:modelValue",
+    dateRowWithNumericsFromText({
+      ...props.modelValue,
+      start: { ...props.modelValue.start, text: startDateText },
+    })
+  );
 };
 
 const parsedEndDate = computed(() => {
@@ -183,16 +178,13 @@ const parsedEndDate = computed(() => {
 });
 
 const handleUpdateEndDate = (endDateText: string) => {
-  const endDateNumeric: string | null = parseDateString(endDateText);
-
-  emit("update:modelValue", {
-    ...props.modelValue,
-    end: {
-      ...props.modelValue.end,
-      text: endDateText,
-      numeric: endDateNumeric,
-    },
-  });
+  emit(
+    "update:modelValue",
+    dateRowWithNumericsFromText({
+      ...props.modelValue,
+      end: { ...props.modelValue.end, text: endDateText },
+    })
+  );
 };
 </script>
 <style scoped></style>
