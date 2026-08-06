@@ -9,7 +9,7 @@
         (value) =>
           $emit('update:sidecars', {
             ...sidecars,
-            ppm: Number.parseInt(String(value)) ?? null,
+            ppm: parsePpm(value),
           })
       " />
     <InputGroup
@@ -46,6 +46,12 @@ import * as Type from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { ref, watch } from "vue";
 import UploadableTextArea from "./UploadableTextArea.vue";
+
+/** A cleared or unparsable input stores null, and decimals survive. */
+function parsePpm(value: string | number): number | null {
+  const ppm = Number.parseFloat(String(value));
+  return Number.isFinite(ppm) ? ppm : null;
+}
 
 const props = defineProps<{
   sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
