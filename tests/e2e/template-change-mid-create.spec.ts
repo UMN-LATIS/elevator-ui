@@ -59,9 +59,6 @@ test.describe("changing the template while a create is in flight", () => {
   });
 
   test("creates one asset, not two", async ({ page, request }) => {
-    // the template change migrates mid-create and builds a second asset
-    test.fail();
-
     test.setTimeout(45_000);
     const workerId = test.info().workerIndex.toString();
     const initialAssetCount = await getAssetCount({ request, workerId });

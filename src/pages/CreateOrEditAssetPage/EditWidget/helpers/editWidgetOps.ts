@@ -38,5 +38,20 @@ export function deleteWidgetContent<T extends Type.WithId<Type.WidgetContent>>(
   widgetContents: readonly T[],
   id: string
 ): T[] {
-  return widgetContents.filter((item) => item.id !== id) as T[];
+  const removedItem = widgetContents.find((item) => item.id === id);
+  const remainingContents = widgetContents.filter(
+    (item) => item.id !== id
+  ) as T[];
+
+  // deleting the primary row promotes the first remaining one, so previews
+  // and titles built on isPrimary never point at nothing
+  const needsNewPrimary =
+    removedItem?.isPrimary &&
+    remainingContents.length > 0 &&
+    !remainingContents.some((item) => item.isPrimary);
+  if (!needsNewPrimary) return remainingContents;
+
+  return remainingContents.map((item, index) =>
+    index === 0 ? { ...item, isPrimary: true } : item
+  );
 }

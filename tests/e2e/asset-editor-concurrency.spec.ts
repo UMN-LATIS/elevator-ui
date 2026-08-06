@@ -277,9 +277,6 @@ test.describe("Asset editor concurrency", () => {
   test("the second template picked wins even when the first request resolves last", async ({
     page,
   }) => {
-    // the asset builds from whichever template fetch resolves last
-    test.fail();
-
     const { saves } = await interceptSaves(page);
 
     const { promise: heldFirstTemplate, resolve: releaseFirstTemplate } =
@@ -419,9 +416,6 @@ test.describe("Asset editor concurrency", () => {
   test("an asset load still in flight does not take over the Add Asset page", async ({
     page,
   }) => {
-    // the load resolves onto the new draft and takes the page over
-    test.fail();
-
     const { promise: heldLoad, resolve: releaseHeldLoad } =
       Promise.withResolvers<void>();
     let hasHeldLoad = false;
@@ -511,9 +505,6 @@ test.describe("Asset editor concurrency", () => {
   test("a failed template load stops the Continue spinner so the user can retry", async ({
     page,
   }) => {
-    // a failed template load leaves the Continue button spinning forever
-    test.fail();
-
     // 404 rather than 500: 404 is non-retryable, so the failure is immediate
     // and a spinner still visible afterwards is stuck for good
     await page.route("**/assetManager/getTemplate/**", (route) =>

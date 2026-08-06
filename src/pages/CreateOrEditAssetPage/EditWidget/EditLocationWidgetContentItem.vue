@@ -41,7 +41,9 @@
           label="Longitude"
           placeholder="Enter longitude"
           :aria-invalid="lngError ? 'true' : undefined"
-          :aria-describedby="lngError ? `${id}-longitude-error` : undefined" />
+          :aria-describedby="lngError ? `${id}-longitude-error` : undefined"
+          @focus="isCoordinateInputFocused.lng = true"
+          @blur="handleCoordinateInputBlur('lng')" />
         <p
           v-if="lngError"
           :id="`${id}-longitude-error`"
@@ -56,7 +58,9 @@
           label="Latitude"
           placeholder="Enter latitude"
           :aria-invalid="latError ? 'true' : undefined"
-          :aria-describedby="latError ? `${id}-latitude-error` : undefined" />
+          :aria-describedby="latError ? `${id}-latitude-error` : undefined"
+          @focus="isCoordinateInputFocused.lat = true"
+          @blur="handleCoordinateInputBlur('lat')" />
         <p
           v-if="latError"
           :id="`${id}-latitude-error`"
@@ -188,6 +192,7 @@ const marker = shallowRef<maplibregl.Marker | null>(null);
 function emitCoordinateUpdate(lngLat: LngLat | null) {
   const loc = lngLat
     ? {
+        type: "Point",
         ...props.modelValue.loc,
         coordinates: [
           roundFloat(lngLat.lng, 6),
@@ -202,8 +207,25 @@ function emitCoordinateUpdate(lngLat: LngLat | null) {
   });
 }
 
+// Half-typed coordinate text lives here, not in the model: only values the
+// asset can actually store are committed, and the model's echo must not
+// rewrite a field mid-keystroke (typing "-92." would come back as "-92").
+const isCoordinateInputFocused = reactive({ lng: false, lat: false });
+
+function handleCoordinateInputBlur(input: "lng" | "lat") {
+  // only release the field for future model echoes: rewriting it here
+  // would undo half of a clear-both-fields flow
+  isCoordinateInputFocused[input] = false;
+}
+
 // update modelValue when input fields change
 watch([() => state.lngInput, () => state.latInput], () => {
+  // clearing both inputs removes the location from the asset
+  if (state.lngInput.trim() === "" && state.latInput.trim() === "") {
+    if (props.modelValue.loc) emitCoordinateUpdate(null);
+    return;
+  }
+
   const lng = parseFloat(state.lngInput);
   const lat = parseFloat(state.latInput);
 
@@ -213,18 +235,16 @@ watch([() => state.lngInput, () => state.latInput], () => {
     return;
   }
 
-  // Update the modelValue with the new coordinates (even if they are
-  // out of range. If we don't do this, we may save -9 when the user types
-  // -92.
+  // out-of-range values stay in the inputs with their error: the model
+  // only takes coordinates a save may store
+  if (lngError.value || latError.value) {
+    return;
+  }
+
   emitCoordinateUpdate({
     lng,
     lat,
   });
-
-  // out-of-range input shows an error instead of moving the map
-  if (lngError.value || latError.value) {
-    return;
-  }
 
   // fly to the new coordinates
   invariant(map.value, "Map is not initialized");
@@ -241,9 +261,13 @@ watch(
 
     const coordinates = props.modelValue.loc?.coordinates ?? null;
 
-    // sync local inputs, even out-of-range values, so the user can fix them
-    state.lngInput = coordinates?.[0]?.toString() ?? "";
-    state.latInput = coordinates?.[1]?.toString() ?? "";
+    // sync local inputs, but never a field the user is typing into
+    if (!isCoordinateInputFocused.lng) {
+      state.lngInput = coordinates?.[0]?.toString() ?? "";
+    }
+    if (!isCoordinateInputFocused.lat) {
+      state.latInput = coordinates?.[1]?.toString() ?? "";
+    }
 
     // absent, malformed, or out-of-range coordinates get no marker
     const center = toLngLat(coordinates);

@@ -125,9 +125,6 @@ test.describe("Upload navigation guard", () => {
   });
 
   test("no modal after upload has completed", async ({ page }) => {
-    // the upload's auto-save never settles, so No unsaved changes never returns
-    test.fail();
-
     test.setTimeout(30_000);
 
     // Save the asset first so we're on the edit page (no create-and-redirect).

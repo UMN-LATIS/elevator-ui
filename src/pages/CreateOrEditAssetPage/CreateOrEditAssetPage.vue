@@ -1,17 +1,17 @@
 <template>
   <DefaultLayout>
     <form
-      v-if="!assetId && !assetEditor.isInitialized"
+      v-if="!assetId && !assetEditor.isEditingAsset"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 rounded-md p-4 border border-outline-variant"
       @submit.prevent="handleInitNewAsset">
       <SelectGroup
         v-model="state.selectedTemplateId"
-        :options="assetEditor.templateOptions"
+        :options="templateOptions"
         label="Template"
         required />
       <SelectGroup
         v-model="state.selectedCollectionId"
-        :options="assetEditor.collectionOptions"
+        :options="collectionOptions"
         label="Collection"
         required />
 
@@ -22,7 +22,7 @@
         :disabled="!state.selectedCollectionId || !state.selectedTemplateId">
         Continue
         <SpinnerIcon
-          v-if="assetEditor.isTemplateLoading"
+          v-if="assetEditor.status === 'loadingTemplate'"
           class="w-4 h-4 ml-2 animate-spin" />
       </Button>
     </form>
@@ -32,7 +32,16 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <div
-      v-else-if="!assetEditor.isInitialized"
+      v-else-if="assetEditor.loadError"
+      class="flex flex-col items-center gap-2 py-12 text-error">
+      <TriangleAlert class="w-8 h-8" />
+      <p>This asset could not be loaded.</p>
+      <p class="text-sm text-on-surface-variant">
+        {{ assetEditor.loadError.message }}
+      </p>
+    </div>
+    <div
+      v-else-if="!assetEditor.isEditingAsset"
       class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
       <span class="ml-2">Loading...</span>
@@ -42,16 +51,20 @@
         :selectedTemplateId="state.selectedTemplateId"
         :template="assetEditor.template!"
         :asset="assetEditor.localAsset!"
-        :savedAssetTitle="assetEditor.savedAssetTitle"
-        :localAssetTitle="assetEditor.localAssetTitle"
+        :savedAssetTitle="savedAssetTitle"
+        :localAssetTitle="localAssetTitle"
         :saveStatus="assetEditor.saveAssetIndicator"
-        :hasUnsavedChanges="assetEditor.hasAssetChanged"
+        :hasUnsavedChanges="assetEditor.hasUnsavedChanges"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
         @save="handleSaveAsset({ showToast: true })"
         @autoSave="handleSaveAsset({ showToast: false })"
-        @update:asset="assetEditor.updateLocalAsset($event)" />
+        @update:widgetContents="
+          assetEditor.updateWidgetContents($event.fieldTitle, $event.contents)
+        "
+        @update:readyForDisplay="assetEditor.updateReadyForDisplay($event)"
+        @update:availableAfter="assetEditor.updateAvailableAfter($event)" />
     </Transition>
     <Teleport to="body">
       <ConfirmModal
@@ -120,16 +133,7 @@
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onMounted,
-  provide,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from "vue";
+import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
@@ -144,18 +148,23 @@ import {
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { createAssetEditor } from "./useAssetEditor/useAssetEditor";
+import { TriangleAlert } from "lucide-vue-next";
+import { provideAssetEditor } from "./useAssetEditor/provideAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
 import { ApiError } from "@/api/ApiError";
 import type { DeletedAssetInfo } from "@/types";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
-import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
+import { useInstanceStore } from "@/stores/instanceStore";
 import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
+import {
+  toCollectionOptions,
+  toTemplateOptions,
+} from "./instanceSelectOptions";
+import { getAssetDisplayTitle } from "./useAssetEditor/localAsset";
 
 const props = withDefaults(
   defineProps<{
@@ -168,18 +177,32 @@ const props = withDefaults(
   }
 );
 
-// Use the asset editor composable
-const assetEditor = createAssetEditor();
-
-useAssetValidationProvider(
-  () => assetEditor.localAsset,
-  () => assetEditor.template,
-  assetEditor.getWidgetInstanceId
-);
+// each page gets its own editor, so two tabs editing different assets never
+// touch each other's state. Descendants reach it, and the validation derived
+// from it, through the provides this sets up.
+const assetEditor = provideAssetEditor({
+  onAssetCreated: handleAssetCreated,
+});
 
 const toastStore = useToastStore();
 const uploadStore = useUploadStore();
+const instanceStore = useInstanceStore();
 const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
+
+const templateOptions = computed(() =>
+  toTemplateOptions(instanceStore.instance.templates ?? [])
+);
+const collectionOptions = computed(() =>
+  toCollectionOptions(instanceStore.flatCollections ?? [])
+);
+
+const localAssetTitle = computed(() =>
+  assetEditor.localAsset ? getAssetDisplayTitle(assetEditor.localAsset) : ""
+);
+const savedAssetTitle = computed(
+  () =>
+    assetEditor.savedAsset?.title?.[0] ?? assetEditor.savedAsset?.assetId ?? ""
+);
 
 function handleRestored() {
   deletedAssetInfo.value = null;
@@ -187,8 +210,6 @@ function handleRestored() {
     assetEditor.initExistingAsset(props.assetId, { force: true });
   }
 }
-
-// --- Upload navigation guard ---
 
 const isLeaveConfirmOpen = ref(false);
 // Holds the resolve function for the pending onBeforeRouteLeave promise.
@@ -278,13 +299,15 @@ watch(
 );
 
 function isTemplateOption(templateId: number) {
-  return assetEditor.templateOptions.some((option) => option.id === templateId);
+  return templateOptions.value.some((option) => option.id === templateId);
 }
 
+const route = useRoute();
+const router = useRouter();
+
 onMounted(() => {
-  const params = new URLSearchParams(window.location.search);
-  const defaultTemplateId = Number(params.get("defaultTemplateId"));
-  const collectionId = Number(params.get("collectionId"));
+  const defaultTemplateId = Number(route.query.defaultTemplateId);
+  const collectionId = Number(route.query.collectionId);
 
   if (defaultTemplateId && isTemplateOption(defaultTemplateId)) {
     state.selectedTemplateId = defaultTemplateId;
@@ -292,18 +315,18 @@ onMounted(() => {
 
   if (
     collectionId &&
-    assetEditor.collectionOptions.some((c) => c.id === collectionId)
+    collectionOptions.value.some((c) => c.id === collectionId)
   ) {
     state.selectedCollectionId = collectionId;
   }
 
   // if only 1 template or collection, set it as the default
-  if (!state.selectedTemplateId && assetEditor.templateOptions.length === 1) {
-    state.selectedTemplateId = assetEditor.templateOptions[0].id;
+  if (!state.selectedTemplateId && templateOptions.value.length === 1) {
+    state.selectedTemplateId = templateOptions.value[0].id;
   }
 
-  if (assetEditor.collectionOptions.length === 1) {
-    state.selectedCollectionId = assetEditor.collectionOptions[0].id;
+  if (!state.selectedCollectionId && collectionOptions.value.length === 1) {
+    state.selectedCollectionId = collectionOptions.value[0].id;
   }
 });
 
@@ -318,51 +341,53 @@ function handleInitNewAsset() {
   });
 }
 
-const route = useRoute();
-const router = useRouter();
 const channelName = computed(() => route.query.channelName as string);
+
+/** Runs when the reducer confirms the server created the draft. */
+function handleAssetCreated(assetId: string) {
+  // if we're creating a related asset, notify the parent
+  if (channelName.value) {
+    const channel = new BroadcastChannel(channelName.value);
+    const message: RelatedAssetSaveMessage = {
+      type: SAVE_RELATED_ASSET_TYPE,
+      payload: {
+        relatedAssetId: assetId,
+      },
+    };
+    channel.postMessage(message);
+    channel.close();
+  }
+
+  // redirect to the edit asset page (so that we don't keep recreating
+  // new assets on each save!)
+  router.replace({
+    name: "editAsset",
+    params: {
+      assetId,
+    },
+    state: {
+      preserveScroll: true,
+    },
+  });
+}
 
 async function handleSaveAsset({ showToast }: { showToast: boolean }) {
   const isNewAsset = !props.assetId;
   try {
     await assetEditor.saveAsset();
 
-    invariant(
-      assetEditor.localAsset?.assetId,
-      "Local asset id must be defined after saving"
-    );
-    const savedAssetId = assetEditor.localAsset.assetId;
-
     // if this is an existing asset, we're done
     if (!isNewAsset) {
       return;
     }
 
-    // if we're creating a related asset, notify the parent
-    if (channelName.value) {
-      const channel = new BroadcastChannel(channelName.value);
-      const message: RelatedAssetSaveMessage = {
-        type: SAVE_RELATED_ASSET_TYPE,
-        payload: {
-          relatedAssetId: savedAssetId,
-        },
-      };
-      channel.postMessage(message);
-      channel.close();
+    const savedAssetId = assetEditor.localAsset?.assetId ?? null;
+    if (!savedAssetId) {
+      // the editor took in a different asset while this save was in flight,
+      // so the reducer dropped its result. The save itself succeeded, but
+      // the toast belongs to a page the user has already left.
+      return;
     }
-
-    // redirect to the edit asset page (so that we don't keep recreating
-    // new assets on each save!)
-    await nextTick();
-    router.replace({
-      name: "editAsset",
-      params: {
-        assetId: savedAssetId,
-      },
-      state: {
-        preserveScroll: true,
-      },
-    });
 
     if (showToast) {
       toastStore.addToast({
@@ -449,21 +474,25 @@ async function updateTemplateId() {
     state.destTemplateId,
     "Destination template ID must be set to confirm template change"
   );
-  await assetEditor.migrateToTemplate(state.destTemplateId);
+  try {
+    await assetEditor.migrateToTemplate(state.destTemplateId);
+  } catch (error) {
+    invariant(error instanceof Error);
+    console.error("Error changing template:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to change template: ${error.message}`,
+      variant: "error",
+    });
+    // the editor kept the old template, so the asset is unchanged and there
+    // is nothing to save
+    state.selectedTemplateId = assetEditor.localAsset?.templateId ?? null;
+    return;
+  }
 
   // save and replace route
   handleSaveAsset({ showToast: true });
 }
-
-// provide the asset editor to child components
-// each asset editor instance gets its own instance
-// so that we can have multiple tabs editing different assets
-// without interference. Still, sometimes the child component
-// needs to access the parent asset editor instance to do
-// things like register an `onBeforeSave` callback
-// (e.g. with inline asset editing, we want to save the
-// inline asset before the parent saves)
-provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
 usePageAssetIdProvider(() => props.assetId ?? null);
 

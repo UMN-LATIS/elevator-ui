@@ -17,7 +17,7 @@
     <template #fieldContents="{ item }">
       <TagsInput
         :modelValue="(item.tags as string[])"
-        :addOnBlur="true"
+        :addOnBlur="false"
         :addOnPaste="true"
         class="tags-input !py-0"
         @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
@@ -34,16 +34,29 @@
         <FieldAutoComplete
           v-if="widgetDef.attemptAutocomplete"
           :id="`edit-tag-widget-autocomplete-${item.id}`"
-          v-model="tagInput"
+          :modelValue="pendingTextOf(item)"
           :placeholder="`${widgetDef.label}...`"
           :fieldTitle="widgetDef.fieldTitle"
           :templateId="templateId"
           inputClass="!py-0 flex-1 min-w-24"
           :blurOnSelect="false"
-          @blur="handleTagUpdate(item.id, tagInput)"
-          @select="(selection) => handleTagUpdate(item.id, selection)"
+          @update:modelValue="(text) => handlePendingTextInput(item.id, text)"
+          @blur="commitPendingTag(item.id)"
+          @select="(selection) => commitTag(item.id, selection)"
           @keydown="(event) => handleKeydown(item.id, event)" />
-        <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
+        <input
+          v-else
+          :value="pendingTextOf(item)"
+          :placeholder="`${widgetDef.label}...`"
+          class="flex-1 min-w-24 bg-transparent text-sm focus:outline-none"
+          @input="
+            handlePendingTextInput(
+              item.id,
+              ($event.target as HTMLInputElement).value
+            )
+          "
+          @blur="commitPendingTag(item.id)"
+          @keydown="(event) => handleKeydown(item.id, event)" />
       </TagsInput>
     </template>
   </EditWidgetLayout>
@@ -58,10 +71,9 @@ import {
   TagsInputItem,
   TagsInputItemText,
   TagsInputItemDelete,
-  TagsInputInput,
 } from "@/components/ui/tags-input";
 import FieldAutoComplete from "@/components/AutoCompleteInput/FieldAutoComplete.vue";
-import { computed, ref, nextTick } from "vue";
+import { computed } from "vue";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
@@ -71,13 +83,11 @@ const props = defineProps<{
   isOpen: boolean;
 }>();
 
-const tagInput = ref("");
-
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 
 const templateId = computed(() => {
-  invariant(parentAssetEditor, "Parent asset editor is required");
-  return parentAssetEditor.templateId;
+  invariant(assetEditor, "Parent asset editor is required");
+  return assetEditor.templateId;
 });
 
 const emit = defineEmits<{
@@ -87,6 +97,18 @@ const emit = defineEmits<{
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+// Tag text being typed lives on its own row in the model, not in this
+// component, so every row has its own input, dirtiness sees the text, and
+// a save folds it into the tags no matter where focus was.
+const pendingTextOf = (item: Type.TagListWidgetContent): string =>
+  item.pendingText ?? "";
+
+const rowOf = (itemId: string): Type.WithId<Type.TagListWidgetContent> => {
+  const row = props.widgetContents.find((content) => content.id === itemId);
+  invariant(row, `no tag row with id ${itemId}`);
+  return row;
+};
 
 const handleAdd = () =>
   emit(
@@ -116,67 +138,68 @@ const handleUpdateTags = (
   );
 };
 
-function handleTagUpdate(itemId: string, value: string) {
-  tagInput.value = value;
-
-  const trimmedValue = value.trim();
-
-  // If the input is empty, no change is needed
-  if (!trimmedValue.length) return;
-
-  const existingTags =
-    props.widgetContents.find((content) => content.id === itemId)?.tags || [];
-
-  // If the tag already exists, no change is needed
-  if (existingTags.includes(trimmedValue)) {
-    tagInput.value = ""; // Clear input if tag already exists
-    return;
-  }
-
+const handlePendingTextInput = (itemId: string, text: string) => {
   emit(
     "update:widgetContents",
     ops.makeUpdateContentPayload(
       props.widgetContents,
       itemId,
-      [...existingTags, trimmedValue],
-      "tags"
+      text,
+      "pendingText"
     )
   );
+};
 
-  // Clear the tag input after updating
-  nextTick(() => {
-    tagInput.value = "";
-  });
+/** Commit whatever tag text the row's input holds. */
+function commitPendingTag(itemId: string) {
+  commitTag(itemId, pendingTextOf(rowOf(itemId)));
+}
+
+/** Turn `value` into a committed tag on the row and clear its input. */
+function commitTag(itemId: string, value: string) {
+  const row = rowOf(itemId);
+  const tag = value.trim();
+  const tags = row.tags ?? [];
+
+  const shouldAddTag = tag !== "" && !tags.includes(tag);
+  const nextTags = shouldAddTag ? [...tags, tag] : tags;
+  const nextContents = props.widgetContents.map((content) =>
+    content.id === itemId
+      ? { ...content, tags: nextTags, pendingText: "" }
+      : content
+  );
+  emit("update:widgetContents", nextContents);
 }
 
 function removeLastTag(itemId: string) {
-  const item = props.widgetContents.find((content) => content.id === itemId);
-  const tags = item?.tags || [];
-
-  const updatedTags = tags.slice(0, -1); // Remove the last tag
+  const tags = rowOf(itemId).tags ?? [];
   emit(
     "update:widgetContents",
     ops.makeUpdateContentPayload(
       props.widgetContents,
       itemId,
-      updatedTags,
+      tags.slice(0, -1),
       "tags"
     )
   );
 }
 
-async function handleKeydown(itemId: string, event: KeyboardEvent) {
-  const ADD_TAG_KEYS = [",", "Tab", "Enter"];
-
-  if (ADD_TAG_KEYS.includes(event.key)) {
+function handleKeydown(itemId: string, event: KeyboardEvent) {
+  if (event.key === "," || event.key === "Enter") {
     event.preventDefault();
-    await nextTick(); // make sure that tagInput is updated
-    handleTagUpdate(itemId, tagInput.value);
+    commitPendingTag(itemId);
+    return;
+  }
+
+  // Tab commits a pending tag, and moves focus on as usual otherwise
+  if (event.key === "Tab" && pendingTextOf(rowOf(itemId)).trim()) {
+    event.preventDefault();
+    commitPendingTag(itemId);
     return;
   }
 
   // delete the previous tag on backspace if the input is empty
-  if (event.key === "Backspace" && tagInput.value === "") {
+  if (event.key === "Backspace" && pendingTextOf(rowOf(itemId)) === "") {
     event.preventDefault();
     removeLastTag(itemId);
   }

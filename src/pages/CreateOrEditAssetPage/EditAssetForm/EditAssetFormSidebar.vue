@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-16 p-4">
+  <div class="flex flex-col gap-2 sticky top-16 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
@@ -15,7 +15,7 @@
       <Button
         variant="primary"
         type="submit"
-        :disabled="!isAssetValid || displayStatus === 'pending'"
+        :disabled="isSaveBlocked"
         @click="handleSave">
         Save
         <SpinnerIcon
@@ -29,10 +29,8 @@
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
         <p class="text-on-surface-variant">
-          <span
-            v-if="parentAssetEditor.lastModified"
-            class="text-on-surface-variant">
-            {{ parentAssetEditor.lastModified }}
+          <span v-if="lastModified" class="text-on-surface-variant">
+            {{ lastModified }}
           </span>
         </p>
         <div
@@ -78,10 +76,7 @@
         label="Status"
         required
         @update:modelValue="
-          $emit('update:asset', {
-            ...asset,
-            readyForDisplay: $event === 'ready',
-          })
+          $emit('update:readyForDisplay', $event === 'ready')
         " />
       <InputGroup
         v-model="localAvailableAfterDate"
@@ -92,14 +87,14 @@
         @update:modelValue="handleUpdateAvailableAfter" />
       <SelectGroup
         :modelValue="displayTemplateId"
-        :options="parentAssetEditor.templateOptions"
+        :options="templateOptions"
         label="Template"
         selectClass="bg-surface-container"
         required
         @update:modelValue="handleUpdateTemplateId($event)" />
       <SelectGroup
         v-model="state.localCollectionId"
-        :options="parentAssetEditor.collectionOptions"
+        :options="collectionOptions"
         selectClass="bg-surface-container"
         label="Collection"
         required
@@ -124,8 +119,12 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
 import { phpDateToString } from "@/helpers/phpDateToString";
 import invariant from "tiny-invariant";
-import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import { useInstanceStore } from "@/stores/instanceStore";
+import {
+  toCollectionOptions,
+  toTemplateOptions,
+} from "../instanceSelectOptions";
 import Tuple from "@/components/Tuple/Tuple.vue";
 
 const props = defineProps<{
@@ -140,7 +139,8 @@ const emit = defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
-  (e: "update:asset", asset: Asset | UnsavedAsset): void;
+  (e: "update:readyForDisplay", readyForDisplay: boolean): void;
+  (e: "update:availableAfter", availableAfter: PHPDateTime | null): void;
   (e: "migrateCollection", collectionId: number): void;
 }>();
 
@@ -186,28 +186,42 @@ watch(
 );
 
 const localAvailableAfterDate = ref("");
-const parentAssetEditor = useAssetEditor();
+const instanceStore = useInstanceStore();
+
+const templateOptions = computed(() =>
+  toTemplateOptions(instanceStore.instance.templates ?? [])
+);
+const collectionOptions = computed(() =>
+  toCollectionOptions(instanceStore.flatCollections ?? [])
+);
+
+const lastModified = computed(() => {
+  const modifiedDate = props.asset.modified?.date;
+  return modifiedDate ? new Date(modifiedDate).toLocaleString() : null;
+});
 
 // Use validation system for form validation
 const { isAssetValid, missingRequiredFields, invalidFields } =
   useAssetValidation();
 
+// a work-in-progress draft can always be saved: validity only gates
+// saving an asset marked Ready
+const isSaveBlocked = computed(
+  () =>
+    displayStatus.value === "pending" ||
+    (!!props.asset.readyForDisplay && !isAssetValid.value)
+);
+
 function handleUpdateAvailableAfter(value: string | number) {
   if (!value) {
-    emit("update:asset", {
-      ...props.asset,
-      availableAfter: null,
-    });
+    emit("update:availableAfter", null);
     return;
   }
 
-  emit("update:asset", {
-    ...props.asset,
-    availableAfter: {
-      date: value.toString(),
-      timezone_type: 3,
-      timezone: "UTC",
-    },
+  emit("update:availableAfter", {
+    date: value.toString(),
+    timezone_type: 3,
+    timezone: "UTC",
   });
 }
 

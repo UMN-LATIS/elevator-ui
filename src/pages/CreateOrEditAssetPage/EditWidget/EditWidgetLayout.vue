@@ -75,10 +75,10 @@
               An error occurred while rendering this widget. It's possible that
               the
               <Link
-                :href="`${config.instance.base.url}/templates/edit/${parentAssetEditor.template?.templateId}`"
+                :href="`${config.instance.base.url}/templates/edit/${assetEditor.template?.templateId}`"
                 target="_blank"
                 class="inline-flex items-center gap-1">
-                {{ parentAssetEditor.template?.templateName }}
+                {{ assetEditor.template?.templateName }}
                 template
                 <ExternalLinkIcon class="inline-block !size-4" />
               </Link>
@@ -237,21 +237,21 @@ const emit = defineEmits<{
 
 const editLayoutContentsRef = useTemplateRef<HTMLElement>("editLayoutContents");
 
-const { focused: isFocusedWithin } = useFocusWithin(
-  editLayoutContentsRef.value
-);
+// the ref itself, not its (null at setup) current value, so tabbing into
+// a collapsed widget can expand it
+const { focused: isFocusedWithin } = useFocusWithin(editLayoutContentsRef);
 
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 const instanceStore = useInstanceStore();
 
 const assetValidation = useAssetValidation();
 
 const widgetInstanceId = computed(() => {
   invariant(
-    parentAssetEditor,
+    assetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
-  return parentAssetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
 });
 
 const validation = computed(() => {

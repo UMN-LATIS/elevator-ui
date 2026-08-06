@@ -13,10 +13,6 @@ test.describe("Location Widget", () => {
   test("invalid lng/lat in edit form shows an error and asset remains saveable", async ({
     page,
   }) => {
-    // the inputs are rewritten from the model, so out-of-range typing reaches
-    // it
-    test.fail();
-
     const assetId = "6875871d4eb080a4880a0abc";
     const pageErrors: Error[] = [];
     page.on("pageerror", (err) => pageErrors.push(err));
@@ -78,9 +74,6 @@ test.describe("Location Widget", () => {
   test("clearing both coordinates removes the location from the asset", async ({
     page,
   }) => {
-    // a saved location cannot be cleared
-    test.fail();
-
     const assetId = "6875871d4eb080a4880a0abc";
     await page.goto(`/assetManager/editAsset/${assetId}`);
 

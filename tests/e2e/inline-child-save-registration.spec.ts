@@ -92,9 +92,6 @@ test.describe("inline child editors and the parent save", () => {
   test("saving a new draft does not write to the previous asset's inline child", async ({
     page,
   }) => {
-    // the unmounted child editor keeps saving into the previous asset's child
-    test.fail();
-
     // two creates plus the save queue's cooldown run past the default timeout
     test.setTimeout(30_000);
 
@@ -130,10 +127,6 @@ test.describe("inline child editors and the parent save", () => {
   test("clearing an existing inline child's content still saves that child", async ({
     page,
   }) => {
-    // blanking a child's content skips that child's save, so the cleared
-    // content survives
-    test.fail();
-
     test.setTimeout(30_000);
 
     const saves = await recordSaves(page);
@@ -176,9 +169,6 @@ test.describe("inline child editors and the parent save", () => {
     page,
     request,
   }) => {
-    // the abandoned child draft is created later as an orphan
-    test.fail();
-
     test.setTimeout(30_000);
 
     const workerId = test.info().workerIndex.toString();

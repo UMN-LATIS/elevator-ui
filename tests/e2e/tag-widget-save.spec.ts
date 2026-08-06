@@ -26,9 +26,6 @@ test.describe("tag input and the save", () => {
   });
 
   test("a typed but uncommitted tag survives the save", async ({ page }) => {
-    // tag text lives in shared per-widget state, so it vanishes on save
-    test.fail();
-
     test.setTimeout(30_000);
     const countAssetRefetches = startCountingAssetRefetches(page);
 

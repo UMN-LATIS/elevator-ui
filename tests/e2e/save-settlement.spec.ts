@@ -21,10 +21,6 @@ test.describe("a save settles the editor", () => {
   test("edits come back clean after one save reshaped by the server", async ({
     page,
   }) => {
-    // the client keeps its unsent shape, so the sidebar says unsaved changes
-    // forever
-    test.fail();
-
     test.setTimeout(30_000);
     const countAssetRefetches = startCountingAssetRefetches(page);
 

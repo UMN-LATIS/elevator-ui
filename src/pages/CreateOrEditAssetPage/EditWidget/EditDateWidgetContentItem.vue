@@ -113,16 +113,16 @@ const handleUpdateLabel = (value: string) => {
 };
 
 const { widgetValidations } = useAssetValidation();
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 
 // Get the proper widget instance ID
 const widgetInstanceId = computed(() => {
   if (!props.widgetDef) return null;
   invariant(
-    parentAssetEditor,
+    assetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
-  return parentAssetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
 });
 
 // Find validation for current widget using proper widget instance ID

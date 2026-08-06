@@ -1,19 +1,17 @@
 /**
- * - prevents race which could result in duplicate asset creation. Serializes saves so the `assetId` from a CREATE is always written back before the next save reads it.
+ * Runs `saveFn` one call at a time, so each call sees the previous one's
+ * effects.
+ *
  * - Coalesces concurrent requests: at most one save pending behind the in-flight one
  * - Enforces a cooldown between saves to avoid spamming the server
  * - Fires the first save immediately (no debounce delay)
  */
 export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
-  // promise of the running save loop
   let saveLoopPromise: Promise<void> | null = null;
-
-  // should save again after this save finishes
   let hasPendingSave = false;
+  let currentSavePromise: Promise<void> | null = null;
 
-  // as each save is requested, we'll add its promise's
-  // resolve/reject to these sets, and call them when
-  // the next save finishes
+  // one resolve/reject pair per caller waiting on the next save to finish
   const resolveCallbacks = new Set<() => void>();
   const rejectCallbacks = new Set<(error: unknown) => void>();
 
@@ -27,23 +25,24 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
 
     try {
       while (hasPendingSave) {
-        // reset the flag
         hasPendingSave = false;
 
-        // snapshot the current callbacks and clear the sets,
-        // so new requests can come in while we're saving
+        // snapshot and clear, so requests arriving during the save wait for
+        // the next pass rather than being settled by this one
         resolveSnapshot = new Set(resolveCallbacks);
         rejectSnapshot = new Set(rejectCallbacks);
         resolveCallbacks.clear();
         rejectCallbacks.clear();
 
-        // run the save
-        await saveFn();
-
-        // if it succeeds, resolve all pending promises
+        currentSavePromise = saveFn();
+        try {
+          await currentSavePromise;
+        } finally {
+          currentSavePromise = null;
+        }
         resolveSnapshot.forEach((cb) => cb());
 
-        // wait a bit before the next save, to avoid spamming saves if the user is making rapid changes
+        // cooldown, so rapid edits do not each cost a request
         await new Promise((resolve) => setTimeout(resolve, cooldown));
       }
     } catch (error) {
@@ -59,7 +58,7 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
       hasPendingSave = false;
     }
 
-    // when the loop finishes, reset the promise
+    // null again, so the next request starts a fresh loop
     saveLoopPromise = null;
   }
 
@@ -83,5 +82,16 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
     });
   }
 
-  return { save };
+  /**
+   * Resolves once the save being sent right now has settled, successfully or
+   * not, and immediately when none is in flight. Work that must not interleave
+   * with a save awaits this. It does not wait out the cooldown, so it costs
+   * nothing once the request itself is done.
+   */
+  async function waitForCurrentSaveToSettle(): Promise<void> {
+    // a rejected save still settles, and runSaveLoop owns reporting it
+    await currentSavePromise?.catch(() => {});
+  }
+
+  return { save, waitForCurrentSaveToSettle };
 }

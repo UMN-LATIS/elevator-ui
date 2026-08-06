@@ -91,10 +91,10 @@ const emit = defineEmits<{
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 const templateId = computed(() => {
-  invariant(parentAssetEditor);
-  return parentAssetEditor.templateId;
+  invariant(assetEditor);
+  return assetEditor.templateId;
 });
 
 // Handle field updates from AutoCompleteInput

@@ -5,88 +5,30 @@ import {
   WidgetContent,
   PHPDateTime,
   UpdateAssetRequestFormData,
-  TextAreaWidgetContent,
-  WIDGET_TYPES,
 } from "@/types";
-import { isTextAreaWidgetContent } from "@/types/guards";
-import Quill from "quill";
-import { omit, pipe } from "ramda";
+import { normalizeWidgetContents } from "./normalizeAssetForSave";
 
-const removeEmptyParagraphs = (html: string) => {
-  const emptyParagraphRegex = /<p>(&nbsp;|\s|<br>)*<\/p>/g;
-  return html.replace(emptyParagraphRegex, "");
-};
-
-const convertQuillHtmlToSemanticHtml = (html: string) => {
-  const quill = new Quill(document.createElement("div"));
-  const delta = quill.clipboard.convert({ html });
-  quill.setContents(delta);
-  return quill.getSemanticHTML();
-};
-
-const normalizeSpaces = (html: string) => {
-  // quill converts every space to &nbsp; when transforming to
-  // semantic html, so convert them back to normal spaces
-  return html.replace(/&nbsp;/g, " ").trim();
-};
-
-function cleanTextAreaWidgetContent(
-  widgetContent: TextAreaWidgetContent
-): TextAreaWidgetContent {
-  if (!widgetContent.fieldContents) return widgetContent;
-
-  const cleaned = pipe(
-    removeEmptyParagraphs,
-    convertQuillHtmlToSemanticHtml,
-    normalizeSpaces
-  )(widgetContent.fieldContents);
-
-  return {
-    ...widgetContent,
-    fieldContents: cleaned,
-  };
-}
-
-// remove ids, and clean any widget content items
-// (e.g. scrub html in text area widget content)
-function prepWidgetsForSave(
-  asset: Asset | UnsavedAsset,
-  template: Template
-): Record<string, WidgetContent[]> {
-  return template.widgetArray.reduce((acc, widgetDef) => {
-    const widgetContents = asset[widgetDef.fieldTitle] as
-      | WidgetContent[]
-      | undefined;
-
-    if (!Array.isArray(widgetContents)) return acc;
-
-    // Filter out empty/null entries the backend may have stored (e.g. `{}`
-    // for upload fields whose file handlers were deleted). This prevents
-    // corrupted data from being round-tripped back on the next save.
-    const cleanedWidgetContents = widgetContents
-      .filter((content) => content != null && Object.keys(content).length > 0)
-      .map((content) => {
-        const contentWithoutId = omit(["id"], content);
-        if (
-          widgetDef.type === WIDGET_TYPES.TEXT_AREA &&
-          isTextAreaWidgetContent(contentWithoutId)
-        ) {
-          return cleanTextAreaWidgetContent(contentWithoutId);
-        }
-        return contentWithoutId;
-      });
-
-    return {
-      ...acc,
-      [widgetDef.fieldTitle]: cleanedWidgetContents,
-    };
-  }, {} as Record<string, WidgetContent[]>);
-}
-
+/**
+ * The wire form of a save. The server rebuilds the whole document from
+ * this, so every widget field the template defines must be present, and an
+ * empty array (not an omitted key) is how contents are deleted.
+ */
 export function toSaveableFormData(
   asset: Asset | UnsavedAsset,
   template: Template
 ): UpdateAssetRequestFormData {
+  const widgetFields: Record<string, WidgetContent[]> = {};
+  for (const widgetDef of template.widgetArray) {
+    const widgetContents = asset[widgetDef.fieldTitle] as
+      | WidgetContent[]
+      | undefined;
+    if (!Array.isArray(widgetContents)) continue;
+    widgetFields[widgetDef.fieldTitle] = normalizeWidgetContents(
+      widgetContents,
+      widgetDef.type
+    );
+  }
+
   return {
     objectId: asset.assetId ?? "",
     templateId: String(asset.templateId),
@@ -94,7 +36,9 @@ export function toSaveableFormData(
     collectionId: String(asset.collectionId),
     newCollectionId: String(asset.collectionId),
     readyForDisplay: asset.readyForDisplay as boolean,
+    // sent verbatim, not date-truncated: legacy values can carry a time of
+    // day the editor must not strip
     availableAfter: (asset.availableAfter as PHPDateTime)?.date,
-    ...prepWidgetsForSave(asset, template),
+    ...widgetFields,
   };
 }

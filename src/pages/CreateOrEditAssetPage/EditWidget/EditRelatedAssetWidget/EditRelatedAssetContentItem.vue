@@ -192,12 +192,12 @@ const targetAssetId = computed(() => props.modelValue.targetAssetId);
 
 const channelName = computed(() => `relatedAssetWidget-${props.modelValue.id}`);
 
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 
 const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({
     channelName: channelName.value,
-    collectionId: String(parentAssetEditor?.collectionId),
+    collectionId: String(assetEditor?.collectionId),
   });
 
   if (props.widgetDef.fieldData.defaultTemplate) {

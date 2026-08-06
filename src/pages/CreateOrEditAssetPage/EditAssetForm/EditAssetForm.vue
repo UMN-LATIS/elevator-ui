@@ -46,7 +46,10 @@
             }
           "
           @update:widgetContents="
-            $emit('update:asset', { ...asset, [widgetDef.fieldTitle]: $event })
+            $emit('update:widgetContents', {
+              fieldTitle: widgetDef.fieldTitle,
+              contents: $event,
+            })
           " />
       </div>
     </section>
@@ -61,7 +64,8 @@
         @cancel="$emit('cancel')"
         @update:templateId="$emit('update:templateId', $event)"
         @migrateCollection="$emit('migrateCollection', $event)"
-        @update:asset="$emit('update:asset', $event)" />
+        @update:readyForDisplay="$emit('update:readyForDisplay', $event)"
+        @update:availableAfter="$emit('update:availableAfter', $event)" />
     </aside>
   </div>
 </template>
@@ -71,6 +75,7 @@ import EditWidget from "../EditWidget/EditWidget.vue";
 import AssetSummary from "./AssetSummary.vue";
 import {
   Asset,
+  PHPDateTime,
   UnsavedAsset,
   Template,
   WidgetContent,
@@ -97,7 +102,12 @@ defineEmits<{
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
   (e: "migrateCollection", collectionId: number): void;
-  (e: "update:asset", asset: Asset | UnsavedAsset): void;
+  (
+    e: "update:widgetContents",
+    edit: { fieldTitle: string; contents: WidgetContent[] }
+  ): void;
+  (e: "update:readyForDisplay", readyForDisplay: boolean): void;
+  (e: "update:availableAfter", availableAfter: PHPDateTime | null): void;
 }>();
 
 const openWidgets = reactive(new Set<WidgetDef["widgetId"]>());
