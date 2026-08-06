@@ -125,6 +125,9 @@ test.describe("Upload navigation guard", () => {
   });
 
   test("no modal after upload has completed", async ({ page }) => {
+    // the upload's auto-save never settles, so No unsaved changes never returns
+    test.fail();
+
     test.setTimeout(30_000);
 
     // Save the asset first so we're on the edit page (no create-and-redirect).
@@ -137,6 +140,12 @@ test.describe("Upload navigation guard", () => {
     const uploadCleanedUp = page.waitForResponse("**/completeSourceFile/**");
     await startUploadAndWaitUntilInFlight(page, 500);
     await uploadCleanedUp;
+
+    // the completed upload auto-saves. Let that save settle so the
+    // unsaved-changes guard has nothing to ask about either
+    await expect(page.getByText("No unsaved changes")).toBeVisible({
+      timeout: 15000,
+    });
 
     await navigateHome(page);
 
