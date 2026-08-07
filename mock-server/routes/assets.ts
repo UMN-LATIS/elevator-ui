@@ -4,6 +4,9 @@ import { MockServerContext, type AssetFormData } from "../types";
 import {
   Asset,
   PHPDateTime,
+  RelatedAssetCache,
+  RelatedAssetWidgetContent,
+  Template,
   TextWidgetContent,
   UploadWidgetContent,
   WidgetContent,
@@ -181,6 +184,45 @@ function updateFileAssetLinks(
   });
 }
 
+/**
+ * Summarizes every asset this one links to, keyed by target asset id.
+ *
+ * The frontend renders a related asset only when it finds that asset's entry
+ * here, so a target the db has no asset for is left out and reads as deleted.
+ *
+ * @returns [] when nothing is linked, the shape PHP gives an empty array.
+ */
+function buildRelatedAssetCache(
+  db: DB,
+  template: Template,
+  widgetFields: Record<string, WidgetContent[]>
+): RelatedAssetCache | never[] {
+  const cache: RelatedAssetCache = {};
+
+  for (const widgetDef of template.widgetArray) {
+    // the literal rather than src's WIDGET_TYPES: importing a value out of
+    // src/types drags its @/ aliases and a .vue import into the server
+    if (widgetDef.type !== "related asset") continue;
+
+    const contents = (widgetFields[widgetDef.fieldTitle] ??
+      []) as RelatedAssetWidgetContent[];
+
+    for (const { targetAssetId } of contents) {
+      if (!targetAssetId) continue;
+      const targetAsset = db.assets.get(targetAssetId);
+      if (!targetAsset) continue;
+
+      cache[targetAssetId] = {
+        primaryHandler: targetAsset.firstFileHandlerId ?? null,
+        readyForDisplay: !!targetAsset.readyForDisplay,
+        relatedAssetTitle: targetAsset.title ?? [],
+      };
+    }
+  }
+
+  return isEmpty(cache) ? [] : cache;
+}
+
 /** The current time in PHP's DateTime serialization shape. */
 function phpNow(): PHPDateTime {
   return {
@@ -275,7 +317,9 @@ app.post("/submission/true", async (c) => {
     availableAfter: toPhpDateTime(formData.availableAfter),
     title: [titleWidget?.fieldContents || "(Untitled)"],
     titleObject: existingAsset?.titleObject ?? null,
-    relatedAssetCache: existingAsset?.relatedAssetCache ?? null,
+    // the real backend recomputes this on every save, so a cache entry for a
+    // target the payload no longer links to goes away rather than lingering
+    relatedAssetCache: buildRelatedAssetCache(db, template, widgetFields),
     firstFileHandlerId,
     firstObjectId: existingAsset?.firstObjectId ?? null,
     modified: phpNow(),
