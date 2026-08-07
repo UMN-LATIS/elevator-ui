@@ -8,6 +8,11 @@ const CHILD_TITLE =
   "at sunrise, with fog rising off the water";
 const CHILD_SEARCH_TERM = "Mississippi River gorge";
 
+// the pair of assets the cycle test points at each other. Each title is its
+// own search term, so it has to match nothing else in the db.
+const FIRST_CYCLE_TITLE = "Ouroboros One";
+const SECOND_CYCLE_TITLE = "Ouroboros Two";
+
 /** Starts a draft on the template whose related asset widget is searchable. */
 async function startAutocompleteDraft(page: Page): Promise<void> {
   await page
@@ -19,14 +24,17 @@ async function startAutocompleteDraft(page: Page): Promise<void> {
 }
 
 /** Searches the related asset combobox and picks the one match. */
-async function chooseRelatedAsset(page: Page): Promise<void> {
+async function chooseRelatedAsset(
+  page: Page,
+  searchTerm: string = CHILD_SEARCH_TERM
+): Promise<void> {
   await page.getByText("Select an asset...").click();
 
   const search = page.getByPlaceholder("Select Related Assets...");
   await expect(search).toBeVisible();
-  await search.fill(CHILD_SEARCH_TERM);
+  await search.fill(searchTerm);
 
-  const option = page.getByRole("option").filter({ hasText: CHILD_SEARCH_TERM });
+  const option = page.getByRole("option").filter({ hasText: searchTerm });
   await expect(option).toBeVisible({ timeout: 10000 });
   await option.click();
 }
@@ -92,5 +100,49 @@ test.describe("related asset widget, editor to view page", () => {
     await page.goto(`/asset/viewAsset/${assetId}`);
 
     await expect(relatedAssetOnView(page)).toHaveCount(0);
+  });
+
+  test("two assets that link to each other stop nesting after one level", async ({
+    page,
+  }) => {
+    // three creates and an edit, each with its own save round trip
+    test.setTimeout(60_000);
+
+    await page.goto("/assetManager/addAsset");
+    await startAutocompleteDraft(page);
+    await page.getByLabel(/title/i).first().fill(FIRST_CYCLE_TITLE);
+    const firstAssetId = await saveAndReadAssetId(page);
+
+    await page.goto("/assetManager/addAsset");
+    await startAutocompleteDraft(page);
+    await page.getByLabel(/title/i).first().fill(SECOND_CYCLE_TITLE);
+    await chooseRelatedAsset(page, FIRST_CYCLE_TITLE);
+    await saveAndReadAssetId(page);
+
+    await page.goto(`/assetManager/editAsset/${firstAssetId}`);
+    await expect(page.getByText("Select an asset...")).toBeVisible();
+    await chooseRelatedAsset(page, SECOND_CYCLE_TITLE);
+    await page.getByRole("button", { name: "Save" }).click();
+
+    await page.goto(`/asset/viewAsset/${firstAssetId}`);
+    const secondAssetOnView = relatedAssetOnView(page).filter({
+      hasText: SECOND_CYCLE_TITLE,
+    });
+    await expect(secondAssetOnView).toHaveCount(1);
+
+    await secondAssetOnView.locator(".accordion__header").click();
+    const nestedBody = secondAssetOnView.locator(".accordion__body");
+    await expect(nestedBody).toBeVisible();
+
+    // the second asset's own related asset widget has to be on the page
+    // before its emptiness means anything: it renders only once that asset
+    // and its template have loaded
+    await expect(nestedBody.locator(".related-asset-widget")).toHaveCount(1);
+
+    // that widget links back to the first asset, which is already rendering
+    // above it, so it drops the link rather than opening the pair again
+    await expect(
+      nestedBody.locator(".accordion-related-asset-widget-item")
+    ).toHaveCount(0);
   });
 });

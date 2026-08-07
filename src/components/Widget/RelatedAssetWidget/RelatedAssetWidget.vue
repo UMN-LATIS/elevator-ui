@@ -20,9 +20,7 @@
       :is="widgetType"
       v-for="relatedAsset in safeContents"
       :key="relatedAsset.targetAssetId"
-      :isActiveObject="
-        assetStore.activeObjectId === relatedAsset.targetAssetId
-      "
+      :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
       :assetId="relatedAsset.targetAssetId"
       :assetCacheItem="relatedAsset.cacheItem"
       :title="relatedAsset.title">
@@ -35,7 +33,6 @@
 <script setup lang="ts">
 import {
   type Component,
-  type InjectionKey,
   computed,
   inject,
   onMounted,
@@ -55,10 +52,8 @@ import ThumbnailRelatedAssetWidgetItem from "./ThumbnailRelatedAssetWidgetItem.v
 import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
 import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
+import { ANCESTOR_ASSET_IDS_KEY } from "./ancestorAssetIds";
 
-// Cycle detection: track which asset IDs are ancestors in the render tree
-const ANCESTOR_ASSET_IDS_KEY: InjectionKey<Set<string>> =
-  Symbol("ancestorAssetIds");
 const MAX_NESTING_DEPTH = 10;
 
 const props = defineProps<{
@@ -67,18 +62,17 @@ const props = defineProps<{
   asset: Asset;
 }>();
 
-// Get ancestors from parent, or start with empty set at root level
-const ancestorAssetIds: Set<string> =
-  inject(ANCESTOR_ASSET_IDS_KEY) ?? new Set<string>();
+// the default is what a widget at the top of the page gets, where no
+// related-asset widget has provided anything above it
+const ancestorAssetIds: Set<string> = inject(
+  ANCESTOR_ASSET_IDS_KEY,
+  new Set<string>()
+);
 const currentAssetId = props.asset.assetId;
 
-// Detect if we've hit a cycle (current asset already rendered above us)
 const isCycle = ancestorAssetIds.has(currentAssetId);
-
-// Detect if we've gone too deep (safety net)
 const isTooDeep = ancestorAssetIds.size >= MAX_NESTING_DEPTH;
 
-// Provide updated ancestors to children (add current asset to the chain)
 const childAncestors = new Set<string>(ancestorAssetIds);
 childAncestors.add(currentAssetId);
 provide(ANCESTOR_ASSET_IDS_KEY, childAncestors);
