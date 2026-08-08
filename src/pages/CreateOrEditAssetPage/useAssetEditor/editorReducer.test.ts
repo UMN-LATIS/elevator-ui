@@ -286,7 +286,7 @@ describe("editorReducer", () => {
 
     it("emits no commands for a superseded resolution", () => {
       const { event, model } = supersededResolutions.assetCreated;
-      expect(editorReducer(model, event).commands).toEqual([]);
+      expect(editorReducer(model, event).commands ?? []).toEqual([]);
     });
 
     it("keeps the newest template request rather than the first to resolve", () => {
@@ -598,7 +598,7 @@ describe("editorReducer", () => {
       });
 
       expect(next).toBe(model);
-      expect(commands).toEqual([]);
+      expect(commands ?? []).toEqual([]);
     });
   });
 

@@ -82,7 +82,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   function dispatch(event: EditorEvent): void {
     const { model: nextModel, commands } = editorReducer(model.value, event);
     model.value = nextModel;
-    commands.forEach(runCommand);
+    commands?.forEach(runCommand);
   }
 
   function runCommand(command: EditorCommand): void {

@@ -143,16 +143,9 @@ export type EditorCommand = {
 /** One reducer step: the next model plus the effects it asks for. */
 export interface EditorStep {
   model: EditorModel;
-  commands: EditorCommand[];
+  /** Run by the shell after the model is committed. Most events need none. */
+  commands?: EditorCommand[];
 }
-
-const makeStep = (
-  model: EditorModel,
-  commands: EditorCommand[] = []
-): EditorStep => ({
-  model,
-  commands,
-});
 
 /** Everything that can change the model. */
 export type EditorEvent =
@@ -217,52 +210,68 @@ export function editorReducer(
 ): EditorStep {
   switch (event.type) {
     case "newAssetRequested":
-      return makeStep({
-        status: "loadingTemplate",
-        editorGeneration: model.editorGeneration + 1,
-        collectionId: event.collectionId,
-      });
+      return {
+        model: {
+          status: "loadingTemplate",
+          editorGeneration: model.editorGeneration + 1,
+          collectionId: event.collectionId,
+        },
+      };
     case "existingAssetRequested":
     case "templateMigrationRequested":
       // advance the generation so results still in flight can no longer
       // land, but stay put: the current asset remains editable while the
       // next asset or template loads
-      return makeStep({ ...model, editorGeneration: model.editorGeneration + 1 });
+      return { model: { ...model, editorGeneration: model.editorGeneration + 1 } };
     case "templateLoaded":
-      return makeStep(onTemplateLoaded(model, event));
+      return { model: onTemplateLoaded(model, event) };
     case "templateLoadFailed":
-      return makeStep(onTemplateLoadFailed(model, event));
+      return { model: onTemplateLoadFailed(model, event) };
     case "assetLoadFailed":
-      return makeStep(onLoadFailed(model, event));
+      return { model: onLoadFailed(model, event) };
     case "assetLoaded":
-      return makeStep(onAssetLoaded(model, event));
+      return { model: onAssetLoaded(model, event) };
     case "templateMigrated":
-      return makeStep(onTemplateMigrated(model, event));
+      return { model: onTemplateMigrated(model, event) };
     case "templateMigrationFailed":
       // the editor keeps its current template and the asset stays editable:
       // a failed swap must not cost the user work in progress
-      return makeStep(model);
+      return { model };
     case "widgetContentsEdited":
-      return makeStep(modelWithFieldEdit(model, event.fieldTitle, event.contents));
+      return {
+        model: modelWithFieldEdit(model, event.fieldTitle, event.contents),
+      };
     case "collectionChanged":
-      return makeStep(modelWithFieldEdit(model, "collectionId", event.collectionId));
+      return {
+        model: modelWithFieldEdit(model, "collectionId", event.collectionId),
+      };
     case "readyForDisplayChanged":
-      return makeStep(
-        modelWithFieldEdit(model, "readyForDisplay", event.readyForDisplay)
-      );
+      return {
+        model: modelWithFieldEdit(
+          model,
+          "readyForDisplay",
+          event.readyForDisplay
+        ),
+      };
     case "availableAfterChanged":
-      return makeStep(
-        modelWithFieldEdit(model, "availableAfter", event.availableAfter)
-      );
+      return {
+        model: modelWithFieldEdit(
+          model,
+          "availableAfter",
+          event.availableAfter
+        ),
+      };
     case "assetCreated":
       return onAssetCreated(model, event);
     case "saveSucceeded":
-      return makeStep(onSaveSucceeded(model, event));
+      return { model: onSaveSucceeded(model, event) };
     case "resetRequested":
-      return makeStep({
-        status: "idle",
-        editorGeneration: model.editorGeneration + 1,
-      });
+      return {
+        model: {
+          status: "idle",
+          editorGeneration: model.editorGeneration + 1,
+        },
+      };
     default:
       return assertNever(event);
   }
@@ -411,12 +420,15 @@ function onAssetCreated(
 ): EditorStep {
   // a commit for a draft the editor no longer holds is dropped, like its
   // read-back will be in onSaveSucceeded
-  if (model.status !== "editingNewAsset") return makeStep(model);
-  if (event.editorGeneration !== model.editorGeneration) return makeStep(model);
+  if (model.status !== "editingNewAsset") return { model };
+  if (event.editorGeneration !== model.editorGeneration) return { model };
 
-  return makeStep(modelWithSavedAssetApplied(model, event.savedAsset), [
-    { type: "notifyAssetCreated", assetId: event.savedAsset.assetId },
-  ]);
+  return {
+    model: modelWithSavedAssetApplied(model, event.savedAsset),
+    commands: [
+      { type: "notifyAssetCreated", assetId: event.savedAsset.assetId },
+    ],
+  };
 }
 
 /**
