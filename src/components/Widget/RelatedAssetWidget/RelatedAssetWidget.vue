@@ -1,24 +1,10 @@
 <template>
-  <!-- Stop rendering if we've detected a cycle or exceeded max depth -->
   <div
-    v-if="isCycle || isTooDeep"
-    class="text-sm text-on-surface-variant italic p-2">
-    <span v-if="isCycle">
-      Circular reference detected - stopping to prevent infinite loop
-    </span>
-    <span v-else>Maximum nesting depth reached</span>
-  </div>
-
-  <div
-    v-else
     class="related-asset-widget flex flex-wrap w-full"
-    :class="{
-      'flex-col gap-1 leading-5': widgetType === LinkedRelatedAssetWidgetItem,
-      'gap-2': widgetType !== LinkedRelatedAssetWidgetItem,
-    }">
+    :class="isEveryItemLinked ? 'flex-col gap-1 leading-5' : 'gap-2'">
     <component
-      :is="widgetType"
-      v-for="relatedAsset in safeContents"
+      :is="relatedAsset.itemComponent"
+      v-for="relatedAsset in contentsWithCacheItem"
       :key="relatedAsset.targetAssetId"
       :isActiveObject="assetStore.activeObjectId === relatedAsset.targetAssetId"
       :assetId="relatedAsset.targetAssetId"
@@ -31,14 +17,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import {
-  type Component,
-  computed,
-  inject,
-  onMounted,
-  onBeforeUnmount,
-  provide,
-} from "vue";
+import { type Component, computed, onMounted, onBeforeUnmount } from "vue";
 import {
   Asset,
   RelatedAssetWidgetDef,
@@ -52,9 +31,11 @@ import ThumbnailRelatedAssetWidgetItem from "./ThumbnailRelatedAssetWidgetItem.v
 import LinkedRelatedAssetWidgetItem from "./LinkedRelatedAssetWidgetItem.vue";
 import ArrowButton from "@/components/ArrowButton/ArrowButton.vue";
 import { useAssetStore } from "@/stores/assetStore";
-import { ANCESTOR_ASSET_IDS_KEY } from "./ancestorAssetIds";
-
-const MAX_NESTING_DEPTH = 10;
+import {
+  canNestAsset,
+  provideAncestorAssetIds,
+  useAncestorAssetIds,
+} from "./useAncestorAssetIds";
 
 const props = defineProps<{
   widget: RelatedAssetWidgetDef;
@@ -62,20 +43,8 @@ const props = defineProps<{
   asset: Asset;
 }>();
 
-// the default is what a widget at the top of the page gets, where no
-// related-asset widget has provided anything above it
-const ancestorAssetIds: Set<string> = inject(
-  ANCESTOR_ASSET_IDS_KEY,
-  new Set<string>()
-);
-const currentAssetId = props.asset.assetId;
-
-const isCycle = ancestorAssetIds.has(currentAssetId);
-const isTooDeep = ancestorAssetIds.size >= MAX_NESTING_DEPTH;
-
-const childAncestors = new Set<string>(ancestorAssetIds);
-childAncestors.add(currentAssetId);
-provide(ANCESTOR_ASSET_IDS_KEY, childAncestors);
+const openAssetIds = new Set(useAncestorAssetIds()).add(props.asset.assetId);
+provideAncestorAssetIds(openAssetIds);
 
 type WithTargetAssetId<T> = T & { targetAssetId: string };
 
@@ -111,6 +80,11 @@ const contentsWithAssetId = computed(() =>
       return {
         ...relatedAsset,
         cacheItem,
+        // Falling back to a link rather than dropping the row keeps the
+        // relationship visible and navigable, so only the nesting stops.
+        itemComponent: canNestAsset(openAssetIds, relatedAsset.targetAssetId)
+          ? widgetType.value
+          : LinkedRelatedAssetWidgetItem,
         title: getRelatedAssetTitle({
           cacheItem,
           label: relatedAsset.label ?? "",
@@ -120,10 +94,15 @@ const contentsWithAssetId = computed(() =>
     })
 );
 
-// Filter out cycles and items with no cache data (deleted or unavailable)
-const safeContents = computed(() =>
-  contentsWithAssetId.value.filter(
-    (item) => item.cacheItem && !childAncestors.has(item.targetAssetId)
+// No entry in relatedAssetCache means the target is deleted, or this viewer
+// is not allowed to see it.
+const contentsWithCacheItem = computed(() =>
+  contentsWithAssetId.value.filter((item) => item.cacheItem)
+);
+
+const isEveryItemLinked = computed(() =>
+  contentsWithCacheItem.value.every(
+    (item) => item.itemComponent === LinkedRelatedAssetWidgetItem
   )
 );
 
