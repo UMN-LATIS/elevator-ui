@@ -37,7 +37,6 @@
               : asset.collectionId as number
           "
           :isOpen="openWidgets.has(widgetDef.widgetId)"
-          @save="$emit('autoSave')"
           @update:isOpen="
             (open) => {
               open
@@ -100,7 +99,6 @@ const props = defineProps<{
 
 defineEmits<{
   (e: "save"): void;
-  (e: "autoSave"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
   (e: "migrateCollection", collectionId: number): void;

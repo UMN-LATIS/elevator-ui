@@ -60,7 +60,6 @@
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
         @save="handleSaveAsset({ shouldConfirmSave: true })"
-        @autoSave="handleSaveAsset({ shouldConfirmSave: false })"
         @update:widgetContents="
           assetEditor.updateWidgetContents($event.fieldTitle, $event.contents)
         "
@@ -191,6 +190,8 @@ const props = withDefaults(
 const editorHost = provideEditorHost({
   onAssetCreated: handleAssetCreated,
   onChildSaveFailed: handleChildSaveFailed,
+  onCreateDropped: handleCreateDropped,
+  onRequestedSaveFailed: handleRequestedSaveFailed,
 });
 const assetEditor = provideAssetEditor(editorHost, { role: "root" });
 
@@ -201,6 +202,30 @@ function handleChildSaveFailed(error: unknown): void {
   toastStore.addToast({
     title: "Error",
     message: `Failed to save inline asset: ${getErrorMessage(error)}`,
+    variant: "error",
+  });
+}
+
+// read by handleSaveAsset after its await, so the success toast comes from
+// what the reducer decided rather than from inspecting the model
+let wasCreateDroppedDuringSave = false;
+
+/** A create landed after its editor moved on: the asset exists unlinked. */
+function handleCreateDropped(): void {
+  wasCreateDroppedDuringSave = true;
+  toastStore.addToast({
+    title: "Error",
+    message:
+      "The asset was saved, but this editor had moved on, so nothing here links to it.",
+    variant: "error",
+  });
+}
+
+/** The save a completed upload asked for failed. */
+function handleRequestedSaveFailed(error: unknown): void {
+  toastStore.addToast({
+    title: "Error",
+    message: `Failed to save asset: ${getErrorMessage(error)}`,
     variant: "error",
   });
 }
@@ -453,6 +478,7 @@ async function handleSaveAsset({
   shouldConfirmSave: boolean;
 }) {
   const isNewAsset = !props.assetId;
+  wasCreateDroppedDuringSave = false;
   try {
     await assetEditor.saveAsset();
 
@@ -461,16 +487,9 @@ async function handleSaveAsset({
       return;
     }
 
-    const savedAssetId = assetEditor.localAsset?.assetId ?? null;
-    if (!savedAssetId) {
-      // the editor emptied out while this save was in flight, so the reducer
-      // dropped the new id. The save itself succeeded, but the toast belongs
-      // to a draft that is gone.
-      //
-      // This does not catch the editor moving to a *different* asset, where
-      // assetId is that asset's and reads as success. Fixing that needs the
-      // reducer to say it dropped the create rather than the page inferring
-      // it from the model.
+    // the reducer said the create landed nowhere and the drop handler
+    // already raised the orphan toast, so a success toast would lie
+    if (wasCreateDroppedDuringSave) {
       return;
     }
 

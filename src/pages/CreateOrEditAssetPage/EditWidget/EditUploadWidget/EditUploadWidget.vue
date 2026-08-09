@@ -97,7 +97,6 @@ const emit = defineEmits<{
     widgetContents: Type.WithUuid<Type.UploadWidgetContent>[]
   );
   (e: "update:isOpen", isOpen: boolean): void;
-  (e: "save"): void;
 }>();
 
 const isShowingDetails = ref<Set<string>>(new Set());
@@ -129,11 +128,12 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
     searchData: "", // Initialize searchData as an empty string
   };
 
-  assetEditor.updateWidgetContents(props.widgetDef.fieldTitle, [
+  // the editor answers with a save request of its own, so the uploaded
+  // file is never left without a saved asset referencing it
+  assetEditor.completeUpload(props.widgetDef.fieldTitle, [
     ...currentContents(),
     uploadedItem,
   ]);
-  emit("save");
 }
 
 async function handleDeleteContent(id: string) {
@@ -154,9 +154,9 @@ async function handleDeleteContent(id: string) {
   }
 
   // save the removal first: if the save fails, the asset must not be left
-  // referencing media that is already destroyed. That ordering is why this
-  // saves through the editor rather than emitting to the page like a
-  // completed upload does, since an emit cannot be awaited.
+  // referencing media that is already destroyed. The two awaits below are
+  // that ordering, which is why this flow saves itself instead of asking
+  // the editor for a save the way a completed upload does.
   assetEditor.updateWidgetContents(
     props.widgetDef.fieldTitle,
     ops.deleteWidgetContent(currentContents(), id)

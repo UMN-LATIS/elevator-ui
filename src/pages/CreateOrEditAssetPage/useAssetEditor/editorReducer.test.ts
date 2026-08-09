@@ -601,6 +601,59 @@ describe("editorReducer", () => {
     });
   });
 
+  describe("a completed upload", () => {
+    // no file may be orphaned: an appended upload item is followed by a
+    // save request, always. The rule lives in this one arm instead of an
+    // emit chain four components long.
+    const uploadedContents = [{ fileId: "file-1", uuid: "item-1" }];
+
+    it("writes the items and asks for a save in the same step", () => {
+      const step = editorReducer(rootModel(editingExistingSession()), {
+        type: "uploadCompleted",
+        sessionKey: ROOT_KEY,
+        fieldTitle: "upload_1",
+        contents: uploadedContents,
+      });
+
+      const session = selectSession(step.model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.upload_1).toEqual(uploadedContents);
+      expect(step.commands).toEqual([
+        { type: "requestSave", sessionKey: ROOT_KEY },
+      ]);
+    });
+
+    it("writes into a draft the same way", () => {
+      const step = editorReducer(rootModel(editingNewSession()), {
+        type: "uploadCompleted",
+        sessionKey: ROOT_KEY,
+        fieldTitle: "upload_1",
+        contents: uploadedContents,
+      });
+
+      const session = selectSession(step.model, ROOT_KEY);
+      assertStatus(session, "editingNewAsset");
+      expect(session.localAsset.upload_1).toEqual(uploadedContents);
+      expect(step.commands).toEqual([
+        { type: "requestSave", sessionKey: ROOT_KEY },
+      ]);
+    });
+
+    it("asks for nothing when the session has closed", () => {
+      const before = rootModel(editingExistingSession());
+
+      const step = editorReducer(before, {
+        type: "uploadCompleted",
+        sessionKey: UNKNOWN_KEY,
+        fieldTitle: "upload_1",
+        contents: uploadedContents,
+      });
+
+      expect(step.model).toBe(before);
+      expect(step.commands).toBeUndefined();
+    });
+  });
+
   describe("committing a create before the read-back", () => {
     const createdEvent = (
       baseline: Asset,
@@ -655,18 +708,25 @@ describe("editorReducer", () => {
       ]);
     });
 
-    it("drops a create response for a session that has closed, so the next draft cannot adopt an abandoned draft's asset", () => {
+    it("drops a create response for a session that has closed, and says the asset is orphaned", () => {
       // abandoning a draft closes its session; the next draft opens a new
-      // session under a fresh key, which this response does not carry
+      // session under a fresh key, which this response does not carry. The
+      // asset exists with nothing pointing at it, which the user must hear.
       const before = rootModel(editingNewSession());
 
       const step = editorReducer(
         before,
-        createdEvent(makeSavedAsset(), UNKNOWN_KEY)
+        createdEvent(makeSavedAsset({ assetId: "asset-orphan" }), UNKNOWN_KEY)
       );
 
       expect(step.model).toBe(before);
-      expect(step.commands).toBeUndefined();
+      expect(step.commands).toEqual([
+        {
+          type: "notifyCreateDropped",
+          sessionKey: UNKNOWN_KEY,
+          assetId: "asset-orphan",
+        },
+      ]);
     });
 
     it("drops a create response once the session holds an existing asset", () => {
@@ -675,7 +735,13 @@ describe("editorReducer", () => {
       const step = editorReducer(before, createdEvent(makeSavedAsset()));
 
       expect(step.model).toBe(before);
-      expect(step.commands).toBeUndefined();
+      expect(step.commands).toEqual([
+        {
+          type: "notifyCreateDropped",
+          sessionKey: ROOT_KEY,
+          assetId: "asset-123",
+        },
+      ]);
     });
 
     describe("a child session's create stamps the parent's related item", () => {

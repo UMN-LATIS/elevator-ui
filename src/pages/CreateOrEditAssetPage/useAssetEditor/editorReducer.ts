@@ -255,12 +255,28 @@ export function selectSessionAndDescendantKeys(
  * dropped: a command that is never emitted can never fire against a session
  * that has closed.
  */
-export type EditorCommand = {
-  /** The server assigned this session's draft its id. */
-  type: "notifyAssetCreated";
-  sessionKey: SessionKey;
-  assetId: string;
-};
+export type EditorCommand =
+  | {
+      /** The server assigned this session's draft its id. */
+      type: "notifyAssetCreated";
+      sessionKey: SessionKey;
+      assetId: string;
+    }
+  | {
+      /**
+       * A create response arrived for a session that no longer holds its
+       * draft. The asset exists with nothing pointing at it, which the
+       * user must hear.
+       */
+      type: "notifyCreateDropped";
+      sessionKey: SessionKey;
+      assetId: string;
+    }
+  | {
+      /** This session's document must be saved, no file may be orphaned. */
+      type: "requestSave";
+      sessionKey: SessionKey;
+    };
 
 /** One reducer step: the next model plus the effects it asks for. */
 export interface EditorStep {
@@ -273,6 +289,18 @@ export interface EditorStep {
 export type EditorEvent =
   | {
       type: "widgetContentsEdited";
+      sessionKey: SessionKey;
+      fieldTitle: T.WidgetDef["fieldTitle"];
+      contents: T.WidgetContent[];
+    }
+  | {
+      /**
+       * An upload finished and its item entered the document. Distinct from
+       * widgetContentsEdited because its arm also asks for a save: the file
+       * exists server-side from the moment the upload started, so a saved
+       * asset must reference it before the user can navigate away.
+       */
+      type: "uploadCompleted";
       sessionKey: SessionKey;
       fieldTitle: T.WidgetDef["fieldTitle"];
       contents: T.WidgetContent[];
@@ -479,6 +507,21 @@ export function editorReducer(
           event.contents
         ),
       };
+    case "uploadCompleted": {
+      // an appended upload item is followed by a save request, always, or
+      // the uploaded file would be orphaned server-side
+      const next = modelWithFieldEdit(
+        model,
+        event.sessionKey,
+        event.fieldTitle,
+        event.contents
+      );
+      if (next === model) return { model };
+      return {
+        model: next,
+        commands: [{ type: "requestSave", sessionKey: event.sessionKey }],
+      };
+    }
     case "collectionChanged":
       return {
         model: modelWithFieldEdit(
@@ -677,8 +720,20 @@ function onAssetCreated(
 ): EditorStep {
   const session = model.sessions[event.sessionKey];
   // a response for a closed session is dropped: the next draft opened under
-  // a fresh key, which this response does not carry
-  if (!session || session.status !== "editingNewAsset") return { model };
+  // a fresh key, which this response does not carry. The asset still exists
+  // server-side with nothing pointing at it, so the drop is announced.
+  if (!session || session.status !== "editingNewAsset") {
+    return {
+      model,
+      commands: [
+        {
+          type: "notifyCreateDropped",
+          sessionKey: event.sessionKey,
+          assetId: event.baseline.assetId,
+        },
+      ],
+    };
+  }
 
   // the echoed baseline was flag-cleared before dispatch, so the draft loses
   // its flags the same way or they would read as edits made after the send

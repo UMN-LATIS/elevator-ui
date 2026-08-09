@@ -52,6 +52,13 @@ export interface EditorHostHandlers {
   onAssetCreated: (assetId: T.Asset["assetId"]) => void;
   /** an inline child's save failed while a parent save collected it */
   onChildSaveFailed: (error: unknown) => void;
+  /**
+   * a create landed after its session closed: the asset exists server-side
+   * with nothing pointing at it
+   */
+  onCreateDropped: (assetId: T.Asset["assetId"]) => void;
+  /** a save the reducer asked for (a completed upload's) failed */
+  onRequestedSaveFailed: (error: unknown) => void;
 }
 
 /**
@@ -118,6 +125,16 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
         if (command.sessionKey === model.value.rootSessionKey) {
           handlers.onAssetCreated(command.assetId);
         }
+        return;
+      case "notifyCreateDropped":
+        handlers.onCreateDropped(command.assetId);
+        return;
+      case "requestSave":
+        // quiet like any save the user did not ask for: silent when it
+        // works, surfaced when it fails
+        void saveSession(command.sessionKey).catch((error: unknown) => {
+          if (!isScopeDisposed) handlers.onRequestedSaveFailed(error);
+        });
         return;
     }
   }
@@ -650,6 +667,23 @@ export const createSessionHandle = (
     }));
   }
 
+  /**
+   * Record a finished upload's items. The reducer answers with a save
+   * request, so the uploaded file is never left without a saved asset
+   * referencing it.
+   */
+  function completeUpload(
+    fieldTitle: T.WidgetDef["fieldTitle"],
+    contents: T.WidgetContent[]
+  ): void {
+    dispatchToSession((sessionKey) => ({
+      type: "uploadCompleted",
+      sessionKey,
+      fieldTitle,
+      contents,
+    }));
+  }
+
   function updateReadyForDisplay(readyForDisplay: boolean): void {
     dispatchToSession((sessionKey) => ({
       type: "readyForDisplayChanged",
@@ -695,6 +729,7 @@ export const createSessionHandle = (
     migrateToTemplate,
     updateCollection,
     updateWidgetContents,
+    completeUpload,
     updateReadyForDisplay,
     updateAvailableAfter,
     getWidgetInstanceId,

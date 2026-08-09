@@ -60,7 +60,6 @@
               )
             "
             class="inline-related-asset-widget"
-            @save="handleSaveAsset"
             @update:isOpen="
               (open) => {
                 open
@@ -94,8 +93,6 @@ import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { useToastStore } from "@/stores/toastStore";
-import { getErrorMessage } from "@/api/getErrorMessage";
 
 // Depth tracking to prevent infinite recursion with self-referencing templates
 const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";
@@ -126,8 +123,6 @@ const props = withDefaults(
 // this component provides its own handle below.
 const editorHost = useEditorHost();
 const parentAssetEditor = useAssetEditor();
-
-const toastStore = useToastStore();
 
 // this surface's own session on the page's shared model. The parent link
 // names the item this child hangs under, so when the server creates the
@@ -238,38 +233,6 @@ function openRequiredOrFilledWidgets() {
 
 function handleCollapseAll() {
   openWidgets.clear();
-}
-
-async function handleSaveAsset() {
-  const isExistingAsset = Boolean(props.assetId);
-  try {
-    await assetEditor.saveAsset();
-  } catch (cause) {
-    // the parent's save carries on without this child, and its redirect
-    // clears the error modal the request already raised, so say here which
-    // asset was lost
-    toastStore.addToast({
-      title: "Error",
-      message: `Failed to save inline asset: ${getErrorMessage(cause)}`,
-      variant: "error",
-    });
-    return;
-  }
-
-  // if this is an existing asset, we're done
-  if (isExistingAsset) return;
-
-  if (!assetEditor.localAsset?.assetId) {
-    // this editor took in a different asset while the save was in flight, so
-    // the reducer dropped the new id. The asset exists with nothing pointing
-    // at it, which the user needs to hear about.
-    toastStore.addToast({
-      title: "Error",
-      message:
-        "The inline asset was saved but could not be linked to this asset.",
-      variant: "error",
-    });
-  }
 }
 </script>
 <style>
