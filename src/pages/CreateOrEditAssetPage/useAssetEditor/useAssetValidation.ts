@@ -1,17 +1,8 @@
 import * as T from "@/types";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import {
-  isDateWidgetContent,
-  isLocationWidgetContent,
-} from "@/types/guards";
+import { isDateWidgetContent, isLocationWidgetContent } from "@/types/guards";
 import { doesServerKeepContent } from "./normalizeAssetForSave";
-import {
-  computed,
-  ComputedRef,
-  inject,
-  MaybeRefOrGetter,
-  toValue,
-} from "vue";
+import { computed, ComputedRef, inject, MaybeRefOrGetter, toValue } from "vue";
 import { ASSET_VALIDATION_PROVIDE_KEY } from "@/constants/constants";
 import invariant from "tiny-invariant";
 
@@ -25,7 +16,7 @@ interface WidgetValidation {
 }
 
 interface WidgetContentWithDef {
-  content: T.WithId<T.WidgetContent>[];
+  content: T.WithUuid<T.WidgetContent>[];
   def: T.WidgetDef;
 }
 
@@ -58,14 +49,14 @@ const createErrorsObject = () => {
 };
 
 function validateDateWidget(
-  content: T.WithId<T.WidgetContent>[]
+  content: T.WithUuid<T.WidgetContent>[]
 ): ReturnType<typeof createErrorsObject> {
   const errors = createErrorsObject();
 
   content.forEach((contentItem) => {
     if (!isDateWidgetContent(contentItem)) {
       const error = "Not a date widget.";
-      errors.addItemFieldError(contentItem.id, "global", error);
+      errors.addItemFieldError(contentItem.uuid, "global", error);
       return;
     }
 
@@ -75,13 +66,17 @@ function validateDateWidget(
     const isValidStart = hasStartText && start.numeric != null;
 
     if (hasStartText && !isValidStart) {
-      errors.addItemFieldError(contentItem.id, "start", "Invalid start date.");
+      errors.addItemFieldError(
+        contentItem.uuid,
+        "start",
+        "Invalid start date."
+      );
     }
 
     const hasEndText = !!end.text?.trim();
     const isValidEnd = !hasEndText || end.numeric != null;
     if (hasEndText && !isValidEnd) {
-      errors.addItemFieldError(contentItem.id, "end", "Invalid end date");
+      errors.addItemFieldError(contentItem.uuid, "end", "Invalid end date");
     }
 
     const isStartAfterEnd =
@@ -95,7 +90,7 @@ function validateDateWidget(
 
     if (isStartAfterEnd) {
       errors.addItemFieldError(
-        contentItem.id,
+        contentItem.uuid,
         "end",
         "End date must be after start date"
       );
@@ -103,10 +98,13 @@ function validateDateWidget(
 
     // the backend keeps a date row only for a label or a start, so an
     // end-only row reaches the server and is thrown away
-    const isRowDropped = !doesServerKeepContent(contentItem, T.WIDGET_TYPES.DATE);
+    const isRowDropped = !doesServerKeepContent(
+      contentItem,
+      T.WIDGET_TYPES.DATE
+    );
     if (hasEndText && isRowDropped) {
       errors.addItemFieldError(
-        contentItem.id,
+        contentItem.uuid,
         "start",
         "Add a start date or a label, or this date is not saved."
       );
@@ -140,7 +138,7 @@ function validateLocationWidget({
 
     if (hasAddressText && isRowDropped) {
       errors.addItemFieldError(
-        contentItem.id,
+        contentItem.uuid,
         "address",
         "Pick a point on the map or add a label, or this address is not saved."
       );
@@ -197,7 +195,7 @@ function isWidgetValid({
   switch (def.type) {
     case "date":
       return content.every(
-        (contentItem) => !errors.hasItemErrors(contentItem.id)
+        (contentItem) => !errors.hasItemErrors(contentItem.uuid)
       );
     case "checkbox":
       return true; // unchecked OR checked is valid
@@ -241,7 +239,7 @@ export function validateAsset(
 ): WidgetValidation[] {
   return (template?.widgetArray ?? []).map((def) => {
     const content =
-      (asset?.[def.fieldTitle] as T.WithId<T.WidgetContent>[]) || [];
+      (asset?.[def.fieldTitle] as T.WithUuid<T.WidgetContent>[]) || [];
     return createWidgetValidation({ content, def }, getWidgetInstanceId);
   });
 }

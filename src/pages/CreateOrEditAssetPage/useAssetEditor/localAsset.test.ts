@@ -13,7 +13,7 @@ import type {
   PHPDateTime,
   Template,
   WidgetContent,
-  WithId,
+  WithUuid,
 } from "@/types";
 import { toSaveableFormData } from "./toSaveableFormData";
 
@@ -79,7 +79,9 @@ describe("makeLocalAssetFromSaved", () => {
     asset: Asset,
     fieldTitle: string
   ): (string | undefined)[] =>
-    (asset[fieldTitle] as WithId<WidgetContent>[]).map((content) => content.id);
+    (asset[fieldTitle] as WithUuid<WidgetContent>[]).map(
+      (content) => content.uuid
+    );
 
   it("inherits the ids the editor already holds, so a save does not rebuild the form", () => {
     const localAsset = makeLocalAssetFromSaved({
@@ -89,7 +91,7 @@ describe("makeLocalAssetFromSaved", () => {
         field_1: [{ fieldContents: "saved" }],
       }),
       previousAsset: makeSavedAsset({
-        field_1: [{ fieldContents: "saved", id: "already-on-screen" }],
+        field_1: [{ fieldContents: "saved", uuid: "already-on-screen" }],
       }),
     });
 
@@ -104,7 +106,7 @@ describe("makeLocalAssetFromSaved", () => {
         field_1: [{ fieldContents: "first" }, { fieldContents: "second" }],
       }),
       previousAsset: makeSavedAsset({
-        field_1: [{ fieldContents: "first", id: "already-on-screen" }],
+        field_1: [{ fieldContents: "first", uuid: "already-on-screen" }],
       }),
     });
 
@@ -153,7 +155,7 @@ describe("diffEditableFields", () => {
 
   it("reports nothing when the draft matches the saved asset", () => {
     const savedAsset = makeSavedAsset({
-      title_1: [{ id: "a", fieldContents: "same" }],
+      title_1: [{ uuid: "a", fieldContents: "same" }],
     });
 
     const edits = diffEditableFields({
@@ -167,11 +169,11 @@ describe("diffEditableFields", () => {
 
   it("reports the widget fields the user changed", () => {
     const savedAsset = makeSavedAsset({
-      title_1: [{ id: "a", fieldContents: "before" }],
+      title_1: [{ uuid: "a", fieldContents: "before" }],
     });
     const draft = {
       ...savedAsset,
-      title_1: [{ id: "a", fieldContents: "after" }],
+      title_1: [{ uuid: "a", fieldContents: "after" }],
     };
 
     const edits = diffEditableFields({
@@ -180,16 +182,16 @@ describe("diffEditableFields", () => {
       template: template,
     });
 
-    expect(edits).toEqual({ title_1: [{ id: "a", fieldContents: "after" }] });
+    expect(edits).toEqual({ title_1: [{ uuid: "a", fieldContents: "after" }] });
   });
 
   it("ignores widget content ids, which are generated fresh on every load", () => {
     const savedAsset = makeSavedAsset({
-      title_1: [{ id: "server-load-1", fieldContents: "same" }],
+      title_1: [{ uuid: "server-load-1", fieldContents: "same" }],
     });
     const draft = {
       ...savedAsset,
-      title_1: [{ id: "server-load-2", fieldContents: "same" }],
+      title_1: [{ uuid: "server-load-2", fieldContents: "same" }],
     };
 
     expect(
@@ -233,7 +235,7 @@ describe("diffEditableFields", () => {
 
 describe("editsWithFieldEdit", () => {
   const savedAsset = makeSavedAsset({
-    title_1: [{ id: "a", fieldContents: "saved" }],
+    title_1: [{ uuid: "a", fieldContents: "saved" }],
   });
 
   it("records a changed field", () => {
@@ -241,10 +243,10 @@ describe("editsWithFieldEdit", () => {
       edits: {},
       savedAsset,
       assetKey: "title_1",
-      value: [{ id: "a", fieldContents: "typed" }],
+      value: [{ uuid: "a", fieldContents: "typed" }],
     });
 
-    expect(edits.title_1).toEqual([{ id: "a", fieldContents: "typed" }]);
+    expect(edits.title_1).toEqual([{ uuid: "a", fieldContents: "typed" }]);
   });
 
   it("drops the field when it is set back to its saved value, so an undone edit does not read as unsaved work", () => {
@@ -252,14 +254,14 @@ describe("editsWithFieldEdit", () => {
       edits: {},
       savedAsset,
       assetKey: "title_1",
-      value: [{ id: "a", fieldContents: "typed" }],
+      value: [{ uuid: "a", fieldContents: "typed" }],
     });
 
     const undone = editsWithFieldEdit({
       edits: edited,
       savedAsset,
       assetKey: "title_1",
-      value: [{ id: "a", fieldContents: "saved" }],
+      value: [{ uuid: "a", fieldContents: "saved" }],
     });
 
     expect(undone).toEqual({});
@@ -270,7 +272,7 @@ describe("editsWithFieldEdit", () => {
       edits: { collectionId: 9 },
       savedAsset,
       assetKey: "title_1",
-      value: [{ id: "a", fieldContents: "typed" }],
+      value: [{ uuid: "a", fieldContents: "typed" }],
     });
 
     expect(edits.collectionId).toBe(9);
@@ -284,23 +286,23 @@ describe("clearUploadRegenerationFlags", () => {
 
   it("drops the flag once the save that consumed it has happened", () => {
     const asset = makeSavedAsset({
-      upload_1: [{ id: "a", fileId: "f1", regenerate: "On" }],
+      upload_1: [{ uuid: "a", fileId: "f1", regenerate: "On" }],
     });
 
     const cleared = clearUploadRegenerationFlags(asset, uploadTemplate);
 
-    expect(cleared.upload_1).toEqual([{ id: "a", fileId: "f1" }]);
+    expect(cleared.upload_1).toEqual([{ uuid: "a", fileId: "f1" }]);
   });
 
   it("leaves non-upload widgets alone", () => {
     const template = makeTemplate(1, [{ fieldTitle: "title_1" }]);
     const asset = makeSavedAsset({
-      title_1: [{ id: "a", fieldContents: "text" }],
+      title_1: [{ uuid: "a", fieldContents: "text" }],
     });
 
     const cleared = clearUploadRegenerationFlags(asset, template);
 
-    expect(cleared.title_1).toEqual([{ id: "a", fieldContents: "text" }]);
+    expect(cleared.title_1).toEqual([{ uuid: "a", fieldContents: "text" }]);
   });
 });
 

@@ -11,7 +11,7 @@
     @update:widgetContents="
       $emit(
         'update:widgetContents',
-        $event as Type.WithId<Type.TagListWidgetContent>[]
+        $event as Type.WithUuid<Type.TagListWidgetContent>[]
       )
     ">
     <template #fieldContents="{ item }">
@@ -20,7 +20,7 @@
         :addOnBlur="false"
         :addOnPaste="true"
         class="tags-input !py-0"
-        @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
+        @update:modelValue="(tags) => handleUpdateTags(item.uuid, tags as string[])">
         <TagsInputItem
           v-for="tag in item.tags"
           :key="tag"
@@ -33,17 +33,17 @@
 
         <FieldAutoComplete
           v-if="widgetDef.attemptAutocomplete"
-          :id="`edit-tag-widget-autocomplete-${item.id}`"
+          :id="`edit-tag-widget-autocomplete-${item.uuid}`"
           :modelValue="pendingTextOf(item)"
           :placeholder="`${widgetDef.label}...`"
           :fieldTitle="widgetDef.fieldTitle"
           :templateId="templateId"
           inputClass="!py-0 flex-1 min-w-24"
           :blurOnSelect="false"
-          @update:modelValue="(text) => handlePendingTextInput(item.id, text)"
-          @blur="commitPendingTag(item.id)"
-          @select="(selection) => commitTag(item.id, selection)"
-          @keydown="(event) => handleKeydown(item.id, event)" />
+          @update:modelValue="(text) => handlePendingTextInput(item.uuid, text)"
+          @blur="commitPendingTag(item.uuid)"
+          @select="(selection) => commitTag(item.uuid, selection)"
+          @keydown="(event) => handleKeydown(item.uuid, event)" />
         <input
           v-else
           :value="pendingTextOf(item)"
@@ -51,12 +51,12 @@
           class="flex-1 min-w-24 bg-transparent text-sm focus:outline-none"
           @input="
             handlePendingTextInput(
-              item.id,
+              item.uuid,
               ($event.target as HTMLInputElement).value
             )
           "
-          @blur="commitPendingTag(item.id)"
-          @keydown="(event) => handleKeydown(item.id, event)" />
+          @blur="commitPendingTag(item.uuid)"
+          @keydown="(event) => handleKeydown(item.uuid, event)" />
       </TagsInput>
     </template>
   </EditWidgetLayout>
@@ -79,7 +79,7 @@ import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TagListWidgetDef;
-  widgetContents: Type.WithId<Type.TagListWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.TagListWidgetContent>[];
   isOpen: boolean;
 }>();
 
@@ -93,7 +93,7 @@ const templateId = computed(() => {
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.TagListWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.TagListWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
@@ -104,8 +104,8 @@ const emit = defineEmits<{
 const pendingTextOf = (item: Type.TagListWidgetContent): string =>
   item.pendingText ?? "";
 
-const rowOf = (itemId: string): Type.WithId<Type.TagListWidgetContent> => {
-  const row = props.widgetContents.find((content) => content.id === itemId);
+const rowOf = (itemId: string): Type.WithUuid<Type.TagListWidgetContent> => {
+  const row = props.widgetContents.find((content) => content.uuid === itemId);
   invariant(row, `no tag row with id ${itemId}`);
   return row;
 };
@@ -116,16 +116,16 @@ const handleAdd = () =>
     ops.makeAddContentPayload(props.widgetContents, props.widgetDef)
   );
 
-const handleSetPrimary = (id: string) =>
+const handleSetPrimary = (uuid: string) =>
   emit(
     "update:widgetContents",
-    ops.makeSetPrimaryContentPayload(props.widgetContents, id)
+    ops.makeSetPrimaryContentPayload(props.widgetContents, uuid)
   );
 
-const handleDelete = (id: string) =>
+const handleDelete = (uuid: string) =>
   emit(
     "update:widgetContents",
-    ops.deleteWidgetContent(props.widgetContents, id)
+    ops.deleteWidgetContent(props.widgetContents, uuid)
   );
 
 const handleUpdateTags = (
@@ -164,7 +164,7 @@ function commitTag(itemId: string, value: string) {
   const shouldAddTag = tag !== "" && !tags.includes(tag);
   const nextTags = shouldAddTag ? [...tags, tag] : tags;
   const nextContents = props.widgetContents.map((content) =>
-    content.id === itemId
+    content.uuid === itemId
       ? { ...content, tags: nextTags, pendingText: "" }
       : content
   );

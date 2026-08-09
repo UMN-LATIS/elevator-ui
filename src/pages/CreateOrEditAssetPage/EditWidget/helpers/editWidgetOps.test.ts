@@ -4,19 +4,19 @@ import {
   dateRowWithNumericsFromText,
 } from "./editWidgetOps";
 import { parseDateString } from "@/helpers/parseDateString";
-import type { DateWidgetContent, WidgetContent, WithId } from "@/types";
+import type { DateWidgetContent, WidgetContent, WithUuid } from "@/types";
 
 const makeRows = (
-  ...rows: { id: string; isPrimary?: boolean }[]
-): WithId<WidgetContent>[] =>
+  ...rows: { uuid: string; isPrimary?: boolean }[]
+): WithUuid<WidgetContent>[] =>
   rows.map((row) => ({ isPrimary: false, ...row }));
 
 describe("dateRowWithNumericsFromText", () => {
   const makeDateRow = (
     start: { text: string | null; numeric: string | null },
     end: { text: string | null; numeric: string | null }
-  ): WithId<DateWidgetContent> => ({
-    id: "row-1",
+  ): WithUuid<DateWidgetContent> => ({
+    uuid: "row-1",
     isPrimary: false,
     label: null,
     start,
@@ -52,12 +52,18 @@ describe("dateRowWithNumericsFromText", () => {
   });
 
   it("keeps every other field on the row", () => {
-    const row = { ...makeDateRow({ text: "2020", numeric: null }, { text: null, numeric: null }), label: "Published" };
+    const row = {
+      ...makeDateRow(
+        { text: "2020", numeric: null },
+        { text: null, numeric: null }
+      ),
+      label: "Published",
+    };
 
     const updated = dateRowWithNumericsFromText(row);
 
     expect(updated).toMatchObject({
-      id: "row-1",
+      uuid: "row-1",
       label: "Published",
       isPrimary: false,
     });
@@ -67,26 +73,26 @@ describe("dateRowWithNumericsFromText", () => {
 describe("deleteWidgetContent", () => {
   it("promotes the first remaining row when the primary is deleted", () => {
     const rows = makeRows(
-      { id: "a", isPrimary: true },
-      { id: "b" },
-      { id: "c" }
+      { uuid: "a", isPrimary: true },
+      { uuid: "b" },
+      { uuid: "c" }
     );
 
     expect(deleteWidgetContent(rows, "a")).toEqual(
-      makeRows({ id: "b", isPrimary: true }, { id: "c" })
+      makeRows({ uuid: "b", isPrimary: true }, { uuid: "c" })
     );
   });
 
   it("leaves the primary alone when another row is deleted", () => {
-    const rows = makeRows({ id: "a" }, { id: "b", isPrimary: true });
+    const rows = makeRows({ uuid: "a" }, { uuid: "b", isPrimary: true });
 
     expect(deleteWidgetContent(rows, "a")).toEqual(
-      makeRows({ id: "b", isPrimary: true })
+      makeRows({ uuid: "b", isPrimary: true })
     );
   });
 
   it("deletes the last row without inventing a primary", () => {
-    const rows = makeRows({ id: "a", isPrimary: true });
+    const rows = makeRows({ uuid: "a", isPrimary: true });
 
     expect(deleteWidgetContent(rows, "a")).toEqual([]);
   });

@@ -54,7 +54,7 @@ function parsePpm(value: string | number): number | null {
 }
 
 const props = defineProps<{
-  sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
+  sidecars: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>;
   widgetDef: Type.UploadWidgetDef;
   fileMetaData: FileMetaData | null;
 }>();
@@ -66,7 +66,7 @@ const initialSidecars = ref(props.sidecars);
 const emit = defineEmits<{
   (
     e: "update:sidecars",
-    item: Type.WithId<Type.UploadWidgetContent["sidecars"]>
+    item: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>
   ): void;
 }>();
 

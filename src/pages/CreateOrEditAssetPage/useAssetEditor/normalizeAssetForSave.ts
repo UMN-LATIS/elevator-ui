@@ -28,7 +28,8 @@ import { omit } from "ramda";
  * what dirtiness and content-id matching need.
  *
  * Only editable fields appear: the widget fields plus the non-widget
- * properties a save sends. Content ids are client-only and omitted.
+ * properties a save sends. Content uuids are identity, not content, and are
+ * omitted so a reminted uuid never reads as an edit.
  */
 export interface AssetAsStored {
   [fieldTitle: string]: unknown;
@@ -64,29 +65,41 @@ export function normalizeAssetForSave(
 }
 
 /**
- * One widget's contents as the server will store them: corrupt rows and
- * client-only ids removed, text-area html cleaned, and rows the server
- * drops filtered out.
+ * One widget's contents for comparison against a stored document: the wire
+ * form with the uuids stripped, because a uuid is identity, not content.
  */
 export function normalizeWidgetContents(
+  contents: WidgetContent[],
+  widgetType: WidgetType
+): WidgetContent[] {
+  return saveableWidgetContents(contents, widgetType).map((content) =>
+    omit(["uuid"], content)
+  );
+}
+
+/**
+ * One widget's contents as a save sends them: corrupt rows removed,
+ * text-area html cleaned, rows the server drops filtered out, and the
+ * uuids kept so the server stores them.
+ */
+export function saveableWidgetContents(
   contents: WidgetContent[],
   widgetType: WidgetType
 ): WidgetContent[] {
   return contents
     .filter(hasContentKeys)
     .map((content) => {
-      const contentWithoutId = omit(["id"], content);
       if (widgetType === WIDGET_TYPES.TEXT_AREA) {
-        const textArea = contentWithoutId as TextAreaWidgetContent;
+        const textArea = content as TextAreaWidgetContent;
         return {
           ...textArea,
           fieldContents: cleanTextAreaHtml(textArea.fieldContents ?? ""),
         };
       }
       if (widgetType === WIDGET_TYPES.TAG_LIST) {
-        return foldPendingTagText(contentWithoutId as TagListWidgetContent);
+        return foldPendingTagText(content as TagListWidgetContent);
       }
-      return contentWithoutId;
+      return content;
     })
     .filter((content) => doesServerKeepContent(content, widgetType));
 }
@@ -187,7 +200,10 @@ const EMPTY_PARAGRAPHS = /<p>(&nbsp;|\s|<br>)*<\/p>/g;
 
 /** What the save pipeline does to text-area html before sending. */
 export function cleanTextAreaHtml(html: string): string {
-  return html.replace(EMPTY_PARAGRAPHS, "").replace(/&nbsp;/g, " ").trim();
+  return html
+    .replace(EMPTY_PARAGRAPHS, "")
+    .replace(/&nbsp;/g, " ")
+    .trim();
 }
 
 /**

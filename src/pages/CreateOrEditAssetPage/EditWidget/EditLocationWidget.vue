@@ -27,12 +27,12 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.LocationWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.LocationWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <EditLocationWidgetContentItem
-        :modelValue="(item as Type.WithId<Type.LocationWidgetContent>)"
+        :modelValue="(item as Type.WithUuid<Type.LocationWidgetContent>)"
         :widgetDef="widgetDef"
         @update:modelValue="handleItemUpdate" />
     </template>
@@ -46,25 +46,27 @@ import EditLocationWidgetContentItem from "./EditLocationWidgetContentItem.vue";
 
 const props = defineProps<{
   widgetDef: Type.LocationWidgetDef;
-  widgetContents: Type.WithId<Type.LocationWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.LocationWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.LocationWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.LocationWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 function handleItemUpdate(
-  updatedItem: Type.WithId<Type.LocationWidgetContent>
+  updatedItem: Type.WithUuid<Type.LocationWidgetContent>
 ) {
-  const index = props.widgetContents.findIndex((i) => i.id === updatedItem.id);
+  const index = props.widgetContents.findIndex(
+    (i) => i.uuid === updatedItem.uuid
+  );
   if (index === -1) {
     throw Error(
-      `Cannot update location widget: item with id "${updatedItem.id}" not found`
+      `Cannot update location widget: item with id "${updatedItem.uuid}" not found`
     );
   }
 

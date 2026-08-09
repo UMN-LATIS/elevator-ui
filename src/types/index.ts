@@ -1002,7 +1002,7 @@ export interface ApiGetExcerptResponse {
   assetId: string;
 }
 
-export type WithId<T> = T & { id: string };
+export type WithUuid<T> = T & { uuid: string };
 
 export interface UpdateAssetRequestFormData {
   objectId: string;

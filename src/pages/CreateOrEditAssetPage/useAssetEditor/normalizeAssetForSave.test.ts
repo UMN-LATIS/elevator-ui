@@ -72,9 +72,9 @@ describe("doesServerKeepContent", () => {
   });
 
   it("drops an upload row with no fileId and a multiselect with no values", () => {
-    expect(
-      doesServerKeepContent({ fileId: "", fileType: "" }, "upload")
-    ).toBe(false);
+    expect(doesServerKeepContent({ fileId: "", fileType: "" }, "upload")).toBe(
+      false
+    );
     expect(doesServerKeepContent({ fieldContents: {} }, "multiselect")).toBe(
       false
     );
@@ -148,8 +148,8 @@ describe("normalizeAssetForSave", () => {
       readyForDisplay: true,
       availableAfter: null,
       field_1: [
-        { fieldContents: "typed", isPrimary: false, id: "row-1" },
-        { fieldContents: "", isPrimary: false, id: "row-2" },
+        { fieldContents: "typed", isPrimary: false, uuid: "row-1" },
+        { fieldContents: "", isPrimary: false, uuid: "row-2" },
       ],
     } as unknown as Asset;
     const stored = {

@@ -37,10 +37,10 @@ describe("validateAsset", () => {
   it("reads an empty text widget as empty and a filled one as valid", () => {
     const template = makeTemplate([{}]);
     const emptyAsset = makeAsset({
-      field_1: [{ id: "row-1", fieldContents: "", isPrimary: false }],
+      field_1: [{ uuid: "row-1", fieldContents: "", isPrimary: false }],
     });
     const filledAsset = makeAsset({
-      field_1: [{ id: "row-1", fieldContents: "typed", isPrimary: false }],
+      field_1: [{ uuid: "row-1", fieldContents: "typed", isPrimary: false }],
     });
 
     expect(
@@ -54,7 +54,7 @@ describe("validateAsset", () => {
   it("marks a required empty widget invalid with a global error", () => {
     const template = makeTemplate([{ required: true }]);
     const asset = makeAsset({
-      field_1: [{ id: "row-1", fieldContents: "", isPrimary: false }],
+      field_1: [{ uuid: "row-1", fieldContents: "", isPrimary: false }],
     });
 
     const [validation] = validateAsset(asset, template, getWidgetInstanceId);
@@ -70,7 +70,7 @@ describe("validateAsset", () => {
     const inOrderAsset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           label: "",
           start: { text: "2020", numeric: "1577836800" },
           end: { text: "2021", numeric: "1609459200" },
@@ -80,7 +80,7 @@ describe("validateAsset", () => {
     const reversedDatesAsset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           label: "",
           start: { text: "2021", numeric: "1609459200" },
           end: { text: "2020", numeric: "1577836800" },
@@ -108,7 +108,7 @@ describe("validateAsset", () => {
     const asset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           label: "",
           start: { text: "not a date", numeric: null },
           end: { text: null, numeric: null },
@@ -128,7 +128,7 @@ describe("validateAsset", () => {
     const asset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           label: "",
           start: { text: null, numeric: null },
           end: { text: "2021", numeric: "1609459200" },
@@ -148,7 +148,7 @@ describe("validateAsset", () => {
     const asset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           label: "Published",
           start: { text: null, numeric: null },
           end: { text: "2021", numeric: "1609459200" },
@@ -166,7 +166,7 @@ describe("validateAsset", () => {
     const asset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           locationLabel: "",
           address: "117 Pleasant St SE, Minneapolis",
           loc: undefined,
@@ -185,7 +185,7 @@ describe("validateAsset", () => {
     const asset = makeAsset({
       field_1: [
         {
-          id: "row-1",
+          uuid: "row-1",
           locationLabel: "",
           address: "117 Pleasant St SE, Minneapolis",
           loc: { type: "Point", coordinates: [-93.235, 44.974] },
@@ -201,8 +201,8 @@ describe("validateAsset", () => {
 
   it("reports one widget per template, so a smaller template reports fewer", () => {
     const asset = makeAsset({
-      field_1: [{ id: "row-1", fieldContents: "kept", isPrimary: false }],
-      field_2: [{ id: "row-2", fieldContents: "dropped", isPrimary: false }],
+      field_1: [{ uuid: "row-1", fieldContents: "kept", isPrimary: false }],
+      field_2: [{ uuid: "row-2", fieldContents: "dropped", isPrimary: false }],
     });
 
     expect(

@@ -21,7 +21,7 @@ import { ref, watch } from "vue";
 
 const instanceStore = useInstanceStore();
 const props = defineProps<{
-  sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
+  sidecars: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>;
   widgetDef: Type.UploadWidgetDef;
   fileMetaData: FileMetaData | null;
 }>();
@@ -29,7 +29,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (
     e: "update:sidecars",
-    sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>
+    sidecars: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>
   ): void;
 }>();
 

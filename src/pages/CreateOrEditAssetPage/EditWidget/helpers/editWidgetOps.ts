@@ -10,9 +10,9 @@ import { parseDateString } from "@/helpers/parseDateString";
  * the same epoch basis. Two bases in one row compare as start after end for
  * a single civil day, so every edit re-parses the pair together.
  */
-export function dateRowWithNumericsFromText<
-  T extends Type.DateWidgetContent
->(row: T): T {
+export function dateRowWithNumericsFromText<T extends Type.DateWidgetContent>(
+  row: T
+): T {
   return {
     ...row,
     start: { ...row.start, numeric: parseDateString(row.start.text ?? "") },
@@ -21,31 +21,31 @@ export function dateRowWithNumericsFromText<
 }
 
 export function makeSetPrimaryContentPayload<
-  T extends Type.WithId<Type.WidgetContent>
->(widgetContents: readonly T[], id: string): T[] {
+  T extends Type.WithUuid<Type.WidgetContent>
+>(widgetContents: readonly T[], uuid: string): T[] {
   return widgetContents.map((item) => ({
     ...item,
-    isPrimary: item.id === id,
+    isPrimary: item.uuid === uuid,
   })) as T[];
 }
 
 export function makeAddContentPayload<
-  T extends Type.WithId<Type.WidgetContent>
+  T extends Type.WithUuid<Type.WidgetContent>
 >(widgetContents: readonly T[], widgetDef: Type.WidgetDef): T[] {
   const newItem = createDefaultWidgetContent(widgetDef) as T;
   return [...widgetContents, newItem];
 }
 
 export function makeUpdateContentPayload<
-  T extends Type.WithId<Type.WidgetContent>
+  T extends Type.WithUuid<Type.WidgetContent>
 >(
   widgetContents: readonly T[],
-  id: string,
+  uuid: string,
   updatedContentItem: any,
   propToUpdate = "fieldContents"
 ): T[] {
   return widgetContents.map((item) => {
-    if (item.id !== id) return item;
+    if (item.uuid !== uuid) return item;
     return {
       ...item,
       [propToUpdate]: updatedContentItem,
@@ -53,13 +53,12 @@ export function makeUpdateContentPayload<
   }) as T[];
 }
 
-export function deleteWidgetContent<T extends Type.WithId<Type.WidgetContent>>(
-  widgetContents: readonly T[],
-  id: string
-): T[] {
-  const removedItem = widgetContents.find((item) => item.id === id);
+export function deleteWidgetContent<
+  T extends Type.WithUuid<Type.WidgetContent>
+>(widgetContents: readonly T[], uuid: string): T[] {
+  const removedItem = widgetContents.find((item) => item.uuid === uuid);
   const remainingContents = widgetContents.filter(
-    (item) => item.id !== id
+    (item) => item.uuid !== uuid
   ) as T[];
 
   // deleting the primary row promotes the first remaining one, so previews

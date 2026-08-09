@@ -6,7 +6,7 @@ import {
   PHPDateTime,
   UpdateAssetRequestFormData,
 } from "@/types";
-import { normalizeWidgetContents } from "./normalizeAssetForSave";
+import { saveableWidgetContents } from "./normalizeAssetForSave";
 
 /**
  * The wire form of a save. The server rebuilds the whole document from
@@ -23,7 +23,7 @@ export function toSaveableFormData(
       | WidgetContent[]
       | undefined;
     if (!Array.isArray(widgetContents)) continue;
-    widgetFields[widgetDef.fieldTitle] = normalizeWidgetContents(
+    widgetFields[widgetDef.fieldTitle] = saveableWidgetContents(
       widgetContents,
       widgetDef.type
     );

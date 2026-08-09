@@ -19,7 +19,7 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.UploadWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.UploadWidgetContent>[]);
       }
     ">
     <template #moreWidgetActions>
@@ -45,13 +45,13 @@
       <EditUploadWidgetItem
         :item="item"
         :widgetDef="widgetDef"
-        :isShowingDetails="isShowingDetails.has(item.id)"
+        :isShowingDetails="isShowingDetails.has(item.uuid)"
         class="upload-widget-item"
         @update:item="handleUpdateItem"
         @toggle:details="
-          isShowingDetails.has(item.id)
-            ? isShowingDetails.delete(item.id)
-            : isShowingDetails.add(item.id)
+          isShowingDetails.has(item.uuid)
+            ? isShowingDetails.delete(item.uuid)
+            : isShowingDetails.add(item.uuid)
         " />
     </template>
     <template #footer>
@@ -87,14 +87,14 @@ const FileUploader = defineAsyncComponent(() => import("./FileUploader.vue"));
 const props = defineProps<{
   collectionId: number;
   widgetDef: Type.UploadWidgetDef;
-  widgetContents: Type.WithId<Type.UploadWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.UploadWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.UploadWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.UploadWidgetContent>[]
   );
   (e: "update:isOpen", isOpen: boolean): void;
   (e: "save"): void;
@@ -113,13 +113,13 @@ const toastStore = useToastStore();
  * render, so two uploads completing in the same flush would each read the
  * pre-update array and the second would overwrite the first.
  */
-function currentContents(): Type.WithId<Type.UploadWidgetContent>[] {
+function currentContents(): Type.WithUuid<Type.UploadWidgetContent>[] {
   return (assetEditor.localAsset?.[props.widgetDef.fieldTitle] ??
-    []) as Type.WithId<Type.UploadWidgetContent>[];
+    []) as Type.WithUuid<Type.UploadWidgetContent>[];
 }
 
 function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
-  const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
+  const uploadedItem: Type.WithUuid<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
     fileDescription: "",
@@ -145,7 +145,7 @@ async function handleDeleteContent(id: string) {
     return;
   }
 
-  const item = currentContents().find((item) => item.id === id);
+  const item = currentContents().find((item) => item.uuid === id);
 
   if (!item) {
     throw new Error(
@@ -166,7 +166,9 @@ async function handleDeleteContent(id: string) {
   } catch (cause) {
     toastStore.addToast({
       title: "Error",
-      message: `The file was not deleted because the asset could not be saved: ${getErrorMessage(cause)}`,
+      message: `The file was not deleted because the asset could not be saved: ${getErrorMessage(
+        cause
+      )}`,
       variant: "error",
     });
     return;
@@ -185,9 +187,9 @@ async function handleDeleteContent(id: string) {
   }
 }
 
-function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
+function handleUpdateItem(item: Type.WithUuid<Type.UploadWidgetContent>) {
   const updatedContents = currentContents().map((existingItem) => {
-    if (existingItem.id === item.id) {
+    if (existingItem.uuid === item.uuid) {
       return { ...existingItem, ...item };
     }
     return existingItem;
@@ -197,7 +199,7 @@ function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
 
 const isRegeneratingAllDerivatives = computed(() => {
   return props.widgetContents.every(
-    (item: Type.WithId<Type.UploadWidgetContent>) => item.regenerate === "On"
+    (item: Type.WithUuid<Type.UploadWidgetContent>) => item.regenerate === "On"
   );
 });
 
@@ -217,7 +219,7 @@ function handleRegenerateAllDerivatives() {
   emit("update:widgetContents", updatedContents);
 
   // also open all details views
-  const allIds = items.map((item) => item.id);
+  const allIds = items.map((item) => item.uuid);
   isShowingDetails.value = new Set(allIds);
 }
 </script>

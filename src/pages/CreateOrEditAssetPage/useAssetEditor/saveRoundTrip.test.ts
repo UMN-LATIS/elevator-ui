@@ -15,7 +15,7 @@ import type {
   PHPDateTime,
   Template,
   WidgetContent,
-  WithId,
+  WithUuid,
 } from "@/types";
 
 /**
@@ -84,14 +84,14 @@ describe("content ids across a save", () => {
       }),
       previousAsset: makeSavedAsset({
         field_1: [
-          { fieldContents: "", isPrimary: false, id: "blank-row" },
-          { fieldContents: "typed", isPrimary: false, id: "typed-row" },
+          { fieldContents: "", isPrimary: false, uuid: "blank-row" },
+          { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
         ],
       }),
     });
 
-    const ids = (localAsset.field_1 as WithId<WidgetContent>[]).map(
-      (content) => content.id
+    const ids = (localAsset.field_1 as WithUuid<WidgetContent>[]).map(
+      (content) => content.uuid
     );
     expect(ids).toEqual(["typed-row"]);
   });
@@ -101,7 +101,9 @@ describe("the editor settles once a save's response is applied", () => {
   it("reports no unsaved edits after saving a blank row the server never stores", () => {
     const template = makeTemplate(1, [{}]);
     const baseline = makeSavedAsset({
-      field_1: [{ fieldContents: "typed", isPrimary: false, id: "typed-row" }],
+      field_1: [
+        { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
+      ],
     });
     let model = editingModel(baseline);
 
@@ -110,8 +112,8 @@ describe("the editor settles once a save's response is applied", () => {
       type: "widgetContentsEdited",
       fieldTitle: "field_1",
       contents: [
-        { fieldContents: "typed", isPrimary: false, id: "typed-row" },
-        { fieldContents: "", isPrimary: false, id: "blank-row" },
+        { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
+        { fieldContents: "", isPrimary: false, uuid: "blank-row" },
       ] as WidgetContent[],
     });
 
@@ -131,7 +133,7 @@ describe("the editor settles once a save's response is applied", () => {
     const template = makeTemplate(1, [{ type: "text area" }]);
     const baseline = makeSavedAsset({
       field_1: [
-        { fieldContents: "<p>Hello</p>", isPrimary: false, id: "row-1" },
+        { fieldContents: "<p>Hello</p>", isPrimary: false, uuid: "row-1" },
       ],
     });
     let model = editingModel(baseline);
@@ -144,7 +146,7 @@ describe("the editor settles once a save's response is applied", () => {
         {
           fieldContents: "<p>Hello there</p><p><br></p>",
           isPrimary: false,
-          id: "row-1",
+          uuid: "row-1",
         },
       ] as WidgetContent[],
     });

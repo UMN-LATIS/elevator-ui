@@ -1,12 +1,12 @@
 <template>
   <div class="grid md:grid-cols-2 gap-2 rounded-md">
     <InputGroup
-      :id="`${modelValue.id}-label`"
+      :id="`${modelValue.uuid}-label`"
       :modelValue="modelValue.label"
       label="Label"
       @update:modelValue="handleUpdateLabel($event as string)" />
     <SelectGroup
-      :id="`${modelValue.id}-select`"
+      :id="`${modelValue.uuid}-select`"
       :modelValue="isShowingRange ? 'range' : 'moment'"
       label="Date Type"
       :options="[
@@ -20,7 +20,7 @@
         'col-span-2': !isShowingRange,
       }">
       <InputGroup
-        :id="`${modelValue.id}-start-date`"
+        :id="`${modelValue.uuid}-start-date`"
         :label="isShowingRange ? 'Start Date' : 'Date'"
         :modelValue="modelValue.start.text ?? ''"
         :inputClass="{
@@ -42,7 +42,7 @@
 
     <div v-if="isShowingRange">
       <InputGroup
-        :id="`${modelValue.id}-end-date`"
+        :id="`${modelValue.uuid}-end-date`"
         label="End Date"
         :modelValue="modelValue.end.text ?? ''"
         :inputClass="{
@@ -75,14 +75,14 @@ import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
-  modelValue: Type.WithId<Type.DateWidgetContent>;
+  modelValue: Type.WithUuid<Type.DateWidgetContent>;
   widgetDef?: Type.WidgetDef;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:modelValue",
-    contentItem: Type.WithId<Type.DateWidgetContent>
+    contentItem: Type.WithUuid<Type.DateWidgetContent>
   ): void;
 }>();
 
@@ -134,7 +134,7 @@ const widgetValidation = computed(() => {
 const startDateErrors = computed(() => {
   return (
     widgetValidation.value?.errors.getItemFieldErrors(
-      props.modelValue.id,
+      props.modelValue.uuid,
       "start"
     ) || []
   );
@@ -143,7 +143,7 @@ const startDateErrors = computed(() => {
 const endDateErrors = computed(() => {
   return (
     widgetValidation.value?.errors.getItemFieldErrors(
-      props.modelValue.id,
+      props.modelValue.uuid,
       "end"
     ) || []
   );

@@ -117,7 +117,7 @@ import { computed } from "vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 
 const props = defineProps<{
-  item: Type.WithId<Type.UploadWidgetContent>;
+  item: Type.WithUuid<Type.UploadWidgetContent>;
   widgetDef: Type.UploadWidgetDef;
   isShowingDetails: boolean;
 }>();
@@ -137,7 +137,7 @@ const descriptionFieldHelp = computed(() =>
 );
 
 const emit = defineEmits<{
-  (e: "update:item", item: Type.WithId<Type.UploadWidgetContent>): void;
+  (e: "update:item", item: Type.WithUuid<Type.UploadWidgetContent>): void;
   (e: "toggle:details"): void;
 }>();
 

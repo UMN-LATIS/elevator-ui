@@ -171,8 +171,8 @@ describe("editorReducer", () => {
       assertStatus(next, "editingNewAsset");
       expect(localAssetOf(next).title_1).toHaveLength(1);
       expect(localAssetOf(next).notes_1).toHaveLength(1);
-      const [titleContent] = localAssetOf(next).title_1 as { id: string }[];
-      expect(titleContent.id).toEqual(expect.any(String));
+      const [titleContent] = localAssetOf(next).title_1 as { uuid: string }[];
+      expect(titleContent.uuid).toEqual(expect.any(String));
     });
 
     it("keeps the error when the template fails to load", () => {
@@ -423,7 +423,7 @@ describe("editorReducer", () => {
         type: "assetLoaded",
         editorGeneration: EDITOR_GENERATION,
         savedAsset: makeSavedAsset({
-          title_1: [{ id: "a", fieldContents: "original" }],
+          title_1: [{ uuid: "a", fieldContents: "original" }],
         }),
         template,
       });
@@ -431,7 +431,7 @@ describe("editorReducer", () => {
       const edited = reduce(loaded, {
         type: "widgetContentsEdited",
         fieldTitle: "title_1",
-        contents: [{ id: "a", fieldContents: "changed" }],
+        contents: [{ uuid: "a", fieldContents: "changed" }],
       });
 
       assertStatus(loaded, "editingExistingAsset");
@@ -440,7 +440,7 @@ describe("editorReducer", () => {
       // silently never send
       expect(edited.savedAsset).toBe(loaded.savedAsset);
       expect(localAssetOf(edited).title_1).toEqual([
-        { id: "a", fieldContents: "changed" },
+        { uuid: "a", fieldContents: "changed" },
       ]);
     });
   });
@@ -466,7 +466,7 @@ describe("editorReducer", () => {
   describe("what counts as unsaved work", () => {
     const template = makeTemplate(1, [{}]);
     const scaffoldContents = [
-      { fieldContents: "", isPrimary: false, id: "item-1" },
+      { fieldContents: "", isPrimary: false, uuid: "item-1" },
     ];
 
     it("reads an untouched draft as clean, so the leave guard stays quiet", () => {
@@ -480,7 +480,9 @@ describe("editorReducer", () => {
     it("reads a draft the user typed into as unsaved work", () => {
       const typedDraft = editingNewAssetModel(
         makeUnsavedAsset({
-          field_1: [{ fieldContents: "typed", isPrimary: false, id: "item-1" }],
+          field_1: [
+            { fieldContents: "typed", isPrimary: false, uuid: "item-1" },
+          ],
         })
       );
 
@@ -498,7 +500,9 @@ describe("editorReducer", () => {
     it("reads as clean while the template document is not loaded, whatever the draft holds", () => {
       const typedDraft = editingNewAssetModel(
         makeUnsavedAsset({
-          field_1: [{ fieldContents: "typed", isPrimary: false, id: "item-1" }],
+          field_1: [
+            { fieldContents: "typed", isPrimary: false, uuid: "item-1" },
+          ],
         })
       );
 
@@ -607,7 +611,7 @@ describe("editorReducer", () => {
           {
             fieldContents: "typed during save",
             isPrimary: false,
-            id: "item-1",
+            uuid: "item-1",
           },
         ],
       });
@@ -621,7 +625,7 @@ describe("editorReducer", () => {
           savedAsset: makeSavedAsset({
             assetId: "fresh-from-server",
             field_1: [
-              { fieldContents: "sent", isPrimary: false, id: "item-1" },
+              { fieldContents: "sent", isPrimary: false, uuid: "item-1" },
             ],
           }),
           template,
@@ -633,7 +637,7 @@ describe("editorReducer", () => {
         {
           fieldContents: "typed during save",
           isPrimary: false,
-          id: "item-1",
+          uuid: "item-1",
         },
       ]);
     });

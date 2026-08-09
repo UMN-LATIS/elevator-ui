@@ -7,7 +7,7 @@
     </div>
     <InlineCreateOrEditAssetPage
       v-else
-      :key="modelValue.id"
+      :key="modelValue.uuid"
       :templateId="templateId"
       :collectionId="props.collectionId"
       :assetId="modelValue.targetAssetId"
@@ -27,7 +27,7 @@ import InlineCreateOrEditAssetPage from "../../InlineCreateOrEditAssetPage.vue";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
-  modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
+  modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>;
   widgetDef: Type.RelatedAssetWidgetDef;
   assetId: string | null; // need current assetId to prevent circular dependencies
 }>();
@@ -35,7 +35,7 @@ const props = defineProps<{
 defineEmits<{
   (
     e: "update:modelValue",
-    modelValue: Type.WithId<Type.RelatedAssetWidgetContent>
+    modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>
   ): void;
 }>();
 

@@ -37,10 +37,10 @@ const widgetDef: T.UploadWidgetDef = {
   templateOrder: 0,
 };
 
-function makeUploadItem(id: string): T.WithId<T.UploadWidgetContent> {
+function makeUploadItem(uuid: string): T.WithUuid<T.UploadWidgetContent> {
   return {
-    id,
-    fileId: `${id}-hash`,
+    uuid,
+    fileId: `${uuid}-hash`,
     fileDescription: "",
     fileType: "image/jpeg",
     searchData: "",
@@ -53,7 +53,7 @@ function makeUploadItem(id: string): T.WithId<T.UploadWidgetContent> {
 const EditWidgetLayoutStub = defineComponent({
   props: {
     widgetContents: {
-      type: Array as PropType<T.WithId<T.UploadWidgetContent>[]>,
+      type: Array as PropType<T.WithUuid<T.UploadWidgetContent>[]>,
       required: true,
     },
   },
@@ -83,8 +83,8 @@ const PassThroughStub = defineComponent({
 });
 
 function mountWidget(options: {
-  propItems: T.WithId<T.UploadWidgetContent>[];
-  modelItems: T.WithId<T.UploadWidgetContent>[];
+  propItems: T.WithUuid<T.UploadWidgetContent>[];
+  modelItems: T.WithUuid<T.UploadWidgetContent>[];
 }) {
   const assetEditorStub = reactive({
     localAsset: { [widgetDef.fieldTitle]: options.modelItems },
@@ -142,30 +142,33 @@ describe("EditUploadWidget", () => {
       expect(writes).toBeTruthy();
       const itemsWritten = writes?.at(
         -1
-      )?.[0] as T.WithId<T.UploadWidgetContent>[];
+      )?.[0] as T.WithUuid<T.UploadWidgetContent>[];
 
-      expect(itemsWritten.map((item) => item.id)).toEqual(["item-a", "item-b"]);
+      expect(itemsWritten.map((item) => item.uuid)).toEqual([
+        "item-a",
+        "item-b",
+      ]);
     });
 
     // exercises handleRegenerateAllDerivatives
-    it(
-      "keeps the newer item when Regenerate All Derivatives is toggled",
-      async () => {
-        const wrapper = mountWidget({
-          propItems: [settledItem],
-          modelItems: [settledItem, itemFromThisFlush],
-        });
+    it("keeps the newer item when Regenerate All Derivatives is toggled", async () => {
+      const wrapper = mountWidget({
+        propItems: [settledItem],
+        modelItems: [settledItem, itemFromThisFlush],
+      });
 
-        await wrapper.get("button").trigger("click");
+      await wrapper.get("button").trigger("click");
 
-        const writes = wrapper.emitted("update:widgetContents");
-        expect(writes).toBeTruthy();
-        const itemsWritten = writes?.at(
-          -1
-        )?.[0] as T.WithId<T.UploadWidgetContent>[];
+      const writes = wrapper.emitted("update:widgetContents");
+      expect(writes).toBeTruthy();
+      const itemsWritten = writes?.at(
+        -1
+      )?.[0] as T.WithUuid<T.UploadWidgetContent>[];
 
-        expect(itemsWritten.map((item) => item.id)).toEqual(["item-a", "item-b"]);
-      }
-    );
+      expect(itemsWritten.map((item) => item.uuid)).toEqual([
+        "item-a",
+        "item-b",
+      ]);
+    });
   });
 });

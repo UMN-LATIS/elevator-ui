@@ -27,20 +27,20 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.TextWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.TextWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <div>
-        <label :for="`${item.id}-input`" class="sr-only">
+        <label :for="`${item.uuid}-input`" class="sr-only">
           {{ widgetDef.label }}
         </label>
 
         <!-- Autocomplete Text Input -->
         <div v-if="widgetDef.attemptAutocomplete">
           <FieldAutoComplete
-            :id="`${item.id}-input`"
-            :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
+            :id="`${item.uuid}-input`"
+            :modelValue="(item as Type.WithUuid<Type.TextWidgetContent>).fieldContents"
             :placeholder="widgetDef.label"
             :fieldTitle="widgetDef.fieldTitle"
             :templateId="templateId"
@@ -52,15 +52,15 @@
         <!-- Regular Text Input -->
         <Input
           v-else
-          :id="`${item.id}-input`"
-          :modelValue="(item as Type.WithId<Type.TextWidgetContent>).fieldContents"
+          :id="`${item.uuid}-input`"
+          :modelValue="(item as Type.WithUuid<Type.TextWidgetContent>).fieldContents"
           :placeholder="widgetDef.label"
           class="bg-surface-container"
           @update:modelValue="
             (value) =>
               $emit(
                 'update:widgetContents',
-                ops.makeUpdateContentPayload(widgetContents, item.id, value)
+                ops.makeUpdateContentPayload(widgetContents, item.uuid, value)
               )
           " />
       </div>
@@ -79,14 +79,14 @@ import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TextWidgetDef;
-  widgetContents: Type.WithId<Type.TextWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.TextWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.TextWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.TextWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
@@ -99,12 +99,12 @@ const templateId = computed(() => {
 
 // Handle field updates from AutoCompleteInput
 function handleFieldUpdate(
-  item: Type.WithId<Type.TextWidgetContent>,
+  item: Type.WithUuid<Type.TextWidgetContent>,
   value: string
 ) {
   emit(
     "update:widgetContents",
-    ops.makeUpdateContentPayload(props.widgetContents, item.id, value)
+    ops.makeUpdateContentPayload(props.widgetContents, item.uuid, value)
   );
 }
 </script>

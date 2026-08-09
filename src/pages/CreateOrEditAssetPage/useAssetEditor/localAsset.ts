@@ -7,7 +7,7 @@ import {
   WidgetContent,
   WidgetDef,
   WIDGET_TYPES,
-  WithId,
+  WithUuid,
 } from "@/types";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import {
@@ -36,20 +36,20 @@ function editableAssetKeys(template: Template): string[] {
 }
 
 /**
- * Widget content ids are generated on the client and never round-trip, so
- * two contents holding the same values are the same content.
+ * A widget content's uuid is identity, not content, so two contents holding
+ * the same values are the same content whatever their uuids say.
  */
-function fieldValueWithoutContentIds(value: unknown): unknown {
+function fieldValueWithoutContentUuids(value: unknown): unknown {
   if (!Array.isArray(value)) return value;
   return value.map((item) =>
-    item && typeof item === "object" ? omit(["id"], item) : item
+    item && typeof item === "object" ? omit(["uuid"], item) : item
   );
 }
 
 function isFieldUnchanged(draftValue: unknown, savedValue: unknown): boolean {
   return equals(
-    fieldValueWithoutContentIds(draftValue),
-    fieldValueWithoutContentIds(savedValue)
+    fieldValueWithoutContentUuids(draftValue),
+    fieldValueWithoutContentUuids(savedValue)
   );
 }
 
@@ -134,7 +134,7 @@ export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
     .filter((widgetDef) => widgetDef.type === WIDGET_TYPES.UPLOAD)
     .forEach((widgetDef) => {
       const contents = cleared[widgetDef.fieldTitle] as
-        | WithId<UploadWidgetContent>[]
+        | WithUuid<UploadWidgetContent>[]
         | undefined;
       if (!contents) return;
       cleared[widgetDef.fieldTitle] = contents.map((item) =>
@@ -147,10 +147,11 @@ export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
 /**
  * Build the editor's representation of what the server has.
  *
- * @param previousAsset - the document the editor already holds, if any. Its
- * content ids are inherited by position, so a save response does not change
- * the ids of contents the editor is already showing. Omit when loading a
- * different asset, where there is no identity to carry over.
+ * @param previousAsset - the document the editor already holds, if any.
+ * Contents without stored uuids inherit its uuids by position, so a save
+ * response does not change the identity of contents the editor is already
+ * showing. Omit when loading a different asset, where there is no identity
+ * to carry over.
  */
 export function makeLocalAssetFromSaved({
   template,
@@ -223,18 +224,21 @@ function makeWidgetContents(
   previousContents?: WidgetContent[]
 ): WidgetContent[] {
   if (currentContents && currentContents.length > 0) {
-    // ids never come back from the server, so a rebuilt content would take
-    // a fresh one and remount everything keyed on it. Inherit by position,
+    // a uuid the server stored comes back and wins. Documents from before
+    // uuids were stored have none, and a rebuilt content taking a fresh one
+    // would remount everything keyed on it, so those inherit by position,
     // but only from rows the server keeps: the response holds no blank
-    // rows, so a blank row on screen must not push ids off their contents.
+    // rows, so a blank row on screen must not push uuids off their contents.
     const keptPreviousContents = (previousContents ?? []).filter((content) =>
       doesServerKeepContent(content, widgetDef.type)
     );
     return currentContents.map((content, index) => {
       return {
         ...content,
-        id:
-          content.id ?? keptPreviousContents[index]?.id ?? crypto.randomUUID(),
+        uuid:
+          content.uuid ??
+          keptPreviousContents[index]?.uuid ??
+          crypto.randomUUID(),
       };
     });
   }

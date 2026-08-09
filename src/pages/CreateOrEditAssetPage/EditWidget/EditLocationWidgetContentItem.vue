@@ -131,7 +131,7 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
 import {
   LocationWidgetContent,
-  WithId,
+  WithUuid,
   LngLat,
   Coordinates,
   WidgetDef,
@@ -147,7 +147,7 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    modelValue: WithId<LocationWidgetContent>;
+    modelValue: WithUuid<LocationWidgetContent>;
     widgetDef?: WidgetDef;
     initialZoom?: number;
   }>(),
@@ -167,10 +167,13 @@ const addressErrors = computed((): string[] => {
   const validation = widgetValidations.value.find(
     (widgetValidation) => widgetValidation.id === widgetInstanceId
   );
-  return validation?.errors.getItemFieldErrors(props.modelValue.id, "address") ?? [];
+  return (
+    validation?.errors.getItemFieldErrors(props.modelValue.uuid, "address") ??
+    []
+  );
 });
 
-const id = computed(() => props.modelValue.id || useId());
+const id = computed(() => props.modelValue.uuid || useId());
 
 const { effectiveTheme } = useTheming();
 
@@ -181,7 +184,10 @@ const roundFloat = (value: number, decimalPlaces: number): number =>
   Number(value.toFixed(decimalPlaces));
 
 const emit = defineEmits<{
-  (e: "update:modelValue", widgetContent: WithId<LocationWidgetContent>): void;
+  (
+    e: "update:modelValue",
+    widgetContent: WithUuid<LocationWidgetContent>
+  ): void;
 }>();
 
 const mapContainerRef = useTemplateRef<HTMLElement>("mapContainer");
