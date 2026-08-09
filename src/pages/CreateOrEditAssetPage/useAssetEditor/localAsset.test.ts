@@ -5,7 +5,6 @@ import {
   makeLocalAssetFromSaved,
   makeNewLocalAsset,
   migrateAssetToTemplate,
-  editsWithFieldEdit,
   getAssetDisplayTitle,
 } from "./localAsset";
 import type {
@@ -260,52 +259,6 @@ describe("diffEditableFields", () => {
     ).toEqual({
       templateId: 2,
     });
-  });
-});
-
-describe("editsWithFieldEdit", () => {
-  const savedAsset = makeSavedAsset({
-    title_1: [{ uuid: "a", fieldContents: "saved" }],
-  });
-
-  it("records a changed field", () => {
-    const edits = editsWithFieldEdit({
-      edits: {},
-      savedAsset,
-      assetKey: "title_1",
-      value: [{ uuid: "a", fieldContents: "typed" }],
-    });
-
-    expect(edits.title_1).toEqual([{ uuid: "a", fieldContents: "typed" }]);
-  });
-
-  it("drops the field when it is set back to its saved value, so an undone edit does not read as unsaved work", () => {
-    const edited = editsWithFieldEdit({
-      edits: {},
-      savedAsset,
-      assetKey: "title_1",
-      value: [{ uuid: "a", fieldContents: "typed" }],
-    });
-
-    const undone = editsWithFieldEdit({
-      edits: edited,
-      savedAsset,
-      assetKey: "title_1",
-      value: [{ uuid: "a", fieldContents: "saved" }],
-    });
-
-    expect(undone).toEqual({});
-  });
-
-  it("leaves other pending edits alone", () => {
-    const edits = editsWithFieldEdit({
-      edits: { collectionId: 9 },
-      savedAsset,
-      assetKey: "title_1",
-      value: [{ uuid: "a", fieldContents: "typed" }],
-    });
-
-    expect(edits.collectionId).toBe(9);
   });
 });
 

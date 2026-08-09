@@ -21,9 +21,10 @@ import type {
 /**
  * The backend replaces the whole stored document on every save and drops any
  * content row it reads as empty, an empty fieldContents string included. So a
- * save's response is not always what the editor sent. These tests hold the
- * editor to that contract: once a response is applied, the editor settles,
- * meaning no unsaved edits remain and the rows on screen keep their ids.
+ * save's read-back is not always what the editor sent. These tests hold the
+ * editor to that contract: once the read-back arrives as baselineRefreshed,
+ * the editor settles, meaning no unsaved edits remain and the items on
+ * screen keep their ids.
  */
 
 const makeTemplate = (
@@ -65,13 +66,19 @@ const makeSavedAsset = (overrides: Partial<Asset> = {}): Asset => ({
   ...overrides,
 });
 
-const EDITOR_GENERATION = 7;
-
-const editingModel = (savedAsset: Asset): EditorModel => ({
+const editingModel: EditorModel = {
   status: "editingExistingAsset",
-  editorGeneration: EDITOR_GENERATION,
-  savedAsset,
+  assetId: "asset-123",
   edits: {},
+  pendingTemplateId: null,
+};
+
+/** the read-back in editor shape, as the shell would scaffold and dispatch it */
+const readBack = (baseline: Asset, template: Template): EditorEvent => ({
+  type: "baselineRefreshed",
+  assetId: baseline.assetId,
+  baseline,
+  template,
 });
 
 describe("content ids across a save", () => {
@@ -96,18 +103,12 @@ describe("content ids across a save", () => {
   });
 });
 
-describe("the editor settles once a save's response is applied", () => {
+describe("the editor settles once a save's read-back is applied", () => {
   it("reports no unsaved edits after saving a blank row the server never stores", () => {
     const template = makeTemplate(1, [{}]);
-    const baseline = makeSavedAsset({
-      field_1: [
-        { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
-      ],
-    });
-    let model = editingModel(baseline);
 
     // the user adds a second row and leaves it blank
-    model = reduce(model, {
+    const model = reduce(editingModel, {
       type: "widgetContentsEdited",
       fieldTitle: "field_1",
       contents: [
@@ -116,29 +117,22 @@ describe("the editor settles once a save's response is applied", () => {
       ] as WidgetContent[],
     });
 
-    model = reduce(model, {
-      type: "saveSucceeded",
-      editorGeneration: EDITOR_GENERATION,
-      savedAsset: makeSavedAsset({
-        field_1: [{ fieldContents: "typed", isPrimary: false }],
-      }),
-      template,
+    // the server dropped the blank row, so the read-back holds one row
+    const baseline = makeSavedAsset({
+      field_1: [
+        { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
+      ],
     });
+    const settled = reduce(model, readBack(baseline, template));
 
-    expect(selectHasUnsavedEdits(model, template)).toBe(false);
+    expect(selectHasUnsavedEdits(settled, baseline, template)).toBe(false);
   });
 
   it("reports no unsaved edits after the save cleaned the text area html", () => {
     const template = makeTemplate(1, [{ type: "text area" }]);
-    const baseline = makeSavedAsset({
-      field_1: [
-        { fieldContents: "<p>Hello</p>", isPrimary: false, uuid: "row-1" },
-      ],
-    });
-    let model = editingModel(baseline);
 
     // quill leaves a trailing empty paragraph as the user types
-    model = reduce(model, {
+    const model = reduce(editingModel, {
       type: "widgetContentsEdited",
       fieldTitle: "field_1",
       contents: [
@@ -152,43 +146,40 @@ describe("the editor settles once a save's response is applied", () => {
 
     // toSaveableFormData strips the empty paragraph before sending, so the
     // server stores and echoes the cleaned html, not what the editor holds
-    model = reduce(model, {
-      type: "saveSucceeded",
-      editorGeneration: EDITOR_GENERATION,
-      savedAsset: makeSavedAsset({
-        field_1: [{ fieldContents: "<p>Hello there</p>", isPrimary: false }],
-      }),
-      template,
+    const baseline = makeSavedAsset({
+      field_1: [
+        {
+          fieldContents: "<p>Hello there</p>",
+          isPrimary: false,
+          uuid: "row-1",
+        },
+      ],
     });
+    const settled = reduce(model, readBack(baseline, template));
 
-    expect(selectHasUnsavedEdits(model, template)).toBe(false);
+    expect(selectHasUnsavedEdits(settled, baseline, template)).toBe(false);
   });
 
   it("reports no unsaved edits after the server echoes availableAfter as a full php date", () => {
     const template = makeTemplate(1, []);
-    let model = editingModel(makeSavedAsset());
 
     // what the sidebar dispatches from its yyyy-mm-dd date input
-    model = reduce(model, {
+    const model = reduce(editingModel, {
       type: "availableAfterChanged",
       availableAfter: { date: "2026-03-01", timezone_type: 3, timezone: "UTC" },
     });
 
     // the save sends only the date string and the server stores a DateTime,
     // which comes back with time and microseconds attached
-    model = reduce(model, {
-      type: "saveSucceeded",
-      editorGeneration: EDITOR_GENERATION,
-      savedAsset: makeSavedAsset({
-        availableAfter: {
-          date: "2026-03-01 00:00:00.000000",
-          timezone_type: 3,
-          timezone: "UTC",
-        },
-      }),
-      template,
+    const baseline = makeSavedAsset({
+      availableAfter: {
+        date: "2026-03-01 00:00:00.000000",
+        timezone_type: 3,
+        timezone: "UTC",
+      },
     });
+    const settled = reduce(model, readBack(baseline, template));
 
-    expect(selectHasUnsavedEdits(model, template)).toBe(false);
+    expect(selectHasUnsavedEdits(settled, baseline, template)).toBe(false);
   });
 });

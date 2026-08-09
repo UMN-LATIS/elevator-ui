@@ -6,14 +6,15 @@ import {
   onScopeDispose,
   reactive,
   ref,
+  watch,
 } from "vue";
 import {
   editorReducer,
   initialEditorModel,
+  selectAssetId,
   selectHasUnsavedEdits,
   isEditingAsset,
   selectLoadError,
-  selectEditedAsset,
   selectLocalAsset,
   selectTemplateId,
   type EditorCommand,
@@ -22,12 +23,15 @@ import {
 } from "./editorReducer";
 import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
-import * as fetchers from "@/api/fetchers";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { assetQuery } from "@/queries/useAssetQuery";
 import { templateQuery } from "@/queries/useTemplateQuery";
+import {
+  clearUploadRegenerationFlags,
+  makeLocalAssetFromSaved,
+} from "./localAsset";
 import { createSaveQueue } from "./createSaveQueue";
 
 /** An inline related asset's editor, as its parent needs to see it. */
@@ -52,6 +56,11 @@ export interface EditorCommandHandlers {
  * state, so an inline related asset's editor never touches the page's.
  * Descendant components reach the editor provided above them with
  * `useAssetEditor`.
+ *
+ * The model holds identities and edits; the documents live in the query
+ * cache. The editor subscribes to the asset and template the model names,
+ * and every baseline change enters the reducer through one event,
+ * baselineRefreshed, whatever caused it.
  */
 export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   // `ref` (not shallowRef) keeps nested widget contents reactive for
@@ -103,24 +112,34 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   const queryClient = useQueryClient();
   const updateAssetMutation = useUpdateAssetMutation();
 
-  const localAsset = computed((): T.Asset | T.UnsavedAsset | null =>
-    selectLocalAsset(model.value)
+  const editorAssetId = computed((): string | null =>
+    selectAssetId(model.value)
   );
 
-  const savedAsset = computed((): T.Asset | null =>
-    model.value.status === "editingExistingAsset"
-      ? model.value.savedAsset
-      : null
+  // the asset baseline lives in the query cache, keyed by the id the model
+  // names. staleTime Infinity: the baseline refreshes only on load and on
+  // invalidation (a save's read-back, an inline child's save), which is
+  // today's behavior. Slice 4 of the cache-ownership plan decides anything
+  // more proactive.
+  const baselineQuery = useQuery({
+    ...assetQuery(() => editorAssetId.value),
+    enabled: () => editorAssetId.value !== null,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+  });
+
+  const rawBaseline = computed(
+    (): T.Asset | null => baselineQuery.data.value ?? null
   );
 
   const templateId = computed((): number | null =>
-    selectTemplateId(model.value)
+    selectTemplateId(model.value, rawBaseline.value)
   );
 
-  // the template document lives in the query cache, keyed by the id the
-  // model names. The editor swaps templates only through explicit loads and
-  // migrations, so the subscription renders the cached document and never
-  // refreshes it underneath the user: hence staleTime Infinity.
+  // the template document, same ownership story as the baseline. The editor
+  // swaps templates only through explicit loads and migrations, so the
+  // subscription renders the cached document and never refreshes it
+  // underneath the user.
   const editorTemplateQuery = useQuery({
     ...templateQuery(() => templateId.value),
     enabled: () => templateId.value !== null,
@@ -132,6 +151,68 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     (): T.Template | null => editorTemplateQuery.data.value ?? null
   );
 
+  /**
+   * The baseline in editor shape: widget contents scaffolded and carrying
+   * uuids. Rebuilt by the watcher below whenever the cache document or the
+   * template changes, and read everywhere else.
+   */
+  const scaffoldedBaseline = ref<T.Asset | null>(null);
+
+  // the shell's one ongoing job: whatever changed the baseline document (a
+  // save's read-back, an inline child's invalidation, a template swap),
+  // scaffold it and hand it to the reducer as baselineRefreshed
+  watch(
+    [rawBaseline, template, editorAssetId] as const,
+    ([rawDocument, templateDocument, assetId]) => {
+      if (!assetId) {
+        scaffoldedBaseline.value = null;
+        return;
+      }
+      if (!rawDocument || !templateDocument) return;
+      // the subscription can briefly hold the previous key's answer while
+      // the model has moved on; a mismatched document must not scaffold
+      if (rawDocument.assetId !== assetId) return;
+      if (
+        templateDocument.templateId !==
+        selectTemplateId(model.value, rawDocument)
+      ) {
+        return;
+      }
+
+      // the outgoing view donates uuids to contents that arrive without one
+      // (position-inheritance for backends that do not store them), so the
+      // items on screen keep their identities across the refresh
+      const previousView = selectLocalAsset(
+        model.value,
+        scaffoldedBaseline.value
+      );
+      const nextBaseline = makeLocalAssetFromSaved({
+        template: templateDocument,
+        savedAsset: rawDocument,
+        previousAsset: previousView,
+      });
+      scaffoldedBaseline.value = nextBaseline;
+      dispatch({
+        type: "baselineRefreshed",
+        assetId,
+        baseline: nextBaseline,
+        template: templateDocument,
+      });
+    },
+    { immediate: true }
+  );
+
+  const localAsset = computed((): T.Asset | T.UnsavedAsset | null =>
+    selectLocalAsset(model.value, scaffoldedBaseline.value)
+  );
+
+  const savedAsset = computed((): T.Asset | null => {
+    if (model.value.status !== "editingExistingAsset") return null;
+    const baseline = scaffoldedBaseline.value;
+    if (!baseline || baseline.assetId !== model.value.assetId) return null;
+    return baseline;
+  });
+
   const getWidgetInstanceId = (
     widgetId: T.WidgetDef["widgetId"]
   ): T.WidgetInstanceId => `${shellState.editorId}-${widgetId}`;
@@ -142,8 +223,11 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       childEditor.hasUnsavedChanges()
     );
     return (
-      selectHasUnsavedEdits(model.value, template.value) ||
-      hasChildWithUnsavedChanges
+      selectHasUnsavedEdits(
+        model.value,
+        scaffoldedBaseline.value,
+        template.value
+      ) || hasChildWithUnsavedChanges
     );
   });
 
@@ -203,51 +287,42 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   }
 
   /**
-   * Initialize the editor with an existing asset by its ID
+   * Initialize the editor with an existing asset by its ID.
+   *
+   * The model switches immediately; this function's job is to make sure the
+   * documents the subscriptions render actually arrive, and to surface a
+   * failure. A fetch that resolves after the editor moved on dispatches
+   * nothing on success, and its failure event carries an assetId the
+   * reducer no longer holds.
    */
   async function initExistingAsset(
     assetId: T.Asset["assetId"],
     opts: { force?: boolean } = {}
   ): Promise<void> {
-    if (localAsset.value?.assetId === assetId && !opts.force) {
+    if (selectAssetId(model.value) === assetId && !opts.force) {
       return;
     }
 
-    dispatch({ type: "existingAssetRequested" });
-    const editorGeneration = model.value.editorGeneration;
+    dispatch({ type: "existingAssetRequested", assetId });
 
-    let fetchedAsset: T.Asset | null;
-    let nextTemplate: T.Template | null;
     try {
-      fetchedAsset = await queryClient.fetchQuery({
+      // a save writes back every field the editor holds, so a document read
+      // from the cache would overwrite whatever changed since it was cached.
+      // staleTime 0 refetches while still filling the shared cache.
+      const fetchedAsset = await queryClient.fetchQuery({
         ...assetQuery(assetId),
-        // a save writes back every field the editor holds, so a document read
-        // from the cache would overwrite whatever changed since it was cached.
-        // staleTime 0 refetches while still filling the shared cache.
         staleTime: 0,
       });
       invariant(fetchedAsset, `no asset found with id ${assetId}`);
 
-      const templateId = fetchedAsset.templateId ?? null;
-      invariant(templateId, "no templateId on saved asset");
-      invariant(fetchedAsset.collectionId, "no collectionId on saved asset");
-
-      const isTemplateAlreadyLoaded = template.value?.templateId === templateId;
-      nextTemplate = isTemplateAlreadyLoaded
-        ? template.value
-        : await fetchTemplateOrFail(templateId);
+      const fetchedTemplateId = fetchedAsset.templateId ?? null;
+      invariant(fetchedTemplateId, "no templateId on saved asset");
+      await fetchTemplateOrFail(fetchedTemplateId);
     } catch (cause) {
       const error = toError(cause);
-      dispatch({ type: "assetLoadFailed", editorGeneration, error });
+      dispatch({ type: "assetLoadFailed", assetId, error });
       throw error;
     }
-
-    dispatch({
-      type: "assetLoaded",
-      editorGeneration,
-      savedAsset: fetchedAsset,
-      template: nextTemplate,
-    });
   }
 
   // Serialize saves so the assetId from the first CREATE is written back
@@ -268,10 +343,8 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       "Cannot save: editor was reset while its children saved"
     );
 
-    // captured before the request so a save that lands after the editor
-    // took in a different asset is dropped rather than stamped onto it
-    const editorGeneration = modelToSave.editorGeneration;
-    const assetToSave = selectEditedAsset(modelToSave);
+    const assetToSave = selectLocalAsset(modelToSave, scaffoldedBaseline.value);
+    invariant(assetToSave, "Cannot save: the asset document is not loaded");
     const templateDocument = template.value;
     invariant(
       templateDocument,
@@ -282,21 +355,17 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       "Cannot save: localAsset.templateId !== template.templateId"
     );
 
-    // the assetId comes from the model rather than the route, so an
-    // auto-save fired before the URL updates still sends an update
     const formData = toSaveableFormData(assetToSave, templateDocument);
-    const isCreate = !assetToSave.assetId;
 
     const { objectId } = await updateAssetMutation.mutateAsync(formData);
     invariant(objectId, "Expected an objectId back from the save");
 
-    if (isCreate) {
+    if (modelToSave.status === "editingNewAsset") {
       // commit the id before the read-back: if that read fails, the editor
-      // must still know the asset exists, or the next save creates another
-      dispatch({
-        type: "assetCreated",
-        editorGeneration,
-        savedAsset: {
+      // must still know the asset exists, or the next save creates another.
+      // The echoed draft is the closest thing to server truth until then.
+      const echoedDraft: T.Asset = clearUploadRegenerationFlags(
+        {
           ...assetToSave,
           assetId: objectId,
           modified: {
@@ -305,19 +374,40 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
             timezone: "UTC",
           },
         },
+        templateDocument
+      );
+      const seededBaseline = makeLocalAssetFromSaved({
+        template: templateDocument,
+        savedAsset: echoedDraft,
+      });
+
+      // the scaffold ref is set by hand so the view has a baseline the
+      // moment the model holds the new id, without waiting for the watcher
+      scaffoldedBaseline.value = seededBaseline;
+      dispatch({
+        type: "assetCreated",
+        draftKey: modelToSave.draftKey,
+        baseline: seededBaseline,
+        template: templateDocument,
+      });
+      queryClient.setQueryData(assetQuery(objectId).queryKey, seededBaseline);
+      // the seed is the echo, not server truth: invalidate so the
+      // subscription reads back what the server actually stored. nextTick
+      // first, so the subscription for the new id is active and refetches.
+      await nextTick();
+      await queryClient.invalidateQueries({
+        queryKey: assetQuery(objectId).queryKey,
+      });
+    } else {
+      // the read-back arrives through the mutation's invalidation as
+      // baselineRefreshed; this event only retires the regenerate requests
+      // the save carried
+      dispatch({
+        type: "saveAccepted",
+        assetId: objectId,
         template: templateDocument,
       });
     }
-
-    const fetchedAsset = await fetchers.fetchAsset(objectId);
-    invariant(fetchedAsset, `no asset found with id ${objectId} after saving`);
-
-    dispatch({
-      type: "saveSucceeded",
-      editorGeneration,
-      savedAsset: fetchedAsset,
-      template: templateDocument,
-    });
   }
 
   function updateCollection(collectionId: number): void {
@@ -329,9 +419,8 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
    * to the new template.
    */
   async function migrateToTemplate(newTemplateId: number): Promise<void> {
-    // migration advances the generation, which would strand a create still in
-    // flight: its response would be dropped, the editor would never learn the
-    // new assetId, and the next save would create a second asset
+    // a create still in flight transitions the model when it commits, and a
+    // migration racing that transition would compute against the draft
     await waitForCurrentSaveToSettle();
 
     const currentModel = model.value;
@@ -339,22 +428,36 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       isEditingAsset(currentModel),
       "Cannot change template: no local asset."
     );
+    const currentView = selectLocalAsset(
+      currentModel,
+      scaffoldedBaseline.value
+    );
+    invariant(
+      currentView,
+      "Cannot change template: the asset document is not loaded"
+    );
 
-    const isAlreadyOnTemplate =
-      selectEditedAsset(currentModel).templateId === newTemplateId;
-    if (isAlreadyOnTemplate) {
+    if (currentView.templateId === newTemplateId) {
       return;
     }
 
-    dispatch({ type: "templateMigrationRequested" });
-    const editorGeneration = model.value.editorGeneration;
+    dispatch({ type: "templateMigrationRequested", templateId: newTemplateId });
 
     try {
       const template = await fetchTemplateOrFail(newTemplateId);
-      dispatch({ type: "templateMigrated", editorGeneration, template });
+      dispatch({
+        type: "templateMigrated",
+        templateId: newTemplateId,
+        template,
+        baseline: scaffoldedBaseline.value,
+      });
     } catch (cause) {
       const error = toError(cause);
-      dispatch({ type: "templateMigrationFailed", editorGeneration, error });
+      dispatch({
+        type: "templateMigrationFailed",
+        templateId: newTemplateId,
+        error,
+      });
       throw error;
     }
   }
@@ -410,7 +513,10 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     savedAsset,
     template,
     status: computed(() => model.value.status),
-    isEditingAsset: computed((): boolean => isEditingAsset(model.value)),
+    // "the editor has an asset to show": for an existing asset this waits
+    // for the baseline document, so pages render their loading state until
+    // localAsset is real
+    isEditingAsset: computed((): boolean => localAsset.value !== null),
     templateId,
     collectionId: computed(() => localAsset.value?.collectionId ?? null),
     hasUnsavedChanges,

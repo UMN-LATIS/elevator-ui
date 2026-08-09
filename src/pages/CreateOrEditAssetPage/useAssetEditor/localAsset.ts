@@ -99,36 +99,17 @@ export function wouldSaveChangeStoredAsset({
 }
 
 /**
- * Record one field edit. Setting a field back to its saved value drops it,
- * so an edit and its undo leave nothing pending.
- */
-export function editsWithFieldEdit({
-  edits,
-  savedAsset,
-  assetKey,
-  value,
-}: {
-  edits: Partial<Asset>;
-  savedAsset: Asset;
-  assetKey: string;
-  value: unknown;
-}): Partial<Asset> {
-  if (isFieldUnchanged(value, savedAsset[assetKey])) {
-    return omit([assetKey], edits);
-  }
-  return { ...edits, [assetKey]: value };
-}
-
-/**
  * A content's `regenerate` asks the next save to rebuild its derived files, so
  * once that save has happened it has served its purpose. `regenerate` is
  * client-only and never comes back from the server, so leaving it set would
  * read as an unsaved change forever.
+ *
+ * Accepts a Partial so the editor's `edits` can be cleared the same way as a
+ * whole document; fields the partial does not hold are left alone.
  */
-export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
-  asset: T,
-  template: Template
-): T {
+export function clearUploadRegenerationFlags<
+  T extends Asset | UnsavedAsset | Partial<Asset>
+>(asset: T, template: Template): T {
   const cleared = { ...asset };
   template.widgetArray
     .filter((widgetDef) => widgetDef.type === WIDGET_TYPES.UPLOAD)
