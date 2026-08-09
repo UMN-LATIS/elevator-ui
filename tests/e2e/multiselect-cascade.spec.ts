@@ -21,6 +21,7 @@ type SubmissionFormData = CreateAssetRequestFormData & {
   cascadeselect_1: Array<{
     fieldContents: CascadeFieldContents;
     isPrimary: boolean;
+    uuid: string;
   }>;
 };
 
@@ -140,6 +141,8 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       expect(formData!.cascadeselect_1).toEqual([
         {
           isPrimary: false,
+          // the client mints each content's uuid, so only its presence is stable
+          uuid: expect.any(String),
           fieldContents: {
             country: "usa",
             stateorprovince: "minnesota",
