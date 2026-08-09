@@ -144,6 +144,21 @@ describe("makeLocalAssetFromSaved", () => {
     expect(secondPass).toEqual(firstPass);
   });
 
+  it("keeps the blank scaffold item's id when the server stored nothing for the field", () => {
+    // an inline related asset's editor is keyed on this item's id, so a
+    // reminted id across a save's read-back would remount that editor and
+    // wipe anything typed into it
+    const localAsset = makeLocalAssetFromSaved({
+      template: oneTextWidget,
+      savedAsset: makeSavedAsset(),
+      previousAsset: makeSavedAsset({
+        field_1: [{ fieldContents: "", uuid: "blank-on-screen" }],
+      }),
+    });
+
+    expect(contentIds(localAsset, "field_1")).toEqual(["blank-on-screen"]);
+  });
+
   it("keeps the document's own templateId when scaffolded with a newer template", () => {
     // while a migration is unsaved, the baseline must keep saying what the
     // server has, or the migration would read as already saved

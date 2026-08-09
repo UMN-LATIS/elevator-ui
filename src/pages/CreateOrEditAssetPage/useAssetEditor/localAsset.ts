@@ -239,9 +239,18 @@ function makeWidgetContents(
       return { ...content, uuid };
     });
   }
-  return widgetDef.type === "upload"
-    ? [] // uploads should be empty until a file is added
-    : [createDefaultWidgetContent(widgetDef)];
+  if (widgetDef.type === "upload") {
+    return []; // uploads should be empty until a file is added
+  }
+  // the blank item scaffolded for a field the server stored nothing for
+  // keeps the identity of the blank item already on screen, so the
+  // component tree keyed on it (an inline related asset's editor, and any
+  // draft typed into it) survives a save's read-back
+  const scaffoldContent = createDefaultWidgetContent(widgetDef);
+  const previousUuid = storedContentUuid(previousContents?.[0]);
+  return [
+    previousUuid ? { ...scaffoldContent, uuid: previousUuid } : scaffoldContent,
+  ];
 }
 
 /**
