@@ -6,37 +6,51 @@ import {
   migrateAssetToTemplate,
   wouldSaveChangeStoredAsset,
 } from "./localAsset";
+import { omit } from "ramda";
 
 /**
- * The editor is always in exactly one of these states.
+ * One page has one model holding every open editing session: the page's own
+ * (the root) plus one per mounted inline related asset, keyed by SessionKey.
+ * A session is one opening of one asset for editing, so a route change or a
+ * remount opens a new session under a new key.
  *
- * The model holds no server documents. The asset baseline and the template
- * live in the query cache under the ids the model names, and the arms that
- * need a document receive it as event input, never store it. What the user
- * sees is the baseline with `edits` laid over it (`selectLocalAsset`).
+ * A session holds identities and edits only. The asset baseline and the
+ * template live in the query cache under the ids the session names, and the
+ * arms that need a document receive it as event input, never store it. What
+ * the user sees is the baseline with `edits` laid over it
+ * (`selectLocalAsset`). Drafts keep their whole document, because a draft
+ * has no server copy for the cache to own.
  *
- * Late async results are dropped by checking identity, not a counter. Each
- * resolution event carries back the id of the thing it answers: the
- * templateId a template document answers, the assetId a baseline or a
- * failure is about, the draftKey a create response belongs to. A resolution
- * about something the editor no longer holds simply fails its comparison.
+ * Late async results are dropped by checking identity, not a counter. Every
+ * event carries the sessionKey it is about, and resolution events carry
+ * back the id of the thing they answer: the templateId a template document
+ * answers, the assetId a baseline is for. A resolution for a session that
+ * has closed, or for a thing the session no longer awaits, simply fails its
+ * comparison.
  */
-export type EditorModel =
-  | { status: "idle" }
-  | { status: "assetLoadFailed"; error: Error }
+export type SessionKey = string;
+
+/**
+ * Where an inline child hangs in its parent's document: the related-asset
+ * item whose targetAssetId the child's create fills in.
+ */
+export interface ParentLink {
+  sessionKey: SessionKey;
+  fieldTitle: string;
+  itemUuid: string;
+}
+
+export type EditSession =
   | {
       status: "awaitingTemplate";
+      parentLink: ParentLink | null;
       collectionId: number;
       /** the draft scaffolds when this template's document arrives */
       templateId: number;
     }
   | {
       status: "editingNewAsset";
-      /**
-       * The draft's identity. A draft has no assetId, so a create response
-       * proves it belongs here by carrying this key back.
-       */
-      draftKey: string;
+      parentLink: ParentLink | null;
       /** the whole document: a draft has no server copy for the cache to own */
       localAsset: T.UnsavedAsset;
       /** the migration in flight, if any, so only its result may land */
@@ -44,7 +58,8 @@ export type EditorModel =
     }
   | {
       status: "editingExistingAsset";
-      /** names the baseline: the cache slot this editor reads documents from */
+      parentLink: ParentLink | null;
+      /** names the baseline: the cache slot this session reads documents from */
       assetId: string;
       /**
        * Only the fields the user has changed since the baseline. Everything
@@ -54,78 +69,111 @@ export type EditorModel =
       edits: Partial<T.Asset>;
       /** the migration in flight, if any, so only its result may land */
       pendingTemplateId: number | null;
-    };
+    }
+  | { status: "loadFailed"; parentLink: ParentLink | null; error: Error };
 
-export const initialEditorModel: EditorModel = { status: "idle" };
+export interface EditorModel {
+  sessions: Record<SessionKey, EditSession>;
+  /** the session the page itself is editing. Inline children are the others. */
+  rootSessionKey: SessionKey | null;
+}
 
-/** The two statuses that hold an asset, for callers that accept either. */
-export type EditingModel = Extract<
-  EditorModel,
+export const initialEditorModel: EditorModel = {
+  sessions: {},
+  rootSessionKey: null,
+};
+
+/** The two statuses in which a session holds an asset the user can edit. */
+export type EditingSession = Extract<
+  EditSession,
   { status: "editingNewAsset" | "editingExistingAsset" }
 >;
 
-/** The editor is holding an asset the user can edit. */
-export function isEditingAsset(model: EditorModel): model is EditingModel {
+export function isEditingSession(
+  session: EditSession
+): session is EditingSession {
   return (
-    model.status === "editingNewAsset" ||
-    model.status === "editingExistingAsset"
+    session.status === "editingNewAsset" ||
+    session.status === "editingExistingAsset"
   );
 }
 
+export function selectSession(
+  model: EditorModel,
+  sessionKey: SessionKey | null
+): EditSession | null {
+  if (sessionKey === null) return null;
+  return model.sessions[sessionKey] ?? null;
+}
+
 /**
- * The asset baseline the editor needs, named by id. The document itself
+ * The asset baseline a session needs, named by id. The document itself
  * lives in the query cache under this id.
  */
-export function selectAssetId(model: EditorModel): string | null {
-  return model.status === "editingExistingAsset" ? model.assetId : null;
+export function selectAssetId(
+  model: EditorModel,
+  sessionKey: SessionKey | null
+): string | null {
+  const session = selectSession(model, sessionKey);
+  return session?.status === "editingExistingAsset" ? session.assetId : null;
 }
 
 /**
  * The asset as the user sees it: the baseline with pending edits laid over
- * it, or the draft itself. Null while the editor holds no asset, and null
+ * it, or the draft itself. Null while the session holds no asset, and null
  * until the baseline for the right asset has arrived: a baseline still
- * showing the previously open asset must not leak under the new one's edits.
+ * showing some other asset must not leak under this session's edits.
  */
 export function selectLocalAsset(
   model: EditorModel,
+  sessionKey: SessionKey | null,
   baseline: T.Asset | null
 ): T.Asset | T.UnsavedAsset | null {
-  switch (model.status) {
+  const session = selectSession(model, sessionKey);
+  if (!session) return null;
+  switch (session.status) {
     case "editingNewAsset":
-      return model.localAsset;
+      return session.localAsset;
     case "editingExistingAsset":
-      if (!baseline || baseline.assetId !== model.assetId) return null;
-      return { ...baseline, ...model.edits };
+      if (!baseline || baseline.assetId !== session.assetId) return null;
+      return { ...baseline, ...session.edits };
     default:
       return null;
   }
 }
 
-/** The error that left the editor with nothing to edit. */
-export function selectLoadError(model: EditorModel): Error | null {
-  return model.status === "assetLoadFailed" ? model.error : null;
+/** The error that left a session with nothing to edit. */
+export function selectLoadError(
+  model: EditorModel,
+  sessionKey: SessionKey | null
+): Error | null {
+  const session = selectSession(model, sessionKey);
+  return session?.status === "loadFailed" ? session.error : null;
 }
 
 /**
- * The template the editor needs, named by id. The document itself lives in
+ * The template a session needs, named by id. The document itself lives in
  * the query cache under this id. For an existing asset the answer comes
  * from the baseline document, except while a migration is unsaved, where
  * the migrated id in `edits` wins.
  */
 export function selectTemplateId(
   model: EditorModel,
+  sessionKey: SessionKey | null,
   baseline: T.Asset | null
 ): number | null {
-  switch (model.status) {
+  const session = selectSession(model, sessionKey);
+  if (!session) return null;
+  switch (session.status) {
     case "awaitingTemplate":
-      return model.templateId;
+      return session.templateId;
     case "editingNewAsset":
-      return model.localAsset.templateId ?? null;
+      return session.localAsset.templateId ?? null;
     case "editingExistingAsset": {
-      if (typeof model.edits.templateId === "number") {
-        return model.edits.templateId;
+      if (typeof session.edits.templateId === "number") {
+        return session.edits.templateId;
       }
-      if (!baseline || baseline.assetId !== model.assetId) return null;
+      if (!baseline || baseline.assetId !== session.assetId) return null;
       return baseline.templateId ?? null;
     }
     default:
@@ -134,32 +182,36 @@ export function selectTemplateId(
 }
 
 /**
- * Whether the editor holds work a save would send and leaving would lose.
+ * Whether one session holds work a save would send and leaving would lose.
+ * Children are not consulted here: walk them with
+ * selectSessionAndDescendantKeys and ask per session.
  *
  * Takes the documents because dirtiness is measured in the shape the server
  * would store. While either document is missing there is no measure, so the
- * editor reads as clean.
+ * session reads as clean.
  */
 export function selectHasUnsavedEdits(
   model: EditorModel,
+  sessionKey: SessionKey | null,
   baseline: T.Asset | null,
   template: T.Template | null
 ): boolean {
-  if (!isEditingAsset(model) || !template) return false;
-  switch (model.status) {
+  const session = selectSession(model, sessionKey);
+  if (!session || !isEditingSession(session) || !template) return false;
+  switch (session.status) {
     case "editingNewAsset":
       // an untouched draft is not unsaved work, or the leave guard would
       // nag on a create page the user never typed into
       return wouldSaveChangeStoredAsset({
-        draft: model.localAsset,
+        draft: session.localAsset,
         savedAsset: makeNewLocalAsset({
           template,
-          collectionId: model.localAsset.collectionId,
+          collectionId: session.localAsset.collectionId,
         }),
         template,
       });
     case "editingExistingAsset": {
-      const onScreen = selectLocalAsset(model, baseline);
+      const onScreen = selectLocalAsset(model, sessionKey, baseline);
       if (!onScreen || !baseline) return false;
       // `edits` may hold differences the server would never store, like a
       // freshly added blank item, so dirtiness is measured against what a
@@ -171,19 +223,42 @@ export function selectHasUnsavedEdits(
       });
     }
     default:
-      return assertNever(model);
+      return assertNever(session);
   }
+}
+
+/**
+ * The session and everything mounted under it, following parentLink edges.
+ * The visited set terminates cycles: asset A relating to B relating back to
+ * A can both be open at once.
+ */
+export function selectSessionAndDescendantKeys(
+  model: EditorModel,
+  sessionKey: SessionKey
+): SessionKey[] {
+  const visited = new Set<SessionKey>();
+  const queue: SessionKey[] = [sessionKey];
+  while (queue.length > 0) {
+    const key = queue.shift() as SessionKey;
+    if (visited.has(key) || !model.sessions[key]) continue;
+    visited.add(key);
+    Object.entries(model.sessions).forEach(([childKey, child]) => {
+      if (child.parentLink?.sessionKey === key) queue.push(childKey);
+    });
+  }
+  return [...visited];
 }
 
 /**
  * An effect the reducer asks the shell to run. Commands are data so the
  * decision to act stays in the reducer, where late resolutions are already
- * dropped: a command that is never emitted can never fire against an asset
- * the editor no longer holds.
+ * dropped: a command that is never emitted can never fire against a session
+ * that has closed.
  */
 export type EditorCommand = {
-  /** The server assigned this draft its id. Pages redirect or link on it. */
+  /** The server assigned this session's draft its id. */
   type: "notifyAssetCreated";
+  sessionKey: SessionKey;
   assetId: string;
 };
 
@@ -194,49 +269,90 @@ export interface EditorStep {
   commands?: EditorCommand[];
 }
 
-/** Everything that can change the model. */
+/** Everything that can change the model. Every event names its session. */
 export type EditorEvent =
   | {
       type: "widgetContentsEdited";
+      sessionKey: SessionKey;
       fieldTitle: T.WidgetDef["fieldTitle"];
       contents: T.WidgetContent[];
     }
-  | { type: "collectionChanged"; collectionId: number }
-  | { type: "readyForDisplayChanged"; readyForDisplay: boolean }
-  | { type: "availableAfterChanged"; availableAfter: T.PHPDateTime | null }
-  | { type: "newAssetRequested"; collectionId: number; templateId: number }
-  | { type: "existingAssetRequested"; assetId: string }
+  | { type: "collectionChanged"; sessionKey: SessionKey; collectionId: number }
+  | {
+      type: "readyForDisplayChanged";
+      sessionKey: SessionKey;
+      readyForDisplay: boolean;
+    }
+  | {
+      type: "availableAfterChanged";
+      sessionKey: SessionKey;
+      availableAfter: T.PHPDateTime | null;
+    }
+  | {
+      /** opens a session (the root when parentLink is null, replacing the old root) */
+      type: "newAssetRequested";
+      sessionKey: SessionKey;
+      parentLink: ParentLink | null;
+      collectionId: number;
+      templateId: number;
+    }
+  | {
+      /** opens a session (the root when parentLink is null, replacing the old root) */
+      type: "existingAssetRequested";
+      sessionKey: SessionKey;
+      parentLink: ParentLink | null;
+      assetId: string;
+    }
+  | { type: "sessionClosed"; sessionKey: SessionKey }
   | {
       /**
-       * The document an awaitingTemplate model asked for arrived. It
+       * The document an awaitingTemplate session asked for arrived. It
        * carries its templateId back, so a document for a template the
        * user has moved past cannot scaffold the newer request's draft.
        */
       type: "templateDocumentLoaded";
+      sessionKey: SessionKey;
       templateId: number;
       template: T.Template;
     }
-  | { type: "templateDocumentLoadFailed"; templateId: number; error: Error }
-  | { type: "assetLoadFailed"; assetId: string; error: Error }
-  | { type: "templateMigrationRequested"; templateId: number }
+  | {
+      type: "templateDocumentLoadFailed";
+      sessionKey: SessionKey;
+      templateId: number;
+      error: Error;
+    }
+  | { type: "assetLoadFailed"; sessionKey: SessionKey; error: Error }
+  | {
+      type: "templateMigrationRequested";
+      sessionKey: SessionKey;
+      templateId: number;
+    }
   | {
       type: "templateMigrated";
+      sessionKey: SessionKey;
       templateId: number;
       /** input for scaffolding and diffing, never stored */
       template: T.Template;
-      /** the current baseline, null for drafts. Input for the diff. */
+      /** the session's current baseline, null for drafts. Input for the diff. */
       baseline: T.Asset | null;
     }
-  | { type: "templateMigrationFailed"; templateId: number; error: Error }
+  | {
+      type: "templateMigrationFailed";
+      sessionKey: SessionKey;
+      templateId: number;
+      error: Error;
+    }
   | {
       /**
        * The create response returned an objectId, before the read-back of
        * the stored document. `baseline` is the draft as it was sent,
        * stamped with the new id and scaffolded: the closest thing to
-       * server truth until the read-back replaces it.
+       * server truth until the read-back replaces it. When the session
+       * hangs under a parent, the same transition stamps the new id onto
+       * the parent's related-asset item.
        */
       type: "assetCreated";
-      draftKey: string;
+      sessionKey: SessionKey;
       baseline: T.Asset;
       /** input for the diff, never stored */
       template: T.Template;
@@ -248,17 +364,17 @@ export type EditorEvent =
        * state the save has now delivered.
        */
       type: "saveAccepted";
-      assetId: string;
+      sessionKey: SessionKey;
       template: T.Template;
     }
   | {
       /**
-       * The baseline in the cache changed: a save's read-back, an inline
-       * child save's invalidation, a future freshness refetch. All arrive
-       * through this one door and get the same rebase treatment.
+       * The session's baseline in the cache changed: a save's read-back, an
+       * inline child save's invalidation, a future freshness refetch. All
+       * arrive through this one door and get the same rebase treatment.
        */
       type: "baselineRefreshed";
-      assetId: string;
+      sessionKey: SessionKey;
       /** the new baseline in editor shape. Input for the rebase, never stored. */
       baseline: T.Asset;
       template: T.Template;
@@ -268,13 +384,11 @@ export type EditorEvent =
 /**
  * The editor's only state transition function.
  *
- * A resolution carrying an identity the model no longer holds is dropped:
- * work that finishes after the editor took in a different asset must not
- * touch that asset. Events without an identity apply only while an asset
- * is being edited.
+ * Events for a session that has closed are dropped: work that finishes
+ * after its session is gone must not touch whatever opened since.
  *
- * Not referentially transparent: arms that build drafts mint a draftKey
- * and widget content uuids via crypto.randomUUID().
+ * Not referentially transparent: arms that build drafts mint widget content
+ * uuids via crypto.randomUUID(). Session keys are minted by the shell.
  */
 export function editorReducer(
   model: EditorModel,
@@ -283,52 +397,102 @@ export function editorReducer(
   switch (event.type) {
     case "newAssetRequested":
       return {
-        model: {
+        model: modelWithSessionOpened(model, event.sessionKey, {
           status: "awaitingTemplate",
+          parentLink: event.parentLink,
           collectionId: event.collectionId,
           templateId: event.templateId,
-        },
+        }),
       };
     case "existingAssetRequested":
-      // the model switches immediately: it holds only the asset's identity,
-      // and the view stays empty until that asset's baseline arrives
+      // the session holds only the asset's identity, and the view stays
+      // empty until that asset's baseline arrives
       return {
-        model: {
+        model: modelWithSessionOpened(model, event.sessionKey, {
           status: "editingExistingAsset",
+          parentLink: event.parentLink,
           assetId: event.assetId,
           edits: {},
           pendingTemplateId: null,
+        }),
+      };
+    case "sessionClosed": {
+      if (!model.sessions[event.sessionKey]) return { model };
+      return {
+        model: {
+          sessions: omit([event.sessionKey], model.sessions),
+          rootSessionKey:
+            model.rootSessionKey === event.sessionKey
+              ? null
+              : model.rootSessionKey,
         },
       };
+    }
     case "templateDocumentLoaded":
       return { model: onTemplateDocumentLoaded(model, event) };
     case "templateDocumentLoadFailed":
       return { model: onTemplateDocumentLoadFailed(model, event) };
-    case "assetLoadFailed":
-      return { model: onAssetLoadFailed(model, event) };
-    case "templateMigrationRequested":
-      if (!isEditingAsset(model)) return { model };
-      return { model: { ...model, pendingTemplateId: event.templateId } };
+    case "assetLoadFailed": {
+      const session = model.sessions[event.sessionKey];
+      if (!session || session.status !== "editingExistingAsset") {
+        return { model };
+      }
+      return {
+        model: modelWithSession(model, event.sessionKey, {
+          status: "loadFailed",
+          parentLink: session.parentLink,
+          error: event.error,
+        }),
+      };
+    }
+    case "templateMigrationRequested": {
+      const session = model.sessions[event.sessionKey];
+      if (!session || !isEditingSession(session)) return { model };
+      return {
+        model: modelWithSession(model, event.sessionKey, {
+          ...session,
+          pendingTemplateId: event.templateId,
+        }),
+      };
+    }
     case "templateMigrated":
       return { model: onTemplateMigrated(model, event) };
-    case "templateMigrationFailed":
-      // the editor keeps its current template and the asset stays editable:
+    case "templateMigrationFailed": {
+      // the session keeps its current template and the asset stays editable:
       // a failed swap must not cost the user work in progress
-      if (!isEditingAsset(model)) return { model };
-      if (event.templateId !== model.pendingTemplateId) return { model };
-      return { model: { ...model, pendingTemplateId: null } };
+      const session = model.sessions[event.sessionKey];
+      if (!session || !isEditingSession(session)) return { model };
+      if (event.templateId !== session.pendingTemplateId) return { model };
+      return {
+        model: modelWithSession(model, event.sessionKey, {
+          ...session,
+          pendingTemplateId: null,
+        }),
+      };
+    }
     case "widgetContentsEdited":
       return {
-        model: modelWithFieldEdit(model, event.fieldTitle, event.contents),
+        model: modelWithFieldEdit(
+          model,
+          event.sessionKey,
+          event.fieldTitle,
+          event.contents
+        ),
       };
     case "collectionChanged":
       return {
-        model: modelWithFieldEdit(model, "collectionId", event.collectionId),
+        model: modelWithFieldEdit(
+          model,
+          event.sessionKey,
+          "collectionId",
+          event.collectionId
+        ),
       };
     case "readyForDisplayChanged":
       return {
         model: modelWithFieldEdit(
           model,
+          event.sessionKey,
           "readyForDisplay",
           event.readyForDisplay
         ),
@@ -337,73 +501,125 @@ export function editorReducer(
       return {
         model: modelWithFieldEdit(
           model,
+          event.sessionKey,
           "availableAfter",
           event.availableAfter
         ),
       };
     case "assetCreated":
       return onAssetCreated(model, event);
-    case "saveAccepted":
-      return { model: onSaveAccepted(model, event) };
+    case "saveAccepted": {
+      const session = model.sessions[event.sessionKey];
+      if (!session || session.status !== "editingExistingAsset") {
+        return { model };
+      }
+      return {
+        model: modelWithSession(model, event.sessionKey, {
+          ...session,
+          edits: clearUploadRegenerationFlags(session.edits, event.template),
+        }),
+      };
+    }
     case "baselineRefreshed":
       return { model: onBaselineRefreshed(model, event) };
     case "resetRequested":
-      return { model: { status: "idle" } };
+      return { model: initialEditorModel };
     default:
       return assertNever(event);
   }
 }
 
+function modelWithSession(
+  model: EditorModel,
+  sessionKey: SessionKey,
+  session: EditSession
+): EditorModel {
+  return {
+    ...model,
+    sessions: { ...model.sessions, [sessionKey]: session },
+  };
+}
+
+/**
+ * Opening a root session retires the previous root: the page reuses one
+ * editor across route changes, so nothing unmounts to close the old root.
+ * The old root's inline children close themselves as their widgets unmount.
+ */
+function modelWithSessionOpened(
+  model: EditorModel,
+  sessionKey: SessionKey,
+  session: EditSession
+): EditorModel {
+  if (session.parentLink !== null) {
+    return modelWithSession(model, sessionKey, session);
+  }
+  const sessionsWithoutOldRoot =
+    model.rootSessionKey === null
+      ? model.sessions
+      : omit([model.rootSessionKey], model.sessions);
+  return {
+    sessions: { ...sessionsWithoutOldRoot, [sessionKey]: session },
+    rootSessionKey: sessionKey,
+  };
+}
+
 function onTemplateDocumentLoaded(
   model: EditorModel,
-  event: { templateId: number; template: T.Template }
+  event: { sessionKey: SessionKey; templateId: number; template: T.Template }
 ): EditorModel {
-  if (model.status !== "awaitingTemplate") return model;
-  if (event.templateId !== model.templateId) return model;
-  return {
+  const session = model.sessions[event.sessionKey];
+  if (!session || session.status !== "awaitingTemplate") return model;
+  if (event.templateId !== session.templateId) return model;
+  return modelWithSession(model, event.sessionKey, {
     status: "editingNewAsset",
-    draftKey: crypto.randomUUID(),
+    parentLink: session.parentLink,
     localAsset: makeNewLocalAsset({
       template: event.template,
-      collectionId: model.collectionId,
+      collectionId: session.collectionId,
     }),
     pendingTemplateId: null,
-  };
+  });
 }
 
 function onTemplateDocumentLoadFailed(
   model: EditorModel,
-  event: { templateId: number; error: Error }
+  event: { sessionKey: SessionKey; templateId: number; error: Error }
 ): EditorModel {
-  if (model.status !== "awaitingTemplate") return model;
-  if (event.templateId !== model.templateId) return model;
-  return { status: "assetLoadFailed", error: event.error };
-}
-
-function onAssetLoadFailed(
-  model: EditorModel,
-  event: { assetId: string; error: Error }
-): EditorModel {
-  if (model.status !== "editingExistingAsset") return model;
-  if (event.assetId !== model.assetId) return model;
-  return { status: "assetLoadFailed", error: event.error };
+  const session = model.sessions[event.sessionKey];
+  if (!session || session.status !== "awaitingTemplate") return model;
+  if (event.templateId !== session.templateId) return model;
+  return modelWithSession(model, event.sessionKey, {
+    status: "loadFailed",
+    parentLink: session.parentLink,
+    error: event.error,
+  });
 }
 
 function onTemplateMigrated(
   model: EditorModel,
-  event: { templateId: number; template: T.Template; baseline: T.Asset | null }
+  event: {
+    sessionKey: SessionKey;
+    templateId: number;
+    template: T.Template;
+    baseline: T.Asset | null;
+  }
 ): EditorModel {
-  if (!isEditingAsset(model)) return model;
-  if (event.templateId !== model.pendingTemplateId) return model;
-  switch (model.status) {
+  const session = model.sessions[event.sessionKey];
+  if (!session || !isEditingSession(session)) return model;
+  if (event.templateId !== session.pendingTemplateId) return model;
+  switch (session.status) {
     case "editingNewAsset":
-      return {
-        ...model,
-        localAsset: migrateAssetToTemplate(model.localAsset, event.template),
+      return modelWithSession(model, event.sessionKey, {
+        ...session,
+        localAsset: migrateAssetToTemplate(session.localAsset, event.template),
         pendingTemplateId: null,
-      };
+      });
     case "editingExistingAsset": {
-      const onScreen = selectLocalAsset(model, event.baseline);
+      const onScreen = selectLocalAsset(
+        model,
+        event.sessionKey,
+        event.baseline
+      );
       if (!onScreen || !event.baseline) return model;
       // the migrated asset differs from the baseline by its new templateId
       // and the fields the new template scaffolds, all of which a save must
@@ -412,88 +628,142 @@ function onTemplateMigrated(
         onScreen as T.Asset,
         event.template
       );
-      return {
-        ...model,
+      return modelWithSession(model, event.sessionKey, {
+        ...session,
         edits: diffEditableFields({
           draft: migrated,
           savedAsset: event.baseline,
           template: event.template,
         }),
         pendingTemplateId: null,
-      };
+      });
     }
     default:
-      return assertNever(model);
+      return assertNever(session);
   }
 }
 
-/** Write one field, whichever way the current status stores changes. */
+/** Write one field, whichever way the session's status stores changes. */
 function modelWithFieldEdit(
   model: EditorModel,
+  sessionKey: SessionKey,
   assetKey: string,
   value: unknown
 ): EditorModel {
-  if (!isEditingAsset(model)) return model;
-  switch (model.status) {
+  const session = model.sessions[sessionKey];
+  if (!session || !isEditingSession(session)) return model;
+  switch (session.status) {
     case "editingNewAsset":
-      return {
-        ...model,
-        localAsset: { ...model.localAsset, [assetKey]: value },
-      };
+      return modelWithSession(model, sessionKey, {
+        ...session,
+        localAsset: { ...session.localAsset, [assetKey]: value },
+      });
     case "editingExistingAsset":
       // an edit equal to the baseline is not dropped here: the reducer holds
       // no baseline to compare against. Dirtiness compares in stored shape
       // anyway, and the next baselineRefreshed prunes redundant edits.
-      return {
-        ...model,
-        edits: { ...model.edits, [assetKey]: value },
-      };
+      return modelWithSession(model, sessionKey, {
+        ...session,
+        edits: { ...session.edits, [assetKey]: value },
+      });
     default:
-      return assertNever(model);
+      return assertNever(session);
   }
 }
 
 function onAssetCreated(
   model: EditorModel,
-  event: { draftKey: string; baseline: T.Asset; template: T.Template }
+  event: { sessionKey: SessionKey; baseline: T.Asset; template: T.Template }
 ): EditorStep {
-  if (model.status !== "editingNewAsset") return { model };
-  if (event.draftKey !== model.draftKey) return { model };
+  const session = model.sessions[event.sessionKey];
+  // a response for a closed session is dropped: the next draft opened under
+  // a fresh key, which this response does not carry
+  if (!session || session.status !== "editingNewAsset") return { model };
 
   // the echoed baseline was flag-cleared before dispatch, so the draft loses
   // its flags the same way or they would read as edits made after the send
   const latestLocalAsset = clearUploadRegenerationFlags(
-    model.localAsset,
+    session.localAsset,
     event.template
   );
 
+  let next = modelWithSession(model, event.sessionKey, {
+    status: "editingExistingAsset",
+    parentLink: session.parentLink,
+    assetId: event.baseline.assetId,
+    // anything typed while the create was in flight differs from the echo
+    // and stays pending for the next save
+    edits: diffEditableFields({
+      draft: latestLocalAsset,
+      savedAsset: event.baseline,
+      template: event.template,
+    }),
+    pendingTemplateId: null,
+  });
+
+  if (session.parentLink) {
+    next = modelWithChildAssetIdAdopted(
+      next,
+      session.parentLink,
+      event.baseline.assetId
+    );
+  }
+
   return {
-    model: {
-      status: "editingExistingAsset",
-      assetId: event.baseline.assetId,
-      // anything typed while the create was in flight differs from the echo
-      // and stays pending for the next save
-      edits: diffEditableFields({
-        draft: latestLocalAsset,
-        savedAsset: event.baseline,
-        template: event.template,
-      }),
-      pendingTemplateId: null,
-    },
-    commands: [{ type: "notifyAssetCreated", assetId: event.baseline.assetId }],
+    model: next,
+    commands: [
+      {
+        type: "notifyAssetCreated",
+        sessionKey: event.sessionKey,
+        assetId: event.baseline.assetId,
+      },
+    ],
   };
 }
 
-function onSaveAccepted(
+/**
+ * Stamp a child's newly created assetId onto the parent's related-asset
+ * item. The unlinked item can only live in unsaved state, never in the
+ * parent's baseline, because the server drops related items whose
+ * targetAssetId is empty.
+ */
+function modelWithChildAssetIdAdopted(
   model: EditorModel,
-  event: { assetId: string; template: T.Template }
+  parentLink: ParentLink,
+  assetId: string
 ): EditorModel {
-  if (model.status !== "editingExistingAsset") return model;
-  if (event.assetId !== model.assetId) return model;
-  return {
-    ...model,
-    edits: clearUploadRegenerationFlags(model.edits, event.template),
-  };
+  const parent = model.sessions[parentLink.sessionKey];
+  if (!parent || !isEditingSession(parent)) return model;
+
+  const holder =
+    parent.status === "editingNewAsset" ? parent.localAsset : parent.edits;
+  const contents = holder[parentLink.fieldTitle];
+  if (!Array.isArray(contents)) return model;
+  if (!contents.some(isItemWithUuid(parentLink.itemUuid))) return model;
+
+  const linked = contents.map((item) =>
+    isItemWithUuid(parentLink.itemUuid)(item)
+      ? { ...item, targetAssetId: assetId }
+      : item
+  );
+
+  if (parent.status === "editingNewAsset") {
+    return modelWithSession(model, parentLink.sessionKey, {
+      ...parent,
+      localAsset: { ...parent.localAsset, [parentLink.fieldTitle]: linked },
+    });
+  }
+  return modelWithSession(model, parentLink.sessionKey, {
+    ...parent,
+    edits: { ...parent.edits, [parentLink.fieldTitle]: linked },
+  });
+}
+
+function isItemWithUuid(itemUuid: string): (item: unknown) => boolean {
+  return (item) =>
+    typeof item === "object" &&
+    item !== null &&
+    (item as { uuid?: unknown }).uuid === itemUuid;
 }
 
 /**
@@ -504,18 +774,19 @@ function onSaveAccepted(
  */
 function onBaselineRefreshed(
   model: EditorModel,
-  event: { assetId: string; baseline: T.Asset; template: T.Template }
+  event: { sessionKey: SessionKey; baseline: T.Asset; template: T.Template }
 ): EditorModel {
-  if (model.status !== "editingExistingAsset") return model;
-  if (event.assetId !== model.assetId) return model;
-  return {
-    ...model,
+  const session = model.sessions[event.sessionKey];
+  if (!session || session.status !== "editingExistingAsset") return model;
+  if (event.baseline.assetId !== session.assetId) return model;
+  return modelWithSession(model, event.sessionKey, {
+    ...session,
     edits: diffEditableFields({
-      draft: { ...event.baseline, ...model.edits },
+      draft: { ...event.baseline, ...session.edits },
       savedAsset: event.baseline,
       template: event.template,
     }),
-  };
+  });
 }
 
 function assertNever(value: never): never {

@@ -153,7 +153,10 @@ import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { TriangleAlert } from "lucide-vue-next";
-import { provideAssetEditor } from "./useAssetEditor/provideAssetEditor";
+import {
+  provideAssetEditor,
+  provideEditorHost,
+} from "./useAssetEditor/provideAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
 import { ApiError } from "@/api/ApiError";
 import { getErrorMessage } from "@/api/getErrorMessage";
@@ -182,14 +185,25 @@ const props = withDefaults(
   }
 );
 
-// each page gets its own editor, so two tabs editing different assets never
-// touch each other's state. Descendants reach it, and the validation derived
-// from it, through the provides this sets up.
-const assetEditor = provideAssetEditor({
+// each page gets its own host, the one model every editing session on the
+// page shares. The page's own form edits the root session; inline related
+// assets open child sessions on the same host.
+const editorHost = provideEditorHost({
   onAssetCreated: handleAssetCreated,
+  onChildSaveFailed: handleChildSaveFailed,
 });
+const assetEditor = provideAssetEditor(editorHost, { role: "root" });
 
 const toastStore = useToastStore();
+
+/** An inline child's save failed while a save here collected it. */
+function handleChildSaveFailed(error: unknown): void {
+  toastStore.addToast({
+    title: "Error",
+    message: `Failed to save inline asset: ${getErrorMessage(error)}`,
+    variant: "error",
+  });
+}
 const uploadStore = useUploadStore();
 const instanceStore = useInstanceStore();
 const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);

@@ -11,13 +11,9 @@
       :templateId="templateId"
       :collectionId="props.collectionId"
       :assetId="modelValue.targetAssetId"
-      class="w-full h-full"
-      @update:assetId="
-        $emit('update:modelValue', {
-          ...modelValue,
-          targetAssetId: $event,
-        })
-      " />
+      :fieldTitle="widgetDef.fieldTitle"
+      :itemUuid="modelValue.uuid"
+      class="w-full h-full" />
   </div>
 </template>
 <script setup lang="ts">
@@ -30,13 +26,6 @@ const props = defineProps<{
   modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>;
   widgetDef: Type.RelatedAssetWidgetDef;
   assetId: string | null; // need current assetId to prevent circular dependencies
-}>();
-
-defineEmits<{
-  (
-    e: "update:modelValue",
-    modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>
-  ): void;
 }>();
 
 const templateId = computed((): Type.Template["templateId"] | null => {

@@ -5,10 +5,7 @@
       :label="label"
       :placeholder="placeholder"
       :inputClass="
-        cn(
-          'border-outline-variant rounded-b-none px-4 py-3',
-          inputClass
-        )
+        cn('border-outline-variant rounded-b-none px-4 py-3', inputClass)
       "
       :labelClass="labelClass"
       @update:modelValue="($event) => $emit('update:modelValue', $event)">

@@ -66,17 +66,25 @@ const makeSavedAsset = (overrides: Partial<Asset> = {}): Asset => ({
   ...overrides,
 });
 
+const SESSION_KEY = "session-1";
+
 const editingModel: EditorModel = {
-  status: "editingExistingAsset",
-  assetId: "asset-123",
-  edits: {},
-  pendingTemplateId: null,
+  sessions: {
+    [SESSION_KEY]: {
+      status: "editingExistingAsset",
+      parentLink: null,
+      assetId: "asset-123",
+      edits: {},
+      pendingTemplateId: null,
+    },
+  },
+  rootSessionKey: SESSION_KEY,
 };
 
 /** the read-back in editor shape, as the shell would scaffold and dispatch it */
 const readBack = (baseline: Asset, template: Template): EditorEvent => ({
   type: "baselineRefreshed",
-  assetId: baseline.assetId,
+  sessionKey: SESSION_KEY,
   baseline,
   template,
 });
@@ -110,6 +118,7 @@ describe("the editor settles once a save's read-back is applied", () => {
     // the user adds a second row and leaves it blank
     const model = reduce(editingModel, {
       type: "widgetContentsEdited",
+      sessionKey: SESSION_KEY,
       fieldTitle: "field_1",
       contents: [
         { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
@@ -125,7 +134,9 @@ describe("the editor settles once a save's read-back is applied", () => {
     });
     const settled = reduce(model, readBack(baseline, template));
 
-    expect(selectHasUnsavedEdits(settled, baseline, template)).toBe(false);
+    expect(
+      selectHasUnsavedEdits(settled, SESSION_KEY, baseline, template)
+    ).toBe(false);
   });
 
   it("reports no unsaved edits after the save cleaned the text area html", () => {
@@ -134,6 +145,7 @@ describe("the editor settles once a save's read-back is applied", () => {
     // quill leaves a trailing empty paragraph as the user types
     const model = reduce(editingModel, {
       type: "widgetContentsEdited",
+      sessionKey: SESSION_KEY,
       fieldTitle: "field_1",
       contents: [
         {
@@ -157,7 +169,9 @@ describe("the editor settles once a save's read-back is applied", () => {
     });
     const settled = reduce(model, readBack(baseline, template));
 
-    expect(selectHasUnsavedEdits(settled, baseline, template)).toBe(false);
+    expect(
+      selectHasUnsavedEdits(settled, SESSION_KEY, baseline, template)
+    ).toBe(false);
   });
 
   it("reports no unsaved edits after the server echoes availableAfter as a full php date", () => {
@@ -166,6 +180,7 @@ describe("the editor settles once a save's read-back is applied", () => {
     // what the sidebar dispatches from its yyyy-mm-dd date input
     const model = reduce(editingModel, {
       type: "availableAfterChanged",
+      sessionKey: SESSION_KEY,
       availableAfter: { date: "2026-03-01", timezone_type: 3, timezone: "UTC" },
     });
 
@@ -180,6 +195,8 @@ describe("the editor settles once a save's read-back is applied", () => {
     });
     const settled = reduce(model, readBack(baseline, template));
 
-    expect(selectHasUnsavedEdits(settled, baseline, template)).toBe(false);
+    expect(
+      selectHasUnsavedEdits(settled, SESSION_KEY, baseline, template)
+    ).toBe(false);
   });
 });

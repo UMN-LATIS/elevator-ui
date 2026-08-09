@@ -82,17 +82,9 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
-import {
-  computed,
-  inject,
-  onMounted,
-  onUnmounted,
-  provide,
-  reactive,
-  ref,
-} from "vue";
+import { computed, inject, onMounted, provide, reactive, ref } from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { useAssetEditor } from "./useAssetEditor/useAssetEditor";
+import { useAssetEditor, useEditorHost } from "./useAssetEditor/useAssetEditor";
 import { provideAssetEditor } from "./useAssetEditor/provideAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
 import { ApiError } from "@/api/ApiError";
@@ -117,6 +109,10 @@ const props = withDefaults(
     templateId?: number | null;
     collectionId?: number | null;
     assetId?: string | null;
+    /** the parent's related-asset field this inline asset lives in */
+    fieldTitle: string;
+    /** the parent's item whose targetAssetId this asset's create fills in */
+    itemUuid: string;
   }>(),
   {
     templateId: null,
@@ -125,35 +121,31 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (e: "update:assetId", assetId: T.Asset["assetId"]): void;
-}>();
-
-// the enclosing page's editor, which saves this one along with itself.
 // inject only reads the ancestor chain, never a component's own provide,
-// so this is the parent editor even though this component provides its
-// own editor below.
+// so these are the page's host and the parent surface's handle even though
+// this component provides its own handle below.
+const editorHost = useEditorHost();
 const parentAssetEditor = useAssetEditor();
 
 const toastStore = useToastStore();
 
-// unique editor instance for this inline asset. When the server creates
-// the child, the reducer's command hands the id up so the parent's related
-// asset content can point at it.
-const assetEditor = provideAssetEditor({
-  onAssetCreated: (assetId) => emit("update:assetId", assetId),
+// this surface's own session on the page's shared model. The parent link
+// names the item this child hangs under, so when the server creates the
+// child, the reducer stamps the new id onto that item in the same
+// transition. The parent's save walks the session tree, so no registration
+// is needed for it to see this child.
+invariant(
+  parentAssetEditor.sessionKey,
+  "an inline related asset requires an open parent session"
+);
+const assetEditor = provideAssetEditor(editorHost, {
+  role: "child",
+  parentLink: {
+    sessionKey: parentAssetEditor.sessionKey,
+    fieldTitle: props.fieldTitle,
+    itemUuid: props.itemUuid,
+  },
 });
-
-if (!depthExceeded) {
-  const unregister = parentAssetEditor.registerChildEditor({
-    // an untouched draft reads as clean, so a never-filled child is not
-    // created, while an existing child blanked out by the user still has
-    // its deletion to save
-    hasUnsavedChanges: () => assetEditor.hasUnsavedChanges,
-    save: handleSaveAsset,
-  });
-  onUnmounted(unregister);
-}
 
 const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
 

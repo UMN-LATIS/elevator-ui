@@ -5,9 +5,13 @@ import {
   selectAssetId,
   selectHasUnsavedEdits,
   selectLocalAsset,
+  selectSession,
+  selectSessionAndDescendantKeys,
   selectTemplateId,
   type EditorEvent,
   type EditorModel,
+  type EditSession,
+  type ParentLink,
 } from "./editorReducer";
 import type {
   Asset,
@@ -74,110 +78,183 @@ const makeUnsavedAsset = (
   ...overrides,
 });
 
-const DRAFT_KEY = "draft-key-1";
+const ROOT_KEY = "session-root";
+const CHILD_KEY = "session-child";
 
-/** the key of a draft the editor no longer holds */
-const STALE_DRAFT_KEY = "draft-key-0";
+/** the key of a session that was closed or never opened */
+const UNKNOWN_KEY = "session-unknown";
 
-const idleModel: EditorModel = { status: "idle" };
-
-const awaitingTemplateModel: EditorModel = {
+const awaitingTemplateSession: EditSession = {
   status: "awaitingTemplate",
+  parentLink: null,
   collectionId: 42,
   templateId: 1,
 };
 
-const editingNewAssetModel = (
+const editingNewSession = (
   localAsset: UnsavedAsset = makeUnsavedAsset()
-): EditorModel => ({
+): EditSession => ({
   status: "editingNewAsset",
-  draftKey: DRAFT_KEY,
+  parentLink: null,
   localAsset,
   pendingTemplateId: null,
 });
 
-const editingExistingAssetModel = (
+const editingExistingSession = (
   edits: Partial<Asset> = {},
   assetId = "asset-123"
-): EditorModel => ({
+): EditSession => ({
   status: "editingExistingAsset",
+  parentLink: null,
   assetId,
   edits,
   pendingTemplateId: null,
 });
 
-/** Narrows the model, failing the test when its status is not the one named. */
-function assertStatus<TStatus extends EditorModel["status"]>(
+const rootModel = (session: EditSession): EditorModel => ({
+  sessions: { [ROOT_KEY]: session },
+  rootSessionKey: ROOT_KEY,
+});
+
+/** a child session mounted under the root's related_1 item "item-1" */
+const childLink: ParentLink = {
+  sessionKey: ROOT_KEY,
+  fieldTitle: "related_1",
+  itemUuid: "item-1",
+};
+
+const withChildSession = (
   model: EditorModel,
+  session: EditSession
+): EditorModel => ({
+  ...model,
+  sessions: { ...model.sessions, [CHILD_KEY]: session },
+});
+
+/** Narrows a session, failing the test when its status is not the one named. */
+function assertStatus<TStatus extends EditSession["status"]>(
+  session: EditSession | null,
   status: TStatus
-): asserts model is Extract<EditorModel, { status: TStatus }> {
-  expect(model.status).toBe(status);
+): asserts session is Extract<EditSession, { status: TStatus }> {
+  expect(session?.status).toBe(status);
 }
 
 /** throws rather than returning null, so tests read without a guard */
 const localAssetOf = (
   model: EditorModel,
+  sessionKey: string,
   baseline: Asset | null = null
 ): Asset | UnsavedAsset => {
-  const asset = selectLocalAsset(model, baseline);
+  const asset = selectLocalAsset(model, sessionKey, baseline);
   if (!asset) throw new Error("expected an asset");
   return asset;
 };
 
 describe("editorReducer", () => {
-  describe("starting a new asset", () => {
-    it("moves to awaitingTemplate for the requested template", () => {
-      const model = reduce(idleModel, {
+  describe("opening and closing sessions", () => {
+    it("opens a root session awaiting its template", () => {
+      const model = reduce(initialEditorModel, {
         type: "newAssetRequested",
+        sessionKey: ROOT_KEY,
+        parentLink: null,
         collectionId: 42,
         templateId: 1,
       });
 
-      assertStatus(model, "awaitingTemplate");
-      expect(model.collectionId).toBe(42);
-      expect(model.templateId).toBe(1);
+      expect(model.rootSessionKey).toBe(ROOT_KEY);
+      assertStatus(selectSession(model, ROOT_KEY), "awaitingTemplate");
     });
 
+    it("replaces the previous root session when a new root opens", () => {
+      // the page reuses one editor across route changes, so nothing unmounts
+      // to close the old root: opening the next root retires it
+      const model = reduce(rootModel(editingExistingSession()), {
+        type: "existingAssetRequested",
+        sessionKey: "session-root-2",
+        parentLink: null,
+        assetId: "asset-456",
+      });
+
+      expect(model.rootSessionKey).toBe("session-root-2");
+      expect(selectSession(model, ROOT_KEY)).toBeNull();
+      assertStatus(
+        selectSession(model, "session-root-2"),
+        "editingExistingAsset"
+      );
+    });
+
+    it("keeps the root in place when a child session opens", () => {
+      const model = reduce(rootModel(editingExistingSession()), {
+        type: "existingAssetRequested",
+        sessionKey: CHILD_KEY,
+        parentLink: childLink,
+        assetId: "asset-456",
+      });
+
+      expect(model.rootSessionKey).toBe(ROOT_KEY);
+      expect(selectSession(model, ROOT_KEY)).not.toBeNull();
+      expect(selectSession(model, CHILD_KEY)).not.toBeNull();
+    });
+
+    it("removes a closed session", () => {
+      const model = reduce(
+        withChildSession(rootModel(editingExistingSession()), {
+          ...editingNewSession(),
+          parentLink: childLink,
+        }),
+        { type: "sessionClosed", sessionKey: CHILD_KEY }
+      );
+
+      expect(selectSession(model, CHILD_KEY)).toBeNull();
+      expect(model.rootSessionKey).toBe(ROOT_KEY);
+    });
+
+    it("clears the root key when the root session closes", () => {
+      const model = reduce(rootModel(editingExistingSession()), {
+        type: "sessionClosed",
+        sessionKey: ROOT_KEY,
+      });
+
+      expect(model.rootSessionKey).toBeNull();
+      expect(model.sessions).toEqual({});
+    });
+
+    it("empties out on reset", () => {
+      const model = reduce(rootModel(editingExistingSession()), {
+        type: "resetRequested",
+      });
+
+      expect(model).toEqual({ sessions: {}, rootSessionKey: null });
+    });
+  });
+
+  describe("starting a new asset", () => {
     it("builds a fresh unsaved asset when the requested template's document arrives", () => {
-      const model = reduce(awaitingTemplateModel, {
+      const model = reduce(rootModel(awaitingTemplateSession), {
         type: "templateDocumentLoaded",
+        sessionKey: ROOT_KEY,
         templateId: 1,
         template: emptyTemplate,
       });
 
-      assertStatus(model, "editingNewAsset");
-      expect(model.localAsset.assetId).toBeNull();
-      expect(model.localAsset.collectionId).toBe(42);
-      expect(model.localAsset.templateId).toBe(1);
-    });
-
-    it("gives each draft its own key, so a create response can prove which draft it belongs to", () => {
-      const first = reduce(awaitingTemplateModel, {
-        type: "templateDocumentLoaded",
-        templateId: 1,
-        template: emptyTemplate,
-      });
-      const second = reduce(awaitingTemplateModel, {
-        type: "templateDocumentLoaded",
-        templateId: 1,
-        template: emptyTemplate,
-      });
-
-      assertStatus(first, "editingNewAsset");
-      assertStatus(second, "editingNewAsset");
-      expect(first.draftKey).not.toBe(second.draftKey);
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingNewAsset");
+      expect(session.localAsset.assetId).toBeNull();
+      expect(session.localAsset.collectionId).toBe(42);
+      expect(session.localAsset.templateId).toBe(1);
     });
 
     it("scaffolds a field for every widget in the template", () => {
       const template = makeTemplate(1, [{}, {}]);
 
-      const model = reduce(awaitingTemplateModel, {
+      const model = reduce(rootModel(awaitingTemplateSession), {
         type: "templateDocumentLoaded",
+        sessionKey: ROOT_KEY,
         templateId: 1,
         template,
       });
 
-      const draft = localAssetOf(model);
+      const draft = localAssetOf(model, ROOT_KEY);
       expect(draft.field_1).toEqual([expect.any(Object)]);
       expect(draft.field_2).toEqual([expect.any(Object)]);
     });
@@ -185,173 +262,180 @@ describe("editorReducer", () => {
     it("keeps the error when the template fails to load", () => {
       const error = new Error("template load failed");
 
-      const model = reduce(awaitingTemplateModel, {
+      const model = reduce(rootModel(awaitingTemplateSession), {
         type: "templateDocumentLoadFailed",
+        sessionKey: ROOT_KEY,
         templateId: 1,
         error,
       });
 
-      assertStatus(model, "assetLoadFailed");
-      expect(model.error).toBe(error);
+      assertStatus(selectSession(model, ROOT_KEY), "loadFailed");
     });
 
     it("drops a document for a template the user has moved past", () => {
-      const model = reduce(awaitingTemplateModel, {
+      const before = rootModel(awaitingTemplateSession);
+
+      const model = reduce(before, {
         type: "templateDocumentLoaded",
+        sessionKey: ROOT_KEY,
         templateId: 99,
         template: makeTemplate(99),
       });
 
-      expect(model).toBe(awaitingTemplateModel);
+      expect(model).toBe(before);
     });
 
-    it("drops a load failure for a template the user has moved past", () => {
-      const model = reduce(awaitingTemplateModel, {
-        type: "templateDocumentLoadFailed",
-        templateId: 99,
-        error: new Error("too late"),
-      });
+    it("drops a template document once the session is editing", () => {
+      const before = rootModel(editingNewSession());
 
-      expect(model).toBe(awaitingTemplateModel);
-    });
-
-    it("drops a template document once the editor is editing", () => {
-      const editing = editingNewAssetModel();
-
-      const model = reduce(editing, {
+      const model = reduce(before, {
         type: "templateDocumentLoaded",
+        sessionKey: ROOT_KEY,
         templateId: 1,
         template: emptyTemplate,
       });
 
-      expect(model).toBe(editing);
+      expect(model).toBe(before);
+    });
+
+    it("drops a template document for a session that has closed", () => {
+      const before = rootModel(awaitingTemplateSession);
+
+      const model = reduce(before, {
+        type: "templateDocumentLoaded",
+        sessionKey: UNKNOWN_KEY,
+        templateId: 1,
+        template: emptyTemplate,
+      });
+
+      expect(model).toBe(before);
     });
 
     it("keeps the newest template request rather than the first to resolve", () => {
-      // the user picks template 1, then re-picks template 2 before 1 arrives
-      let model = reduce(idleModel, {
+      // the user picks template 1, then re-picks template 2 before 1 arrives.
+      // Each request rewrites the same root session.
+      let model = reduce(initialEditorModel, {
         type: "newAssetRequested",
+        sessionKey: ROOT_KEY,
+        parentLink: null,
         collectionId: 42,
         templateId: 1,
       });
       model = reduce(model, {
         type: "newAssetRequested",
+        sessionKey: "session-root-2",
+        parentLink: null,
         collectionId: 42,
         templateId: 2,
       });
 
-      // template 1 resolves late and must not scaffold the draft
+      // template 1 resolves late, addressed to the retired session
       model = reduce(model, {
         type: "templateDocumentLoaded",
+        sessionKey: ROOT_KEY,
         templateId: 1,
         template: emptyTemplate,
       });
-      assertStatus(model, "awaitingTemplate");
+      expect(selectSession(model, ROOT_KEY)).toBeNull();
 
       model = reduce(model, {
         type: "templateDocumentLoaded",
+        sessionKey: "session-root-2",
         templateId: 2,
         template: otherTemplate,
       });
-      assertStatus(model, "editingNewAsset");
-      expect(model.localAsset.templateId).toBe(2);
+      const session = selectSession(model, "session-root-2");
+      assertStatus(session, "editingNewAsset");
+      expect(session.localAsset.templateId).toBe(2);
     });
   });
 
   describe("opening an existing asset", () => {
-    it("switches to the asset immediately, holding no document of its own", () => {
-      const model = reduce(idleModel, {
+    it("holds only the asset's identity, no document", () => {
+      const model = reduce(initialEditorModel, {
         type: "existingAssetRequested",
+        sessionKey: ROOT_KEY,
+        parentLink: null,
         assetId: "asset-123",
       });
 
-      assertStatus(model, "editingExistingAsset");
-      expect(model.assetId).toBe("asset-123");
-      expect(model.edits).toEqual({});
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.assetId).toBe("asset-123");
+      expect(session.edits).toEqual({});
     });
 
-    it("drops the previous asset's edits when opening another asset", () => {
-      const editing = editingExistingAssetModel({ readyForDisplay: false });
-
-      const model = reduce(editing, {
-        type: "existingAssetRequested",
-        assetId: "asset-456",
-      });
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.assetId).toBe("asset-456");
-      expect(model.edits).toEqual({});
-    });
-
-    it("records a failure to load the asset it is opening", () => {
+    it("records a failure to load the session's asset", () => {
       const error = new Error("load failed");
-      const editing = editingExistingAssetModel();
 
-      const model = reduce(editing, {
+      const model = reduce(rootModel(editingExistingSession()), {
         type: "assetLoadFailed",
-        assetId: "asset-123",
+        sessionKey: ROOT_KEY,
         error,
       });
 
-      assertStatus(model, "assetLoadFailed");
-      expect(model.error).toBe(error);
+      assertStatus(selectSession(model, ROOT_KEY), "loadFailed");
     });
 
-    it("drops a load failure for an asset the editor no longer holds", () => {
-      const editing = editingExistingAssetModel({}, "asset-456");
+    it("drops a load failure for a session that has closed", () => {
+      const before = rootModel(editingExistingSession());
 
-      const model = reduce(editing, {
+      const model = reduce(before, {
         type: "assetLoadFailed",
-        assetId: "asset-123",
+        sessionKey: UNKNOWN_KEY,
         error: new Error("too late"),
       });
 
-      expect(model).toBe(editing);
+      expect(model).toBe(before);
     });
   });
 
   describe("the rebase: baselineRefreshed", () => {
     const refreshed = (
       baseline: Asset,
-      template: Template = emptyTemplate
+      template: Template = emptyTemplate,
+      sessionKey = ROOT_KEY
     ): EditorEvent => ({
       type: "baselineRefreshed",
-      assetId: baseline.assetId,
+      sessionKey,
       baseline,
       template,
     });
 
     it("keeps an edit that still differs from the new baseline", () => {
-      const editing = editingExistingAssetModel({ readyForDisplay: false });
-      const baseline = makeSavedAsset({ readyForDisplay: true });
+      const model = reduce(
+        rootModel(editingExistingSession({ readyForDisplay: false })),
+        refreshed(makeSavedAsset({ readyForDisplay: true }))
+      );
 
-      const model = reduce(editing, refreshed(baseline));
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits).toEqual({ readyForDisplay: false });
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits).toEqual({ readyForDisplay: false });
     });
 
     it("drops an edit the new baseline made redundant", () => {
-      // the save's read-back carries the edit, so it is no longer unsaved
-      const editing = editingExistingAssetModel({ readyForDisplay: false });
-      const baseline = makeSavedAsset({ readyForDisplay: false });
+      const model = reduce(
+        rootModel(editingExistingSession({ readyForDisplay: false })),
+        refreshed(makeSavedAsset({ readyForDisplay: false }))
+      );
 
-      const model = reduce(editing, refreshed(baseline));
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits).toEqual({});
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits).toEqual({});
     });
 
     it("lets a refreshed baseline show through fields the user never touched", () => {
-      const editing = editingExistingAssetModel({ readyForDisplay: false });
       const baseline = makeSavedAsset({
         readyForDisplay: true,
         field_1: [{ fieldContents: "someone else's edit", uuid: "theirs" }],
       });
 
-      const model = reduce(editing, refreshed(baseline, makeTemplate(1, [{}])));
+      const model = reduce(
+        rootModel(editingExistingSession({ readyForDisplay: false })),
+        refreshed(baseline, makeTemplate(1, [{}]))
+      );
 
-      const onScreen = localAssetOf(model, baseline);
+      const onScreen = localAssetOf(model, ROOT_KEY, baseline);
       expect(onScreen.field_1).toEqual([
         { fieldContents: "someone else's edit", uuid: "theirs" },
       ]);
@@ -359,138 +443,172 @@ describe("editorReducer", () => {
     });
 
     it("drops an edit whose only difference is content uuids", () => {
-      // a uuid is identity, not content: reminted ids must not read as edits
       const template = makeTemplate(1, [{}]);
-      const editing = editingExistingAssetModel({
-        field_1: [{ fieldContents: "same", isPrimary: false, uuid: "mine" }],
-      });
-      const baseline = makeSavedAsset({
-        field_1: [{ fieldContents: "same", isPrimary: false, uuid: "stored" }],
-      });
+      const model = reduce(
+        rootModel(
+          editingExistingSession({
+            field_1: [
+              { fieldContents: "same", isPrimary: false, uuid: "mine" },
+            ],
+          })
+        ),
+        refreshed(
+          makeSavedAsset({
+            field_1: [
+              { fieldContents: "same", isPrimary: false, uuid: "stored" },
+            ],
+          }),
+          template
+        )
+      );
 
-      const model = reduce(editing, refreshed(baseline, template));
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits).toEqual({});
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits).toEqual({});
     });
 
     it("keeps an unsaved template migration across a refresh", () => {
-      // the baseline keeps saying what the server has (templateId 1), so the
-      // migration to template 2 must survive as an edit until a save lands it
-      const editing = editingExistingAssetModel({ templateId: 2 });
-      const baseline = makeSavedAsset({ templateId: 1 });
+      const model = reduce(
+        rootModel(editingExistingSession({ templateId: 2 })),
+        refreshed(makeSavedAsset({ templateId: 1 }), otherTemplate)
+      );
 
-      const model = reduce(editing, refreshed(baseline, otherTemplate));
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.templateId).toBe(2);
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.templateId).toBe(2);
     });
 
-    it("drops a baseline for an asset the editor no longer holds", () => {
-      const editing = editingExistingAssetModel({}, "asset-456");
-      const baseline = makeSavedAsset({ assetId: "asset-123" });
+    it("drops a baseline for an asset the session does not hold", () => {
+      const before = rootModel(editingExistingSession({}, "asset-456"));
 
-      const model = reduce(editing, refreshed(baseline));
+      const model = reduce(
+        before,
+        refreshed(makeSavedAsset({ assetId: "asset-123" }))
+      );
 
-      expect(model).toBe(editing);
+      expect(model).toBe(before);
     });
 
-    it("drops a baseline when nothing is being edited", () => {
-      const model = reduce(idleModel, refreshed(makeSavedAsset()));
+    it("drops a baseline for a session that has closed", () => {
+      const before = rootModel(editingExistingSession());
 
-      expect(model).toBe(idleModel);
+      const model = reduce(
+        before,
+        refreshed(makeSavedAsset(), emptyTemplate, UNKNOWN_KEY)
+      );
+
+      expect(model).toBe(before);
     });
 
-    it("drops a baseline while a draft is being edited", () => {
-      const editing = editingNewAssetModel();
+    it("leaves other sessions alone", () => {
+      const childSession: EditSession = {
+        ...editingExistingSession({ readyForDisplay: false }, "asset-456"),
+        parentLink: childLink,
+      };
+      const before = withChildSession(
+        rootModel(editingExistingSession()),
+        childSession
+      );
 
-      const model = reduce(editing, refreshed(makeSavedAsset()));
+      const model = reduce(before, refreshed(makeSavedAsset()));
 
-      expect(model).toBe(editing);
+      expect(selectSession(model, CHILD_KEY)).toBe(childSession);
     });
   });
 
   describe("editing", () => {
     it("keeps the assetId null while the user types, so the first save is still a create", () => {
-      const model = reduce(editingNewAssetModel(), {
+      const model = reduce(rootModel(editingNewSession()), {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "typed" }],
       });
 
-      expect(localAssetOf(model).assetId).toBeNull();
-      expect(localAssetOf(model).field_1).toEqual([{ fieldContents: "typed" }]);
+      expect(localAssetOf(model, ROOT_KEY).assetId).toBeNull();
+      expect(localAssetOf(model, ROOT_KEY).field_1).toEqual([
+        { fieldContents: "typed" },
+      ]);
     });
 
     it("records a widget edit without touching the baseline", () => {
       const baseline = makeSavedAsset();
 
-      const model = reduce(editingExistingAssetModel(), {
+      const model = reduce(rootModel(editingExistingSession()), {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "typed" }],
       });
 
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits).toEqual({
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits).toEqual({
         field_1: [{ fieldContents: "typed" }],
       });
-      expect(localAssetOf(model, baseline).field_1).toEqual([
+      expect(localAssetOf(model, ROOT_KEY, baseline).field_1).toEqual([
         { fieldContents: "typed" },
       ]);
     });
 
-    it("drops an edit that arrives when nothing is being edited", () => {
-      const model = reduce(idleModel, {
+    it("drops an edit for a session that has closed", () => {
+      const before = rootModel(editingExistingSession());
+
+      const model = reduce(before, {
         type: "widgetContentsEdited",
+        sessionKey: UNKNOWN_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "typed" }],
       });
 
-      expect(model).toBe(idleModel);
+      expect(model).toBe(before);
     });
 
     it("updates the collection on the asset", () => {
-      const model = reduce(editingExistingAssetModel(), {
+      const model = reduce(rootModel(editingExistingSession()), {
         type: "collectionChanged",
+        sessionKey: ROOT_KEY,
         collectionId: 9,
       });
 
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.collectionId).toBe(9);
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.collectionId).toBe(9);
     });
 
     it("updates readyForDisplay on the asset", () => {
-      const model = reduce(editingExistingAssetModel(), {
+      const model = reduce(rootModel(editingExistingSession()), {
         type: "readyForDisplayChanged",
+        sessionKey: ROOT_KEY,
         readyForDisplay: false,
       });
 
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.readyForDisplay).toBe(false);
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.readyForDisplay).toBe(false);
     });
 
     it("updates availableAfter on the asset", () => {
-      const availableAfter = savedDate;
-
-      const model = reduce(editingExistingAssetModel(), {
+      const model = reduce(rootModel(editingExistingSession()), {
         type: "availableAfterChanged",
-        availableAfter,
+        sessionKey: ROOT_KEY,
+        availableAfter: savedDate,
       });
 
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.availableAfter).toBe(availableAfter);
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.availableAfter).toBe(savedDate);
     });
   });
 
   describe("committing a create before the read-back", () => {
     const createdEvent = (
       baseline: Asset,
-      draftKey = DRAFT_KEY,
+      sessionKey = ROOT_KEY,
       template: Template = emptyTemplate
     ): EditorEvent => ({
       type: "assetCreated",
-      draftKey,
+      sessionKey,
       baseline,
       template,
     });
@@ -499,20 +617,23 @@ describe("editorReducer", () => {
       const baseline = makeSavedAsset({ assetId: "asset-new" });
 
       const step = editorReducer(
-        editingNewAssetModel(),
+        rootModel(editingNewSession()),
         createdEvent(baseline)
       );
 
-      assertStatus(step.model, "editingExistingAsset");
-      expect(step.model.assetId).toBe("asset-new");
+      const session = selectSession(step.model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.assetId).toBe("asset-new");
       expect(step.commands).toEqual([
-        { type: "notifyAssetCreated", assetId: "asset-new" },
+        {
+          type: "notifyAssetCreated",
+          sessionKey: ROOT_KEY,
+          assetId: "asset-new",
+        },
       ]);
     });
 
     it("keeps edits typed while the create was in flight pending", () => {
-      // the echoed baseline holds what was sent, so anything typed after the
-      // send differs from it and must stay pending for the next save
       const template = makeTemplate(1, [{}]);
       const draft = makeUnsavedAsset({
         field_1: [{ fieldContents: "typed after send", uuid: "row-1" }],
@@ -523,42 +644,128 @@ describe("editorReducer", () => {
       });
 
       const model = reduce(
-        editingNewAssetModel(draft),
-        createdEvent(echoed, DRAFT_KEY, template)
+        rootModel(editingNewSession(draft)),
+        createdEvent(echoed, ROOT_KEY, template)
       );
 
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.field_1).toEqual([
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.field_1).toEqual([
         { fieldContents: "typed after send", uuid: "row-1" },
       ]);
     });
 
-    it("drops a create response carrying another draft's key, so the next draft cannot adopt an abandoned draft's asset", () => {
-      const editing = editingNewAssetModel();
+    it("drops a create response for a session that has closed, so the next draft cannot adopt an abandoned draft's asset", () => {
+      // abandoning a draft closes its session; the next draft opens a new
+      // session under a fresh key, which this response does not carry
+      const before = rootModel(editingNewSession());
 
       const step = editorReducer(
-        editing,
-        createdEvent(makeSavedAsset(), STALE_DRAFT_KEY)
+        before,
+        createdEvent(makeSavedAsset(), UNKNOWN_KEY)
       );
 
-      expect(step.model).toBe(editing);
+      expect(step.model).toBe(before);
       expect(step.commands).toBeUndefined();
     });
 
-    it("drops a create response after a reset, so the orphan can be reported instead", () => {
-      const step = editorReducer(idleModel, createdEvent(makeSavedAsset()));
+    it("drops a create response once the session holds an existing asset", () => {
+      const before = rootModel(editingExistingSession());
 
-      expect(step.model).toBe(idleModel);
+      const step = editorReducer(before, createdEvent(makeSavedAsset()));
+
+      expect(step.model).toBe(before);
       expect(step.commands).toBeUndefined();
     });
 
-    it("drops a create response once the user is editing an existing asset", () => {
-      const editing = editingExistingAssetModel();
+    describe("a child session's create stamps the parent's related item", () => {
+      const relatedTemplate = makeTemplate(1, [
+        { fieldTitle: "related_1", type: "related asset" },
+      ]);
+      const childDraftSession: EditSession = {
+        ...editingNewSession(makeUnsavedAsset({ assetId: null })),
+        parentLink: childLink,
+      };
 
-      const step = editorReducer(editing, createdEvent(makeSavedAsset()));
+      it("onto a parent draft's document", () => {
+        const parent = editingNewSession(
+          makeUnsavedAsset({
+            related_1: [
+              { targetAssetId: null, uuid: "item-1" },
+              { targetAssetId: "asset-other", uuid: "item-2" },
+            ],
+          })
+        );
+        const before = withChildSession(rootModel(parent), childDraftSession);
 
-      expect(step.model).toBe(editing);
-      expect(step.commands).toBeUndefined();
+        const model = reduce(
+          before,
+          createdEvent(
+            makeSavedAsset({ assetId: "asset-new" }),
+            CHILD_KEY,
+            relatedTemplate
+          )
+        );
+
+        const parentDraft = localAssetOf(model, ROOT_KEY);
+        expect(parentDraft.related_1).toEqual([
+          { targetAssetId: "asset-new", uuid: "item-1" },
+          { targetAssetId: "asset-other", uuid: "item-2" },
+        ]);
+      });
+
+      it("onto a parent's pending edits", () => {
+        const parent = editingExistingSession({
+          related_1: [{ targetAssetId: null, uuid: "item-1" }],
+        });
+        const before = withChildSession(rootModel(parent), childDraftSession);
+
+        const model = reduce(
+          before,
+          createdEvent(
+            makeSavedAsset({ assetId: "asset-new" }),
+            CHILD_KEY,
+            relatedTemplate
+          )
+        );
+
+        const session = selectSession(model, ROOT_KEY);
+        assertStatus(session, "editingExistingAsset");
+        expect(session.edits.related_1).toEqual([
+          { targetAssetId: "asset-new", uuid: "item-1" },
+        ]);
+      });
+
+      it("leaves the parent alone when the item is gone", () => {
+        // the user deleted the related item while the child's create was in
+        // flight. The child still committed; only the link has no home.
+        const parent = editingExistingSession({ related_1: [] });
+        const before = withChildSession(rootModel(parent), childDraftSession);
+
+        const model = reduce(
+          before,
+          createdEvent(makeSavedAsset(), CHILD_KEY, relatedTemplate)
+        );
+
+        const session = selectSession(model, ROOT_KEY);
+        assertStatus(session, "editingExistingAsset");
+        expect(session.edits.related_1).toEqual([]);
+        assertStatus(selectSession(model, CHILD_KEY), "editingExistingAsset");
+      });
+
+      it("still commits the child when the parent session has closed", () => {
+        const before: EditorModel = {
+          sessions: { [CHILD_KEY]: childDraftSession },
+          rootSessionKey: null,
+        };
+
+        const model = reduce(
+          before,
+          createdEvent(makeSavedAsset(), CHILD_KEY, relatedTemplate)
+        );
+
+        assertStatus(selectSession(model, CHILD_KEY), "editingExistingAsset");
+      });
     });
   });
 
@@ -566,332 +773,417 @@ describe("editorReducer", () => {
     const uploadTemplate = makeTemplate(1, [{ type: "upload" }]);
 
     it("retires the regenerate requests the save carried", () => {
-      // `regenerate` is client-only and asks the next save to rebuild derived
-      // files. That save has now happened, so leaving the flag set would read
-      // as an unsaved change forever
-      const editing = editingExistingAssetModel({
-        field_1: [{ fileId: "file-1", regenerate: true, uuid: "row-1" }],
-      });
+      const model = reduce(
+        rootModel(
+          editingExistingSession({
+            field_1: [{ fileId: "file-1", regenerate: true, uuid: "row-1" }],
+          })
+        ),
+        { type: "saveAccepted", sessionKey: ROOT_KEY, template: uploadTemplate }
+      );
 
-      const model = reduce(editing, {
-        type: "saveAccepted",
-        assetId: "asset-123",
-        template: uploadTemplate,
-      });
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.field_1).toEqual([
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.field_1).toEqual([
         { fileId: "file-1", uuid: "row-1" },
       ]);
     });
 
-    it("drops an acceptance for an asset the editor no longer holds", () => {
-      const editing = editingExistingAssetModel(
-        { field_1: [{ fileId: "file-1", regenerate: true, uuid: "row-1" }] },
-        "asset-456"
+    it("drops an acceptance for a session that has closed", () => {
+      const before = rootModel(
+        editingExistingSession({
+          field_1: [{ fileId: "file-1", regenerate: true, uuid: "row-1" }],
+        })
       );
 
-      const model = reduce(editing, {
+      const model = reduce(before, {
         type: "saveAccepted",
-        assetId: "asset-123",
+        sessionKey: UNKNOWN_KEY,
         template: uploadTemplate,
-      });
-
-      expect(model).toBe(editing);
-    });
-  });
-
-  describe("migrating templates", () => {
-    it("migrates a draft onto the new template", () => {
-      const draft = makeUnsavedAsset({
-        field_1: [{ fieldContents: "kept" }],
-      });
-      let model = reduce(editingNewAssetModel(draft), {
-        type: "templateMigrationRequested",
-        templateId: 2,
-      });
-
-      model = reduce(model, {
-        type: "templateMigrated",
-        templateId: 2,
-        template: otherTemplate,
-        baseline: null,
-      });
-
-      assertStatus(model, "editingNewAsset");
-      expect(model.localAsset.templateId).toBe(2);
-      expect(model.localAsset.field_1).toEqual([{ fieldContents: "kept" }]);
-      expect(model.pendingTemplateId).toBeNull();
-    });
-
-    it("records a migration as edits against the untouched baseline", () => {
-      const baseline = makeSavedAsset({ templateId: 1 });
-      let model = reduce(editingExistingAssetModel(), {
-        type: "templateMigrationRequested",
-        templateId: 2,
-      });
-
-      model = reduce(model, {
-        type: "templateMigrated",
-        templateId: 2,
-        template: otherTemplate,
-        baseline,
-      });
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.templateId).toBe(2);
-      expect(localAssetOf(model, baseline).templateId).toBe(2);
-    });
-
-    it("scaffolds fields the new template adds", () => {
-      const templateWithField = makeTemplate(2, [{}]);
-      const baseline = makeSavedAsset({ templateId: 1 });
-      let model = reduce(editingExistingAssetModel(), {
-        type: "templateMigrationRequested",
-        templateId: 2,
-      });
-
-      model = reduce(model, {
-        type: "templateMigrated",
-        templateId: 2,
-        template: templateWithField,
-        baseline,
-      });
-
-      const migrated = localAssetOf(model, baseline);
-      expect(migrated.field_1).toEqual([expect.any(Object)]);
-    });
-
-    it("leaves the asset editable on its current template when the migration fails", () => {
-      let model = reduce(editingExistingAssetModel(), {
-        type: "templateMigrationRequested",
-        templateId: 2,
-      });
-
-      model = reduce(model, {
-        type: "templateMigrationFailed",
-        templateId: 2,
-        error: new Error("migration failed"),
-      });
-
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits).toEqual({});
-      expect(model.pendingTemplateId).toBeNull();
-    });
-
-    it("keeps the second template the user picked, whichever request resolves last", () => {
-      const baseline = makeSavedAsset({ templateId: 1 });
-      let model = reduce(editingExistingAssetModel(), {
-        type: "templateMigrationRequested",
-        templateId: 2,
-      });
-      model = reduce(model, {
-        type: "templateMigrationRequested",
-        templateId: 3,
-      });
-
-      // template 2 resolves late: the user has moved on to template 3
-      model = reduce(model, {
-        type: "templateMigrated",
-        templateId: 2,
-        template: otherTemplate,
-        baseline,
-      });
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.templateId).toBeUndefined();
-
-      model = reduce(model, {
-        type: "templateMigrated",
-        templateId: 3,
-        template: makeTemplate(3),
-        baseline,
-      });
-      assertStatus(model, "editingExistingAsset");
-      expect(model.edits.templateId).toBe(3);
-    });
-
-    it("drops a migration that was never requested", () => {
-      const editing = editingExistingAssetModel();
-
-      const model = reduce(editing, {
-        type: "templateMigrated",
-        templateId: 2,
-        template: otherTemplate,
-        baseline: makeSavedAsset(),
-      });
-
-      expect(model).toBe(editing);
-    });
-
-    it("drops a migration whose baseline is for an asset the editor no longer holds", () => {
-      let model = reduce(editingExistingAssetModel({}, "asset-456"), {
-        type: "templateMigrationRequested",
-        templateId: 2,
-      });
-      const before = model;
-
-      model = reduce(model, {
-        type: "templateMigrated",
-        templateId: 2,
-        template: otherTemplate,
-        baseline: makeSavedAsset({ assetId: "asset-123" }),
       });
 
       expect(model).toBe(before);
     });
   });
 
-  describe("naming the asset and template the editor needs", () => {
-    it("names no asset while nothing is loaded", () => {
-      expect(selectAssetId(idleModel)).toBeNull();
-      expect(selectAssetId(editingNewAssetModel())).toBeNull();
+  describe("migrating templates", () => {
+    it("migrates a draft onto the new template", () => {
+      let model = reduce(
+        rootModel(
+          editingNewSession(
+            makeUnsavedAsset({ field_1: [{ fieldContents: "kept" }] })
+          )
+        ),
+        {
+          type: "templateMigrationRequested",
+          sessionKey: ROOT_KEY,
+          templateId: 2,
+        }
+      );
+
+      model = reduce(model, {
+        type: "templateMigrated",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+        template: otherTemplate,
+        baseline: null,
+      });
+
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingNewAsset");
+      expect(session.localAsset.templateId).toBe(2);
+      expect(session.localAsset.field_1).toEqual([{ fieldContents: "kept" }]);
+      expect(session.pendingTemplateId).toBeNull();
+    });
+
+    it("records a migration as edits against the untouched baseline", () => {
+      const baseline = makeSavedAsset({ templateId: 1 });
+      let model = reduce(rootModel(editingExistingSession()), {
+        type: "templateMigrationRequested",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+      });
+
+      model = reduce(model, {
+        type: "templateMigrated",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+        template: otherTemplate,
+        baseline,
+      });
+
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.templateId).toBe(2);
+      expect(localAssetOf(model, ROOT_KEY, baseline).templateId).toBe(2);
+    });
+
+    it("leaves the asset editable on its current template when the migration fails", () => {
+      let model = reduce(rootModel(editingExistingSession()), {
+        type: "templateMigrationRequested",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+      });
+
+      model = reduce(model, {
+        type: "templateMigrationFailed",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+        error: new Error("migration failed"),
+      });
+
+      const session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits).toEqual({});
+      expect(session.pendingTemplateId).toBeNull();
+    });
+
+    it("keeps the second template the user picked, whichever request resolves last", () => {
+      const baseline = makeSavedAsset({ templateId: 1 });
+      let model = reduce(rootModel(editingExistingSession()), {
+        type: "templateMigrationRequested",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+      });
+      model = reduce(model, {
+        type: "templateMigrationRequested",
+        sessionKey: ROOT_KEY,
+        templateId: 3,
+      });
+
+      // template 2 resolves late: the user has moved on to template 3
+      model = reduce(model, {
+        type: "templateMigrated",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+        template: otherTemplate,
+        baseline,
+      });
+      let session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.templateId).toBeUndefined();
+
+      model = reduce(model, {
+        type: "templateMigrated",
+        sessionKey: ROOT_KEY,
+        templateId: 3,
+        template: makeTemplate(3),
+        baseline,
+      });
+      session = selectSession(model, ROOT_KEY);
+      assertStatus(session, "editingExistingAsset");
+      expect(session.edits.templateId).toBe(3);
+    });
+
+    it("drops a migration that was never requested", () => {
+      const before = rootModel(editingExistingSession());
+
+      const model = reduce(before, {
+        type: "templateMigrated",
+        sessionKey: ROOT_KEY,
+        templateId: 2,
+        template: otherTemplate,
+        baseline: makeSavedAsset(),
+      });
+
+      expect(model).toBe(before);
+    });
+  });
+
+  describe("walking a session's descendants", () => {
+    it("collects the session and everything mounted under it", () => {
+      const grandchildLink: ParentLink = {
+        sessionKey: CHILD_KEY,
+        fieldTitle: "related_1",
+        itemUuid: "item-9",
+      };
+      const model: EditorModel = {
+        sessions: {
+          [ROOT_KEY]: editingExistingSession(),
+          [CHILD_KEY]: { ...editingNewSession(), parentLink: childLink },
+          "session-grandchild": {
+            ...editingNewSession(),
+            parentLink: grandchildLink,
+          },
+        },
+        rootSessionKey: ROOT_KEY,
+      };
+
+      expect(selectSessionAndDescendantKeys(model, ROOT_KEY).sort()).toEqual([
+        CHILD_KEY,
+        "session-grandchild",
+        ROOT_KEY,
+      ]);
+      expect(selectSessionAndDescendantKeys(model, CHILD_KEY).sort()).toEqual([
+        CHILD_KEY,
+        "session-grandchild",
+      ]);
+    });
+
+    it("terminates when sessions link in a cycle", () => {
+      // asset A relating to B relating back to A, both open inline
+      const model: EditorModel = {
+        sessions: {
+          "session-a": {
+            ...editingExistingSession({}, "asset-a"),
+            parentLink: {
+              sessionKey: "session-b",
+              fieldTitle: "related_1",
+              itemUuid: "item-a",
+            },
+          },
+          "session-b": {
+            ...editingExistingSession({}, "asset-b"),
+            parentLink: {
+              sessionKey: "session-a",
+              fieldTitle: "related_1",
+              itemUuid: "item-b",
+            },
+          },
+        },
+        rootSessionKey: null,
+      };
+
+      expect(selectSessionAndDescendantKeys(model, "session-a").sort()).toEqual(
+        ["session-a", "session-b"]
+      );
+    });
+  });
+
+  describe("naming the asset and template a session needs", () => {
+    it("names no asset while the session holds none", () => {
+      expect(selectAssetId(initialEditorModel, ROOT_KEY)).toBeNull();
+      expect(
+        selectAssetId(rootModel(editingNewSession()), ROOT_KEY)
+      ).toBeNull();
     });
 
     it("names the asset being edited", () => {
-      expect(selectAssetId(editingExistingAssetModel())).toBe("asset-123");
+      expect(selectAssetId(rootModel(editingExistingSession()), ROOT_KEY)).toBe(
+        "asset-123"
+      );
     });
 
     it("names the requested template while the draft awaits its document", () => {
-      expect(selectTemplateId(awaitingTemplateModel, null)).toBe(1);
+      expect(
+        selectTemplateId(rootModel(awaitingTemplateSession), ROOT_KEY, null)
+      ).toBe(1);
     });
 
     it("names the draft's template", () => {
-      expect(selectTemplateId(editingNewAssetModel(), null)).toBe(1);
+      expect(
+        selectTemplateId(rootModel(editingNewSession()), ROOT_KEY, null)
+      ).toBe(1);
     });
 
     it("names the baseline's template for an untouched existing asset", () => {
       const baseline = makeSavedAsset({ templateId: 7 });
-      expect(selectTemplateId(editingExistingAssetModel(), baseline)).toBe(7);
+      expect(
+        selectTemplateId(
+          rootModel(editingExistingSession()),
+          ROOT_KEY,
+          baseline
+        )
+      ).toBe(7);
     });
 
     it("names the migrated template over the baseline's, so a pending migration wins", () => {
       const baseline = makeSavedAsset({ templateId: 1 });
-      const migrating = editingExistingAssetModel({ templateId: 2 });
-      expect(selectTemplateId(migrating, baseline)).toBe(2);
+      expect(
+        selectTemplateId(
+          rootModel(editingExistingSession({ templateId: 2 })),
+          ROOT_KEY,
+          baseline
+        )
+      ).toBe(2);
     });
 
-    it("ignores a baseline for an asset the editor no longer holds", () => {
+    it("ignores a baseline for an asset the session does not hold", () => {
       const staleBaseline = makeSavedAsset({ assetId: "asset-old" });
       expect(
-        selectTemplateId(editingExistingAssetModel(), staleBaseline)
+        selectTemplateId(
+          rootModel(editingExistingSession()),
+          ROOT_KEY,
+          staleBaseline
+        )
       ).toBeNull();
-    });
-
-    it("names no template when nothing is loading or loaded", () => {
-      expect(selectTemplateId(idleModel, null)).toBeNull();
-      expect(selectTemplateId(editingExistingAssetModel(), null)).toBeNull();
     });
   });
 
   describe("the asset on screen", () => {
     it("lays pending edits over the baseline", () => {
       const baseline = makeSavedAsset({ readyForDisplay: true });
-      const editing = editingExistingAssetModel({ readyForDisplay: false });
+      const model = rootModel(
+        editingExistingSession({ readyForDisplay: false })
+      );
 
-      const onScreen = localAssetOf(editing, baseline);
+      const onScreen = localAssetOf(model, ROOT_KEY, baseline);
 
       expect(onScreen.readyForDisplay).toBe(false);
       expect(onScreen.assetId).toBe("asset-123");
     });
 
     it("shows nothing until the baseline document has arrived", () => {
-      expect(selectLocalAsset(editingExistingAssetModel(), null)).toBeNull();
+      expect(
+        selectLocalAsset(rootModel(editingExistingSession()), ROOT_KEY, null)
+      ).toBeNull();
     });
 
-    it("shows nothing over a baseline for an asset the editor no longer holds", () => {
+    it("shows nothing over a baseline for an asset the session does not hold", () => {
       const staleBaseline = makeSavedAsset({ assetId: "asset-old" });
       expect(
-        selectLocalAsset(editingExistingAssetModel(), staleBaseline)
+        selectLocalAsset(
+          rootModel(editingExistingSession()),
+          ROOT_KEY,
+          staleBaseline
+        )
       ).toBeNull();
     });
 
     it("shows the draft without needing any baseline", () => {
       const draft = makeUnsavedAsset();
-      expect(selectLocalAsset(editingNewAssetModel(draft), null)).toBe(draft);
+      expect(
+        selectLocalAsset(rootModel(editingNewSession(draft)), ROOT_KEY, null)
+      ).toBe(draft);
     });
   });
 
   describe("what counts as unsaved work", () => {
     const template = makeTemplate(1, [{}]);
 
-    const draftFromTemplate = (): EditorModel =>
+    const draftModel = (): EditorModel =>
       reduce(
-        { status: "awaitingTemplate", collectionId: 1, templateId: 1 },
-        { type: "templateDocumentLoaded", templateId: 1, template }
+        rootModel({
+          status: "awaitingTemplate",
+          parentLink: null,
+          collectionId: 1,
+          templateId: 1,
+        }),
+        {
+          type: "templateDocumentLoaded",
+          sessionKey: ROOT_KEY,
+          templateId: 1,
+          template,
+        }
       );
 
     it("reads an untouched draft as clean, so the leave guard stays quiet", () => {
-      expect(selectHasUnsavedEdits(draftFromTemplate(), null, template)).toBe(
-        false
-      );
+      expect(
+        selectHasUnsavedEdits(draftModel(), ROOT_KEY, null, template)
+      ).toBe(false);
     });
 
     it("reads a draft the user typed into as unsaved work", () => {
-      const model = reduce(draftFromTemplate(), {
+      const model = reduce(draftModel(), {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "typed" }],
       });
 
-      expect(selectHasUnsavedEdits(model, null, template)).toBe(true);
+      expect(selectHasUnsavedEdits(model, ROOT_KEY, null, template)).toBe(true);
     });
 
     it("reads an edit the server would store as unsaved work", () => {
       const baseline = makeSavedAsset({
         field_1: [{ fieldContents: "saved", uuid: "row-1" }],
       });
-      const model = reduce(editingExistingAssetModel(), {
+      const model = reduce(rootModel(editingExistingSession()), {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "changed", uuid: "row-1" }],
       });
 
-      expect(selectHasUnsavedEdits(model, baseline, template)).toBe(true);
+      expect(selectHasUnsavedEdits(model, ROOT_KEY, baseline, template)).toBe(
+        true
+      );
     });
 
     it("reads an edit set back to the saved value as clean", () => {
       const baseline = makeSavedAsset({
         field_1: [{ fieldContents: "saved", uuid: "row-1" }],
       });
-      let model = reduce(editingExistingAssetModel(), {
+      let model = reduce(rootModel(editingExistingSession()), {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "changed", uuid: "row-1" }],
       });
       model = reduce(model, {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "saved", uuid: "row-1" }],
       });
 
-      expect(selectHasUnsavedEdits(model, baseline, template)).toBe(false);
+      expect(selectHasUnsavedEdits(model, ROOT_KEY, baseline, template)).toBe(
+        false
+      );
     });
 
     it("reads as clean while the baseline document has not arrived", () => {
-      const model = editingExistingAssetModel({ readyForDisplay: false });
-      expect(selectHasUnsavedEdits(model, null, template)).toBe(false);
+      const model = rootModel(
+        editingExistingSession({ readyForDisplay: false })
+      );
+      expect(selectHasUnsavedEdits(model, ROOT_KEY, null, template)).toBe(
+        false
+      );
     });
 
     it("reads as clean while the template document has not arrived, whatever the draft holds", () => {
-      const model = reduce(draftFromTemplate(), {
+      const model = reduce(draftModel(), {
         type: "widgetContentsEdited",
+        sessionKey: ROOT_KEY,
         fieldTitle: "field_1",
         contents: [{ fieldContents: "typed" }],
       });
 
-      expect(selectHasUnsavedEdits(model, null, null)).toBe(false);
+      expect(selectHasUnsavedEdits(model, ROOT_KEY, null, null)).toBe(false);
     });
   });
 
-  it("returns to idle on reset", () => {
-    const model = reduce(editingExistingAssetModel(), {
-      type: "resetRequested",
-    });
-
-    expect(model).toEqual({ status: "idle" });
-  });
-
-  it("starts uninitialized", () => {
-    expect(initialEditorModel).toEqual({ status: "idle" });
+  it("starts with no sessions", () => {
+    expect(initialEditorModel).toEqual({ sessions: {}, rootSessionKey: null });
   });
 });

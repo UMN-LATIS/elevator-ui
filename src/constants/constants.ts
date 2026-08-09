@@ -1,6 +1,9 @@
 import { Asset, LngLat } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
-import type { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
+import type {
+  EditorHost,
+  useAssetEditor,
+} from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 import type { AssetValidation } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
 
 export const UMN_LNGLAT: LngLat = {
@@ -51,12 +54,13 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   TOP: 1,
 } as const;
 
-
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
 
 export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<
   ReturnType<typeof useAssetEditor>
 >;
+
+export const EDITOR_HOST_PROVIDE_KEY = Symbol() as InjectionKey<EditorHost>;
 
 export const ASSET_VALIDATION_PROVIDE_KEY =
   Symbol() as InjectionKey<AssetValidation>;

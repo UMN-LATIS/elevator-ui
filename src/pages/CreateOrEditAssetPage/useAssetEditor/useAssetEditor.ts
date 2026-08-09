@@ -2,28 +2,35 @@ import * as T from "@/types";
 import {
   computed,
   inject,
-  nextTick,
   onScopeDispose,
   reactive,
   ref,
   watch,
+  type Ref,
 } from "vue";
 import {
   editorReducer,
   initialEditorModel,
+  isEditingSession,
   selectAssetId,
   selectHasUnsavedEdits,
-  isEditingAsset,
   selectLoadError,
   selectLocalAsset,
+  selectSession,
+  selectSessionAndDescendantKeys,
   selectTemplateId,
   type EditorCommand,
   type EditorEvent,
   type EditorModel,
+  type ParentLink,
+  type SessionKey,
 } from "./editorReducer";
 import { toSaveableFormData } from "./toSaveableFormData";
 import invariant from "tiny-invariant";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
+import {
+  ASSET_EDITOR_PROVIDE_KEY,
+  EDITOR_HOST_PROVIDE_KEY,
+} from "@/constants/constants";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { assetQuery } from "@/queries/useAssetQuery";
@@ -34,64 +41,70 @@ import {
 } from "./localAsset";
 import { createSaveQueue } from "./createSaveQueue";
 
-/** An inline related asset's editor, as its parent needs to see it. */
-export interface ChildEditor {
-  hasUnsavedChanges: () => boolean;
-  save: () => Promise<void>;
-}
-
 /**
- * How the owning page runs the commands the reducer emits. Navigation,
+ * How the owning page reacts to what the editor decides. Navigation,
  * broadcasts, and toasts belong to the page, not the editor, so the page
  * supplies them here. Handlers stop firing once the creating component's
  * scope is disposed: a command must not navigate a page the user has left.
  */
-export interface EditorCommandHandlers {
+export interface EditorHostHandlers {
+  /** the root session's draft got its id. Pages redirect or link on it. */
   onAssetCreated: (assetId: T.Asset["assetId"]) => void;
+  /** an inline child's save failed while a parent save collected it */
+  onChildSaveFailed: (error: unknown) => void;
 }
 
 /**
- * Creates (but does NOT provide) a reactive asset editor: the model, its
- * transitions, and the registry of inline child editors. Each call owns its
- * state, so an inline related asset's editor never touches the page's.
- * Descendant components reach the editor provided above them with
- * `useAssetEditor`.
- *
- * The model holds identities and edits; the documents live in the query
- * cache. The editor subscribes to the asset and template the model names,
- * and every baseline change enters the reducer through one event,
- * baselineRefreshed, whatever caused it.
+ * The query documents and scaffold one mounted editor surface holds for its
+ * session. The host reads these for dirtiness walks and saves; the walk
+ * itself is a pure function over the model.
  */
-export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
-  // `ref` (not shallowRef) keeps nested widget contents reactive for
-  // components that hold on to content items
+interface SessionSurface {
+  sessionKey: () => SessionKey | null;
+  scaffoldedBaseline: Ref<T.Asset | null>;
+  template: () => T.Template | null;
+}
+
+/**
+ * One host per page: the sessions model, its reducer, the per-session save
+ * queues, and one shared save mutation. Query subscriptions live with the
+ * mounted surfaces (see createSessionHandle), because Vue ties useQuery to
+ * a component's setup scope; each surface registers its documents here.
+ */
+export const createEditorHost = (handlers: EditorHostHandlers) => {
   const model = ref<EditorModel>(initialEditorModel);
 
-  // state the shell owns, which the reducer has no opinion about
-  interface ShellState {
-    editorId: string;
-
-    // inline related assets have their own editors, so their unsaved changes
-    // and their saves both live outside this editor's model. Each child adds
-    // itself on mount and removes itself on unmount.
-    childEditors: Set<ChildEditor>;
-  }
-  const shellState = reactive<ShellState>({
-    editorId: crypto.randomUUID(),
-    childEditors: new Set(),
-  });
-
-  // A save can still be in flight when the user navigates away. Vue
-  // disposes this scope when the editor's component unmounts, so work
-  // that resolves afterward can check whether its page is still there.
   let isScopeDisposed = false;
   onScopeDispose(() => {
     isScopeDisposed = true;
   });
 
+  const queryClient = useQueryClient();
+  const updateAssetMutation = useUpdateAssetMutation();
+
+  const surfaces = new Set<SessionSurface>();
+
+  function registerSessionSurface(surface: SessionSurface): () => void {
+    surfaces.add(surface);
+    return () => {
+      surfaces.delete(surface);
+    };
+  }
+
+  function surfaceFor(sessionKey: SessionKey): SessionSurface | null {
+    for (const surface of surfaces) {
+      if (surface.sessionKey() === sessionKey) return surface;
+    }
+    return null;
+  }
+
   function dispatch(event: EditorEvent): void {
     const { model: nextModel, commands } = editorReducer(model.value, event);
     model.value = nextModel;
+    // a session's save queue has nothing left to do once the session closed
+    [...saveQueues.keys()].forEach((sessionKey) => {
+      if (!nextModel.sessions[sessionKey]) saveQueues.delete(sessionKey);
+    });
     commands?.forEach(runCommand);
   }
 
@@ -100,9 +113,207 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     if (isScopeDisposed) return;
     switch (command.type) {
       case "notifyAssetCreated":
-        commandHandlers.onAssetCreated(command.assetId);
+        // inline children's ids are adopted inside the reducer; only the
+        // page's own asset warrants navigation
+        if (command.sessionKey === model.value.rootSessionKey) {
+          handlers.onAssetCreated(command.assetId);
+        }
         return;
     }
+  }
+
+  /** Whether this one session's own edits would change its stored asset. */
+  function isSessionDirty(sessionKey: SessionKey): boolean {
+    const surface = surfaceFor(sessionKey);
+    return selectHasUnsavedEdits(
+      model.value,
+      sessionKey,
+      surface?.scaffoldedBaseline.value ?? null,
+      surface?.template() ?? null
+    );
+  }
+
+  /** Whether the session or anything mounted under it holds unsaved work. */
+  function hasUnsavedChangesInTree(sessionKey: SessionKey): boolean {
+    return selectSessionAndDescendantKeys(model.value, sessionKey).some(
+      isSessionDirty
+    );
+  }
+
+  // Serialize each session's saves so the assetId from its first CREATE is
+  // written back before the next save reads it, preventing duplicate assets.
+  const saveQueues = new Map<SessionKey, ReturnType<typeof createSaveQueue>>();
+
+  function saveQueueFor(sessionKey: SessionKey) {
+    let queue = saveQueues.get(sessionKey);
+    if (!queue) {
+      queue = createSaveQueue(() => performSessionSave(sessionKey), 2000);
+      saveQueues.set(sessionKey, queue);
+    }
+    return queue;
+  }
+
+  async function saveSession(sessionKey: SessionKey): Promise<void> {
+    await saveQueueFor(sessionKey).save();
+  }
+
+  async function waitForSessionSaveToSettle(
+    sessionKey: SessionKey
+  ): Promise<void> {
+    await saveQueues.get(sessionKey)?.waitForCurrentSaveToSettle();
+  }
+
+  function directChildKeys(sessionKey: SessionKey): SessionKey[] {
+    return Object.entries(model.value.sessions)
+      .filter(([, session]) => session.parentLink?.sessionKey === sessionKey)
+      .map(([key]) => key);
+  }
+
+  async function performSessionSave(sessionKey: SessionKey): Promise<void> {
+    // children first: a child's create lands in this same model as an
+    // ordinary transition (stamping its id into this session's items), so
+    // the snapshot below sees it without any tick-waiting
+    const dirtyChildren = directChildKeys(sessionKey).filter(
+      hasUnsavedChangesInTree
+    );
+    // settled, not all: a child that cannot be saved is independent of this
+    // asset and must not cost the user their edits to it
+    const childResults = await Promise.allSettled(
+      dirtyChildren.map((childKey) => saveSession(childKey))
+    );
+    childResults.forEach((result) => {
+      if (result.status === "rejected" && !isScopeDisposed) {
+        handlers.onChildSaveFailed(result.reason);
+      }
+    });
+
+    const session = selectSession(model.value, sessionKey);
+    // the session may have closed while its children saved; there is
+    // nothing left to save and nothing was lost
+    if (!session || !isEditingSession(session)) return;
+
+    const surface = surfaceFor(sessionKey);
+    const assetToSave = selectLocalAsset(
+      model.value,
+      sessionKey,
+      surface?.scaffoldedBaseline.value ?? null
+    );
+    invariant(assetToSave, "Cannot save: the asset document is not loaded");
+    const templateDocument = surface?.template() ?? null;
+    invariant(
+      templateDocument,
+      "Cannot save: the template document is not loaded"
+    );
+    invariant(
+      assetToSave.templateId === templateDocument.templateId,
+      "Cannot save: localAsset.templateId !== template.templateId"
+    );
+
+    const formData = toSaveableFormData(assetToSave, templateDocument);
+
+    const { objectId } = await updateAssetMutation.mutateAsync(formData);
+    invariant(objectId, "Expected an objectId back from the save");
+
+    if (session.status === "editingNewAsset") {
+      // commit the id before the read-back: if that read fails, the editor
+      // must still know the asset exists, or the next save creates another.
+      // The echoed draft is the closest thing to server truth until then.
+      const echoedDraft: T.Asset = clearUploadRegenerationFlags(
+        {
+          ...assetToSave,
+          assetId: objectId,
+          modified: {
+            date: new Date().toISOString(),
+            timezone_type: 3,
+            timezone: "UTC",
+          },
+        },
+        templateDocument
+      );
+      const seededBaseline = makeLocalAssetFromSaved({
+        template: templateDocument,
+        savedAsset: echoedDraft,
+      });
+
+      // the scaffold is set by hand so the view has a baseline the moment
+      // the session holds the new id, without waiting for the watcher
+      if (surface) surface.scaffoldedBaseline.value = seededBaseline;
+      dispatch({
+        type: "assetCreated",
+        sessionKey,
+        baseline: seededBaseline,
+        template: templateDocument,
+      });
+      queryClient.setQueryData(assetQuery(objectId).queryKey, seededBaseline);
+      // the seed is the echo, not server truth: mark it stale so the
+      // session's subscription reads back what the server actually stored
+      // as soon as it observes the new key
+      void queryClient.invalidateQueries({
+        queryKey: assetQuery(objectId).queryKey,
+      });
+    } else {
+      // the read-back arrives through the mutation's invalidation as
+      // baselineRefreshed; this event only retires the regenerate requests
+      // the save carried
+      dispatch({
+        type: "saveAccepted",
+        sessionKey,
+        template: templateDocument,
+      });
+    }
+  }
+
+  function reset(): void {
+    dispatch({ type: "resetRequested" });
+  }
+
+  return {
+    model,
+    dispatch,
+    registerSessionSurface,
+    hasUnsavedChangesInTree,
+    saveSession,
+    waitForSessionSaveToSettle,
+    reset,
+    saveStatus: updateAssetMutation.status,
+  };
+};
+
+export type EditorHost = ReturnType<typeof createEditorHost>;
+
+export type SessionHandleOptions =
+  | { role: "root" }
+  | { role: "child"; parentLink: ParentLink };
+
+/**
+ * One mounted editor surface's view of its session: the page's own form,
+ * or one inline related asset. Owns the session's query subscriptions and
+ * the scaffold watcher, and presents the same API the widget tree has
+ * always injected.
+ *
+ * A root handle follows the model's rootSessionKey, which changes on every
+ * opening. A child handle owns one fixed session for the component's life;
+ * unmounting closes it.
+ */
+export const createSessionHandle = (
+  host: EditorHost,
+  options: SessionHandleOptions
+) => {
+  const childSessionKey: SessionKey | null =
+    options.role === "child" ? crypto.randomUUID() : null;
+  const parentLink: ParentLink | null =
+    options.role === "child" ? options.parentLink : null;
+
+  const currentSessionKey = computed((): SessionKey | null =>
+    options.role === "child" ? childSessionKey : host.model.value.rootSessionKey
+  );
+
+  const shellState = reactive<{ editorId: string }>({
+    editorId: crypto.randomUUID(),
+  });
+
+  function dispatch(event: EditorEvent): void {
+    host.dispatch(event);
   }
 
   function toError(cause: unknown): Error {
@@ -110,17 +321,16 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   }
 
   const queryClient = useQueryClient();
-  const updateAssetMutation = useUpdateAssetMutation();
 
   const editorAssetId = computed((): string | null =>
-    selectAssetId(model.value)
+    selectAssetId(host.model.value, currentSessionKey.value)
   );
 
-  // the asset baseline lives in the query cache, keyed by the id the model
-  // names. staleTime Infinity: the baseline refreshes only on load and on
-  // invalidation (a save's read-back, an inline child's save), which is
-  // today's behavior. Slice 4 of the cache-ownership plan decides anything
-  // more proactive.
+  // the asset baseline lives in the query cache, keyed by the id the
+  // session names. staleTime Infinity: the baseline refreshes only on load
+  // and on invalidation (a save's read-back, an inline child's save), which
+  // is today's behavior. Slice 4 of the cache-ownership plan decides
+  // anything more proactive.
   const baselineQuery = useQuery({
     ...assetQuery(() => editorAssetId.value),
     enabled: () => editorAssetId.value !== null,
@@ -133,7 +343,11 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   );
 
   const templateId = computed((): number | null =>
-    selectTemplateId(model.value, rawBaseline.value)
+    selectTemplateId(
+      host.model.value,
+      currentSessionKey.value,
+      rawBaseline.value
+    )
   );
 
   // the template document, same ownership story as the baseline. The editor
@@ -158,23 +372,38 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
    */
   const scaffoldedBaseline = ref<T.Asset | null>(null);
 
-  // the shell's one ongoing job: whatever changed the baseline document (a
+  const unregisterSurface = host.registerSessionSurface({
+    sessionKey: () => currentSessionKey.value,
+    scaffoldedBaseline,
+    template: () => template.value,
+  });
+
+  onScopeDispose(() => {
+    unregisterSurface();
+    if (childSessionKey) {
+      dispatch({ type: "sessionClosed", sessionKey: childSessionKey });
+    }
+  });
+
+  // the handle's one ongoing job: whatever changed the baseline document (a
   // save's read-back, an inline child's invalidation, a template swap),
   // scaffold it and hand it to the reducer as baselineRefreshed
   watch(
-    [rawBaseline, template, editorAssetId] as const,
-    ([rawDocument, templateDocument, assetId]) => {
-      if (!assetId) {
+    [rawBaseline, template, currentSessionKey] as const,
+    ([rawDocument, templateDocument, sessionKey]) => {
+      if (!sessionKey || !selectAssetId(host.model.value, sessionKey)) {
         scaffoldedBaseline.value = null;
         return;
       }
       if (!rawDocument || !templateDocument) return;
       // the subscription can briefly hold the previous key's answer while
-      // the model has moved on; a mismatched document must not scaffold
-      if (rawDocument.assetId !== assetId) return;
+      // the session has moved on; a mismatched document must not scaffold
+      if (rawDocument.assetId !== selectAssetId(host.model.value, sessionKey)) {
+        return;
+      }
       if (
         templateDocument.templateId !==
-        selectTemplateId(model.value, rawDocument)
+        selectTemplateId(host.model.value, sessionKey, rawDocument)
       ) {
         return;
       }
@@ -183,7 +412,8 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       // (position-inheritance for backends that do not store them), so the
       // items on screen keep their identities across the refresh
       const previousView = selectLocalAsset(
-        model.value,
+        host.model.value,
+        sessionKey,
         scaffoldedBaseline.value
       );
       const nextBaseline = makeLocalAssetFromSaved({
@@ -194,7 +424,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       scaffoldedBaseline.value = nextBaseline;
       dispatch({
         type: "baselineRefreshed",
-        assetId,
+        sessionKey,
         baseline: nextBaseline,
         template: templateDocument,
       });
@@ -203,13 +433,19 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   );
 
   const localAsset = computed((): T.Asset | T.UnsavedAsset | null =>
-    selectLocalAsset(model.value, scaffoldedBaseline.value)
+    selectLocalAsset(
+      host.model.value,
+      currentSessionKey.value,
+      scaffoldedBaseline.value
+    )
   );
 
   const savedAsset = computed((): T.Asset | null => {
-    if (model.value.status !== "editingExistingAsset") return null;
+    const sessionKey = currentSessionKey.value;
+    const session = selectSession(host.model.value, sessionKey);
+    if (session?.status !== "editingExistingAsset") return null;
     const baseline = scaffoldedBaseline.value;
-    if (!baseline || baseline.assetId !== model.value.assetId) return null;
+    if (!baseline || baseline.assetId !== session.assetId) return null;
     return baseline;
   });
 
@@ -218,27 +454,9 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   ): T.WidgetInstanceId => `${shellState.editorId}-${widgetId}`;
 
   const hasUnsavedChanges = computed(() => {
-    const childEditors = [...shellState.childEditors];
-    const hasChildWithUnsavedChanges = childEditors.some((childEditor) =>
-      childEditor.hasUnsavedChanges()
-    );
-    return (
-      selectHasUnsavedEdits(
-        model.value,
-        scaffoldedBaseline.value,
-        template.value
-      ) || hasChildWithUnsavedChanges
-    );
+    const sessionKey = currentSessionKey.value;
+    return sessionKey !== null && host.hasUnsavedChangesInTree(sessionKey);
   });
-
-  /**
-   * Reset the state to initial values
-   */
-  function reset(): void {
-    dispatch({ type: "resetRequested" });
-    shellState.editorId = crypto.randomUUID();
-    shellState.childEditors.clear();
-  }
 
   /**
    * A template id the server has no record of comes back as a null result
@@ -252,6 +470,11 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     return template;
   }
 
+  /** A child reuses its one key; each root opening takes a fresh one. */
+  function mintSessionKey(): SessionKey {
+    return childSessionKey ?? crypto.randomUUID();
+  }
+
   /**
    * Initialize a new asset based on a template and collection
    */
@@ -262,8 +485,11 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     templateId: number;
     collectionId: number;
   }): Promise<void> {
+    const sessionKey = mintSessionKey();
     dispatch({
       type: "newAssetRequested",
+      sessionKey,
+      parentLink,
       collectionId,
       templateId: requestedTemplateId,
     });
@@ -272,6 +498,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       const template = await fetchTemplateOrFail(requestedTemplateId);
       dispatch({
         type: "templateDocumentLoaded",
+        sessionKey,
         templateId: requestedTemplateId,
         template,
       });
@@ -279,6 +506,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       const error = toError(cause);
       dispatch({
         type: "templateDocumentLoadFailed",
+        sessionKey,
         templateId: requestedTemplateId,
         error,
       });
@@ -289,21 +517,30 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
   /**
    * Initialize the editor with an existing asset by its ID.
    *
-   * The model switches immediately; this function's job is to make sure the
-   * documents the subscriptions render actually arrive, and to surface a
-   * failure. A fetch that resolves after the editor moved on dispatches
-   * nothing on success, and its failure event carries an assetId the
-   * reducer no longer holds.
+   * The session switches immediately; this function's job is to make sure
+   * the documents the subscriptions render actually arrive, and to surface
+   * a failure. A fetch that resolves after the session moved on dispatches
+   * nothing on success, and its failure event carries a sessionKey the
+   * model no longer holds.
    */
   async function initExistingAsset(
     assetId: T.Asset["assetId"],
     opts: { force?: boolean } = {}
   ): Promise<void> {
-    if (selectAssetId(model.value) === assetId && !opts.force) {
+    if (
+      selectAssetId(host.model.value, currentSessionKey.value) === assetId &&
+      !opts.force
+    ) {
       return;
     }
 
-    dispatch({ type: "existingAssetRequested", assetId });
+    const sessionKey = mintSessionKey();
+    dispatch({
+      type: "existingAssetRequested",
+      sessionKey,
+      parentLink,
+      assetId,
+    });
 
     try {
       // a save writes back every field the editor holds, so a document read
@@ -320,98 +557,23 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       await fetchTemplateOrFail(fetchedTemplateId);
     } catch (cause) {
       const error = toError(cause);
-      dispatch({ type: "assetLoadFailed", assetId, error });
+      dispatch({ type: "assetLoadFailed", sessionKey, error });
       throw error;
     }
   }
 
-  // Serialize saves so the assetId from the first CREATE is written back
-  // before the next save reads it, preventing duplicate assets.
-  const { save: saveAsset, waitForCurrentSaveToSettle } = createSaveQueue(
-    saveAssetAndChildren,
-    2000
-  );
-
-  async function saveAssetAndChildren(): Promise<void> {
-    invariant(isEditingAsset(model.value), "Cannot save: no local asset");
-    await saveChildrenWithUnsavedChanges();
-
-    // saving a child may have dispatched edits here, so re-read the model
-    const modelToSave = model.value;
-    invariant(
-      isEditingAsset(modelToSave),
-      "Cannot save: editor was reset while its children saved"
-    );
-
-    const assetToSave = selectLocalAsset(modelToSave, scaffoldedBaseline.value);
-    invariant(assetToSave, "Cannot save: the asset document is not loaded");
-    const templateDocument = template.value;
-    invariant(
-      templateDocument,
-      "Cannot save: the template document is not loaded"
-    );
-    invariant(
-      assetToSave.templateId === templateDocument.templateId,
-      "Cannot save: localAsset.templateId !== template.templateId"
-    );
-
-    const formData = toSaveableFormData(assetToSave, templateDocument);
-
-    const { objectId } = await updateAssetMutation.mutateAsync(formData);
-    invariant(objectId, "Expected an objectId back from the save");
-
-    if (modelToSave.status === "editingNewAsset") {
-      // commit the id before the read-back: if that read fails, the editor
-      // must still know the asset exists, or the next save creates another.
-      // The echoed draft is the closest thing to server truth until then.
-      const echoedDraft: T.Asset = clearUploadRegenerationFlags(
-        {
-          ...assetToSave,
-          assetId: objectId,
-          modified: {
-            date: new Date().toISOString(),
-            timezone_type: 3,
-            timezone: "UTC",
-          },
-        },
-        templateDocument
-      );
-      const seededBaseline = makeLocalAssetFromSaved({
-        template: templateDocument,
-        savedAsset: echoedDraft,
-      });
-
-      // the scaffold ref is set by hand so the view has a baseline the
-      // moment the model holds the new id, without waiting for the watcher
-      scaffoldedBaseline.value = seededBaseline;
-      dispatch({
-        type: "assetCreated",
-        draftKey: modelToSave.draftKey,
-        baseline: seededBaseline,
-        template: templateDocument,
-      });
-      queryClient.setQueryData(assetQuery(objectId).queryKey, seededBaseline);
-      // the seed is the echo, not server truth: invalidate so the
-      // subscription reads back what the server actually stored. nextTick
-      // first, so the subscription for the new id is active and refetches.
-      await nextTick();
-      await queryClient.invalidateQueries({
-        queryKey: assetQuery(objectId).queryKey,
-      });
-    } else {
-      // the read-back arrives through the mutation's invalidation as
-      // baselineRefreshed; this event only retires the regenerate requests
-      // the save carried
-      dispatch({
-        type: "saveAccepted",
-        assetId: objectId,
-        template: templateDocument,
-      });
-    }
+  async function saveAsset(): Promise<void> {
+    const sessionKey = currentSessionKey.value;
+    invariant(sessionKey, "Cannot save: no session is open");
+    await host.saveSession(sessionKey);
   }
 
   function updateCollection(collectionId: number): void {
-    dispatch({ type: "collectionChanged", collectionId });
+    dispatchToSession((sessionKey) => ({
+      type: "collectionChanged",
+      sessionKey,
+      collectionId,
+    }));
   }
 
   /**
@@ -419,17 +581,16 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
    * to the new template.
    */
   async function migrateToTemplate(newTemplateId: number): Promise<void> {
-    // a create still in flight transitions the model when it commits, and a
-    // migration racing that transition would compute against the draft
-    await waitForCurrentSaveToSettle();
+    const sessionKey = currentSessionKey.value;
+    invariant(sessionKey, "Cannot change template: no session is open");
 
-    const currentModel = model.value;
-    invariant(
-      isEditingAsset(currentModel),
-      "Cannot change template: no local asset."
-    );
+    // a create still in flight transitions the session when it commits, and
+    // a migration racing that transition would compute against the draft
+    await host.waitForSessionSaveToSettle(sessionKey);
+
     const currentView = selectLocalAsset(
-      currentModel,
+      host.model.value,
+      sessionKey,
       scaffoldedBaseline.value
     );
     invariant(
@@ -441,12 +602,17 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       return;
     }
 
-    dispatch({ type: "templateMigrationRequested", templateId: newTemplateId });
+    dispatch({
+      type: "templateMigrationRequested",
+      sessionKey,
+      templateId: newTemplateId,
+    });
 
     try {
       const template = await fetchTemplateOrFail(newTemplateId);
       dispatch({
         type: "templateMigrated",
+        sessionKey,
         templateId: newTemplateId,
         template,
         baseline: scaffoldedBaseline.value,
@@ -455,6 +621,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       const error = toError(cause);
       dispatch({
         type: "templateMigrationFailed",
+        sessionKey,
         templateId: newTemplateId,
         error,
       });
@@ -462,57 +629,54 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     }
   }
 
+  /** Events that only make sense with an open session are dropped without one. */
+  function dispatchToSession(
+    makeEvent: (sessionKey: SessionKey) => EditorEvent
+  ): void {
+    const sessionKey = currentSessionKey.value;
+    if (!sessionKey) return;
+    dispatch(makeEvent(sessionKey));
+  }
+
   function updateWidgetContents(
     fieldTitle: T.WidgetDef["fieldTitle"],
     contents: T.WidgetContent[]
   ): void {
-    dispatch({ type: "widgetContentsEdited", fieldTitle, contents });
+    dispatchToSession((sessionKey) => ({
+      type: "widgetContentsEdited",
+      sessionKey,
+      fieldTitle,
+      contents,
+    }));
   }
 
   function updateReadyForDisplay(readyForDisplay: boolean): void {
-    dispatch({ type: "readyForDisplayChanged", readyForDisplay });
+    dispatchToSession((sessionKey) => ({
+      type: "readyForDisplayChanged",
+      sessionKey,
+      readyForDisplay,
+    }));
   }
 
   function updateAvailableAfter(availableAfter: T.PHPDateTime | null): void {
-    dispatch({ type: "availableAfterChanged", availableAfter });
-  }
-
-  /**
-   * Let an inline related asset's editor be seen and saved by this one.
-   *
-   * @returns the function that undoes the registration. Children must call it
-   * when they unmount, or this editor keeps saving one nobody can see.
-   */
-  function registerChildEditor(childEditor: ChildEditor): () => void {
-    shellState.childEditors.add(childEditor);
-    return () => {
-      shellState.childEditors.delete(childEditor);
-    };
-  }
-
-  async function saveChildrenWithUnsavedChanges(): Promise<void> {
-    const childEditors = [...shellState.childEditors];
-    const childrenToSave = childEditors.filter((childEditor) =>
-      childEditor.hasUnsavedChanges()
-    );
-
-    // settled, not all: a child that cannot be saved is independent of this
-    // asset and must not cost the user their edits to it. Children report
-    // their own failures.
-    await Promise.allSettled(
-      childrenToSave.map((childEditor) => childEditor.save())
-    );
-    // children dispatch into this editor as they save, so let those land
-    // before the caller reads the model
-    await nextTick();
+    dispatchToSession((sessionKey) => ({
+      type: "availableAfterChanged",
+      sessionKey,
+      availableAfter,
+    }));
   }
 
   // wrapping in reactive to auto-unwrap refs
   return reactive({
+    sessionKey: currentSessionKey,
     localAsset,
     savedAsset,
     template,
-    status: computed(() => model.value.status),
+    status: computed(
+      () =>
+        selectSession(host.model.value, currentSessionKey.value)?.status ??
+        "idle"
+    ),
     // "the editor has an asset to show": for an existing asset this waits
     // for the baseline document, so pages render their loading state until
     // localAsset is real
@@ -520,9 +684,11 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     templateId,
     collectionId: computed(() => localAsset.value?.collectionId ?? null),
     hasUnsavedChanges,
-    loadError: computed(() => selectLoadError(model.value)),
-    saveAssetIndicator: updateAssetMutation.status,
-    reset,
+    loadError: computed(() =>
+      selectLoadError(host.model.value, currentSessionKey.value)
+    ),
+    saveAssetIndicator: host.saveStatus,
+    reset: host.reset,
     initNewAsset,
     initExistingAsset,
     saveAsset,
@@ -531,12 +697,11 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     updateWidgetContents,
     updateReadyForDisplay,
     updateAvailableAfter,
-    registerChildEditor,
     getWidgetInstanceId,
   });
 };
 
-export type AssetEditor = ReturnType<typeof createAssetEditor>;
+export type AssetEditor = ReturnType<typeof createSessionHandle>;
 
 /**
  * Injects the nearest provided asset editor: the page's editor on a full
@@ -550,4 +715,13 @@ export const useAssetEditor = (): AssetEditor => {
     );
   }
   return assetEditor;
+};
+
+/** Injects the page's editor host, which owns the model every session shares. */
+export const useEditorHost = (): EditorHost => {
+  const host = inject(EDITOR_HOST_PROVIDE_KEY);
+  if (!host) {
+    throw new Error("useEditorHost must be called within an editor page");
+  }
+  return host;
 };
