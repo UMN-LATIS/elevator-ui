@@ -53,13 +53,15 @@ test.describe("retrying a create whose follow-up read failed", () => {
 
     await page.getByLabel(/title/i).first().fill("Asset that must exist once");
 
-    // the save itself succeeds, but the editor never hears the new assetId
-    // because the read after the save fails
+    // the read back of the stored document fails, but the editor committed
+    // the new assetId before that read, so the save still succeeds: the page
+    // moves to the asset's edit URL and keeps showing the document it sent
     await failNextAssetFetch(page);
     const firstSave = page.waitForResponse(SAVE_ROUTE);
     await page.getByRole("button", { name: "Save" }).click();
     await firstSave;
-    await expect(page.getByText(/failed to save/i)).toBeVisible();
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\/.+/);
+    await expect(page.getByText(/failed to save/i)).not.toBeVisible();
 
     const secondSave = page.waitForResponse(SAVE_ROUTE);
     await page.getByRole("button", { name: "Save" }).click();

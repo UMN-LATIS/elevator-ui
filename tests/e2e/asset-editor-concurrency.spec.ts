@@ -5,8 +5,6 @@ import {
   loginUser,
   refreshDatabase,
   openAddAssetFromMenu,
-  startCountingAssetRefetches,
-  waitForSaveToLand,
 } from "../setup";
 
 const ASSET_1_ID = "6875871d4eb080a4880a0f44";
@@ -29,14 +27,11 @@ async function interceptSaves(
 ): Promise<{
   saves: RecordedSave[];
   releaseHeldSave: () => void;
-  countAssetRefetches: () => number;
 }> {
   const saves: RecordedSave[] = [];
   let hasHeldOne = false;
   const { promise: heldSave, resolve: releaseHeldSave } =
     Promise.withResolvers<void>();
-
-  const countAssetRefetches = startCountingAssetRefetches(page);
 
   await page.route("**/assetManager/submission/**", async (route) => {
     const body = route.request().postData() ?? "";
@@ -55,18 +50,29 @@ async function interceptSaves(
     await route.continue();
   });
 
-  return { saves, releaseHeldSave, countAssetRefetches };
+  return { saves, releaseHeldSave };
 }
 
-/** Releases the held save and waits until the editor has finished applying it. */
+/**
+ * Releases the held save and waits until the editor has processed its
+ * response. This waits on the submission response, not on a baseline
+ * refetch: in these tests the user has moved to a draft by the time the
+ * save lands, a draft watches no asset, so the save's invalidation finds
+ * no subscriber and no refetch follows.
+ */
 async function releaseHeldSaveAndWaitForEditor(
   page: Page,
-  releaseHeldSave: () => void,
-  countAssetRefetches: () => number
+  releaseHeldSave: () => void
 ): Promise<void> {
-  const refetchesBeforeRelease = countAssetRefetches();
+  const heldSaveResponse = page.waitForResponse(
+    "**/assetManager/submission/**"
+  );
   releaseHeldSave();
-  await waitForSaveToLand(page, refetchesBeforeRelease, countAssetRefetches);
+  await heldSaveResponse;
+  // one frame pins the state update, after which only synchronous work remains
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(resolve))
+  );
 }
 
 /**
@@ -122,7 +128,7 @@ test.describe("Asset editor concurrency", () => {
     // default once other specs are competing for workers
     test.setTimeout(20_000);
 
-    const { saves, releaseHeldSave, countAssetRefetches } =
+    const { saves, releaseHeldSave } =
       await interceptSaves(page, ASSET_1_ID);
 
     await page.goto(`/assetManager/editAsset/${ASSET_1_ID}`);
@@ -139,11 +145,7 @@ test.describe("Asset editor concurrency", () => {
     await startDraft(page);
     const savesFromDraftOnward = markSaveLog(saves);
 
-    await releaseHeldSaveAndWaitForEditor(
-      page,
-      releaseHeldSave,
-      countAssetRefetches
-    );
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
 
     await titleField(page).fill("Brand new asset");
     await page.getByRole("button", { name: "Save" }).click();
@@ -176,7 +178,7 @@ test.describe("Asset editor concurrency", () => {
     const newAssetId = page.url().split("/").pop() as string;
     expect(newAssetId).not.toBe(ASSET_1_ID);
 
-    const { saves, releaseHeldSave, countAssetRefetches } =
+    const { saves, releaseHeldSave } =
       await interceptSaves(page, newAssetId);
     await titleField(page).fill("Second asset edited before going back");
     await page.getByRole("button", { name: "Save" }).click();
@@ -194,11 +196,7 @@ test.describe("Asset editor concurrency", () => {
     await expect(titleField(page)).toHaveValue("Asset 1");
     const savesFromAsset1Onward = markSaveLog(saves);
 
-    await releaseHeldSaveAndWaitForEditor(
-      page,
-      releaseHeldSave,
-      countAssetRefetches
-    );
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
 
     await titleField(page).fill("Asset 1 edited after going back");
     await page.getByRole("button", { name: "Save" }).click();
@@ -213,7 +211,7 @@ test.describe("Asset editor concurrency", () => {
   test("a create in flight for one draft does not make the next draft adopt its asset", async ({
     page,
   }) => {
-    const { saves, releaseHeldSave, countAssetRefetches } =
+    const { saves, releaseHeldSave } =
       await interceptSaves(page, "");
 
     // an existing asset to bounce off, since Add Asset does not re-fire the
@@ -237,11 +235,7 @@ test.describe("Asset editor concurrency", () => {
     await startDraft(page);
     const savesFromSecondDraftOnward = markSaveLog(saves);
 
-    await releaseHeldSaveAndWaitForEditor(
-      page,
-      releaseHeldSave,
-      countAssetRefetches
-    );
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
 
     await titleField(page).fill("Second draft");
     await page.getByRole("button", { name: "Save" }).click();
@@ -317,7 +311,7 @@ test.describe("Asset editor concurrency", () => {
     // 10s default
     test.setTimeout(20_000);
 
-    const { saves, releaseHeldSave, countAssetRefetches } =
+    const { saves, releaseHeldSave } =
       await interceptSaves(page, "");
 
     await openAddAssetFromMenu(page);
@@ -339,11 +333,7 @@ test.describe("Asset editor concurrency", () => {
       timeout: 15000,
     });
 
-    await releaseHeldSaveAndWaitForEditor(
-      page,
-      releaseHeldSave,
-      countAssetRefetches
-    );
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
     await page.waitForURL(/\/assetManager\/editAsset\/.+/);
 
     // inline related-asset editors create their own assets, so only saves
@@ -360,7 +350,7 @@ test.describe("Asset editor concurrency", () => {
   test("a save in flight does not revert edits made after the same asset is reopened", async ({
     page,
   }) => {
-    const { saves, releaseHeldSave, countAssetRefetches } =
+    const { saves, releaseHeldSave } =
       await interceptSaves(page, ASSET_1_ID);
 
     await page.goto(`/assetManager/editAsset/${ASSET_1_ID}`);
@@ -379,11 +369,7 @@ test.describe("Asset editor concurrency", () => {
     await expect(titleField(page)).toHaveValue("Asset 1");
 
     await titleField(page).fill("Title from the second session");
-    await releaseHeldSaveAndWaitForEditor(
-      page,
-      releaseHeldSave,
-      countAssetRefetches
-    );
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
 
     // the first session's response carries the older title, and applying it
     // would discard what the user typed after reopening
@@ -438,7 +424,7 @@ test.describe("Asset editor concurrency", () => {
   }) => {
     test.setTimeout(20_000);
 
-    const { saves, releaseHeldSave, countAssetRefetches } =
+    const { saves, releaseHeldSave } =
       await interceptSaves(page, "");
 
     // visit the existing asset first so goBack later is an in-app navigation
@@ -459,11 +445,7 @@ test.describe("Asset editor concurrency", () => {
     await expect(titleField(page)).toHaveValue("Asset 1");
     const savesFromAsset1Onward = markSaveLog(saves);
 
-    await releaseHeldSaveAndWaitForEditor(
-      page,
-      releaseHeldSave,
-      countAssetRefetches
-    );
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
 
     await titleField(page).fill("Asset 1 edited after reopening");
     await page.getByRole("button", { name: "Save" }).click();
