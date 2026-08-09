@@ -86,7 +86,6 @@ describe("makeLocalAssetFromSaved", () => {
   it("inherits the ids the editor already holds, so a save does not rebuild the form", () => {
     const localAsset = makeLocalAssetFromSaved({
       template: oneTextWidget,
-      collectionId: 1,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "saved" }],
       }),
@@ -101,7 +100,6 @@ describe("makeLocalAssetFromSaved", () => {
   it("mints ids for contents the editor did not have", () => {
     const localAsset = makeLocalAssetFromSaved({
       template: oneTextWidget,
-      collectionId: 1,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "first" }, { fieldContents: "second" }],
       }),
@@ -119,13 +117,45 @@ describe("makeLocalAssetFromSaved", () => {
   it("mints ids when loading an asset the editor was not already showing", () => {
     const localAsset = makeLocalAssetFromSaved({
       template: oneTextWidget,
-      collectionId: 1,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "loaded" }],
       }),
     });
 
     expect(contentIds(localAsset, "field_1")).toEqual([expect.any(String)]);
+  });
+
+  it("gives the same content object the same id when scaffolded again", () => {
+    // a refetch that changes one item keeps every other item's object
+    // reference (TanStack structural sharing), so scaffolding the document
+    // again must not remint the unchanged items' ids
+    const savedAsset = makeSavedAsset({
+      field_1: [{ fieldContents: "loaded" }],
+    });
+
+    const firstPass = contentIds(
+      makeLocalAssetFromSaved({ template: oneTextWidget, savedAsset }),
+      "field_1"
+    );
+    const secondPass = contentIds(
+      makeLocalAssetFromSaved({ template: oneTextWidget, savedAsset }),
+      "field_1"
+    );
+
+    expect(secondPass).toEqual(firstPass);
+  });
+
+  it("keeps the document's own templateId when scaffolded with a newer template", () => {
+    // while a migration is unsaved, the baseline must keep saying what the
+    // server has, or the migration would read as already saved
+    const newerTemplate = makeTemplate(2, [{}]);
+
+    const localAsset = makeLocalAssetFromSaved({
+      template: newerTemplate,
+      savedAsset: makeSavedAsset({ templateId: 1 }),
+    });
+
+    expect(localAsset.templateId).toBe(1);
   });
 });
 

@@ -78,7 +78,6 @@ describe("content ids across a save", () => {
   it("keeps a filled row's id when the server dropped the blank row above it", () => {
     const localAsset = makeLocalAssetFromSaved({
       template: makeTemplate(1, [{}]),
-      collectionId: 1,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "typed", isPrimary: false }],
       }),

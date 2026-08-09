@@ -376,7 +376,6 @@ function onAssetLoaded(
     editorGeneration: model.editorGeneration + 1,
     savedAsset: makeLocalAssetFromSaved({
       template: event.template,
-      collectionId: event.savedAsset.collectionId,
       savedAsset: event.savedAsset,
     }),
     edits: {},
@@ -505,7 +504,6 @@ function modelWithSavedAssetApplied(
 
   const savedAsset = makeLocalAssetFromSaved({
     template,
-    collectionId: incomingSavedAsset.collectionId,
     savedAsset: clearUploadRegenerationFlags(incomingSavedAsset, template),
     // the response describes the document just sent, so its contents keep the
     // ids they already had and the form is not rebuilt around new keys

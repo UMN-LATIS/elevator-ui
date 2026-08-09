@@ -147,6 +147,11 @@ export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
 /**
  * Build the editor's representation of what the server has.
  *
+ * The result keeps the document's own templateId and collectionId even when
+ * `template` is newer: while a template migration is unsaved, the baseline
+ * must keep saying what the server has, or the migration would read as
+ * already saved.
+ *
  * @param previousAsset - the document the editor already holds, if any.
  * Contents without stored uuids inherit its uuids by position, so a save
  * response does not change the identity of contents the editor is already
@@ -155,18 +160,14 @@ export function clearUploadRegenerationFlags<T extends Asset | UnsavedAsset>(
  */
 export function makeLocalAssetFromSaved({
   template,
-  collectionId,
   savedAsset,
   previousAsset,
 }: {
   template: Template;
-  collectionId: number;
   savedAsset: Asset;
   previousAsset?: Asset | UnsavedAsset | null;
 }): Asset {
   const localAsset = { ...savedAsset };
-  localAsset.templateId = template.templateId;
-  localAsset.collectionId = collectionId;
 
   template.widgetArray.forEach((widgetDef) => {
     const fieldTitle = widgetDef.fieldTitle;
@@ -218,28 +219,43 @@ export function makeNewLocalAsset({
   return initialAsset;
 }
 
+/**
+ * Uuids given to contents that arrived without one, keyed by the content
+ * object itself. TanStack's structural sharing keeps unchanged contents'
+ * object references across refetches, so scaffolding a document from before
+ * uuids were stored again finds the same identities instead of reminting,
+ * which would remount every component keyed on them.
+ */
+const mintedContentUuids = new WeakMap<WidgetContent, string>();
+
+/** The content's uuid, read through WidgetContent's unknown-typed keys. */
+function storedContentUuid(content: WidgetContent | undefined): string | null {
+  return typeof content?.uuid === "string" ? content.uuid : null;
+}
+
 function makeWidgetContents(
   widgetDef: WidgetDef,
   currentContents?: WidgetContent[],
   previousContents?: WidgetContent[]
 ): WidgetContent[] {
   if (currentContents && currentContents.length > 0) {
-    // a uuid the server stored comes back and wins. Documents from before
-    // uuids were stored have none, and a rebuilt content taking a fresh one
-    // would remount everything keyed on it, so those inherit by position,
-    // but only from rows the server keeps: the response holds no blank
-    // rows, so a blank row on screen must not push uuids off their contents.
     const keptPreviousContents = (previousContents ?? []).filter((content) =>
       doesServerKeepContent(content, widgetDef.type)
     );
     return currentContents.map((content, index) => {
-      return {
-        ...content,
-        uuid:
-          content.uuid ??
-          keptPreviousContents[index]?.uuid ??
-          crypto.randomUUID(),
-      };
+      const uuid =
+        // a uuid the server stored comes back and wins
+        storedContentUuid(content) ??
+        // a content scaffolded before keeps the uuid it was given
+        mintedContentUuids.get(content) ??
+        // a fresh content without one inherits by position from the rows the
+        // editor was showing, but only from rows the server keeps: the
+        // response holds no blank rows, so a blank row on screen must not
+        // push uuids off their contents
+        storedContentUuid(keptPreviousContents[index]) ??
+        crypto.randomUUID();
+      if (!storedContentUuid(content)) mintedContentUuids.set(content, uuid);
+      return { ...content, uuid };
     });
   }
   return widgetDef.type === "upload"
