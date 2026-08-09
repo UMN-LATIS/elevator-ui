@@ -7,25 +7,14 @@ import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import EditUploadWidget from "./EditUploadWidget.vue";
 
 /**
- * EditUploadWidget writes to the editor two different ways, and only one of
- * them is safe.
+ * Props lag the model by a render, so an item the model gained in this
+ * flush (a just-completed upload) is missing from `props.widgetContents`
+ * until the next render. A write built from the props array in that window
+ * replaces the model's array and silently drops the newer item.
  *
- * `handleCompleteUpload` and `handleDeleteContent` call
- * `assetEditor.updateWidgetContents` with rows read from `currentContents()`,
- * which reads the model. The docblock on `currentContents` says why: props
- * lag by a render, so anything derived from `props.widgetContents` can be
- * built on a stale array.
- *
- * `handleUpdateItem` and `handleRegenerateAllDerivatives` build their rows
- * from `props.widgetContents` anyway and emit them up the widget chain, which
- * lands in the same `updateWidgetContents` four hops later. In the render-lag
- * window the docblock describes, that emit carries an array missing whatever
- * the model gained, and the write replaces rather than merges, so the newer
- * row is dropped.
- *
- * These tests pin that drop. Both carry `it.fails`, so the suite is green
- * against the bug and a later commit that removes the marker has proved the
- * test failed before the fix rather than asserting it in a message.
+ * These tests pin the fix: every write this widget emits is built from the
+ * model via `currentContents()`, so an item the props have not caught up
+ * to survives an item edit and a regenerate-all toggle.
  */
 
 const widgetDef: T.UploadWidgetDef = {
@@ -48,7 +37,7 @@ const widgetDef: T.UploadWidgetDef = {
   templateOrder: 0,
 };
 
-function makeUploadRow(id: string): T.WithId<T.UploadWidgetContent> {
+function makeUploadItem(id: string): T.WithId<T.UploadWidgetContent> {
   return {
     id,
     fileId: `${id}-hash`,
@@ -94,11 +83,11 @@ const PassThroughStub = defineComponent({
 });
 
 function mountWidget(options: {
-  propRows: T.WithId<T.UploadWidgetContent>[];
-  modelRows: T.WithId<T.UploadWidgetContent>[];
+  propItems: T.WithId<T.UploadWidgetContent>[];
+  modelItems: T.WithId<T.UploadWidgetContent>[];
 }) {
   const assetEditorStub = reactive({
-    localAsset: { [widgetDef.fieldTitle]: options.modelRows },
+    localAsset: { [widgetDef.fieldTitle]: options.modelItems },
     updateWidgetContents: vi.fn(),
     savedAsset: null,
     saveAsset: vi.fn(),
@@ -108,7 +97,7 @@ function mountWidget(options: {
     props: {
       collectionId: 7,
       widgetDef,
-      widgetContents: options.propRows,
+      widgetContents: options.propItems,
       isOpen: true,
     },
     global: {
@@ -132,50 +121,50 @@ describe("EditUploadWidget", () => {
     setActivePinia(createPinia());
   });
 
-  describe("when the model holds a row the widgetContents prop has not received yet", () => {
-    const settledRow = makeUploadRow("row-a");
-    const rowFromThisFlush = makeUploadRow("row-b");
+  describe("when the model holds an item the widgetContents prop has not received yet", () => {
+    const settledItem = makeUploadItem("item-a");
+    const itemFromThisFlush = makeUploadItem("item-b");
 
-    // handleUpdateItem builds from props.widgetContents
-    it.fails("keeps the newer row when one item is edited", async () => {
+    // exercises handleUpdateItem
+    it("keeps the newer item when one item is edited", async () => {
       const wrapper = mountWidget({
-        propRows: [settledRow],
-        modelRows: [settledRow, rowFromThisFlush],
+        propItems: [settledItem],
+        modelItems: [settledItem, itemFromThisFlush],
       });
 
       wrapper.findComponent(EditUploadWidgetItemStub).vm.$emit("update:item", {
-        ...settledRow,
+        ...settledItem,
         fileDescription: "a caption typed during the upload",
       });
       await nextTick();
 
       const writes = wrapper.emitted("update:widgetContents");
       expect(writes).toBeTruthy();
-      const rowsWritten = writes?.at(
+      const itemsWritten = writes?.at(
         -1
       )?.[0] as T.WithId<T.UploadWidgetContent>[];
 
-      expect(rowsWritten.map((row) => row.id)).toEqual(["row-a", "row-b"]);
+      expect(itemsWritten.map((item) => item.id)).toEqual(["item-a", "item-b"]);
     });
 
-    // handleRegenerateAllDerivatives builds from props.widgetContents
-    it.fails(
-      "keeps the newer row when Regenerate All Derivatives is toggled",
+    // exercises handleRegenerateAllDerivatives
+    it(
+      "keeps the newer item when Regenerate All Derivatives is toggled",
       async () => {
         const wrapper = mountWidget({
-          propRows: [settledRow],
-          modelRows: [settledRow, rowFromThisFlush],
+          propItems: [settledItem],
+          modelItems: [settledItem, itemFromThisFlush],
         });
 
         await wrapper.get("button").trigger("click");
 
         const writes = wrapper.emitted("update:widgetContents");
         expect(writes).toBeTruthy();
-        const rowsWritten = writes?.at(
+        const itemsWritten = writes?.at(
           -1
         )?.[0] as T.WithId<T.UploadWidgetContent>[];
 
-        expect(rowsWritten.map((row) => row.id)).toEqual(["row-a", "row-b"]);
+        expect(itemsWritten.map((item) => item.id)).toEqual(["item-a", "item-b"]);
       }
     );
   });

@@ -109,7 +109,7 @@ const assetEditor = useAssetEditor();
 const toastStore = useToastStore();
 
 /**
- * This widget's rows as the model holds them right now. Props lag by a
+ * This widget's items as the model holds them right now. Props lag by a
  * render, so two uploads completing in the same flush would each read the
  * pre-update array and the second would overwrite the first.
  */
@@ -186,7 +186,7 @@ async function handleDeleteContent(id: string) {
 }
 
 function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
-  const updatedContents = props.widgetContents.map((existingItem) => {
+  const updatedContents = currentContents().map((existingItem) => {
     if (existingItem.id === item.id) {
       return { ...existingItem, ...item };
     }
@@ -202,20 +202,22 @@ const isRegeneratingAllDerivatives = computed(() => {
 });
 
 function handleRegenerateAllDerivatives() {
-  const updatedContents = props.widgetContents.map(
-    (item: Type.WithId<Type.UploadWidgetContent>) => ({
-      ...item,
-      // regenerate is not true/false, but "On" or undefined
-      regenerate: isRegeneratingAllDerivatives.value
-        ? undefined
-        : ("On" as const),
-    })
+  // one model snapshot for both the toggle direction and the payload, so
+  // neither is computed from items the props have not caught up to
+  const items = currentContents();
+  const isEveryItemRegenerating = items.every(
+    (item) => item.regenerate === "On"
   );
+  const updatedContents = items.map((item) => ({
+    ...item,
+    // regenerate is not true/false, but "On" or undefined
+    regenerate: isEveryItemRegenerating ? undefined : ("On" as const),
+  }));
 
   emit("update:widgetContents", updatedContents);
 
   // also open all details views
-  const allIds = props.widgetContents.map((item) => item.id);
+  const allIds = items.map((item) => item.id);
   isShowingDetails.value = new Set(allIds);
 }
 </script>
