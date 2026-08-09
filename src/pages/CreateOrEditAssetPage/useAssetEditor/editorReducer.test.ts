@@ -4,6 +4,7 @@ import {
   initialEditorModel,
   selectHasUnsavedEdits,
   selectLocalAsset,
+  selectTemplateId,
   type EditorEvent,
   type EditorModel,
 } from "./editorReducer";
@@ -82,32 +83,29 @@ const idleModel: EditorModel = {
   editorGeneration: EDITOR_GENERATION,
 };
 
-const loadingTemplateModel: EditorModel = {
-  status: "loadingTemplate",
+const awaitingTemplateModel: EditorModel = {
+  status: "awaitingTemplate",
   editorGeneration: EDITOR_GENERATION,
   collectionId: 42,
+  templateId: 1,
 };
 
 const editingNewAssetModel = (
-  localAsset: UnsavedAsset = makeUnsavedAsset(),
-  template: Template = emptyTemplate
+  localAsset: UnsavedAsset = makeUnsavedAsset()
 ): EditorModel => ({
   status: "editingNewAsset",
   editorGeneration: EDITOR_GENERATION,
   localAsset,
-  template,
 });
 
 const editingExistingAssetModel = (
   savedAsset: Asset = makeSavedAsset(),
-  edits: Partial<Asset> = {},
-  template: Template = emptyTemplate
+  edits: Partial<Asset> = {}
 ): EditorModel => ({
   status: "editingExistingAsset",
   editorGeneration: EDITOR_GENERATION,
   savedAsset,
   edits,
-  template,
 });
 
 /** Narrows the model, failing the test when its status is not the one named. */
@@ -127,25 +125,27 @@ const localAssetOf = (model: EditorModel): Asset | UnsavedAsset => {
 
 describe("editorReducer", () => {
   describe("starting a new asset", () => {
-    it("moves to loadingTemplate and issues a new editorGeneration", () => {
+    it("moves to awaitingTemplate and issues a new editorGeneration", () => {
       const next = reduce(idleModel, {
         type: "newAssetRequested",
         collectionId: 42,
+        templateId: 1,
       });
 
       // the new editorGeneration lets results still in flight be dropped
       // on arrival
       expect(next).toEqual({
-        status: "loadingTemplate",
+        status: "awaitingTemplate",
         editorGeneration: EDITOR_GENERATION + 1,
         collectionId: 42,
+        templateId: 1,
       });
     });
 
-    it("builds a fresh unsaved asset when the requested template loads", () => {
-      const next = reduce(loadingTemplateModel, {
-        type: "templateLoaded",
-        editorGeneration: EDITOR_GENERATION,
+    it("builds a fresh unsaved asset when the requested template's document arrives", () => {
+      const next = reduce(awaitingTemplateModel, {
+        type: "templateDocumentLoaded",
+        templateId: 1,
         template: emptyTemplate,
       });
 
@@ -162,9 +162,9 @@ describe("editorReducer", () => {
         { fieldTitle: "notes_1" },
       ]);
 
-      const next = reduce(loadingTemplateModel, {
-        type: "templateLoaded",
-        editorGeneration: EDITOR_GENERATION,
+      const next = reduce(awaitingTemplateModel, {
+        type: "templateDocumentLoaded",
+        templateId: 1,
         template,
       });
 
@@ -176,9 +176,9 @@ describe("editorReducer", () => {
     });
 
     it("keeps the error when the template fails to load", () => {
-      const next = reduce(loadingTemplateModel, {
-        type: "templateLoadFailed",
-        editorGeneration: EDITOR_GENERATION,
+      const next = reduce(awaitingTemplateModel, {
+        type: "templateDocumentLoadFailed",
+        templateId: 1,
         error: new Error("network down"),
       });
 
@@ -188,14 +188,60 @@ describe("editorReducer", () => {
       expect(next.editorGeneration).toBe(EDITOR_GENERATION + 1);
     });
 
-    it("drops a load failure from an abandoned request", () => {
-      const next = reduce(loadingTemplateModel, {
-        type: "templateLoadFailed",
-        editorGeneration: EDITOR_GENERATION - 1,
+    it("drops a document for a template the user has moved past", () => {
+      const next = reduce(awaitingTemplateModel, {
+        type: "templateDocumentLoaded",
+        templateId: 2,
+        template: otherTemplate,
+      });
+
+      expect(next).toBe(awaitingTemplateModel);
+    });
+
+    it("drops a load failure for a template the user has moved past", () => {
+      const next = reduce(awaitingTemplateModel, {
+        type: "templateDocumentLoadFailed",
+        templateId: 2,
         error: new Error("too late"),
       });
 
-      expect(next).toBe(loadingTemplateModel);
+      expect(next).toBe(awaitingTemplateModel);
+    });
+
+    it("drops a template document once the editor is editing", () => {
+      const model = editingExistingAssetModel();
+      const next = reduce(model, {
+        type: "templateDocumentLoaded",
+        templateId: 1,
+        template: emptyTemplate,
+      });
+
+      expect(next).toBe(model);
+    });
+
+    it("keeps the newest template request rather than the first to resolve", () => {
+      // the user picked again before the first template arrived, so pick
+      // order must win, not network order
+      const afterSecondRequest = reduce(awaitingTemplateModel, {
+        type: "newAssetRequested",
+        collectionId: 42,
+        templateId: 2,
+      });
+
+      const modelAfterSlowFirstTemplate = reduce(afterSecondRequest, {
+        type: "templateDocumentLoaded",
+        templateId: 1,
+        template: emptyTemplate,
+      });
+      expect(modelAfterSlowFirstTemplate).toBe(afterSecondRequest);
+
+      const modelAfterSecondTemplate = reduce(afterSecondRequest, {
+        type: "templateDocumentLoaded",
+        templateId: 2,
+        template: otherTemplate,
+      });
+      assertStatus(modelAfterSecondTemplate, "editingNewAsset");
+      expect(localAssetOf(modelAfterSecondTemplate).templateId).toBe(2);
     });
   });
 
@@ -210,22 +256,6 @@ describe("editorReducer", () => {
       Extract<EditorEvent, { editorGeneration: number }>["type"],
       { model: EditorModel; event: EditorEvent }
     > = {
-      templateLoaded: {
-        model: loadingTemplateModel,
-        event: {
-          type: "templateLoaded",
-          editorGeneration: STALE_GENERATION,
-          template: otherTemplate,
-        },
-      },
-      templateLoadFailed: {
-        model: loadingTemplateModel,
-        event: {
-          type: "templateLoadFailed",
-          editorGeneration: STALE_GENERATION,
-          error: new Error("too late"),
-        },
-      },
       assetLoadFailed: {
         model: editingExistingAssetModel(),
         event: {
@@ -265,6 +295,7 @@ describe("editorReducer", () => {
           type: "assetCreated",
           editorGeneration: STALE_GENERATION,
           savedAsset: makeSavedAsset({ assetId: "stale" }),
+          template: emptyTemplate,
         },
       },
       saveSucceeded: {
@@ -273,6 +304,7 @@ describe("editorReducer", () => {
           type: "saveSucceeded",
           editorGeneration: STALE_GENERATION,
           savedAsset: makeSavedAsset({ assetId: "stale" }),
+          template: emptyTemplate,
         },
       },
     };
@@ -289,30 +321,6 @@ describe("editorReducer", () => {
       expect(editorReducer(model, event).commands ?? []).toEqual([]);
     });
 
-    it("keeps the newest template request rather than the first to resolve", () => {
-      // the user picked again before the first template arrived, so pick
-      // order must win, not network order
-      const afterSecondRequest = reduce(loadingTemplateModel, {
-        type: "newAssetRequested",
-        collectionId: 42,
-      });
-
-      const modelAfterSlowFirstTemplate = reduce(afterSecondRequest, {
-        type: "templateLoaded",
-        editorGeneration: EDITOR_GENERATION,
-        template: emptyTemplate,
-      });
-      expect(modelAfterSlowFirstTemplate).toBe(afterSecondRequest);
-
-      const modelAfterSecondTemplate = reduce(afterSecondRequest, {
-        type: "templateLoaded",
-        editorGeneration: afterSecondRequest.editorGeneration,
-        template: otherTemplate,
-      });
-      assertStatus(modelAfterSecondTemplate, "editingNewAsset");
-      expect(modelAfterSecondTemplate.template.templateId).toBe(2);
-    });
-
     it("drops a save that resolves after the user opened a different asset", () => {
       // the save was started before the user opened another asset
       const editorOnAssetB = editingExistingAssetModel(
@@ -323,6 +331,7 @@ describe("editorReducer", () => {
         type: "saveSucceeded",
         editorGeneration: EDITOR_GENERATION - 1,
         savedAsset: makeSavedAsset({ assetId: "asset-A" }),
+        template: emptyTemplate,
       });
 
       // accepting it would stamp asset A's id onto asset B's content, and
@@ -339,6 +348,7 @@ describe("editorReducer", () => {
         type: "saveSucceeded",
         editorGeneration: EDITOR_GENERATION - 1,
         savedAsset: makeSavedAsset({ assetId: "asset-A" }),
+        template: emptyTemplate,
       });
 
       expect(next).toBe(editorOnAssetB);
@@ -353,13 +363,14 @@ describe("editorReducer", () => {
 
       // before the save resolves, the user starts a new asset and its
       // template (cached, so near-instant) loads
-      const freshDraftLoadingTemplate = reduce(editingX, {
+      const freshDraftAwaitingTemplate = reduce(editingX, {
         type: "newAssetRequested",
         collectionId: 42,
+        templateId: 1,
       });
-      const freshDraft = reduce(freshDraftLoadingTemplate, {
-        type: "templateLoaded",
-        editorGeneration: freshDraftLoadingTemplate.editorGeneration,
+      const freshDraft = reduce(freshDraftAwaitingTemplate, {
+        type: "templateDocumentLoaded",
+        templateId: 1,
         template: emptyTemplate,
       });
 
@@ -368,6 +379,7 @@ describe("editorReducer", () => {
         type: "saveSucceeded",
         editorGeneration: saveGeneration,
         savedAsset: makeSavedAsset({ assetId: "asset-X" }),
+        template: emptyTemplate,
       });
 
       // accepting it would adopt asset X as the baseline under the fresh
@@ -433,39 +445,64 @@ describe("editorReducer", () => {
     });
   });
 
+  describe("naming the template the editor needs", () => {
+    it("names the requested template while the draft awaits its document", () => {
+      expect(selectTemplateId(awaitingTemplateModel)).toBe(1);
+    });
+
+    it("names the edited asset's template, so a pending migration wins", () => {
+      const migrating = editingExistingAssetModel(makeSavedAsset(), {
+        templateId: 2,
+      });
+
+      expect(selectTemplateId(migrating)).toBe(2);
+    });
+
+    it("names no template when nothing is loading or loaded", () => {
+      expect(selectTemplateId(idleModel)).toBeNull();
+    });
+  });
+
   describe("what counts as unsaved work", () => {
     const template = makeTemplate(1, [{}]);
     const scaffoldContents = [
-      { fieldContents: "", isPrimary: false, id: "row-1" },
+      { fieldContents: "", isPrimary: false, id: "item-1" },
     ];
 
     it("reads an untouched draft as clean, so the leave guard stays quiet", () => {
       const pristineDraft = editingNewAssetModel(
-        makeUnsavedAsset({ field_1: scaffoldContents }),
-        template
+        makeUnsavedAsset({ field_1: scaffoldContents })
       );
 
-      expect(selectHasUnsavedEdits(pristineDraft)).toBe(false);
+      expect(selectHasUnsavedEdits(pristineDraft, template)).toBe(false);
     });
 
     it("reads a draft the user typed into as unsaved work", () => {
       const typedDraft = editingNewAssetModel(
         makeUnsavedAsset({
-          field_1: [{ fieldContents: "typed", isPrimary: false, id: "row-1" }],
-        }),
-        template
+          field_1: [{ fieldContents: "typed", isPrimary: false, id: "item-1" }],
+        })
       );
 
-      expect(selectHasUnsavedEdits(typedDraft)).toBe(true);
+      expect(selectHasUnsavedEdits(typedDraft, template)).toBe(true);
     });
 
     it("reads a draft marked Not Ready as unsaved work", () => {
       const notReadyDraft = editingNewAssetModel(
-        makeUnsavedAsset({ field_1: scaffoldContents, readyForDisplay: false }),
-        template
+        makeUnsavedAsset({ field_1: scaffoldContents, readyForDisplay: false })
       );
 
-      expect(selectHasUnsavedEdits(notReadyDraft)).toBe(true);
+      expect(selectHasUnsavedEdits(notReadyDraft, template)).toBe(true);
+    });
+
+    it("reads as clean while the template document is not loaded, whatever the draft holds", () => {
+      const typedDraft = editingNewAssetModel(
+        makeUnsavedAsset({
+          field_1: [{ fieldContents: "typed", isPrimary: false, id: "item-1" }],
+        })
+      );
+
+      expect(selectHasUnsavedEdits(typedDraft, null)).toBe(false);
     });
   });
 
@@ -551,6 +588,7 @@ describe("editorReducer", () => {
         type: "assetCreated",
         editorGeneration: EDITOR_GENERATION,
         savedAsset: makeSavedAsset({ assetId: "fresh-from-server" }),
+        template: emptyTemplate,
       });
 
       // editing an existing asset now, so a retry after a failed read-back
@@ -566,26 +604,37 @@ describe("editorReducer", () => {
       const template = makeTemplate(1, [{}]);
       const draftTypedDuringSave = makeUnsavedAsset({
         field_1: [
-          { fieldContents: "typed during save", isPrimary: false, id: "row-1" },
+          {
+            fieldContents: "typed during save",
+            isPrimary: false,
+            id: "item-1",
+          },
         ],
       });
 
       const { model: next } = editorReducer(
-        editingNewAssetModel(draftTypedDuringSave, template),
+        editingNewAssetModel(draftTypedDuringSave),
         {
           type: "assetCreated",
           editorGeneration: EDITOR_GENERATION,
           // the draft as it was sent, before the in-flight typing
           savedAsset: makeSavedAsset({
             assetId: "fresh-from-server",
-            field_1: [{ fieldContents: "sent", isPrimary: false, id: "row-1" }],
+            field_1: [
+              { fieldContents: "sent", isPrimary: false, id: "item-1" },
+            ],
           }),
+          template,
         }
       );
 
       assertStatus(next, "editingExistingAsset");
       expect(next.edits.field_1).toEqual([
-        { fieldContents: "typed during save", isPrimary: false, id: "row-1" },
+        {
+          fieldContents: "typed during save",
+          isPrimary: false,
+          id: "item-1",
+        },
       ]);
     });
 
@@ -595,6 +644,7 @@ describe("editorReducer", () => {
         type: "assetCreated",
         editorGeneration: EDITOR_GENERATION,
         savedAsset: makeSavedAsset({ assetId: "for-an-abandoned-draft" }),
+        template: emptyTemplate,
       });
 
       expect(next).toBe(model);
@@ -609,17 +659,12 @@ describe("editorReducer", () => {
       });
       const savedAsset = makeSavedAsset({ assetId: "fresh-from-server" });
 
-      const next = reduce(
-        editingNewAssetModel(
-          inFlightEdit,
-          makeTemplate(1, [{ fieldTitle: "title_1" }])
-        ),
-        {
-          type: "saveSucceeded",
-          editorGeneration: EDITOR_GENERATION,
-          savedAsset,
-        }
-      );
+      const next = reduce(editingNewAssetModel(inFlightEdit), {
+        type: "saveSucceeded",
+        editorGeneration: EDITOR_GENERATION,
+        savedAsset,
+        template: makeTemplate(1, [{ fieldTitle: "title_1" }]),
+      });
 
       expect(next.status).toBe("editingExistingAsset");
       assertStatus(next, "editingExistingAsset");
@@ -643,6 +688,7 @@ describe("editorReducer", () => {
         type: "saveSucceeded",
         editorGeneration: EDITOR_GENERATION,
         savedAsset: makeSavedAsset(),
+        template: emptyTemplate,
       });
 
       expect(next).toBe(idleModel);
@@ -656,6 +702,7 @@ describe("editorReducer", () => {
         type: "saveSucceeded",
         editorGeneration: EDITOR_GENERATION - 1,
         savedAsset: makeSavedAsset({ assetId: "created-while-away" }),
+        template: emptyTemplate,
       });
 
       expect(next).toBe(model);
@@ -678,8 +725,8 @@ describe("editorReducer", () => {
 
       expect(next.status).toBe("editingExistingAsset");
       assertStatus(next, "editingExistingAsset");
-      expect(next.template.templateId).toBe(2);
       expect(localAssetOf(next).templateId).toBe(2);
+      expect(selectTemplateId(next)).toBe(2);
       expect(localAssetOf(next).title_1).toEqual([
         { fieldContents: "survives the migration" },
       ]);
@@ -701,7 +748,7 @@ describe("editorReducer", () => {
 
       expect(next).toBe(afterRequest);
       assertStatus(next, "editingExistingAsset");
-      expect(next.template.templateId).toBe(1);
+      expect(selectTemplateId(next)).toBe(1);
       expect(localAssetOf(next).title_1).toEqual([
         { fieldContents: "unsaved work" },
       ]);

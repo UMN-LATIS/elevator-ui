@@ -12,6 +12,10 @@ import {
 /**
  * The editor is always in exactly one of these states.
  *
+ * The model holds no template document. The shell reads the document from
+ * the query cache under the id the model names, and the arms that need a
+ * document receive it as event input.
+ *
  * `editorGeneration` counts how many times the editor has moved on. It
  * advances each time the editor takes in a different asset or draft, or
  * empties out, and stays put while the user edits. assetId cannot do
@@ -27,15 +31,16 @@ export type EditorModel =
   | { status: "idle"; editorGeneration: number }
   | { status: "assetLoadFailed"; editorGeneration: number; error: Error }
   | {
-      status: "loadingTemplate";
+      status: "awaitingTemplate";
       editorGeneration: number;
       collectionId: number;
+      /** the draft scaffolds when this template's document arrives */
+      templateId: number;
     }
   | {
       status: "editingNewAsset";
       editorGeneration: number;
       localAsset: T.UnsavedAsset;
-      template: T.Template;
     }
   | {
       status: "editingExistingAsset";
@@ -51,7 +56,6 @@ export type EditorModel =
        * fields for free.
        */
       edits: Partial<T.Asset>;
-      template: T.Template;
     };
 
 export const initialEditorModel: EditorModel = {
@@ -99,9 +103,28 @@ export function selectLoadError(model: EditorModel): Error | null {
   return model.status === "assetLoadFailed" ? model.error : null;
 }
 
-/** Whether the editor holds work a save would send and leaving would lose. */
-export function selectHasUnsavedEdits(model: EditorModel): boolean {
-  if (!isEditingAsset(model)) return false;
+/**
+ * The template the editor needs, named by id. The document itself lives in
+ * the query cache under this id.
+ */
+export function selectTemplateId(model: EditorModel): number | null {
+  if (model.status === "awaitingTemplate") return model.templateId;
+  if (!isEditingAsset(model)) return null;
+  return selectEditedAsset(model).templateId ?? null;
+}
+
+/**
+ * Whether the editor holds work a save would send and leaving would lose.
+ *
+ * Takes the template document because dirtiness is measured in the shape
+ * the server would store. While the document is not loaded there is no
+ * measure, so the editor reads as clean.
+ */
+export function selectHasUnsavedEdits(
+  model: EditorModel,
+  template: T.Template | null
+): boolean {
+  if (!isEditingAsset(model) || !template) return false;
   switch (model.status) {
     case "editingNewAsset":
       // an untouched draft is not unsaved work, or the leave guard would
@@ -109,19 +132,19 @@ export function selectHasUnsavedEdits(model: EditorModel): boolean {
       return wouldSaveChangeStoredAsset({
         draft: model.localAsset,
         savedAsset: makeNewLocalAsset({
-          template: model.template,
+          template,
           collectionId: model.localAsset.collectionId,
         }),
-        template: model.template,
+        template,
       });
     case "editingExistingAsset":
       // `edits` may hold differences the server would never store, like a
-      // freshly added blank row, so dirtiness is measured against what a
+      // freshly added blank item, so dirtiness is measured against what a
       // save would actually change
       return wouldSaveChangeStoredAsset({
         draft: selectEditedAsset(model),
         savedAsset: model.savedAsset,
-        template: model.template,
+        template,
       });
     default:
       return assertNever(model);
@@ -157,16 +180,26 @@ export type EditorEvent =
   | { type: "collectionChanged"; collectionId: number }
   | { type: "readyForDisplayChanged"; readyForDisplay: boolean }
   | { type: "availableAfterChanged"; availableAfter: T.PHPDateTime | null }
-  | { type: "newAssetRequested"; collectionId: number }
+  | { type: "newAssetRequested"; collectionId: number; templateId: number }
   | { type: "existingAssetRequested" }
   | { type: "templateMigrationRequested" }
-  | { type: "templateLoaded"; editorGeneration: number; template: T.Template }
-  | { type: "templateLoadFailed"; editorGeneration: number; error: Error }
+  | {
+      /**
+       * The document an awaitingTemplate model asked for arrived. It
+       * carries its templateId back, so a document for a template the
+       * user has moved past cannot scaffold the newer request's draft.
+       */
+      type: "templateDocumentLoaded";
+      templateId: number;
+      template: T.Template;
+    }
+  | { type: "templateDocumentLoadFailed"; templateId: number; error: Error }
   | { type: "assetLoadFailed"; editorGeneration: number; error: Error }
   | {
       type: "assetLoaded";
       editorGeneration: number;
       savedAsset: T.Asset;
+      /** input for scaffolding the baseline, never stored */
       template: T.Template;
     }
   | { type: "templateMigrated"; editorGeneration: number; template: T.Template }
@@ -185,11 +218,15 @@ export type EditorEvent =
       type: "assetCreated";
       editorGeneration: number;
       savedAsset: T.Asset;
+      /** input for rebasing edits onto the new baseline, never stored */
+      template: T.Template;
     }
   | {
       type: "saveSucceeded";
       editorGeneration: number;
       savedAsset: T.Asset;
+      /** input for rebasing edits onto the new baseline, never stored */
+      template: T.Template;
     }
   | { type: "resetRequested" };
 
@@ -198,8 +235,9 @@ export type EditorEvent =
  *
  * A resolution carrying a different editorGeneration or arriving in the
  * wrong status is dropped: work that finishes after the editor took in a
- * different asset must not touch that asset. Events without a generation
- * apply only while an asset is being edited.
+ * different asset must not touch that asset. Template documents carry the
+ * templateId they answer instead, and events without either apply only
+ * while an asset is being edited.
  *
  * Not referentially transparent: arms that build widget contents assign
  * fresh item ids via crypto.randomUUID().
@@ -212,9 +250,10 @@ export function editorReducer(
     case "newAssetRequested":
       return {
         model: {
-          status: "loadingTemplate",
+          status: "awaitingTemplate",
           editorGeneration: model.editorGeneration + 1,
           collectionId: event.collectionId,
+          templateId: event.templateId,
         },
       };
     case "existingAssetRequested":
@@ -222,11 +261,13 @@ export function editorReducer(
       // advance the generation so results still in flight can no longer
       // land, but stay put: the current asset remains editable while the
       // next asset or template loads
-      return { model: { ...model, editorGeneration: model.editorGeneration + 1 } };
-    case "templateLoaded":
-      return { model: onTemplateLoaded(model, event) };
-    case "templateLoadFailed":
-      return { model: onTemplateLoadFailed(model, event) };
+      return {
+        model: { ...model, editorGeneration: model.editorGeneration + 1 },
+      };
+    case "templateDocumentLoaded":
+      return { model: onTemplateDocumentLoaded(model, event) };
+    case "templateDocumentLoadFailed":
+      return { model: onTemplateDocumentLoadFailed(model, event) };
     case "assetLoadFailed":
       return { model: onLoadFailed(model, event) };
     case "assetLoaded":
@@ -277,16 +318,15 @@ export function editorReducer(
   }
 }
 
-function onTemplateLoaded(
+function onTemplateDocumentLoaded(
   model: EditorModel,
-  event: { editorGeneration: number; template: T.Template }
+  event: { templateId: number; template: T.Template }
 ): EditorModel {
-  if (model.status !== "loadingTemplate") return model;
-  if (event.editorGeneration !== model.editorGeneration) return model;
+  if (model.status !== "awaitingTemplate") return model;
+  if (event.templateId !== model.templateId) return model;
   return {
     status: "editingNewAsset",
     editorGeneration: model.editorGeneration,
-    template: event.template,
     localAsset: makeNewLocalAsset({
       template: event.template,
       collectionId: model.collectionId,
@@ -294,12 +334,17 @@ function onTemplateLoaded(
   };
 }
 
-function onTemplateLoadFailed(
+function onTemplateDocumentLoadFailed(
   model: EditorModel,
-  event: { editorGeneration: number; error: Error }
+  event: { templateId: number; error: Error }
 ): EditorModel {
-  if (model.status !== "loadingTemplate") return model;
-  return onLoadFailed(model, event);
+  if (model.status !== "awaitingTemplate") return model;
+  if (event.templateId !== model.templateId) return model;
+  return {
+    status: "assetLoadFailed",
+    editorGeneration: model.editorGeneration + 1,
+    error: event.error,
+  };
 }
 
 function onLoadFailed(
@@ -316,7 +361,11 @@ function onLoadFailed(
 
 function onAssetLoaded(
   model: EditorModel,
-  event: { editorGeneration: number; savedAsset: T.Asset; template: T.Template }
+  event: {
+    editorGeneration: number;
+    savedAsset: T.Asset;
+    template: T.Template;
+  }
 ): EditorModel {
   if (event.editorGeneration !== model.editorGeneration) return model;
   return {
@@ -325,7 +374,6 @@ function onAssetLoaded(
     // loaded, so work started in that window must not land on the new
     // asset
     editorGeneration: model.editorGeneration + 1,
-    template: event.template,
     savedAsset: makeLocalAssetFromSaved({
       template: event.template,
       collectionId: event.savedAsset.collectionId,
@@ -345,7 +393,6 @@ function onTemplateMigrated(
     case "editingNewAsset":
       return {
         ...model,
-        template: event.template,
         localAsset: migrateAssetToTemplate(model.localAsset, event.template),
       };
     case "editingExistingAsset": {
@@ -358,7 +405,6 @@ function onTemplateMigrated(
       );
       return {
         ...model,
-        template: event.template,
         edits: diffEditableFields({
           draft: migrated,
           savedAsset: model.savedAsset,
@@ -401,7 +447,11 @@ function modelWithFieldEdit(
 
 function onSaveSucceeded(
   model: EditorModel,
-  event: { editorGeneration: number; savedAsset: T.Asset }
+  event: {
+    editorGeneration: number;
+    savedAsset: T.Asset;
+    template: T.Template;
+  }
 ): EditorModel {
   if (!isEditingAsset(model)) return model;
 
@@ -411,12 +461,16 @@ function onSaveSucceeded(
   if (event.editorGeneration !== model.editorGeneration) {
     return model;
   }
-  return modelWithSavedAssetApplied(model, event.savedAsset);
+  return modelWithSavedAssetApplied(model, event.savedAsset, event.template);
 }
 
 function onAssetCreated(
   model: EditorModel,
-  event: { editorGeneration: number; savedAsset: T.Asset }
+  event: {
+    editorGeneration: number;
+    savedAsset: T.Asset;
+    template: T.Template;
+  }
 ): EditorStep {
   // a commit for a draft the editor no longer holds is dropped, like its
   // read-back will be in onSaveSucceeded
@@ -424,7 +478,7 @@ function onAssetCreated(
   if (event.editorGeneration !== model.editorGeneration) return { model };
 
   return {
-    model: modelWithSavedAssetApplied(model, event.savedAsset),
+    model: modelWithSavedAssetApplied(model, event.savedAsset, event.template),
     commands: [
       { type: "notifyAssetCreated", assetId: event.savedAsset.assetId },
     ],
@@ -438,23 +492,21 @@ function onAssetCreated(
  */
 function modelWithSavedAssetApplied(
   model: EditingModel,
-  incomingSavedAsset: T.Asset
+  incomingSavedAsset: T.Asset,
+  template: T.Template
 ): EditorModel {
   // both sides lose the flag together. A server payload never carries it, so
   // clearing the incoming asset only matters for the draft `assetCreated`
   // echoes back, and doing it here keeps the two sides from disagreeing
   const latestLocalAsset = clearUploadRegenerationFlags(
     selectEditedAsset(model),
-    model.template
+    template
   );
 
   const savedAsset = makeLocalAssetFromSaved({
-    template: model.template,
+    template,
     collectionId: incomingSavedAsset.collectionId,
-    savedAsset: clearUploadRegenerationFlags(
-      incomingSavedAsset,
-      model.template
-    ),
+    savedAsset: clearUploadRegenerationFlags(incomingSavedAsset, template),
     // the response describes the document just sent, so its contents keep the
     // ids they already had and the form is not rebuilt around new keys
     previousAsset: latestLocalAsset,
@@ -463,12 +515,11 @@ function modelWithSavedAssetApplied(
   return {
     status: "editingExistingAsset",
     editorGeneration: model.editorGeneration,
-    template: model.template,
     savedAsset,
     edits: diffEditableFields({
       draft: latestLocalAsset,
       savedAsset,
-      template: model.template,
+      template,
     }),
   };
 }

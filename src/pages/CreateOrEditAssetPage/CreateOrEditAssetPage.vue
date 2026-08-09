@@ -22,7 +22,7 @@
         :disabled="!state.selectedCollectionId || !state.selectedTemplateId">
         Continue
         <SpinnerIcon
-          v-if="assetEditor.status === 'loadingTemplate'"
+          v-if="assetEditor.status === 'awaitingTemplate'"
           class="w-4 h-4 ml-2 animate-spin" />
       </Button>
     </form>

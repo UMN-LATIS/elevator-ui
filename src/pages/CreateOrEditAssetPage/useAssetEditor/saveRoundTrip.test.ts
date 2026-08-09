@@ -67,12 +67,11 @@ const makeSavedAsset = (overrides: Partial<Asset> = {}): Asset => ({
 
 const EDITOR_GENERATION = 7;
 
-const editingModel = (savedAsset: Asset, template: Template): EditorModel => ({
+const editingModel = (savedAsset: Asset): EditorModel => ({
   status: "editingExistingAsset",
   editorGeneration: EDITOR_GENERATION,
   savedAsset,
   edits: {},
-  template,
 });
 
 describe("content ids across a save", () => {
@@ -104,7 +103,7 @@ describe("the editor settles once a save's response is applied", () => {
     const baseline = makeSavedAsset({
       field_1: [{ fieldContents: "typed", isPrimary: false, id: "typed-row" }],
     });
-    let model = editingModel(baseline, template);
+    let model = editingModel(baseline);
 
     // the user adds a second row and leaves it blank
     model = reduce(model, {
@@ -122,9 +121,10 @@ describe("the editor settles once a save's response is applied", () => {
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "typed", isPrimary: false }],
       }),
+      template,
     });
 
-    expect(selectHasUnsavedEdits(model)).toBe(false);
+    expect(selectHasUnsavedEdits(model, template)).toBe(false);
   });
 
   it("reports no unsaved edits after the save cleaned the text area html", () => {
@@ -134,7 +134,7 @@ describe("the editor settles once a save's response is applied", () => {
         { fieldContents: "<p>Hello</p>", isPrimary: false, id: "row-1" },
       ],
     });
-    let model = editingModel(baseline, template);
+    let model = editingModel(baseline);
 
     // quill leaves a trailing empty paragraph as the user types
     model = reduce(model, {
@@ -157,13 +157,15 @@ describe("the editor settles once a save's response is applied", () => {
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "<p>Hello there</p>", isPrimary: false }],
       }),
+      template,
     });
 
-    expect(selectHasUnsavedEdits(model)).toBe(false);
+    expect(selectHasUnsavedEdits(model, template)).toBe(false);
   });
 
   it("reports no unsaved edits after the server echoes availableAfter as a full php date", () => {
-    let model = editingModel(makeSavedAsset(), makeTemplate(1, []));
+    const template = makeTemplate(1, []);
+    let model = editingModel(makeSavedAsset());
 
     // what the sidebar dispatches from its yyyy-mm-dd date input
     model = reduce(model, {
@@ -183,8 +185,9 @@ describe("the editor settles once a save's response is applied", () => {
           timezone: "UTC",
         },
       }),
+      template,
     });
 
-    expect(selectHasUnsavedEdits(model)).toBe(false);
+    expect(selectHasUnsavedEdits(model, template)).toBe(false);
   });
 });

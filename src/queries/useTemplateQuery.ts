@@ -19,10 +19,13 @@ import type {
 } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
-export function templateQuery(templateId: MaybeRefOrGetter<number>) {
+export function templateQuery(templateId: MaybeRefOrGetter<number | null>) {
   return queryOptions({
     queryKey: [TEMPLATES_QUERY_KEY, templateId],
-    queryFn: () => fetchers.fetchTemplate(toValue(templateId)),
+    queryFn: async () => {
+      const id = toValue(templateId);
+      return id === null ? null : await fetchers.fetchTemplate(id);
+    },
   });
 }
 

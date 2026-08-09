@@ -15,6 +15,7 @@ import {
   selectLoadError,
   selectEditedAsset,
   selectLocalAsset,
+  selectTemplateId,
   type EditorCommand,
   type EditorEvent,
   type EditorModel,
@@ -24,7 +25,7 @@ import invariant from "tiny-invariant";
 import * as fetchers from "@/api/fetchers";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useUpdateAssetMutation } from "@/queries/useUpdateAssetMutation";
-import { useQueryClient } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { assetQuery } from "@/queries/useAssetQuery";
 import { templateQuery } from "@/queries/useTemplateQuery";
 import { createSaveQueue } from "./createSaveQueue";
@@ -112,8 +113,23 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       : null
   );
 
-  const template = computed((): T.Template | null =>
-    "template" in model.value ? model.value.template : null
+  const templateId = computed((): number | null =>
+    selectTemplateId(model.value)
+  );
+
+  // the template document lives in the query cache, keyed by the id the
+  // model names. The editor swaps templates only through explicit loads and
+  // migrations, so the subscription renders the cached document and never
+  // refreshes it underneath the user: hence staleTime Infinity.
+  const editorTemplateQuery = useQuery({
+    ...templateQuery(() => templateId.value),
+    enabled: () => templateId.value !== null,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+  });
+
+  const template = computed(
+    (): T.Template | null => editorTemplateQuery.data.value ?? null
   );
 
   const getWidgetInstanceId = (
@@ -125,7 +141,10 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     const hasChildWithUnsavedChanges = childEditors.some((childEditor) =>
       childEditor.hasUnsavedChanges()
     );
-    return selectHasUnsavedEdits(model.value) || hasChildWithUnsavedChanges;
+    return (
+      selectHasUnsavedEdits(model.value, template.value) ||
+      hasChildWithUnsavedChanges
+    );
   });
 
   /**
@@ -153,21 +172,32 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
    * Initialize a new asset based on a template and collection
    */
   async function initNewAsset({
-    templateId,
+    templateId: requestedTemplateId,
     collectionId,
   }: {
     templateId: number;
     collectionId: number;
   }): Promise<void> {
-    dispatch({ type: "newAssetRequested", collectionId });
-    const editorGeneration = model.value.editorGeneration;
+    dispatch({
+      type: "newAssetRequested",
+      collectionId,
+      templateId: requestedTemplateId,
+    });
 
     try {
-      const template = await fetchTemplateOrFail(templateId);
-      dispatch({ type: "templateLoaded", editorGeneration, template });
+      const template = await fetchTemplateOrFail(requestedTemplateId);
+      dispatch({
+        type: "templateDocumentLoaded",
+        templateId: requestedTemplateId,
+        template,
+      });
     } catch (cause) {
       const error = toError(cause);
-      dispatch({ type: "templateLoadFailed", editorGeneration, error });
+      dispatch({
+        type: "templateDocumentLoadFailed",
+        templateId: requestedTemplateId,
+        error,
+      });
       throw error;
     }
   }
@@ -242,14 +272,19 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     // took in a different asset is dropped rather than stamped onto it
     const editorGeneration = modelToSave.editorGeneration;
     const assetToSave = selectEditedAsset(modelToSave);
+    const templateDocument = template.value;
     invariant(
-      assetToSave.templateId === modelToSave.template.templateId,
+      templateDocument,
+      "Cannot save: the template document is not loaded"
+    );
+    invariant(
+      assetToSave.templateId === templateDocument.templateId,
       "Cannot save: localAsset.templateId !== template.templateId"
     );
 
     // the assetId comes from the model rather than the route, so an
     // auto-save fired before the URL updates still sends an update
-    const formData = toSaveableFormData(assetToSave, modelToSave.template);
+    const formData = toSaveableFormData(assetToSave, templateDocument);
     const isCreate = !assetToSave.assetId;
 
     const { objectId } = await updateAssetMutation.mutateAsync(formData);
@@ -270,6 +305,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
             timezone: "UTC",
           },
         },
+        template: templateDocument,
       });
     }
 
@@ -280,6 +316,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
       type: "saveSucceeded",
       editorGeneration,
       savedAsset: fetchedAsset,
+      template: templateDocument,
     });
   }
 
@@ -304,7 +341,6 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     );
 
     const isAlreadyOnTemplate =
-      currentModel.template.templateId === newTemplateId &&
       selectEditedAsset(currentModel).templateId === newTemplateId;
     if (isAlreadyOnTemplate) {
       return;
@@ -375,7 +411,7 @@ export const createAssetEditor = (commandHandlers: EditorCommandHandlers) => {
     template,
     status: computed(() => model.value.status),
     isEditingAsset: computed((): boolean => isEditingAsset(model.value)),
-    templateId: computed(() => template.value?.templateId ?? null),
+    templateId,
     collectionId: computed(() => localAsset.value?.collectionId ?? null),
     hasUnsavedChanges,
     loadError: computed(() => selectLoadError(model.value)),
