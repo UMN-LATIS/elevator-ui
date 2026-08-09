@@ -7,8 +7,8 @@
     <ol v-else :class="listClass">
       <DragDropListItem
         v-for="(item, index) in items"
-        :key="item.id"
-        :item="item"
+        :key="resolveItemId(item)"
+        :itemId="resolveItemId(item)"
         :listId="listId"
         :nextListId="nextListId"
         :prevListId="prevListId"
@@ -21,7 +21,7 @@
     <slot name="footer" />
   </div>
 </template>
-<script setup lang="ts" generic="ItemType extends HasId">
+<script setup lang="ts" generic="ItemType">
 import type { CSSClass, HasId } from "./dndTypes";
 import DragDropListItem from "./DragDropListItem.vue";
 import { useDragDropStore } from "./useDragDropStore";
@@ -39,6 +39,8 @@ const props = withDefaults(
     listClass?: CSSClass;
     listItemClass?: CSSClass;
     showEmptyList?: boolean;
+    /** names each item's stable identity. Defaults to reading `item.id`. */
+    getItemId?: (item: ItemType) => string | number;
   }>(),
   {
     showEmptyList: true,
@@ -60,6 +62,11 @@ const emit = defineEmits<{
 }>();
 
 const dragDropStore = useDragDropStore(groupId);
+
+// the default keeps the historical contract: items carry an `id`
+function resolveItemId(item: ItemType): string | number {
+  return props.getItemId ? props.getItemId(item) : (item as HasId).id;
+}
 
 const items = computed(
   () => (dragDropStore.getList(props.listId)?.items ?? []) as ItemType[]

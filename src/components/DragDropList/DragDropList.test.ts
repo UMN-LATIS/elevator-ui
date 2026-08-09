@@ -68,8 +68,12 @@ function mountList(items: HasId[]): VueWrapper {
         h(DragDropList, {
           listId: LIST_ID,
           modelValue: items,
-          "onUpdate:modelValue": (reordered: HasId[]) =>
-            ordersEmitted.push(reordered.map((item) => String(item.id))),
+          // h() cannot carry the component's generic, so the payload arrives
+          // as unknown[] and the test narrows it back
+          "onUpdate:modelValue": (reordered: unknown[]) =>
+            ordersEmitted.push(
+              (reordered as HasId[]).map((item) => String(item.id))
+            ),
         }),
     },
     attachTo: document.body,

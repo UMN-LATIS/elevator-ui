@@ -7,7 +7,8 @@ export interface HasId {
 
 export interface DragDropList {
   id: HasId["id"];
-  items: HasId[];
+  /** opaque to the store: every move is by index, identity is the caller's */
+  items: unknown[];
 }
 
 export interface DragDropGroup {
