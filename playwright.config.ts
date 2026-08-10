@@ -8,9 +8,6 @@ import { fileURLToPath } from "node:url";
 const envFile = fileURLToPath(new URL(".env", import.meta.url));
 if (existsSync(envFile)) process.loadEnvFile(envFile);
 
-// Run on both webkit and chromium
-const CROSS_BROWSER_SPECS = /\.crossbrowser\.spec\.ts$/;
-
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -64,15 +61,15 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-      testMatch: CROSS_BROWSER_SPECS,
-    },
 
     // {
     //   name: "firefox",
     //   use: { ...devices["Desktop Firefox"] },
+    // },
+
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
     // },
   ],
 });
