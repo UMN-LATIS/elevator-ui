@@ -1,25 +1,28 @@
-// Resolve the element to focus: a CSS selector or a function returning one.
-type FocusTarget = string | (() => HTMLElement | null | undefined);
+type Maybe<T> = T | null | undefined;
+type CSSSelector = string;
+type FocusTarget = CSSSelector | (() => Maybe<HTMLElement>);
 
 type TryFocusOptions = {
-  // How many animation frames to keep retrying before giving up.
-  maxAttempts?: number;
+  maxAttempts?: number; // num of animation frames
 };
 
-// Focus an element that may not be ready the instant we ask. A freshly
-// rendered element can mount a few frames late (async data, open
-// transitions) and isn't always focusable the moment it appears, so retry on
-// animation frames until focus actually lands. Resolves with the focused
-// element; rejects if it never takes — a rejection is a real signal worth
-// surfacing, not a silent no-op.
+/**
+ *  Focus an element that may not be ready the instant we ask.
+ *
+ *  Don't scroll here. Both engines reveal a focused element on their own,
+ *  Chromium during focus() and Safari a few frames later. A scrollIntoView
+ *  call placed right after focus() overrides Safari's, and `nearest` leaves
+ *  the element flush against the viewport edge, where a later height change
+ *  pushes it back out of view. See issue 628.
+ */
 export function tryFocus(
   target: FocusTarget,
   { maxAttempts = 10 }: TryFocusOptions = {}
 ): Promise<HTMLElement> {
-  const resolveTarget = (): HTMLElement | null =>
+  const resolveTarget = (): Maybe<HTMLElement> =>
     typeof target === "string"
       ? document.querySelector<HTMLElement>(target)
-      : (target() ?? null);
+      : target();
 
   return new Promise((resolve, reject) => {
     let attemptsLeft = maxAttempts;
@@ -41,7 +44,11 @@ export function tryFocus(
         requestAnimationFrame(attempt);
       } else {
         const label = typeof target === "string" ? target : "element";
-        reject(new Error(`tryFocus: gave up on "${label}" after ${maxAttempts} frames`));
+        reject(
+          new Error(
+            `tryFocus: gave up on "${label}" after ${maxAttempts} frames`
+          )
+        );
       }
     };
 

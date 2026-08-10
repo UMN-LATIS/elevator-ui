@@ -717,14 +717,9 @@ async function revealSavedPermission({
   addControl?.click();
 }
 
-// The row, its detail panel, and the control inside it mount across
-// several frames, so tryFocus retries until focus lands rather than
-// guessing a single tick.
 async function focusRevealedRow(selector: string): Promise<HTMLElement | null> {
   try {
-    const focused = await tryFocus(selector);
-    focused.scrollIntoView({ block: "nearest" });
-    return focused;
+    return await tryFocus(selector);
   } catch (error) {
     console.warn("Could not focus the saved permission's row", error);
     return null;
