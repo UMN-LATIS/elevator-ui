@@ -1,7 +1,7 @@
 import { type APIRequestContext, type Page } from "@playwright/test";
 import mockServerConfig from "../mock-server/config";
 
-const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
+export const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
 
 // Simple helper to set up worker-specific test environment
 export async function setupWorkerHTTPHeader({
