@@ -8,8 +8,8 @@ import { fileURLToPath } from "node:url";
 const envFile = fileURLToPath(new URL(".env", import.meta.url));
 if (existsSync(envFile)) process.loadEnvFile(envFile);
 
-// Safari-only tests
-const WEBKIT_ONLY_SPECS = /\.webkit\.spec\.ts$/;
+// Run on both webkit and chromium
+const CROSS_BROWSER_SPECS = /\.crossbrowser\.spec\.ts$/;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -63,12 +63,11 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: WEBKIT_ONLY_SPECS,
     },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
-      testMatch: WEBKIT_ONLY_SPECS,
+      testMatch: CROSS_BROWSER_SPECS,
     },
 
     // {

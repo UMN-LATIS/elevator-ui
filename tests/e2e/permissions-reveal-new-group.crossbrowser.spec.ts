@@ -51,6 +51,11 @@ async function seedGroupWithInstanceGrant({
 }
 
 test.describe("Adding a permission for a new group from a long table", () => {
+  // The timeout covers beforeEach, and seeding 12 groups against routes
+  // that sleep before answering spends most of the default 10s before
+  // the test clicks anything.
+  test.describe.configure({ timeout: 30_000 });
+
   test.beforeEach(async ({ page, request }) => {
     const workerId = test.info().workerIndex.toString();
     await setupWorkerHTTPHeader({ page, workerId });
@@ -105,5 +110,14 @@ test.describe("Adding a permission for a new group from a long table", () => {
 
     await expect(memberInput).toBeFocused();
     await expect(memberInput).toBeInViewport({ ratio: 1 });
+
+    // The site header is sticky, so clearing the viewport edges is not
+    // enough. A field sitting under the header is still out of reach.
+    const clearanceBelowHeader = await memberInput.evaluate((input) => {
+      const header = document.querySelector("header");
+      const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+      return input.getBoundingClientRect().top - headerBottom;
+    });
+    expect(clearanceBelowHeader).toBeGreaterThan(0);
   });
 });
