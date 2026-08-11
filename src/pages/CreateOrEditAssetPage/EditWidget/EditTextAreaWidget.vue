@@ -3,7 +3,6 @@
     :widgetContents="widgetContents"
     :widgetDef="widgetDef"
     :isOpen="isOpen"
-    class="edit-textarea-widget"
     @update:isOpen="$emit('update:isOpen', $event)"
     @add="
       $emit(
@@ -83,9 +82,3 @@ defineEmits<{
 
 // Note: textarea content cleaning now happens automatically before save in `toSaveableFormData()`in the asset editor.
 </script>
-<style scoped>
-/* Ensure the embedded Quill editor starts a bit taller */
-.edit-textarea-widget :deep(.ql-container .ql-editor) {
-  min-height: 6rem;
-}
-</style>

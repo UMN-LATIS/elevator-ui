@@ -172,6 +172,14 @@ onMounted(() => {
   border: none;
 }
 
+.ql-container .ql-editor {
+  min-height: 8rem;
+  /* resize belongs on .ql-editor, which already scrolls, rather than on
+     .ql-container: the container also holds quill's link tooltip, and a
+     non-visible overflow there would clip it. */
+  resize: vertical;
+}
+
 .ql-toolbar.ql-snow button {
   @apply text-on-surface opacity-50;
 }

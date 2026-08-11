@@ -50,8 +50,8 @@
 
         <InputGroup
           v-model="form.previewImageId"
-          label="Preview Image Asset ID"
-          placeholder="Asset ID shown on the browse page" />
+          label="Preview Image File ID"
+          placeholder="File ID shown on the browse page" />
 
         <Accordion type="single" collapsible>
           <AccordionItem value="bucket">
