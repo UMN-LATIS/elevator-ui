@@ -90,13 +90,21 @@
         placeholder="mm / dd / yyyy"
         inputClass="text-sm pl-3 bg-surface-container"
         @update:modelValue="handleUpdateAvailableAfter" />
-      <SelectGroup
-        :modelValue="displayTemplateId"
-        :options="parentAssetEditor.templateOptions"
-        label="Template"
-        selectClass="bg-surface-container"
-        required
-        @update:modelValue="handleUpdateTemplateId($event)" />
+      <div class="relative">
+        <SelectGroup
+          :modelValue="displayTemplateId"
+          :options="parentAssetEditor.templateOptions"
+          label="Template"
+          selectClass="bg-surface-container"
+          required
+          @update:modelValue="handleUpdateTemplateId($event)" />
+        <Link
+          v-if="isInstanceAdmin && displayTemplateId"
+          :to="{ name: 'templatesEdit', params: { id: displayTemplateId } }"
+          class="text-xs top-0 right-0 absolute inline-flex">
+          View
+        </Link>
+      </div>
       <SelectGroup
         v-model="state.localCollectionId"
         :options="parentAssetEditor.collectionOptions"
@@ -119,7 +127,11 @@ import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
-import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
+import {
+  ArrowRightIcon,
+  CheckCircle2Icon,
+  TriangleAlert,
+} from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
 import { phpDateToString } from "../useAssetEditor/utils";
@@ -127,6 +139,8 @@ import invariant from "tiny-invariant";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import Tuple from "@/components/Tuple/Tuple.vue";
+import { useInstanceStore } from "@/stores/instanceStore.js";
+import Link from "@/components/Link/Link.vue";
 
 const props = defineProps<{
   template: Template;
@@ -147,6 +161,12 @@ const emit = defineEmits<{
 const state = reactive({
   localCollectionId: props.asset.collectionId,
 });
+
+const instanceStore = useInstanceStore();
+
+const isInstanceAdmin = computed(
+  () => instanceStore.currentUser?.isAdmin ?? false
+);
 
 // Hold success/error visible for a few seconds after a save, then reset to idle.
 // This is pure UI state — the raw mutation status resets only on the next save.
