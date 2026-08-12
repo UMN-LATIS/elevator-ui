@@ -16,7 +16,13 @@ vi.mock("@/queries/useTemplateQuery", () => ({
   }),
   useFieldTypesQuery: () => ({
     data: ref([
-      { id: 1, name: "text", modelName: "TextField", sampleFieldData: null },
+      {
+        id: 1,
+        name: "text",
+        modelName: "TextField",
+        hasFieldData: false,
+        sampleFieldData: null,
+      },
     ]),
   }),
   useCreateTemplateMutation: () => ({
@@ -30,7 +36,12 @@ vi.mock("@/queries/useTemplateQuery", () => ({
 }));
 
 // Import after mock registration so the mock is in place.
-import { newWidget, useTemplateEditor } from "./useTemplateEditor";
+import {
+  newWidget,
+  useTemplateEditor,
+  isFieldDataTextInvalid,
+  formatFieldDataText,
+} from "./useTemplateEditor";
 
 const makeAdminTemplate = (
   overrides: Partial<AdminTemplate> = {}
@@ -48,6 +59,42 @@ const makeAdminTemplate = (
   recursiveIndexDepth: 1,
   widgetArray: [],
   ...overrides,
+});
+
+describe("isFieldDataTextInvalid", () => {
+  it("treats blank text as valid (no config)", () => {
+    expect(isFieldDataTextInvalid("")).toBe(false);
+    expect(isFieldDataTextInvalid("   \n  ")).toBe(false);
+  });
+
+  it("treats parseable JSON as valid", () => {
+    expect(isFieldDataTextInvalid('{ "multiSelect": false }')).toBe(false);
+    expect(isFieldDataTextInvalid("[]")).toBe(false);
+    expect(isFieldDataTextInvalid("null")).toBe(false);
+  });
+
+  it("flags text that fails to parse", () => {
+    expect(isFieldDataTextInvalid("{ oops }")).toBe(true);
+    expect(isFieldDataTextInvalid('{ "a": 1 } alt: { "b": 2 }')).toBe(true);
+  });
+});
+
+describe("formatFieldDataText", () => {
+  it("pretty-prints valid JSON with a 2-space indent", () => {
+    expect(formatFieldDataText('{"a":1,"b":[2,3]}')).toBe(
+      '{\n  "a": 1,\n  "b": [\n    2,\n    3\n  ]\n}'
+    );
+  });
+
+  it("returns invalid text verbatim so a deliberate non-JSON sample survives", () => {
+    const sample = '{ "a": 1 }\n\nalt:\n\n{ "b": 2 }';
+    expect(formatFieldDataText(sample)).toBe(sample);
+  });
+
+  it("leaves blank text untouched", () => {
+    expect(formatFieldDataText("")).toBe("");
+    expect(formatFieldDataText("   ")).toBe("   ");
+  });
 });
 
 describe("newWidget", () => {
@@ -199,6 +246,93 @@ describe("useTemplateEditor", () => {
     expect(editor.form.widgetArray).toHaveLength(1);
     expect(editor.form.widgetArray[0].fieldTitle).toBe("title_1");
     expect(editor.form.widgetArray[0].label).toBe("Title");
+  });
+
+  it("converts loaded widget fieldData objects to pretty JSON text", async () => {
+    const editor = useTemplateEditor(() => 5);
+    mockTemplateData.value = makeAdminTemplate({
+      widgetArray: [
+        {
+          widgetId: 100,
+          fieldTitle: "options_1",
+          fieldType: "select",
+          fieldTypeId: 4,
+          label: "Options",
+          tooltip: "",
+          templateOrder: 1,
+          viewOrder: 1,
+          display: true,
+          displayInPreview: false,
+          required: false,
+          searchable: false,
+          allowMultiple: false,
+          attemptAutocomplete: false,
+          directSearch: false,
+          clickToSearch: false,
+          clickToSearchType: 0,
+          fieldData: { multiSelect: false, selectGroup: ["a", "b"] },
+        },
+      ],
+    });
+
+    await nextTick();
+
+    expect(editor.form.widgetArray[0].fieldData).toBe(
+      JSON.stringify({ multiSelect: false, selectGroup: ["a", "b"] }, null, 2)
+    );
+  });
+
+  it("converts loaded null fieldData to an empty string", async () => {
+    const editor = useTemplateEditor(() => 5);
+    mockTemplateData.value = makeAdminTemplate({
+      widgetArray: [
+        {
+          widgetId: 100,
+          fieldTitle: "title_1",
+          fieldType: "text",
+          fieldTypeId: 1,
+          label: "Title",
+          tooltip: "",
+          templateOrder: 1,
+          viewOrder: 1,
+          display: true,
+          displayInPreview: false,
+          required: false,
+          searchable: false,
+          allowMultiple: false,
+          attemptAutocomplete: false,
+          directSearch: false,
+          clickToSearch: false,
+          clickToSearchType: 0,
+          fieldData: null,
+        },
+      ],
+    });
+
+    await nextTick();
+
+    expect(editor.form.widgetArray[0].fieldData).toBe("");
+  });
+
+  it("invalidFieldDataLabels names widgets whose field data text won't parse", () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+    editor.addWidget();
+    editor.form.widgetArray[0].label = "Options";
+    editor.form.widgetArray[0].fieldData = "{ not json";
+    editor.form.widgetArray[1].fieldData = '{ "valid": true }';
+
+    expect(editor.invalidFieldDataLabels.value).toEqual(["Options"]);
+  });
+
+  it("save throws and skips the mutation when field data text is invalid", async () => {
+    const editor = useTemplateEditor(() => null);
+    editor.addWidget();
+    editor.form.widgetArray[0].label = "Options";
+    editor.form.widgetArray[0].fieldData = "{ not json";
+
+    await expect(editor.save()).rejects.toThrow("Options");
+    expect(mockCreateMutateAsync).not.toHaveBeenCalled();
   });
 
   it("save calls createMutation in create mode and returns the new id", async () => {

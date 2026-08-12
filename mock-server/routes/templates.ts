@@ -73,46 +73,76 @@ function generateFieldTitle(label: string): string {
   return `${slug}_${MOCK_INSTANCE_ID}`;
 }
 
-// GET /templates/getFieldTypes — mirrors Templates::getFieldTypes() JSON path
+// GET /templates/getFieldTypes — mirrors Templates::getFieldTypes() JSON path.
+// sampleFieldData is a JSON string or null (the real endpoint unescapes the
+// stored text), and may be deliberately invalid JSON: the select sample shows
+// two shapes an admin edits down. hasFieldData flags types carrying config.
+const jsonSample = (value: unknown): string => JSON.stringify(value, null, 2);
+
+const SELECT_SAMPLE = `{
+  "multiSelect": false,
+  "selectGroup": ["option 1", "option 2", "option 3"]
+}
+
+alt:
+
+{
+  "selectGroup": { "option 1": "more text about option 1" }
+}`;
+
 app.get("/getFieldTypes", (c) => {
   const user = c.get("user");
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
   return c.json([
-    { id: 1, name: "text", modelName: "TextField", sampleFieldData: null },
+    {
+      id: 1,
+      name: "text",
+      modelName: "TextField",
+      hasFieldData: false,
+      sampleFieldData: null,
+    },
     {
       id: 2,
       name: "text area",
       modelName: "TextAreaField",
+      hasFieldData: false,
       sampleFieldData: null,
     },
     {
       id: 3,
       name: "select",
       modelName: "SelectField",
-      sampleFieldData: {
-        multiSelect: false,
-        selectGroup: ["option 1", "option 2", "option 3"],
-      },
+      hasFieldData: true,
+      sampleFieldData: SELECT_SAMPLE,
     },
     {
       id: 4,
       name: "checkbox",
       modelName: "CheckboxField",
+      hasFieldData: false,
       sampleFieldData: null,
     },
-    { id: 5, name: "date", modelName: "DateField", sampleFieldData: null },
+    {
+      id: 5,
+      name: "date",
+      modelName: "DateField",
+      hasFieldData: false,
+      sampleFieldData: null,
+    },
     {
       id: 6,
       name: "tag list",
       modelName: "TagListField",
+      hasFieldData: false,
       sampleFieldData: null,
     },
     {
       id: 7,
       name: "multiselect",
       modelName: "MultiSelectField",
-      sampleFieldData: {
+      hasFieldData: true,
+      sampleFieldData: jsonSample({
         country: {
           usa: {
             state: {
@@ -132,19 +162,21 @@ app.get("/getFieldTypes", (c) => {
             },
           },
         },
-      },
+      }),
     },
     {
       id: 8,
       name: "location",
       modelName: "LocationField",
+      hasFieldData: false,
       sampleFieldData: null,
     },
     {
       id: 9,
       name: "upload",
       modelName: "UploadField",
-      sampleFieldData: {
+      hasFieldData: true,
+      sampleFieldData: jsonSample({
         extractLocation: true,
         extractDate: true,
         enableTiling: true,
@@ -153,13 +185,14 @@ app.get("/getFieldTypes", (c) => {
         enableAnnotation: false,
         forceTiling: false,
         interactiveTranscript: false,
-      },
+      }),
     },
     {
       id: 10,
       name: "related asset",
       modelName: "RelatedAssetField",
-      sampleFieldData: {
+      hasFieldData: true,
+      sampleFieldData: jsonSample({
         nestData: true,
         showLabel: true,
         collapseNestedChildren: false,
@@ -170,7 +203,7 @@ app.get("/getFieldTypes", (c) => {
         ignoreForDigitalAsset: false,
         ignoreForLocationSearch: false,
         ignoreForDateSearch: false,
-      },
+      }),
     },
   ]);
 });

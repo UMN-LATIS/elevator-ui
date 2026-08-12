@@ -44,8 +44,32 @@ function widgetDefToPayload(w: AdminWidgetDef): AdminWidgetPayload {
     directSearch: w.directSearch,
     clickToSearch: w.clickToSearch,
     clickToSearchType: w.clickToSearchType,
-    fieldData: w.fieldData,
+    // The server returns parsed jsonb. The editor holds raw text, so convert
+    // it to pretty-printed text here, when the template loads.
+    fieldData: w.fieldData == null ? "" : JSON.stringify(w.fieldData, null, 2),
   };
+}
+
+export function isFieldDataTextInvalid(text: string): boolean {
+  if (!text.trim()) return false;
+  try {
+    JSON.parse(text);
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Pretty-print JSON if valid, otherwise verbatim
+ */
+export function formatFieldDataText(text: string): string {
+  if (!text.trim()) return text;
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
 }
 
 function toFormState(t: AdminTemplate): FormState {
@@ -100,7 +124,7 @@ export function newWidget(
     directSearch: false,
     clickToSearch: false,
     clickToSearchType: 0,
-    fieldData: null,
+    fieldData: "",
   });
 }
 
@@ -144,6 +168,13 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
 
   const hasUnsavedChanges = computed(
     () => JSON.stringify(form) !== savedSnapshot.value
+  );
+
+  // Labels of widgets whose field data text won't parse. Non-empty blocks save.
+  const invalidFieldDataLabels = computed(() =>
+    form.widgetArray
+      .filter((w) => isFieldDataTextInvalid(w.fieldData))
+      .map((w) => w.label || "Untitled field")
   );
 
   // ISO date string of the template's last server-side modification, if known.
@@ -197,6 +228,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     isSaving,
     saveStatus,
     hasUnsavedChanges,
+    invalidFieldDataLabels,
     lastModifiedAt,
     save,
     addWidget,

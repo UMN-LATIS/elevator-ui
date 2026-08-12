@@ -40,7 +40,7 @@
 
     <template v-if="hasFieldData">
       <TextAreaGroup
-        :modelValue="rawFieldDataString"
+        v-model="widget.fieldData"
         class="mb-4"
         label="Field data (JSON)"
         :inputClass="[
@@ -48,8 +48,6 @@
           isFieldDataInvalid ? 'border-error' : '',
         ]"
         placeholder="null"
-        @update:modelValue="handleFieldDataChange"
-        @focus="isFocused = true"
         @blur="handleFieldDataBlur" />
       <p v-if="isFieldDataInvalid" class="text-error text-xs -mt-3">
         Invalid JSON
@@ -166,10 +164,13 @@ import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { ChevronRightIcon, WarningIcon } from "@/icons";
 import {
   FIELD_TYPE_NAME_ICONS,
-  FIELD_TYPE_SAMPLE_DATA,
   FIELD_TYPE_DISPLAY_NAMES,
 } from "../fieldTypeConstants";
-import { TEMPLATE_EDITOR_KEY } from "../../useTemplateEditor/useTemplateEditor";
+import {
+  TEMPLATE_EDITOR_KEY,
+  isFieldDataTextInvalid,
+  formatFieldDataText,
+} from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_EXPANSION_KEY } from "../widgetExpansionKey";
 import type { SelectOption } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
@@ -257,86 +258,48 @@ const clickToSearchMode = computed({
 
 const { data: fieldTypes } = useFieldTypesQuery();
 
-// Build a lookup map from fieldTypeId → effective sample field data.
-// Server's sampleFieldData takes precedence; falls back to client-side defaults
-// for types that have configurable field data but where the server returns null.
-const sampleFieldDataByTypeId = computed(() => {
-  if (!fieldTypes.value) return {} as Record<number, unknown>;
-  return Object.fromEntries(
-    fieldTypes.value.map((ft) => [
-      ft.id,
-      ft.sampleFieldData ?? FIELD_TYPE_SAMPLE_DATA[ft.name] ?? null,
-    ])
-  ) as Record<number, unknown>;
-});
+const currentFieldType = computed(() =>
+  fieldTypes.value?.find((ft) => ft.id === widget.value.fieldTypeId)
+);
 
-// Show the fieldData JSON editor only for types that carry structured config.
-// Derived from the API: types with non-null sampleFieldData have a config schema.
 const hasFieldData = computed(
-  () => sampleFieldDataByTypeId.value[widget.value.fieldTypeId] != null
+  () => currentFieldType.value?.hasFieldData ?? false
 );
 
-const isFieldDataInvalid = ref(false);
-const isFocused = ref(false);
-
-const rawFieldDataString = ref(
-  widget.value.fieldData != null
-    ? JSON.stringify(widget.value.fieldData, null, 2)
-    : ""
+const isFieldDataInvalid = computed(() =>
+  isFieldDataTextInvalid(widget.value.fieldData)
 );
-
-// Sync when fieldData is changed externally (e.g. type change auto-fills defaults)
-watch(
-  () => widget.value.fieldData,
-  (newVal) => {
-    if (!isFocused.value) {
-      rawFieldDataString.value =
-        newVal != null ? JSON.stringify(newVal, null, 2) : "";
-      isFieldDataInvalid.value = false;
-    }
-  }
-);
-
-function handleFieldDataChange(value: string) {
-  rawFieldDataString.value = value;
-  if (!value.trim()) {
-    widget.value.fieldData = null;
-    isFieldDataInvalid.value = false;
-    return;
-  }
-  try {
-    widget.value.fieldData = JSON.parse(value);
-    isFieldDataInvalid.value = false;
-  } catch {
-    isFieldDataInvalid.value = true;
-  }
-}
 
 function handleFieldDataBlur() {
-  isFocused.value = false;
-  if (!isFieldDataInvalid.value && widget.value.fieldData != null) {
-    rawFieldDataString.value = JSON.stringify(widget.value.fieldData, null, 2);
-  }
+  widget.value.fieldData = formatFieldDataText(widget.value.fieldData);
 }
 
-// [] is a legacy backend artifact on simple-type widgets, not user-entered config.
-function isEmptyFieldData(value: unknown): boolean {
-  if (value === null) return true;
-  if (Array.isArray(value)) return value.length === 0;
-  if (typeof value === "object") return Object.keys(value).length === 0;
-  return false;
+// "Empty" means safe to overwrite with a sample: blank, or an empty
+// structure. "[]" is a legacy backend artifact on simple-type widgets, not
+// user-entered config. Text that doesn't parse is a draft, never empty.
+function isEmptyFieldDataText(text: string): boolean {
+  if (!text.trim()) return true;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (parsed === null) return true;
+    if (Array.isArray(parsed)) return parsed.length === 0;
+    if (typeof parsed === "object") return Object.keys(parsed).length === 0;
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 function handleTypeChange(newTypeId: number) {
-  const sample = sampleFieldDataByTypeId.value[newTypeId] ?? null;
-  if (sample === null) {
+  const newType = fieldTypes.value?.find((ft) => ft.id === newTypeId);
+  if (!newType?.hasFieldData) {
     // New type has no configurable field data — clear any stale config.
-    widget.value.fieldData = null;
+    widget.value.fieldData = "";
     return;
   }
-  // Pre-fill with sample only when there's no real user-entered config.
-  if (isEmptyFieldData(widget.value.fieldData)) {
-    widget.value.fieldData = sample;
+  // Pre-fill only when there's no user-entered config to overwrite.
+  if (isEmptyFieldDataText(widget.value.fieldData)) {
+    widget.value.fieldData = formatFieldDataText(newType.sampleFieldData ?? "");
   }
 }
 </script>

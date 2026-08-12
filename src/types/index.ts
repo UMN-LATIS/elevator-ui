@@ -1151,7 +1151,9 @@ export interface FieldType {
   id: number;
   name: string;
   modelName: string;
-  sampleFieldData: unknown;
+  hasFieldData: boolean;
+  // may not be parseable to JSON
+  sampleFieldData: string | null;
 }
 
 /**
@@ -1230,7 +1232,8 @@ export interface AdminWidgetPayload {
   directSearch: boolean;
   clickToSearch: boolean;
   clickToSearchType: number;
-  fieldData: unknown;
+  /** Raw JSON text as typed in the editor. Empty string means no config. */
+  fieldData: string;
 }
 
 /**
