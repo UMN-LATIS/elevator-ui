@@ -75,8 +75,7 @@ function generateFieldTitle(label: string): string {
 
 // GET /templates/getFieldTypes — mirrors Templates::getFieldTypes() JSON path.
 // sampleFieldData is a JSON string or null (the real endpoint unescapes the
-// stored text), and may be deliberately invalid JSON: the select sample shows
-// two shapes an admin edits down. hasFieldData flags types carrying config.
+// stored text), and may be deliberately invalid JSON
 const jsonSample = (value: unknown): string => JSON.stringify(value, null, 2);
 
 const SELECT_SAMPLE = `{

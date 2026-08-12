@@ -173,7 +173,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   // Labels of widgets whose field data text won't parse. Non-empty blocks save.
   const invalidFieldDataLabels = computed(() =>
     form.widgetArray
-      .filter((w) => isFieldDataTextInvalid(w.fieldData))
+      .filter((w) => isFieldDataTextInvalid(w.fieldData ?? ""))
       .map((w) => w.label || "Untitled field")
   );
 

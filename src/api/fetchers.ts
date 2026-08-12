@@ -1152,7 +1152,7 @@ function serializeTemplatePayload(
     p("clickToSearchType", String(widget.clickToSearchType));
     // Raw text, not re-stringified: the server json_decodes it on save and rejects when it doesn't parse. Trimmed so a whitespace-only
     // box normalizes to null server-side instead of failing validation.
-    p("fieldData", widget.fieldData.trim());
+    p("fieldData", widget.fieldData?.trim() ?? "");
 
     if (widget.display) p("display", "On");
     if (widget.displayInPreview) p("displayInPreview", "On");

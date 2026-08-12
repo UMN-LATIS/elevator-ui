@@ -1233,7 +1233,7 @@ export interface AdminWidgetPayload {
   clickToSearch: boolean;
   clickToSearchType: number;
   /** Raw JSON text as typed in the editor. Empty string means no config. */
-  fieldData: string;
+  fieldData: string | null;
 }
 
 /**
