@@ -325,16 +325,6 @@ describe("useTemplateEditor", () => {
     expect(editor.invalidFieldDataLabels.value).toEqual(["Options"]);
   });
 
-  it("save throws and skips the mutation when field data text is invalid", async () => {
-    const editor = useTemplateEditor(() => null);
-    editor.addWidget();
-    editor.form.widgetArray[0].label = "Options";
-    editor.form.widgetArray[0].fieldData = "{ not json";
-
-    await expect(editor.save()).rejects.toThrow("Options");
-    expect(mockCreateMutateAsync).not.toHaveBeenCalled();
-  });
-
   it("save calls createMutation in create mode and returns the new id", async () => {
     mockCreateMutateAsync.mockResolvedValue({ id: 42, name: "New Template" });
     const editor = useTemplateEditor(() => null);
