@@ -127,7 +127,10 @@
             form="template-form"
             variant="primary"
             class="w-full justify-center"
-            :disabled="editor.isSaving.value">
+            :disabled="
+              editor.isSaving.value ||
+              editor.invalidFieldDataLabels.value.length > 0
+            ">
             <SpinnerIcon
               v-if="editor.isSaving.value"
               class="w-4 h-4 mr-2 animate-spin" />
@@ -141,6 +144,12 @@
           </Button>
         </div>
         <div class="text-xs text-right text-on-surface-variant">
+          <p
+            v-if="editor.invalidFieldDataLabels.value.length > 0"
+            class="text-error">
+            Field data is not valid JSON:
+            {{ editor.invalidFieldDataLabels.value.join(", ") }}
+          </p>
           <p v-if="editor.lastModifiedAt.value" data-testid="last-modified">
             {{ formatDate(editor.lastModifiedAt.value) }}
           </p>

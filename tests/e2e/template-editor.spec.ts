@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 
 // Seed templates available in the test database after refreshDatabase()
@@ -207,6 +207,63 @@ test.describe("Template Editor", () => {
       await expect(
         page.locator("[data-testid='last-modified']")
       ).toBeVisible();
+    });
+  });
+
+  test.describe("Field data editor", () => {
+    // Add one field in create mode and switch it to the given type.
+    async function addFieldOfType(page: Page, label: string, typeName: string) {
+      await page.goto("/templates/edit");
+      await page.getByRole("button", { name: "+ Add field" }).click();
+      await page.getByLabel("Label").fill(label);
+      await page.getByRole("button", { name: "Text" }).click();
+      await page.getByRole("option", { name: typeName, exact: true }).click();
+    }
+
+    test("pre-fills a config type's sample as formatted JSON", async ({
+      page,
+    }) => {
+      await addFieldOfType(page, "Attachment", "Upload");
+
+      const box = page.getByLabel("Field data (JSON)");
+      await expect(box).toBeVisible();
+      // Readable (not \n escape soup) and 2-space indented.
+      await expect(box).toHaveValue(/"enableTiling": true/);
+      await expect(box).toHaveValue(/\n {2}"/);
+    });
+
+    test("blocks save and names the widget when the sample is invalid JSON", async ({
+      page,
+    }) => {
+      await addFieldOfType(page, "Options", "Select");
+
+      await expect(page.getByText("Invalid JSON")).toBeVisible();
+      await expect(
+        page.getByText(/Field data is not valid JSON:\s*Options/)
+      ).toBeVisible();
+      await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
+    });
+
+    test("re-enables save once the field data parses", async ({ page }) => {
+      await addFieldOfType(page, "Options", "Select");
+      await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
+
+      await page
+        .getByLabel("Field data (JSON)")
+        .fill('{ "multiSelect": false }');
+
+      await expect(page.getByText("Invalid JSON")).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Save" })).toBeEnabled();
+    });
+
+    test("formats minified JSON on blur", async ({ page }) => {
+      await addFieldOfType(page, "Attachment", "Upload");
+
+      const box = page.getByLabel("Field data (JSON)");
+      await box.fill('{"a":1,"b":2}');
+      await box.blur();
+
+      await expect(box).toHaveValue('{\n  "a": 1,\n  "b": 2\n}');
     });
   });
 });

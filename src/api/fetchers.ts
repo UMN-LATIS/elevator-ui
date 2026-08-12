@@ -1115,7 +1115,7 @@ export async function fetchAdminTemplate(
  *   - indexForSearching      → indexforSearching  (lowercase 'f' — matches controller)
  *   - boolean template flags  → "On" when true, omitted when false
  *   - boolean widget flags    → any value when true, omitted when false
- *   - fieldData              → JSON string
+ *   - fieldData              → raw JSON text, trimmed ("" becomes null server-side)
  *   - fieldTypeId            → widget[n][fieldType]
  */
 function serializeTemplatePayload(
@@ -1150,10 +1150,9 @@ function serializeTemplatePayload(
     p("templateOrder", String(widget.templateOrder));
     p("viewOrder", String(widget.viewOrder));
     p("clickToSearchType", String(widget.clickToSearchType));
-    p(
-      "fieldData",
-      widget.fieldData != null ? JSON.stringify(widget.fieldData) : ""
-    );
+    // Raw text, not re-stringified: the server json_decodes it on save and rejects when it doesn't parse. Trimmed so a whitespace-only
+    // box normalizes to null server-side instead of failing validation.
+    p("fieldData", widget.fieldData?.trim() ?? "");
 
     if (widget.display) p("display", "On");
     if (widget.displayInPreview) p("displayInPreview", "On");
