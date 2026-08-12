@@ -274,22 +274,6 @@ function handleFieldDataBlur() {
   widget.value.fieldData = formatFieldDataText(widget.value.fieldData);
 }
 
-// "Empty" means safe to overwrite with a sample: blank, or an empty
-// structure. "[]" is a legacy backend artifact on simple-type widgets, not
-// user-entered config. Text that doesn't parse is a draft, never empty.
-function isEmptyFieldDataText(text: string): boolean {
-  if (!text.trim()) return true;
-  try {
-    const parsed: unknown = JSON.parse(text);
-    if (parsed === null) return true;
-    if (Array.isArray(parsed)) return parsed.length === 0;
-    if (typeof parsed === "object") return Object.keys(parsed).length === 0;
-    return false;
-  } catch {
-    return false;
-  }
-}
-
 function handleTypeChange(newTypeId: number) {
   const newType = fieldTypes.value?.find((ft) => ft.id === newTypeId);
   if (!newType?.hasFieldData) {
@@ -297,9 +281,8 @@ function handleTypeChange(newTypeId: number) {
     widget.value.fieldData = "";
     return;
   }
-  // Pre-fill only when there's no user-entered config to overwrite.
-  if (isEmptyFieldDataText(widget.value.fieldData)) {
-    widget.value.fieldData = formatFieldDataText(newType.sampleFieldData ?? "");
-  }
+
+  // reset to sample field data
+  widget.value.fieldData = formatFieldDataText(newType.sampleFieldData ?? "");
 }
 </script>
