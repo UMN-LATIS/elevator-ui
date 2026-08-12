@@ -8,6 +8,7 @@ import {
 } from "lucide-vue-next";
 import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
 import { cn } from "@/lib/utils";
+import Link from "@/components/Link/Link.vue";
 
 const columnHelper = createColumnHelper<TemplateSummary>();
 
@@ -26,7 +27,7 @@ export const createColumns = (deps: TemplateColumnsDeps) => [
   columnHelper.accessor("id", {
     header: () => <ColHeader text="ID" />,
     cell: (ctx) => (
-      <div class="text-sm text-muted-foreground">{ctx.getValue()}</div>
+      <div class="text-sm">{ctx.getValue()}</div>
     ),
     meta: { widthClass: "w-16" },
   }),
@@ -34,7 +35,7 @@ export const createColumns = (deps: TemplateColumnsDeps) => [
   columnHelper.accessor("name", {
     header: () => <ColHeader text="Name" />,
     cell: (ctx) => (
-      <div class="text-sm text-muted-foreground">{ctx.getValue()}</div>
+      <Link class="text-sm" to={{ name: 'templatesEdit', params: { id: ctx.row.original.id }}}>{ctx.getValue()}</Link>
     ),
   }),
   columnHelper.accessor("createdAt", {
@@ -42,7 +43,7 @@ export const createColumns = (deps: TemplateColumnsDeps) => [
     cell: (ctx) => {
       const value = ctx.getValue();
       return (
-        <div class="text-sm text-muted-foreground">
+        <div class="text-sm">
           {value ? new Date(value).toLocaleDateString() : "—"}
         </div>
       );
@@ -54,7 +55,7 @@ export const createColumns = (deps: TemplateColumnsDeps) => [
     cell: (ctx) => {
       const value = ctx.getValue();
       return (
-        <div class="text-sm text-muted-foreground">
+        <div class="text-sm">
           {value ? new Date(value).toLocaleDateString() : "—"}
         </div>
       );
