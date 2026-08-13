@@ -117,7 +117,12 @@ import {
 import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
-import { useSavedSnapshot } from "@/composables/useSavedSnapshot";
+import { equals } from "ramda";
+import {
+  emptyPageFormState,
+  toPageFormState,
+  type PageFormState,
+} from "./toPageFormState";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
   useUnsavedChangesGuard,
@@ -153,19 +158,7 @@ const isSaving = computed(() => saveMutation.isPending.value);
 const deleteMutation = useDeleteCustomPageMutation();
 const isDeleting = computed(() => deleteMutation.isPending.value);
 
-interface FormState {
-  title: string;
-  parent: number | null;
-  includeInHeader: boolean;
-}
-
-const getDefaultForm = (): FormState => ({
-  title: "",
-  parent: null,
-  includeInHeader: false,
-});
-
-const form = ref<FormState>(getDefaultForm());
+const form = ref<PageFormState>(emptyPageFormState());
 
 // The body lives here rather than on the form: it is the only field an
 // editor rewrites, so every way it can change is named in one place.
@@ -179,12 +172,16 @@ const {
   undoSimplifying,
 } = usePageBodyEditor();
 
-// The body is compared alongside the form because it lives in
+// The stored page is the only record of what is saved, so the form is compared
+// straight against it. The body joins the comparison because it lives in
 // usePageBodyEditor, and it is the field an admin actually rewrites.
-const { hasUnsavedChanges, markAsSaved } = useSavedSnapshot(() => ({
-  ...form.value,
-  body: bodyHtml.value,
-}));
+const hasUnsavedChanges = computed(() => {
+  const savedPage = pageData.value
+    ? { ...toPageFormState(pageData.value), body: pageData.value.body }
+    : { ...emptyPageFormState(), body: "" };
+
+  return !equals(savedPage, { ...form.value, body: bodyHtml.value });
+});
 
 // Deleting the page takes the unsaved changes with it, so the admin who
 // already confirmed the delete should not then be asked about them.
@@ -201,13 +198,8 @@ watch(
   pageData,
   (newData) => {
     if (newData) {
-      form.value = {
-        title: newData.title,
-        parent: newData.parentId,
-        includeInHeader: newData.includeInHeader,
-      };
+      form.value = toPageFormState(newData);
       loadStoredBody(newData.body);
-      markAsSaved();
     }
   },
   { immediate: true }
@@ -248,31 +240,28 @@ async function handleSave() {
       : toSaveablePageBody(bodyHtml.value);
 
   try {
-    await saveMutation.mutateAsync(
-      {
-        id: props.pageId ?? undefined,
-        title: form.value.title,
-        body: bodyToSave,
-        parent: form.value.parent,
-        includeInHeader: form.value.includeInHeader,
-      },
-      {
-        onSuccess: () => {
-          toastStore.addToast({
-            title: "Saved",
-            message: isNewPage.value
-              ? "Page created successfully."
-              : "Page saved successfully.",
-            variant: "success",
-            duration: 3000,
-          });
-          // before the redirect, or the guard stops it to ask about changes
-          // the admin just saved
-          markAsSaved();
-          router.push({ name: "customPagesIndex" });
-        },
-      }
-    );
+    const wasNewPage = isNewPage.value;
+
+    // The mutation returns its invalidation promise, so awaiting it leaves the
+    // page query already holding what was saved. Redirecting any earlier trips
+    // the guard on changes that just saved.
+    await saveMutation.mutateAsync({
+      id: props.pageId ?? undefined,
+      title: form.value.title,
+      body: bodyToSave,
+      parent: form.value.parent,
+      includeInHeader: form.value.includeInHeader,
+    });
+
+    toastStore.addToast({
+      title: "Saved",
+      message: wasNewPage
+        ? "Page created successfully."
+        : "Page saved successfully.",
+      variant: "success",
+      duration: 3000,
+    });
+    router.push({ name: "customPagesIndex" });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";

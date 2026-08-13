@@ -167,7 +167,7 @@ import { collectDescendantIds } from "./collectDescendantIds";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
-import { useSavedSnapshot } from "@/composables/useSavedSnapshot";
+import { equals } from "ramda";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
   useUnsavedChangesGuard,
@@ -212,7 +212,14 @@ function makeEmptyCollectionForm(): SaveCollectionPayload {
 
 const form = ref<SaveCollectionPayload>(makeEmptyCollectionForm());
 
-const { hasUnsavedChanges, markAsSaved } = useSavedSnapshot(() => form.value);
+// The fetched collection is the only record of what is saved, so the form is
+// compared straight against it rather than against a copy kept alongside.
+const hasUnsavedChanges = computed(() => {
+  const savedForm = collectionDetail.value
+    ? toSaveCollectionPayload(collectionDetail.value)
+    : makeEmptyCollectionForm();
+  return !equals(savedForm, form.value);
+});
 
 const leaveGuard = useUnsavedChangesGuard([
   { isBlocking: hasUnsavedChanges, confirmation: UNSAVED_CHANGES_CONFIRMATION },
@@ -243,7 +250,6 @@ watch(
   () => {
     hasHydratedForm.value = false;
     form.value = makeEmptyCollectionForm();
-    markAsSaved();
     // never carry one collection's revealed secret to the next
     isS3SecretRevealed.value = false;
   }
@@ -259,7 +265,6 @@ watch(
     }
     hasHydratedForm.value = true;
     form.value = toSaveCollectionPayload(detail);
-    markAsSaved();
   },
   // immediate: a cached detail can already be present on mount
   { immediate: true }
@@ -314,25 +319,19 @@ const isSaving = computed(
     updateCollectionMutation.isPending.value
 );
 
-function handleSave() {
-  // markAsSaved first, or the guard stops the redirect to ask about changes
-  // the admin just saved.
-  const goToCollectionsIndex = () => {
-    markAsSaved();
-    router.push({ name: "adminCollections" });
-  };
-
+// Both mutations invalidate in onSettled and return that promise, so awaiting
+// the save means the refetch has landed and the form matches the server again.
+// Redirecting any earlier trips the guard on changes that just saved.
+async function handleSave() {
   if (props.collectionId === null) {
-    createCollectionMutation.mutate(
-      { ...form.value },
-      { onSuccess: goToCollectionsIndex }
-    );
-    return;
+    await createCollectionMutation.mutateAsync({ ...form.value });
+  } else {
+    await updateCollectionMutation.mutateAsync({
+      collectionId: props.collectionId,
+      collection: { ...form.value },
+    });
   }
 
-  updateCollectionMutation.mutate(
-    { collectionId: props.collectionId, collection: { ...form.value } },
-    { onSuccess: goToCollectionsIndex }
-  );
+  router.push({ name: "adminCollections" });
 }
 </script>
