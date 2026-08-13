@@ -68,6 +68,9 @@
             <SpinnerIcon v-if="isDeleting" class="w-4 h-4 animate-spin" />
             {{ isDeleting ? "Deleting..." : "Delete" }}
           </Button>
+          <UnsavedChangesIndicator
+            :hasUnsavedChanges="hasUnsavedChanges"
+            class="col-span-full text-xs text-center" />
         </div>
       </template>
 
@@ -75,6 +78,20 @@
         <FormToc :sections="tocSections" class="hidden lg:block" />
       </template>
     </FormPageLayout>
+
+    <Teleport to="body">
+      <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
+        type="warning"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
+        cancelLabel="Stay"
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
+      </ConfirmModal>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -98,6 +115,13 @@ import {
   useDeleteCustomPageMutation,
 } from "@/queries/useCustomPageQuery";
 import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
+import { useSavedSnapshot } from "@/composables/useSavedSnapshot";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useUnsavedChangesGuard,
+} from "@/composables/useUnsavedChangesGuard";
 import type { SelectOption, TocItem } from "@/types";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 
@@ -155,6 +179,24 @@ const {
   undoSimplifying,
 } = usePageBodyEditor();
 
+// The body is compared alongside the form because it lives in
+// usePageBodyEditor, and it is the field an admin actually rewrites.
+const { hasUnsavedChanges, markAsSaved } = useSavedSnapshot(() => ({
+  ...form.value,
+  body: bodyHtml.value,
+}));
+
+// Deleting the page takes the unsaved changes with it, so the admin who
+// already confirmed the delete should not then be asked about them.
+const isPageDeleted = ref(false);
+
+const leaveGuard = useUnsavedChangesGuard([
+  {
+    isBlocking: () => hasUnsavedChanges.value && !isPageDeleted.value,
+    confirmation: UNSAVED_CHANGES_CONFIRMATION,
+  },
+]);
+
 watch(
   pageData,
   (newData) => {
@@ -165,6 +207,7 @@ watch(
         includeInHeader: newData.includeInHeader,
       };
       loadStoredBody(newData.body);
+      markAsSaved();
     }
   },
   { immediate: true }
@@ -223,6 +266,9 @@ async function handleSave() {
             variant: "success",
             duration: 3000,
           });
+          // before the redirect, or the guard stops it to ask about changes
+          // the admin just saved
+          markAsSaved();
           router.push({ name: "customPagesIndex" });
         },
       }
@@ -247,6 +293,7 @@ async function handleDelete() {
 
   try {
     await deleteMutation.mutateAsync(props.pageId);
+    isPageDeleted.value = true;
     toastStore.addToast({
       title: "Page Deleted",
       message: "The page has been deleted successfully.",
