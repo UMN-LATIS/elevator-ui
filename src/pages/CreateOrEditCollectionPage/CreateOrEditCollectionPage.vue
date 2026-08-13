@@ -112,10 +112,27 @@
               <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
               {{ isExistingCollection ? "Save" : "Create" }}
             </Button>
+            <UnsavedChangesIndicator
+              :hasUnsavedChanges="hasUnsavedChanges"
+              class="col-span-2 text-xs text-center" />
           </div>
         </div>
       </template>
     </FormPageLayout>
+
+    <Teleport to="body">
+      <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
+        type="warning"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
+        cancelLabel="Stay"
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
+      </ConfirmModal>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -148,6 +165,13 @@ import {
 } from "../AdminCollectionsPage/adminCollectionQueries";
 import { collectDescendantIds } from "./collectDescendantIds";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
+import { useSavedSnapshot } from "@/composables/useSavedSnapshot";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useUnsavedChangesGuard,
+} from "@/composables/useUnsavedChangesGuard";
 
 const props = defineProps<{
   collectionId: number | null;
@@ -188,6 +212,12 @@ function makeEmptyCollectionForm(): SaveCollectionPayload {
 
 const form = ref<SaveCollectionPayload>(makeEmptyCollectionForm());
 
+const { hasUnsavedChanges, markAsSaved } = useSavedSnapshot(() => form.value);
+
+const leaveGuard = useUnsavedChangesGuard([
+  { isBlocking: hasUnsavedChanges, confirmation: UNSAVED_CHANGES_CONFIRMATION },
+]);
+
 function toSaveCollectionPayload(
   detail: AdminCollectionDetail
 ): SaveCollectionPayload {
@@ -213,6 +243,7 @@ watch(
   () => {
     hasHydratedForm.value = false;
     form.value = makeEmptyCollectionForm();
+    markAsSaved();
     // never carry one collection's revealed secret to the next
     isS3SecretRevealed.value = false;
   }
@@ -228,6 +259,7 @@ watch(
     }
     hasHydratedForm.value = true;
     form.value = toSaveCollectionPayload(detail);
+    markAsSaved();
   },
   // immediate: a cached detail can already be present on mount
   { immediate: true }
@@ -283,7 +315,12 @@ const isSaving = computed(
 );
 
 function handleSave() {
-  const goToCollectionsIndex = () => router.push({ name: "adminCollections" });
+  // markAsSaved first, or the guard stops the redirect to ask about changes
+  // the admin just saved.
+  const goToCollectionsIndex = () => {
+    markAsSaved();
+    router.push({ name: "adminCollections" });
+  };
 
   if (props.collectionId === null) {
     createCollectionMutation.mutate(

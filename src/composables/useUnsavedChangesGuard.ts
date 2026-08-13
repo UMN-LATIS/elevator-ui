@@ -94,7 +94,9 @@ export function useUnsavedChangesGuard(
 
   function settleLeave(isLeaveAllowed: boolean): void {
     isConfirmingLeave.value = false;
-    resolveLeave?.(isLeaveAllowed);
+    if (!resolveLeave) return;
+
+    resolveLeave(isLeaveAllowed);
     resolveLeave = null;
   }
 
