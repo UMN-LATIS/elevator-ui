@@ -1,4 +1,10 @@
-import { ref, toValue, watchEffect, type MaybeRefOrGetter, type Ref } from "vue";
+import {
+  ref,
+  toValue,
+  watchEffect,
+  type MaybeRefOrGetter,
+  type Ref,
+} from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 
 export interface LeaveConfirmation {

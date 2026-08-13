@@ -51,9 +51,7 @@
             {{ invalidFields.join(", ") }}
           </span>
         </div>
-        <p v-else-if="!hasUnsavedChanges" class="text-on-surface-variant">
-          No unsaved changes
-        </p>
+        <UnsavedChangesIndicator :hasUnsavedChanges="hasUnsavedChanges" />
       </div>
     </div>
     <div class="flex flex-col gap-6 order-1 md:order-2">
@@ -121,6 +119,7 @@ import { MutationStatus } from "@tanstack/vue-query";
 import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
 import { phpDateToString } from "../useAssetEditor/utils";
 import invariant from "tiny-invariant";
