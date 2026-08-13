@@ -107,7 +107,7 @@ export function hasAssetChanged(
   // A new asset has nothing on the server to compare against, so it is
   // measured against the untouched asset its template would have produced.
   // Calling it changed outright would let an empty create form block leaving.
-  const unchangedAsset = savedAsset?.assetId
+  const baselineAsset = savedAsset?.assetId
     ? savedAsset
     : makeLocalAsset({
         template,
@@ -115,28 +115,28 @@ export function hasAssetChanged(
         savedAsset: null,
       });
 
-  const comparableUnchangedAsset = toComparableAsset(unchangedAsset, template);
+  const comparableBaselineAsset = toComparableAsset(baselineAsset, template);
   const comparableLocalAsset = toComparableAsset(localAsset, template);
 
-  const someUnchangedContentDiffers = Object.entries(
-    comparableUnchangedAsset
-  ).some(([key, unchangedValue]) => {
+  const someBaselineContentDiffers = Object.entries(
+    comparableBaselineAsset
+  ).some(([key, baselineValue]) => {
     const localValue = comparableLocalAsset[key];
-    return !equals(unchangedValue, localValue);
+    return !equals(baselineValue, localValue);
   });
 
-  // a key the unchanged copy lacks counts only once it holds real content
+  // a key the baseline lacks counts only once it holds real content
   const hasNewLocalPropWithContent = Object.entries(comparableLocalAsset)
-    .filter(([key]) => !(key in comparableUnchangedAsset))
+    .filter(([key]) => !(key in comparableBaselineAsset))
     .some(([, localValue]) =>
       hasWidgetContent(localValue as WidgetContent[], "any")
     );
 
-  const hasChanged = someUnchangedContentDiffers || hasNewLocalPropWithContent;
+  const hasChanged = someBaselineContentDiffers || hasNewLocalPropWithContent;
 
   if (logDifferences && hasChanged) {
     const msg = explainObjectDifferences(
-      comparableUnchangedAsset,
+      comparableBaselineAsset,
       comparableLocalAsset
     );
     console.log("Asset differences:", msg);
