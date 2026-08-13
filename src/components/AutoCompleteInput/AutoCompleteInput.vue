@@ -74,7 +74,7 @@
               'relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-primary-container hover:text-on-primary-container',
               index === highlightedIndex && 'bg-primary text-on-primary',
               isDisabled(item) && 'cursor-not-allowed opacity-50',
-              itemClass?.(item),
+              getItemClass(item),
             ]"
             @mousedown.prevent="commitSelection(item)">
             <slot
@@ -160,7 +160,11 @@ const highlightedItem = computed((): T | null => {
 });
 
 function isDisabled(item: T): boolean {
-  return props.isItemDisabled?.(item) ?? false;
+  return props.isItemDisabled ? props.isItemDisabled(item) : false;
+}
+
+function getItemClass(item: T): CSSClass | null {
+  return props.itemClass ? props.itemClass(item) : null;
 }
 
 const needsMoreChars = computed(() => {

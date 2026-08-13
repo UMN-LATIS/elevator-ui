@@ -47,7 +47,9 @@ export function useSaveCustomPageMutation(options?: {
       const instanceStore = useInstanceStore();
       instanceStore.refresh();
 
-      options?.onSuccess?.(data, variables);
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables);
+      }
     },
   });
 }

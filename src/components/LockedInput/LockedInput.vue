@@ -106,7 +106,7 @@ watch(
 function refreshValidity() {
   const el = inputEl.value;
   if (!el) return;
-  const customError = props.validate?.(draft.value.trim()) ?? "";
+  const customError = props.validate ? props.validate(draft.value.trim()) : "";
   el.setCustomValidity(customError);
   error.value = el.validity.valid ? "" : el.validationMessage;
 }

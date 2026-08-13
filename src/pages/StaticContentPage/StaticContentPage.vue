@@ -79,7 +79,9 @@ watch(
   async (newPage) => {
     if (!newPage) return;
 
-    cleanupOnAllImagesLoaded?.();
+    if (cleanupOnAllImagesLoaded) {
+      cleanupOnAllImagesLoaded();
+    }
 
     await nextTick();
     dispatchEvent(CONTENT_LOADED, { pageId: pageIdRef.value });
@@ -95,7 +97,9 @@ watch(
 );
 
 onUnmounted(() => {
-  cleanupOnAllImagesLoaded?.();
+  if (cleanupOnAllImagesLoaded) {
+    cleanupOnAllImagesLoaded();
+  }
 });
 </script>
 <style scoped>
