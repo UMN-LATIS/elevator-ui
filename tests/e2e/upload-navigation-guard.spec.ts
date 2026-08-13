@@ -1,10 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import {
-  setupWorkerHTTPHeader,
-  refreshDatabase,
-  loginUser,
-  deleteActiveAssetFromMenu,
-} from "../setup";
+import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
 import { fileURLToPath } from "url";
 import path from "path";
 
@@ -190,7 +185,12 @@ test.describe("Upload navigation guard", () => {
 
     await startUploadAndWaitUntilInFlight(page);
 
-    await deleteActiveAssetFromMenu(page);
+    // The menu raises a browser confirm before it deletes.
+    page.once("dialog", (dialog) => dialog.accept());
+
+    await page.getByRole("button", { name: "Toggle main menu" }).click();
+    await page.getByRole("button", { name: "Manage Assets" }).click();
+    await page.locator(".edit-nav-section__delete-asset").click();
 
     // Deleting settles both blockers at once. The upload has lost the asset it
     // was attaching to, so cancelling it is not something to warn about.

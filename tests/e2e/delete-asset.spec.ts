@@ -1,10 +1,5 @@
 import { test, expect } from "@playwright/test";
-import {
-  setupWorkerHTTPHeader,
-  loginUser,
-  refreshDatabase,
-  deleteActiveAssetFromMenu,
-} from "../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 import mockServerConfig from "../../mock-server/config";
 
 const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
@@ -68,7 +63,12 @@ test.describe("Delete Asset", () => {
       "Unsaved changes"
     );
 
-    await deleteActiveAssetFromMenu(page);
+    // The menu raises a browser confirm before it deletes.
+    page.once("dialog", (dialog) => dialog.accept());
+
+    await page.getByRole("button", { name: "Toggle main menu" }).click();
+    await page.getByRole("button", { name: "Manage Assets" }).click();
+    await page.locator(".edit-nav-section__delete-asset").click();
 
     // The asset is gone, so there is nowhere to save the edits and nothing to
     // ask about.
