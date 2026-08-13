@@ -12,7 +12,7 @@ const uploadTemplate = {
   widgetArray: [{ fieldTitle: "upload_1", type: "upload" }],
 } as unknown as Template;
 
-function makeSavedAsset(overrides: Record<string, unknown> = {}): Asset {
+function makeAsset(overrides: Record<string, unknown> = {}): Asset {
   return {
     assetId: "56a3bb007d58ae8a488b4657",
     objectId: "56a3bb007d58ae8a488b4657",
@@ -37,7 +37,7 @@ describe("makeLocalAsset", () => {
 describe("toComparableAsset", () => {
   it("drops the asset-level fields the server owns", () => {
     const comparable = toComparableAsset(
-      makeSavedAsset({
+      makeAsset({
         objectId: "56a3bb007d58ae8a488b4657",
         newTemplateId: "1",
         newCollectionId: "1",
@@ -54,7 +54,7 @@ describe("toComparableAsset", () => {
 
   it("drops the id the server assigns to each widget content item", () => {
     const comparable = toComparableAsset(
-      makeSavedAsset({ upload_1: [{ id: "1", fileId: "abc" }] }),
+      makeAsset({ upload_1: [{ id: "1", fileId: "abc" }] }),
       uploadTemplate
     );
 
@@ -63,7 +63,7 @@ describe("toComparableAsset", () => {
 
   it("drops widget content keys holding undefined, which the server never sends", () => {
     const comparable = toComparableAsset(
-      makeSavedAsset({
+      makeAsset({
         upload_1: [{ id: "1", fileId: "abc", regenerate: undefined }],
       }),
       uploadTemplate
@@ -74,7 +74,7 @@ describe("toComparableAsset", () => {
 
   it("keeps widget content keys holding null, which the server does send", () => {
     const comparable = toComparableAsset(
-      makeSavedAsset({ upload_1: [{ id: "1", fileDescription: null }] }),
+      makeAsset({ upload_1: [{ id: "1", fileDescription: null }] }),
       uploadTemplate
     );
 
@@ -83,7 +83,7 @@ describe("toComparableAsset", () => {
 
   it("keeps the fields an admin edits", () => {
     const comparable = toComparableAsset(
-      makeSavedAsset({ collectionId: 7, readyForDisplay: true }),
+      makeAsset({ collectionId: 7, readyForDisplay: true }),
       emptyTemplate
     );
 
@@ -96,8 +96,8 @@ describe("hasAssetChanged", () => {
   it("reports no change when the two assets match", () => {
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset(),
-        localAsset: makeSavedAsset(),
+        savedAsset: makeAsset(),
+        localAsset: makeAsset(),
         template: emptyTemplate,
       })
     ).toBe(false);
@@ -106,8 +106,8 @@ describe("hasAssetChanged", () => {
   it("reports a change when the admin edits a field", () => {
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset({ collectionId: 1 }),
-        localAsset: makeSavedAsset({ collectionId: 2 }),
+        savedAsset: makeAsset({ collectionId: 1 }),
+        localAsset: makeAsset({ collectionId: 2 }),
         template: emptyTemplate,
       })
     ).toBe(true);
@@ -116,8 +116,8 @@ describe("hasAssetChanged", () => {
   it("ignores objectId, which the server assigns rather than the admin", () => {
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset({ objectId: "56a3bb007d58ae8a488b4657" }),
-        localAsset: makeSavedAsset({ objectId: "" }),
+        savedAsset: makeAsset({ objectId: "56a3bb007d58ae8a488b4657" }),
+        localAsset: makeAsset({ objectId: "" }),
         template: emptyTemplate,
       })
     ).toBe(false);
@@ -128,12 +128,12 @@ describe("hasAssetChanged", () => {
   it("ignores the server-owned fields a freshly created asset lacks", () => {
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset({
+        savedAsset: makeAsset({
           createdBy: 3,
           newTemplateId: "1",
           newCollectionId: "1",
         }),
-        localAsset: makeSavedAsset({ createdBy: 0 }),
+        localAsset: makeAsset({ createdBy: 0 }),
         template: emptyTemplate,
       })
     ).toBe(false);
@@ -145,8 +145,8 @@ describe("hasAssetChanged", () => {
 
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset({ upload_1: [savedUpload] }),
-        localAsset: makeSavedAsset({ upload_1: [localUpload] }),
+        savedAsset: makeAsset({ upload_1: [savedUpload] }),
+        localAsset: makeAsset({ upload_1: [localUpload] }),
         template: uploadTemplate,
       })
     ).toBe(false);
@@ -157,8 +157,8 @@ describe("hasAssetChanged", () => {
   it("ignores a widget key holding undefined that the saved copy lacks", () => {
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset({ upload_1: [{ id: "1", fileId: "abc" }] }),
-        localAsset: makeSavedAsset({
+        savedAsset: makeAsset({ upload_1: [{ id: "1", fileId: "abc" }] }),
+        localAsset: makeAsset({
           upload_1: [{ id: "1", fileId: "abc", regenerate: undefined }],
         }),
         template: uploadTemplate,
@@ -169,8 +169,8 @@ describe("hasAssetChanged", () => {
   it("reports a change when a widget key holds a real value the saved copy lacks", () => {
     expect(
       hasAssetChanged({
-        savedAsset: makeSavedAsset({ upload_1: [{ id: "1", fileId: "abc" }] }),
-        localAsset: makeSavedAsset({
+        savedAsset: makeAsset({ upload_1: [{ id: "1", fileId: "abc" }] }),
+        localAsset: makeAsset({
           upload_1: [{ id: "1", fileId: "abc", regenerate: true }],
         }),
         template: uploadTemplate,

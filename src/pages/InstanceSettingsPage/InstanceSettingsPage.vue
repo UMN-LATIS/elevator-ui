@@ -342,8 +342,8 @@ import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
-  useUnsavedChangesGuard,
-} from "@/composables/useUnsavedChangesGuard";
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = defineProps<{
   instanceId: number;
@@ -432,16 +432,15 @@ watch(
   { immediate: true }
 );
 
-// Track unsaved changes by comparing form to saved data. A chosen header
-// image only reaches the server on save, so it counts as an unsaved change
-// even while the rest of the form still matches.
+// A chosen header image only reaches the server on save, so it counts as an
+// unsaved change even while the rest of the form still matches.
 const hasUnsavedChanges = computed(() => {
   if (!settingsData.value) return false;
   if (selectedHeaderImage.value) return true;
   return JSON.stringify(form.value) !== JSON.stringify(savedSettings.value);
 });
 
-const leaveGuard = useUnsavedChangesGuard([
+const leaveGuard = useLeaveGuard([
   {
     isBlocking: hasUnsavedChanges,
     confirmation: UNSAVED_CHANGES_CONFIRMATION,

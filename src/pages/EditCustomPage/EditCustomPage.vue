@@ -125,8 +125,8 @@ import {
 } from "./toPageFormState";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
-  useUnsavedChangesGuard,
-} from "@/composables/useUnsavedChangesGuard";
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 import type { SelectOption, TocItem } from "@/types";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 
@@ -176,18 +176,19 @@ const {
 // straight against it. The body joins the comparison because it lives in
 // usePageBodyEditor, and it is the field an admin actually rewrites.
 const hasUnsavedChanges = computed(() => {
-  const savedPage = pageData.value
+  const savedForm = pageData.value
     ? { ...toPageFormState(pageData.value), body: pageData.value.body }
     : { ...emptyPageFormState(), body: "" };
+  const editedForm = { ...form.value, body: bodyHtml.value };
 
-  return !equals(savedPage, { ...form.value, body: bodyHtml.value });
+  return !equals(savedForm, editedForm);
 });
 
 // Deleting the page takes the unsaved changes with it, so the admin who
 // already confirmed the delete should not then be asked about them.
 const isPageDeleted = ref(false);
 
-const leaveGuard = useUnsavedChangesGuard([
+const leaveGuard = useLeaveGuard([
   {
     isBlocking: () => hasUnsavedChanges.value && !isPageDeleted.value,
     confirmation: UNSAVED_CHANGES_CONFIRMATION,
@@ -242,9 +243,8 @@ async function handleSave() {
   try {
     const wasNewPage = isNewPage.value;
 
-    // The mutation returns its invalidation promise, so awaiting it leaves the
-    // page query already holding what was saved. Redirecting any earlier trips
-    // the guard on changes that just saved.
+    // Redirecting before the refetch lands trips the guard on changes that
+    // just saved.
     await saveMutation.mutateAsync({
       id: props.pageId ?? undefined,
       title: form.value.title,

@@ -45,9 +45,9 @@ const SERVER_ASSIGNED_FIELDS = [
 ];
 
 /**
- * Drops keys holding undefined. JSON has no undefined, so the server can never
- * send such a key, and a working copy that carries one never matches the saved
- * copy again. Widget defaults and cleared flags both leave them behind.
+ * JSON has no undefined, so the server can never send such a key, and a
+ * working copy that carries one never matches the saved copy again. Widget
+ * defaults and cleared flags both leave them behind.
  */
 function withoutUndefinedValues(
   value: Record<string, unknown>
@@ -71,7 +71,7 @@ export function toComparableAsset(
 ): Record<string, unknown> {
   const withoutIds = omitWidgetIds(asset, template);
 
-  const widgetContentsWithoutEmptyKeys = template.widgetArray.reduce(
+  const widgetContentsWithoutUndefinedValues = template.widgetArray.reduce(
     (acc, widgetDef) => {
       const contents = withoutIds[widgetDef.fieldTitle] as
         | Record<string, unknown>[]
@@ -84,10 +84,12 @@ export function toComparableAsset(
     {} as Record<string, unknown>
   );
 
-  return omit(SERVER_ASSIGNED_FIELDS, {
+  const assetWithoutUndefinedValues = {
     ...withoutUndefinedValues(withoutIds),
-    ...widgetContentsWithoutEmptyKeys,
-  });
+    ...widgetContentsWithoutUndefinedValues,
+  };
+
+  return omit(SERVER_ASSIGNED_FIELDS, assetWithoutUndefinedValues);
 }
 
 export function hasAssetChanged(

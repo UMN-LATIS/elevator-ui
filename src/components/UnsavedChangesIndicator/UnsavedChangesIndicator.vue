@@ -1,4 +1,5 @@
 <template>
+  <!-- Both states render so that saving does not shift the surrounding layout. -->
   <p
     data-testid="unsaved-changes-indicator"
     :class="
@@ -9,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-// Both states render so that saving does not shift the surrounding layout.
 defineProps<{
   hasUnsavedChanges: boolean;
 }>();

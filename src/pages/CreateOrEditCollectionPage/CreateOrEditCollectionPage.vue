@@ -170,8 +170,8 @@ import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/Unsave
 import { equals } from "ramda";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
-  useUnsavedChangesGuard,
-} from "@/composables/useUnsavedChangesGuard";
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = defineProps<{
   collectionId: number | null;
@@ -221,7 +221,7 @@ const hasUnsavedChanges = computed(() => {
   return !equals(savedForm, form.value);
 });
 
-const leaveGuard = useUnsavedChangesGuard([
+const leaveGuard = useLeaveGuard([
   { isBlocking: hasUnsavedChanges, confirmation: UNSAVED_CHANGES_CONFIRMATION },
 ]);
 
@@ -319,9 +319,8 @@ const isSaving = computed(
     updateCollectionMutation.isPending.value
 );
 
-// Both mutations invalidate in onSettled and return that promise, so awaiting
-// the save means the refetch has landed and the form matches the server again.
-// Redirecting any earlier trips the guard on changes that just saved.
+// Redirecting before the refetch lands trips the guard on changes that just
+// saved.
 async function handleSave() {
   if (props.collectionId === null) {
     await createCollectionMutation.mutateAsync({ ...form.value });

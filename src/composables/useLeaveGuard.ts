@@ -19,7 +19,7 @@ export interface NavigationBlocker {
   confirmation: LeaveConfirmation;
 }
 
-export interface UnsavedChangesGuard {
+export interface LeaveGuard {
   isConfirmingLeave: Ref<boolean>;
   activeConfirmation: Ref<LeaveConfirmation | null>;
   confirmLeave: () => void;
@@ -36,24 +36,21 @@ export const UNSAVED_CHANGES_CONFIRMATION: LeaveConfirmation = {
  * Asks the admin to confirm before they leave a page that holds work in
  * progress, covering both in-app navigation and closing or reloading the tab.
  *
- * Only guards leaving the route. Navigating between two assets on one route
- * does not prompt, because the asset editor reaches the second asset by
- * replacing its own route parameters after a successful save.
+ * Only guards leaving the route. Changing the current route's own parameters
+ * does not prompt.
  *
  * @param blockers - Checked in order, and the first one blocking supplies the
  * wording. Put the more specific reason first.
  *
  * @example
  * ```ts
- * const guard = useUnsavedChangesGuard([
+ * const guard = useLeaveGuard([
  *   { isBlocking: () => uploadStore.hasActiveUploads, confirmation: UPLOAD },
  *   { isBlocking: () => editor.hasUnsavedChanges, confirmation: UNSAVED },
  * ]);
  * ```
  */
-export function useUnsavedChangesGuard(
-  blockers: NavigationBlocker[]
-): UnsavedChangesGuard {
+export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
   const isConfirmingLeave = ref(false);
   const activeConfirmation = ref<LeaveConfirmation | null>(null);
   let resolveLeave: ((isLeaveAllowed: boolean) => void) | null = null;

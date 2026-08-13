@@ -47,15 +47,15 @@ import {
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
-  useUnsavedChangesGuard,
-} from "@/composables/useUnsavedChangesGuard";
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = defineProps<{ templateId: number | null }>();
 
 const editor = useTemplateEditor(() => props.templateId);
 provide(TEMPLATE_EDITOR_KEY, editor);
 
-const leaveGuard = useUnsavedChangesGuard([
+const leaveGuard = useLeaveGuard([
   {
     isBlocking: editor.hasUnsavedChanges,
     confirmation: UNSAVED_CHANGES_CONFIRMATION,

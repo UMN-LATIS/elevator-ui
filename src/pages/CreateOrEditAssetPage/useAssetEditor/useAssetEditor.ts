@@ -96,14 +96,11 @@ export const createAssetEditor = () => {
   const hasAssetChanged = computed(() => {
     if (!state.localAsset || !state.template) return false;
 
-    const hasLocalAssetChanged = hasAssetChangedPure(
-      {
-        localAsset: state.localAsset,
-        savedAsset: state.savedAsset,
-        template: state.template,
-      },
-      { logDifferences: true }
-    );
+    const hasLocalAssetChanged = hasAssetChangedPure({
+      localAsset: state.localAsset,
+      savedAsset: state.savedAsset,
+      template: state.template,
+    });
 
     // do have any modified inline related assets?
     const haveInlineRelatedAssetsChanged =

@@ -153,8 +153,8 @@ import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation"
 import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
-  useUnsavedChangesGuard,
-} from "@/composables/useUnsavedChangesGuard";
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = withDefaults(
   defineProps<{
@@ -187,9 +187,9 @@ function handleRestored() {
   }
 }
 
-// An upload is listed first because it is the more specific of the two, and
-// interrupting one loses the file rather than just the edits describing it.
-const leaveGuard = useUnsavedChangesGuard([
+// Interrupting an upload loses the file, not just the edits describing it, so
+// it blocks first.
+const leaveGuard = useLeaveGuard([
   {
     isBlocking: () => uploadStore.hasActiveUploads,
     confirmation: {
