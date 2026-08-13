@@ -108,10 +108,6 @@ onMounted(() => {
 
 // A monitor that outlives its container still handles every drop, so a
 // remount would leave two of them reordering the same list.
-onUnmounted(() => {
-  if (stopMonitoring) {
-    stopMonitoring();
-  }
-});
+onUnmounted(() => stopMonitoring?.());
 </script>
 <style scoped></style>

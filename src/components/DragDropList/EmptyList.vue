@@ -88,11 +88,7 @@ onMounted(() => {
   stopDropZone = setupDropZone();
 });
 
-onUnmounted(() => {
-  if (stopDropZone) {
-    stopDropZone();
-  }
-});
+onUnmounted(() => stopDropZone?.());
 </script>
 <style scoped>
 .empty-list {

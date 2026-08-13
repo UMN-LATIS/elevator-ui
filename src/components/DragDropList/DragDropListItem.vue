@@ -315,11 +315,7 @@ onMounted(() => {
   stopDragAndDrop = dnd.combine(setupDraggable(), setupDroppable());
 });
 
-onUnmounted(() => {
-  if (stopDragAndDrop) {
-    stopDragAndDrop();
-  }
-});
+onUnmounted(() => stopDragAndDrop?.());
 </script>
 <style scoped>
 .drag-drop-list-item {
