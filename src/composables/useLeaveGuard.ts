@@ -24,6 +24,7 @@ export interface LeaveGuard {
   activeConfirmation: Ref<LeaveConfirmation | null>;
   confirmLeave: () => void;
   cancelLeave: () => void;
+  leaveWithoutConfirming: (navigate: () => Promise<unknown>) => Promise<void>;
 }
 
 export const UNSAVED_CHANGES_CONFIRMATION: LeaveConfirmation = {
@@ -54,6 +55,7 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
   const isConfirmingLeave = ref(false);
   const activeConfirmation = ref<LeaveConfirmation | null>(null);
   let resolveLeave: ((isLeaveAllowed: boolean) => void) | null = null;
+  let isSkippingConfirmation = false;
 
   function findBlocker(): NavigationBlocker | null {
     return blockers.find((blocker) => toValue(blocker.isBlocking)) ?? null;
@@ -63,19 +65,23 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     if (!findBlocker()) return;
 
     const warnBeforeUnload = (event: BeforeUnloadEvent) => {
-      // Browsers show their own wording and ignore anything we return.
+      // Show the browser's own leave prompt.
+      // Browsers ignore any message we return, so there is nothing to word.
       event.preventDefault();
     };
     window.addEventListener("beforeunload", warnBeforeUnload);
 
-    // onCleanup rather than onUnmounted: the listener has to come off as soon
-    // as nothing is blocking, and watchEffect cleans up before every re-run.
+    // Drop the listener as soon as nothing blocks, not only on unmount,
+    // so that a page which becomes clean stops warning.
+    // onCleanup runs before every re-run, which onUnmounted would not.
     onCleanup(() =>
       window.removeEventListener("beforeunload", warnBeforeUnload)
     );
   });
 
   onBeforeRouteLeave(() => {
+    if (isSkippingConfirmation) return true;
+
     const blocker = findBlocker();
     if (!blocker) return true;
 
@@ -97,10 +103,30 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     resolveLeave = null;
   }
 
+  /**
+   * Navigates away without asking, for a departure that already settled the
+   * work in progress: the admin just saved it, or deleted the thing it
+   * belonged to.
+   *
+   * The bypass lasts exactly as long as the navigation, so it cannot leak
+   * into the next one.
+   */
+  async function leaveWithoutConfirming(
+    navigate: () => Promise<unknown>
+  ): Promise<void> {
+    isSkippingConfirmation = true;
+    try {
+      await navigate();
+    } finally {
+      isSkippingConfirmation = false;
+    }
+  }
+
   return {
     isConfirmingLeave,
     activeConfirmation,
     confirmLeave: () => settleLeave(true),
     cancelLeave: () => settleLeave(false),
+    leaveWithoutConfirming,
   };
 }
