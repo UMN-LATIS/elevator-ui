@@ -78,6 +78,19 @@ export async function loginUser({
   }
 }
 
+/**
+ * Deletes the asset the page is on using the app menu, accepting the browser
+ * confirm it raises. Returns once the click has fired, not once the delete has
+ * landed, so assert on the redirect.
+ */
+export async function deleteActiveAssetFromMenu(page: Page): Promise<void> {
+  page.once("dialog", (dialog) => dialog.accept());
+
+  await page.getByRole("button", { name: "Toggle main menu" }).click();
+  await page.getByRole("button", { name: "Manage Assets" }).click();
+  await page.locator(".edit-nav-section__delete-asset").click();
+}
+
 export async function getAssetCount({
   request,
   workerId,

@@ -1,5 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
-import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
+import {
+  setupWorkerHTTPHeader,
+  refreshDatabase,
+  loginUser,
+  deleteActiveAssetFromMenu,
+} from "../setup";
 import { fileURLToPath } from "url";
 import path from "path";
 
@@ -171,6 +176,28 @@ test.describe("Upload navigation guard", () => {
     await navigateHome(page);
 
     await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
+  });
+
+  test("deleting the asset during an upload leaves without warning", async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+
+    // Save first, so the menu has a persisted asset to offer Delete for.
+    await page.getByLabel(/title/i).first().fill("Delete During Upload");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+
+    await startUploadAndWaitUntilInFlight(page);
+
+    await deleteActiveAssetFromMenu(page);
+
+    // Deleting settles both blockers at once. The upload has lost the asset it
+    // was attaching to, so cancelling it is not something to warn about.
+    await expect(page).toHaveURL(/\/assetManager\/userAssets/);
+    await expect(
+      page.getByRole("heading", { name: "Upload in progress" })
+    ).not.toBeVisible();
   });
 
   test("triggers browser native dialog when reloading during upload", async ({
