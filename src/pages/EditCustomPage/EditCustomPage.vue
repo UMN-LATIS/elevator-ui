@@ -184,15 +184,8 @@ const hasUnsavedChanges = computed(() => {
   return !equals(savedForm, editedForm);
 });
 
-// Deleting the page takes the unsaved changes with it, so the admin who
-// already confirmed the delete should not then be asked about them.
-const isPageDeleted = ref(false);
-
 const leaveGuard = useLeaveGuard([
-  {
-    isBlocking: () => hasUnsavedChanges.value && !isPageDeleted.value,
-    confirmation: UNSAVED_CHANGES_CONFIRMATION,
-  },
+  { isBlocking: hasUnsavedChanges, confirmation: UNSAVED_CHANGES_CONFIRMATION },
 ]);
 
 watch(
@@ -243,8 +236,6 @@ async function handleSave() {
   try {
     const wasNewPage = isNewPage.value;
 
-    // Redirecting before the refetch lands trips the guard on changes that
-    // just saved.
     await saveMutation.mutateAsync({
       id: props.pageId ?? undefined,
       title: form.value.title,
@@ -261,7 +252,12 @@ async function handleSave() {
       variant: "success",
       duration: 3000,
     });
-    router.push({ name: "customPagesIndex" });
+
+    // A new page has nothing fetched for hasUnsavedChanges to measure the
+    // form against, so the work just saved still reads as unsaved.
+    await leaveGuard.leaveWithoutConfirming(() =>
+      router.push({ name: "customPagesIndex" })
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";
@@ -282,14 +278,17 @@ async function handleDelete() {
 
   try {
     await deleteMutation.mutateAsync(props.pageId);
-    isPageDeleted.value = true;
     toastStore.addToast({
       title: "Page Deleted",
       message: "The page has been deleted successfully.",
       variant: "success",
       duration: 3000,
     });
-    router.push({ name: "customPagesIndex" });
+
+    // the deleted page took the unsaved changes with it
+    await leaveGuard.leaveWithoutConfirming(() =>
+      router.push({ name: "customPagesIndex" })
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";
