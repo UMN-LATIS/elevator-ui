@@ -17,6 +17,20 @@
       v-else
       @save="handleSave"
       @cancel="router.push({ name: 'templatesIndex' })" />
+
+    <Teleport to="body">
+      <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
+        type="warning"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
+        cancelLabel="Stay"
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
+      </ConfirmModal>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -30,11 +44,23 @@ import {
   useTemplateEditor,
   TEMPLATE_EDITOR_KEY,
 } from "./useTemplateEditor/useTemplateEditor";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useUnsavedChangesGuard,
+} from "@/composables/useUnsavedChangesGuard";
 
 const props = defineProps<{ templateId: number | null }>();
 
 const editor = useTemplateEditor(() => props.templateId);
 provide(TEMPLATE_EDITOR_KEY, editor);
+
+const leaveGuard = useUnsavedChangesGuard([
+  {
+    isBlocking: editor.hasUnsavedChanges,
+    confirmation: UNSAVED_CHANGES_CONFIRMATION,
+  },
+]);
 
 const router = useRouter();
 
