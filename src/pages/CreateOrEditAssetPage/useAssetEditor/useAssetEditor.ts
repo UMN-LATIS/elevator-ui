@@ -96,11 +96,14 @@ export const createAssetEditor = () => {
   const hasAssetChanged = computed(() => {
     if (!state.localAsset || !state.template) return false;
 
-    const hasLocalAssetChanged = hasAssetChangedPure({
-      localAsset: state.localAsset,
-      savedAsset: state.savedAsset,
-      template: state.template,
-    });
+    const hasLocalAssetChanged = hasAssetChangedPure(
+      {
+        localAsset: state.localAsset,
+        savedAsset: state.savedAsset,
+        template: state.template,
+      },
+      { logDifferences: true }
+    );
 
     // do have any modified inline related assets?
     const haveInlineRelatedAssetsChanged =
@@ -268,8 +271,11 @@ export const createAssetEditor = () => {
       )
       .filter(Boolean);
 
+    // delete rather than assign undefined: the saved copy has no such key, and
+    // a key holding undefined does not equal a missing one, so the asset would
+    // read as edited from here on
     uploadWidgetItems.forEach((item) => {
-      item.regenerate = undefined;
+      delete item.regenerate;
     });
   }
 

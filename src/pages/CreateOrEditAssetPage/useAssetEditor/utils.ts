@@ -35,6 +35,61 @@ export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
   };
 }
 
+// The server fills these in, or they ride along on the save request. The
+// working copy is built before any of that happens, so it never matches.
+const SERVER_ASSIGNED_FIELDS = [
+  "objectId",
+  "newTemplateId",
+  "newCollectionId",
+  "createdBy",
+];
+
+/**
+ * Drops keys holding undefined. JSON has no undefined, so the server can never
+ * send such a key, and a working copy that carries one never matches the saved
+ * copy again. Widget defaults and cleared flags both leave them behind.
+ */
+function withoutUndefinedValues(
+  value: Record<string, unknown>
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined)
+  );
+}
+
+/**
+ * Reduces an asset to the parts an admin can edit, so that two assets can be
+ * compared for unsaved changes.
+ *
+ * Drops the ids the server assigns to widget content items, the asset-level
+ * fields it owns, and any key holding undefined. Comparing those would report
+ * an asset as edited immediately after it was saved.
+ */
+export function toComparableAsset(
+  asset: Asset | UnsavedAsset,
+  template: Template
+): Record<string, unknown> {
+  const withoutIds = omitWidgetIds(asset, template);
+
+  const widgetContentsWithoutEmptyKeys = template.widgetArray.reduce(
+    (acc, widgetDef) => {
+      const contents = withoutIds[widgetDef.fieldTitle] as
+        | Record<string, unknown>[]
+        | undefined;
+      if (!contents) return acc;
+
+      acc[widgetDef.fieldTitle] = contents.map(withoutUndefinedValues);
+      return acc;
+    },
+    {} as Record<string, unknown>
+  );
+
+  return omit(SERVER_ASSIGNED_FIELDS, {
+    ...withoutUndefinedValues(withoutIds),
+    ...widgetContentsWithoutEmptyKeys,
+  });
+}
+
 export function hasAssetChanged(
   {
     savedAsset,
@@ -52,20 +107,20 @@ export function hasAssetChanged(
   // For create mode, always consider as changed if there's any content
   if (!savedAsset.assetId) return true;
 
-  const savedAssetWithoutIds = omitWidgetIds(savedAsset, template);
-  const localAssetWithoutIds = omitWidgetIds(localAsset, template);
+  const comparableSavedAsset = toComparableAsset(savedAsset, template);
+  const comparableLocalAsset = toComparableAsset(localAsset, template);
 
   // Check if any saved content differs from local content
-  const someSavedContentDiffers = Object.entries(savedAssetWithoutIds).some(
+  const someSavedContentDiffers = Object.entries(comparableSavedAsset).some(
     ([key, savedValue]) => {
-      const localValue = localAssetWithoutIds[key];
+      const localValue = comparableLocalAsset[key];
       return !equals(savedValue, localValue);
     }
   );
 
   // Check if local asset has new fields with content not in saved asset
-  const hasNewLocalPropWithContent = Object.entries(localAssetWithoutIds)
-    .filter(([key]) => !(key in savedAssetWithoutIds))
+  const hasNewLocalPropWithContent = Object.entries(comparableLocalAsset)
+    .filter(([key]) => !(key in comparableSavedAsset))
     .some(([, localValue]) =>
       hasWidgetContent(localValue as WidgetContent[], "any")
     );
@@ -74,8 +129,8 @@ export function hasAssetChanged(
 
   if (logDifferences && hasChanged) {
     const msg = explainObjectDifferences(
-      savedAssetWithoutIds,
-      localAssetWithoutIds
+      comparableSavedAsset,
+      comparableLocalAsset
     );
     console.log("Asset differences:", msg);
   }
