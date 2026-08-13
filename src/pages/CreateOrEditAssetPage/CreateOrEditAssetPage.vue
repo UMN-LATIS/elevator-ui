@@ -150,7 +150,7 @@ import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
-import { usePageAssetProvider } from "@/composables/usePageAsset";
+import { LEAVE_GUARD } from "@/constants/constants";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
   useLeaveGuard,
@@ -187,8 +187,6 @@ function handleRestored() {
   }
 }
 
-const { isAssetDeleted } = usePageAssetProvider(() => props.assetId ?? null);
-
 // Interrupting an upload loses the file, not just the edits describing it, so
 // it blocks first.
 const leaveGuard = useLeaveGuard([
@@ -201,10 +199,14 @@ const leaveGuard = useLeaveGuard([
     },
   },
   {
-    isBlocking: () => assetEditor.hasAssetChanged && !isAssetDeleted.value,
+    isBlocking: () => assetEditor.hasAssetChanged,
     confirmation: UNSAVED_CHANGES_CONFIRMATION,
   },
 ]);
+
+// the app menu renders inside this page and deletes the asset from there, so
+// it needs a way to leave without being asked to keep edits with nowhere to go
+provide(LEAVE_GUARD, leaveGuard);
 
 watch(
   () => props.assetId,

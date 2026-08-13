@@ -2,7 +2,7 @@ import { LngLat } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
 import { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 import { useAssetValidationProvider } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
-import type { PageAsset } from "@/composables/usePageAsset";
+import type { LeaveGuard } from "@/composables/useLeaveGuard";
 
 export const UMN_LNGLAT: LngLat = {
   lat: 44.972109,
@@ -52,7 +52,6 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   TOP: 1,
 } as const;
 
-
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
 
 export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<
@@ -63,4 +62,4 @@ export const ASSET_VALIDATION_PROVIDE_KEY = Symbol() as InjectionKey<
   ReturnType<typeof useAssetValidationProvider>
 >;
 
-export const PAGE_ASSET = Symbol() as InjectionKey<PageAsset>;
+export const LEAVE_GUARD = Symbol() as InjectionKey<LeaveGuard>;
