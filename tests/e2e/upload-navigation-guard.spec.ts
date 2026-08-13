@@ -124,7 +124,9 @@ test.describe("Upload navigation guard", () => {
     await expect(page).not.toHaveURL(/\/assetManager\/addAsset/);
   });
 
-  test("no modal after upload has completed", async ({ page }) => {
+  test("upload guard releases once the upload has completed", async ({
+    page,
+  }) => {
     test.setTimeout(30_000);
 
     // Save the asset first so we're on the edit page (no create-and-redirect).
@@ -140,9 +142,14 @@ test.describe("Upload navigation guard", () => {
 
     await navigateHome(page);
 
+    // The upload no longer blocks, but it attached a file the asset has not
+    // saved yet, so the unsaved changes guard takes over.
     await expect(page.getByText("Upload in progress")).not.toBeVisible();
-    await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
+    await expect(
+      page.getByRole("heading", { name: "Unsaved changes" })
+    ).toBeVisible();
   });
+
 
   test("triggers browser native dialog when reloading during upload", async ({
     page,
