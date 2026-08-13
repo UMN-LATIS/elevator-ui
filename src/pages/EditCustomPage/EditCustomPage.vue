@@ -68,6 +68,9 @@
             <SpinnerIcon v-if="isDeleting" class="w-4 h-4 animate-spin" />
             {{ isDeleting ? "Deleting..." : "Delete" }}
           </Button>
+          <UnsavedChangesIndicator
+            :hasUnsavedChanges="hasUnsavedChanges"
+            class="col-span-full text-xs text-center" />
         </div>
       </template>
 
@@ -75,6 +78,20 @@
         <FormToc :sections="tocSections" class="hidden lg:block" />
       </template>
     </FormPageLayout>
+
+    <Teleport to="body">
+      <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
+        type="warning"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
+        cancelLabel="Stay"
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
+      </ConfirmModal>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -98,6 +115,18 @@ import {
   useDeleteCustomPageMutation,
 } from "@/queries/useCustomPageQuery";
 import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
+import { equals } from "ramda";
+import {
+  emptyPageFormState,
+  toPageFormState,
+  type PageFormState,
+} from "./toPageFormState";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 import type { SelectOption, TocItem } from "@/types";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 
@@ -129,19 +158,7 @@ const isSaving = computed(() => saveMutation.isPending.value);
 const deleteMutation = useDeleteCustomPageMutation();
 const isDeleting = computed(() => deleteMutation.isPending.value);
 
-interface FormState {
-  title: string;
-  parent: number | null;
-  includeInHeader: boolean;
-}
-
-const getDefaultForm = (): FormState => ({
-  title: "",
-  parent: null,
-  includeInHeader: false,
-});
-
-const form = ref<FormState>(getDefaultForm());
+const form = ref<PageFormState>(emptyPageFormState());
 
 // The body lives here rather than on the form: it is the only field an
 // editor rewrites, so every way it can change is named in one place.
@@ -155,15 +172,27 @@ const {
   undoSimplifying,
 } = usePageBodyEditor();
 
+// The stored page is the only record of what is saved, so the form is compared
+// straight against it. The body joins the comparison because it lives in
+// usePageBodyEditor, and it is the field an admin actually rewrites.
+const hasUnsavedChanges = computed(() => {
+  const savedForm = pageData.value
+    ? { ...toPageFormState(pageData.value), body: pageData.value.body }
+    : { ...emptyPageFormState(), body: "" };
+  const editedForm = { ...form.value, body: bodyHtml.value };
+
+  return !equals(savedForm, editedForm);
+});
+
+const leaveGuard = useLeaveGuard([
+  { isBlocking: hasUnsavedChanges, confirmation: UNSAVED_CHANGES_CONFIRMATION },
+]);
+
 watch(
   pageData,
   (newData) => {
     if (newData) {
-      form.value = {
-        title: newData.title,
-        parent: newData.parentId,
-        includeInHeader: newData.includeInHeader,
-      };
+      form.value = toPageFormState(newData);
       loadStoredBody(newData.body);
     }
   },
@@ -205,27 +234,29 @@ async function handleSave() {
       : toSaveablePageBody(bodyHtml.value);
 
   try {
-    await saveMutation.mutateAsync(
-      {
-        id: props.pageId ?? undefined,
-        title: form.value.title,
-        body: bodyToSave,
-        parent: form.value.parent,
-        includeInHeader: form.value.includeInHeader,
-      },
-      {
-        onSuccess: () => {
-          toastStore.addToast({
-            title: "Saved",
-            message: isNewPage.value
-              ? "Page created successfully."
-              : "Page saved successfully.",
-            variant: "success",
-            duration: 3000,
-          });
-          router.push({ name: "customPagesIndex" });
-        },
-      }
+    const wasNewPage = isNewPage.value;
+
+    await saveMutation.mutateAsync({
+      id: props.pageId ?? undefined,
+      title: form.value.title,
+      body: bodyToSave,
+      parent: form.value.parent,
+      includeInHeader: form.value.includeInHeader,
+    });
+
+    toastStore.addToast({
+      title: "Saved",
+      message: wasNewPage
+        ? "Page created successfully."
+        : "Page saved successfully.",
+      variant: "success",
+      duration: 3000,
+    });
+
+    // A new page has nothing fetched for hasUnsavedChanges to measure the
+    // form against, so the work just saved still reads as unsaved.
+    await leaveGuard.leaveWithoutConfirming(() =>
+      router.push({ name: "customPagesIndex" })
     );
   } catch (error) {
     const message =
@@ -253,7 +284,11 @@ async function handleDelete() {
       variant: "success",
       duration: 3000,
     });
-    router.push({ name: "customPagesIndex" });
+
+    // the deleted page took the unsaved changes with it
+    await leaveGuard.leaveWithoutConfirming(() =>
+      router.push({ name: "customPagesIndex" })
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";

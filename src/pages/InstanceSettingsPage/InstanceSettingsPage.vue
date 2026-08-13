@@ -284,11 +284,9 @@
             <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
             {{ isSaving ? "Saving..." : "Save" }}
           </Button>
-          <p
-            v-if="hasUnsavedChanges"
-            class="col-span-2 text-xs text-amber-600 text-center">
-            You have unsaved changes
-          </p>
+          <UnsavedChangesIndicator
+            :hasUnsavedChanges="hasUnsavedChanges"
+            class="col-span-2 text-xs text-center" />
         </div>
       </template>
 
@@ -296,6 +294,20 @@
         <FormToc :sections="tocSections" class="hidden lg:block" />
       </template>
     </FormPageLayout>
+
+    <Teleport to="body">
+      <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
+        type="warning"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
+        cancelLabel="Stay"
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
+      </ConfirmModal>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -326,6 +338,12 @@ import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 import ThemeCard from "./ThemeCard.vue";
 import { useTheming } from "@/helpers/useTheming";
 import { prettyThemeName } from "@/helpers/prettyThemeName";
+import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = defineProps<{
   instanceId: number;
@@ -414,11 +432,20 @@ watch(
   { immediate: true }
 );
 
-// Track unsaved changes by comparing form to saved data
+// A chosen header image only reaches the server on save, so it counts as an
+// unsaved change even while the rest of the form still matches.
 const hasUnsavedChanges = computed(() => {
   if (!settingsData.value) return false;
+  if (selectedHeaderImage.value) return true;
   return JSON.stringify(form.value) !== JSON.stringify(savedSettings.value);
 });
+
+const leaveGuard = useLeaveGuard([
+  {
+    isBlocking: hasUnsavedChanges,
+    confirmation: UNSAVED_CHANGES_CONFIRMATION,
+  },
+]);
 
 // Reset form to saved state
 function handleCancel() {
@@ -428,14 +455,8 @@ function handleCancel() {
 }
 
 function useClassicInterface() {
-  if (
-    hasUnsavedChanges.value &&
-    !window.confirm(
-      "You have unsaved changes that will be lost. Switch to the classic interface anyway?"
-    )
-  ) {
-    return;
-  }
+  // Leaving the app entirely, so the guard's beforeunload listener is what
+  // asks about unsaved changes here.
   window.location.href = `${config.instance.base.url}/instances/forceOldInterface`;
 }
 

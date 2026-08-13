@@ -107,14 +107,15 @@
         </div>
       </ConfirmModal>
       <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
         type="warning"
-        :isOpen="isLeaveConfirmOpen"
-        title="Upload in progress"
-        confirmLabel="Leave"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
         cancelLabel="Stay"
-        @confirm="handleLeaveConfirm"
-        @close="handleLeaveCancel">
-        Navigating away will cancel your upload. Are you sure you want to leave?
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
       </ConfirmModal>
     </Teleport>
   </DefaultLayout>
@@ -128,19 +129,13 @@ import {
   reactive,
   ref,
   watch,
-  watchEffect,
 } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import {
-  onBeforeRouteLeave,
-  onBeforeRouteUpdate,
-  useRoute,
-  useRouter,
-} from "vue-router";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
@@ -155,6 +150,11 @@ import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
+import { LEAVE_GUARD } from "@/constants/constants";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = withDefaults(
   defineProps<{
@@ -187,47 +187,26 @@ function handleRestored() {
   }
 }
 
-// --- Upload navigation guard ---
+// Interrupting an upload loses the file, not just the edits describing it, so
+// it blocks first.
+const leaveGuard = useLeaveGuard([
+  {
+    isBlocking: () => uploadStore.hasActiveUploads,
+    confirmation: {
+      title: "Upload in progress",
+      message: "Leaving this page cancels your upload.",
+      confirmLabel: "Leave",
+    },
+  },
+  {
+    isBlocking: () => assetEditor.hasAssetChanged,
+    confirmation: UNSAVED_CHANGES_CONFIRMATION,
+  },
+]);
 
-const isLeaveConfirmOpen = ref(false);
-// Holds the resolve function for the pending onBeforeRouteLeave promise.
-let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
-
-// Trigger the browser's native "Leave site?" dialog when the user tries to
-// close the tab, reload, or navigate to an external URL while an upload is running.
-watchEffect((onCleanup) => {
-  if (!uploadStore.hasActiveUploads) return;
-  const handler = (e: BeforeUnloadEvent) => {
-    e.preventDefault();
-  };
-  window.addEventListener("beforeunload", handler);
-
-  // onCleanup (not onUnmounted) is used because the listener must be removed
-  // as soon as uploads finish — not just when the component is destroyed.
-  // watchEffect calls the cleanup before each re-run and on unmount, covering both cases.
-  onCleanup(() => window.removeEventListener("beforeunload", handler));
-});
-
-// Show our custom ConfirmModal for in-app (Vue Router) navigation.
-onBeforeRouteLeave(async () => {
-  if (!uploadStore.hasActiveUploads) return true;
-  isLeaveConfirmOpen.value = true;
-  return new Promise<boolean>((resolve) => {
-    resolveLeaveGuard = resolve;
-  });
-});
-
-function handleLeaveConfirm() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(true);
-  resolveLeaveGuard = null;
-}
-
-function handleLeaveCancel() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(false);
-  resolveLeaveGuard = null;
-}
+// the app menu renders inside this page and deletes the asset from there, so
+// it needs a way to leave without being asked to keep edits with nowhere to go
+provide(LEAVE_GUARD, leaveGuard);
 
 watch(
   () => props.assetId,

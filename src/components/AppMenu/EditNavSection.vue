@@ -41,6 +41,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
 import { computed } from "vue";
+import { useInjectedLeaveGuard } from "@/composables/useLeaveGuard";
 
 const BASE_URL = config.instance.base.url;
 
@@ -49,10 +50,9 @@ defineProps<{
   instance: ElevatorInstance;
 }>();
 
-const route = useRoute();
+const leaveGuard = useInjectedLeaveGuard();
 
-// every asset route carries the id as a route parameter, so the menu reads
-// it there rather than from a copy passed down or provided to it
+const route = useRoute();
 const activeAssetId = computed(() => {
   const { assetId } = route.params;
   return typeof assetId === "string" ? assetId : null;
@@ -73,9 +73,20 @@ async function handleDeleteAssetClick() {
     return;
   }
 
-  deleteAsset(activeAssetId.value, {
+  const assetIdToDelete = activeAssetId.value;
+
+  deleteAsset(assetIdToDelete, {
     onSuccess: () => {
-      router.push("/assetManager/userAssets");
+      const leaveTheAsset = () => router.push("/assetManager/userAssets");
+
+      // an editor open on this asset has nowhere left to save its edits, so
+      // it must not ask the admin to keep them
+      if (leaveGuard) {
+        leaveGuard.leaveWithoutConfirming(leaveTheAsset);
+        return;
+      }
+
+      leaveTheAsset();
     },
     onError: (error) => {
       console.error("Error deleting asset:", error);

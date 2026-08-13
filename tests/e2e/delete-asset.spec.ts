@@ -49,4 +49,32 @@ test.describe("Delete Asset", () => {
     // The backend should return 410 Gone for a deleted asset, not 200
     expect(afterResponse.status()).toBe(410);
   });
+
+  test("deleting an edited asset leaves without asking to discard changes", async ({
+    page,
+  }) => {
+    await page.goto(`/assetManager/editAsset/${KNOWN_ASSET_ID}`);
+
+    const titleField = page.getByLabel(/title/i).first();
+    await expect(titleField).toHaveValue("Asset 1");
+
+    await titleField.fill("Asset 1 - edited, then deleted");
+    await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+      "Unsaved changes"
+    );
+
+    // The menu raises a browser confirm before it deletes.
+    page.once("dialog", (dialog) => dialog.accept());
+
+    await page.getByRole("button", { name: "Toggle main menu" }).click();
+    await page.getByRole("button", { name: "Manage Assets" }).click();
+    await page.locator(".edit-nav-section__delete-asset").click();
+
+    // The asset is gone, so there is nowhere to save the edits and nothing to
+    // ask about.
+    await expect(page).toHaveURL(/\/assetManager\/userAssets/);
+    await expect(
+      page.getByRole("heading", { name: "Unsaved changes" })
+    ).not.toBeVisible();
+  });
 });

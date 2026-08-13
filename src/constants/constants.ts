@@ -2,6 +2,7 @@ import { LngLat } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
 import { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 import { useAssetValidationProvider } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
+import type { LeaveGuard } from "@/composables/useLeaveGuard";
 
 export const UMN_LNGLAT: LngLat = {
   lat: 44.972109,
@@ -60,3 +61,5 @@ export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<
 export const ASSET_VALIDATION_PROVIDE_KEY = Symbol() as InjectionKey<
   ReturnType<typeof useAssetValidationProvider>
 >;
+
+export const LEAVE_GUARD = Symbol() as InjectionKey<LeaveGuard>;
