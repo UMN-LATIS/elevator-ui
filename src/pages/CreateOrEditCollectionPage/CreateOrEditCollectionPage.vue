@@ -319,18 +319,27 @@ const isSaving = computed(
     updateCollectionMutation.isPending.value
 );
 
-// Redirecting before the refetch lands trips the guard on changes that just
-// saved.
 async function handleSave() {
-  if (props.collectionId === null) {
-    await createCollectionMutation.mutateAsync({ ...form.value });
-  } else {
-    await updateCollectionMutation.mutateAsync({
-      collectionId: props.collectionId,
-      collection: { ...form.value },
-    });
+  try {
+    if (props.collectionId === null) {
+      await createCollectionMutation.mutateAsync({ ...form.value });
+    } else {
+      await updateCollectionMutation.mutateAsync({
+        collectionId: props.collectionId,
+        collection: { ...form.value },
+      });
+    }
+  } catch {
+    // the mutations toast their own failures, and staying on the form keeps
+    // the admin's work available to retry
+    return;
   }
 
-  router.push({ name: "adminCollections" });
+  // The create route has no fetched collection, so hasUnsavedChanges measures
+  // the form against an empty one and still reports the work just saved as
+  // unsaved. The save settled it, so leave without asking.
+  await leaveGuard.leaveWithoutConfirming(() =>
+    router.push({ name: "adminCollections" })
+  );
 }
 </script>
