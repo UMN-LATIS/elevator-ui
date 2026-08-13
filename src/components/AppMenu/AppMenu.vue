@@ -25,7 +25,6 @@
           v-if="currentUser?.canManageAssets"
           :currentUser="currentUser"
           :instance="instance"
-          :assetId="activeAssetId"
           class="app-menu__edit-nav-section" />
 
         <AdminNavSection
@@ -43,7 +42,6 @@ import { watch } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useInstanceStore } from "@/stores/instanceStore";
-import { useAssetStore } from "@/stores/assetStore";
 import AppMenuPure from "./AppMenuPure.vue";
 import AppMenuItem from "./AppMenuItem.vue";
 import PagesNavSection from "./PagesNavSection.vue";
@@ -56,10 +54,8 @@ const emit = defineEmits<{
 }>();
 
 const instanceStore = useInstanceStore();
-const assetStore = useAssetStore();
 
 const { currentUser, instance, pages } = storeToRefs(instanceStore);
-const { activeAssetId } = storeToRefs(assetStore);
 
 // if the route changes, close the menu
 const route = useRoute();

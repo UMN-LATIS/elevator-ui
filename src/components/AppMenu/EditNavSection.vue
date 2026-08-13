@@ -45,16 +45,18 @@ import { usePageAsset } from "@/composables/usePageAsset";
 
 const BASE_URL = config.instance.base.url;
 
-const props = defineProps<{
+defineProps<{
   currentUser: User;
   instance: ElevatorInstance;
-  assetId: string | null;
 }>();
 
 const pageAsset = usePageAsset();
-const activeAssetId = computed(
-  () => props.assetId ?? pageAsset?.assetId.value ?? null
-);
+
+const route = useRoute();
+const activeAssetId = computed(() => {
+  const { assetId } = route.params;
+  return typeof assetId === "string" ? assetId : null;
+});
 
 const router = useRouter();
 const { mutate: deleteAsset } = useDeleteAssetMutation();
@@ -77,7 +79,7 @@ async function handleDeleteAssetClick() {
     onSuccess: () => {
       // an editor open on this asset has nowhere left to save its edits, so
       // it must not ask the admin to keep them
-      if (pageAsset?.assetId.value === assetIdToDelete) {
+      if (pageAsset && activeAssetId.value === assetIdToDelete) {
         pageAsset.isAssetDeleted.value = true;
       }
       router.push("/assetManager/userAssets");
@@ -89,7 +91,6 @@ async function handleDeleteAssetClick() {
   });
 }
 
-const route = useRoute();
 const isAssetEditPage = computed(() => {
   return route.path.includes("/assetManager/editAsset/");
 });
