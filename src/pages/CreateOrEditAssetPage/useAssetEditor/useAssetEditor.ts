@@ -341,13 +341,18 @@ export const createAssetEditor = () => {
       await migrateToTemplate(updatedAsset.templateId);
     }
 
-    state.localAsset = {
-      ...updatedAsset,
-      // if updatedAsset contains a stale empty (new) assetId,
-      // but current localAsset has a non-empty assetId, preserve the
-      // non-empty one to prevent accidentally creating a new asset on save.
-      assetId: updatedAsset.assetId || state.localAsset.assetId,
-    };
+    // A form that captured the asset before its first save emits a null
+    // assetId, so keep the saved identity or we create a second asset.
+    if (!updatedAsset.assetId && state.localAsset.assetId) {
+      state.localAsset = {
+        ...updatedAsset,
+        assetId: state.localAsset.assetId,
+        modified: state.localAsset.modified,
+      };
+      return;
+    }
+
+    state.localAsset = updatedAsset;
   }
 
   function updateAssetField(
