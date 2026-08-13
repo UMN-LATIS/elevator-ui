@@ -41,7 +41,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
 import { computed } from "vue";
-import { usePageAssetId } from "@/composables/usePageAssetId";
+import { usePageAsset } from "@/composables/usePageAsset";
 
 const BASE_URL = config.instance.base.url;
 
@@ -51,9 +51,9 @@ const props = defineProps<{
   assetId: string | null;
 }>();
 
-const pageAssetId = usePageAssetId();
+const pageAsset = usePageAsset();
 const activeAssetId = computed(
-  () => props.assetId ?? pageAssetId?.value ?? null
+  () => props.assetId ?? pageAsset?.assetId.value ?? null
 );
 
 const router = useRouter();
@@ -71,8 +71,15 @@ async function handleDeleteAssetClick() {
     return;
   }
 
-  deleteAsset(activeAssetId.value, {
+  const assetIdToDelete = activeAssetId.value;
+
+  deleteAsset(assetIdToDelete, {
     onSuccess: () => {
+      // an editor open on this asset has nowhere left to save its edits, so
+      // it must not ask the admin to keep them
+      if (pageAsset?.assetId.value === assetIdToDelete) {
+        pageAsset.isAssetDeleted.value = true;
+      }
       router.push("/assetManager/userAssets");
     },
     onError: (error) => {

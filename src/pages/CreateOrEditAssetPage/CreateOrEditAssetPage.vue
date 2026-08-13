@@ -150,7 +150,7 @@ import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
-import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
+import { usePageAssetProvider } from "@/composables/usePageAsset";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
   useLeaveGuard,
@@ -187,6 +187,8 @@ function handleRestored() {
   }
 }
 
+const { isAssetDeleted } = usePageAssetProvider(() => props.assetId ?? null);
+
 // Interrupting an upload loses the file, not just the edits describing it, so
 // it blocks first.
 const leaveGuard = useLeaveGuard([
@@ -199,7 +201,7 @@ const leaveGuard = useLeaveGuard([
     },
   },
   {
-    isBlocking: () => assetEditor.hasAssetChanged,
+    isBlocking: () => assetEditor.hasAssetChanged && !isAssetDeleted.value,
     confirmation: UNSAVED_CHANGES_CONFIRMATION,
   },
 ]);
@@ -438,8 +440,6 @@ async function updateTemplateId() {
 // (e.g. with inline asset editing, we want to save the
 // inline asset before the parent saves)
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
-
-usePageAssetIdProvider(() => props.assetId ?? null);
 
 onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {
