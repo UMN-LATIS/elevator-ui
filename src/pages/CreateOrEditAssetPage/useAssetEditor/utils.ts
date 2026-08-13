@@ -104,34 +104,39 @@ export function hasAssetChanged(
   },
   { logDifferences = false }: { logDifferences?: boolean } = {}
 ): boolean {
-  if (!savedAsset || !localAsset || !template) return true;
+  // A new asset has nothing on the server to compare against, so it is
+  // measured against the untouched asset its template would have produced.
+  // Calling it changed outright would let an empty create form block leaving.
+  const unchangedAsset = savedAsset?.assetId
+    ? savedAsset
+    : makeLocalAsset({
+        template,
+        collectionId: localAsset.collectionId,
+        savedAsset: null,
+      });
 
-  // For create mode, always consider as changed if there's any content
-  if (!savedAsset.assetId) return true;
-
-  const comparableSavedAsset = toComparableAsset(savedAsset, template);
+  const comparableUnchangedAsset = toComparableAsset(unchangedAsset, template);
   const comparableLocalAsset = toComparableAsset(localAsset, template);
 
-  // Check if any saved content differs from local content
-  const someSavedContentDiffers = Object.entries(comparableSavedAsset).some(
-    ([key, savedValue]) => {
-      const localValue = comparableLocalAsset[key];
-      return !equals(savedValue, localValue);
-    }
-  );
+  const someUnchangedContentDiffers = Object.entries(
+    comparableUnchangedAsset
+  ).some(([key, unchangedValue]) => {
+    const localValue = comparableLocalAsset[key];
+    return !equals(unchangedValue, localValue);
+  });
 
-  // Check if local asset has new fields with content not in saved asset
+  // a key the unchanged copy lacks counts only once it holds real content
   const hasNewLocalPropWithContent = Object.entries(comparableLocalAsset)
-    .filter(([key]) => !(key in comparableSavedAsset))
+    .filter(([key]) => !(key in comparableUnchangedAsset))
     .some(([, localValue]) =>
       hasWidgetContent(localValue as WidgetContent[], "any")
     );
 
-  const hasChanged = someSavedContentDiffers || hasNewLocalPropWithContent;
+  const hasChanged = someUnchangedContentDiffers || hasNewLocalPropWithContent;
 
   if (logDifferences && hasChanged) {
     const msg = explainObjectDifferences(
-      comparableSavedAsset,
+      comparableUnchangedAsset,
       comparableLocalAsset
     );
     console.log("Asset differences:", msg);

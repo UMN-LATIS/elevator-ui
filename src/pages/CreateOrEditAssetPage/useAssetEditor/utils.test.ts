@@ -12,6 +12,11 @@ const uploadTemplate = {
   widgetArray: [{ fieldTitle: "upload_1", type: "upload" }],
 } as unknown as Template;
 
+const textTemplate = {
+  templateId: 1,
+  widgetArray: [{ fieldTitle: "text_1", type: "text" }],
+} as unknown as Template;
+
 function makeAsset(overrides: Record<string, unknown> = {}): Asset {
   return {
     assetId: "56a3bb007d58ae8a488b4657",
@@ -174,6 +179,39 @@ describe("hasAssetChanged", () => {
           upload_1: [{ id: "1", fileId: "abc", regenerate: true }],
         }),
         template: uploadTemplate,
+      })
+    ).toBe(true);
+  });
+
+  // A create form the admin has not touched yet would otherwise block them
+  // from leaving the page.
+  it("reports no change for a new asset nobody has edited", () => {
+    expect(
+      hasAssetChanged({
+        savedAsset: null,
+        localAsset: makeLocalAsset({
+          template: textTemplate,
+          collectionId: 1,
+          savedAsset: null,
+        }),
+        template: textTemplate,
+      })
+    ).toBe(false);
+  });
+
+  it("reports a change when the admin fills in a new asset", () => {
+    const newAsset = makeLocalAsset({
+      template: textTemplate,
+      collectionId: 1,
+      savedAsset: null,
+    });
+    newAsset.title = ["Draft title"];
+
+    expect(
+      hasAssetChanged({
+        savedAsset: null,
+        localAsset: newAsset,
+        template: textTemplate,
       })
     ).toBe(true);
   });
