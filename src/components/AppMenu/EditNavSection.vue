@@ -41,20 +41,22 @@ import { useRoute, useRouter } from "vue-router";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useErrorStore } from "@/stores/errorStore";
 import { computed } from "vue";
-import { usePageAssetId } from "@/composables/usePageAssetId";
 
 const BASE_URL = config.instance.base.url;
 
-const props = defineProps<{
+defineProps<{
   currentUser: User;
   instance: ElevatorInstance;
-  assetId: string | null;
 }>();
 
-const pageAssetId = usePageAssetId();
-const activeAssetId = computed(
-  () => props.assetId ?? pageAssetId?.value ?? null
-);
+const route = useRoute();
+
+// every asset route carries the id as a route parameter, so the menu reads
+// it there rather than from a copy passed down or provided to it
+const activeAssetId = computed(() => {
+  const { assetId } = route.params;
+  return typeof assetId === "string" ? assetId : null;
+});
 
 const router = useRouter();
 const { mutate: deleteAsset } = useDeleteAssetMutation();
@@ -82,7 +84,6 @@ async function handleDeleteAssetClick() {
   });
 }
 
-const route = useRoute();
 const isAssetEditPage = computed(() => {
   return route.path.includes("/assetManager/editAsset/");
 });
