@@ -112,6 +112,9 @@
               <SpinnerIcon v-if="isSaving" class="w-4 h-4 animate-spin" />
               {{ isExistingCollection ? "Save" : "Create" }}
             </Button>
+            <UnsavedChangesIndicator
+              :hasUnsavedChanges="hasUnsavedChanges"
+              class="col-span-2 text-xs text-center" />
           </div>
         </div>
       </template>
@@ -148,6 +151,12 @@ import {
 } from "../AdminCollectionsPage/adminCollectionQueries";
 import { collectDescendantIds } from "./collectDescendantIds";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
+import { equals } from "ramda";
+import {
+  UNSAVED_CHANGES_MESSAGE,
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = defineProps<{
   collectionId: number | null;
@@ -187,6 +196,19 @@ function makeEmptyCollectionForm(): SaveCollectionPayload {
 }
 
 const form = ref<SaveCollectionPayload>(makeEmptyCollectionForm());
+
+// The fetched collection is the only record of what is saved, so the form is
+// compared straight against it rather than against a copy kept alongside.
+const hasUnsavedChanges = computed(() => {
+  const savedForm = collectionDetail.value
+    ? toSaveCollectionPayload(collectionDetail.value)
+    : makeEmptyCollectionForm();
+  return !equals(savedForm, form.value);
+});
+
+const leaveGuard = useLeaveGuard([
+  { isBlocking: hasUnsavedChanges, message: UNSAVED_CHANGES_MESSAGE },
+]);
 
 function toSaveCollectionPayload(
   detail: AdminCollectionDetail
@@ -282,20 +304,27 @@ const isSaving = computed(
     updateCollectionMutation.isPending.value
 );
 
-function handleSave() {
-  const goToCollectionsIndex = () => router.push({ name: "adminCollections" });
-
-  if (props.collectionId === null) {
-    createCollectionMutation.mutate(
-      { ...form.value },
-      { onSuccess: goToCollectionsIndex }
-    );
+async function handleSave() {
+  try {
+    if (props.collectionId === null) {
+      await createCollectionMutation.mutateAsync({ ...form.value });
+    } else {
+      await updateCollectionMutation.mutateAsync({
+        collectionId: props.collectionId,
+        collection: { ...form.value },
+      });
+    }
+  } catch {
+    // the mutations toast their own failures, and staying on the form keeps
+    // the admin's work available to retry
     return;
   }
 
-  updateCollectionMutation.mutate(
-    { collectionId: props.collectionId, collection: { ...form.value } },
-    { onSuccess: goToCollectionsIndex }
+  // The create route has no fetched collection, so hasUnsavedChanges measures
+  // the form against an empty one and still reports the work just saved as
+  // unsaved. The save settled it, so leave without asking.
+  await leaveGuard.leaveWithoutConfirming(() =>
+    router.push({ name: "adminCollections" })
   );
 }
 </script>

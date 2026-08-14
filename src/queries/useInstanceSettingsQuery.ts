@@ -28,25 +28,28 @@ export function useUpdateInstanceSettingsMutation() {
 
   return useMutation({
     mutationFn: fetchers.updateInstanceSettings,
-    onSuccess: (_data, variables) => {
-      // Invalidate instance settings query
-      queryClient.invalidateQueries({
-        queryKey: [INSTANCE_SETTINGS_QUERY_KEY, variables.instanceId],
-      });
-      // Also invalidate the main instance query since some settings affect it
-      queryClient.invalidateQueries({
-        queryKey: [INSTANCE_QUERY_KEY],
-      });
-
+    onSuccess: () => {
       // refresh instanceStore too
       // this will double-fetch instance info when pages are saved
-      // (once for the query invalidation above and once manually here)
+      // (once for the query invalidation below and once manually here)
       // when we migrate instanceStore consumers to useInstanceQuery, we can
       // remove this manual refresh and rely solely on the query invalidation
       // to update instance info
       const instanceStore = useInstanceStore();
       instanceStore.refresh();
     },
+    // Returning the promise keeps isPending true while the refetches are in
+    // flight, so an awaited save leaves the settings query already holding
+    // what was saved. Otherwise the page reports unsaved changes, and prompts
+    // on the way out, while the Saved toast is still up.
+    onSettled: (_data, _error, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [INSTANCE_SETTINGS_QUERY_KEY, variables.instanceId],
+        }),
+        // some settings affect the main instance query too
+        queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] }),
+      ]),
   });
 }
 

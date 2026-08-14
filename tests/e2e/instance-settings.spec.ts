@@ -50,7 +50,9 @@ test.describe("Instance Settings Page", () => {
       await nameField.fill("My Updated Instance");
 
       // Unsaved changes indicator should appear
-      await expect(page.getByText("You have unsaved changes")).toBeVisible();
+      await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+        "Unsaved changes"
+      );
     });
 
     test("cancel button resets form to saved values", async ({ page }) => {
@@ -58,15 +60,17 @@ test.describe("Instance Settings Page", () => {
 
       const nameField = page.getByLabel("Instance Name");
       await nameField.fill("Modified Name");
-      await expect(page.getByText("You have unsaved changes")).toBeVisible();
+      await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+        "Unsaved changes"
+      );
 
       await page.getByRole("button", { name: "Cancel" }).click();
 
       // Form should reset to the original value
       await expect(nameField).toHaveValue("defaultinstance");
-      await expect(
-        page.getByText("You have unsaved changes")
-      ).not.toBeVisible();
+      await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+        "No unsaved changes"
+      );
     });
 
     test("can save updated instance name", async ({ page }) => {
@@ -83,9 +87,9 @@ test.describe("Instance Settings Page", () => {
       ).toBeVisible();
 
       // Unsaved changes indicator should clear
-      await expect(
-        page.getByText("You have unsaved changes")
-      ).not.toBeVisible();
+      await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+        "No unsaved changes"
+      );
     });
 
     test("persists saved changes after page reload", async ({ page }) => {

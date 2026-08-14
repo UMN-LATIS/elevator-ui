@@ -30,11 +30,22 @@ import {
   useTemplateEditor,
   TEMPLATE_EDITOR_KEY,
 } from "./useTemplateEditor/useTemplateEditor";
+import {
+  UNSAVED_CHANGES_MESSAGE,
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = defineProps<{ templateId: number | null }>();
 
 const editor = useTemplateEditor(() => props.templateId);
 provide(TEMPLATE_EDITOR_KEY, editor);
+
+useLeaveGuard([
+  {
+    isBlocking: editor.hasUnsavedChanges,
+    message: UNSAVED_CHANGES_MESSAGE,
+  },
+]);
 
 const router = useRouter();
 
