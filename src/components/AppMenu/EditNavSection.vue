@@ -17,7 +17,11 @@
         class="edit-nav-section__edit-asset">
         Edit Asset
       </AppMenuItem>
+      <!-- Deleting mid-edit would race the editor's leave guard over work
+        that no longer has anywhere to be saved, so the editor page offers no
+        delete. The asset's view page still does. -->
       <AppMenuItem
+        v-if="!isAssetEditPage"
         class="edit-nav-section__delete-asset"
         @click="handleDeleteAssetClick">
         Delete Asset

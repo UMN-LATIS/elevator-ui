@@ -49,4 +49,24 @@ test.describe("Delete Asset", () => {
     // The backend should return 410 Gone for a deleted asset, not 200
     expect(afterResponse.status()).toBe(410);
   });
+
+  // Deleting mid-edit would race the leave guard over work with nowhere left
+  // to be saved, so the editor page's menu offers no delete. The view page
+  // still does.
+  test("the menu offers Delete Asset on the view page but not the edit page", async ({
+    page,
+  }) => {
+    await page.goto(`/asset/viewAsset/${KNOWN_ASSET_ID}`);
+    await page.getByRole("button", { name: "Toggle main menu" }).click();
+    await page.getByRole("button", { name: "Manage Assets" }).click();
+    await expect(page.locator(".edit-nav-section__delete-asset")).toBeVisible();
+
+    await page.goto(`/assetManager/editAsset/${KNOWN_ASSET_ID}`);
+    await page.getByRole("button", { name: "Toggle main menu" }).click();
+    await page.getByRole("button", { name: "Manage Assets" }).click();
+    await expect(page.locator(".edit-nav-section__all-my-assets")).toBeVisible();
+    await expect(page.locator(".edit-nav-section__delete-asset")).toHaveCount(
+      0
+    );
+  });
 });
