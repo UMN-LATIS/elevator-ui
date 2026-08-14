@@ -11,7 +11,6 @@ import invariant from "tiny-invariant";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import { equals, omit } from "ramda";
-import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
   // remove ids from each widget content item
@@ -76,11 +75,11 @@ export function toComparableAsset(
   asset: Asset | UnsavedAsset,
   template: Template
 ): Record<string, unknown> {
-  const withoutIds = omitWidgetIds(asset, template);
+  const assetWithoutWidgetIds = omitWidgetIds(asset, template);
 
   const widgetContentsWithoutUndefinedValues = template.widgetArray.reduce(
     (acc, widgetDef) => {
-      const contents = withoutIds[widgetDef.fieldTitle] as
+      const contents = assetWithoutWidgetIds[widgetDef.fieldTitle] as
         | Record<string, unknown>[]
         | undefined;
       if (!contents) return acc;
@@ -92,25 +91,22 @@ export function toComparableAsset(
   );
 
   const assetWithoutUndefinedValues = {
-    ...withoutUndefinedValues(withoutIds),
+    ...withoutUndefinedValues(assetWithoutWidgetIds),
     ...widgetContentsWithoutUndefinedValues,
   };
 
   return omit(SERVER_ASSIGNED_FIELDS, assetWithoutUndefinedValues);
 }
 
-export function hasAssetChanged(
-  {
-    savedAsset,
-    localAsset,
-    template,
-  }: {
-    savedAsset: Asset | null;
-    localAsset: Asset | UnsavedAsset;
-    template: Template;
-  },
-  { logDifferences = false }: { logDifferences?: boolean } = {}
-): boolean {
+export function hasAssetChanged({
+  savedAsset,
+  localAsset,
+  template,
+}: {
+  savedAsset: Asset | null;
+  localAsset: Asset | UnsavedAsset;
+  template: Template;
+}): boolean {
   // A new asset has nothing on the server to compare against, so it is
   // measured against the untouched asset its template would have produced.
   // Calling it changed outright would let an empty create form block leaving.
@@ -139,17 +135,7 @@ export function hasAssetChanged(
       hasWidgetContent(localValue as WidgetContent[], "any")
     );
 
-  const hasChanged = someBaselineContentDiffers || hasNewLocalPropWithContent;
-
-  if (logDifferences && hasChanged) {
-    const msg = explainObjectDifferences(
-      comparableBaselineAsset,
-      comparableLocalAsset
-    );
-    console.log("Asset differences:", msg);
-  }
-
-  return hasChanged;
+  return someBaselineContentDiffers || hasNewLocalPropWithContent;
 }
 
 export function makeLocalAsset({

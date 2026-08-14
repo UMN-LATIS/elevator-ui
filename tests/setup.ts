@@ -168,7 +168,11 @@ export function captureConfirm(
   return new Promise((resolve) => {
     page.once("dialog", async (dialog) => {
       const message = dialog.message();
-      await (answer === "accept" ? dialog.accept() : dialog.dismiss());
+      if (answer === "accept") {
+        await dialog.accept();
+      } else {
+        await dialog.dismiss();
+      }
       resolve(message);
     });
   });

@@ -65,7 +65,9 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     if (isSkippingConfirmation) return true;
 
     const blocker = findBlocker();
-    return !blocker || window.confirm(blocker.message);
+    if (!blocker) return true;
+
+    return window.confirm(blocker.message);
   }
 
   onBeforeRouteLeave(guardNavigation);
@@ -73,9 +75,12 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
   // A page whose parameters change to a different record has left the record
   // it was editing, whatever the router calls the navigation. Query and hash
   // live outside params, so a link that only adds one passes through.
-  onBeforeRouteUpdate(
-    (to, from) => equals(to.params, from.params) || guardNavigation()
-  );
+  onBeforeRouteUpdate((to, from) => {
+    const isSameRecord = equals(to.params, from.params);
+    if (isSameRecord) return true;
+
+    return guardNavigation();
+  });
 
   /**
    * Navigates away without asking, for a departure that already settled the

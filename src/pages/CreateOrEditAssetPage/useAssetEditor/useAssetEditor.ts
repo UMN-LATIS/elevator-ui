@@ -342,7 +342,9 @@ export const createAssetEditor = () => {
     }
 
     // A form that captured the asset before its first save emits a null
-    // assetId, so keep the saved identity or we create a second asset.
+    // assetId and the pre-save modified date. Keep the saved identity or we
+    // create a second asset, and keep the saved modified date or the working
+    // copy never matches the refreshed baseline again.
     if (!updatedAsset.assetId && state.localAsset.assetId) {
       state.localAsset = {
         ...updatedAsset,

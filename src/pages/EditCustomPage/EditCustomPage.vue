@@ -104,7 +104,7 @@ import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
 import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
 import { equals } from "ramda";
 import {
-  emptyPageFormState,
+  makeEmptyPageFormState,
   toPageFormState,
   type PageFormState,
 } from "./toPageFormState";
@@ -143,7 +143,7 @@ const isSaving = computed(() => saveMutation.isPending.value);
 const deleteMutation = useDeleteCustomPageMutation();
 const isDeleting = computed(() => deleteMutation.isPending.value);
 
-const form = ref<PageFormState>(emptyPageFormState());
+const form = ref<PageFormState>(makeEmptyPageFormState());
 
 // The body lives here rather than on the form: it is the only field an
 // editor rewrites, so every way it can change is named in one place.
@@ -159,11 +159,11 @@ const {
 
 // The stored page is the only record of what is saved, so the form is compared
 // straight against it. The body joins the comparison because it lives in
-// usePageBodyEditor, and it is the field an admin actually rewrites.
+// usePageBodyEditor.
 const hasUnsavedChanges = computed(() => {
   const savedForm = pageData.value
     ? { ...toPageFormState(pageData.value), body: pageData.value.body }
-    : { ...emptyPageFormState(), body: "" };
+    : { ...makeEmptyPageFormState(), body: "" };
   const editedForm = { ...form.value, body: bodyHtml.value };
 
   return !equals(savedForm, editedForm);

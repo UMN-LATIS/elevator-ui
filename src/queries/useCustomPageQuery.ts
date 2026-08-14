@@ -36,7 +36,7 @@ export function useSaveCustomPageMutation(options?: {
     onSuccess: (data, variables) => {
       // refresh instanceStore too
       // this will double-fetch instance info when pages are saved
-      // (once for the query invalidation below and once manually here)
+      // (once for the onSettled invalidation and once manually here)
       // when we migrate instanceStore consumers to useInstanceQuery, we can
       // remove this manual refresh and rely solely on the query invalidation
       // to update instance info

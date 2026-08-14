@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { emptyPageFormState, toPageFormState } from "./toPageFormState";
+import { makeEmptyPageFormState, toPageFormState } from "./toPageFormState";
 import type { CustomPageSummary } from "@/types";
 
 const storedPage: CustomPageSummary = {
@@ -40,6 +40,6 @@ describe("toPageFormState", () => {
       includeInHeader: false,
     };
 
-    expect(toPageFormState(emptyPage)).toEqual(emptyPageFormState());
+    expect(toPageFormState(emptyPage)).toEqual(makeEmptyPageFormState());
   });
 });

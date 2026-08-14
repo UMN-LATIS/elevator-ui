@@ -7,7 +7,7 @@ export interface PageFormState {
   includeInHeader: boolean;
 }
 
-export function emptyPageFormState(): PageFormState {
+export function makeEmptyPageFormState(): PageFormState {
   return {
     title: "",
     parent: null,

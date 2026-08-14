@@ -50,9 +50,6 @@ test.describe("Delete Asset", () => {
     expect(afterResponse.status()).toBe(410);
   });
 
-  // Deleting mid-edit would race the leave guard over work with nowhere left
-  // to be saved, so the editor page's menu offers no delete. The view page
-  // still does.
   test("the menu offers Delete Asset on the view page but not the edit page", async ({
     page,
   }) => {
