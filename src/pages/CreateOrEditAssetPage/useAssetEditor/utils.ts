@@ -37,11 +37,18 @@ export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
 
 // The server fills these in, or they ride along on the save request. The
 // working copy is built before any of that happens, so it never matches.
+// Nothing in the editor writes them, so dropping them cannot hide an edit.
 const SERVER_ASSIGNED_FIELDS = [
   "objectId",
   "newTemplateId",
   "newCollectionId",
   "createdBy",
+  // derived from the asset's uploads and related assets, so a save that
+  // attaches the first file changes them behind the working copy's back
+  "relatedAssetCache",
+  "firstFileHandlerId",
+  "firstObjectId",
+  "titleObject",
 ];
 
 /**

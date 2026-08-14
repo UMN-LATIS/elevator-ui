@@ -27,6 +27,7 @@ export interface LeaveGuard {
   confirmLeave: () => void;
   cancelLeave: () => void;
   leaveWithoutConfirming: (navigate: () => Promise<unknown>) => Promise<void>;
+  askBeforeLeaving: () => boolean | Promise<boolean>;
 }
 
 export const UNSAVED_CHANGES_CONFIRMATION: LeaveConfirmation = {
@@ -38,9 +39,6 @@ export const UNSAVED_CHANGES_CONFIRMATION: LeaveConfirmation = {
 /**
  * Asks the admin to confirm before they leave a page that holds work in
  * progress, covering both in-app navigation and closing or reloading the tab.
- *
- * Only guards leaving the route. Changing the current route's own parameters
- * does not prompt.
  *
  * @param blockers - Checked in order, and the first one blocking supplies the
  * wording. Put the more specific reason first.
@@ -81,7 +79,16 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     );
   });
 
-  onBeforeRouteLeave(() => {
+  /**
+   * Whether the admin is willing to lose the work in progress. Answers true
+   * outright when nothing blocks, and otherwise opens the confirmation and
+   * answers once they pick.
+   *
+   * Route leaves get this automatically. Call it directly for a departure the
+   * router does not count as one, such as a page whose own parameters change
+   * to a different record.
+   */
+  function askBeforeLeaving(): true | Promise<boolean> {
     if (isSkippingConfirmation) return true;
 
     const blocker = findBlocker();
@@ -95,7 +102,9 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     return new Promise<boolean>((resolve) => {
       resolveLeave = resolve;
     });
-  });
+  }
+
+  onBeforeRouteLeave(askBeforeLeaving);
 
   function settleLeave(isLeaveAllowed: boolean): void {
     isConfirmingLeave.value = false;
@@ -130,6 +139,7 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     confirmLeave: () => settleLeave(true),
     cancelLeave: () => settleLeave(false),
     leaveWithoutConfirming,
+    askBeforeLeaving,
   };
 }
 

@@ -80,6 +80,37 @@ test.describe("Asset Editing", () => {
       await expect(menu).toBeVisible();
     });
 
+    // /assetManager/addAsset is an alias of the edit route, so this arrives as
+    // a route update rather than a leave. The editor resets on it either way.
+    test("asks before the menu's Add Asset abandons an edited asset", async ({
+      page,
+    }) => {
+      const assetId = "6875871d4eb080a4880a0f44";
+      await page.goto(`/assetManager/editAsset/${assetId}`);
+
+      const titleField = page.getByLabel(/title/i).first();
+      await expect(titleField).toHaveValue("Asset 1");
+      await titleField.fill("Asset 1 - edited, then abandoned");
+      await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+        "Unsaved changes"
+      );
+
+      await page.getByRole("button", { name: "Toggle main menu" }).click();
+      await page.getByRole("button", { name: "Manage Assets" }).click();
+      await page.locator(".edit-nav-section__add-asset").click();
+
+      await expect(
+        page.getByRole("heading", { name: "Unsaved changes" })
+      ).toBeVisible();
+
+      // Staying keeps both the URL and the edit that prompted the question.
+      await page.getByRole("button", { name: "Stay" }).click();
+      await expect(page).toHaveURL(
+        new RegExp(`/assetManager/editAsset/${assetId}`)
+      );
+      await expect(titleField).toHaveValue("Asset 1 - edited, then abandoned");
+    });
+
     test("shows no unsaved changes message when editing without modifications", async ({
       page,
     }) => {

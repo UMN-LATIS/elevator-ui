@@ -332,15 +332,20 @@ async function handleSaveAsset({ showToast }: { showToast: boolean }) {
     // redirect to the edit asset page (so that we don't keep recreating
     // new assets on each save!)
     await nextTick();
-    router.replace({
-      name: "editAsset",
-      params: {
-        assetId: savedAssetId,
-      },
-      state: {
-        preserveScroll: true,
-      },
-    });
+
+    // The save settled the work this route was holding, and an upload can
+    // still be running, so neither blocker should get to ask about it.
+    await leaveGuard.leaveWithoutConfirming(() =>
+      router.replace({
+        name: "editAsset",
+        params: {
+          assetId: savedAssetId,
+        },
+        state: {
+          preserveScroll: true,
+        },
+      })
+    );
 
     if (showToast) {
       toastStore.addToast({
@@ -443,16 +448,22 @@ async function updateTemplateId() {
 // inline asset before the parent saves)
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
-onBeforeRouteUpdate(async (to, _from, next) => {
+// /assetManager/addAsset is an alias of this route, so both Add Asset and a
+// different asset id keep this component mounted and arrive here rather than
+// as a leave. The editor is replaced either way, so ask first.
+onBeforeRouteUpdate(async (to, from) => {
+  if (to.params.assetId !== from.params.assetId) {
+    const isLeaveAllowed = await leaveGuard.askBeforeLeaving();
+    if (!isLeaveAllowed) return false;
+  }
+
   if (to.fullPath !== "/assetManager/addAsset") {
     // if not navigating to create asset, just proceed
-    return next();
+    return;
   }
 
   // reset the asset state
   assetEditor.reset();
-
-  next();
 });
 </script>
 <style scoped>
