@@ -1,5 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
-import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
+import {
+  setupWorkerHTTPHeader,
+  refreshDatabase,
+  loginUser,
+  captureConfirm,
+  recordConfirms,
+} from "../setup";
 import { fileURLToPath } from "url";
 import path from "path";
 
@@ -76,55 +82,48 @@ test.describe("Upload navigation guard", () => {
     ).toBeVisible();
   });
 
-  test("shows confirm modal when navigating in-app during upload", async ({
+  test("asks about the upload when navigating in-app during one", async ({
     page,
   }) => {
     test.setTimeout(30_000);
 
-    // Log all requests to understand timing
-    const requests: string[] = [];
-    page.on("request", (req) => requests.push(`${req.method()} ${req.url()}`));
-
     await startUploadAndWaitUntilInFlight(page);
 
-    // try to navigate away while upload is in-flight
+    const confirmMessage = captureConfirm(page, "dismiss");
     await navigateHome(page);
 
-    await expect(
-      page.getByRole("heading", { name: "Upload in progress" })
-    ).toBeVisible();
+    expect(await confirmMessage).toContain("cancels your upload");
   });
 
-  test("stays on page when user clicks Stay", async ({ page }) => {
+  test("stays on the page when the admin cancels the confirm", async ({
+    page,
+  }) => {
     test.setTimeout(30_000);
 
     await startUploadAndWaitUntilInFlight(page);
 
-    // try to navigate away while upload is in-flight
+    const confirmMessage = captureConfirm(page, "dismiss");
     await navigateHome(page);
+    await confirmMessage;
 
-    // Click "Stay" to cancel navigation and keep uploading
-    await page.getByRole("button", { name: "Stay" }).click();
-
-    await expect(
-      page.getByRole("heading", { name: "Upload in progress" })
-    ).not.toBeVisible();
     await expect(page).toHaveURL(/\/assetManager\/addAsset/);
   });
 
-  test("allows navigation when user clicks Leave", async ({ page }) => {
+  test("leaves when the admin accepts the confirm", async ({ page }) => {
     test.setTimeout(30_000);
 
     await startUploadAndWaitUntilInFlight(page);
 
-    // try to navigate away, and click leave
+    const confirmMessage = captureConfirm(page, "accept");
     await navigateHome(page);
-    await page.getByRole("button", { name: "Leave" }).click();
+    await confirmMessage;
 
     await expect(page).not.toHaveURL(/\/assetManager\/addAsset/);
   });
 
-  test("no modal after upload has completed", async ({ page }) => {
+  test("upload guard releases once the upload has completed", async ({
+    page,
+  }) => {
     test.setTimeout(30_000);
 
     // Save the asset first so we're on the edit page (no create-and-redirect).
@@ -138,10 +137,39 @@ test.describe("Upload navigation guard", () => {
     await startUploadAndWaitUntilInFlight(page, 500);
     await uploadCleanedUp;
 
+    const confirmMessage = captureConfirm(page, "dismiss");
     await navigateHome(page);
 
-    await expect(page.getByText("Upload in progress")).not.toBeVisible();
+    // This upload has finished, so it stops blocking. The file it attached is
+    // still unsaved, so the unsaved changes guard takes over from here.
+    const message = await confirmMessage;
+    expect(message).not.toContain("cancels your upload");
+    expect(message).toContain("discards the changes");
+  });
+
+  test("saving after an upload lets the admin leave without a prompt", async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+
+    await page.getByLabel(/title/i).first().fill("Upload Guard Test");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+
+    const uploadCleanedUp = page.waitForResponse("**/completeSourceFile/**");
+    await startUploadAndWaitUntilInFlight(page, 500);
+    await uploadCleanedUp;
+
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+      "No unsaved changes"
+    );
+
+    const confirms = recordConfirms(page);
+    await navigateHome(page);
+
     await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
+    expect(confirms).toEqual([]);
   });
 
   test("triggers browser native dialog when reloading during upload", async ({

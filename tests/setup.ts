@@ -153,3 +153,37 @@ export async function updateInstance({
 
   return await response.json();
 }
+
+/**
+ * Answers the next window.confirm and resolves with the message it showed.
+ * Register it before the action that triggers the confirm.
+ *
+ * Registering any dialog listener turns off Playwright's auto-dismiss, so a
+ * confirm this does not answer blocks the page.
+ */
+export function captureConfirm(
+  page: Page,
+  answer: "accept" | "dismiss"
+): Promise<string> {
+  return new Promise((resolve) => {
+    page.once("dialog", async (dialog) => {
+      const message = dialog.message();
+      await (answer === "accept" ? dialog.accept() : dialog.dismiss());
+      resolve(message);
+    });
+  });
+}
+
+/**
+ * Records every window.confirm shown from now on, accepting each, and returns
+ * the array it fills. Use it to assert how many were asked, which is how a
+ * suppressed confirm is told apart from one that never fired.
+ */
+export function recordConfirms(page: Page): string[] {
+  const messages: string[] = [];
+  page.on("dialog", async (dialog) => {
+    messages.push(dialog.message());
+    await dialog.accept();
+  });
+  return messages;
+}
