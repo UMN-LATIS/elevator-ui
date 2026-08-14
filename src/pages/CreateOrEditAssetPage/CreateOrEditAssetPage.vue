@@ -46,11 +46,13 @@
         :localAssetTitle="assetEditor.localAssetTitle"
         :saveStatus="assetEditor.saveAssetIndicator"
         :hasUnsavedChanges="assetEditor.hasAssetChanged"
+        :isDeleting="deleteAssetMutation.isPending.value"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
         @save="handleSaveAsset({ showToast: true })"
         @autoSave="handleSaveAsset({ showToast: false })"
+        @delete="handleDeleteAsset"
         @update:asset="assetEditor.updateLocalAsset($event)" />
     </Transition>
     <Teleport to="body">
@@ -150,7 +152,7 @@ import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
-import { LEAVE_GUARD } from "@/constants/constants";
+import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import {
   UNSAVED_CHANGES_CONFIRMATION,
   useLeaveGuard,
@@ -204,9 +206,29 @@ const leaveGuard = useLeaveGuard([
   },
 ]);
 
-// the app menu renders inside this page and deletes the asset from there, so
-// it needs a way to leave without being asked to keep edits with nowhere to go
-provide(LEAVE_GUARD, leaveGuard);
+const deleteAssetMutation = useDeleteAssetMutation();
+
+function handleDeleteAsset() {
+  const assetIdToDelete = assetEditor.localAsset?.assetId;
+  if (!assetIdToDelete) return;
+
+  if (
+    !confirm("Are you sure you want to delete this asset and all derivatives")
+  ) {
+    return;
+  }
+
+  // the mutation reports its own success and failure with toasts
+  deleteAssetMutation.mutate(assetIdToDelete, {
+    onSuccess: () => {
+      // the asset is gone, so the edits have nowhere left to be saved and an
+      // upload has lost what it was attaching to
+      leaveGuard.leaveWithoutConfirming(() =>
+        router.push("/assetManager/userAssets")
+      );
+    },
+  });
+}
 
 watch(
   () => props.assetId,

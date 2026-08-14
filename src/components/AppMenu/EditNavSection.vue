@@ -18,11 +18,6 @@
         Edit Asset
       </AppMenuItem>
       <AppMenuItem
-        class="edit-nav-section__delete-asset"
-        @click="handleDeleteAssetClick">
-        Delete Asset
-      </AppMenuItem>
-      <AppMenuItem
         :href="`${BASE_URL}/assetManager/restoreAsset/${activeAssetId}`"
         class="edit-nav-section__restore-asset">
         Restore Asset
@@ -37,11 +32,8 @@ import AppMenuItem from "./AppMenuItem.vue";
 import Divider from "./Divider.vue";
 import config from "@/config";
 import { ElevatorInstance, User } from "@/types";
-import { useRoute, useRouter } from "vue-router";
-import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
-import { useErrorStore } from "@/stores/errorStore";
+import { useRoute } from "vue-router";
 import { computed } from "vue";
-import { useInjectedLeaveGuard } from "@/composables/useLeaveGuard";
 
 const BASE_URL = config.instance.base.url;
 
@@ -50,50 +42,11 @@ defineProps<{
   instance: ElevatorInstance;
 }>();
 
-const leaveGuard = useInjectedLeaveGuard();
-
 const route = useRoute();
 const activeAssetId = computed(() => {
   const { assetId } = route.params;
   return typeof assetId === "string" ? assetId : null;
 });
-
-const router = useRouter();
-const { mutate: deleteAsset } = useDeleteAssetMutation();
-const errorStore = useErrorStore();
-
-async function handleDeleteAssetClick() {
-  if (!activeAssetId.value) {
-    throw new Error(`assetId is null. Cannot delete asset.`);
-  }
-
-  if (
-    !confirm("Are you sure you want to delete this asset and all derivatives")
-  ) {
-    return;
-  }
-
-  const assetIdToDelete = activeAssetId.value;
-
-  deleteAsset(assetIdToDelete, {
-    onSuccess: () => {
-      const leaveTheAsset = () => router.push("/assetManager/userAssets");
-
-      // an editor open on this asset has nowhere left to save its edits, so
-      // it must not ask the admin to keep them
-      if (leaveGuard) {
-        leaveGuard.leaveWithoutConfirming(leaveTheAsset);
-        return;
-      }
-
-      leaveTheAsset();
-    },
-    onError: (error) => {
-      console.error("Error deleting asset:", error);
-      errorStore.setError(new Error(`Error deleting asset: ${error.message}`));
-    },
-  });
-}
 
 const isAssetEditPage = computed(() => {
   return route.path.includes("/assetManager/editAsset/");

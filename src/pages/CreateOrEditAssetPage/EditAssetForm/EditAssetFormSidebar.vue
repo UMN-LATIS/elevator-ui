@@ -7,14 +7,9 @@
         'grid-cols-1': !asset.assetId,
       }">
       <Button
-        v-if="asset.assetId"
-        :to="`/asset/viewAsset/${asset.assetId}`"
-        target="_blank">
-        View
-      </Button>
-      <Button
         variant="primary"
         type="submit"
+        class="col-span-full"
         :disabled="!isAssetValid || displayStatus === 'pending'"
         @click="handleSave">
         Save
@@ -25,6 +20,21 @@
         <CheckCircle2Icon
           v-else-if="displayStatus === 'success'"
           class="size-4" />
+      </Button>
+      <Button
+        v-if="asset.assetId"
+        :to="`/asset/viewAsset/${asset.assetId}`"
+        target="_blank">
+        View
+      </Button>
+      <Button
+        v-if="asset.assetId"
+        variant="danger"
+        class="edit-asset-form-sidebar__delete"
+        :disabled="isDeleting"
+        @click="$emit('delete')">
+        <SpinnerIcon v-if="isDeleting" class="size-4 animate-spin" />
+        {{ isDeleting ? "Deleting..." : "Delete" }}
       </Button>
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
@@ -132,12 +142,14 @@ const props = defineProps<{
   asset: Asset | UnsavedAsset;
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
+  isDeleting: boolean;
   selectedTemplateId?: number | null;
 }>();
 
 const emit = defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
+  (e: "delete"): void;
   (e: "update:templateId", templateId: number): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;
   (e: "migrateCollection", collectionId: number): void;

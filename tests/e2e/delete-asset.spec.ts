@@ -63,12 +63,10 @@ test.describe("Delete Asset", () => {
       "Unsaved changes"
     );
 
-    // The menu raises a browser confirm before it deletes.
+    // The sidebar raises a browser confirm before it deletes.
     page.once("dialog", (dialog) => dialog.accept());
 
-    await page.getByRole("button", { name: "Toggle main menu" }).click();
-    await page.getByRole("button", { name: "Manage Assets" }).click();
-    await page.locator(".edit-nav-section__delete-asset").click();
+    await page.locator(".edit-asset-form-sidebar__delete").click();
 
     // The asset is gone, so there is nowhere to save the edits and nothing to
     // ask about.

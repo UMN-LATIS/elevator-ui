@@ -178,19 +178,17 @@ test.describe("Upload navigation guard", () => {
   }) => {
     test.setTimeout(30_000);
 
-    // Save first, so the menu has a persisted asset to offer Delete for.
+    // Save first, so the sidebar has a persisted asset to offer Delete for.
     await page.getByLabel(/title/i).first().fill("Delete During Upload");
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
 
     await startUploadAndWaitUntilInFlight(page);
 
-    // The menu raises a browser confirm before it deletes.
+    // The sidebar raises a browser confirm before it deletes.
     page.once("dialog", (dialog) => dialog.accept());
 
-    await page.getByRole("button", { name: "Toggle main menu" }).click();
-    await page.getByRole("button", { name: "Manage Assets" }).click();
-    await page.locator(".edit-nav-section__delete-asset").click();
+    await page.locator(".edit-asset-form-sidebar__delete").click();
 
     // Deleting settles both blockers at once. The upload has lost the asset it
     // was attaching to, so cancelling it is not something to warn about.

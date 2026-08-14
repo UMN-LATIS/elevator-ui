@@ -1,5 +1,4 @@
 import {
-  inject,
   ref,
   toValue,
   watchEffect,
@@ -7,7 +6,6 @@ import {
   type Ref,
 } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
-import { LEAVE_GUARD } from "@/constants/constants";
 
 export interface LeaveConfirmation {
   title: string;
@@ -142,7 +140,3 @@ export function useLeaveGuard(blockers: NavigationBlocker[]): LeaveGuard {
     askBeforeLeaving,
   };
 }
-
-/** The leave guard of the enclosing page, or null if it has none. */
-export const useInjectedLeaveGuard = (): LeaveGuard | null =>
-  inject(LEAVE_GUARD, null);
