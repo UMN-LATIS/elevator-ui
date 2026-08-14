@@ -491,7 +491,7 @@ export type RelatedAssetCache = Record<
   RelatedAssetCacheItem | null | undefined
 >;
 
-interface BaseAsset {
+export interface BaseAsset {
   assetId: string;
   templateId: number;
   readyForDisplay: boolean;

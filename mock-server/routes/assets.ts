@@ -224,9 +224,20 @@ app.post("/submission/true", async (c) => {
     modifiedBy: user.id,
   };
 
+  // the backend writes every one of its `globalValues` on create, so a new
+  // asset comes back carrying these whether or not the form sent them
+  const newAssetGlobals: Partial<Asset> = {
+    collectionMigration: null,
+    deleted: false,
+    deletedBy: null,
+    deletedAt: null,
+    csvBatch: null,
+  };
+
   const savedAsset = formData.objectId
     ? db.assets.update(formData.objectId, asset)
     : db.assets.create({
+        ...newAssetGlobals,
         ...asset,
         createdBy: user.id,
       } as Asset);

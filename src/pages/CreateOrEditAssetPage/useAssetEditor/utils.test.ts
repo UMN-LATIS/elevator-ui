@@ -205,7 +205,7 @@ describe("hasAssetChanged", () => {
       collectionId: 1,
       savedAsset: null,
     });
-    newAsset.title = ["Draft title"];
+    newAsset.text_1 = [{ fieldContents: "Draft title", isPrimary: false }];
 
     expect(
       hasAssetChanged({
@@ -214,5 +214,38 @@ describe("hasAssetChanged", () => {
         template: textTemplate,
       })
     ).toBe(true);
+  });
+
+  // A new asset is built before the server has written any of its own fields,
+  // so the copy that comes back from the first save carries keys the working
+  // copy never had.
+  it("reports no change for a new asset the server has just saved", () => {
+    const newAsset = makeLocalAsset({
+      template: textTemplate,
+      collectionId: 1,
+      savedAsset: null,
+    });
+    newAsset.text_1 = [{ fieldContents: "Draft title", isPrimary: false }];
+
+    const savedAsset = makeAsset({
+      text_1: [{ fieldContents: "Draft title", isPrimary: false }],
+      readyForDisplay: true,
+      availableAfter: null,
+      collectionMigration: null,
+      deleted: false,
+      deletedAt: null,
+      csvBatch: null,
+      title: ["Draft title"],
+      titleObject: "text_1",
+    });
+    newAsset.assetId = savedAsset.assetId;
+
+    expect(
+      hasAssetChanged({
+        savedAsset,
+        localAsset: newAsset,
+        template: textTemplate,
+      })
+    ).toBe(false);
   });
 });

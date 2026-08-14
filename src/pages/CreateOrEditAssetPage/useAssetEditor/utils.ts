@@ -1,5 +1,6 @@
 import {
   Asset,
+  BaseAsset,
   Template,
   UnsavedAsset,
   WidgetContent,
@@ -10,7 +11,7 @@ import {
 import invariant from "tiny-invariant";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
-import { equals, omit } from "ramda";
+import { equals, omit, pick } from "ramda";
 import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
@@ -35,21 +36,16 @@ export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
   };
 }
 
-// The server fills these in, or they ride along on the save request. The
-// working copy is built before any of that happens, so it never matches.
-// Nothing in the editor writes them, so dropping them cannot hide an edit.
-const SERVER_ASSIGNED_FIELDS = [
-  "objectId",
-  "newTemplateId",
-  "newCollectionId",
-  "createdBy",
-  // derived from the asset's uploads and related assets, so a save that
-  // attaches the first file changes them behind the working copy's back
-  "relatedAssetCache",
-  "firstFileHandlerId",
-  "firstObjectId",
-  "titleObject",
-];
+// The BaseAsset fields `toSaveableFormData` sends. Widget fields are added from
+// the template at the call site. An allowlist means a field the server adds
+// later cannot read as an unsaved edit, the way a denylist of known server
+// fields would let it.
+const EDITABLE_BASE_ASSET_FIELDS = [
+  "templateId",
+  "collectionId",
+  "readyForDisplay",
+  "availableAfter",
+] as const satisfies readonly (keyof BaseAsset)[];
 
 /**
  * JSON has no undefined, so the server can never send such a key, and a
@@ -68,9 +64,10 @@ function withoutUndefinedValues(
  * Reduces an asset to the parts an admin can edit, so that two assets can be
  * compared for unsaved changes.
  *
- * Drops the ids the server assigns to widget content items, the asset-level
- * fields it owns, and any key holding undefined. Comparing those would report
- * an asset as edited immediately after it was saved.
+ * Keeps the template's widget fields and the few asset-level fields the save
+ * request carries, drops the ids the server assigns to widget content items,
+ * and drops any key holding undefined. Comparing server-owned fields would
+ * report an asset as edited immediately after it was saved.
  */
 export function toComparableAsset(
   asset: Asset | UnsavedAsset,
@@ -91,12 +88,17 @@ export function toComparableAsset(
     {} as Record<string, unknown>
   );
 
-  const assetWithoutUndefinedValues = {
-    ...withoutUndefinedValues(withoutIds),
-    ...widgetContentsWithoutUndefinedValues,
-  };
+  const comparableFields = [
+    ...EDITABLE_BASE_ASSET_FIELDS,
+    ...template.widgetArray.map((widgetDef) => widgetDef.fieldTitle),
+  ];
 
-  return omit(SERVER_ASSIGNED_FIELDS, assetWithoutUndefinedValues);
+  return withoutUndefinedValues(
+    pick(comparableFields, {
+      ...withoutIds,
+      ...widgetContentsWithoutUndefinedValues,
+    })
+  );
 }
 
 export function hasAssetChanged(
