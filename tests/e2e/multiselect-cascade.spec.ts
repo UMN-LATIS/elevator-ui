@@ -141,7 +141,8 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       expect(formData!.cascadeselect_1).toEqual([
         {
           isPrimary: false,
-          // the client mints each content's uuid, so only its presence is stable
+          // the client mints each content's uuid, so only its presence is
+          // stable
           uuid: expect.any(String),
           fieldContents: {
             country: "usa",

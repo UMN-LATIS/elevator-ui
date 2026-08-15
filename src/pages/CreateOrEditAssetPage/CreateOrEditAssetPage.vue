@@ -1,7 +1,7 @@
 <template>
   <DefaultLayout>
     <form
-      v-if="!assetId && !assetEditor.isEditingAsset"
+      v-if="!assetId && !assetEditor.hasAssetToEdit"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 rounded-md p-4 border border-outline-variant"
       @submit.prevent="handleInitNewAsset">
       <SelectGroup
@@ -41,7 +41,7 @@
       </p>
     </div>
     <div
-      v-else-if="!assetEditor.isEditingAsset"
+      v-else-if="!assetEditor.hasAssetToEdit"
       class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
       <span class="ml-2">Loading...</span>
@@ -124,12 +124,12 @@
       <ConfirmModal
         type="warning"
         :isOpen="!!leaveBlocker"
-        :title="leaveBlocker ? leaveConfirmCopy[leaveBlocker].title : ''"
+        :title="leaveConfirmPrompt.title"
         confirmLabel="Leave"
         cancelLabel="Stay"
         @confirm="handleLeaveConfirm"
         @close="handleLeaveCancel">
-        {{ leaveBlocker ? leaveConfirmCopy[leaveBlocker].body : "" }}
+        {{ leaveConfirmPrompt.body }}
       </ConfirmModal>
     </Teleport>
   </DefaultLayout>
@@ -184,9 +184,8 @@ const props = withDefaults(
   }
 );
 
-// each page gets its own host, the one model every editing session on the
-// page shares. The page's own form edits the root session; inline related
-// assets open child sessions on the same host.
+// The page's own form edits the root session. Inline related assets open
+// child sessions on the same host.
 const editorHost = provideEditorHost({
   onAssetCreated: handleAssetCreated,
   onChildSaveFailed: handleChildSaveFailed,
@@ -206,8 +205,7 @@ function handleChildSaveFailed(error: unknown): void {
   });
 }
 
-// read by handleSaveAsset after its await, so the success toast comes from
-// what the reducer decided rather than from inspecting the model
+// set by the drop handler, cleared per save
 let wasCreateDroppedDuringSave = false;
 
 /** A create landed after its editor moved on: the asset exists unlinked. */
@@ -271,7 +269,12 @@ const leaveConfirmCopy: Record<LeaveBlocker, { title: string; body: string }> =
     },
   };
 
-// Holds the resolve function for the pending navigation guard promise.
+const leaveConfirmPrompt = computed(() =>
+  leaveBlocker.value
+    ? leaveConfirmCopy[leaveBlocker.value]
+    : { title: "", body: "" }
+);
+
 let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
 
 // Trigger the browser's native "Leave site?" dialog when the user tries to

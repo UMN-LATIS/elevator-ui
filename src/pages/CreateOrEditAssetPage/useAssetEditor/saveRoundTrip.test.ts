@@ -9,7 +9,7 @@ import {
 // these tests are about the model, not the commands a step emits
 const reduce = (model: EditorModel, event: EditorEvent): EditorModel =>
   editorReducer(model, event).model;
-import { makeLocalAssetFromSaved } from "./localAsset";
+import { toLocalAssetFromSavedAsset } from "./localAsset";
 import type {
   Asset,
   PHPDateTime,
@@ -81,7 +81,9 @@ const editingModel: EditorModel = {
   rootSessionKey: SESSION_KEY,
 };
 
-/** the read-back in editor shape, as the shell would scaffold and dispatch it */
+/**
+ * the read-back in editor shape, as the shell would scaffold and dispatch it
+ */
 const readBack = (baseline: Asset, template: Template): EditorEvent => ({
   type: "baselineRefreshed",
   sessionKey: SESSION_KEY,
@@ -91,7 +93,7 @@ const readBack = (baseline: Asset, template: Template): EditorEvent => ({
 
 describe("content ids across a save", () => {
   it("keeps a filled row's id when the server dropped the blank row above it", () => {
-    const localAsset = makeLocalAssetFromSaved({
+    const localAsset = toLocalAssetFromSavedAsset({
       template: makeTemplate(1, [{}]),
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "typed", isPrimary: false }],

@@ -147,4 +147,10 @@ describe("DragDropList", () => {
 
     expect(ordersEmitted.at(-1)).toEqual(["b", "a", "c"]);
   });
+
+  it("refuses items with no id rather than keying them on undefined", () => {
+    const itemsWithoutIds = [{ label: "a" }] as unknown as HasId[];
+
+    expect(() => mountList(itemsWithoutIds)).toThrow(/no usable `id`/);
+  });
 });

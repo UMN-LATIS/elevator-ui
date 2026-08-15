@@ -148,7 +148,7 @@ import {
 const props = withDefaults(
   defineProps<{
     modelValue: WithUuid<LocationWidgetContent>;
-    widgetDef?: WidgetDef;
+    widgetDef: WidgetDef;
     initialZoom?: number;
   }>(),
   {
@@ -160,7 +160,6 @@ const { widgetValidations } = useAssetValidation();
 const assetEditor = useAssetEditor();
 
 const addressErrors = computed((): string[] => {
-  if (!props.widgetDef) return [];
   const widgetInstanceId = assetEditor.getWidgetInstanceId(
     props.widgetDef.widgetId
   );

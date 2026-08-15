@@ -11,7 +11,7 @@ import {
 import {
   editorReducer,
   initialEditorModel,
-  isEditingSession,
+  isSessionWithAsset,
   selectAssetId,
   selectHasUnsavedEdits,
   selectLoadError,
@@ -37,7 +37,7 @@ import { assetQuery } from "@/queries/useAssetQuery";
 import { templateQuery } from "@/queries/useTemplateQuery";
 import {
   clearUploadRegenerationFlags,
-  makeLocalAssetFromSaved,
+  toLocalAssetFromSavedAsset,
 } from "./localAsset";
 import { createSaveQueue } from "./createSaveQueue";
 
@@ -63,7 +63,7 @@ export interface EditorHostHandlers {
 
 /**
  * The query documents and scaffold one mounted editor surface holds for its
- * session. The host reads these for dirtiness walks and saves; the walk
+ * session. The host reads these for dirtiness walks and saves. The walk
  * itself is a pure function over the model.
  */
 interface SessionSurface {
@@ -76,7 +76,7 @@ interface SessionSurface {
  * One host per page: the sessions model, its reducer, the per-session save
  * queues, and one shared save mutation. Query subscriptions live with the
  * mounted surfaces (see createSessionHandle), because Vue ties useQuery to
- * a component's setup scope; each surface registers its documents here.
+ * a component's setup scope. Each surface registers its documents here.
  */
 export const createEditorHost = (handlers: EditorHostHandlers) => {
   const model = ref<EditorModel>(initialEditorModel);
@@ -98,7 +98,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
     };
   }
 
-  function surfaceFor(sessionKey: SessionKey): SessionSurface | null {
+  function sessionSurfaceForKey(sessionKey: SessionKey): SessionSurface | null {
     for (const surface of surfaces) {
       if (surface.sessionKey() === sessionKey) return surface;
     }
@@ -120,7 +120,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
     if (isScopeDisposed) return;
     switch (command.type) {
       case "notifyAssetCreated":
-        // inline children's ids are adopted inside the reducer; only the
+        // inline children's ids are adopted inside the reducer. Only the
         // page's own asset warrants navigation
         if (command.sessionKey === model.value.rootSessionKey) {
           handlers.onAssetCreated(command.assetId);
@@ -132,7 +132,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
       case "requestSave":
         // quiet like any save the user did not ask for: silent when it
         // works, surfaced when it fails
-        void saveSession(command.sessionKey).catch((error: unknown) => {
+        void enqueueSessionSave(command.sessionKey).catch((error: unknown) => {
           if (!isScopeDisposed) handlers.onRequestedSaveFailed(error);
         });
         return;
@@ -141,7 +141,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
 
   /** Whether this one session's own edits would change its stored asset. */
   function isSessionDirty(sessionKey: SessionKey): boolean {
-    const surface = surfaceFor(sessionKey);
+    const surface = sessionSurfaceForKey(sessionKey);
     return selectHasUnsavedEdits(
       model.value,
       sessionKey,
@@ -164,13 +164,13 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
   function saveQueueFor(sessionKey: SessionKey) {
     let queue = saveQueues.get(sessionKey);
     if (!queue) {
-      queue = createSaveQueue(() => performSessionSave(sessionKey), 2000);
+      queue = createSaveQueue(() => sendSessionSave(sessionKey), 2000);
       saveQueues.set(sessionKey, queue);
     }
     return queue;
   }
 
-  async function saveSession(sessionKey: SessionKey): Promise<void> {
+  async function enqueueSessionSave(sessionKey: SessionKey): Promise<void> {
     await saveQueueFor(sessionKey).save();
   }
 
@@ -186,7 +186,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
       .map(([key]) => key);
   }
 
-  async function performSessionSave(sessionKey: SessionKey): Promise<void> {
+  async function sendSessionSave(sessionKey: SessionKey): Promise<void> {
     // children first: a child's create lands in this same model as an
     // ordinary transition (stamping its id into this session's items), so
     // the snapshot below sees it without any tick-waiting
@@ -196,7 +196,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
     // settled, not all: a child that cannot be saved is independent of this
     // asset and must not cost the user their edits to it
     const childResults = await Promise.allSettled(
-      dirtyChildren.map((childKey) => saveSession(childKey))
+      dirtyChildren.map((childKey) => enqueueSessionSave(childKey))
     );
     childResults.forEach((result) => {
       if (result.status === "rejected" && !isScopeDisposed) {
@@ -205,11 +205,11 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
     });
 
     const session = selectSession(model.value, sessionKey);
-    // the session may have closed while its children saved; there is
+    // the session may have closed while its children saved. There is
     // nothing left to save and nothing was lost
-    if (!session || !isEditingSession(session)) return;
+    if (!session || !isSessionWithAsset(session)) return;
 
-    const surface = surfaceFor(sessionKey);
+    const surface = sessionSurfaceForKey(sessionKey);
     const assetToSave = selectLocalAsset(
       model.value,
       sessionKey,
@@ -247,7 +247,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
         },
         templateDocument
       );
-      const seededBaseline = makeLocalAssetFromSaved({
+      const seededBaseline = toLocalAssetFromSavedAsset({
         template: templateDocument,
         savedAsset: echoedDraft,
       });
@@ -270,7 +270,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
       });
     } else {
       // the read-back arrives through the mutation's invalidation as
-      // baselineRefreshed; this event only retires the regenerate requests
+      // baselineRefreshed. This event only retires the regenerate requests
       // the save carried
       dispatch({
         type: "saveAccepted",
@@ -289,7 +289,7 @@ export const createEditorHost = (handlers: EditorHostHandlers) => {
     dispatch,
     registerSessionSurface,
     hasUnsavedChangesInTree,
-    saveSession,
+    enqueueSessionSave,
     waitForSessionSaveToSettle,
     reset,
     saveStatus: updateAssetMutation.status,
@@ -309,8 +309,8 @@ export type SessionHandleOptions =
  * always injected.
  *
  * A root handle follows the model's rootSessionKey, which changes on every
- * opening. A child handle owns one fixed session for the component's life;
- * unmounting closes it.
+ * opening. A child handle owns one fixed session for the component's life,
+ * and unmounting closes it.
  */
 export const createSessionHandle = (
   host: EditorHost,
@@ -345,9 +345,7 @@ export const createSessionHandle = (
 
   // the asset baseline lives in the query cache, keyed by the id the
   // session names. staleTime Infinity: the baseline refreshes only on load
-  // and on invalidation (a save's read-back, an inline child's save), which
-  // is today's behavior. Slice 4 of the cache-ownership plan decides
-  // anything more proactive.
+  // and on invalidation (a save's read-back, an inline child's save)
   const baselineQuery = useQuery({
     ...assetQuery(() => editorAssetId.value),
     enabled: () => editorAssetId.value !== null,
@@ -408,22 +406,24 @@ export const createSessionHandle = (
   watch(
     [rawBaseline, template, currentSessionKey] as const,
     ([rawDocument, templateDocument, sessionKey]) => {
-      if (!sessionKey || !selectAssetId(host.model.value, sessionKey)) {
+      const sessionAssetId = sessionKey
+        ? selectAssetId(host.model.value, sessionKey)
+        : null;
+      if (!sessionKey || !sessionAssetId) {
         scaffoldedBaseline.value = null;
         return;
       }
       if (!rawDocument || !templateDocument) return;
       // the subscription can briefly hold the previous key's answer while
-      // the session has moved on; a mismatched document must not scaffold
-      if (rawDocument.assetId !== selectAssetId(host.model.value, sessionKey)) {
-        return;
-      }
-      if (
-        templateDocument.templateId !==
-        selectTemplateId(host.model.value, sessionKey, rawDocument)
-      ) {
-        return;
-      }
+      // the session has moved on. A mismatched document must not scaffold
+      if (rawDocument.assetId !== sessionAssetId) return;
+
+      const sessionTemplateId = selectTemplateId(
+        host.model.value,
+        sessionKey,
+        rawDocument
+      );
+      if (templateDocument.templateId !== sessionTemplateId) return;
 
       // the outgoing view donates uuids to contents that arrive without one
       // (position-inheritance for backends that do not store them), so the
@@ -433,7 +433,7 @@ export const createSessionHandle = (
         sessionKey,
         scaffoldedBaseline.value
       );
-      const nextBaseline = makeLocalAssetFromSaved({
+      const nextBaseline = toLocalAssetFromSavedAsset({
         template: templateDocument,
         savedAsset: rawDocument,
         previousAsset: previousView,
@@ -487,7 +487,7 @@ export const createSessionHandle = (
     return template;
   }
 
-  /** A child reuses its one key; each root opening takes a fresh one. */
+  /** A child reuses its one key. Each root opening takes a fresh one. */
   function mintSessionKey(): SessionKey {
     return childSessionKey ?? crypto.randomUUID();
   }
@@ -534,7 +534,7 @@ export const createSessionHandle = (
   /**
    * Initialize the editor with an existing asset by its ID.
    *
-   * The session switches immediately; this function's job is to make sure
+   * The session switches immediately. This function's job is to make sure
    * the documents the subscriptions render actually arrive, and to surface
    * a failure. A fetch that resolves after the session moved on dispatches
    * nothing on success, and its failure event carries a sessionKey the
@@ -582,7 +582,7 @@ export const createSessionHandle = (
   async function saveAsset(): Promise<void> {
     const sessionKey = currentSessionKey.value;
     invariant(sessionKey, "Cannot save: no session is open");
-    await host.saveSession(sessionKey);
+    await host.enqueueSessionSave(sessionKey);
   }
 
   function updateCollection(collectionId: number): void {
@@ -646,7 +646,9 @@ export const createSessionHandle = (
     }
   }
 
-  /** Events that only make sense with an open session are dropped without one. */
+  /**
+   * Events that only make sense with an open session are dropped without one.
+   */
   function dispatchToSession(
     makeEvent: (sessionKey: SessionKey) => EditorEvent
   ): void {
@@ -672,7 +674,7 @@ export const createSessionHandle = (
    * request, so the uploaded file is never left without a saved asset
    * referencing it.
    */
-  function completeUpload(
+  function recordCompletedUpload(
     fieldTitle: T.WidgetDef["fieldTitle"],
     contents: T.WidgetContent[]
   ): void {
@@ -714,7 +716,7 @@ export const createSessionHandle = (
     // "the editor has an asset to show": for an existing asset this waits
     // for the baseline document, so pages render their loading state until
     // localAsset is real
-    isEditingAsset: computed((): boolean => localAsset.value !== null),
+    hasAssetToEdit: computed((): boolean => localAsset.value !== null),
     templateId,
     collectionId: computed(() => localAsset.value?.collectionId ?? null),
     hasUnsavedChanges,
@@ -729,7 +731,7 @@ export const createSessionHandle = (
     migrateToTemplate,
     updateCollection,
     updateWidgetContents,
-    completeUpload,
+    recordCompletedUpload,
     updateReadyForDisplay,
     updateAvailableAfter,
     getWidgetInstanceId,
@@ -752,7 +754,9 @@ export const useAssetEditor = (): AssetEditor => {
   return assetEditor;
 };
 
-/** Injects the page's editor host, which owns the model every session shares. */
+/**
+ * Injects the page's editor host, which owns the model every session shares.
+ */
 export const useEditorHost = (): EditorHost => {
   const host = inject(EDITOR_HOST_PROVIDE_KEY);
   if (!host) {

@@ -48,11 +48,7 @@
         :isShowingDetails="isShowingDetails.has(item.uuid)"
         class="upload-widget-item"
         @update:item="handleUpdateItem"
-        @toggle:details="
-          isShowingDetails.has(item.uuid)
-            ? isShowingDetails.delete(item.uuid)
-            : isShowingDetails.add(item.uuid)
-        " />
+        @toggle:details="toggleDetails(item.uuid)" />
     </template>
     <template #footer>
       <FileUploader
@@ -100,6 +96,14 @@ const emit = defineEmits<{
 }>();
 
 const isShowingDetails = ref<Set<string>>(new Set());
+
+function toggleDetails(uuid: string): void {
+  if (isShowingDetails.value.has(uuid)) {
+    isShowingDetails.value.delete(uuid);
+    return;
+  }
+  isShowingDetails.value.add(uuid);
+}
 const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
@@ -128,9 +132,7 @@ function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
     searchData: "", // Initialize searchData as an empty string
   };
 
-  // the editor answers with a save request of its own, so the uploaded
-  // file is never left without a saved asset referencing it
-  assetEditor.completeUpload(props.widgetDef.fieldTitle, [
+  assetEditor.recordCompletedUpload(props.widgetDef.fieldTitle, [
     ...currentContents(),
     uploadedItem,
   ]);
@@ -154,9 +156,8 @@ async function handleDeleteContent(id: string) {
   }
 
   // save the removal first: if the save fails, the asset must not be left
-  // referencing media that is already destroyed. The two awaits below are
-  // that ordering, which is why this flow saves itself instead of asking
-  // the editor for a save the way a completed upload does.
+  // referencing media that is already destroyed. This flow saves itself
+  // rather than asking the editor for a save, because it needs that ordering.
   assetEditor.updateWidgetContents(
     props.widgetDef.fieldTitle,
     ops.deleteWidgetContent(currentContents(), id)

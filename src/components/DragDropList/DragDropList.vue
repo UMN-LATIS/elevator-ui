@@ -7,8 +7,8 @@
     <ol v-else :class="listClass">
       <DragDropListItem
         v-for="(item, index) in items"
-        :key="resolveItemId(item)"
-        :itemId="resolveItemId(item)"
+        :key="getItemId(item)"
+        :itemId="getItemId(item)"
         :listId="listId"
         :nextListId="nextListId"
         :prevListId="prevListId"
@@ -43,6 +43,18 @@ const props = withDefaults(
     getItemId?: (item: ItemType) => string | number;
   }>(),
   {
+    // the historical contract: items carry an `id`. Reordering silently
+    // keyed on undefined would remount every row on each drag, so an item
+    // without one is a caller error, not something to paper over
+    getItemId: (item: ItemType) => {
+      const id = (item as Partial<HasId> | null)?.id;
+      if (typeof id !== "string" && typeof id !== "number") {
+        throw new Error(
+          `DragDropList: item has no usable \`id\` (got ${typeof id}). Give items an \`id\`, or pass getItemId to name their identity.`
+        );
+      }
+      return id;
+    },
     showEmptyList: true,
     listClass: () => "drag-drop-list",
     listItemClass: () => "drag-drop-list-item",
@@ -62,11 +74,6 @@ const emit = defineEmits<{
 }>();
 
 const dragDropStore = useDragDropStore(groupId);
-
-// the default keeps the historical contract: items carry an `id`
-function resolveItemId(item: ItemType): string | number {
-  return props.getItemId ? props.getItemId(item) : (item as HasId).id;
-}
 
 const items = computed(
   () => (dragDropStore.getList(props.listId)?.items ?? []) as ItemType[]

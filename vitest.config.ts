@@ -3,7 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
 import path from "path";
 
-const notATest = [
+const nonTestPaths = [
   "tests/e2e/**",
   "node_modules/**",
   "dist/**",
@@ -28,7 +28,7 @@ export default defineConfig({
           // one fixed zone, so a date assertion means the same thing on
           // every machine
           env: { TZ: "UTC" },
-          exclude: [...notATest, "**/*.tz.test.ts"],
+          exclude: [...nonTestPaths, "**/*.tz.test.ts"],
         },
       },
       {
@@ -42,7 +42,7 @@ export default defineConfig({
           // project.
           env: { TZ: "Europe/Berlin" },
           include: ["**/*.tz.test.ts"],
-          exclude: notATest,
+          exclude: nonTestPaths,
         },
       },
     ],

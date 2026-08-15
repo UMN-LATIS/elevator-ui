@@ -104,9 +104,9 @@ const emit = defineEmits<{
 const pendingTextOf = (item: Type.TagListWidgetContent): string =>
   item.pendingText ?? "";
 
-const rowOf = (itemId: string): Type.WithUuid<Type.TagListWidgetContent> => {
-  const row = props.widgetContents.find((content) => content.uuid === itemId);
-  invariant(row, `no tag row with id ${itemId}`);
+const rowOf = (itemUuid: string): Type.WithUuid<Type.TagListWidgetContent> => {
+  const row = props.widgetContents.find((content) => content.uuid === itemUuid);
+  invariant(row, `no tag row with id ${itemUuid}`);
   return row;
 };
 
@@ -129,21 +129,21 @@ const handleDelete = (uuid: string) =>
   );
 
 const handleUpdateTags = (
-  itemId: string,
+  itemUuid: string,
   tags: Type.TagListWidgetContent["tags"]
 ) => {
   emit(
     "update:widgetContents",
-    ops.makeUpdateContentPayload(props.widgetContents, itemId, tags, "tags")
+    ops.makeUpdateContentPayload(props.widgetContents, itemUuid, tags, "tags")
   );
 };
 
-const handlePendingTextInput = (itemId: string, text: string) => {
+const handlePendingTextInput = (itemUuid: string, text: string) => {
   emit(
     "update:widgetContents",
     ops.makeUpdateContentPayload(
       props.widgetContents,
-      itemId,
+      itemUuid,
       text,
       "pendingText"
     )
@@ -151,57 +151,57 @@ const handlePendingTextInput = (itemId: string, text: string) => {
 };
 
 /** Commit whatever tag text the row's input holds. */
-function commitPendingTag(itemId: string) {
-  commitTag(itemId, pendingTextOf(rowOf(itemId)));
+function commitPendingTag(itemUuid: string) {
+  commitTag(itemUuid, pendingTextOf(rowOf(itemUuid)));
 }
 
 /** Turn `value` into a committed tag on the row and clear its input. */
-function commitTag(itemId: string, value: string) {
-  const row = rowOf(itemId);
+function commitTag(itemUuid: string, value: string) {
+  const row = rowOf(itemUuid);
   const tag = value.trim();
   const tags = row.tags ?? [];
 
   const shouldAddTag = tag !== "" && !tags.includes(tag);
   const nextTags = shouldAddTag ? [...tags, tag] : tags;
   const nextContents = props.widgetContents.map((content) =>
-    content.uuid === itemId
+    content.uuid === itemUuid
       ? { ...content, tags: nextTags, pendingText: "" }
       : content
   );
   emit("update:widgetContents", nextContents);
 }
 
-function removeLastTag(itemId: string) {
-  const tags = rowOf(itemId).tags ?? [];
+function removeLastTag(itemUuid: string) {
+  const tags = rowOf(itemUuid).tags ?? [];
   emit(
     "update:widgetContents",
     ops.makeUpdateContentPayload(
       props.widgetContents,
-      itemId,
+      itemUuid,
       tags.slice(0, -1),
       "tags"
     )
   );
 }
 
-function handleKeydown(itemId: string, event: KeyboardEvent) {
+function handleKeydown(itemUuid: string, event: KeyboardEvent) {
   if (event.key === "," || event.key === "Enter") {
     event.preventDefault();
-    commitPendingTag(itemId);
+    commitPendingTag(itemUuid);
     return;
   }
 
   // Tab commits a pending tag, and moves focus on as usual otherwise
-  if (event.key === "Tab" && pendingTextOf(rowOf(itemId)).trim()) {
+  if (event.key === "Tab" && pendingTextOf(rowOf(itemUuid)).trim()) {
     event.preventDefault();
-    commitPendingTag(itemId);
+    commitPendingTag(itemUuid);
     return;
   }
 
   // delete the previous tag on backspace if the input is empty
-  if (event.key === "Backspace" && pendingTextOf(rowOf(itemId)) === "") {
+  if (event.key === "Backspace" && pendingTextOf(rowOf(itemUuid)) === "") {
     event.preventDefault();
-    removeLastTag(itemId);
+    removeLastTag(itemUuid);
   }
 }
 </script>

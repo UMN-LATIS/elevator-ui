@@ -60,7 +60,7 @@ const emit = defineEmits<{
 
 function handleItemUpdate(updatedItem: Type.WithUuid<Type.DateWidgetContent>) {
   const index = props.widgetContents.findIndex(
-    (i) => i.uuid === updatedItem.uuid
+    (content) => content.uuid === updatedItem.uuid
   );
   if (index === -1) {
     throw Error(

@@ -187,7 +187,7 @@ const widgetInstances = computed(
     widgetDef: T.WidgetDef;
     widgetContents: T.WidgetContent[];
   }> => {
-    if (!assetEditor.isEditingAsset) {
+    if (!assetEditor.hasAssetToEdit) {
       return [];
     }
     invariant(

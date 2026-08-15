@@ -72,7 +72,8 @@ test.describe("collection migration", () => {
       page.locator(".toast-root").getByText(/Failed to move asset/)
     ).toBeVisible({ timeout: 10000 });
 
-    // still on the edit page, and the selection fell back to the real collection
+    // still on the edit page, and the selection fell back to the real
+    // collection
     await expect(page).toHaveURL(
       new RegExp(`/assetManager/editAsset/${ASSET_ID}`)
     );

@@ -89,7 +89,7 @@ export function useDragDropStore(groupId: string | number) {
     }
 
     // remove item from source list without mutating the caller's array,
-    // which the prop sync stores by reference
+    // which DragDropList passes in by reference
     const item = fromList.items[sourceIndex];
     fromList.items = fromList.items.filter((_, index) => index !== sourceIndex);
 

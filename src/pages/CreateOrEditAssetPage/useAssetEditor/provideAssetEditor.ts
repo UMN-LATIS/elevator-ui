@@ -31,7 +31,7 @@ export function provideEditorHost(handlers: EditorHostHandlers): EditorHost {
 /**
  * Builds one editing surface's session handle and hands it, plus the
  * validation derived from it, to everything rendered below. The page
- * provides its root handle over the host's; an inline related asset
+ * provides its root handle over the host's. An inline related asset
  * provides its own child handle over its parent's.
  *
  * Call during setup, since it provides.

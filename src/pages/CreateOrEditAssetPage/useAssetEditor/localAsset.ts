@@ -105,7 +105,7 @@ export function wouldSaveChangeStoredAsset({
  * read as an unsaved change forever.
  *
  * Accepts a Partial so the editor's `edits` can be cleared the same way as a
- * whole document; fields the partial does not hold are left alone.
+ * whole document. Fields the partial does not hold are left alone.
  */
 export function clearUploadRegenerationFlags<
   T extends Asset | UnsavedAsset | Partial<Asset>
@@ -139,7 +139,7 @@ export function clearUploadRegenerationFlags<
  * showing. Omit when loading a different asset, where there is no identity
  * to carry over.
  */
-export function makeLocalAssetFromSaved({
+export function toLocalAssetFromSavedAsset({
   template,
   savedAsset,
   previousAsset,
@@ -224,9 +224,11 @@ function makeWidgetContents(
       doesServerKeepContent(content, widgetDef.type)
     );
     return currentContents.map((content, index) => {
+      // a uuid the server stored comes back and wins
+      const serverUuid = storedContentUuid(content);
+      if (serverUuid) return { ...content, uuid: serverUuid };
+
       const uuid =
-        // a uuid the server stored comes back and wins
-        storedContentUuid(content) ??
         // a content scaffolded before keeps the uuid it was given
         mintedContentUuids.get(content) ??
         // a fresh content without one inherits by position from the rows the
@@ -235,7 +237,7 @@ function makeWidgetContents(
         // push uuids off their contents
         storedContentUuid(keptPreviousContents[index]) ??
         crypto.randomUUID();
-      if (!storedContentUuid(content)) mintedContentUuids.set(content, uuid);
+      mintedContentUuids.set(content, uuid);
       return { ...content, uuid };
     });
   }
@@ -256,7 +258,7 @@ function makeWidgetContents(
 /**
  * The title to show for the asset being edited: the title property when the
  * server has set it, otherwise the text of the title widget. `title_1` is the
- * title widget's conventional fieldTitle (see the Asset type in types/index.ts).
+ * title widget's conventional fieldTitle.
  */
 export function getAssetDisplayTitle(asset: Asset | UnsavedAsset): string {
   const propertyTitle = asset.title?.[0];

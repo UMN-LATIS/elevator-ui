@@ -63,11 +63,11 @@ export function deleteWidgetContent<
 
   // deleting the primary row promotes the first remaining one, so previews
   // and titles built on isPrimary never point at nothing
-  const needsNewPrimary =
+  const shouldPromoteNewPrimary =
     removedItem?.isPrimary &&
     remainingContents.length > 0 &&
     !remainingContents.some((item) => item.isPrimary);
-  if (!needsNewPrimary) return remainingContents;
+  if (!shouldPromoteNewPrimary) return remainingContents;
 
   return remainingContents.map((item, index) =>
     index === 0 ? { ...item, isPrimary: true } : item

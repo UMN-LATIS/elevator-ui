@@ -62,7 +62,7 @@ function handleItemUpdate(
   updatedItem: Type.WithUuid<Type.LocationWidgetContent>
 ) {
   const index = props.widgetContents.findIndex(
-    (i) => i.uuid === updatedItem.uuid
+    (content) => content.uuid === updatedItem.uuid
   );
   if (index === -1) {
     throw Error(

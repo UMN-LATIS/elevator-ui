@@ -42,7 +42,6 @@ export function createSaveQueue(saveFn: () => Promise<void>, cooldown = 2000) {
         }
         resolveSnapshot.forEach((cb) => cb());
 
-        // cooldown, so rapid edits do not each cost a request
         await new Promise((resolve) => setTimeout(resolve, cooldown));
       }
     } catch (error) {

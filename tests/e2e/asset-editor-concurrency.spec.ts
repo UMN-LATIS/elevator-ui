@@ -161,7 +161,8 @@ test.describe("Asset editor concurrency", () => {
   test("a save in flight does not land on the different asset the user moved to", async ({
     page,
   }) => {
-    // creating a real asset plus two queue cooldowns runs close to the 10s default
+    // creating a real asset plus two queue cooldowns runs close to the 10s
+    // default
     test.setTimeout(20_000);
 
     await page.goto(`/assetManager/editAsset/${ASSET_1_ID}`);
@@ -202,7 +203,8 @@ test.describe("Asset editor concurrency", () => {
     await page.getByRole("button", { name: "Save" }).click();
     await expect.poll(() => savesFromAsset1Onward().length).toBeGreaterThan(0);
 
-    // the user is back on Asset 1, so no save from here belongs to the other asset
+    // the user is back on Asset 1, so no save from here belongs to the
+    // other asset
     expect(
       savesFromAsset1Onward().filter((save) => save.objectId === newAssetId)
     ).toEqual([]);
@@ -401,7 +403,8 @@ test.describe("Asset editor concurrency", () => {
     await page.waitForResponse((response) =>
       response.url().includes(`/asset/viewAsset/${ASSET_1_ID}`)
     );
-    // leave time for the abandoned load to (wrongly) fetch its template and render
+    // leave time for the abandoned load to (wrongly) fetch its template and
+    // render
     await page.waitForTimeout(1000);
 
     // the load belongs to a page the user already left, so the intake form
@@ -412,7 +415,7 @@ test.describe("Asset editor concurrency", () => {
 
   // an abandoned draft's editor can outlive its page: its held create resolves,
   // the create-response exception adopts the new asset into that editor, and a
-  // trailing save then writes to the adopted asset. The editorGeneration is
+  // trailing save then writes to the adopted asset. A session key is minted
   // per editor instance, so it cannot drop work from an instance that
   // outlived its page.
   //

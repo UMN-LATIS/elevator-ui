@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   clearUploadRegenerationFlags,
   diffEditableFields,
-  makeLocalAssetFromSaved,
+  toLocalAssetFromSavedAsset,
   makeNewLocalAsset,
   migrateAssetToTemplate,
   getAssetDisplayTitle,
@@ -71,7 +71,7 @@ describe("makeNewLocalAsset", () => {
   });
 });
 
-describe("makeLocalAssetFromSaved", () => {
+describe("toLocalAssetFromSavedAsset", () => {
   const oneTextWidget = makeTemplate(1, [{}]);
 
   const contentIds = (
@@ -83,7 +83,7 @@ describe("makeLocalAssetFromSaved", () => {
     );
 
   it("inherits the ids the editor already holds, so a save does not rebuild the form", () => {
-    const localAsset = makeLocalAssetFromSaved({
+    const localAsset = toLocalAssetFromSavedAsset({
       template: oneTextWidget,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "saved" }],
@@ -97,7 +97,7 @@ describe("makeLocalAssetFromSaved", () => {
   });
 
   it("mints ids for contents the editor did not have", () => {
-    const localAsset = makeLocalAssetFromSaved({
+    const localAsset = toLocalAssetFromSavedAsset({
       template: oneTextWidget,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "first" }, { fieldContents: "second" }],
@@ -114,7 +114,7 @@ describe("makeLocalAssetFromSaved", () => {
   });
 
   it("mints ids when loading an asset the editor was not already showing", () => {
-    const localAsset = makeLocalAssetFromSaved({
+    const localAsset = toLocalAssetFromSavedAsset({
       template: oneTextWidget,
       savedAsset: makeSavedAsset({
         field_1: [{ fieldContents: "loaded" }],
@@ -133,11 +133,11 @@ describe("makeLocalAssetFromSaved", () => {
     });
 
     const firstPass = contentIds(
-      makeLocalAssetFromSaved({ template: oneTextWidget, savedAsset }),
+      toLocalAssetFromSavedAsset({ template: oneTextWidget, savedAsset }),
       "field_1"
     );
     const secondPass = contentIds(
-      makeLocalAssetFromSaved({ template: oneTextWidget, savedAsset }),
+      toLocalAssetFromSavedAsset({ template: oneTextWidget, savedAsset }),
       "field_1"
     );
 
@@ -148,7 +148,7 @@ describe("makeLocalAssetFromSaved", () => {
     // an inline related asset's editor is keyed on this item's id, so a
     // reminted id across a save's read-back would remount that editor and
     // wipe anything typed into it
-    const localAsset = makeLocalAssetFromSaved({
+    const localAsset = toLocalAssetFromSavedAsset({
       template: oneTextWidget,
       savedAsset: makeSavedAsset(),
       previousAsset: makeSavedAsset({
@@ -164,7 +164,7 @@ describe("makeLocalAssetFromSaved", () => {
     // server has, or the migration would read as already saved
     const newerTemplate = makeTemplate(2, [{}]);
 
-    const localAsset = makeLocalAssetFromSaved({
+    const localAsset = toLocalAssetFromSavedAsset({
       template: newerTemplate,
       savedAsset: makeSavedAsset({ templateId: 1 }),
     });

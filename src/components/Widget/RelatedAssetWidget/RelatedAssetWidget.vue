@@ -43,8 +43,10 @@ const props = defineProps<{
   asset: Asset;
 }>();
 
-const openAssetIds = new Set(useAncestorAssetIds()).add(props.asset.assetId);
-provideAncestorAssetIds(openAssetIds);
+const ancestorAssetIds = new Set(useAncestorAssetIds()).add(
+  props.asset.assetId
+);
+provideAncestorAssetIds(ancestorAssetIds);
 
 type WithTargetAssetId<T> = T & { targetAssetId: string };
 
@@ -82,7 +84,10 @@ const contentsWithAssetId = computed(() =>
         cacheItem,
         // Falling back to a link rather than dropping the row keeps the
         // relationship visible and navigable, so only the nesting stops.
-        itemComponent: canNestAsset(openAssetIds, relatedAsset.targetAssetId)
+        itemComponent: canNestAsset(
+          ancestorAssetIds,
+          relatedAsset.targetAssetId
+        )
           ? widgetType.value
           : LinkedRelatedAssetWidgetItem,
         title: getRelatedAssetTitle({

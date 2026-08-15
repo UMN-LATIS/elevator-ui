@@ -709,7 +709,7 @@ describe("editorReducer", () => {
     });
 
     it("drops a create response for a session that has closed, and says the asset is orphaned", () => {
-      // abandoning a draft closes its session; the next draft opens a new
+      // abandoning a draft closes its session. The next draft opens a new
       // session under a fresh key, which this response does not carry. The
       // asset exists with nothing pointing at it, which the user must hear.
       const before = rootModel(editingNewSession());
@@ -723,7 +723,6 @@ describe("editorReducer", () => {
       expect(step.commands).toEqual([
         {
           type: "notifyCreateDropped",
-          sessionKey: UNKNOWN_KEY,
           assetId: "asset-orphan",
         },
       ]);
@@ -738,7 +737,6 @@ describe("editorReducer", () => {
       expect(step.commands).toEqual([
         {
           type: "notifyCreateDropped",
-          sessionKey: ROOT_KEY,
           assetId: "asset-123",
         },
       ]);
@@ -804,7 +802,7 @@ describe("editorReducer", () => {
 
       it("leaves the parent alone when the item is gone", () => {
         // the user deleted the related item while the child's create was in
-        // flight. The child still committed; only the link has no home.
+        // flight. The child still committed, and only the link has no home.
         const parent = editingExistingSession({ related_1: [] });
         const before = withChildSession(rootModel(parent), childDraftSession);
 

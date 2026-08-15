@@ -25,7 +25,7 @@ import { omit } from "ramda";
  * event carries the sessionKey it is about, and resolution events carry
  * back the id of the thing they answer: the templateId a template document
  * answers, the assetId a baseline is for. A resolution for a session that
- * has closed, or for a thing the session no longer awaits, simply fails its
+ * has closed, or for a thing the session no longer awaits, fails its
  * comparison.
  */
 export type SessionKey = string;
@@ -59,7 +59,9 @@ export type EditSession =
   | {
       status: "editingExistingAsset";
       parentLink: ParentLink | null;
-      /** names the baseline: the cache slot this session reads documents from */
+      /**
+       * names the baseline: the cache slot this session reads documents from
+       */
       assetId: string;
       /**
        * Only the fields the user has changed since the baseline. Everything
@@ -84,14 +86,14 @@ export const initialEditorModel: EditorModel = {
 };
 
 /** The two statuses in which a session holds an asset the user can edit. */
-export type EditingSession = Extract<
+export type SessionWithAsset = Extract<
   EditSession,
   { status: "editingNewAsset" | "editingExistingAsset" }
 >;
 
-export function isEditingSession(
+export function isSessionWithAsset(
   session: EditSession
-): session is EditingSession {
+): session is SessionWithAsset {
   return (
     session.status === "editingNewAsset" ||
     session.status === "editingExistingAsset"
@@ -197,7 +199,7 @@ export function selectHasUnsavedEdits(
   template: T.Template | null
 ): boolean {
   const session = selectSession(model, sessionKey);
-  if (!session || !isEditingSession(session) || !template) return false;
+  if (!session || !isSessionWithAsset(session) || !template) return false;
   switch (session.status) {
     case "editingNewAsset":
       // an untouched draft is not unsaved work, or the leave guard would
@@ -211,13 +213,13 @@ export function selectHasUnsavedEdits(
         template,
       });
     case "editingExistingAsset": {
-      const onScreen = selectLocalAsset(model, sessionKey, baseline);
-      if (!onScreen || !baseline) return false;
+      const assetOnScreen = selectLocalAsset(model, sessionKey, baseline);
+      if (!assetOnScreen || !baseline) return false;
       // `edits` may hold differences the server would never store, like a
       // freshly added blank item, so dirtiness is measured against what a
       // save would actually change
       return wouldSaveChangeStoredAsset({
-        draft: onScreen,
+        draft: assetOnScreen,
         savedAsset: baseline,
         template,
       });
@@ -269,7 +271,6 @@ export type EditorCommand =
        * user must hear.
        */
       type: "notifyCreateDropped";
-      sessionKey: SessionKey;
       assetId: string;
     }
   | {
@@ -317,7 +318,10 @@ export type EditorEvent =
       availableAfter: T.PHPDateTime | null;
     }
   | {
-      /** opens a session (the root when parentLink is null, replacing the old root) */
+      /**
+       * opens a session (the root when parentLink is null, replacing the
+       * old root)
+       */
       type: "newAssetRequested";
       sessionKey: SessionKey;
       parentLink: ParentLink | null;
@@ -325,7 +329,10 @@ export type EditorEvent =
       templateId: number;
     }
   | {
-      /** opens a session (the root when parentLink is null, replacing the old root) */
+      /**
+       * opens a session (the root when parentLink is null, replacing the
+       * old root)
+       */
       type: "existingAssetRequested";
       sessionKey: SessionKey;
       parentLink: ParentLink | null;
@@ -361,7 +368,9 @@ export type EditorEvent =
       templateId: number;
       /** input for scaffolding and diffing, never stored */
       template: T.Template;
-      /** the session's current baseline, null for drafts. Input for the diff. */
+      /**
+       * the session's current baseline, null for drafts. Input for the diff.
+       */
       baseline: T.Asset | null;
     }
   | {
@@ -388,7 +397,7 @@ export type EditorEvent =
   | {
       /**
        * The server accepted an update save. The document read-back arrives
-       * separately as baselineRefreshed; this event only retires client-only
+       * separately as baselineRefreshed. This event only retires client-only
        * state the save has now delivered.
        */
       type: "saveAccepted";
@@ -403,7 +412,9 @@ export type EditorEvent =
        */
       type: "baselineRefreshed";
       sessionKey: SessionKey;
-      /** the new baseline in editor shape. Input for the rebase, never stored. */
+      /**
+       * the new baseline in editor shape. Input for the rebase, never stored.
+       */
       baseline: T.Asset;
       template: T.Template;
     }
@@ -475,7 +486,7 @@ export function editorReducer(
     }
     case "templateMigrationRequested": {
       const session = model.sessions[event.sessionKey];
-      if (!session || !isEditingSession(session)) return { model };
+      if (!session || !isSessionWithAsset(session)) return { model };
       return {
         model: modelWithSession(model, event.sessionKey, {
           ...session,
@@ -489,7 +500,7 @@ export function editorReducer(
       // the session keeps its current template and the asset stays editable:
       // a failed swap must not cost the user work in progress
       const session = model.sessions[event.sessionKey];
-      if (!session || !isEditingSession(session)) return { model };
+      if (!session || !isSessionWithAsset(session)) return { model };
       if (event.templateId !== session.pendingTemplateId) return { model };
       return {
         model: modelWithSession(model, event.sessionKey, {
@@ -510,15 +521,15 @@ export function editorReducer(
     case "uploadCompleted": {
       // an appended upload item is followed by a save request, always, or
       // the uploaded file would be orphaned server-side
-      const next = modelWithFieldEdit(
+      const nextModel = modelWithFieldEdit(
         model,
         event.sessionKey,
         event.fieldTitle,
         event.contents
       );
-      if (next === model) return { model };
+      if (nextModel === model) return { model };
       return {
-        model: next,
+        model: nextModel,
         commands: [{ type: "requestSave", sessionKey: event.sessionKey }],
       };
     }
@@ -648,7 +659,7 @@ function onTemplateMigrated(
   }
 ): EditorModel {
   const session = model.sessions[event.sessionKey];
-  if (!session || !isEditingSession(session)) return model;
+  if (!session || !isSessionWithAsset(session)) return model;
   if (event.templateId !== session.pendingTemplateId) return model;
   switch (session.status) {
     case "editingNewAsset":
@@ -658,17 +669,17 @@ function onTemplateMigrated(
         pendingTemplateId: null,
       });
     case "editingExistingAsset": {
-      const onScreen = selectLocalAsset(
+      const assetOnScreen = selectLocalAsset(
         model,
         event.sessionKey,
         event.baseline
       );
-      if (!onScreen || !event.baseline) return model;
+      if (!assetOnScreen || !event.baseline) return model;
       // the migrated asset differs from the baseline by its new templateId
       // and the fields the new template scaffolds, all of which a save must
       // send
       const migrated = migrateAssetToTemplate(
-        onScreen as T.Asset,
+        assetOnScreen as T.Asset,
         event.template
       );
       return modelWithSession(model, event.sessionKey, {
@@ -694,7 +705,7 @@ function modelWithFieldEdit(
   value: unknown
 ): EditorModel {
   const session = model.sessions[sessionKey];
-  if (!session || !isEditingSession(session)) return model;
+  if (!session || !isSessionWithAsset(session)) return model;
   switch (session.status) {
     case "editingNewAsset":
       return modelWithSession(model, sessionKey, {
@@ -728,7 +739,6 @@ function onAssetCreated(
       commands: [
         {
           type: "notifyCreateDropped",
-          sessionKey: event.sessionKey,
           assetId: event.baseline.assetId,
         },
       ],
@@ -742,7 +752,7 @@ function onAssetCreated(
     event.template
   );
 
-  let next = modelWithSession(model, event.sessionKey, {
+  let nextModel = modelWithSession(model, event.sessionKey, {
     status: "editingExistingAsset",
     parentLink: session.parentLink,
     assetId: event.baseline.assetId,
@@ -757,15 +767,15 @@ function onAssetCreated(
   });
 
   if (session.parentLink) {
-    next = modelWithChildAssetIdAdopted(
-      next,
+    nextModel = modelWithChildAssetIdAdopted(
+      nextModel,
       session.parentLink,
       event.baseline.assetId
     );
   }
 
   return {
-    model: next,
+    model: nextModel,
     commands: [
       {
         type: "notifyAssetCreated",
@@ -788,18 +798,18 @@ function modelWithChildAssetIdAdopted(
   assetId: string
 ): EditorModel {
   const parent = model.sessions[parentLink.sessionKey];
-  if (!parent || !isEditingSession(parent)) return model;
+  if (!parent || !isSessionWithAsset(parent)) return model;
 
-  const holder =
+  const parentFields =
     parent.status === "editingNewAsset" ? parent.localAsset : parent.edits;
-  const contents = holder[parentLink.fieldTitle];
+  const contents = parentFields[parentLink.fieldTitle];
   if (!Array.isArray(contents)) return model;
-  if (!contents.some(isItemWithUuid(parentLink.itemUuid))) return model;
+
+  const isLinkedItem = matchesItemUuid(parentLink.itemUuid);
+  if (!contents.some(isLinkedItem)) return model;
 
   const linked = contents.map((item) =>
-    isItemWithUuid(parentLink.itemUuid)(item)
-      ? { ...item, targetAssetId: assetId }
-      : item
+    isLinkedItem(item) ? { ...item, targetAssetId: assetId } : item
   );
 
   if (parent.status === "editingNewAsset") {
@@ -814,7 +824,7 @@ function modelWithChildAssetIdAdopted(
   });
 }
 
-function isItemWithUuid(itemUuid: string): (item: unknown) => boolean {
+function matchesItemUuid(itemUuid: string): (item: unknown) => boolean {
   return (item) =>
     typeof item === "object" &&
     item !== null &&

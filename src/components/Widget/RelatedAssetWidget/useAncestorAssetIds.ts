@@ -19,16 +19,17 @@ export function useAncestorAssetIds(): ReadonlySet<string> {
 
 /** Shares the assets open here with every widget nested below this one. */
 export function provideAncestorAssetIds(
-  openAssetIds: ReadonlySet<string>
+  ancestorAssetIds: ReadonlySet<string>
 ): void {
-  provide(ANCESTOR_ASSET_IDS_KEY, openAssetIds);
+  provide(ANCESTOR_ASSET_IDS_KEY, ancestorAssetIds);
 }
 
 export function canNestAsset(
-  openAssetIds: ReadonlySet<string>,
+  ancestorAssetIds: ReadonlySet<string>,
   targetAssetId: string
 ): boolean {
   return (
-    !openAssetIds.has(targetAssetId) && openAssetIds.size < MAX_NESTING_DEPTH
+    !ancestorAssetIds.has(targetAssetId) &&
+    ancestorAssetIds.size < MAX_NESTING_DEPTH
   );
 }

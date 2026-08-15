@@ -88,20 +88,26 @@ export function saveableWidgetContents(
 ): WidgetContent[] {
   return contents
     .filter(hasContentKeys)
-    .map((content) => {
-      if (widgetType === WIDGET_TYPES.TEXT_AREA) {
-        const textArea = content as TextAreaWidgetContent;
-        return {
-          ...textArea,
-          fieldContents: cleanTextAreaHtml(textArea.fieldContents ?? ""),
-        };
-      }
-      if (widgetType === WIDGET_TYPES.TAG_LIST) {
-        return foldPendingTagText(content as TagListWidgetContent);
-      }
-      return content;
-    })
+    .map((content) => contentAsSent(content, widgetType))
     .filter((content) => doesServerKeepContent(content, widgetType));
+}
+
+/** One content with the per-type cleaning a save applies before sending. */
+function contentAsSent(
+  content: WidgetContent,
+  widgetType: WidgetType
+): WidgetContent {
+  if (widgetType === WIDGET_TYPES.TEXT_AREA) {
+    const textArea = content as TextAreaWidgetContent;
+    return {
+      ...textArea,
+      fieldContents: cleanTextAreaHtml(textArea.fieldContents ?? ""),
+    };
+  }
+  if (widgetType === WIDGET_TYPES.TAG_LIST) {
+    return foldPendingTagText(content as TagListWidgetContent);
+  }
+  return content;
 }
 
 /**
