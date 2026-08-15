@@ -11,7 +11,7 @@ import {
   UploadWidgetContent,
   WidgetContent,
 } from "../../src/types";
-import { normalizeWidgetContents } from "../../src/pages/CreateOrEditAssetPage/useAssetEditor/normalizeAssetForSave";
+import { saveableWidgetContents } from "../../src/pages/CreateOrEditAssetPage/useAssetEditor/normalizeAssetForSave";
 import type { DB } from "../db/index";
 import { isEmpty } from "ramda";
 
@@ -279,14 +279,15 @@ app.post("/submission/true", async (c) => {
 
   // The real backend rebuilds the whole widget set from the payload, keyed
   // by the template, and its hasContents() drops rows it reads as empty.
-  // normalizeWidgetContents is that same rule set, so the mock stores what
-  // the PHP backend would store: an omitted, non-array, or all-empty field
-  // is absent from the document.
+  // saveableWidgetContents is that same rule set, and it keeps each row's
+  // uuid the way Widget_contents_base does, so an identity the editor sent
+  // survives the round trip. An omitted, non-array, or all-empty field is
+  // absent from the document.
   const widgetFields: Record<string, WidgetContent[]> = {};
   for (const widgetDef of template.widgetArray) {
     const sentContents = formData[widgetDef.fieldTitle];
     if (!Array.isArray(sentContents)) continue;
-    const keptContents = normalizeWidgetContents(
+    const keptContents = saveableWidgetContents(
       sentContents as WidgetContent[],
       widgetDef.type
     );

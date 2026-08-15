@@ -210,7 +210,9 @@ export function makeNewLocalAsset({
 const mintedContentUuids = new WeakMap<WidgetContent, string>();
 
 /** The content's uuid, read through WidgetContent's unknown-typed keys. */
-function storedContentUuid(content: WidgetContent | undefined): string | null {
+function getStoredContentUuid(
+  content: WidgetContent | undefined
+): string | null {
   return typeof content?.uuid === "string" ? content.uuid : null;
 }
 
@@ -225,7 +227,7 @@ function makeWidgetContents(
     );
     return currentContents.map((content, index) => {
       // a uuid the server stored comes back and wins
-      const serverUuid = storedContentUuid(content);
+      const serverUuid = getStoredContentUuid(content);
       if (serverUuid) return { ...content, uuid: serverUuid };
 
       const uuid =
@@ -235,7 +237,7 @@ function makeWidgetContents(
         // editor was showing, but only from rows the server keeps: the
         // response holds no blank rows, so a blank row on screen must not
         // push uuids off their contents
-        storedContentUuid(keptPreviousContents[index]) ??
+        getStoredContentUuid(keptPreviousContents[index]) ??
         crypto.randomUUID();
       mintedContentUuids.set(content, uuid);
       return { ...content, uuid };
@@ -249,7 +251,7 @@ function makeWidgetContents(
   // component tree keyed on it (an inline related asset's editor, and any
   // draft typed into it) survives a save's read-back
   const scaffoldContent = createDefaultWidgetContent(widgetDef);
-  const previousUuid = storedContentUuid(previousContents?.[0]);
+  const previousUuid = getStoredContentUuid(previousContents?.[0]);
   return [
     previousUuid ? { ...scaffoldContent, uuid: previousUuid } : scaffoldContent,
   ];
