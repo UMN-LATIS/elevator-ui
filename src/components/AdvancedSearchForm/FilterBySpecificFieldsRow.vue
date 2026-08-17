@@ -63,7 +63,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useSearchableFields } from "@/composables/useSearchableFields";
 import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
@@ -81,11 +81,11 @@ const props = defineProps<{
   rowIndex: number;
 }>();
 
-const instanceStore = useInstanceStore();
+const { searchableFields, getSearchableField } = useSearchableFields();
 const searchStore = useSearchStore();
 
 const currentField = computed((): SearchableSpecificField => {
-  const field = instanceStore.getSearchableField(props.filter.fieldId);
+  const field = getSearchableField(props.filter.fieldId);
 
   if (!field) {
     throw new Error(
@@ -96,7 +96,7 @@ const currentField = computed((): SearchableSpecificField => {
 });
 
 const supportedSpecificFields = computed(() => {
-  return instanceStore.searchableFields.filter((field) =>
+  return searchableFields.value.filter((field) =>
     searchStore.supportedSpecificFieldTypes.includes(field.type)
   );
 });
@@ -112,8 +112,8 @@ function handleFieldChange(event: Event) {
   searchStore.updateFilterFieldId(props.filter.id, newFieldId);
 
   // now we might need to reset the value of the filter
-  const oldField = instanceStore.getSearchableField(oldFieldId);
-  const newField = instanceStore.getSearchableField(newFieldId);
+  const oldField = getSearchableField(oldFieldId);
+  const newField = getSearchableField(newFieldId);
 
   // if both the old and the new fields are text, leave the value in place
   if (oldField?.type === "text" && newField?.type === "text") {

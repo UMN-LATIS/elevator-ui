@@ -152,7 +152,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue";
-import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
+import { useFieldTypesQuery } from "@/queries/templateQueries.js";
 import { Trash2Icon, TypeIcon } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";

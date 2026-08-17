@@ -243,7 +243,7 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { ChevronRightIcon } from "@/icons";
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import WidgetEditor from "./WidgetEditor/WidgetEditor.vue";
-import { useFieldTypesQuery } from "@/queries/useTemplateQuery";
+import { useFieldTypesQuery } from "@/queries/templateQueries";
 import { TEMPLATE_EDITOR_KEY } from "../useTemplateEditor/useTemplateEditor";
 import { WIDGET_EXPANSION_KEY } from "./widgetExpansionKey";
 import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";

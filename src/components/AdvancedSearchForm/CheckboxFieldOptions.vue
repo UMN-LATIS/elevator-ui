@@ -16,7 +16,7 @@ import {
 } from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useSearchableFields } from "@/composables/useSearchableFields";
 
 const props = defineProps<{
   filter: SearchableCheckboxFieldFilter;
@@ -28,12 +28,10 @@ const selectedOption = ref(props.filter.value);
 const trueLabel = ref("Checked");
 const falseLabel = ref("Unchecked");
 const searchStore = useSearchStore();
-const instanceStore = useInstanceStore();
+const { getSearchableField } = useSearchableFields();
 
 const field = computed(() => {
-  return instanceStore.getSearchableField<SearchableCheckboxField>(
-    props.filter.fieldId
-  );
+  return getSearchableField<SearchableCheckboxField>(props.filter.fieldId);
 });
 
 const valueSelectLabel = computed((): string =>

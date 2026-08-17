@@ -51,11 +51,11 @@ import AppHeader from "@/components/AppHeader/AppHeader.vue";
 import { ChevronUpIcon } from "@/icons";
 import { useIntersectionObserver } from "@vueuse/core";
 import SkipNavLink from "@/components/SkipNavLink/SkipNavLink.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import { useRoute } from "vue-router";
 import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
 import Button from "@/components/Button/Button.vue";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 
 // IntersectionObserver fires only when the sentinel enters/leaves the viewport —
 // no per-scroll-tick reactive updates, unlike useWindowScroll().
@@ -65,14 +65,13 @@ useIntersectionObserver(topSentinel, ([entry]) => {
   showScrollToTop.value = !entry.isIntersecting;
 });
 
-const instanceStore = useInstanceStore();
 const route = useRoute();
 
 const requiresAuth = computed(() => {
   return route.meta.requiresAuth ?? false;
 });
 
-const currentUser = computed(() => instanceStore.currentUser);
+const { currentUser } = useCurrentUser();
 
 const canAccess = computed(() => {
   if (!requiresAuth.value) return true;

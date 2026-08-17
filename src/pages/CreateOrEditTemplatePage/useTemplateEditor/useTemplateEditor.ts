@@ -13,7 +13,7 @@ import {
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
   useFieldTypesQuery,
-} from "@/queries/useTemplateQuery";
+} from "@/queries/templateQueries";
 import { addTempId, stripTempId, type WithTempId } from "@/lib/tempId";
 import type {
   AdminTemplate,

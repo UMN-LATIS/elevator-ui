@@ -2,13 +2,27 @@ import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { Page } from "@/types";
 import { computed } from "vue";
 
-export function useNavPages() {
-  const { data, isLoading, isError, isSuccess } = useInstanceNavQuery();
+const HOME_PAGE_TITLE = "Home Page";
 
-  const navPages = computed((): Page[] => data.value?.pages ?? []);
+export function useNavPages() {
+  const {
+    data: instanceNav,
+    isLoading,
+    isError,
+    isSuccess,
+  } = useInstanceNavQuery();
+
+  const navPages = computed((): Page[] => instanceNav.value?.pages ?? []);
+
+  const homePageId = computed(
+    (): Page["id"] | null =>
+      instanceNav.value?.pages.find((p) => p.title === HOME_PAGE_TITLE)?.id ??
+      null
+  );
 
   return {
     navPages,
+    homePageId,
     isLoading,
     isError,
     isSuccess,

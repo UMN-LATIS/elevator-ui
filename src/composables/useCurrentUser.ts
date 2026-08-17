@@ -27,11 +27,8 @@ export function useCurrentUser() {
     selectCurrentUser(instanceNav.data.value ?? null)
   );
 
-  const isLoggedIn = computed(() => currentUser.value !== null);
-
   return {
     currentUser,
-    isLoggedIn,
     isLoading: instanceNav.isLoading,
     isError: instanceNav.isError,
     isSuccess: instanceNav.isSuccess,

@@ -36,7 +36,7 @@ export function useSearchableFields() {
 
   function getSearchableField<
     T extends SearchableSpecificField = SearchableSpecificField
-  >(fieldId: string): SearchableSpecificField | null {
+  >(fieldId: string): T | null {
     return (searchableFieldLookup.value[fieldId] as T) ?? null;
   }
 

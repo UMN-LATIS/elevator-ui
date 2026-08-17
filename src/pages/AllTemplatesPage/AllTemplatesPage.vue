@@ -79,7 +79,7 @@ import {
   useCopyTemplateMutation,
   useDeleteTemplateMutation,
   useReindexTemplateMutation,
-} from "@/queries/useTemplateQuery";
+} from "@/queries/templateQueries";
 import type { TemplateSummary } from "@/types";
 
 const { data: templates, isPending, isError } = useAllTemplatesQuery();

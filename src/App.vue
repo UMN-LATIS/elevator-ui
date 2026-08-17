@@ -16,13 +16,12 @@
       <ThemePreviewBar />
     </Teleport>
     <ErrorBoundary>
-      <RouterView v-if="instanceStore.hasData && drawerStore.isReady" />
+      <RouterView v-if="drawerStore.isReady" />
     </ErrorBoundary>
   </div>
 </template>
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
-import { useInstanceStore } from "./stores/instanceStore";
 import { useDrawerStore } from "./stores/drawerStore";
 import { useTheming } from "./helpers/useTheming";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
@@ -33,17 +32,11 @@ import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import { useCustomCSS } from "./composables/useCustomCSS";
 
-// load instance store before mounting app
-// this prevents a race conditiion where the search store
-// tries to add search field filters before the instance store
-// has returned specifics about the available search fields
-const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
 const elevatorSessionStorage = useElevatorSessionStorage();
 
 onMounted(() => {
   console.log("app mounted");
-  instanceStore.init();
   drawerStore.init();
 
   if (window.name === "elevatorPlugin") {

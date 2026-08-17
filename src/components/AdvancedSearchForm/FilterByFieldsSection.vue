@@ -73,7 +73,7 @@ import Button from "@/components/Button/Button.vue";
 import { useSearchStore } from "@/stores/searchStore";
 import AdvSearchDropDown from "./AdvSearchDropDown.vue";
 import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useSearchableFields } from "@/composables/useSearchableFields";
 import FilterBySpecificFieldsRow from "./FilterBySpecificFieldsRow.vue";
 import FilterByGlobalDateRow from "./FilterByGlobalDateRow.vue";
 import FilterByGlobalLocationRow from "./FilterByGlobalLocationRow.vue";
@@ -81,11 +81,11 @@ import FilterByGlobalFileTypeRow from "./FilterByGlobalFileTypeRow.vue";
 import type { SearchableSpecificFieldFilter } from "@/types";
 import { GLOBAL_FIELD_IDS } from "@/constants/constants";
 
-const instanceStore = useInstanceStore();
+const { searchableFields } = useSearchableFields();
 const searchStore = useSearchStore();
 
 const supportedSearchableFields = computed(() => {
-  return instanceStore.searchableFields.filter((field) =>
+  return searchableFields.value.filter((field) =>
     searchStore.supportedSpecificFieldTypes.includes(field.type)
   );
 });

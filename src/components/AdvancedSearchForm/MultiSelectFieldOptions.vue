@@ -15,25 +15,24 @@ import {
   SearchableSpecificFieldFilter,
   SearchableMultiSelectField,
 } from "@/types";
-import { ref, watch, computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
-import { useInstanceStore } from "@/stores/instanceStore";
 import CascadeSelect, {
   CascaderSelectOptions,
 } from "@/components/CascadeSelect/CascadeSelect.vue";
+import { useSearchableFields } from "@/composables/useSearchableFields";
 
 const props = defineProps<{
   filter: SearchableSpecificFieldFilter;
 }>();
 
 const searchStore = useSearchStore();
-const instanceStore = useInstanceStore();
 
-const field = computed(() => {
-  return instanceStore.getSearchableField<SearchableMultiSelectField>(
-    props.filter.fieldId
-  );
-});
+const { getSearchableField } = useSearchableFields();
+
+const field = computed(() =>
+  getSearchableField<SearchableMultiSelectField>(props.filter.fieldId)
+);
 
 const optionTree = ref<CascaderSelectOptions | null>(null);
 
