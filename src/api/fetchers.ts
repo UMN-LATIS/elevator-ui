@@ -295,7 +295,7 @@ export async function fetchSearchIdForClickToSearch(
   return res.data.searchId;
 }
 
-export async function fetchStaticPage(
+export async function fetchPageView(
   pageId: number,
   options?: { signal?: AbortSignal }
 ): Promise<ApiStaticPageResponse> {
@@ -1009,14 +1009,14 @@ interface CustomPageApiResponse {
   modifiedAt?: string;
 }
 
-export async function fetchCustomPages() {
+export async function fetchAllCustomPages() {
   const res = await axios.get<CustomPageApiResponse[]>(
     `${BASE_URL}/instances/customPages/true`
   );
   return res.data;
 }
 
-export async function fetchCustomPage(pageId: number) {
+export async function fetchCustomPageForEditing(pageId: number) {
   const res = await axios.get<CustomPageApiResponse>(
     `${BASE_URL}/instances/getPage/${pageId}`
   );
