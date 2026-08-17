@@ -1,6 +1,6 @@
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { ApiInstanceNavResponse, SearchableSpecificField } from "@/types";
-import { computed } from "vue";
+import { computed, MaybeRefOrGetter, toValue } from "vue";
 
 function selectSearchableFields(
   data: ApiInstanceNavResponse | undefined
@@ -26,15 +26,22 @@ export function useSearchableFields() {
     selectSearchableFields(instanceNavData.value)
   );
 
-  const searchableFieldLookup = computed(
-    (): Record<string, SearchableSpecificField> =>
-      Object.fromEntries(
-        searchableFields.value.map((field) => [field.id, field])
-      )
-  );
+  const searchableFieldLookup = computed(() => {
+    const fields = searchableFields.value;
+    return fields.reduce((acc, field) => {
+      acc[field.id] = field;
+      return acc;
+    }, {} as Record<string, SearchableSpecificField>);
+  });
+
+  function getSearchableField<
+    T extends SearchableSpecificField = SearchableSpecificField
+  >(fieldId: string): SearchableSpecificField | null {
+    return (searchableFieldLookup.value[fieldId] as T) ?? null;
+  }
 
   return {
     searchableFields,
-    searchableFieldLookup,
+    getSearchableField,
   };
 }
