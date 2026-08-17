@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
-import { INSTANCE_QUERY_KEY } from "./queryKeys";
+import { INSTANCENAV_QUERY_KEY } from "./queryKeys";
 
-export function useInstanceQuery(options = {}) {
+export function useInstanceNavQuery(options = {}) {
   return useQuery({
-    queryKey: [INSTANCE_QUERY_KEY],
+    queryKey: [INSTANCENAV_QUERY_KEY],
     queryFn: fetchers.fetchInstanceNav,
     refetchOnWindowFocus: true,
     ...options,

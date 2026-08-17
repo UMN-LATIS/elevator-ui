@@ -1,4 +1,4 @@
-export const INSTANCE_QUERY_KEY = "instance";
+export const INSTANCENAV_QUERY_KEY = "instanceNav";
 export const INSTANCE_SETTINGS_QUERY_KEY = "instanceSettings";
 export const ASSETS_QUERY_KEY = "assets";
 export const TEMPLATES_QUERY_KEY = "templates";

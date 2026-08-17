@@ -5,7 +5,7 @@ import {
   saveCustomPage,
   deleteCustomPage,
 } from "@/api/fetchers";
-import { CUSTOM_PAGES_QUERY_KEY, INSTANCE_QUERY_KEY } from "./queryKeys";
+import { CUSTOM_PAGES_QUERY_KEY, INSTANCENAV_QUERY_KEY } from "./queryKeys";
 import type { SaveCustomPageParams } from "@/types";
 import { useInstanceStore } from "@/stores/instanceStore";
 
@@ -36,7 +36,7 @@ export function useSaveCustomPageMutation(options?: {
     onSuccess: (data, variables) => {
       // Invalidates both the list and all individual page queries
       queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [INSTANCENAV_QUERY_KEY] });
 
       // refresh instanceStore too
       // this will double-fetch instance info when pages are saved
@@ -59,7 +59,7 @@ export function useDeleteCustomPageMutation() {
     mutationFn: (pageId: number) => deleteCustomPage(pageId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [INSTANCENAV_QUERY_KEY] });
 
       // refresh instanceStore too
       // this will double-fetch instance info when pages are deleted
