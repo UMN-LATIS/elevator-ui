@@ -22,7 +22,5 @@ export const DRAWER_USER_AUTOCOMPLETE_QUERY_KEY = "drawerUserAutocomplete";
 // - public view page (has different data than edit page): [CUSTOM_PAGES, pageId, VIEW]
 // if filters are involved, they can be added to the end of the query key array, e.g. [CUSTOM_PAGES, LIST, { filter: "someFilter" }]
 export const LIST = "list";
-export const ITEM = "item";
-
 export const EDIT = "edit";
 export const VIEW = "view";
