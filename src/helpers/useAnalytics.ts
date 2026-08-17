@@ -1,7 +1,12 @@
 import invariant from "tiny-invariant";
 import { useAssetStore } from "@/stores/assetStore";
-import { useInstanceStore } from "@/stores/instanceStore";
-import { AssetCollection } from "@/types";
+import { appQueryClient } from "@/queries/queryClient";
+import { INSTANCENAV_QUERY_KEY } from "@/queries/queryKeys";
+import { ApiInstanceNavResponse, AssetCollection } from "@/types";
+import {
+  normalizeAssetCollections,
+  toCollectionIndex,
+} from "@/helpers/collectionHelpers";
 
 const VIEW_ASSET_EVENT = "view_asset";
 const DOWNLOAD_EVENT = "download";
@@ -15,21 +20,29 @@ async function getAssetDetails(assetId: string): Promise<{
   instance_name: string;
 }> {
   const assetStore = useAssetStore();
-  const instanceStore = useInstanceStore();
   const asset = await assetStore.getAsset(assetId);
   const assetName = await assetStore.getAssetTitle(assetId);
 
   invariant(asset, `Asset with id ${assetId} not found`);
 
-  const collection = await instanceStore.getCollectionById(asset.collectionId);
+  // Read the instanceNav cache imperatively: analytics fires from store
+  // actions, where vue-query composables are unavailable, and only
+  // needs a point-in-time snapshot.
+  const instanceNav = appQueryClient.getQueryData<ApiInstanceNavResponse>([
+    INSTANCENAV_QUERY_KEY,
+  ]);
+  const collectionIndex = toCollectionIndex(
+    normalizeAssetCollections(instanceNav?.collections ?? [])
+  );
+  const collection = collectionIndex[asset.collectionId] ?? null;
 
   return {
     asset_id: assetId,
     asset_name: assetName ?? "Unknown",
     collection_id: asset.collectionId,
     collection_name: collection?.title ?? "Unknown",
-    instance_id: instanceStore.instance.id ?? -1,
-    instance_name: instanceStore.instance.name ?? "Unknown",
+    instance_id: instanceNav?.instanceId ?? -1,
+    instance_name: instanceNav?.instanceName ?? "Unknown",
   };
 }
 

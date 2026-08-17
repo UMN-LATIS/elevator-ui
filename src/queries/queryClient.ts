@@ -23,3 +23,9 @@ export function createAppQueryClient(): QueryClient {
     },
   });
 }
+
+// The app's one QueryClient, exported as a module singleton so
+// non-component code (store actions, event handlers) can read the
+// cache imperatively where vue-query's inject-based composables
+// are unavailable.
+export const appQueryClient = createAppQueryClient();
