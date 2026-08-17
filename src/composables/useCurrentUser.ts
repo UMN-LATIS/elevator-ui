@@ -14,7 +14,6 @@ function selectCurrentUser(
     displayName: instanceNav.userDisplayName ?? `User ${instanceNav.userId}`,
     isAdmin: instanceNav.userIsAdmin,
     isSuperAdmin: instanceNav.userIsSuperAdmin,
-    canSearchAndBrowse: instanceNav.userCanSearchAndBrowse,
     canManageAssets: instanceNav.userCanManageAssets,
     canManageDrawers: instanceNav.userCanCreateDrawers,
   };
@@ -27,8 +26,18 @@ export function useCurrentUser() {
     selectCurrentUser(instanceNav.data.value ?? null)
   );
 
+  const isLoggedIn = computed((): boolean => !!currentUser.value);
+
+  // session-level, not a property of currentUser: on a public
+  // instance this is true even for anonymous visitors
+  const canSearchAndBrowse = computed(
+    (): boolean => instanceNav.data.value?.userCanSearchAndBrowse ?? false
+  );
+
   return {
     currentUser,
+    isLoggedIn,
+    canSearchAndBrowse,
     isLoading: instanceNav.isLoading,
     isError: instanceNav.isError,
     isSuccess: instanceNav.isSuccess,

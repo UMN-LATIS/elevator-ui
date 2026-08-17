@@ -5,7 +5,7 @@
       :instance="instance"
       :currentUser="currentUser"
       @close="$emit('close')">
-      <template v-if="currentUser?.canSearchAndBrowse">
+      <template v-if="canSearchAndBrowse">
         <PagesNavSection
           :pages="navPages"
           class="app-menu__pages-nav-section" />
@@ -53,9 +53,9 @@ import PagesNavSection from "./PagesNavSection.vue";
 import EditNavSection from "./EditNavSection.vue";
 import AdminNavSection from "./AdminNavSection.vue";
 import HelpNavSection from "./HelpNavSection.vue";
-import { useElevatorInstance } from "@/composables/useElevatorInstance.js";
-import { useNavPages } from "@/composables/useNavPages.js";
-import { useCollections } from "@/composables/useCollections.js";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
+import { useNavPages } from "@/composables/useNavPages";
+import { useCollections } from "@/composables/useCollections";
 
 const emit = defineEmits<{
   (eventName: "close"): void;
@@ -63,7 +63,7 @@ const emit = defineEmits<{
 
 const assetStore = useAssetStore();
 
-const { currentUser } = useCurrentUser();
+const { currentUser, canSearchAndBrowse } = useCurrentUser();
 const { instance } = useElevatorInstance();
 const { navPages } = useNavPages();
 const { viewableCollections } = useCollections();

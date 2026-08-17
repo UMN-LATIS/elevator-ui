@@ -7,9 +7,7 @@
           <AppLogoMark />
         </Link>
       </div>
-      <SearchBar
-        v-if="currentUser?.canSearchAndBrowse"
-        class="flex-1 w-full max-w-2xl" />
+      <SearchBar v-if="canSearchAndBrowse" class="flex-1 w-full max-w-2xl" />
       <div class="flex gap-2 items-center">
         <AuthDropDown
           v-if="instance"
@@ -32,7 +30,7 @@ import AuthDropDown from "@/components/AuthDropDown/AuthDropDown.vue";
 import { useCurrentUser } from "@/composables/useCurrentUser";
 import { useElevatorInstance } from "@/composables/useElevatorInstance";
 
-const { currentUser } = useCurrentUser();
+const { currentUser, canSearchAndBrowse } = useCurrentUser();
 const { instance } = useElevatorInstance();
 </script>
 <style scoped></style>

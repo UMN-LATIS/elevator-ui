@@ -773,9 +773,6 @@ export interface User {
   displayName: string;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  // whether or not to show search and browse
-  // may be true even if user is not logged in
-  canSearchAndBrowse: boolean;
   canManageAssets: boolean;
   canManageDrawers: boolean;
 }
