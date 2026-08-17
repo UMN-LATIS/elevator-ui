@@ -1,14 +1,19 @@
-import { watchEffect } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { computed, watchEffect } from "vue";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 
 const STYLE_TAG_ID = "elevator-custom-css";
 
 export function useCustomCSS() {
-  const instanceStore = useInstanceStore();
+  const { data: instanceNav } = useInstanceNavQuery();
 
   watchEffect(() => {
-    const shouldApply =
-      instanceStore.useCustomCSS && instanceStore.customHeaderCSS;
+    const isUsingCustomCSS = instanceNav.value?.useCustomCSS ?? false;
+
+    const customHeaderCSS = instanceNav.value?.customHeaderCSS ?? "";
+
+    const hasCustomCSS = !!customHeaderCSS;
+
+    const shouldApply = isUsingCustomCSS && hasCustomCSS;
 
     const existing = document.getElementById(STYLE_TAG_ID);
 
@@ -19,7 +24,7 @@ export function useCustomCSS() {
 
     const styleTag = existing ?? document.createElement("style");
     styleTag.id = STYLE_TAG_ID;
-    styleTag.textContent = instanceStore.customHeaderCSS;
+    styleTag.textContent = customHeaderCSS;
 
     if (!existing) {
       document.head.appendChild(styleTag);
