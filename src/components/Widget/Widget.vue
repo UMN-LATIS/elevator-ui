@@ -6,9 +6,7 @@
         <p class="text-sm text-error/90">
           An error occurred while rendering this widget.
           <a
-            :href="`${
-              instanceStore.instance.contact || 'mailto:latistecharch@umn.edu'
-            }`"
+            :href="`${instance?.contact || 'mailto:latistecharch@umn.edu'}`"
             target="_blank"
             rel="noopener noreferrer">
             Contact your administrator
@@ -50,14 +48,14 @@ import TagWidget from "@/components/Widget/TagWidget/TagWidget.vue";
 import RelatedAssetWidget from "@/components/Widget/RelatedAssetWidget/RelatedAssetWidget.vue";
 import { getWidgetContents } from "@/helpers/displayUtils";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 
 const props = defineProps<{
   widget: WidgetDef;
   asset: Asset | UnsavedAsset;
 }>();
 
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 
 const widgetContents = computed(() =>
   getWidgetContents({ asset: props.asset, widget: props.widget })

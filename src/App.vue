@@ -16,7 +16,7 @@
       <ThemePreviewBar />
     </Teleport>
     <ErrorBoundary>
-      <RouterView v-if="drawerStore.isReady" />
+      <RouterView v-if="isInstanceNavReady && drawerStore.isReady" />
     </ErrorBoundary>
   </div>
 </template>
@@ -31,9 +31,16 @@ import ThemePreviewBar from "@/components/ThemePreviewBar/ThemePreviewBar.vue";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import { useCustomCSS } from "./composables/useCustomCSS";
+import { useCustomScripts } from "./composables/useCustomScripts";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 
 const drawerStore = useDrawerStore();
 const elevatorSessionStorage = useElevatorSessionStorage();
+
+// Pages assume instanceNav data (nav pages, collections, searchable
+// fields) is already in the query cache, so hold the RouterView until
+// the first fetch succeeds.
+const { isSuccess: isInstanceNavReady } = useInstanceNavQuery();
 
 onMounted(() => {
   console.log("app mounted");
@@ -46,6 +53,7 @@ onMounted(() => {
 
   useTheming();
   useCustomCSS();
+  useCustomScripts();
 });
 
 onUnmounted(() => {

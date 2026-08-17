@@ -15,7 +15,7 @@ import { computed } from "vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
-import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery.js";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import {
   flattenCollections,
   normalizeAssetCollections,

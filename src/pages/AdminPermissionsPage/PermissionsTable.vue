@@ -277,7 +277,7 @@ import {
   flattenCollections,
   normalizeAssetCollections,
 } from "@/helpers/collectionHelpers";
-import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery.js";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { useToastStore } from "@/stores/toastStore";
 import AddPermissionRow from "./AddPermissionRow.vue";

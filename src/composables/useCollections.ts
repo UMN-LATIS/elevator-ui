@@ -1,4 +1,4 @@
-import { computed, MaybeRefOrGetter, toValue } from "vue";
+import { computed } from "vue";
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import {
   normalizeAssetCollections,
@@ -7,7 +7,6 @@ import {
   flattenCollections,
 } from "@/helpers/collectionHelpers";
 import { AssetCollection } from "@/types";
-import { useCollectionDescriptionQuery } from "@/queries/useCollectionDescriptionQuery";
 
 export function useCollections() {
   const { data: instanceNav } = useInstanceNavQuery();

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { MaybeRefOrGetter, toValue } from "vue";
 import {
   fetchCustomPageForEditing,
-  fetchAllCustomPages as fetchAllCustomPages,
+  fetchAllCustomPages,
   saveCustomPage,
   deleteCustomPage,
   fetchPageView,
@@ -83,7 +83,7 @@ export function useDeleteCustomPageMutation() {
 
   return useMutation({
     mutationFn: (pageId: number) => deleteCustomPage(pageId),
-    onSuccess: (data, pageId) => {
+    onSuccess: (_data, pageId) => {
       queryClient.invalidateQueries({
         queryKey: [CUSTOM_PAGES, LIST],
       });

@@ -1,7 +1,8 @@
 <template>
   <DefaultLayout class="drawer-view-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+      <CustomAppHeader
+        v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="px-4">
       <Link
@@ -15,7 +16,7 @@
           {{ drawerTitle }}
         </h2>
         <div
-          v-if="instanceStore.currentUser?.canManageDrawers"
+          v-if="currentUser?.canManageDrawers"
           class="flex items-center gap-2 bg-surface-container-low p-1 rounded-md">
           <IconButton
             :to="`/drawers/${drawerId}/manage`"
@@ -87,7 +88,7 @@
               :drawerId="drawerId"
               :isDraggable="
                 selectedSortOption === SORT_KEYS.CUSTOM &&
-                instanceStore.currentUser?.canManageDrawers
+                currentUser?.canManageDrawers
               "
               @dragEnd="handleDragEnd" />
           </Transition>
@@ -102,7 +103,7 @@
               :drawerId="drawerId"
               :isDraggable="
                 selectedSortOption === SORT_KEYS.CUSTOM &&
-                instanceStore.currentUser?.canManageDrawers
+                currentUser?.canManageDrawers
               "
               @dragEnd="handleDragEnd" />
           </Transition>
@@ -170,6 +171,7 @@ import Link from "@/components/Link/Link.vue";
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import {
   SearchResultsView,
+  ShowCustomHeaderMode,
   Tab as TabType,
   FetchStatus,
   SearchResultMatch,
@@ -194,7 +196,8 @@ const DrawerItemsList = defineAsyncComponent({
 });
 import IconButton from "@/components/IconButton/IconButton.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 import ShareButton from "@/components/ShareButton/ShareButton.vue";
 import config from "@/config";
 
@@ -209,7 +212,8 @@ const props = withDefaults(
 );
 
 const BASE_URL = config.instance.base.url;
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
+const { customHeaderMode } = useCustomHeaderFooter();
 
 const isEmbeddableView = (view: string) =>
   ["map", "timeline", "gallery"].includes(view);

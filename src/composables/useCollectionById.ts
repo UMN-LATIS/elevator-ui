@@ -6,7 +6,6 @@ import {
   filterCollections,
   toCollectionAncestry,
 } from "@/helpers/collectionHelpers";
-import { filter } from "ramda";
 
 export function useCollectionById(idRef: MaybeRefOrGetter<number | null>) {
   const { collectionIndex } = useCollections();
@@ -35,28 +34,18 @@ export function useCollectionById(idRef: MaybeRefOrGetter<number | null>) {
     return toCollectionAncestry(collectionIndex.value, collectionId);
   });
 
-  const viewableChildren = computed((): AssetCollection[] => {
-    const collectionId = toValue(idRef);
-    if (!collectionId) return [];
-    return filterCollections(
-      (coll) => coll.canView,
+  // same predicate the All Collections page uses for its top level, so
+  // the browse panel and the full page agree on which children are shown
+  const browsableChildren = computed((): AssetCollection[] =>
+    filterCollections(
+      (child) => child.canView && child.showInBrowse,
       collection.value?.children ?? []
-    );
-  });
-
-  const browsableChildren = computed((): AssetCollection[] => {
-    const collectionId = toValue(idRef);
-    if (!collectionId) return [];
-    return filterCollections(
-      (coll) => coll.showInBrowse,
-      collection.value?.children ?? []
-    );
-  });
+    )
+  );
 
   return {
     collection,
     collectionAncestry,
-    viewableChildren,
     browsableChildren,
   };
 }

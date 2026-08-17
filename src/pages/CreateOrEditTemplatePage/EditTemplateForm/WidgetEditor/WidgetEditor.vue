@@ -152,7 +152,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watch } from "vue";
-import { useFieldTypesQuery } from "@/queries/templateQueries.js";
+import { useFieldTypesQuery } from "@/queries/templateQueries";
 import { Trash2Icon, TypeIcon } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
@@ -173,7 +173,7 @@ import {
 } from "../../useTemplateEditor/useTemplateEditor";
 import { WIDGET_EXPANSION_KEY } from "../widgetExpansionKey";
 import type { SelectOption } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{ index: number }>();
@@ -192,7 +192,7 @@ defineEmits<{ remove: [] }>();
 
 const showConfirm = ref(false);
 
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 
 // Mirror the legacy editor behavior: derive fieldTitle from label for new widgets.
 // Existing widgets (widgetId set) already have a locked fieldTitle — never overwrite it.
@@ -200,7 +200,7 @@ watch(
   () => widget.value.label,
   (label) => {
     if (widget.value.widgetId !== undefined) return;
-    const instanceId = instanceStore.instance.id;
+    const instanceId = instance.value?.id;
     if (!instanceId) return;
     const slug = label.replace(/[^a-z0-9_]/gi, "").toLowerCase() || "field";
     widget.value.fieldTitle = slug + "_" + instanceId;

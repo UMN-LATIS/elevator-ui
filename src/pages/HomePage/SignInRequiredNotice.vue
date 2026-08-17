@@ -12,25 +12,25 @@
         class="sign-in-required__local-login"
         variant="primary"
         @click="goToLocalLogin">
-        <span v-if="instance.useCentralAuth" class="guest-auth-label">
+        <span v-if="instance?.useCentralAuth" class="guest-auth-label">
           <!--
           The label for the guest login option can be customized via the `--guest-auth-label` CSS variable. If not set, it will default to "Guest". Eventually, this could become an explicit instance setting.
         --></span>
         Login
       </Button>
       <Button
-        v-if="instance.useCentralAuth"
+        v-if="instance?.useCentralAuth"
         :href="`${config.instance.base.url}/loginManager/remoteLogin/?redirect=${encodedCallbackUrl}`"
         class="sign-in-required__remote-login"
         variant="primary">
-        {{ instance.centralAuthLabel }} Login
+        {{ instance?.centralAuthLabel }} Login
       </Button>
     </div>
   </Notification>
 </template>
 <script setup lang="ts">
 import { useBrowserLocation } from "@vueuse/core";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { useErrorStore } from "@/stores/errorStore";
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -38,11 +38,10 @@ import config from "@/config";
 import Notification from "@/components/Notification/Notification.vue";
 import Button from "@/components/Button/Button.vue";
 
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 const errorStore = useErrorStore();
 const router = useRouter();
 const route = useRoute();
-const instance = computed(() => instanceStore.instance);
 const browserLocation = useBrowserLocation();
 const encodedCallbackUrl = computed(() => {
   const callbackUrl = browserLocation.value?.href ?? config.instance.base.url;

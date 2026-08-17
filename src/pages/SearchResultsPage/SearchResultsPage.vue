@@ -1,7 +1,8 @@
 <template>
   <DefaultLayout class="search-results-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+      <CustomAppHeader
+        v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="px-4">
       <SearchErrorNotification
@@ -51,7 +52,7 @@
                 class="mr-1"
                 @sortOptionChange="handleSortOptionChange" />
               <AddSearchResultsToDrawerButton
-                v-if="instanceStore.currentUser?.canManageDrawers" />
+                v-if="currentUser?.canManageDrawers" />
 
               <ShareButton
                 v-if="
@@ -69,9 +70,7 @@
               :matches="searchStore.matches"
               :status="searchStore.status"
               :hasMoreResults="searchStore.hasMoreResults"
-              :showAddToDrawerButton="
-                instanceStore.currentUser?.canManageDrawers
-              "
+              :showAddToDrawerButton="currentUser?.canManageDrawers"
               @loadMore="() => searchStore.loadMore()" />
           </Tab>
           <Tab id="list" label="List">
@@ -147,6 +146,9 @@ import SearchResultsGrid from "@/components/SearchResultsGrid/SearchResultsGrid.
 import SearchResultsList from "@/components/SearchResultsList/SearchResultsList.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 
+const { currentUser } = useCurrentUser();
+const { customHeaderMode } = useCustomHeaderFooter();
+
 // Heavy tabs are lazy-loaded so maplibre-gl, timelinejs, and swiper don't
 // land in the main bundle when a user stays on grid/list.
 const tabLoadingFallback = {
@@ -168,18 +170,20 @@ const SearchResultsGallery = defineAsyncComponent({
 });
 import ResultsCount from "@/components/ResultsCount/ResultsCount.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-import type {
-  SearchResultsView,
-  SearchSortOptions,
-  Tab as TabType,
+import {
+  ShowCustomHeaderMode,
+  type SearchResultsView,
+  type SearchSortOptions,
+  type Tab as TabType,
 } from "@/types";
-import { SEARCH_RESULTS_VIEWS, SORT_KEYS } from "@/constants/constants";
+import { SEARCH_RESULTS_VIEWS } from "@/constants/constants";
 import SearchResultsSortSelect from "@/components/SearchResultsSortSelect/SearchResultsSortSelect.vue";
 import SearchErrorNotification from "./SearchErrorNotification.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import AddSearchResultsToDrawerButton from "./AddSearchResultsToDrawerButton.vue";
 import DidYouMeanSuggestions from "./DidYouMeanSuggestions.vue";
 import ShareButton from "@/components/ShareButton/ShareButton.vue";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 
 const props = withDefaults(
   defineProps<{
@@ -193,7 +197,6 @@ const props = withDefaults(
   }
 );
 
-const instanceStore = useInstanceStore();
 const searchStore = useSearchStore();
 const route = useRoute();
 const router = useRouter();

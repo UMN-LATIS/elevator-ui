@@ -3,8 +3,14 @@ import {
   getScriptsFromHTML,
 } from "@/helpers/customScriptHelpers";
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
-import { computed, ref, watch } from "vue";
+import { computed, watch } from "vue";
 
+/**
+ * Runs the `<script>` tags embedded in the instance's custom header
+ * and footer HTML. Scripts run once per app load, after the first
+ * instanceNav response that contains any — re-running them on every
+ * refetch would re-register whatever they set up.
+ */
 export function useCustomScripts() {
   const { data: instanceNav } = useInstanceNavQuery();
 
@@ -18,14 +24,15 @@ export function useCustomScripts() {
     return [...headerScripts, ...footerScripts];
   });
 
-  const hasExecutedCustomScripts = ref(false);
+  let hasExecutedCustomScripts = false;
 
   watch(
     customScripts,
     (scripts) => {
+      if (hasExecutedCustomScripts || !scripts.length) return;
       executeScripts(scripts);
-      hasExecutedCustomScripts.value = true;
+      hasExecutedCustomScripts = true;
     },
-    { once: true }
+    { immediate: true }
   );
 }

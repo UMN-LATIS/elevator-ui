@@ -1,11 +1,7 @@
-import {
-  executeScripts,
-  getScriptsFromHTML,
-  removeScriptsFromHtml,
-} from "@/helpers/customScriptHelpers";
+import { removeScriptsFromHtml } from "@/helpers/customScriptHelpers";
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { ShowCustomHeaderMode } from "@/types";
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 
 export function useCustomHeaderFooter() {
   const { data: instanceNav } = useInstanceNavQuery();

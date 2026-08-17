@@ -1,7 +1,7 @@
 <template>
   <div class="obj-handler-sidecar">
     <UploadableTextArea
-      v-if="instanceStore.instance.useVoyagerViewer"
+      v-if="instance?.useVoyagerViewer"
       v-model="localSVX"
       label="SVX File"
       placeholder="No SVX data" />
@@ -13,13 +13,13 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import * as Type from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import UploadableTextArea from "./UploadableTextArea.vue";
 import { ref, watch } from "vue";
 
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 const props = defineProps<{
   sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
   widgetDef: Type.UploadWidgetDef;

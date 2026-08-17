@@ -11,29 +11,19 @@
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
-import { filterCollections } from "@/helpers/collectionHelpers";
-import { AssetCollection } from "@/types";
 import CollectionItem from "@/components/CollectionItem/CollectionItem.vue";
+import { useCollectionById } from "@/composables/useCollectionById";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 
 const props = defineProps<{
   collectionId: number;
 }>();
 
-const instanceStore = useInstanceStore();
+const { browsableChildren } = useCollectionById(() => props.collectionId);
+const { instance } = useElevatorInstance();
 
 // Instance admins can turn the browse panel off for the whole instance.
 const isPanelEnabled = computed(
-  () => instanceStore.instance.showChildCollections
+  () => instance.value?.showChildCollections ?? false
 );
-
-// Same predicate the All Collections page uses for its top level, so the
-// panel and the full page agree on which children are shown.
-const browsableChildren = computed((): AssetCollection[] => {
-  const collection = instanceStore.collectionIndex[props.collectionId];
-  return filterCollections(
-    (col) => col.canView && col.showInBrowse,
-    collection?.children ?? []
-  );
-});
 </script>

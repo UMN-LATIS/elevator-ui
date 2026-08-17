@@ -78,7 +78,7 @@
 import { UploadWidgetDef, UploadWidgetContent } from "@/types";
 import config from "@/config";
 import { useAssetStore } from "@/stores/assetStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { useToastStore } from "@/stores/toastStore";
 import {
   fetchOriginalFileStorageStatus,
@@ -100,7 +100,7 @@ const props = defineProps<{
 }>();
 
 const assetStore = useAssetStore();
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 const toastStore = useToastStore();
 
 const isFileActive = (fileId: string) =>
@@ -109,7 +109,7 @@ const isDownloadingAll = ref(false);
 
 // with descriptions hidden, the text serves as alt text only
 const isDescriptionVisible = computed(
-  () => instanceStore.instance.showThumbnailDescription
+  () => instance.value?.showThumbnailDescription ?? false
 );
 
 function descriptionText(content: UploadWidgetContent): string {

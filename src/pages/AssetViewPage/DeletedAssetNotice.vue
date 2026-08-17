@@ -21,7 +21,7 @@ import { computed } from "vue";
 import Notification from "@/components/Notification/Notification.vue";
 import Button from "@/components/Button/Button.vue";
 import { useRestoreAssetMutation } from "@/queries/useRestoreAssetMutation";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 
 const props = defineProps<{
   assetId: string;
@@ -32,10 +32,8 @@ const emit = defineEmits<{
   (e: "restored"): void;
 }>();
 
-const instanceStore = useInstanceStore();
-const canRestore = computed(
-  () => instanceStore.currentUser?.canManageAssets ?? false
-);
+const { currentUser } = useCurrentUser();
+const canRestore = computed(() => currentUser.value?.canManageAssets ?? false);
 
 const formattedDate = computed(() => {
   if (!props.deletedAt) return "";

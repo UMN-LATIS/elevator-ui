@@ -16,7 +16,7 @@
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Link from "@/components/Link/Link.vue";
 import { computed } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCollections } from "@/composables/useCollections";
 import { AssetCollection } from "@/types";
 import { toCollectionAncestry } from "@/helpers/collectionHelpers";
 
@@ -25,11 +25,11 @@ const props = defineProps<{
   collectionId: AssetCollection["id"];
 }>();
 
-const instanceStore = useInstanceStore();
+const { collectionIndex } = useCollections();
 
 // breadcrumb path like "Collection A / Collection B / Collection C"
 const collectionPath = computed((): AssetCollection[] =>
-  toCollectionAncestry(instanceStore.collectionIndex, props.collectionId)
+  toCollectionAncestry(collectionIndex.value, props.collectionId)
 );
 </script>
 <style scoped></style>

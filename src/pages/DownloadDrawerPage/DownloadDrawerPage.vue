@@ -39,7 +39,7 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import Button from "@/components/Button/Button.vue";
 import { onMounted, ref } from "vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 import { SpinnerIcon, DownloadIcon } from "@/icons";
 import { onBeforeRouteUpdate, useRouter } from "vue-router";
 
@@ -50,7 +50,7 @@ const props = defineProps<{
 const isPageReady = ref(false);
 const drawerStore = useDrawerStore();
 const archiveStatus = ref<ApiStartDrawerDownloadResponse | null>(null);
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
 const router = useRouter();
 
 onMounted(async () => {
@@ -60,7 +60,7 @@ onMounted(async () => {
 
 onBeforeRouteUpdate(() => {
   // if user doesn't have download permissions, redirect to drawer page
-  if (!instanceStore.currentUser?.canManageDrawers) {
+  if (!currentUser.value?.canManageDrawers) {
     router.push(`/drawers/viewDrawer/${props.drawerId}`);
     return;
   }

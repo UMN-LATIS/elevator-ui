@@ -1,15 +1,13 @@
 <template>
   <footer
-    v-if="instanceStore.customFooterText"
+    v-if="customFooterText"
     class="app-footer bg-surface-container border-t border-outline">
-    <SanitizedHTML
-      :html="instanceStore.customFooterText"
-      :addTags="['style', 'link']" />
+    <SanitizedHTML :html="customFooterText" :addTags="['style', 'link']" />
   </footer>
 </template>
 <script setup lang="ts">
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 import SanitizedHTML from "../SanitizedHTML/SanitizedHTML.vue";
 
-const instanceStore = useInstanceStore();
+const { customFooterText } = useCustomHeaderFooter();
 </script>

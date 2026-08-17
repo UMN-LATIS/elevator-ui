@@ -2,14 +2,12 @@
   <DefaultLayout class="all-collections-page">
     <template #custom-header>
       <CustomAppHeader
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+        v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="p-8 px-4">
       <div class="flex flex-wrap items-center justify-between gap-4 my-8">
         <h1 class="text-4xl font-bold">Collections</h1>
-        <div
-          v-if="instanceStore.currentUser?.isAdmin"
-          class="flex items-center gap-2">
+        <div v-if="currentUser?.isAdmin" class="flex items-center gap-2">
           <Button to="/admin/collections">Manage Collections</Button>
         </div>
       </div>
@@ -19,44 +17,48 @@
         :html="collectionPageContent.content" />
       <div ref="collectionGrid" class="grid">
         <CollectionItem
-          v-for="collection in instanceStore.browsableCollections"
+          v-for="collection in browsableCollections"
           :key="collection.id"
           :collection="collection" />
       </div>
     </div>
     <template #footer>
-      <AppFooter
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+      <AppFooter v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { computed, ref, useTemplateRef } from "vue";
 import CollectionItem from "@/components/CollectionItem/CollectionItem.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCollections } from "@/composables/useCollections";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
+import { useNavPages } from "@/composables/useNavPages";
+import { useCustomPageViewQuery } from "@/queries/customPageQueries";
 import { useResizeObserver } from "@vueuse/core";
-import { ApiStaticPageResponse, ShowCustomHeaderMode } from "@/types";
-import api from "@/api";
+import { ShowCustomHeaderMode } from "@/types";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Button from "@/components/Button/Button.vue";
 
-const instanceStore = useInstanceStore();
+const { browsableCollections } = useCollections();
+const { currentUser } = useCurrentUser();
+const { customHeaderMode } = useCustomHeaderFooter();
+const { navPages } = useNavPages();
 const collectionGrid = useTemplateRef("collectionGrid");
 
 const numCols = ref(1);
-const collectionPageContent = ref<ApiStaticPageResponse | null>(null);
 
-onMounted(async () => {
-  const collectionPage = instanceStore.pages.find(
-    (page) => page.title === "Collection Page"
-  );
-  if (!collectionPage) return;
-
-  collectionPageContent.value = await api.getStaticPage(collectionPage.id);
-});
+const collectionPageId = computed(
+  () =>
+    navPages.value.find((page) => page.title === "Collection Page")?.id ?? null
+);
+const { data: collectionPageContent } = useCustomPageViewQuery(
+  collectionPageId,
+  { enabled: () => !!collectionPageId.value }
+);
 
 // by default, css grid will order the items by left-to-right,
 // then top-to-bottom. This makes is difficult to read:
@@ -84,7 +86,7 @@ useResizeObserver(collectionGrid, (entries) => {
 });
 
 const numRows = computed(() => {
-  const numCollections = instanceStore.browsableCollections.length;
+  const numCollections = browsableCollections.value.length;
   return Math.ceil(numCollections / numCols.value);
 });
 </script>

@@ -1,14 +1,13 @@
 <template>
   <DefaultLayout class="home-page">
     <template #custom-header>
-      <CustomAppHeader
-        v-if="instanceStore.customHeaderMode !== ShowCustomHeaderMode.NEVER" />
+      <CustomAppHeader v-if="customHeaderMode !== ShowCustomHeaderMode.NEVER" />
     </template>
     <SignInRequiredNotice
-      v-if="isReady && !canSearchAndBrowse && !instanceStore.isLoggedIn"
+      v-if="!canSearchAndBrowse && !isLoggedIn"
       class="my-8 mx-4" />
     <div
-      v-if="isReady && canSearchAndBrowse"
+      v-if="canSearchAndBrowse"
       class="home-page-content flex-1 md:grid max-w-screen-xl w-full mx-auto md:grid-rows-1"
       :class="{
         'md:grid-cols-2': !featuredAssetId,
@@ -22,17 +21,17 @@
           class="float-right">
           Edit Page
         </Button>
-        <Transition v-if="page" name="fade">
+        <Transition v-if="homePageContent" name="fade">
           <SanitizedHTML
-            v-if="page.content"
-            :html="page.content"
+            v-if="homePageContent.content"
+            :html="homePageContent.content"
             class="prose"
             :class="{
               'mx-auto': !featuredAssetId,
             }" />
           <section v-else class="p-8 my-8 shadow-sm">
             <h1 class="text-4xl text-center font-bold">
-              {{ instanceStore.instance?.name ?? "Elevator" }}
+              {{ instance?.name ?? "Elevator" }}
             </h1>
           </section>
         </Transition>
@@ -48,7 +47,7 @@
       </aside>
     </div>
     <Notification
-      v-else-if="isReady && !canSearchAndBrowse && instanceStore.isLoggedIn"
+      v-else-if="isLoggedIn"
       title="Nothing to See Here"
       class="my-8 mx-4">
       <p>
@@ -57,8 +56,7 @@
       </p>
     </Notification>
     <template #footer>
-      <AppFooter
-        v-if="instanceStore.customHeaderMode !== ShowCustomHeaderMode.NEVER" />
+      <AppFooter v-if="customHeaderMode !== ShowCustomHeaderMode.NEVER" />
     </template>
   </DefaultLayout>
 </template>
@@ -67,72 +65,52 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import { computed, nextTick, onUnmounted, watch } from "vue";
 import { ShowCustomHeaderMode } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";
 import SignInRequiredNotice from "./SignInRequiredNotice.vue";
 import Notification from "@/components/Notification/Notification.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-import { useStaticPageQuery } from "@/queries/useStaticPageQuery";
+import { useCustomPageViewQuery } from "@/queries/customPageQueries";
 import { useAssetQuery } from "@/queries/useAssetQuery";
 import { ELEVATOR_EVENTS } from "@/constants/constants";
 import { onAllImagesLoaded } from "@/helpers/onAllImagesLoaded";
 import Button from "@/components/Button/Button.vue";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
+import { useNavPages } from "@/composables/useNavPages";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 
-const instanceStore = useInstanceStore();
-
-const canSearchAndBrowse = computed(
-  () => instanceStore.instance?.userCanSearchAndBrowse ?? false
-);
-const isReady = computed(() => instanceStore.isReady);
-
-const featuredAssetId = computed(
-  (): string | null => instanceStore.instance?.featuredAssetId ?? null
-);
-const featuredAssetText = computed(
-  () => instanceStore.instance?.featuredAssetText ?? ""
-);
-
-// Find home page ID from instance pages
-const homePageId = computed(() => {
-  return (
-    instanceStore.pages.find((page) => page.title === "Home Page")?.id ?? null
-  );
-});
+const { currentUser, isLoggedIn, canSearchAndBrowse } = useCurrentUser();
+const { instance } = useElevatorInstance();
+const { homePageId } = useNavPages();
+const { customHeaderMode } = useCustomHeaderFooter();
 
 // Fetch home page content (only when ready, can browse, and home page exists)
-const { data: pageData } = useStaticPageQuery(
+const { data: homePageContent } = useCustomPageViewQuery(
   homePageId, // Pass the computed directly
   {
-    enabled: computed(
-      () => isReady.value && canSearchAndBrowse.value && !!homePageId.value
-    ),
+    enabled: computed(() => canSearchAndBrowse.value && !!homePageId.value),
   }
+);
+
+const featuredAssetId = computed(() => instance.value?.featuredAssetId ?? null);
+const featuredAssetText = computed(
+  () => instance.value?.featuredAssetText ?? ""
 );
 
 // Fetch featured asset (only when ready, can browse, and featured asset exists)
 const { data: featuredAsset } = useAssetQuery(featuredAssetId, {
-  enabled: computed(
-    () => isReady.value && canSearchAndBrowse.value && !!featuredAssetId.value
-  ),
+  enabled: () => canSearchAndBrowse.value && !!featuredAssetId.value,
 });
 
 const canCurrentUserEdit = computed(() => {
-  return (
-    instanceStore.currentUser?.isAdmin ||
-    instanceStore.currentUser?.isSuperAdmin
-  );
-});
-
-// Provide fallback if no home page is configured
-const page = computed(() => {
-  return pageData.value ?? null;
+  return currentUser.value?.isAdmin || currentUser.value?.isSuperAdmin;
 });
 
 // Determine when both queries are complete
 const bothQueriesComplete = computed(() => {
   // Always wait for page
-  if (!page.value) return false;
+  if (!homePageContent.value) return false;
 
   // If there's a featured asset, wait for it too
   if (featuredAssetId.value && !featuredAsset.value) return false;
@@ -142,6 +120,8 @@ const bothQueriesComplete = computed(() => {
 
 const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
 
+// for any in-page scripts which might be listening
+// for load
 const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
   window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
 };
