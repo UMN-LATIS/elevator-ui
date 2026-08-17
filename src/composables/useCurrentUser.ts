@@ -14,6 +14,7 @@ function selectCurrentUser(
     displayName: instanceNav.userDisplayName ?? `User ${instanceNav.userId}`,
     isAdmin: instanceNav.userIsAdmin,
     isSuperAdmin: instanceNav.userIsSuperAdmin,
+    canSearchAndBrowse: instanceNav.userCanSearchAndBrowse,
     canManageAssets: instanceNav.userCanManageAssets,
     canManageDrawers: instanceNav.userCanCreateDrawers,
   };
@@ -22,7 +23,7 @@ function selectCurrentUser(
 export function useCurrentUser() {
   const instanceNav = useInstanceNavQuery();
 
-  const currentUser = computed(() =>
+  const currentUser = computed((): User | null =>
     selectCurrentUser(instanceNav.data.value ?? null)
   );
 
