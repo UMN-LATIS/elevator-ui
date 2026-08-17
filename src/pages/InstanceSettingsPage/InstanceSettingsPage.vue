@@ -321,7 +321,10 @@ import {
 import type { InstanceSettings, SelectOption, TocItem } from "@/types";
 import { FormSection, FormToc } from "@/components/Form";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import {
+  refreshLogoImage,
+  useElevatorInstance,
+} from "@/composables/useElevatorInstance";
 import ElevatorIcon from "@/icons/ElevatorIcon.vue";
 import ThemeCard from "./ThemeCard.vue";
 import { useTheming } from "@/helpers/useTheming";
@@ -334,7 +337,7 @@ const props = defineProps<{
 const toastStore = useToastStore();
 
 // for easier access to logo url
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 
 const { startPreview, previewTheme } = useTheming();
 
@@ -379,7 +382,7 @@ const headerImagePreview = computed(() => {
   }
   // Show existing image if useHeaderLogo is enabled
   if (form.value.useHeaderLogo) {
-    return instanceStore.instance.logoImg?.src || null;
+    return instance.value?.logoImg?.src || null;
   }
   return null;
 });
@@ -511,7 +514,7 @@ async function handleSave() {
       customHeaderImage: selectedHeaderImage.value,
     });
 
-    await instanceStore.refreshLogoImage();
+    refreshLogoImage();
 
     // Clear the selected file after successful save
     // do this after refresh to avoid broken image flicker

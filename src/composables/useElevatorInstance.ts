@@ -1,7 +1,17 @@
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { ApiInstanceNavResponse, ElevatorInstance } from "@/types";
 import config from "@/config";
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
+
+// Cache-buster appended to the logo URL. The logo lives at a fixed URL,
+// so without this a re-uploaded logo would be served from the browser's
+// HTTP cache. Starts at app-load time so a logo changed in an earlier
+// session shows fresh, and bumps after an upload in this session.
+const logoRefreshedAt = ref(Date.now());
+
+export function refreshLogoImage(): void {
+  logoRefreshedAt.value = Date.now();
+}
 
 function selectInstanceFromResponse(
   apiResponse: ApiInstanceNavResponse
@@ -29,7 +39,7 @@ function selectInstanceFromResponse(
         // Note: the asset is at the base origin, _not_ the base url
         // ✅ Base Origin: https://dev.elevator.umn.edu
         // ❌ Base Url: https://dev.elevator.umn.edu/dcl
-        src: `${config.instance.base.origin}/assets/instanceAssets/${instanceId}.png`,
+        src: `${config.instance.base.origin}/assets/instanceAssets/${instanceId}.png?t=${logoRefreshedAt.value}`,
         alt: `${instanceName} logo`,
       }
     : null;
