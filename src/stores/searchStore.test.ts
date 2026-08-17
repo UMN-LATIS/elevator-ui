@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from "pinia";
 import type { SearchResultMatch } from "@/types";
 
 const makeMatch = (
-  overrides: Partial<SearchResultMatch> = {},
+  overrides: Partial<SearchResultMatch> = {}
 ): SearchResultMatch => ({
   title: "Test Asset",
   dates: [],
@@ -52,8 +52,8 @@ vi.mock("@/config", () => ({
   },
 }));
 
-vi.mock("@/stores/instanceStore", () => ({
-  useInstanceStore: () => ({
+vi.mock("@/composables/useSearchableFields", () => ({
+  useSearchableFields: () => ({
     getSearchableField: () => null,
   }),
 }));
@@ -90,7 +90,7 @@ describe("searchStore", () => {
       expect(api.getSearchId).toHaveBeenCalled();
       expect(api.getSearchResultsById).toHaveBeenCalledWith(
         "search-id-sorted",
-        expect.objectContaining({ page: 0 }),
+        expect.objectContaining({ page: 0 })
       );
       expect(store.searchId).toBe("search-id-sorted");
     });
@@ -106,7 +106,7 @@ describe("searchStore", () => {
       expect(api.getSearchId).toHaveBeenCalled();
       expect(api.getSearchResultsById).toHaveBeenCalledWith(
         "search-id-sorted",
-        expect.objectContaining({ page: 0 }),
+        expect.objectContaining({ page: 0 })
       );
     });
   });

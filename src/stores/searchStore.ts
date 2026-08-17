@@ -15,9 +15,13 @@ import {
   SearchResultsResponse,
 } from "@/types";
 import { GLOBAL_FIELD_IDS, SORT_KEYS } from "@/constants/constants";
-import { useInstanceStore } from "./instanceStore";
 import { parseDateString } from "@/helpers/parseDateString";
 import config from "@/config";
+import { useSearchableFields } from "@/composables/useSearchableFields";
+
+type GetSearchableField = ReturnType<
+  typeof useSearchableFields
+>["getSearchableField"];
 
 export interface SearchStoreState {
   searchId: Ref<string | undefined>;
@@ -100,7 +104,10 @@ const createState = (): SearchStoreState => ({
   afterNewSearchHandlers: [],
 });
 
-const getters = (state: SearchStoreState) => ({
+const getters = (
+  state: SearchStoreState,
+  getSearchableField: GetSearchableField
+) => ({
   isReady: computed(() => state.status.value === "success"),
 
   isValidSearch: computed(() => {
@@ -159,13 +166,13 @@ const getters = (state: SearchStoreState) => ({
 
   totalFieldFilterCount: computed((): number => {
     return (
-      getters(state).specificFieldFilterCount.value +
-      getters(state).globalFieldFilterCount.value
+      getters(state, getSearchableField).specificFieldFilterCount.value +
+      getters(state, getSearchableField).globalFieldFilterCount.value
     );
   }),
 
   hasFieldFiltersApplied: computed((): boolean => {
-    return getters(state).totalFieldFilterCount.value > 0;
+    return getters(state, getSearchableField).totalFieldFilterCount.value > 0;
   }),
 
   globalDateRangeAsFilter: computed(
@@ -219,7 +226,7 @@ const getters = (state: SearchStoreState) => ({
   }),
 
   hasFiltersApplied: computed((): boolean => {
-    return getters(state).filteredByCount.value > 0;
+    return getters(state, getSearchableField).filteredByCount.value > 0;
   }),
 
   searchRequestOptions: computed((): SearchRequestOptions => {
@@ -229,10 +236,9 @@ const getters = (state: SearchStoreState) => ({
 
     // convert to SpecificFieldSearch shape, normalizing multiselect
     // values from internal format (",") back to API format (" : ")
-    const instanceStore = useInstanceStore();
     const specificFieldSearch: SpecificFieldSearchItem[] =
       searchableFieldsArray.map((filter) => {
-        const field = instanceStore.getSearchableField(filter.fieldId);
+        const field = getSearchableField(filter.fieldId);
         const text =
           field?.type === "multiselect"
             ? filter.value.split(",").join(" : ")
@@ -283,7 +289,7 @@ const getters = (state: SearchStoreState) => ({
     );
   }),
   browsingCollectionId: computed((): number | null => {
-    if (!getters(state).isBrowsingCollection.value) {
+    if (!getters(state, getSearchableField).isBrowsingCollection.value) {
       return null;
     }
 
@@ -318,11 +324,14 @@ const getters = (state: SearchStoreState) => ({
     if (!config.instance.autoloadMaxSearchResults) return false;
     if (!state.totalResults.value) return false;
     if (state.totalResults.value >= 1000) return false;
-    return getters(state).hasMoreResults.value;
+    return getters(state, getSearchableField).hasMoreResults.value;
   }),
 });
 
-const actions = (state: SearchStoreState) => ({
+const actions = (
+  state: SearchStoreState,
+  getSearchableField: GetSearchableField
+) => ({
   async setSortOption(option: keyof SearchSortOptions) {
     state.sort.value = option;
     const newSearchId = await this.getSearchId();
@@ -455,8 +464,7 @@ const actions = (state: SearchStoreState) => ({
     fieldId: string,
     initialProps?: Partial<SearchableSpecificFieldFilter>
   ) {
-    const instanceStore = useInstanceStore();
-    const field = instanceStore.getSearchableField(fieldId);
+    const field = getSearchableField(fieldId);
 
     if (!field) {
       throw new Error(
@@ -504,8 +512,6 @@ const actions = (state: SearchStoreState) => ({
   },
 
   updateFilterFieldId(filterId: string, fieldId: string) {
-    const instanceStore = useInstanceStore();
-
     const currentFilter = state.filterBy.specificFieldsMap.get(filterId);
 
     if (!currentFilter) {
@@ -520,8 +526,7 @@ const actions = (state: SearchStoreState) => ({
       return;
     }
 
-    // get the field information from the instance store
-    const field = instanceStore.getSearchableField(fieldId);
+    const field = getSearchableField(fieldId);
 
     if (!field) {
       throw new Error(
@@ -596,7 +601,10 @@ const actions = (state: SearchStoreState) => ({
     }
 
     return api
-      .getSearchId(state.query.value, getters(state).searchRequestOptions.value)
+      .getSearchId(
+        state.query.value,
+        getters(state, getSearchableField).searchRequestOptions.value
+      )
       .catch((err) => {
         throw new Error(`Cannot getSearchId for query: ${state.query}: ${err}`);
       });
@@ -610,8 +618,6 @@ const actions = (state: SearchStoreState) => ({
   },
 
   _updateStoreWithSearchResultResponse(res: SearchResultsResponse) {
-    const instanceStore = useInstanceStore();
-
     state.searchEntry.value = res.searchEntry;
     state.totalResults.value = res.totalResults;
     state.matches.value = res.matches;
@@ -634,23 +640,26 @@ const actions = (state: SearchStoreState) => ({
       res.searchEntry.specificFieldSearch?.forEach((searchField) => {
         // if the searchable field doesn't exist in our list of fields,
         // then ignore it
-        if (!instanceStore.getSearchableField(searchField.field)) {
+        if (!getSearchableField(searchField.field)) {
           console.log("skipping search entry field", searchField.field);
           return;
         }
 
         // Normalize multiselect (cascade select) values from API format
         // (" : " separated) to internal format ("," separated)
-        const field = instanceStore.getSearchableField(searchField.field);
+        const field = getSearchableField(searchField.field);
         const value =
           field?.type === "multiselect"
             ? searchField.text.split(" : ").join(",")
             : searchField.text;
 
-        actions(state).addSearchableFieldFilter(searchField.field, {
-          value,
-          isFuzzy: searchField.fuzzy,
-        });
+        actions(state, getSearchableField).addSearchableFieldFilter(
+          searchField.field,
+          {
+            value,
+            isFuzzy: searchField.fuzzy,
+          }
+        );
       });
     }
 
@@ -745,7 +754,10 @@ const actions = (state: SearchStoreState) => ({
       this._updateStoreWithSearchResultResponse(res);
 
       // Auto-load all results if configured and conditions are met
-      if (getters(state).shouldAutoLoadAll.value && !finalOpts.loadAll) {
+      if (
+        getters(state, getSearchableField).shouldAutoLoadAll.value &&
+        !finalOpts.loadAll
+      ) {
         await this.loadMore({ loadAll: true });
       }
     } catch (error) {
@@ -773,7 +785,7 @@ const actions = (state: SearchStoreState) => ({
       throw new Error("No search id found. Cannot load more.");
     }
 
-    if (!getters(state).hasMoreResults.value) {
+    if (!getters(state, getSearchableField).hasMoreResults.value) {
       console.error("cannot load more results, already at the end");
       return;
     }
@@ -792,8 +804,7 @@ const actions = (state: SearchStoreState) => ({
       // If the API returned fewer results than expected, adjust totalResults
       // to match reality. This handles index/count divergence (e.g., deleted
       // items still counted in totalResults).
-      const hasNoMoreMatches =
-        res.matches.length === 0 || loadAll;
+      const hasNoMoreMatches = res.matches.length === 0 || loadAll;
 
       if (
         hasNoMoreMatches &&
@@ -820,8 +831,14 @@ const actions = (state: SearchStoreState) => ({
 
 export const useSearchStore = defineStore("search", () => {
   const state = createState();
-  const storeGetters = getters(state);
-  const storeActions = actions(state);
+
+  // Captured once here: useSearchableFields reads the instanceNav query,
+  // and vue-query composables only work with an active injection context
+  // (store setup has one; actions called from event handlers do not).
+  const { getSearchableField } = useSearchableFields();
+
+  const storeGetters = getters(state, getSearchableField);
+  const storeActions = actions(state, getSearchableField);
 
   return {
     ...storeGetters,
