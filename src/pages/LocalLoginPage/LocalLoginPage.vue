@@ -98,7 +98,6 @@ import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { useCurrentUser } from "@/composables/useCurrentUser";
 import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 import { useLoginAsGuestMutation } from "@/queries/useLoginAsGuestMutation";
-import { resetAllStores } from "@/stores/resetAllStores";
 import { useDrawerStore } from "@/stores/drawerStore";
 
 const props = withDefaults(
@@ -170,9 +169,8 @@ function submitLogin(): void {
     { username: username.value, password: password.value },
     {
       onSuccess: async () => {
-        // drawerStore keeps its own cache outside TanStack Query, so the
-        // mutation's teardown does not reach it
-        resetAllStores();
+        // the mutation has already cleared every cache, so this refills
+        // drawerStore for the new session
         await drawerStore.init();
         router.push(props.redirectURL);
       },

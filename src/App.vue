@@ -21,7 +21,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useDrawerStore } from "./stores/drawerStore";
 import { useTheming } from "./helpers/useTheming";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
@@ -40,7 +40,8 @@ const elevatorSessionStorage = useElevatorSessionStorage();
 // Pages assume instanceNav data (nav pages, collections, searchable
 // fields) is already in the query cache, so hold the RouterView until
 // the first fetch succeeds.
-const { isSuccess: isInstanceNavReady } = useInstanceNavQuery();
+const { data: instanceNav } = useInstanceNavQuery();
+const isInstanceNavReady = computed(() => instanceNav.value !== undefined);
 
 onMounted(() => {
   console.log("app mounted");

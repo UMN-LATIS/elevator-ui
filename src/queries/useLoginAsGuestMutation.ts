@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import api from "@/api";
+import { resetAllStores } from "@/stores/resetAllStores";
 
 export function useLoginAsGuestMutation() {
   const queryClient = useQueryClient();
@@ -13,11 +14,8 @@ export function useLoginAsGuestMutation() {
       return result;
     },
     onSuccess: () => {
-      // Refetch everything under the new session rather than clearing it,
-      // so that useTheming and useCustomCSS, which stay mounted across
-      // navigation, stop showing the previous user's settings.
-      // Not awaited, so that the login finishes before the refetches do.
-      // Otherwise the submit button stays disabled until the last one returns.
+      api.clearCache();
+      resetAllStores();
       queryClient.resetQueries();
     },
   });

@@ -1,4 +1,4 @@
-import { computed, watchEffect } from "vue";
+import { watchEffect } from "vue";
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 
 const STYLE_TAG_ID = "elevator-custom-css";
