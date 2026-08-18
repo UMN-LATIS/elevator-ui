@@ -72,6 +72,7 @@ app.post("/save/:json", async (c) => {
     enableTheming: Boolean(form.enableTheming),
     useCentralAuth: Boolean(form.useCentralAuth),
     automaticAltText: Boolean(form.automaticAltText),
+    showAssetLastModifiedDate: Boolean(form.showAssetLastModifiedDate),
   };
 
   db.instances.set(updated.instanceId, updated);
