@@ -143,7 +143,8 @@ const canSubmit = computed(
 
 // Bounce a visitor who already has a valid session, but only once the shared
 // instanceNav query has answered, so that a still-loading query is never read
-// as "logged out".
+// as "logged out". The same bounce carries the redirect after a guest login,
+// once the refetched instanceNav reports the new session.
 watch(
   [isSessionAnswered, isLoggedIn],
   ([hasAnswer, hasSession]) => {
@@ -166,9 +167,6 @@ function submitLogin(): void {
   loginAsGuest(
     { username: username.value, password: password.value },
     {
-      onSuccess: () => {
-        router.push(props.redirectURL);
-      },
       onError: () => {
         shakeForm.value = true;
       },
