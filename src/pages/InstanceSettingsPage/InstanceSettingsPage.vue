@@ -201,6 +201,9 @@
           <ToggleGroup
             v-model="form.enableHLSStreaming"
             label="Enable HLS Streaming" />
+          <ToggleGroup
+            v-model="form.showAssetLastModifiedDate"
+            label="Show Asset Last Modified Date" />
           <InputGroup
             v-model="form.maximumMoreLikeThis"
             label="More Like This Results"

@@ -610,6 +610,7 @@ export interface ApiInstanceNavResponse {
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
   // optional so an older API build still works
   showChildCollections?: boolean;
+  showAssetLastModifiedDate: boolean;
   showThumbnailDescription?: boolean;
   useCustomCSS: boolean; // whether or not to use custom CSS
   customHeaderCSS: string | null; // custom CSS for header if useCustomCSS is true
@@ -641,6 +642,7 @@ export interface ElevatorInstance {
   showCollectionInSearchResults: boolean; // whether or not to show collection in search results
   showTemplateInSearchResults: boolean; // whether or not to show template in search results
   showChildCollections: boolean; // whether to list child collections when browsing
+  showAssetLastModifiedDate: boolean;
   // whether related-asset and upload widgets show titles below thumbnails
   showThumbnailDescription: boolean;
   useVoyagerViewer: boolean; // whether or not to use the Voyager viewer
@@ -679,6 +681,7 @@ export interface InstanceSettings {
   useVoyagerViewer: boolean;
   automaticAltText: boolean;
   autoloadMaxSearchResults: boolean;
+  showAssetLastModifiedDate: boolean;
 
   // Custom styling
   useCustomHeader: 0 | 1 | 2; // 0 = none, 1 = header on all pages, 2 = header only on home page ("Only on Home Page")

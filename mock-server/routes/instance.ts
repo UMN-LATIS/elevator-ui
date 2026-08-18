@@ -84,6 +84,7 @@ app.get("/getInstanceNav", async (c) => {
     customFooterText: instance.customFooterText,
     useVoyagerViewer: instance.useVoyagerViewer,
     showThumbnailDescription: instance.showThumbnailDescription,
+    showAssetLastModifiedDate: instance.showAssetLastModifiedDate,
     useCustomCSS: instance.useCustomCSS,
     customHeaderCSS: instance.customHeaderCSS,
     featuredAssetId: instance.featuredAsset ?? "",
