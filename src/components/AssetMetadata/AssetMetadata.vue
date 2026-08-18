@@ -21,6 +21,12 @@
         {{ template.templateName }}
       </Tuple>
 
+      <Tuple
+        v-if="showLastModified && prettyLastModified"
+        label="Last Modified">
+        {{ prettyLastModified }}
+      </Tuple>
+
       <MoreLikeThis :items="moreLikeThisItems" />
     </template>
   </div>
@@ -74,6 +80,18 @@ const showTemplateBottom = computed(
     template.value?.showTemplatePosition ===
       TEMPLATE_SHOW_PROPERTY_POSITIONS.BOTTOM
 );
+
+const showLastModified = true;
+
+const prettyLastModified = computed((): string => {
+  const modified = asset.value?.modified;
+  if (!modified) return "";
+
+  // don't fuss with timezone to local conversions.
+  // just display the recorded timezone as-is in parens
+  const localDateTime = new Date(modified.date).toLocaleString();
+  return `${localDateTime} (${modified.timezone})`;
+});
 
 watch(
   assetIdRef,
