@@ -12,7 +12,7 @@
 
     <ul
       v-if="selectedTemplates.length"
-      class="flex flex-wrap gap-2 mt-1 mb-2 rounded-md border border-outline-variant p-2">
+      class="flex flex-wrap gap-2 mb-4 rounded-md border border-outline-variant p-2">
       <li
         v-for="template in selectedTemplates"
         :key="template.id"

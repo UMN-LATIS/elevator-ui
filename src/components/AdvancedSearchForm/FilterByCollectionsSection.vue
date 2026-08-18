@@ -12,11 +12,11 @@
 
     <ul
       v-if="selectedCollections.length"
-      class="flex flex-wrap gap-2 mb-4 rounded-xl">
+      class="flex flex-wrap gap-2 mb-4 rounded-md border border-outline-variant p-2">
       <li
         v-for="collection in selectedCollections"
         :key="collection.id"
-        class="text-xs bg-surface rounded-md border border-outline inline-flex items-center text-on-surface px-2 py-1">
+        class="text-xs bg-surface rounded-sm border border-outline inline-flex items-center text-on-surface px-2 py-1">
         {{ collection.title }}
 
         <button
