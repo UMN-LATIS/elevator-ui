@@ -362,7 +362,7 @@ export async function fetchSearchResults(
     "searchText"
   > = {}
 ): Promise<SearchResultsResponse> {
-  const { collection, ...rest } = opts;
+  const { collection, templateId, ...rest } = opts;
   const searchQuery: SearchRequestOptions = {
     searchText: query,
     ...rest,
@@ -371,6 +371,10 @@ export async function fetchSearchResults(
   // only add collection if it's defined
   if (collection) {
     searchQuery.collection = collection.map(String);
+  }
+
+  if (templateId) {
+    searchQuery.templateId = templateId.map(String);
   }
 
   // only add sort if it's defined

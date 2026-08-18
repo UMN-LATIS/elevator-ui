@@ -5,28 +5,23 @@
       <Button
         v-if="selectedTemplates.length"
         variant="tertiary"
-        @click="searchStore.clearCollectionIdFilters()">
+        @click="searchStore.clearTemplateIdFilters()">
         clear
       </Button>
     </header>
 
-    <p class="text-on-surface-variant text-xs mb-2 italic">
-      To limit your search to specific collections, choose "Add Collection"
-      below.
-    </p>
-
     <ul
       v-if="selectedTemplates.length"
-      class="flex flex-wrap gap-2 bg-outline-variant/20 p-4 mb-4 rounded-md">
+      class="flex flex-wrap gap-2 mt-1 mb-2 rounded-md border border-outline-variant p-2">
       <li
         v-for="template in selectedTemplates"
         :key="template.id"
-        class="text-xs bg-surface rounded-md border border-outline inline-flex items-center text-on-surface px-2 py-1\">
+        class="text-xs bg-surface rounded-sm border border-outline inline-flex items-center text-on-surface px-2 py-1">
         {{ template.name }}
 
         <button
           class="ml-2 h-full flex items-center justify-center"
-          @click="searchStore.removeCollectionIdFilter(template.id)">
+          @click="searchStore.removeTemplateIdFilter(template.id)">
           <XIcon class="!h-3 !w-3" />
         </button>
       </li>

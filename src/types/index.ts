@@ -436,6 +436,7 @@ export interface SearchRequestOptions {
   searchText?: string;
   sort?: keyof SearchSortOptions;
   collection?: string[] | number[] | null;
+  templateId?: string[] | number[] | null;
   specificFieldSearch?: SpecificFieldSearchItem[];
   combineSpecificSearches?: "OR" | "AND";
   fileTypesSearch?: string;

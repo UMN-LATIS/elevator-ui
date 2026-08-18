@@ -1,8 +1,8 @@
 <template>
   <DropDown
     :label="label"
-    class="rounded-md text-sm bg-surface-container"
-    labelClass="justify-between p-2 py-1"
+    class="rounded-md bg-surface-container border border-outline-variant text-sm"
+    labelClass="justify-between py-1"
     chevronClass="!w-4 !h-4"
     alignment="left">
     <slot />

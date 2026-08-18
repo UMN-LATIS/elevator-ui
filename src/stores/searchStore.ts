@@ -260,6 +260,9 @@ const getters = (
       collection: state.filterBy.collectionIds.length
         ? state.filterBy.collectionIds
         : undefined,
+      templateId: state.filterBy.templateIds.length
+        ? state.filterBy.templateIds
+        : undefined,
       combineSpecificSearches: state.filterBy.searchableFieldsOperator,
       specificFieldSearch,
       startDateText,
