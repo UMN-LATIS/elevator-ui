@@ -23,6 +23,7 @@ export function getDefaultInstanceSettings(
     showChildCollections: true,
     showThumbnailDescription: false,
     showPreviousNextSearchResults: true,
+    showAssetLastModifiedDate: false,
     hideVideoAudio: false,
     allowIndexing: true,
     useVoyagerViewer: true,

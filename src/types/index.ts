@@ -679,6 +679,7 @@ export interface InstanceSettings {
   useVoyagerViewer: boolean;
   automaticAltText: boolean;
   autoloadMaxSearchResults: boolean;
+  showAssetLastModifiedDate: boolean;
 
   // Custom styling
   useCustomHeader: 0 | 1 | 2; // 0 = none, 1 = header on all pages, 2 = header only on home page ("Only on Home Page")
