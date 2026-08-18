@@ -628,15 +628,6 @@ export interface StaticContentPage {
 
 export type ApiStaticPageResponse = StaticContentPage;
 
-export interface InstanceStoreState {
-  fetchStatus: FetchStatus;
-  pages: Page[];
-  currentUser: User | null;
-  instance: ElevatorInstance;
-  collections: AssetCollection[];
-  searchableFields: SearchableSpecificField[];
-}
-
 export interface ElevatorInstance {
   id: number | null;
   name: string | null;
