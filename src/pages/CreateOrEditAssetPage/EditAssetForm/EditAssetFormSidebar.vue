@@ -136,8 +136,8 @@ import invariant from "tiny-invariant";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import Tuple from "@/components/Tuple/Tuple.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import Link from "@/components/Link/Link.vue";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 
 const props = defineProps<{
   template: Template;
@@ -159,11 +159,9 @@ const state = reactive({
   localCollectionId: props.asset.collectionId,
 });
 
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
 
-const isInstanceAdmin = computed(
-  () => instanceStore.currentUser?.isAdmin ?? false
-);
+const isInstanceAdmin = computed(() => currentUser.value?.isAdmin ?? false);
 
 // Hold success/error visible for a few seconds after a save, then reset to idle.
 // This is pure UI state — the raw mutation status resets only on the next save.
