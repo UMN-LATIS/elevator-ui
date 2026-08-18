@@ -660,6 +660,9 @@ const actions = (
     state.filterBy.collectionIds =
       res.searchEntry.collection?.map((idStr) => Number.parseInt(idStr)) ?? [];
 
+    state.filterBy.templateIds =
+      res.searchEntry.templateId?.map((idStr) => Number.parseInt(idStr)) ?? [];
+
     // Update searchableFields with response
     if (res.searchEntry.specificFieldSearch) {
       state.filterBy.specificFieldsMap.clear();

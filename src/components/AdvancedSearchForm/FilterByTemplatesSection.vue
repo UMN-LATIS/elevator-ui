@@ -20,6 +20,8 @@
         {{ template.name }}
 
         <button
+          type="button"
+          :aria-label="`Remove ${template.name} filter`"
           class="ml-2 h-full flex items-center justify-center"
           @click="searchStore.removeTemplateIdFilter(template.id)">
           <XIcon class="!h-3 !w-3" />
