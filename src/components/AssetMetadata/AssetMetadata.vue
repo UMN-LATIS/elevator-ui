@@ -22,7 +22,7 @@
       </Tuple>
 
       <Tuple
-        v-if="showLastModified && prettyLastModified"
+        v-if="instance?.showAssetLastModifiedDate && prettyLastModified"
         label="Last Modified">
         {{ prettyLastModified }}
       </Tuple>
@@ -41,6 +41,7 @@ import { useAsset } from "@/helpers/useAsset";
 import api from "@/api";
 import { SearchResultMatch } from "@/types";
 import { TEMPLATE_SHOW_PROPERTY_POSITIONS } from "@/constants/constants";
+import { useElevatorInstance } from "@/composables/useElevatorInstance.js";
 
 const props = defineProps<{
   assetId: string | null;
@@ -50,6 +51,7 @@ const props = defineProps<{
 const assetIdRef = computed(() => props.assetId);
 const parentAssetIdRef = computed(() => props.parentAssetId ?? null);
 const { asset, template } = useAsset(assetIdRef, parentAssetIdRef);
+const { instance } = useElevatorInstance();
 
 const moreLikeThisItems = ref<SearchResultMatch[]>([]);
 
@@ -80,8 +82,6 @@ const showTemplateBottom = computed(
     template.value?.showTemplatePosition ===
       TEMPLATE_SHOW_PROPERTY_POSITIONS.BOTTOM
 );
-
-const showLastModified = true;
 
 const prettyLastModified = computed((): string => {
   const modified = asset.value?.modified;

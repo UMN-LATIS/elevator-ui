@@ -30,6 +30,7 @@ function selectInstanceFromResponse(
     templates,
     useVoyagerViewer,
     showChildCollections,
+    showAssetLastModifiedDate,
     showThumbnailDescription,
     theming,
   } = apiResponse;
@@ -69,6 +70,7 @@ function selectInstanceFromResponse(
     useVoyagerViewer, // whether or not to use the Voyager viewer
     showChildCollections: showChildCollections ?? true,
     showThumbnailDescription: showThumbnailDescription ?? false,
+    showAssetLastModifiedDate: showAssetLastModifiedDate ?? false,
     theming,
   };
 }
