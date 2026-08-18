@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
-import { INSTANCE_SETTINGS_QUERY_KEY, INSTANCE_QUERY_KEY } from "./queryKeys";
+import {
+  INSTANCE_SETTINGS_QUERY_KEY,
+  INSTANCENAV_QUERY_KEY,
+} from "./queryKeys";
 import { getDefaultInstanceSettings } from "@/helpers/getDefaultInstanceSettings";
 import type { MaybeRefOrGetter } from "vue";
 import { toValue } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useInstanceSettingsQuery(
   instanceId: MaybeRefOrGetter<number | null>
@@ -35,17 +37,8 @@ export function useUpdateInstanceSettingsMutation() {
       });
       // Also invalidate the main instance query since some settings affect it
       queryClient.invalidateQueries({
-        queryKey: [INSTANCE_QUERY_KEY],
+        queryKey: [INSTANCENAV_QUERY_KEY],
       });
-
-      // refresh instanceStore too
-      // this will double-fetch instance info when pages are saved
-      // (once for the query invalidation above and once manually here)
-      // when we migrate instanceStore consumers to useInstanceQuery, we can
-      // remove this manual refresh and rely solely on the query invalidation
-      // to update instance info
-      const instanceStore = useInstanceStore();
-      instanceStore.refresh();
     },
   });
 }

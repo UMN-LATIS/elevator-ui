@@ -2,7 +2,7 @@
   <DefaultLayout class="static-content-page">
     <template #custom-header>
       <CustomAppHeader
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+        v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div
       v-if="page"
@@ -29,8 +29,7 @@
       </article>
     </div>
     <template #footer>
-      <AppFooter
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+      <AppFooter v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
   </DefaultLayout>
 </template>
@@ -39,33 +38,32 @@ import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
-import { computed, nextTick, onUnmounted, toRef, watch } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
-import config from "@/config";
+import { computed, nextTick, onUnmounted, watch } from "vue";
 import { ShowCustomHeaderMode } from "@/types";
 import { ELEVATOR_EVENTS } from "@/constants/constants";
 import { onAllImagesLoaded } from "@/helpers/onAllImagesLoaded";
-import { useStaticPageQuery } from "@/queries/useStaticPageQuery";
+import { useCustomPageViewQuery } from "@/queries/customPageQueries";
 import Button from "@/components/Button/Button.vue";
-
-const instanceStore = useInstanceStore();
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 
 const props = defineProps<{
   pageId: number;
 }>();
 
-const BASE_URL = config.instance.base.url;
-const pageIdRef = toRef(props, "pageId");
+const { currentUser } = useCurrentUser();
+const { customHeaderMode } = useCustomHeaderFooter();
 
-const canCurrentUserEdit = computed(() => {
-  return (
-    instanceStore.currentUser?.isAdmin ||
-    instanceStore.currentUser?.isSuperAdmin
-  );
+const canCurrentUserEdit = computed((): boolean => {
+  if (!currentUser.value) {
+    return false;
+  }
+  const { isAdmin, isSuperAdmin } = currentUser.value;
+  return isAdmin || isSuperAdmin;
 });
 
 const { CONTENT_LOADED, IMAGES_LOADED } = ELEVATOR_EVENTS.STATIC_CONTENT_PAGE;
-const { data: page } = useStaticPageQuery(pageIdRef);
+const { data: page } = useCustomPageViewQuery(() => props.pageId);
 
 const dispatchEvent = (eventName: string, payload: Record<string, unknown>) => {
   window.dispatchEvent(new CustomEvent(eventName, { detail: payload }));
@@ -79,15 +77,16 @@ watch(
   async (newPage) => {
     if (!newPage) return;
 
+    const pageId = props.pageId;
     cleanupOnAllImagesLoaded?.();
 
     await nextTick();
-    dispatchEvent(CONTENT_LOADED, { pageId: pageIdRef.value });
+    dispatchEvent(CONTENT_LOADED, { pageId });
 
     cleanupOnAllImagesLoaded = onAllImagesLoaded(
       ".static-content-page__content",
       (images: HTMLImageElement[]) =>
-        dispatchEvent(IMAGES_LOADED, { pageId: pageIdRef.value, images }),
+        dispatchEvent(IMAGES_LOADED, { pageId, images }),
       { timeout: 10000 }
     );
   },

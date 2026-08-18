@@ -60,12 +60,16 @@ export function clearCache() {
 }
 
 // parentAssetId is needed to properly resolve permissions for related assets
-async function getAsset(assetId: string, parentAssetId = ''): Promise<Asset | null> {
+async function getAsset(
+  assetId: string,
+  parentAssetId = ""
+): Promise<Asset | null> {
   if (!assetId) return null;
 
   // load asset and cache it in the store
   const asset =
-    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId, parentAssetId));
+    cache.assets.get(assetId) ||
+    (await fetchers.fetchAsset(assetId, parentAssetId));
   cache.assets.set(assetId, asset);
 
   return asset;
@@ -73,7 +77,7 @@ async function getAsset(assetId: string, parentAssetId = ''): Promise<Asset | nu
 
 async function getAssetWithTemplate(
   assetId: string | null,
-  parentAssetId = ''
+  parentAssetId = ""
 ): Promise<{ asset: Asset | null; template: Template | null }> {
   if (!assetId) {
     return { asset: null, template: null };
@@ -81,7 +85,8 @@ async function getAssetWithTemplate(
 
   // load asset and cache it in the store
   const asset =
-    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId, parentAssetId));
+    cache.assets.get(assetId) ||
+    (await fetchers.fetchAsset(assetId, parentAssetId));
   cache.assets.set(assetId, asset);
 
   if (!asset) return { asset: null, template: null };
@@ -227,7 +232,7 @@ async function getStaticPage(
   // check the cache first
   const page =
     cache.staticPages.get(pageId) ||
-    (await fetchers.fetchStaticPage(pageId, options));
+    (await fetchers.fetchPageView(pageId, options));
 
   // cache the page
   cache.staticPages.set(pageId, page);

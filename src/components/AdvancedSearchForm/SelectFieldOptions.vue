@@ -14,7 +14,7 @@ import api from "@/api";
 import { SearchableSpecificFieldFilter, SearchableSelectField } from "@/types";
 import { ref, watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useSearchableFields } from "@/composables/useSearchableFields";
 
 const props = defineProps<{
   filter: SearchableSpecificFieldFilter;
@@ -25,12 +25,11 @@ const props = defineProps<{
 const selectedOption = ref<string>(props.filter.value);
 const options = ref<string[]>([props.filter.value]);
 const searchStore = useSearchStore();
-const instanceStore = useInstanceStore();
+
+const { getSearchableField } = useSearchableFields();
 
 const field = computed(() => {
-  return instanceStore.getSearchableField<SearchableSelectField>(
-    props.filter.fieldId
-  );
+  return getSearchableField<SearchableSelectField>(props.filter.fieldId);
 });
 
 const valueSelectLabel = computed((): string =>

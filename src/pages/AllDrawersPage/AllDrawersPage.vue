@@ -2,7 +2,7 @@
   <DefaultLayout class="all-drawers-page">
     <template #custom-header>
       <CustomAppHeader
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+        v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <div class="p-8 px-4">
       <div class="flex items-center justify-between gap-4 flex-wrap mt-8 mb-4">
@@ -38,8 +38,7 @@
       </div>
     </div>
     <template #footer>
-      <AppFooter
-        v-if="instanceStore.customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
+      <AppFooter v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
   </DefaultLayout>
 </template>
@@ -53,14 +52,15 @@ import { useResizeObserver } from "@vueuse/core";
 import DeleteDrawerButton from "./DeleteDrawerButton.vue";
 import CreateDrawerButton from "./CreateDrawerButton.vue";
 import { useDrawerStore } from "@/stores/drawerStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 import { ShowCustomHeaderMode } from "@/types";
 
 const gridContainer = useTemplateRef("gridContainer");
 const numCols = ref(1);
-const instanceStore = useInstanceStore();
+const { customHeaderMode } = useCustomHeaderFooter();
 const drawerStore = useDrawerStore();
-const currentUser = computed(() => instanceStore.currentUser);
+const { currentUser } = useCurrentUser();
 const drawers = computed(() =>
   [...drawerStore.drawers].sort((a, b) => {
     return a.title.localeCompare(b.title);

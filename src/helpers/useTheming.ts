@@ -1,6 +1,6 @@
 import { watch, computed, ref } from "vue";
 import { useStorage } from "@vueuse/core";
-import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { ALL_THEMES } from "@/config";
 
 // `_default.css` is eager — its `:root` tokens are the baseline every themed
@@ -97,7 +97,7 @@ function applyTheme(theme: string) {
 }
 
 export function useTheming() {
-  const { data: instanceData } = useInstanceQuery();
+  const { data: instanceData } = useInstanceNavQuery();
   const availableThemes = computed(() => {
     const allThemes: readonly string[] = ALL_THEMES;
     const validThemes = (instanceData.value?.theming?.availableThemes ?? [])

@@ -112,7 +112,7 @@ import { usePreviewImage } from "@/helpers/usePreviewImage";
 import { useFileMetadataQuery } from "@/queries/useFileMetadataQuery";
 import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import { hasSavedFileInWidget } from "./hasSavedFileInWidget";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { computed } from "vue";
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 
@@ -122,12 +122,12 @@ const props = defineProps<{
   isShowingDetails: boolean;
 }>();
 
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 
 // the instance setting decides whether this text is shown on the asset
 // page or serves as alt text only, so the field label matches
 const isDescriptionVisible = computed(
-  () => instanceStore.instance.showThumbnailDescription
+  () => instance.value?.showThumbnailDescription ?? false
 );
 
 const descriptionFieldHelp = computed(() =>

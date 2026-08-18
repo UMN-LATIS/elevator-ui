@@ -15,7 +15,7 @@
       </template>
       <template #header-utils>
         <IconButton
-          v-if="assetId && instanceStore.currentUser?.canManageAssets"
+          v-if="assetId && currentUser?.canManageAssets"
           :to="`/assetManager/editAsset/${assetId}`"
           title="Edit Asset"
           class="flex items-center justify-center px-3 py-2 rounded-md">
@@ -34,7 +34,7 @@ import AssetMetadata from "@/components/AssetMetadata/AssetMetadata.vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
 import PanelLabel from "../Panel/PanelLabel.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 import { PencilIcon } from "lucide-vue-next";
 import IconButton from "../IconButton/IconButton.vue";
 
@@ -59,7 +59,7 @@ defineEmits<{
 const assetIdRef = computed(() => props.assetId);
 const parentAssetIdRef = computed(() => props.parentAssetId);
 const { asset } = useAsset(assetIdRef, parentAssetIdRef);
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
 
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : ""

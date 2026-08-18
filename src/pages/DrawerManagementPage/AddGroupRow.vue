@@ -51,7 +51,7 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 import { useToastStore } from "@/stores/toastStore";
 import {
   drawerGroupTypesQuery,
@@ -81,7 +81,7 @@ const emit = defineEmits<{
 // while the save is still settling.
 const isOpen = defineModel<boolean>("open", { required: true });
 
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
 const toastStore = useToastStore();
 const { data: groupTypes } = useQuery(drawerGroupTypesQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
@@ -119,7 +119,7 @@ watch(isOpen, (open) => {
 
 const typeOptions = computed((): SelectOption[] =>
   toGroupTypeOptions(groupTypes.value ?? [], {
-    isAdmin: instanceStore.currentUser?.isAdmin ?? false,
+    isAdmin: currentUser.value?.isAdmin ?? false,
   })
 );
 

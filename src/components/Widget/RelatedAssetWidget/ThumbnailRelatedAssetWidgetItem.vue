@@ -32,7 +32,7 @@ import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { RelatedAssetCacheItem } from "@/types";
 
 defineProps<{
@@ -42,11 +42,11 @@ defineProps<{
   assetCacheItem: RelatedAssetCacheItem | null;
 }>();
 
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 
 // with the title hidden, the text serves as alt text only
 const isTitleVisible = computed(
-  () => instanceStore.instance.showThumbnailDescription
+  () => instance.value?.showThumbnailDescription ?? false
 );
 </script>
 <style scoped></style>

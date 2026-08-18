@@ -1,7 +1,7 @@
 <template>
   <div class="search-result-card relative rounded-lg">
     <RemoveFromDrawerButton
-      v-if="drawerId && instanceStore.currentUser?.canManageDrawers"
+      v-if="drawerId && currentUser?.canManageDrawers"
       class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 z-10 remove-from-drawer-btn"
       :drawerId="drawerId"
       :objectId="searchMatch.objectId"
@@ -44,9 +44,9 @@
               <dd>{{ entry.entries?.join(", ") }}</dd>
             </div>
             <CollectionHeirarchy
-              v-if="instanceStore.instance.showCollectionInSearchResults"
+              v-if="instance?.showCollectionInSearchResults"
               :collectionHierarchy="props.searchMatch.collectionHierarchy" />
-            <div v-if="instanceStore.instance.showTemplateInSearchResults">
+            <div v-if="instance?.showTemplateInSearchResults">
               <dt class="font-bold text-xs uppercase">Template</dt>
               <dd>{{ searchMatch.template.name }}</dd>
             </div>
@@ -68,9 +68,10 @@ import { computed } from "vue";
 import MediaCard from "@/components/MediaCard/MediaCard.vue";
 import Link from "@/components/Link/Link.vue";
 import Chip from "@/components/Chip/Chip.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import RemoveFromDrawerButton from "@/components/RemoveFromDrawerButton/RemoveFromDrawerButton.vue";
 import CollectionHeirarchy from "./CollectionHeirarchy.vue";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 
 const props = defineProps<{
   searchMatch: SearchResultMatch;
@@ -78,7 +79,8 @@ const props = defineProps<{
   mediaCardClass?: string | string[] | Record<string, boolean>;
 }>();
 
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
+const { instance } = useElevatorInstance();
 
 const excerptUrl = computed((): string | null => {
   if (!props.searchMatch.excerpt) return null;

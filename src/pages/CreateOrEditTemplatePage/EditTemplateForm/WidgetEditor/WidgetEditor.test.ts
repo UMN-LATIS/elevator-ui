@@ -23,7 +23,7 @@ import type { AdminWidgetPayload } from "@/types";
 
 // Mock query hooks so useTemplateEditor and WidgetEditor can be imported
 // without a real API or VueQuery setup.
-vi.mock("@/queries/useTemplateQuery", () => ({
+vi.mock("@/queries/templateQueries", () => ({
   useAdminTemplateQuery: () => ({
     data: ref(undefined),
     isLoading: ref(false),
@@ -41,6 +41,16 @@ vi.mock("@/queries/useTemplateQuery", () => ({
     mutateAsync: vi.fn(),
     isPending: ref(false),
     status: ref("idle"),
+  }),
+}));
+
+// WidgetEditor derives fieldTitle slugs from the instance id
+vi.mock("@/queries/useInstanceNavQuery", () => ({
+  useInstanceNavQuery: () => ({
+    data: ref(undefined),
+    isLoading: ref(false),
+    isError: ref(false),
+    isSuccess: ref(false),
   }),
 }));
 
@@ -67,7 +77,7 @@ describe("WidgetEditor", () => {
           [TEMPLATE_EDITOR_KEY as symbol]: editor,
           [WIDGET_EXPANSION_KEY as symbol]: {
             isExpanded: () => false,
-            setExpanded: () => {},
+            setExpanded: vi.fn(),
           },
         },
       },

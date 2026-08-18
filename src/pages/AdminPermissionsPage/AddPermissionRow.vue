@@ -111,7 +111,7 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { AutoCompleteInput } from "@/components/AutoCompleteInput";
-import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import {
   flattenCollections,
@@ -165,7 +165,7 @@ const scopeOptions: SelectOption<string>[] = [
 const { data: groups } = useQuery(groupsQuery());
 const { data: groupTypes } = useQuery(groupTypesQuery());
 const { data: permissionLevels } = useQuery(permissionLevelsQuery());
-const { data: instanceNav } = useInstanceQuery();
+const { data: instanceNav } = useInstanceNavQuery();
 // Both grant lists are already in the query cache from the table.
 const { data: instanceGrants } = useQuery(instanceGrantsQuery());
 const { data: collectionGrants } = useQuery(collectionGrantsQuery());

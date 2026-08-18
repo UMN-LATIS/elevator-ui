@@ -161,7 +161,7 @@ import { useToastStore } from "@/stores/toastStore";
 import {
   adminCollectionsQuery,
   useDeleteCollectionMutation,
-} from "./adminCollectionQueries";
+} from "../../queries/adminCollectionQueries";
 import { buildCollectionRows } from "./buildCollectionRows";
 import type { CollectionRow } from "./buildCollectionRows";
 import { createCollectionColumns } from "./CollectionsTableColumns";

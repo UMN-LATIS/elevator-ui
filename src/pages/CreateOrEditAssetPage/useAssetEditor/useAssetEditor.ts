@@ -1,6 +1,7 @@
 import * as T from "@/types";
 import { computed, inject, nextTick, reactive, toRefs } from "vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCollections } from "@/composables/useCollections";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import {
   hasAssetChanged as hasAssetChangedPure,
   makeLocalAsset,
@@ -51,7 +52,8 @@ export const createAssetEditor = () => {
     (): T.Asset["assetId"] | null => state.localAsset?.assetId ?? null
   );
 
-  const instanceStore = useInstanceStore();
+  const { flatCollections } = useCollections();
+  const { instance } = useElevatorInstance();
   const updateAssetMutation = useUpdateAssetMutation();
 
   ////////////////////////////////////////////////
@@ -59,8 +61,7 @@ export const createAssetEditor = () => {
 
   const collectionOptions = computed((): T.SelectOption<number>[] => {
     // show all collections, but disable ones that cannot be edited
-    const collections = instanceStore.flatCollections ?? [];
-    return collections
+    return flatCollections.value
       .map((collection) => ({
         label: collection.title,
         id: collection.id,
@@ -70,7 +71,7 @@ export const createAssetEditor = () => {
   });
 
   const templateOptions = computed((): T.SelectOption<number>[] => {
-    const templates = instanceStore.instance.templates ?? [];
+    const templates = instance.value?.templates ?? [];
     return templates.map((template) => ({
       label: template.name,
       id: template.id,

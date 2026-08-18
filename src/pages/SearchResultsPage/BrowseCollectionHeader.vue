@@ -8,12 +8,12 @@
             <Link :to="`/search/listCollections`">Collections</Link>
           </li>
           <li
-            v-for="(crumb, index) in ancestry"
+            v-for="(crumb, index) in collectionAncestry"
             :key="crumb.id"
             class="flex items-center gap-1">
             <span aria-hidden="true">&rsaquo;</span>
             <Link
-              v-if="index < ancestry.length - 1"
+              v-if="index < collectionAncestry.length - 1"
               :to="`/collections/browseCollection/${crumb.id}`">
               {{ crumb.title }}
             </Link>
@@ -31,7 +31,7 @@
           Browsing {{ collection?.title }}
         </h2>
         <Button
-          v-if="collection && instanceStore.currentUser?.isAdmin"
+          v-if="collection && currentUser?.isAdmin"
           variant="secondary"
           class="whitespace-nowrap"
           :to="{
@@ -53,36 +53,21 @@
   </div>
 </template>
 <script setup lang="ts">
-import { watch, ref, computed } from "vue";
-import { AssetCollection } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
-import { toCollectionAncestry } from "@/helpers/collectionHelpers";
 import Button from "@/components/Button/Button.vue";
 import Link from "@/components/Link/Link.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
+import { useCollectionById } from "@/composables/useCollectionById";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 
 const props = defineProps<{
   collectionId: number;
 }>();
 
-const instanceStore = useInstanceStore();
-const collection = ref<AssetCollection | null>(null);
-
-const ancestry = computed((): AssetCollection[] =>
-  toCollectionAncestry(instanceStore.collectionIndex, props.collectionId)
+const { collection, collectionAncestry } = useCollectionById(
+  () => props.collectionId
 );
 
-watch(
-  [() => props.collectionId, () => instanceStore.isReady],
-  async () => {
-    if (!instanceStore.isReady) return;
-
-    collection.value = await instanceStore.getCollectionById(
-      props.collectionId
-    );
-  },
-  { immediate: true }
-);
+const { currentUser } = useCurrentUser();
 </script>
 <style scoped></style>

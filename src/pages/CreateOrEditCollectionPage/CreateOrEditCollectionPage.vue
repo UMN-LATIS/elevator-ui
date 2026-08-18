@@ -145,7 +145,7 @@ import {
   adminCollectionsQuery,
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
-} from "../AdminCollectionsPage/adminCollectionQueries";
+} from "@/queries/adminCollectionQueries";
 import { collectDescendantIds } from "./collectDescendantIds";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 

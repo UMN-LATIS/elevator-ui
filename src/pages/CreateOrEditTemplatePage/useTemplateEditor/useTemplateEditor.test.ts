@@ -8,7 +8,7 @@ const mockTemplateData = ref<AdminTemplate | undefined>(undefined);
 const mockCreateMutateAsync = vi.fn();
 const mockUpdateMutateAsync = vi.fn();
 
-vi.mock("@/queries/useTemplateQuery", () => ({
+vi.mock("@/queries/templateQueries", () => ({
   useAdminTemplateQuery: () => ({
     data: mockTemplateData,
     isLoading: ref(false),

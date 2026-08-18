@@ -1,14 +1,12 @@
 <template>
   <div class="custom-app-header bg-surface-container">
-    <SanitizedHTML
-      :html="instanceStore?.customHeaderText ?? ''"
-      :addTags="['style', 'link']" />
+    <SanitizedHTML :html="customHeaderText" :addTags="['style', 'link']" />
   </div>
 </template>
 <script setup lang="ts">
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 import SanitizedHTML from "../SanitizedHTML/SanitizedHTML.vue";
 
-const instanceStore = useInstanceStore();
+const { customHeaderText } = useCustomHeaderFooter();
 </script>
 <style scoped></style>

@@ -1,6 +1,6 @@
 <template>
   <div class="no-scroll-layout h-dvh flex flex-col">
-    <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+    <CustomAppHeader v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     <AppHeader class="top-0 w-full z-20 backdrop-blur-sm">
       <slot name="secondaryAppHeader" />
     </AppHeader>
@@ -11,8 +11,10 @@
 </template>
 <script setup lang="ts">
 import AppHeader from "@/components/AppHeader/AppHeader.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-const instanceStore = useInstanceStore();
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
+import { ShowCustomHeaderMode } from "@/types";
+
+const { customHeaderMode } = useCustomHeaderFooter();
 </script>
 <style></style>

@@ -24,8 +24,8 @@
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
-import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
-import { useDeleteCustomPageMutation } from "@/queries/useCustomPageQuery";
+import { useAllCustomPagesQuery } from "@/queries/customPageQueries";
+import { useDeleteCustomPageMutation } from "@/queries/customPageQueries";
 import { useToastStore } from "@/stores/toastStore";
 import { createColumns } from "./CustomPagesTableColumns";
 import CustomPagesTable from "./CustomPagesTable.vue";

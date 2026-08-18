@@ -295,7 +295,7 @@ export async function fetchSearchIdForClickToSearch(
   return res.data.searchId;
 }
 
-export async function fetchStaticPage(
+export async function fetchPageView(
   pageId: number,
   options?: { signal?: AbortSignal }
 ): Promise<ApiStaticPageResponse> {
@@ -667,10 +667,9 @@ export async function startDrawerDownload(drawerId: number) {
 }
 
 export async function logout() {
-  // logout clears the session then answers with a 303 to an absolute,
-  // cross-origin URL the dev proxy can't follow, so the browser reports a
-  // network error even though we're logged out. Handle it in LogoutPage
-  // instead of surfacing the global connection-error modal.
+  // In dev, logout answers with a 303 to a cross-origin URL that the
+  // proxy passes through unrewritten, so the browser fails it on CORS.
+  // The session is already gone, so skip the global error modal.
   const res = await axios.post(`${BASE_URL}/loginManager/logout`, undefined, {
     skipErrorNotifications: true,
   } as CustomAxiosRequestConfig);
@@ -1009,14 +1008,14 @@ interface CustomPageApiResponse {
   modifiedAt?: string;
 }
 
-export async function fetchCustomPages() {
+export async function fetchAllCustomPages() {
   const res = await axios.get<CustomPageApiResponse[]>(
     `${BASE_URL}/instances/customPages/true`
   );
   return res.data;
 }
 
-export async function fetchCustomPage(pageId: number) {
+export async function fetchCustomPageForEditing(pageId: number) {
   const res = await axios.get<CustomPageApiResponse>(
     `${BASE_URL}/instances/getPage/${pageId}`
   );

@@ -50,17 +50,17 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Button from "@/components/Button/Button.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCollections } from "@/composables/useCollections";
 import { XIcon } from "@/icons";
 import { useSearchStore } from "@/stores/searchStore";
 import AdvSearchDropDown from "./AdvSearchDropDown.vue";
 import AdvSearchDropDownItem from "./AdvSearchDropDownItem.vue";
 
-const instanceStore = useInstanceStore();
+const { flatCollections } = useCollections();
 const searchStore = useSearchStore();
 
 const selectedCollections = computed(() => {
-  return instanceStore.flatCollections
+  return flatCollections.value
     .filter((collection) =>
       searchStore.filterBy.collectionIds.includes(collection.id)
     )
@@ -68,7 +68,7 @@ const selectedCollections = computed(() => {
 });
 
 const unselectedCollections = computed(() => {
-  return instanceStore.flatCollections
+  return flatCollections.value
     .filter(
       (collection) =>
         !searchStore.filterBy.collectionIds.includes(collection.id)

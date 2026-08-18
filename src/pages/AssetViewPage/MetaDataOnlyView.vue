@@ -10,7 +10,7 @@
             {{ assetTitle || "(No Title)" }}
           </h2>
           <IconButton
-            v-if="assetId && instanceStore.currentUser?.canManageAssets"
+            v-if="assetId && currentUser?.canManageAssets"
             :to="`/assetManager/editAsset/${assetId}`"
             title="Edit Asset">
             <span class="sr-only">Edit Asset</span>
@@ -27,7 +27,7 @@
 import { computed } from "vue";
 import { getAssetTitle } from "@/helpers/displayUtils";
 import { useAsset } from "@/helpers/useAsset";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 import IconButton from "@/components/IconButton/IconButton.vue";
 import { PencilIcon } from "lucide-vue-next";
 import AssetMetadata from "@/components/AssetMetadata/AssetMetadata.vue";
@@ -41,6 +41,6 @@ const { asset } = useAsset(assetIdRef);
 const assetTitle = computed(() =>
   asset.value ? getAssetTitle(asset.value) : "Unknown"
 );
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
 </script>
 <style scoped></style>

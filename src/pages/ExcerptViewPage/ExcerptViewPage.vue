@@ -1,7 +1,8 @@
 <template>
   <NoScrollLayout class="excerpt-view-page">
     <template #custom-header>
-      <CustomAppHeader v-if="instanceStore.customHeaderMode == 1" />
+      <CustomAppHeader
+        v-if="customHeaderMode === ShowCustomHeaderMode.ALWAYS" />
     </template>
     <Transition name="fade">
       <div
@@ -57,14 +58,14 @@ import { secondsToTimeString } from "@/helpers/excerptHelpers";
 import MoreFileInfoButton from "@/components/MoreFileInfoButton/MoreFileInfoButton.vue";
 import DownloadFileButton from "@/components/DownloadFileButton/DownloadFileButton.vue";
 import Button from "@/components/Button/Button.vue";
-import ShareFileButton from "@/components/ShareFileButton/ShareFileButton.vue";
 import ExcerptableIframe from "@/components/ExcerptableIframe/ExcerptableIframe.vue";
 import ShareButton from "@/components/ShareButton/ShareButton.vue";
 import config from "@/config";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
+import { ShowCustomHeaderMode } from "@/types";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
 
-const instanceStore = useInstanceStore();
+const { customHeaderMode } = useCustomHeaderFooter();
 const props = defineProps<{
   excerptId: number;
 }>();

@@ -15,7 +15,7 @@ import { computed } from "vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
-import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -24,7 +24,7 @@ import PermissionsTable from "./PermissionsTable.vue";
 import { useCollectionFilter } from "./useCollectionFilter";
 
 const { collectionFilterId } = useCollectionFilter();
-const { data: instanceNav } = useInstanceQuery();
+const { data: instanceNav } = useInstanceNavQuery();
 
 // flattenCollections builds nested titles as "Parent › Child"
 const COLLECTION_PATH_SEPARATOR = " › ";

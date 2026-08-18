@@ -50,7 +50,7 @@
           <SidebarNavItem
             :to="{
               name: 'editInstanceSettingsPage',
-              params: { instanceId: instanceStore.instance.id },
+              params: { instanceId: instance?.id },
             }"
             :icon="SettingsIcon">
             Instance Settings
@@ -74,7 +74,6 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
 import {
   FileText as FileTextIcon,
   Lock as LockIcon,
@@ -86,10 +85,11 @@ import {
   Shield as ShieldIcon,
 } from "lucide-vue-next";
 import SidebarNavItem from "./SidebarNavItem.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import config from "@/config";
 
 const BASE_URL = config.instance.base.url;
-const instanceStore = useInstanceStore();
-const { currentUser } = storeToRefs(instanceStore);
+const { currentUser } = useCurrentUser();
+const { instance } = useElevatorInstance();
 </script>

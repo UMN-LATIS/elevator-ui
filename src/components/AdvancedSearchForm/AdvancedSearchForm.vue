@@ -14,7 +14,7 @@
           onLabel="Use Boolean Operators"
           onLabelClass="text-sm"></Toggle>
         <Toggle
-          v-if="instanceStore.currentUser?.isAdmin"
+          v-if="currentUser?.isAdmin"
           v-model="searchStore.filterBy.includeHiddenAssets"
           settingLabel="Include Hidden Assets"
           onLabel="Include Hidden"
@@ -58,7 +58,7 @@ import SearchTextInputGroup from "../SearchBar/SearchTextInputGroup.vue";
 import FilterByCollectionsSection from "./FilterByCollectionsSection.vue";
 import FilterByFieldsSection from "./FilterByFieldsSection.vue";
 import Toggle from "@/components/Toggle/Toggle.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useCurrentUser } from "@/composables/useCurrentUser";
 
 const emit = defineEmits<{
   (eventName: "close"): void;
@@ -66,7 +66,7 @@ const emit = defineEmits<{
 }>();
 
 const searchStore = useSearchStore();
-const instanceStore = useInstanceStore();
+const { currentUser } = useCurrentUser();
 const advancedSearchForm = useTemplateRef("advancedSearchForm");
 
 onClickOutside(advancedSearchForm, () => {

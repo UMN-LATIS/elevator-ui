@@ -277,7 +277,7 @@ import {
   flattenCollections,
   normalizeAssetCollections,
 } from "@/helpers/collectionHelpers";
-import { useInstanceQuery } from "@/queries/useInstanceQuery";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { useToastStore } from "@/stores/toastStore";
 import AddPermissionRow from "./AddPermissionRow.vue";
@@ -318,7 +318,7 @@ const collectionGrantsResult = useQuery(collectionGrantsQuery());
 const groupsResult = useQuery(groupsQuery());
 const groupTypesResult = useQuery(groupTypesQuery());
 const permissionLevelsResult = useQuery(permissionLevelsQuery());
-const instanceNavResult = useInstanceQuery();
+const instanceNavResult = useInstanceNavQuery();
 
 // the one list every table-wide state derives from, so a query added here
 // cannot reach isLoading while missing from isSuccess

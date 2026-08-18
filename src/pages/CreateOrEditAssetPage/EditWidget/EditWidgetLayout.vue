@@ -84,7 +84,7 @@
               </Link>
               used in this asset is misconfigured.
               <Link
-                :href="`${instanceStore.instance.contact}`"
+                :href="`${instance?.contact}`"
                 target="_blank"
                 rel="noopener noreferrer">
                 Contact your administrator
@@ -216,7 +216,7 @@ import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import Link from "@/components/Link/Link.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 
 const props = defineProps<{
   widgetContents: T[];
@@ -242,7 +242,7 @@ const { focused: isFocusedWithin } = useFocusWithin(
 );
 
 const parentAssetEditor = useAssetEditor();
-const instanceStore = useInstanceStore();
+const { instance } = useElevatorInstance();
 
 const assetValidation = useAssetValidation();
 

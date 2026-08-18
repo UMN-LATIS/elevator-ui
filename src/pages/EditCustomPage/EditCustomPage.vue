@@ -93,11 +93,11 @@ import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import { FormSection, FormToc } from "@/components/Form";
 import { useToastStore } from "@/stores/toastStore";
 import {
-  useCustomPageQuery,
+  useCustomPageEditQuery,
   useSaveCustomPageMutation,
   useDeleteCustomPageMutation,
-} from "@/queries/useCustomPageQuery";
-import { useAllCustomPagesQuery } from "@/queries/useAllCustomPagesQuery";
+} from "@/queries/customPageQueries";
+import { useAllCustomPagesQuery } from "@/queries/customPageQueries";
 import type { SelectOption, TocItem } from "@/types";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 
@@ -115,7 +115,7 @@ const {
   data: pageData,
   isLoading: isLoadingPage,
   isError,
-} = useCustomPageQuery(pageIdRef, {
+} = useCustomPageEditQuery(pageIdRef, {
   enabled: computed(() => !isNewPage.value),
 });
 

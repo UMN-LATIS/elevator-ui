@@ -2,9 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import {
-  INSTANCE_QUERY_KEY,
+  INSTANCENAV_QUERY_KEY,
   TEMPLATES_QUERY_KEY,
   FIELD_TYPES_QUERY_KEY,
+  LIST,
+  EDIT,
 } from "./queryKeys";
 import type {
   TemplateSummary,
@@ -12,7 +14,6 @@ import type {
   TemplatePayload,
   FieldType,
 } from "@/types";
-import { useInstanceStore } from "@/stores/instanceStore";
 
 export function useTemplateQuery(
   templateId: MaybeRefOrGetter<string | number | null>,
@@ -34,7 +35,7 @@ export function useTemplateQuery(
 
 export function useAllTemplatesQuery(options = {}) {
   return useQuery<TemplateSummary[]>({
-    queryKey: [TEMPLATES_QUERY_KEY],
+    queryKey: [TEMPLATES_QUERY_KEY, LIST],
     queryFn: () => fetchers.fetchAllTemplates(),
     // Sort here so components always receive an alphabetically ordered list
     // regardless of what order the API returns them in.
@@ -50,14 +51,14 @@ export function useDeleteTemplateMutation() {
 
   return useMutation({
     mutationFn: (templateId: number) => fetchers.deleteTemplate(templateId),
-    onSuccess: () => {
-      // invalidate template list
-      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
+    onSuccess: (_, templateId) => {
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY, LIST] });
+      queryClient.invalidateQueries({
+        queryKey: [TEMPLATES_QUERY_KEY, templateId],
+      });
 
       // invalidate instanceNav data too since it contains template info
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
-      const instanceStore = useInstanceStore();
-      instanceStore.refresh();
+      queryClient.invalidateQueries({ queryKey: [INSTANCENAV_QUERY_KEY] });
     },
   });
 }
@@ -67,12 +68,14 @@ export function useCopyTemplateMutation() {
 
   return useMutation({
     mutationFn: (templateId: number) => fetchers.copyTemplate(templateId),
-    onSuccess: () => {
-      // A copy appears in both the list and the instance nav.
-      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
-      const instanceStore = useInstanceStore();
-      instanceStore.refresh();
+    onSuccess: (_, templateId) => {
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY, LIST] });
+      queryClient.invalidateQueries({
+        queryKey: [TEMPLATES_QUERY_KEY, templateId],
+      });
+
+      // invalidate instanceNav data too since it contains template info
+      queryClient.invalidateQueries({ queryKey: [INSTANCENAV_QUERY_KEY] });
     },
   });
 }
@@ -98,7 +101,7 @@ export function useAdminTemplateQuery(
   options = {}
 ) {
   return useQuery<AdminTemplate>({
-    queryKey: [TEMPLATES_QUERY_KEY, "admin", templateId] as const,
+    queryKey: [TEMPLATES_QUERY_KEY, templateId, EDIT] as const,
     enabled: () => toValue(templateId) !== null,
     queryFn: () => fetchers.fetchAdminTemplate(toValue(templateId)!),
     refetchOnWindowFocus: false,
@@ -113,10 +116,8 @@ export function useCreateTemplateMutation() {
   return useMutation({
     mutationFn: (payload: TemplatePayload) => fetchers.createTemplate(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
-      const instanceStore = useInstanceStore();
-      instanceStore.refresh();
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY, LIST] });
+      queryClient.invalidateQueries({ queryKey: [INSTANCENAV_QUERY_KEY] });
     },
   });
 }
@@ -133,14 +134,11 @@ export function useUpdateTemplateMutation() {
       payload: TemplatePayload;
     }) => fetchers.updateTemplate(templateId, payload),
     onSuccess: (_data, { templateId }) => {
-      // Invalidate both the admin detail cache and the summary list
       queryClient.invalidateQueries({
-        queryKey: [TEMPLATES_QUERY_KEY, "admin", templateId],
+        queryKey: [TEMPLATES_QUERY_KEY, templateId],
       });
-      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
-      const instanceStore = useInstanceStore();
-      instanceStore.refresh();
+      queryClient.invalidateQueries({ queryKey: [TEMPLATES_QUERY_KEY, LIST] });
+      queryClient.invalidateQueries({ queryKey: [INSTANCENAV_QUERY_KEY] });
     },
   });
 }

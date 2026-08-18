@@ -16,13 +16,12 @@
       <ThemePreviewBar />
     </Teleport>
     <ErrorBoundary>
-      <RouterView v-if="instanceStore.hasData && drawerStore.isReady" />
+      <RouterView v-if="isInstanceNavReady && drawerStore.isReady" />
     </ErrorBoundary>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted } from "vue";
-import { useInstanceStore } from "./stores/instanceStore";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useDrawerStore } from "./stores/drawerStore";
 import { useTheming } from "./helpers/useTheming";
 import { useElevatorSessionStorage } from "./helpers/useElevatorSessionStorage";
@@ -32,18 +31,20 @@ import ThemePreviewBar from "@/components/ThemePreviewBar/ThemePreviewBar.vue";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import { useCustomCSS } from "./composables/useCustomCSS";
+import { useCustomScripts } from "./composables/useCustomScripts";
+import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 
-// load instance store before mounting app
-// this prevents a race conditiion where the search store
-// tries to add search field filters before the instance store
-// has returned specifics about the available search fields
-const instanceStore = useInstanceStore();
 const drawerStore = useDrawerStore();
 const elevatorSessionStorage = useElevatorSessionStorage();
 
+// Pages assume instanceNav data (nav pages, collections, searchable
+// fields) is already in the query cache, so hold the RouterView until
+// the first fetch succeeds.
+const { data: instanceNav } = useInstanceNavQuery();
+const isInstanceNavReady = computed(() => instanceNav.value !== undefined);
+
 onMounted(() => {
   console.log("app mounted");
-  instanceStore.init();
   drawerStore.init();
 
   if (window.name === "elevatorPlugin") {
@@ -53,6 +54,7 @@ onMounted(() => {
 
   useTheming();
   useCustomCSS();
+  useCustomScripts();
 });
 
 onUnmounted(() => {
