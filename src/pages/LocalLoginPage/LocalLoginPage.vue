@@ -98,7 +98,6 @@ import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { useCurrentUser } from "@/composables/useCurrentUser";
 import { useCustomHeaderFooter } from "@/composables/useCustomHeaderFooter";
 import { useLoginAsGuestMutation } from "@/queries/useLoginAsGuestMutation";
-import { useDrawerStore } from "@/stores/drawerStore";
 
 const props = withDefaults(
   defineProps<{
@@ -110,7 +109,6 @@ const props = withDefaults(
 );
 
 const router = useRouter();
-const drawerStore = useDrawerStore();
 
 const { instance } = useElevatorInstance();
 const { customHeaderMode } = useCustomHeaderFooter();
@@ -168,10 +166,7 @@ function submitLogin(): void {
   loginAsGuest(
     { username: username.value, password: password.value },
     {
-      onSuccess: async () => {
-        // the mutation has already cleared every cache, so this refills
-        // drawerStore for the new session
-        await drawerStore.init();
+      onSuccess: () => {
         router.push(props.redirectURL);
       },
       onError: () => {
