@@ -396,6 +396,7 @@ export type AssetPreview = SearchResultMatch;
 
 export interface SearchEntry {
   collection?: string[]; // collection ids as strings
+  templateId?: string[]; // template ids as strings
   searchDate?: PHPDateTime;
   searchText?: string;
   matchType?: string; // 'phrase_prefix' ?
@@ -436,6 +437,7 @@ export interface SearchRequestOptions {
   searchText?: string;
   sort?: keyof SearchSortOptions;
   collection?: string[] | number[] | null;
+  templateId?: string[] | number[] | null;
   specificFieldSearch?: SpecificFieldSearchItem[];
   combineSpecificSearches?: "OR" | "AND";
   fileTypesSearch?: string;

@@ -15,8 +15,12 @@
       leaveTo="transform opacity-0 scale-95"
       tailwindcssOriginClass>
       <MenuButton
-        class="dropdown__menu-button inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface p-2"
-        :class="labelClass"
+        :class="
+          cn([
+            'dropdown__menu-button inline-flex w-full justify-center rounded-md items-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface p-2',
+            labelClass,
+          ])
+        "
         @click="(event) => emit('trigger:click', event)">
         <slot name="label">
           {{ label }}
@@ -42,6 +46,7 @@
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import ChevronDownIcon from "@/icons/ChevronDownIcon.vue";
 import { Float } from "@headlessui-float/vue";
+import { cn } from "@/lib/utils";
 
 withDefaults(
   defineProps<{
