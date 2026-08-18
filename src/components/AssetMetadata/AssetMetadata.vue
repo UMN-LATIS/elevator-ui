@@ -1,6 +1,5 @@
 <template>
-  <div
-    class="asset-metadata flex flex-col gap-[var(--app-panel-body-items-gap)]">
+  <div class="asset-metadata flex flex-col gap-4">
     <template v-if="assetId && asset && template">
       <CollectionTuple
         v-if="showCollectionTop"
