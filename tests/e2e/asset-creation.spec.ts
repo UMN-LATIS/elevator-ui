@@ -72,6 +72,34 @@ test.describe("Asset Creation", () => {
       await expect(assetTitle).toBeVisible();
     });
 
+    test("reports no unsaved changes after saving a new asset", async ({
+      page,
+    }) => {
+      await page.goto("/assetManager/addAsset");
+
+      await page.getByLabel("Template").selectOption({ index: 1 });
+      await page.getByLabel("Collection").selectOption({ index: 1 });
+
+      const continueButton = page.getByRole("button", { name: "Continue" });
+      await expect(continueButton).toBeEnabled();
+      await continueButton.click();
+
+      const titleField = page.getByLabel(/title/i).first();
+      await titleField.fill("Asset saved once");
+
+      const saveCompleted = page.waitForResponse((response) =>
+        response.url().includes("assetManager/submission")
+      );
+      await page.getByRole("button", { name: "Save" }).click();
+      await saveCompleted;
+
+      await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+
+      await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+        "No unsaved changes"
+      );
+    });
+
     test("save is disabled if missing required fields", async ({ page }) => {
       await page.goto("/assetManager/addAsset");
 

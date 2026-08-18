@@ -1,5 +1,6 @@
 import {
   Asset,
+  BaseAsset,
   Template,
   UnsavedAsset,
   WidgetContent,
@@ -10,7 +11,7 @@ import {
 import invariant from "tiny-invariant";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
-import { equals, omit } from "ramda";
+import { equals, omit, pick } from "ramda";
 import { explainObjectDifferences } from "@/helpers/explainObjectDifferences";
 
 export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
@@ -35,6 +36,71 @@ export function omitWidgetIds(asset: Asset | UnsavedAsset, template: Template) {
   };
 }
 
+// The BaseAsset fields `toSaveableFormData` sends. Widget fields are added from
+// the template at the call site. An allowlist means a field the server adds
+// later cannot read as an unsaved edit, the way a denylist of known server
+// fields would let it.
+const EDITABLE_BASE_ASSET_FIELDS = [
+  "templateId",
+  "collectionId",
+  "readyForDisplay",
+  "availableAfter",
+] as const satisfies readonly (keyof BaseAsset)[];
+
+/**
+ * JSON has no undefined, so the server can never send such a key, and a
+ * working copy that carries one never matches the saved copy again. Widget
+ * defaults and cleared flags both leave them behind.
+ */
+function withoutUndefinedValues(
+  value: Record<string, unknown>
+): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined)
+  );
+}
+
+/**
+ * Reduces an asset to the parts an admin can edit, so that two assets can be
+ * compared for unsaved changes.
+ *
+ * Keeps the template's widget fields and the few asset-level fields the save
+ * request carries, drops the ids the server assigns to widget content items,
+ * and drops any key holding undefined. Comparing server-owned fields would
+ * report an asset as edited immediately after it was saved.
+ */
+export function toComparableAsset(
+  asset: Asset | UnsavedAsset,
+  template: Template
+): Record<string, unknown> {
+  const withoutIds = omitWidgetIds(asset, template);
+
+  const widgetContentsWithoutUndefinedValues = template.widgetArray.reduce(
+    (acc, widgetDef) => {
+      const contents = withoutIds[widgetDef.fieldTitle] as
+        | Record<string, unknown>[]
+        | undefined;
+      if (!contents) return acc;
+
+      acc[widgetDef.fieldTitle] = contents.map(withoutUndefinedValues);
+      return acc;
+    },
+    {} as Record<string, unknown>
+  );
+
+  const comparableFields = [
+    ...EDITABLE_BASE_ASSET_FIELDS,
+    ...template.widgetArray.map((widgetDef) => widgetDef.fieldTitle),
+  ];
+
+  return withoutUndefinedValues(
+    pick(comparableFields, {
+      ...withoutIds,
+      ...widgetContentsWithoutUndefinedValues,
+    })
+  );
+}
+
 export function hasAssetChanged(
   {
     savedAsset,
@@ -47,35 +113,40 @@ export function hasAssetChanged(
   },
   { logDifferences = false }: { logDifferences?: boolean } = {}
 ): boolean {
-  if (!savedAsset || !localAsset || !template) return true;
+  // A new asset has nothing on the server to compare against, so it is
+  // measured against the untouched asset its template would have produced.
+  // Calling it changed outright would let an empty create form block leaving.
+  const baselineAsset = savedAsset?.assetId
+    ? savedAsset
+    : makeLocalAsset({
+        template,
+        collectionId: localAsset.collectionId,
+        savedAsset: null,
+      });
 
-  // For create mode, always consider as changed if there's any content
-  if (!savedAsset.assetId) return true;
+  const comparableBaselineAsset = toComparableAsset(baselineAsset, template);
+  const comparableLocalAsset = toComparableAsset(localAsset, template);
 
-  const savedAssetWithoutIds = omitWidgetIds(savedAsset, template);
-  const localAssetWithoutIds = omitWidgetIds(localAsset, template);
+  const someBaselineContentDiffers = Object.entries(
+    comparableBaselineAsset
+  ).some(([key, baselineValue]) => {
+    const localValue = comparableLocalAsset[key];
+    return !equals(baselineValue, localValue);
+  });
 
-  // Check if any saved content differs from local content
-  const someSavedContentDiffers = Object.entries(savedAssetWithoutIds).some(
-    ([key, savedValue]) => {
-      const localValue = localAssetWithoutIds[key];
-      return !equals(savedValue, localValue);
-    }
-  );
-
-  // Check if local asset has new fields with content not in saved asset
-  const hasNewLocalPropWithContent = Object.entries(localAssetWithoutIds)
-    .filter(([key]) => !(key in savedAssetWithoutIds))
+  // a key the baseline lacks counts only once it holds real content
+  const hasNewLocalPropWithContent = Object.entries(comparableLocalAsset)
+    .filter(([key]) => !(key in comparableBaselineAsset))
     .some(([, localValue]) =>
       hasWidgetContent(localValue as WidgetContent[], "any")
     );
 
-  const hasChanged = someSavedContentDiffers || hasNewLocalPropWithContent;
+  const hasChanged = someBaselineContentDiffers || hasNewLocalPropWithContent;
 
   if (logDifferences && hasChanged) {
     const msg = explainObjectDifferences(
-      savedAssetWithoutIds,
-      localAssetWithoutIds
+      comparableBaselineAsset,
+      comparableLocalAsset
     );
     console.log("Asset differences:", msg);
   }

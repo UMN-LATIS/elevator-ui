@@ -1,4 +1,4 @@
-import { Asset, LngLat } from "@/types";
+import { LngLat } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
 import { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
 import { useAssetValidationProvider } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
@@ -51,7 +51,6 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   TOP: 1,
 } as const;
 
-
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
 
 export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<
@@ -60,8 +59,4 @@ export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<
 
 export const ASSET_VALIDATION_PROVIDE_KEY = Symbol() as InjectionKey<
   ReturnType<typeof useAssetValidationProvider>
->;
-
-export const PAGE_ASSET_ID = Symbol() as InjectionKey<
-  ComputedRef<Asset["assetId"] | null>
 >;

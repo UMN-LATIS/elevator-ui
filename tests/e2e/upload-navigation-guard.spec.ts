@@ -124,7 +124,9 @@ test.describe("Upload navigation guard", () => {
     await expect(page).not.toHaveURL(/\/assetManager\/addAsset/);
   });
 
-  test("no modal after upload has completed", async ({ page }) => {
+  test("upload guard releases once the upload has completed", async ({
+    page,
+  }) => {
     test.setTimeout(30_000);
 
     // Save the asset first so we're on the edit page (no create-and-redirect).
@@ -140,8 +142,60 @@ test.describe("Upload navigation guard", () => {
 
     await navigateHome(page);
 
+    // This upload has finished, so it stops blocking. The file it attached is
+    // still unsaved, so the unsaved changes guard takes over from here.
     await expect(page.getByText("Upload in progress")).not.toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Unsaved changes" })
+    ).toBeVisible();
+  });
+
+  test("saving after an upload lets the admin leave without a prompt", async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+
+    await page.getByLabel(/title/i).first().fill("Upload Guard Test");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+
+    const uploadCleanedUp = page.waitForResponse("**/completeSourceFile/**");
+    await startUploadAndWaitUntilInFlight(page, 500);
+    await uploadCleanedUp;
+
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.getByTestId("unsaved-changes-indicator")).toHaveText(
+      "No unsaved changes"
+    );
+
+    await navigateHome(page);
+
     await expect(page).not.toHaveURL(/\/assetManager\/editAsset/);
+  });
+
+  test("deleting the asset during an upload leaves without warning", async ({
+    page,
+  }) => {
+    test.setTimeout(30_000);
+
+    // Save first, so the sidebar has a persisted asset to offer Delete for.
+    await page.getByLabel(/title/i).first().fill("Delete During Upload");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+
+    await startUploadAndWaitUntilInFlight(page);
+
+    // The sidebar raises a browser confirm before it deletes.
+    page.once("dialog", (dialog) => dialog.accept());
+
+    await page.locator(".edit-asset-form-sidebar__delete").click();
+
+    // Deleting settles both blockers at once. The upload has lost the asset it
+    // was attaching to, so cancelling it is not something to warn about.
+    await expect(page).toHaveURL(/\/assetManager\/userAssets/);
+    await expect(
+      page.getByRole("heading", { name: "Upload in progress" })
+    ).not.toBeVisible();
   });
 
   test("triggers browser native dialog when reloading during upload", async ({

@@ -51,13 +51,16 @@ const editor = ref<InstanceType<typeof QuillyEditor>>();
 const isImageDialogOpen = ref(false);
 let quill: Quill | null = null;
 
-// Handle update event with semantic HTML conversion
 function handleUpdate(quillHTML: string) {
   if (!quill) {
     return;
   }
 
-  emit("update:modelValue", quillHTML);
+  // Quill keeps one empty paragraph it can never delete, so a cleared
+  // editor serializes to markup rather than to nothing. Clearing a field
+  // has to get back to the empty string it started at, or the form reads
+  // that leftover paragraph as an edit.
+  emit("update:modelValue", quill.editor.isBlank() ? "" : quillHTML);
 }
 
 Quill.register("modules/htmlEditButton", htmlEditButton);
@@ -116,9 +119,13 @@ const options = computed(() => ({
 /**
  * Returns the editor content serialized by quill itself, with no
  * further cleaning. Call this at save time.
+ *
+ * @returns the empty string for an empty editor, never the empty
+ * paragraph quill keeps to hold the cursor.
  */
 function getSemanticHtml(): string {
-  return quill?.getSemanticHTML() ?? "";
+  if (!quill || quill.editor.isBlank()) return "";
+  return quill.getSemanticHTML();
 }
 
 function handleImageInsert(src: string) {

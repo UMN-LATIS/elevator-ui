@@ -46,11 +46,13 @@
         :localAssetTitle="assetEditor.localAssetTitle"
         :saveStatus="assetEditor.saveAssetIndicator"
         :hasUnsavedChanges="assetEditor.hasAssetChanged"
+        :isDeleting="deleteAssetMutation.isPending.value"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
         @save="handleSaveAsset({ showToast: true })"
         @autoSave="handleSaveAsset({ showToast: false })"
+        @delete="handleDeleteAsset"
         @update:asset="assetEditor.updateLocalAsset($event)" />
     </Transition>
     <Teleport to="body">
@@ -107,14 +109,15 @@
         </div>
       </ConfirmModal>
       <ConfirmModal
+        v-if="leaveGuard.activeConfirmation.value"
         type="warning"
-        :isOpen="isLeaveConfirmOpen"
-        title="Upload in progress"
-        confirmLabel="Leave"
+        :isOpen="leaveGuard.isConfirmingLeave.value"
+        :title="leaveGuard.activeConfirmation.value.title"
+        :confirmLabel="leaveGuard.activeConfirmation.value.confirmLabel"
         cancelLabel="Stay"
-        @confirm="handleLeaveConfirm"
-        @close="handleLeaveCancel">
-        Navigating away will cancel your upload. Are you sure you want to leave?
+        @confirm="leaveGuard.confirmLeave"
+        @close="leaveGuard.cancelLeave">
+        {{ leaveGuard.activeConfirmation.value.message }}
       </ConfirmModal>
     </Teleport>
   </DefaultLayout>
@@ -128,19 +131,13 @@ import {
   reactive,
   ref,
   watch,
-  watchEffect,
 } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
 import Button from "@/components/Button/Button.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import {
-  onBeforeRouteLeave,
-  onBeforeRouteUpdate,
-  useRoute,
-  useRouter,
-} from "vue-router";
+import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
@@ -155,7 +152,11 @@ import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
 import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
-import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
+import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
+import {
+  UNSAVED_CHANGES_CONFIRMATION,
+  useLeaveGuard,
+} from "@/composables/useLeaveGuard";
 
 const props = withDefaults(
   defineProps<{
@@ -188,46 +189,45 @@ function handleRestored() {
   }
 }
 
-// --- Upload navigation guard ---
+// Interrupting an upload loses the file, not just the edits describing it, so
+// it blocks first.
+const leaveGuard = useLeaveGuard([
+  {
+    isBlocking: () => uploadStore.hasActiveUploads,
+    confirmation: {
+      title: "Upload in progress",
+      message: "Leaving this page cancels your upload.",
+      confirmLabel: "Leave",
+    },
+  },
+  {
+    isBlocking: () => assetEditor.hasAssetChanged,
+    confirmation: UNSAVED_CHANGES_CONFIRMATION,
+  },
+]);
 
-const isLeaveConfirmOpen = ref(false);
-// Holds the resolve function for the pending onBeforeRouteLeave promise.
-let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
+const deleteAssetMutation = useDeleteAssetMutation();
 
-// Trigger the browser's native "Leave site?" dialog when the user tries to
-// close the tab, reload, or navigate to an external URL while an upload is running.
-watchEffect((onCleanup) => {
-  if (!uploadStore.hasActiveUploads) return;
-  const handler = (e: BeforeUnloadEvent) => {
-    e.preventDefault();
-  };
-  window.addEventListener("beforeunload", handler);
+function handleDeleteAsset() {
+  const assetIdToDelete = assetEditor.localAsset?.assetId;
+  if (!assetIdToDelete) return;
 
-  // onCleanup (not onUnmounted) is used because the listener must be removed
-  // as soon as uploads finish — not just when the component is destroyed.
-  // watchEffect calls the cleanup before each re-run and on unmount, covering both cases.
-  onCleanup(() => window.removeEventListener("beforeunload", handler));
-});
+  if (
+    !confirm("Are you sure you want to delete this asset and all derivatives")
+  ) {
+    return;
+  }
 
-// Show our custom ConfirmModal for in-app (Vue Router) navigation.
-onBeforeRouteLeave(async () => {
-  if (!uploadStore.hasActiveUploads) return true;
-  isLeaveConfirmOpen.value = true;
-  return new Promise<boolean>((resolve) => {
-    resolveLeaveGuard = resolve;
+  // the mutation reports its own success and failure with toasts
+  deleteAssetMutation.mutate(assetIdToDelete, {
+    onSuccess: () => {
+      // the asset is gone, so the edits have nowhere left to be saved and an
+      // upload has lost what it was attaching to
+      leaveGuard.leaveWithoutConfirming(() =>
+        router.push("/assetManager/userAssets")
+      );
+    },
   });
-});
-
-function handleLeaveConfirm() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(true);
-  resolveLeaveGuard = null;
-}
-
-function handleLeaveCancel() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(false);
-  resolveLeaveGuard = null;
 }
 
 watch(
@@ -354,15 +354,20 @@ async function handleSaveAsset({ showToast }: { showToast: boolean }) {
     // redirect to the edit asset page (so that we don't keep recreating
     // new assets on each save!)
     await nextTick();
-    router.replace({
-      name: "editAsset",
-      params: {
-        assetId: savedAssetId,
-      },
-      state: {
-        preserveScroll: true,
-      },
-    });
+
+    // The save settled the work this route was holding, and an upload can
+    // still be running, so neither blocker should get to ask about it.
+    await leaveGuard.leaveWithoutConfirming(() =>
+      router.replace({
+        name: "editAsset",
+        params: {
+          assetId: savedAssetId,
+        },
+        state: {
+          preserveScroll: true,
+        },
+      })
+    );
 
     if (showToast) {
       toastStore.addToast({
@@ -465,18 +470,22 @@ async function updateTemplateId() {
 // inline asset before the parent saves)
 provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
-usePageAssetIdProvider(() => props.assetId ?? null);
+// /assetManager/addAsset is an alias of this route, so both Add Asset and a
+// different asset id keep this component mounted and arrive here rather than
+// as a leave. The editor is replaced either way, so ask first.
+onBeforeRouteUpdate(async (to, from) => {
+  if (to.params.assetId !== from.params.assetId) {
+    const isLeaveAllowed = await leaveGuard.askBeforeLeaving();
+    if (!isLeaveAllowed) return false;
+  }
 
-onBeforeRouteUpdate(async (to, _from, next) => {
   if (to.fullPath !== "/assetManager/addAsset") {
     // if not navigating to create asset, just proceed
-    return next();
+    return;
   }
 
   // reset the asset state
   assetEditor.reset();
-
-  next();
 });
 </script>
 <style scoped>

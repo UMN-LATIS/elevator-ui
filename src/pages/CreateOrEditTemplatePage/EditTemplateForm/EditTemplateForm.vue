@@ -153,7 +153,8 @@
           <p v-if="editor.lastModifiedAt.value" data-testid="last-modified">
             {{ formatDate(editor.lastModifiedAt.value) }}
           </p>
-          <p v-if="!editor.hasUnsavedChanges.value">No unsaved changes</p>
+          <UnsavedChangesIndicator
+            :hasUnsavedChanges="editor.hasUnsavedChanges.value" />
         </div>
       </div>
     </template>
@@ -249,6 +250,7 @@ import { WIDGET_EXPANSION_KEY } from "./widgetExpansionKey";
 import { FIELD_TYPE_NAME_ICONS } from "./fieldTypeConstants";
 import type { SelectOption } from "@/types";
 import Tuple from "@/components/Tuple/Tuple.vue";
+import UnsavedChangesIndicator from "@/components/UnsavedChangesIndicator/UnsavedChangesIndicator.vue";
 
 defineEmits<{ save: []; cancel: [] }>();
 

@@ -56,9 +56,11 @@
         :asset="asset"
         :saveStatus="saveStatus"
         :hasUnsavedChanges="hasUnsavedChanges"
+        :isDeleting="isDeleting"
         :selectedTemplateId="selectedTemplateId"
         @save="$emit('save')"
         @cancel="$emit('cancel')"
+        @delete="$emit('delete')"
         @update:templateId="$emit('update:templateId', $event)"
         @migrateCollection="$emit('migrateCollection', $event)"
         @update:asset="$emit('update:asset', $event)" />
@@ -88,6 +90,7 @@ const props = defineProps<{
   localAssetTitle: string;
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
+  isDeleting: boolean;
   selectedTemplateId?: number | null;
 }>();
 
@@ -95,6 +98,7 @@ defineEmits<{
   (e: "save"): void;
   (e: "autoSave"): void;
   (e: "cancel"): void;
+  (e: "delete"): void;
   (e: "update:templateId", templateId: number): void;
   (e: "migrateCollection", collectionId: number): void;
   (e: "update:asset", asset: Asset | UnsavedAsset): void;

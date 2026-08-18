@@ -34,13 +34,9 @@ export function useSaveCustomPageMutation(options?: {
   return useMutation({
     mutationFn: (params: SaveCustomPageParams) => saveCustomPage(params),
     onSuccess: (data, variables) => {
-      // Invalidates both the list and all individual page queries
-      queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] });
-
       // refresh instanceStore too
       // this will double-fetch instance info when pages are saved
-      // (once for the query invalidation above and once manually here)
+      // (once for the query invalidation below and once manually here)
       // when we migrate instanceStore consumers to useInstanceQuery, we can
       // remove this manual refresh and rely solely on the query invalidation
       // to update instance info
@@ -49,6 +45,14 @@ export function useSaveCustomPageMutation(options?: {
 
       options?.onSuccess?.(data, variables);
     },
+    // Invalidates both the list and all individual page queries. Returning the
+    // promise keeps isPending true while the refetches are in flight, so an
+    // awaited save leaves the page query already holding what was saved.
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [CUSTOM_PAGES_QUERY_KEY] }),
+        queryClient.invalidateQueries({ queryKey: [INSTANCE_QUERY_KEY] }),
+      ]),
   });
 }
 
