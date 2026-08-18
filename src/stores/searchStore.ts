@@ -37,6 +37,7 @@ export interface SearchStoreState {
   // collections that were used in the previous search
   filterBy: {
     collectionIds: number[];
+    templateIds: number[];
     specificFieldsMap: Map<string, SearchableSpecificFieldFilter>;
     searchableFieldsOperator: "AND" | "OR";
     globalDateRange: null | {
@@ -85,6 +86,7 @@ const createState = (): SearchStoreState => ({
   query: ref(""),
   filterBy: reactive({
     collectionIds: [],
+    templateIds: [],
     specificFieldsMap: new Map<string, SearchableSpecificFieldFilter>(),
     searchableFieldsOperator: "AND",
     globalDateRange: null,
@@ -141,6 +143,7 @@ const getters = (
   filteredByCount: computed((): number => {
     return (
       state.filterBy.collectionIds.length +
+      state.filterBy.templateIds.length +
       state.filterBy.specificFieldsMap.size +
       (state.filterBy.globalDateRange ? 1 : 0) +
       (state.filterBy.globalLocation ? 1 : 0) +
@@ -342,6 +345,10 @@ const actions = (
     state.filterBy.collectionIds.push(collectionId);
   },
 
+  addTemplateIdFilter(templateId: number) {
+    state.filterBy.templateIds.push(templateId);
+  },
+
   removeCollectionIdFilter(collectionId: number) {
     const index = state.filterBy.collectionIds.indexOf(collectionId);
 
@@ -354,8 +361,24 @@ const actions = (
     state.filterBy.collectionIds.splice(index, 1);
   },
 
+  removeTemplateIdFilter(templateId: number) {
+    const index = state.filterBy.templateIds.indexOf(templateId);
+
+    if (index < 0) {
+      throw new Error(
+        `Cannot remove template id ${templateId} from searchStore. ID is not in filterBy.templateIds`
+      );
+    }
+
+    state.filterBy.templateIds.splice(index, 1);
+  },
+
   clearCollectionIdFilters() {
     state.filterBy.collectionIds = [];
+  },
+
+  clearTemplateIdFilters() {
+    state.filterBy.templateIds = [];
   },
 
   addDateRangeFilter() {
@@ -572,6 +595,7 @@ const actions = (
 
   clearAllFilters() {
     this.clearCollectionIdFilters();
+    this.clearTemplateIdFilters();
     this.clearSearchableFieldsFilters();
     state.filterBy.searchableFieldsOperator = "AND";
     state.filterBy.includeHiddenAssets = false;

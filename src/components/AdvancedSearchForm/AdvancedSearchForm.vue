@@ -27,6 +27,7 @@
         </h2>
         <div class="max-h-[60vh] overflow-y-auto px-2">
           <FilterByCollectionsSection />
+          <FilterByTemplatesSection />
           <FilterByFieldsSection />
         </div>
       </div>
@@ -59,6 +60,7 @@ import FilterByCollectionsSection from "./FilterByCollectionsSection.vue";
 import FilterByFieldsSection from "./FilterByFieldsSection.vue";
 import Toggle from "@/components/Toggle/Toggle.vue";
 import { useCurrentUser } from "@/composables/useCurrentUser";
+import FilterByTemplatesSection from "./FilterByTemplatesSection.vue";
 
 const emit = defineEmits<{
   (eventName: "close"): void;
