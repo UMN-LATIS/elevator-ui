@@ -214,7 +214,6 @@ function handleCreateDropped(): void {
   });
 }
 
-/** The save a completed upload asked for failed. */
 function handleUploadSaveFailed(error: unknown): void {
   toastStore.addToast({
     title: "Error",
@@ -239,7 +238,8 @@ const localAssetTitle = computed(() =>
 );
 const savedAssetTitle = computed(() => {
   const savedAsset = assetEditor.savedAsset;
-  return savedAsset?.title?.[0] ?? savedAsset?.assetId ?? "";
+  const firstTitle = savedAsset?.title?.[0];
+  return firstTitle ?? savedAsset?.assetId ?? "";
 });
 
 function handleRestored() {
@@ -249,7 +249,7 @@ function handleRestored() {
   }
 }
 
-/** What the user would lose by leaving, or null when nothing is at stake. */
+/** What the user would lose by leaving, or null when leaving costs nothing. */
 type LeaveBlocker = "activeUpload" | "unsavedEdits";
 const leaveBlocker = ref<LeaveBlocker | null>(null);
 
@@ -297,7 +297,7 @@ async function confirmLeavingWorkBehind(
   to: RouteLocationNormalized
 ): Promise<boolean> {
   // the redirect onto the asset this editor just created reuses the
-  // component and carries every pending edit and upload with it, so
+  // component, so every pending edit and upload is still in place and
   // nothing is being left behind
   const isTargetTheAssetBeingEdited =
     to.name === "editAsset" &&
@@ -452,8 +452,7 @@ function handleAssetCreated(assetId: string) {
     channel.close();
   }
 
-  // redirect to the edit asset page (so that we don't keep recreating
-  // new assets on each save!)
+  // so a completed create doesn't recreate the asset on the next save
   router.replace({
     name: "editAsset",
     params: {

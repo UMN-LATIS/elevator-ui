@@ -140,9 +140,9 @@ describe("EditUploadWidget", () => {
 
       const writes = wrapper.emitted("update:widgetContents");
       expect(writes).toBeTruthy();
-      const itemsWritten = writes?.at(
-        -1
-      )?.[0] as T.WithUuid<T.UploadWidgetContent>[];
+      const lastWrite = writes?.at(-1);
+      const itemsWritten =
+        lastWrite?.[0] as T.WithUuid<T.UploadWidgetContent>[];
 
       expect(itemsWritten.map((item) => item.uuid)).toEqual([
         "item-a",
@@ -161,9 +161,9 @@ describe("EditUploadWidget", () => {
 
       const writes = wrapper.emitted("update:widgetContents");
       expect(writes).toBeTruthy();
-      const itemsWritten = writes?.at(
-        -1
-      )?.[0] as T.WithUuid<T.UploadWidgetContent>[];
+      const lastWrite = writes?.at(-1);
+      const itemsWritten =
+        lastWrite?.[0] as T.WithUuid<T.UploadWidgetContent>[];
 
       expect(itemsWritten.map((item) => item.uuid)).toEqual([
         "item-a",

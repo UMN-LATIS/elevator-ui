@@ -45,7 +45,7 @@ const makeAsset = (assetId: string): T.Asset =>
   } as unknown as T.Asset);
 
 /**
- * A tiny synchronous runtime: dispatch folds through the real reducer so
+ * A tiny synchronous dispatch loop: it folds through the real reducer so
  * the effect runner sees the same state a page would, and the log records
  * what was dispatched in what order.
  */
@@ -60,7 +60,7 @@ function makeHarness(handlers: Partial<EditorPageHandlers> = {}) {
   };
   const effectRunner = createEffectRunner({
     // the fake client just runs the query function, which hits the mocked
-    // fetchers above
+    // fetchAsset and fetchTemplate
     queryClient: {
       fetchQuery: (options: { queryFn: () => unknown }) => options.queryFn(),
     } as unknown as QueryClient,
@@ -137,14 +137,14 @@ describe("fetchAssetAndTemplate", () => {
       parentLink: null,
       assetId: "A1",
     });
-    const settled = harness.effectRunner.whenAssetAndTemplateSettles("K1");
+    const assetAndTemplateSettlement = harness.effectRunner.whenAssetAndTemplateSettles("K1");
     harness.effectRunner.runEffect({
       type: "fetchAssetAndTemplate",
       key: "K1",
       assetId: "A1",
     });
 
-    await settled;
+    await assetAndTemplateSettlement;
     expect(harness.loggedTypes()).toContain("assetAndTemplateArrived");
   });
 
@@ -153,14 +153,14 @@ describe("fetchAssetAndTemplate", () => {
     const notFound = new Error("410 gone");
     mocked.fetchAsset.mockRejectedValue(notFound);
 
-    const settled = harness.effectRunner.whenAssetAndTemplateSettles("K1");
+    const assetAndTemplateSettlement = harness.effectRunner.whenAssetAndTemplateSettles("K1");
     harness.effectRunner.runEffect({
       type: "fetchAssetAndTemplate",
       key: "K1",
       assetId: "A1",
     });
 
-    await expect(settled).rejects.toBe(notFound);
+    await expect(assetAndTemplateSettlement).rejects.toBe(notFound);
     expect(harness.loggedTypes()).toContain("assetLoadFailed");
   });
 });

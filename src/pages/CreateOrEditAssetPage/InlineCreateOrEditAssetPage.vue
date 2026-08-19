@@ -122,12 +122,12 @@ const props = withDefaults(
 
 // inject only reads the ancestor chain, never a component's own provide,
 // so this is the parent surface's editor even though this component
-// provides its own below
+// provides its own on the same shared editor context
 const parentAssetEditor = useAssetEditor();
 
 // this surface's own editor on the page's shared state. The parent link
-// names the item this child hangs under, so when the server creates the
-// child, the reducer stamps the new id onto that item in the same
+// names the item this child is mounted under, so when the server creates
+// the child, the reducer stamps the new id onto that item in the same
 // transition. The parent's save walks the state's parent links, so no
 // registration is needed for it to see this child.
 invariant(

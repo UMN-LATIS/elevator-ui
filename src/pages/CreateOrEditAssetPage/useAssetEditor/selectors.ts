@@ -180,9 +180,7 @@ export function selectKeyAndDescendants(
   return [...visited];
 }
 
-/**
- * The keys of the open asset's direct children, in state insertion order.
- */
+/** The keys of the open asset's direct children, in state insertion order. */
 export function selectChildKeys(
   state: EditorState,
   key: EditSessionKey

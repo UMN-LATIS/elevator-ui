@@ -194,7 +194,7 @@ export function createEffectRunner({
 
     // dirty children save first, each through its own queue. allSettled so
     // one child's failure cannot cost this asset's edits, and a child's
-    // create commits its id into the state before we snapshot below.
+    // create commits its id into the state before the snapshot is taken.
     const dirtyChildKeys = selectChildKeys(stateAtStart, key).filter(
       (childKey) => selectHasUnsavedEdits(stateAtStart, childKey)
     );

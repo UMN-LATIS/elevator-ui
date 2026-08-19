@@ -135,9 +135,9 @@ describe("toLocalAsset", () => {
 
   it("keeps a content's id stable when the prior local shape is passed back in as previousAsset", () => {
     // a refetch that changes one item keeps every other item's object
-    // reference (TanStack structural sharing), but the mechanism that keeps
-    // ids stable across a rebuild is explicit now: the caller passes the
-    // prior local shape back in as previousAsset, not a module-level memo
+    // reference (TanStack structural sharing). The caller passes the prior
+    // local shape back in as previousAsset, which is what keeps content
+    // ids stable across the rebuild.
     const savedAsset = makeSavedAsset({
       field_1: [{ fieldContents: "loaded" }],
     });

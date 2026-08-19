@@ -78,7 +78,7 @@ Migrating an asset to another template is an edit like any other: `templateId` l
 
 [CreateOrEditAssetPage.vue](../CreateOrEditAssetPage.vue) calls `provideAssetEditor({ role: "root", handlers })`, which creates the editor context (the state, its dispatch loop, and the effect runner) and provides it. [InlineCreateOrEditAssetPage.vue](../InlineCreateOrEditAssetPage.vue) calls it with `role: "child"`, which injects that same shared context and opens its own asset on it. Widgets anywhere under either call `useAssetEditor()` to get the editor for their nearest provider.
 
-The facade's `currentKey` ref is the only state the facade owns: which open asset this particular editor instance is looking at. Unmounting dispatches `closed`, which removes the open asset, so late async work finds nothing to write into.
+The facade's `currentKey` ref is the only state the facade owns: which open asset this particular editor instance is looking at. Unmounting dispatches `assetClosed`, which removes the open asset, so late async work finds nothing to write into.
 
 ## The invariants
 

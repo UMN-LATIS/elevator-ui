@@ -102,7 +102,10 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     collectionId: number;
   }): Promise<void> {
     const key = crypto.randomUUID();
-    const settled = effectRunner.whenTemplateSettles(key, templateId);
+    const templateSettlement = effectRunner.whenTemplateSettles(
+      key,
+      templateId
+    );
     dispatch({
       type: "newAssetRequested",
       key,
@@ -111,7 +114,7 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
       templateId,
     });
     currentKey.value = key;
-    return settled;
+    return templateSettlement;
   }
 
   function initExistingAsset(
@@ -127,10 +130,11 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     if (isAlreadyOpen && !force) return Promise.resolve();
 
     const key = crypto.randomUUID();
-    const settled = effectRunner.whenAssetAndTemplateSettles(key);
+    const assetAndTemplateSettlement =
+      effectRunner.whenAssetAndTemplateSettles(key);
     dispatch({ type: "existingAssetRequested", key, parentLink, assetId });
     currentKey.value = key;
-    return settled;
+    return assetAndTemplateSettlement;
   }
 
   async function migrateToTemplate(templateId: number): Promise<void> {
@@ -138,9 +142,12 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     // a migration diffs against the saved asset, so it must not interleave
     // with a save that is about to replace that saved asset
     await effectRunner.saveQueueFor(key).waitForCurrentSaveToSettle();
-    const settled = effectRunner.whenTemplateSettles(key, templateId);
+    const templateSettlement = effectRunner.whenTemplateSettles(
+      key,
+      templateId
+    );
     dispatch({ type: "templateMigrationRequested", key, templateId });
-    return settled;
+    return templateSettlement;
   }
 
   function getWidgetInstanceId(
@@ -230,7 +237,7 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
   // after the unmount finds no open asset to write into
   onUnmounted(() => {
     if (currentKey.value) {
-      dispatch({ type: "closed", key: currentKey.value });
+      dispatch({ type: "assetClosed", key: currentKey.value });
     }
   });
 
@@ -258,7 +265,7 @@ export function useAssetEditor(): AssetEditor {
 
 function createEditorContext(handlers: EditorPageHandlers): EditorContext {
   const queryClient = useQueryClient();
-  const state = shallowRef(initialEditorState) as ShallowRef<EditorState>;
+  const state = shallowRef<EditorState>(initialEditorState);
   const effectRunner = createEffectRunner({
     queryClient,
     handlers,

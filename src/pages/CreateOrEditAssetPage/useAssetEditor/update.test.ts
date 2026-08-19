@@ -240,7 +240,7 @@ describe("update", () => {
           ...editingNewOpenAsset(),
           parentLink: childLink,
         }),
-        { type: "closed", key: CHILD_KEY }
+        { type: "assetClosed", key: CHILD_KEY }
       );
 
       expect(selectOpenAsset(state, CHILD_KEY)).toBeNull();
@@ -249,7 +249,7 @@ describe("update", () => {
 
     it("clears the root key when the root asset closes", () => {
       const state = reduce(rootState(editingExistingOpenAsset()), {
-        type: "closed",
+        type: "assetClosed",
         key: ROOT_KEY,
       });
 

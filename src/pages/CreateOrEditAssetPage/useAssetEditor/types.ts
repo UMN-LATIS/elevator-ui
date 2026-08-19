@@ -140,7 +140,7 @@ export type EditorEvent =
       parentLink: ParentLink | null;
       assetId: string;
     }
-  | { type: "closed"; key: EditSessionKey }
+  | { type: "assetClosed"; key: EditSessionKey }
   | {
       /**
        * A requested template arrived. What it means depends on what the

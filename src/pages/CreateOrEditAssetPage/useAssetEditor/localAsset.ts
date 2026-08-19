@@ -38,9 +38,10 @@ function editableAssetKeys(template: Template): string[] {
  */
 function fieldValueWithoutContentUuids(value: unknown): unknown {
   if (!Array.isArray(value)) return value;
-  return value.map((item) =>
-    item && typeof item === "object" ? omit(["uuid"], item) : item
-  );
+  return value.map((item) => {
+    const isContentObject = item !== null && typeof item === "object";
+    return isContentObject ? omit(["uuid"], item) : item;
+  });
 }
 
 function isFieldUnchanged(draftValue: unknown, savedValue: unknown): boolean {
@@ -96,8 +97,8 @@ export function wouldSaveChangeStoredAsset({
 }
 
 /**
- * A content's `regenerate` asks the next save to rebuild its derived files, so
- * once that save has happened it has served its purpose. `regenerate` is
+ * A content's `regenerate` asks the next save to rebuild its derived files,
+ * so once that save has happened the flag no longer applies. `regenerate` is
  * client-only and never comes back from the server, so leaving it set would
  * read as an unsaved change forever.
  *

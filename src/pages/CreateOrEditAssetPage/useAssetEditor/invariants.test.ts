@@ -151,7 +151,7 @@ const arbEvent: fc.Arbitrary<EditorEvent> = fc.oneof(
     parentLink: arbParentLink,
     assetId: arbAssetId,
   }),
-  fc.record({ type: fc.constant("closed" as const), key: arbKey }),
+  fc.record({ type: fc.constant("assetClosed" as const), key: arbKey }),
   arbTemplateId.chain((templateId) =>
     fc.record({
       type: fc.constant("templateArrived" as const),
@@ -237,7 +237,7 @@ describe("invariant 1: no event sequence destroys an unsaved edit", () => {
   // user overwrites the same field, an accepted save's read-back or create
   // delivers it, a migration re-derives the overlay, the user closes or
   // resets the editor, or the page opens a new root over this one
-  const touchesTheEdit = (event: EditorEvent): boolean => {
+  const isEditTouchedBy = (event: EditorEvent): boolean => {
     if (event.type === "resetRequested") return true;
     const isRootOpen =
       (event.type === "newAssetRequested" ||
@@ -252,7 +252,7 @@ describe("invariant 1: no event sequence destroys an unsaved edit", () => {
       case "assetAndTemplateArrived":
         return event.asset.assetId === "A1";
       case "templateArrived":
-      case "closed":
+      case "assetClosed":
       case "newAssetRequested":
       case "existingAssetRequested":
         return true;
@@ -277,7 +277,7 @@ describe("invariant 1: no event sequence destroys an unsaved edit", () => {
           deps
         ).state;
 
-        const survivors = events.filter((event) => !touchesTheEdit(event));
+        const survivors = events.filter((event) => !isEditTouchedBy(event));
         const finalState = foldEvents(withEdit, survivors, deps);
 
         const openAsset = selectOpenAsset(finalState, "K1");

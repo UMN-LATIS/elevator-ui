@@ -72,7 +72,7 @@ export function update(
           },
         ],
       };
-    case "closed": {
+    case "assetClosed": {
       if (!state.assets[event.key]) return { state };
       return {
         state: {
@@ -291,7 +291,7 @@ function onTemplateArrived(
 
   if (!openAsset.savedAsset) return state;
   const assetOnScreen = { ...openAsset.savedAsset, ...openAsset.edits };
-  const migrated = migrateAssetToTemplate(
+  const migratedAsset = migrateAssetToTemplate(
     assetOnScreen,
     event.template,
     deps.createUuid
@@ -299,7 +299,7 @@ function onTemplateArrived(
   return stateWithOpenAsset(state, event.key, {
     ...openAsset,
     edits: diffEditableFields({
-      draft: migrated,
+      draft: migratedAsset,
       savedAsset: openAsset.savedAsset,
       template: event.template,
     }),
@@ -495,19 +495,19 @@ function stateWithTargetAssetIdFilled(
   const isLinkedItem = matchesItemUuid(parentLink.itemUuid);
   if (!contents.some(isLinkedItem)) return state;
 
-  const linked = contents.map((item) =>
+  const linkedContents = contents.map((item) =>
     isLinkedItem(item) ? { ...item, targetAssetId: assetId } : item
   );
 
   if (parent.status === "editingNewAsset") {
     return stateWithOpenAsset(state, parentLink.key, {
       ...parent,
-      draft: { ...parent.draft, [parentLink.fieldTitle]: linked },
+      draft: { ...parent.draft, [parentLink.fieldTitle]: linkedContents },
     });
   }
   return stateWithOpenAsset(state, parentLink.key, {
     ...parent,
-    edits: { ...parent.edits, [parentLink.fieldTitle]: linked },
+    edits: { ...parent.edits, [parentLink.fieldTitle]: linkedContents },
   });
 }
 

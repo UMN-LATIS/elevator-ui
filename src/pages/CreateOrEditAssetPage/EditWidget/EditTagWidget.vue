@@ -192,18 +192,17 @@ function handleKeydown(itemUuid: string, event: KeyboardEvent) {
     return;
   }
 
+  const pendingText = pendingTextOf(contentItemFor(itemUuid));
+
   // Tab commits a pending tag, and moves focus on as usual otherwise
-  if (event.key === "Tab" && pendingTextOf(contentItemFor(itemUuid)).trim()) {
+  if (event.key === "Tab" && pendingText.trim()) {
     event.preventDefault();
     commitPendingTag(itemUuid);
     return;
   }
 
   // delete the previous tag on backspace if the input is empty
-  if (
-    event.key === "Backspace" &&
-    pendingTextOf(contentItemFor(itemUuid)) === ""
-  ) {
+  if (event.key === "Backspace" && pendingText === "") {
     event.preventDefault();
     removeLastTag(itemUuid);
   }

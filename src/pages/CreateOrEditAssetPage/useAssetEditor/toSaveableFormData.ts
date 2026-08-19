@@ -3,7 +3,6 @@ import {
   Template,
   UnsavedAsset,
   WidgetContent,
-  PHPDateTime,
   UpdateAssetRequestFormData,
 } from "@/types";
 import { saveableWidgetContents } from "./toStoredShape";
@@ -37,8 +36,10 @@ export function toSaveableFormData(
     newCollectionId: String(asset.collectionId),
     readyForDisplay: asset.readyForDisplay as boolean,
     // sent verbatim, not date-truncated: legacy values can carry a time of
-    // day the editor must not strip
-    availableAfter: (asset.availableAfter as PHPDateTime)?.date,
+    // day the editor must not strip. An empty string is how a cleared date
+    // is sent, since the wire type declares `string | ""` for no scheduled
+    // date.
+    availableAfter: asset.availableAfter?.date ?? "",
     ...widgetFields,
   };
 }

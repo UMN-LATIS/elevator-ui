@@ -143,12 +143,12 @@ describe("the editor settles once a save's read-back is applied", () => {
         { fieldContents: "typed", isPrimary: false, uuid: "typed-row" },
       ],
     });
-    const settled = reduce(
+    const settledState = reduce(
       state,
       assetAndTemplateArrived(savedAsset, template)
     );
 
-    expect(selectHasUnsavedEdits(settled, ROOT_KEY)).toBe(false);
+    expect(selectHasUnsavedEdits(settledState, ROOT_KEY)).toBe(false);
   });
 
   it("reports no unsaved edits after the save cleaned the text area html", () => {
@@ -179,12 +179,12 @@ describe("the editor settles once a save's read-back is applied", () => {
         },
       ],
     });
-    const settled = reduce(
+    const settledState = reduce(
       state,
       assetAndTemplateArrived(savedAsset, template)
     );
 
-    expect(selectHasUnsavedEdits(settled, ROOT_KEY)).toBe(false);
+    expect(selectHasUnsavedEdits(settledState, ROOT_KEY)).toBe(false);
   });
 
   it("reports no unsaved edits after the server echoes availableAfter as a full php date", () => {
@@ -206,11 +206,11 @@ describe("the editor settles once a save's read-back is applied", () => {
         timezone: "UTC",
       },
     });
-    const settled = reduce(
+    const settledState = reduce(
       state,
       assetAndTemplateArrived(savedAsset, template)
     );
 
-    expect(selectHasUnsavedEdits(settled, ROOT_KEY)).toBe(false);
+    expect(selectHasUnsavedEdits(settledState, ROOT_KEY)).toBe(false);
   });
 });

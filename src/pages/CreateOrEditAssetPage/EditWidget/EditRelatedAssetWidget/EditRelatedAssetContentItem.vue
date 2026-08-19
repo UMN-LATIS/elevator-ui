@@ -119,8 +119,7 @@
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
-import { useSearchAssetsQuery } from "@/queries/useSearchAssetsQuery";
-import { computed, inject, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { cn } from "@/lib/utils";
 import {
   Combobox,
@@ -156,7 +155,9 @@ const props = defineProps<{
   modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>;
   assetId: string | null; // need current assetId to prevent circular dependencies
   widgetDef: Type.RelatedAssetWidgetDef;
-  widgetContents: Type.WithUuid<Type.RelatedAssetWidgetContent>[]; // need all widget content to prevent multiple lines to the same asset within the widget
+  // need all widget content to prevent multiple lines to the same asset
+  // within the widget
+  widgetContents: Type.WithUuid<Type.RelatedAssetWidgetContent>[];
 }>();
 
 const emit = defineEmits<{
