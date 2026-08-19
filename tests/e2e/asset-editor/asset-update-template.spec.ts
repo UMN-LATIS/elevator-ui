@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
+import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../../setup";
 
 test.describe("Edit Asset: Update Template", () => {
   test.beforeEach(async ({ page, request }) => {
-    // Block ArcGIS requests
+    // the All Fields Test template's location widget calls out to arcgis
     await page.route("**/arcgis.com/**", (route) => {
       route.fulfill({
         status: 200,
@@ -26,13 +26,11 @@ test.describe("Edit Asset: Update Template", () => {
     await page.goto("/assetManager/addAsset");
   });
 
-  test("updating the templateId should remap the the asset to the new template structure", async ({
+  test("updating the templateId should remap the asset to the new template structure", async ({
     page,
   }) => {
-    // SETUP - create an asset with template
     await expect(page).toHaveURL(/\/assetManager\/addAsset/);
 
-    // Select template and collection
     const templateSelect = page.getByLabel("Template");
     await templateSelect.selectOption({ label: "Some Fields" });
 
@@ -43,58 +41,42 @@ test.describe("Edit Asset: Update Template", () => {
     await expect(continueButton).toBeEnabled({ timeout: 5000 });
     await continueButton.click();
 
-    // Wait for form to load
     await expect(
       page.getByRole("heading", { name: "Create Asset" })
     ).toBeVisible();
 
-    // Fill required title field
     await page.getByLabel("Title").fill("Test Asset");
 
-    // check the checkbox field
     const checkbox = page.getByLabel("Checkbox");
     await checkbox.check();
     await expect(checkbox).toBeChecked();
 
-    // now change the template
-    const selectTemplate = page.getByLabel("Template *");
-    await selectTemplate.selectOption({ label: "All Fields Test" });
+    await page
+      .getByLabel("Template *")
+      .selectOption({ label: "All Fields Test" });
 
-    // a confirmation dialog should appear
+    // the confirm dialog lists the fields the new template has no place for
     const confirmDialog = page.getByRole("dialog", {
       name: "Are you sure?",
     });
     await expect(confirmDialog).toBeVisible();
-    // dialog should show that the date is missing from the new template
     await expect(confirmDialog).toContainText("Date (missing)");
 
-    // confirm the change
-    const confirmButton = confirmDialog.getByRole("button", {
-      name: "Confirm",
-    });
-    await confirmButton.click();
-
-    // wait for dialog to disappear
+    await confirmDialog.getByRole("button", { name: "Confirm" }).click();
     await expect(confirmDialog).toBeHidden();
 
-    // save should trigger automatically
-    await page.waitForLoadState("networkidle");
-
-    // we should be on the edit page now
+    // confirming the change saves without another click
     await expect(page).toHaveURL(/\/assetManager\/editAsset/);
 
-    // the updated form should show the date widget now
+    // the new template's text area widget renders now
     const textAreaWidget = page.locator("section.edit-widget-layout").filter({
       has: page.getByRole("heading", { name: "Big Text" }),
     });
     await textAreaWidget.scrollIntoViewIfNeeded();
     await expect(textAreaWidget).toBeVisible();
 
-    // the checkbox field should still be checked
-    // use `first()` to get the parent widget, not the inline asset widget
+    // first() targets the parent's widgets, not the inline asset's
     await expect(page.getByLabel("Checkbox").first()).toBeChecked();
-    // the title field should still have the value
-    // use `first()` to get the parent widget, not the inline asset widget
     await expect(page.getByLabel("Title").first()).toHaveValue("Test Asset");
   });
 });
