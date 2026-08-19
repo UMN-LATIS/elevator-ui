@@ -29,7 +29,13 @@ export function saveableWidgetContents(
     .filter((content) => isContentKeptByServer(content, widgetType));
 }
 
-/** One content with the per-type cleaning the backend applies before storing. */
+/**
+ * One content with the per-type cleaning the backend applies before storing.
+ *
+ * Text areas are only trimmed, like Textarea_contents::loadContentFromArray.
+ * Stripping empty paragraphs or &nbsp; is the frontend's job, and doing it
+ * here would keep e2e green if the frontend stopped.
+ */
 function contentAsStored(
   content: WidgetContent,
   widgetType: WidgetType
@@ -38,7 +44,7 @@ function contentAsStored(
     const textArea = content as TextAreaWidgetContent;
     return {
       ...textArea,
-      fieldContents: cleanTextAreaHtml(textArea.fieldContents ?? ""),
+      fieldContents: (textArea.fieldContents ?? "").trim(),
     };
   }
   return content;
@@ -70,7 +76,7 @@ export function isContentKeptByServer(
     }
     case "text area": {
       const { fieldContents } = content as TextAreaWidgetContent;
-      return !isLooselyNull(cleanTextAreaHtml(fieldContents ?? ""));
+      return !isLooselyNull((fieldContents ?? "").trim());
     }
     case "date": {
       const { label, start } = content as DateWidgetContent;
@@ -124,13 +130,4 @@ function hasContentKeys(content: WidgetContent): boolean {
     typeof content === "object" &&
     Object.keys(content).length > 0
   );
-}
-
-const EMPTY_PARAGRAPHS = /<p>(&nbsp;|\s|<br>)*<\/p>/g;
-
-export function cleanTextAreaHtml(html: string): string {
-  return html
-    .replace(EMPTY_PARAGRAPHS, "")
-    .replace(/&nbsp;/g, " ")
-    .trim();
 }

@@ -302,6 +302,9 @@ app.post("/submission/true", async (c) => {
   const existingAsset = formData.objectId
     ? db.assets.get(formData.objectId)
     : null;
+  // deliberate divergence: the real backend ignores the failed lookup and
+  // silently creates a brand-new asset. 404 instead, so a save carrying a
+  // stale id fails loudly in tests.
   if (formData.objectId && !existingAsset) {
     return c.json({ error: "Asset not found" }, 404);
   }
@@ -313,6 +316,10 @@ app.post("/submission/true", async (c) => {
     collectionId: formData.collectionId,
     readyForDisplay: !!formData.readyForDisplay,
     availableAfter: toPhpDateTime(formData.availableAfter),
+    // TODO: match the real getAssetTitle. It reads the template's first
+    // displayInPreview widget, not always title_1, keeps one string per
+    // content row, not always one, and is [] when that widget is empty.
+    // "(Untitled)" is a mock invention.
     title: [titleWidget?.fieldContents || "(Untitled)"],
     titleObject: existingAsset?.titleObject ?? null,
     // the real backend recomputes this on every save, so a cache entry for a
@@ -322,10 +329,11 @@ app.post("/submission/true", async (c) => {
     firstObjectId: existingAsset?.firstObjectId ?? null,
     modified: phpNow(),
     modifiedBy: user.id,
-    // every save force-undeletes, like Asset_model::save
+    // every save force-undeletes, like Asset_model::save, which leaves
+    // deletedAt and deletedBy stale rather than clearing them
     deleted: false,
-    deletedAt: null,
-    deletedBy: null,
+    deletedAt: existingAsset?.deletedAt ?? null,
+    deletedBy: existingAsset?.deletedBy ?? null,
     ...widgetFields,
   };
 
