@@ -71,20 +71,6 @@ test.describe("Asset Creation", () => {
       await expect(page.getByText("Test Asset Created via E2E")).toBeVisible();
     });
 
-    test("save is disabled if missing required fields", async ({ page }) => {
-      await startBlankDraft(page);
-
-      // the title is required and still empty
-      const saveButton = page.getByRole("button", { name: "Save" });
-      await expect(saveButton).toBeDisabled();
-
-      await expect(page.getByText("Missing required:")).toBeVisible();
-      const validationText = page
-        .locator("text=Missing required:")
-        .locator("..");
-      await expect(validationText).toContainText("Title");
-    });
-
     test("shows validation message for missing required fields", async ({
       page,
     }) => {
