@@ -285,6 +285,12 @@ export interface SelectWidgetContent extends WidgetContent {
 
 export interface TagListWidgetContent extends WidgetContent {
   tags: string[] | null;
+  /**
+   * Tag text typed but not yet committed with enter, comma, or blur.
+   * Never sent to the server: a save adds it to `tags` first, so a tag the
+   * user typed without pressing enter still saves.
+   */
+  pendingText?: string;
 }
 
 export interface TextAreaWidgetContent extends WidgetContent {
@@ -990,6 +996,8 @@ export interface ApiGetExcerptResponse {
 }
 
 export type WithId<T> = T & { id: string };
+
+export type WithUuid<T> = T & { uuid: string };
 
 export interface UpdateAssetRequestFormData {
   objectId: string;

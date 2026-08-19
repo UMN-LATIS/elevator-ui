@@ -173,7 +173,16 @@ export function makeWidgetContents(
   // if no current contents, create default contents based on widget type
   return widgetDef.type === "upload"
     ? [] // uploads should be empty until a file is added
-    : [createDefaultWidgetContent(widgetDef)];
+    : // this editor still keys its contents on `id`, which the shared helper
+      // no longer sets, and it must not carry the `uuid` the helper now
+      // adds, because saves send contents as they sit in state. The editor
+      // being built alongside it keys on `uuid`
+      [
+        {
+          ...omit(["uuid"], createDefaultWidgetContent(widgetDef)),
+          id: crypto.randomUUID(),
+        },
+      ];
 }
 
 export function getMissingRequiredFields({

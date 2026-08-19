@@ -1,4 +1,5 @@
 import * as Type from "@/types";
+import { omit } from "ramda";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 
 export function makeSetPrimaryContentPayload<
@@ -13,8 +14,15 @@ export function makeSetPrimaryContentPayload<
 export function makeAddContentPayload<
   T extends Type.WithId<Type.WidgetContent>
 >(widgetContents: readonly T[], widgetDef: Type.WidgetDef): T[] {
-  const newItem = createDefaultWidgetContent(widgetDef) as T;
-  return [...widgetContents, newItem];
+  // these widgets still key their contents on `id`, which the shared helper
+  // no longer sets, and they must not carry the `uuid` it now adds, because
+  // this editor's save sends contents as they sit in state. The editor
+  // being built alongside them keys on `uuid`
+  const newItem: Type.WithId<Type.WidgetContent> = {
+    ...omit(["uuid"], createDefaultWidgetContent(widgetDef)),
+    id: crypto.randomUUID(),
+  };
+  return [...widgetContents, newItem as T];
 }
 
 export function makeUpdateContentPayload<

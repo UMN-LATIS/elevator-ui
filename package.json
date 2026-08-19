@@ -114,6 +114,7 @@
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^8.10.2",
     "eslint-plugin-vue": "^9.33.0",
+    "fast-check": "^4.9.0",
     "happy-dom": "^20.3.4",
     "less": "^4.4.0",
     "postcss": "^8.5.6",

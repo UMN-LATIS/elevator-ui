@@ -68,6 +68,7 @@ import { computed, nextTick, ref, defineAsyncComponent } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
+import { omit } from "ramda";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
@@ -104,7 +105,12 @@ const hasContents = computed(() => {
 
 async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
   const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
-    ...createDefaultWidgetContent(props.widgetDef),
+    // this widget still keys its contents on `id`, which the shared helper
+    // no longer sets, and it must not carry the `uuid` the helper now adds,
+    // because saves send contents as they sit in state. The editor being
+    // built alongside it keys on `uuid`
+    ...omit(["uuid"], createDefaultWidgetContent(props.widgetDef)),
+    id: crypto.randomUUID(),
     fileId: fileRecord.fileObjectId,
     fileDescription: "",
     fileType: fileRecord.contentType,
