@@ -1,7 +1,7 @@
 import { Asset, LngLat } from "@/types";
 import type { InjectionKey, ComputedRef } from "vue";
-import { useAssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
-import { useAssetValidationProvider } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
+import type { AssetEditor } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetEditor";
+import type { AssetValidation } from "@/pages/CreateOrEditAssetPage/useAssetEditor/useAssetValidation";
 
 export const UMN_LNGLAT: LngLat = {
   lat: 44.972109,
@@ -51,16 +51,12 @@ export const TEMPLATE_SHOW_PROPERTY_POSITIONS = {
   TOP: 1,
 } as const;
 
-
 export const SAVE_RELATED_ASSET_TYPE = "SAVE_RELATED_ASSET_MESSAGE" as const;
 
-export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<
-  ReturnType<typeof useAssetEditor>
->;
+export const ASSET_EDITOR_PROVIDE_KEY = Symbol() as InjectionKey<AssetEditor>;
 
-export const ASSET_VALIDATION_PROVIDE_KEY = Symbol() as InjectionKey<
-  ReturnType<typeof useAssetValidationProvider>
->;
+export const ASSET_VALIDATION_PROVIDE_KEY =
+  Symbol() as InjectionKey<AssetValidation>;
 
 export const PAGE_ASSET_ID = Symbol() as InjectionKey<
   ComputedRef<Asset["assetId"] | null>

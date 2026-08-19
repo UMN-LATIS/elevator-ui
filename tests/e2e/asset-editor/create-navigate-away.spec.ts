@@ -1,10 +1,7 @@
 import { test, expect } from "@playwright/test";
-import {
-  setupWorkerHTTPHeader,
-  loginUser,
-  refreshDatabase,
-  SAVE_ROUTE,
-} from "../../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
 
 test.describe("navigating away while a create is in flight", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -17,10 +14,6 @@ test.describe("navigating away while a create is in flight", () => {
   test("the resolved save does not pull the user back into the editor", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     await page.goto("/assetManager/addAsset");
     // a template with no inline related asset, so exactly one editor saves
     await page.getByLabel("Template").selectOption({ label: "Some Fields" });
@@ -31,8 +24,10 @@ test.describe("navigating away while a create is in flight", () => {
     const saveResponded = page.waitForResponse(SAVE_ROUTE);
     await page.getByRole("button", { name: "Save" }).click();
 
-    // leave while the save is in flight (the mock holds saves 500ms)
+    // leave while the save is in flight (the mock holds saves 500ms). The
+    // draft still counts as unsaved, so leaving takes a confirmation.
     await page.locator(".app-header__logo-link").click();
+    await page.getByRole("button", { name: "Leave" }).click();
     await expect(page).not.toHaveURL(/addAsset/);
     await saveResponded;
 

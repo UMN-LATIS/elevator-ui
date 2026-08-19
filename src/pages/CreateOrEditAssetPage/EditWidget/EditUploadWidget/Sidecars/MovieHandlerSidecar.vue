@@ -61,7 +61,7 @@ import UploadableTextArea from "./UploadableTextArea.vue";
 const languageId = `language-${crypto.randomUUID()}`;
 
 defineProps<{
-  sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
+  sidecars: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>;
   widgetDef: Type.UploadWidgetDef;
   fileMetaData: FileMetaData | null;
 }>();
@@ -69,7 +69,7 @@ defineProps<{
 defineEmits<{
   (
     e: "update:sidecars",
-    sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>
+    sidecars: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>
   ): void;
 }>();
 </script>

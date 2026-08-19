@@ -1,11 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { Buffer } from "node:buffer";
-import {
-  setupWorkerHTTPHeader,
-  loginUser,
-  refreshDatabase,
-  SAVE_ROUTE,
-} from "../../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
 
 test.describe("two uploads sharing a filename", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -23,10 +20,6 @@ test.describe("two uploads sharing a filename", () => {
   test("both files keep their own identity in the saved asset", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
 
     // the fileIds each save carries, one array per submission

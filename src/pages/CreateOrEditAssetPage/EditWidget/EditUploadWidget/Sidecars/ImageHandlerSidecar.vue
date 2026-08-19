@@ -9,7 +9,7 @@
         (value) =>
           $emit('update:sidecars', {
             ...sidecars,
-            ppm: Number.parseInt(String(value)) ?? null,
+            ppm: parsePpm(value),
           })
       " />
     <InputGroup
@@ -47,8 +47,14 @@ import { FileMetaData } from "@/types/FileMetaDataTypes";
 import { ref, watch } from "vue";
 import UploadableTextArea from "./UploadableTextArea.vue";
 
+/** Returns null when the input is empty or not a number. */
+function parsePpm(value: string | number): number | null {
+  const ppm = Number.parseFloat(String(value));
+  return Number.isFinite(ppm) ? ppm : null;
+}
+
 const props = defineProps<{
-  sidecars: Type.WithId<Type.UploadWidgetContent["sidecars"]>;
+  sidecars: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>;
   widgetDef: Type.UploadWidgetDef;
   fileMetaData: FileMetaData | null;
 }>();
@@ -60,7 +66,7 @@ const initialSidecars = ref(props.sidecars);
 const emit = defineEmits<{
   (
     e: "update:sidecars",
-    item: Type.WithId<Type.UploadWidgetContent["sidecars"]>
+    item: Type.WithUuid<Type.UploadWidgetContent["sidecars"]>
   ): void;
 }>();
 

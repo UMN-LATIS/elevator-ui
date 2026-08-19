@@ -40,10 +40,6 @@ test.describe("retrying a create whose follow-up read failed", () => {
   });
 
   test("does not create a second asset", async ({ page, request }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
     const workerId = test.info().workerIndex.toString();
     const initialAssetCount = await getAssetCount({ request, workerId });

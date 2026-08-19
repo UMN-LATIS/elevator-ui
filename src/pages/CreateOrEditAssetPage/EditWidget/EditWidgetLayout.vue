@@ -75,10 +75,10 @@
               An error occurred while rendering this widget. It's possible that
               the
               <Link
-                :href="`${config.instance.base.url}/templates/edit/${parentAssetEditor.template?.templateId}`"
+                :href="`${config.instance.base.url}/templates/edit/${assetEditor.template?.templateId}`"
                 target="_blank"
                 class="inline-flex items-center gap-1">
-                {{ parentAssetEditor.template?.templateName }}
+                {{ assetEditor.template?.templateName }}
                 template
                 <ExternalLinkIcon class="inline-block !size-4" />
               </Link>
@@ -106,6 +106,7 @@
           <DragDropContainer :groupId="widgetInstanceId">
             <DragDropList
               :modelValue="widgetContents"
+              :getItemId="(item) => item.uuid"
               :listId="widgetDef.widgetId"
               :showEmptyList="false"
               :handleClass="['flex flex-col items-start px-1']"
@@ -129,7 +130,7 @@
                           // consistent with other widgets
                           invisible: !isOpen || widgetContents.length < 2,
                         }"
-                        @click="$emit('setPrimary', item.id)">
+                        @click="$emit('setPrimary', item.uuid)">
                         <StarIcon
                           class="w-4 h-4"
                           :class="[
@@ -168,7 +169,7 @@
                         },
                       ]"
                       type="button"
-                      @click="$emit('delete', item.id)">
+                      @click="$emit('delete', item.uuid)">
                       <XIcon class="!size-5" />
                       <span class="sr-only">Delete</span>
                     </button>
@@ -194,7 +195,7 @@
     </div>
   </section>
 </template>
-<script setup lang="ts" generic="T extends Types.WithId<Types.WidgetContent>">
+<script setup lang="ts" generic="T extends Types.WithUuid<Types.WidgetContent>">
 import { DragDropContainer, DragDropList } from "@/components/DragDropList";
 import Button from "@/components/Button/Button.vue";
 import {
@@ -226,32 +227,31 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "add"): void;
-  (e: "setPrimary", id: string): void;
-  (e: "delete", id: string): void;
+  (e: "setPrimary", uuid: string): void;
+  (e: "delete", uuid: string): void;
   (
     e: "update:widgetContents",
-    widgetContents: Types.WithId<Types.WidgetContent>[]
+    widgetContents: Types.WithUuid<Types.WidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const editLayoutContentsRef = useTemplateRef<HTMLElement>("editLayoutContents");
 
-const { focused: isFocusedWithin } = useFocusWithin(
-  editLayoutContentsRef.value
-);
+// keep watching after the element mounts: the ref's value is null at setup
+const { focused: isFocusedWithin } = useFocusWithin(editLayoutContentsRef);
 
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 const { instance } = useElevatorInstance();
 
 const assetValidation = useAssetValidation();
 
 const widgetInstanceId = computed(() => {
   invariant(
-    parentAssetEditor,
+    assetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
-  return parentAssetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
 });
 
 const validation = computed(() => {

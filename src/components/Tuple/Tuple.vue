@@ -10,7 +10,7 @@
         <span
           :class="
             cn(
-              'text-xs block uppercase leading-none tracking-wide',
+              'text-xs block uppercase leading-none mb-1 tracking-wide',
               {
                 'font-medium': variant === 'stacked',
                 'sr-only': variant === 'value-only',

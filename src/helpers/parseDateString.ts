@@ -1,12 +1,42 @@
 /**
  * get a unix timestamp for a date string with some handling of BC dates
+ *
+ * Calendar dates are read as UTC, whatever the browser's timezone.
  */
 export function parseDateString(dateString: string): string | null {
   if (!dateString) return null;
+  const trimmedDateString = dateString.trim();
 
-  const date = Date.parse(dateString);
-  if (!isNaN(date)) {
-    return (date / 1000).toString();
+  const isYearOnly = /^\d{4}$/.test(trimmedDateString);
+  const isIsoDate = /^\d{4}-\d{2}-\d{2}$/.test(trimmedDateString);
+  const hasExplicitZone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(trimmedDateString);
+
+  if (isYearOnly || isIsoDate || hasExplicitZone) {
+    // these forms already parse as UTC (or carry their own zone)
+    const date = Date.parse(trimmedDateString);
+    if (!isNaN(date)) {
+      return (date / 1000).toString();
+    }
+  } else {
+    // everything else parses on the local clock, so rebuild the calendar
+    // date in UTC
+    const parsedLocalDate = new Date(trimmedDateString);
+    if (!isNaN(parsedLocalDate.getTime())) {
+      // Date.UTC would read year 90 as 1990, so set the year explicitly.
+      const utcDate = new Date(0);
+      utcDate.setUTCFullYear(
+        parsedLocalDate.getFullYear(),
+        parsedLocalDate.getMonth(),
+        parsedLocalDate.getDate()
+      );
+      utcDate.setUTCHours(
+        parsedLocalDate.getHours(),
+        parsedLocalDate.getMinutes(),
+        parsedLocalDate.getSeconds(),
+        0
+      );
+      return (utcDate.getTime() / 1000).toString();
+    }
   }
 
   // handle BC dates and centuries

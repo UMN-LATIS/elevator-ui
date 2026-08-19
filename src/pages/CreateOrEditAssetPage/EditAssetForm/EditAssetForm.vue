@@ -37,7 +37,6 @@
               : asset.collectionId as number
           "
           :isOpen="openWidgets.has(widgetDef.widgetId)"
-          @save="$emit('autoSave')"
           @update:isOpen="
             (open) => {
               open
@@ -46,7 +45,10 @@
             }
           "
           @update:widgetContents="
-            $emit('update:asset', { ...asset, [widgetDef.fieldTitle]: $event })
+            $emit('update:widgetContents', {
+              fieldTitle: widgetDef.fieldTitle,
+              contents: $event,
+            })
           " />
       </div>
     </section>
@@ -57,11 +59,13 @@
         :saveStatus="saveStatus"
         :hasUnsavedChanges="hasUnsavedChanges"
         :selectedTemplateId="selectedTemplateId"
+        :selectedCollectionId="selectedCollectionId"
         @save="$emit('save')"
         @cancel="$emit('cancel')"
         @update:templateId="$emit('update:templateId', $event)"
         @migrateCollection="$emit('migrateCollection', $event)"
-        @update:asset="$emit('update:asset', $event)" />
+        @update:readyForDisplay="$emit('update:readyForDisplay', $event)"
+        @update:availableAfter="$emit('update:availableAfter', $event)" />
     </aside>
   </div>
 </template>
@@ -71,6 +75,7 @@ import EditWidget from "../EditWidget/EditWidget.vue";
 import AssetSummary from "./AssetSummary.vue";
 import {
   Asset,
+  PHPDateTime,
   UnsavedAsset,
   Template,
   WidgetContent,
@@ -89,15 +94,20 @@ const props = defineProps<{
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   selectedTemplateId?: number | null;
+  selectedCollectionId?: number | null;
 }>();
 
 defineEmits<{
   (e: "save"): void;
-  (e: "autoSave"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
   (e: "migrateCollection", collectionId: number): void;
-  (e: "update:asset", asset: Asset | UnsavedAsset): void;
+  (
+    e: "update:widgetContents",
+    edit: { fieldTitle: string; contents: WidgetContent[] }
+  ): void;
+  (e: "update:readyForDisplay", readyForDisplay: boolean): void;
+  (e: "update:availableAfter", availableAfter: PHPDateTime | null): void;
 }>();
 
 const openWidgets = reactive(new Set<WidgetDef["widgetId"]>());

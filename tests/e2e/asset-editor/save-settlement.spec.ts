@@ -21,10 +21,6 @@ test.describe("a save settles the editor", () => {
   test("edits come back clean after one save reshaped by the server", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
     const countAssetRefetches = startCountingAssetRefetches(page);
 

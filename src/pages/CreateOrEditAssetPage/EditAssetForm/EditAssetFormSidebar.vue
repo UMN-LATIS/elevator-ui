@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parentAssetEditor" class="flex flex-col gap-2 sticky top-16 p-4">
+  <div class="flex flex-col gap-2 sticky top-16 p-4">
     <div
       class="grid gap-x-4 gap-y-2 order-last md:order-1 mb-16 md:mb-0"
       :class="{
@@ -15,7 +15,7 @@
       <Button
         variant="primary"
         type="submit"
-        :disabled="!isAssetValid || displayStatus === 'pending'"
+        :disabled="isSaveBlocked"
         @click="handleSave">
         Save
         <SpinnerIcon
@@ -29,10 +29,8 @@
 
       <div class="col-start-1 -col-end-1 text-xs text-right">
         <p class="text-on-surface-variant">
-          <span
-            v-if="parentAssetEditor.lastModified"
-            class="text-on-surface-variant">
-            {{ parentAssetEditor.lastModified }}
+          <span v-if="lastModified" class="text-on-surface-variant">
+            {{ lastModified }}
           </span>
         </p>
         <div
@@ -78,10 +76,7 @@
         label="Status"
         required
         @update:modelValue="
-          $emit('update:asset', {
-            ...asset,
-            readyForDisplay: $event === 'ready',
-          })
+          $emit('update:readyForDisplay', $event === 'ready')
         " />
       <InputGroup
         v-model="localAvailableAfterDate"
@@ -93,7 +88,7 @@
       <div class="relative">
         <SelectGroup
           :modelValue="displayTemplateId"
-          :options="parentAssetEditor.templateOptions"
+          :options="templateOptions"
           label="Template"
           selectClass="bg-surface-container"
           required
@@ -107,8 +102,8 @@
         </Link>
       </div>
       <SelectGroup
-        v-model="state.localCollectionId"
-        :options="parentAssetEditor.collectionOptions"
+        :modelValue="displayCollectionId"
+        :options="collectionOptions"
         selectClass="bg-surface-container"
         label="Collection"
         required
@@ -122,7 +117,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import Button from "@/components/Button/Button.vue";
 import { Asset, UnsavedAsset, Template, PHPDateTime } from "@/types";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
@@ -131,10 +126,15 @@ import { SpinnerIcon } from "@/icons";
 import { CheckCircle2Icon, TriangleAlert } from "lucide-vue-next";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
-import { phpDateToString } from "../useAssetEditor/utils";
+import { phpDateToIsoDate } from "@/helpers/phpDateToIsoDate";
 import invariant from "tiny-invariant";
-import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
+import { useCollections } from "@/composables/useCollections";
+import {
+  toCollectionOptions,
+  toTemplateOptions,
+} from "../instanceSelectOptions";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import Link from "@/components/Link/Link.vue";
 import { useCurrentUser } from "@/composables/useCurrentUser";
@@ -145,19 +145,17 @@ const props = defineProps<{
   saveStatus: MutationStatus;
   hasUnsavedChanges: boolean;
   selectedTemplateId?: number | null;
+  selectedCollectionId?: number | null;
 }>();
 
 const emit = defineEmits<{
   (e: "save"): void;
   (e: "cancel"): void;
   (e: "update:templateId", templateId: number): void;
-  (e: "update:asset", asset: Asset | UnsavedAsset): void;
+  (e: "update:readyForDisplay", readyForDisplay: boolean): void;
+  (e: "update:availableAfter", availableAfter: PHPDateTime | null): void;
   (e: "migrateCollection", collectionId: number): void;
 }>();
-
-const state = reactive({
-  localCollectionId: props.asset.collectionId,
-});
 
 const { currentUser } = useCurrentUser();
 
@@ -193,36 +191,47 @@ const displayTemplateId = computed(
   () => props.selectedTemplateId ?? props.asset.templateId
 );
 
-watch(
-  () => props.asset.collectionId,
-  (newCollectionId) => {
-    state.localCollectionId = newCollectionId;
-  }
+const displayCollectionId = computed(
+  () => props.selectedCollectionId ?? props.asset.collectionId
 );
 
 const localAvailableAfterDate = ref("");
-const parentAssetEditor = useAssetEditor();
+const { instance } = useElevatorInstance();
+const { flatCollections } = useCollections();
+
+const templateOptions = computed(() =>
+  toTemplateOptions(instance.value?.templates ?? [])
+);
+const collectionOptions = computed(() =>
+  toCollectionOptions(flatCollections.value)
+);
+
+const lastModified = computed(() => {
+  const modifiedDate = props.asset.modified?.date;
+  return modifiedDate ? new Date(modifiedDate).toLocaleString() : null;
+});
 
 // Use validation system for form validation
 const { isAssetValid, missingRequiredFields, invalidFields } =
   useAssetValidation();
 
+const isSaveBlocked = computed(() => {
+  const isSaving = displayStatus.value === "pending";
+  // an asset marked Ready must be valid to save, a draft need not be
+  const mustBeValidToSave = !!props.asset.readyForDisplay;
+  return isSaving || (mustBeValidToSave && !isAssetValid.value);
+});
+
 function handleUpdateAvailableAfter(value: string | number) {
   if (!value) {
-    emit("update:asset", {
-      ...props.asset,
-      availableAfter: null,
-    });
+    emit("update:availableAfter", null);
     return;
   }
 
-  emit("update:asset", {
-    ...props.asset,
-    availableAfter: {
-      date: value.toString(),
-      timezone_type: 3,
-      timezone: "UTC",
-    },
+  emit("update:availableAfter", {
+    date: value.toString(),
+    timezone_type: 3,
+    timezone: "UTC",
   });
 }
 
@@ -243,7 +252,7 @@ watch(
     }
 
     // if we're out of sync with the parent, reconcile
-    localAvailableAfterDate.value = phpDateToString(availableAfter);
+    localAvailableAfterDate.value = phpDateToIsoDate(availableAfter);
   },
   {
     immediate: true,

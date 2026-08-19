@@ -68,8 +68,12 @@ function mountList(items: HasId[]): VueWrapper {
         h(DragDropList, {
           listId: LIST_ID,
           modelValue: items,
-          "onUpdate:modelValue": (reordered: HasId[]) =>
-            ordersEmitted.push(reordered.map((item) => String(item.id))),
+          // h() cannot carry the component's generic, so the payload arrives
+          // as unknown[] and the test narrows it back
+          "onUpdate:modelValue": (reordered: unknown[]) =>
+            ordersEmitted.push(
+              (reordered as HasId[]).map((item) => String(item.id))
+            ),
         }),
     },
     attachTo: document.body,
@@ -142,5 +146,11 @@ describe("DragDropList", () => {
     await nextTick();
 
     expect(ordersEmitted.at(-1)).toEqual(["b", "a", "c"]);
+  });
+
+  it("refuses items with no id rather than keying them on undefined", () => {
+    const itemsWithoutIds = [{ label: "a" }] as unknown as HasId[];
+
+    expect(() => mountList(itemsWithoutIds)).toThrow(/no usable `id`/);
   });
 });

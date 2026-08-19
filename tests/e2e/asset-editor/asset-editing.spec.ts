@@ -7,7 +7,7 @@ test.describe("Asset Editing", () => {
       const workerId = test.info().workerIndex.toString();
       await setupWorkerHTTPHeader({ page, workerId });
 
-      // curator has canManageAssets: true
+      // Refresh database and login as curator (has canManageAssets: true)
       await refreshDatabase({ request, workerId });
       await loginUser({ request, page, workerId, username: "curator" });
 
@@ -15,22 +15,25 @@ test.describe("Asset Editing", () => {
     });
 
     test("can edit an existing asset", async ({ page }) => {
-      // Asset 1 from the mock seed data
+      // Navigate to edit existing asset via URL (Asset 1 from mock data)
       const assetId = "6875871d4eb080a4880a0f44";
       await page.goto(`/assetManager/editAsset/${assetId}`);
 
+      // Should navigate to asset edit page
       await expect(page).toHaveURL(
         new RegExp(`/assetManager/editAsset/${assetId}`)
       );
 
+      // Should see the edit form populated with existing data
       const titleField = page.getByLabel(/title/i).first();
       await expect(titleField).toBeVisible();
       await expect(titleField).toHaveValue("Asset 1");
 
+      // Edit the title
       await titleField.fill("Asset 1 - Edited via E2E");
 
-      // wait for the save request to finish, since reloading mid-save
-      // aborts it and the edit is lost
+      // Save the changes and wait for the request to finish, since
+      // reloading mid-save aborts it and the edit is lost
       const saveCompleted = page.waitForResponse((response) =>
         response.url().includes("assetManager/submission")
       );
@@ -39,12 +42,15 @@ test.describe("Asset Editing", () => {
       await saveButton.click();
       await saveCompleted;
 
+      // Should remain on edit page after save
       await expect(page).toHaveURL(
         new RegExp(`/assetManager/editAsset/${assetId}`)
       );
+
+      // Should show the updated title
       await expect(titleField).toHaveValue("Asset 1 - Edited via E2E");
 
-      // the edit persists across a reload
+      // verify the changes persist - reload the page
       await page.reload();
       await expect(titleField).toHaveValue("Asset 1 - Edited via E2E");
     });
@@ -55,16 +61,22 @@ test.describe("Asset Editing", () => {
       const assetId = "6875871d4eb080a4880a0f44";
       await page.goto(`/assetManager/editAsset/${assetId}`);
 
+      // Open menu
       const menuToggle = page.getByRole("button", { name: "Toggle main menu" });
       await menuToggle.click();
 
+      // Should see "Manage Assets" section for users with permissions
       const menu = page.locator("#app-menu-navigation");
       await expect(menu).toContainText("Manage Assets");
 
+      // Expand "Manage Assets" section
       const manageAssetsButton = page.getByRole("button", {
         name: "Manage Assets",
       });
       await manageAssetsButton.click();
+
+      // Should see asset management options (exact options depend on context)
+      // Just verify the section expands and shows some content
       await expect(menu).toBeVisible();
     });
 
@@ -74,10 +86,16 @@ test.describe("Asset Editing", () => {
       const assetId = "6875871d4eb080a4880a0f44";
       await page.goto(`/assetManager/editAsset/${assetId}`);
 
+      // Wait for asset to load
       const titleField = page.getByLabel(/title/i).first();
       await expect(titleField).toHaveValue("Asset 1");
 
+      // Should show "No unsaved changes" message
       await expect(page.getByText("No unsaved changes")).toBeVisible();
+
+      // Save button should be disabled
+      // const saveButton = page.getByRole("button", { name: "Save" });
+      // await expect(saveButton).toBeDisabled();
     });
 
     test("shows validation message when required fields are cleared during editing", async ({
@@ -86,18 +104,29 @@ test.describe("Asset Editing", () => {
       const assetId = "6875871d4eb080a4880a0f44";
       await page.goto(`/assetManager/editAsset/${assetId}`);
 
+      // Wait for asset to load
       const titleField = page.getByLabel(/title/i).first();
       await expect(titleField).toHaveValue("Asset 1");
-      await expect(page.getByText("No unsaved changes")).toBeVisible();
 
-      // the title is required, so clearing it invalidates the form
+      // Initially should show "No unsaved changes"
+      await expect(page.getByText("No unsaved changes")).toBeVisible();
+      // const saveButton = page.getByRole("button", { name: "Save" });
+      // await expect(saveButton).toBeDisabled();
+
+      // Clear the required title field
       await titleField.clear();
 
+      // Should now show validation message
       await expect(page.getByText("Missing required:")).toBeVisible();
       const validationText = page
         .locator("text=Missing required:")
         .locator("..");
       await expect(validationText).toContainText("Title");
+
+      // Save button should still be disabled
+      // await expect(saveButton).toBeDisabled();
+
+      // "No unsaved changes" message should be hidden
       await expect(page.getByText("No unsaved changes")).not.toBeVisible();
     });
 
@@ -107,20 +136,28 @@ test.describe("Asset Editing", () => {
       const assetId = "6875871d4eb080a4880a0f44";
       await page.goto(`/assetManager/editAsset/${assetId}`);
 
+      // Wait for asset to load
       const titleField = page.getByLabel(/title/i).first();
       await expect(titleField).toHaveValue("Asset 1");
 
-      // the title is required, so clearing it invalidates the form
+      // Clear the required title field to trigger validation
       await titleField.clear();
 
+      // Should show validation message
       await expect(page.getByText("Missing required:")).toBeVisible();
       const saveButton = page.getByRole("button", { name: "Save" });
       await expect(saveButton).toBeDisabled();
 
+      // Fill in the title field with new content
       await titleField.fill("Asset 1 - Modified Title");
 
+      // Validation message should disappear
       await expect(page.getByText("Missing required:")).not.toBeVisible();
+
+      // Save button should be enabled since we have unsaved changes and valid form
       await expect(saveButton).toBeEnabled();
+
+      // Should not show "No unsaved changes" since we modified the field
       await expect(page.getByText("No unsaved changes")).not.toBeVisible();
     });
   });
@@ -130,7 +167,7 @@ test.describe("Asset Editing", () => {
       const workerId = test.info().workerIndex.toString();
       await setupWorkerHTTPHeader({ page, workerId });
 
-      // the plain user has canManageAssets: false
+      // Login as regular user (no canManageAssets permission)
       await refreshDatabase({ request, workerId });
       await loginUser({ request, page, workerId, username: "user" });
 
@@ -138,17 +175,20 @@ test.describe("Asset Editing", () => {
     });
 
     test("hides edit buttons for unauthorized users", async ({ page }) => {
+      // Navigate to an asset view page
       const assetId = "6875871d4eb080a4880a0f44";
       await page.goto(`/assetManager/asset/${assetId}`);
 
-      await expect(
-        page.getByRole("button", { name: /edit/i })
-      ).not.toBeVisible();
+      // Should NOT see edit button in asset details
+      const editButton = page.getByRole("button", { name: /edit/i });
+      await expect(editButton).not.toBeVisible();
 
+      // Open menu to verify no edit options
       const menuToggle = page.getByRole("button", { name: "Toggle main menu" });
       await menuToggle.click();
 
       const menu = page.locator("#app-menu-navigation");
+      // Should NOT see "Manage Assets" section at all
       await expect(menu).not.toContainText("Manage Assets");
     });
 

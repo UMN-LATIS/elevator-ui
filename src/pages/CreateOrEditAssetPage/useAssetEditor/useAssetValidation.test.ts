@@ -1,454 +1,223 @@
-import { describe, it, expect, vi } from "vitest";
-import { ref, nextTick } from "vue";
-import { useAssetValidationProvider } from "./useAssetValidation";
-import type { 
-  UnsavedAsset, 
-  Template, 
-  WidgetDef, 
-  PHPDateTime, 
-  WidgetInstanceId,
-  TextWidgetContent,
-  DateWidgetContent
-} from "@/types";
+import { describe, it, expect } from "vitest";
+import { validateAsset } from "./useAssetValidation";
+import type { Template, UnsavedAsset, WidgetInstanceId } from "@/types";
 
-// Mock the hasWidgetContent function
-vi.mock("@/helpers/hasWidgetContent", () => ({
-  hasWidgetContent: vi.fn((content: unknown[], widgetType: string) => {
-    if (widgetType === "text") {
-      return content.some((item) => {
-        const textItem = item as TextWidgetContent;
-        return textItem.fieldContents && textItem.fieldContents.trim() !== "";
-      });
-    }
-    if (widgetType === "date") {
-      return content.some((item) => {
-        const dateItem = item as DateWidgetContent;
-        return (
-          (dateItem.start?.text && dateItem.start.text.trim() !== "") ||
-          (dateItem.end?.text && dateItem.end.text.trim() !== "") ||
-          (dateItem.label && dateItem.label.trim() !== "")
-        );
-      });
-    }
-    return content.length > 0;
-  }),
-}));
+const getWidgetInstanceId = (widgetId: number): WidgetInstanceId =>
+  `editor-${widgetId}` as WidgetInstanceId;
 
-// Mock the date widget content guard
-vi.mock("@/types/guards", () => ({
-  isDateWidgetContent: vi.fn((content: unknown) => {
-    return (
-      content &&
-      typeof content === "object" &&
-      content !== null &&
-      "start" in content &&
-      "end" in content
-    );
-  }),
-}));
+const makeTemplate = (widgetArray: Record<string, unknown>[]): Template =>
+  ({
+    templateId: 1,
+    widgetArray: widgetArray.map((widget, index) => ({
+      widgetId: index + 1,
+      type: "text",
+      fieldTitle: `field_${index + 1}`,
+      label: `Field ${index + 1}`,
+      required: false,
+      ...widget,
+    })),
+  } as unknown as Template);
 
-const createMockPHPDateTime = (): PHPDateTime => ({
-  date: "2025-01-01 00:00:00.000000",
-  timezone: "UTC",
-  timezone_type: 3,
-});
+const makeAsset = (fields: Record<string, unknown> = {}): UnsavedAsset =>
+  ({
+    assetId: null,
+    templateId: 1,
+    readyForDisplay: false,
+    collectionId: 1,
+    availableAfter: null,
+    modified: null,
+    modifiedBy: 1,
+    createdBy: 1,
+    deletedBy: null,
+    relatedAssetCache: null,
+    ...fields,
+  } as UnsavedAsset);
 
-const createMockAsset = (
-  fieldData: Record<string, unknown> = {}
-): UnsavedAsset => ({
-  assetId: null,
-  templateId: 1,
-  readyForDisplay: false,
-  collectionId: 1,
-  availableAfter: null,
-  modified: createMockPHPDateTime(),
-  modifiedBy: 1,
-  createdBy: 1,
-  deletedBy: null,
-  relatedAssetCache: null,
-  ...fieldData,
-});
-
-const createMockTemplate = (widgets: Partial<WidgetDef>[] = []): Template => ({
-  templateId: 1,
-  templateName: "Test Template",
-  showCollection: false,
-  showTemplate: false,
-  showCollectionPosition: 1,
-  showTemplatePosition: 1,
-  widgetArray: widgets.map((widget, index) => ({
-    widgetId: index + 1,
-    type: "text" as const,
-    allowMultiple: false,
-    attemptAutocomplete: false,
-    fieldTitle: `field_${index + 1}`,
-    label: `Field ${index + 1}`,
-    tooltip: "",
-    fieldData: [],
-    display: true,
-    displayInPreview: false,
-    required: false,
-    searchable: false,
-    directSearch: false,
-    clickToSearch: false,
-    clickToSearchType: 1,
-    viewOrder: index + 1,
-    templateOrder: index + 1,
-    ...widget,
-  })) as WidgetDef[],
-});
-
-const mockGetWidgetInstanceId = (widgetId: number): WidgetInstanceId =>
-  `test-editor-${widgetId}` as WidgetInstanceId;
-
-describe("useAssetValidation", () => {
-  it("should validate empty text widget as empty", async () => {
-    const asset = ref(
-      createMockAsset({
-        field_1: [],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
-        {
-          fieldTitle: "field_1",
-          type: "text",
-          label: "Text Field",
-          required: false,
-        },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    expect(widgetValidations.value).toHaveLength(1);
-    expect(widgetValidations.value[0]).toMatchObject({
-      id: mockGetWidgetInstanceId(1),
-      label: "Text Field",
-      isRequired: false,
-      isEmpty: true,
-      isValid: false,
-      status: "empty",
+describe("validateAsset", () => {
+  it("reads an empty text widget as empty and a filled one as valid", () => {
+    const template = makeTemplate([{}]);
+    const emptyAsset = makeAsset({
+      field_1: [{ uuid: "row-1", fieldContents: "", isPrimary: false }],
     });
+    const filledAsset = makeAsset({
+      field_1: [{ uuid: "row-1", fieldContents: "typed", isPrimary: false }],
+    });
+
+    expect(
+      validateAsset(emptyAsset, template, getWidgetInstanceId)[0]
+    ).toMatchObject({ isEmpty: true, isValid: false });
+    expect(
+      validateAsset(filledAsset, template, getWidgetInstanceId)[0]
+    ).toMatchObject({ isEmpty: false, isValid: true });
   });
 
-  it("should validate text widget with content as valid", async () => {
-    const asset = ref(
-      createMockAsset({
-        field_1: [{ id: "1", fieldContents: "Hello World" }],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
-        {
-          fieldTitle: "field_1",
-          type: "text",
-          label: "Text Field",
-          required: false,
-        },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    expect(widgetValidations.value[0]).toMatchObject({
-      isEmpty: false,
-      isValid: true,
-      status: "valid",
+  it("marks a required empty widget invalid with a global error", () => {
+    const template = makeTemplate([{ required: true }]);
+    const asset = makeAsset({
+      field_1: [{ uuid: "row-1", fieldContents: "", isPrimary: false }],
     });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.isRequired).toBe(true);
+    expect(validation.isValid).toBe(false);
+    expect(
+      validation.errors.getItemFieldErrors(getWidgetInstanceId(1), "global")
+    ).toEqual(["Field 1 fields required."]);
   });
 
-  it("should validate required empty widget as invalid", async () => {
-    const asset = ref(
-      createMockAsset({
-        field_1: [],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
+  it("accepts a date with a start and rejects a start after its end", () => {
+    const template = makeTemplate([{ type: "date" }]);
+    const inOrderAsset = makeAsset({
+      field_1: [
         {
-          fieldTitle: "field_1",
-          type: "text",
-          label: "Required Field",
-          required: true,
+          uuid: "row-1",
+          label: "",
+          start: { text: "2020", numeric: "1577836800" },
+          end: { text: "2021", numeric: "1609459200" },
         },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    expect(widgetValidations.value[0]).toMatchObject({
-      isRequired: true,
-      isEmpty: true,
-      isValid: false,
-      status: "empty",
+      ],
     });
+    const reversedDatesAsset = makeAsset({
+      field_1: [
+        {
+          uuid: "row-1",
+          label: "",
+          start: { text: "2021", numeric: "1609459200" },
+          end: { text: "2020", numeric: "1577836800" },
+        },
+      ],
+    });
+
+    expect(
+      validateAsset(inOrderAsset, template, getWidgetInstanceId)[0].isValid
+    ).toBe(true);
+
+    const [reversedValidation] = validateAsset(
+      reversedDatesAsset,
+      template,
+      getWidgetInstanceId
+    );
+    expect(reversedValidation.isValid).toBe(false);
+    expect(
+      reversedValidation.errors.getItemFieldErrors("row-1", "end")
+    ).toEqual(["End date must be after start date"]);
   });
 
-  it("should validate date widget with valid dates", async () => {
-    const asset = ref(
-      createMockAsset({
-        date_field_1: [
-          {
-            id: "1",
-            label: "Test Date",
-            start: { text: "2024-01-01", numeric: "1704067200" },
-            end: { text: "2024-01-02", numeric: "1704153600" },
-          },
-        ],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
+  it("rejects a date whose text never parsed", () => {
+    const template = makeTemplate([{ type: "date" }]);
+    const asset = makeAsset({
+      field_1: [
         {
-          fieldTitle: "date_field_1",
-          type: "date",
-          label: "Date Field",
-          required: false,
+          uuid: "row-1",
+          label: "",
+          start: { text: "not a date", numeric: null },
+          end: { text: null, numeric: null },
         },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    expect(widgetValidations.value[0]).toMatchObject({
-      isEmpty: false,
-      isValid: true,
-      status: "valid",
-    });
-  });
-
-  it("should validate date widget with invalid date range", async () => {
-    const asset = ref(
-      createMockAsset({
-        date_field_1: [
-          {
-            id: "1",
-            label: "Test Date",
-            start: { text: "2024-01-02", numeric: "1704153600" },
-            end: { text: "2024-01-01", numeric: "1704067200" },
-          },
-        ],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
-        {
-          fieldTitle: "date_field_1",
-          type: "date",
-          label: "Date Field",
-          required: false,
-        },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    expect(widgetValidations.value[0]).toMatchObject({
-      isEmpty: false,
-      isValid: false,
-      status: "invalid",
+      ],
     });
 
-    // Check that there are date range errors
-    const validation = widgetValidations.value[0];
-    const endErrors = validation.errors.getItemFieldErrors("1", "end");
-    expect(endErrors).toContain("End date must be after start date");
-  });
-
-  it("should only revalidate changed widgets for performance", async () => {
-    const asset = ref(
-      createMockAsset({
-        field_1: [{ id: "1", fieldContents: "Text 1" }],
-        field_2: [{ id: "2", fieldContents: "Text 2" }],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
-        {
-          fieldTitle: "field_1",
-          type: "text",
-          label: "Field 1",
-          required: false,
-        },
-        {
-          fieldTitle: "field_2",
-          type: "text",
-          label: "Field 2",
-          required: false,
-        },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    // Initial validation
-    const initialValidations = [...widgetValidations.value];
-    expect(initialValidations).toHaveLength(2);
-
-    // Change only field_1
-    asset.value = createMockAsset({
-      field_1: [{ id: "1", fieldContents: "Changed Text 1" }],
-      field_2: [{ id: "2", fieldContents: "Text 2" }], // unchanged
-    });
-
-    await nextTick();
-
-    // Should have new validations
-    const newValidations = widgetValidations.value;
-    expect(newValidations).toHaveLength(2);
-
-    // Field 1 should be revalidated, Field 2 should use cached result
-    const widgetInstanceId1 = mockGetWidgetInstanceId(1);
-    const widgetInstanceId2 = mockGetWidgetInstanceId(2);
-    expect(newValidations.find((v) => v.id === widgetInstanceId1)?.id).toBe(
-      widgetInstanceId1
-    );
-    expect(newValidations.find((v) => v.id === widgetInstanceId2)?.id).toBe(
-      widgetInstanceId2
-    );
-  });
-
-  it("should debounce validation updates", async () => {
-    const asset = ref(
-      createMockAsset({
-        field_1: [{ id: "1", fieldContents: "initial" }],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
-        {
-          fieldTitle: "field_1",
-          type: "text",
-          label: "Text Field",
-          required: false,
-        },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    // Initial validation
-    expect(widgetValidations.value[0].isValid).toBe(true);
-
-    // Make rapid changes - these should be debounced
-    asset.value = createMockAsset({
-      field_1: [{ id: "1", fieldContents: "change1" }],
-    });
-
-    asset.value = createMockAsset({
-      field_1: [{ id: "1", fieldContents: "change2" }],
-    });
-
-    asset.value = createMockAsset({
-      field_1: [{ id: "1", fieldContents: "final" }],
-    });
-
-    // Wait for debounced validation to complete
-    await new Promise(resolve => setTimeout(resolve, 150));
-
-    // Should have the final validation result
-    expect(widgetValidations.value[0].isValid).toBe(true);
-  });
-
-  it("should handle template changes", async () => {
-    const asset = ref(
-      createMockAsset({
-        field_1: [{ id: "1", fieldContents: "Text 1" }],
-        field_2: [{ id: "2", fieldContents: "Text 2" }],
-      })
-    );
-
-    const template = ref(
-      createMockTemplate([
-        {
-          fieldTitle: "field_1",
-          type: "text",
-          label: "Field 1",
-          required: false,
-        },
-        {
-          fieldTitle: "field_2",
-          type: "text",
-          label: "Field 2",
-          required: false,
-        },
-      ])
-    );
-
-    const { widgetValidations } = useAssetValidationProvider(
-      asset,
-      template,
-      mockGetWidgetInstanceId
-    );
-
-    await nextTick();
-
-    expect(widgetValidations.value).toHaveLength(2);
-
-    // Remove one widget from template
-    template.value = createMockTemplate([
-      {
-        fieldTitle: "field_1",
-        type: "text",
-        label: "Field 1",
-        required: false,
-      },
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.isValid).toBe(false);
+    expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([
+      "Invalid start date.",
     ]);
+  });
 
-    // Wait for debounced update
-    await new Promise(resolve => setTimeout(resolve, 150));
+  it("warns that an end date with no start is not saved", () => {
+    const template = makeTemplate([{ type: "date" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          uuid: "row-1",
+          label: "",
+          start: { text: null, numeric: null },
+          end: { text: "2021", numeric: "1609459200" },
+        },
+      ],
+    });
 
-    expect(widgetValidations.value).toHaveLength(1);
-    expect(widgetValidations.value[0].id).toBe(mockGetWidgetInstanceId(1));
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([
+      "Add a start date or a label, or this date is not saved.",
+    ]);
+    expect(validation.isValid).toBe(false);
+  });
+
+  it("keeps an end date with no start when the row has a label", () => {
+    const template = makeTemplate([{ type: "date" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          uuid: "row-1",
+          label: "Published",
+          start: { text: null, numeric: null },
+          end: { text: "2021", numeric: "1609459200" },
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([]);
+    expect(validation.isValid).toBe(true);
+  });
+
+  it("warns that an address with no coordinates is not saved", () => {
+    const template = makeTemplate([{ type: "location" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          uuid: "row-1",
+          locationLabel: "",
+          address: "117 Pleasant St SE, Minneapolis",
+          loc: undefined,
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "address")).toEqual([
+      "Pick a point on the map or add a label, or this address is not saved.",
+    ]);
+  });
+
+  it("accepts an address once the row has coordinates", () => {
+    const template = makeTemplate([{ type: "location" }]);
+    const asset = makeAsset({
+      field_1: [
+        {
+          uuid: "row-1",
+          locationLabel: "",
+          address: "117 Pleasant St SE, Minneapolis",
+          loc: { type: "Point", coordinates: [-93.235, 44.974] },
+        },
+      ],
+    });
+
+    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    expect(validation.errors.getItemFieldErrors("row-1", "address")).toEqual(
+      []
+    );
+  });
+
+  it("reports one widget per template, so a smaller template reports fewer", () => {
+    const asset = makeAsset({
+      field_1: [{ uuid: "row-1", fieldContents: "kept", isPrimary: false }],
+      field_2: [{ uuid: "row-2", fieldContents: "dropped", isPrimary: false }],
+    });
+
+    expect(
+      validateAsset(asset, makeTemplate([{}, {}]), getWidgetInstanceId)
+    ).toHaveLength(2);
+
+    const [validation] = validateAsset(
+      asset,
+      makeTemplate([{}]),
+      getWidgetInstanceId
+    );
+    expect(validation.id).toBe(getWidgetInstanceId(1));
+  });
+
+  it("returns nothing without a template", () => {
+    expect(validateAsset(makeAsset(), null, getWidgetInstanceId)).toEqual([]);
   });
 });

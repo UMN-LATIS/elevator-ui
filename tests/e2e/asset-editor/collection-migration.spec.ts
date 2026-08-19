@@ -1,14 +1,11 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import {
-  setupWorkerHTTPHeader,
-  loginUser,
-  refreshDatabase,
-  SAVE_ROUTE,
-} from "../../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
 
 // Asset 1 from the mock data, which lives in Default Collection (id 1)
 const ASSET_ID = "6875871d4eb080a4880a0f44";
 const DEFAULT_COLLECTION_ID = "1";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
 
 function collectionSelect(page: Page): Locator {
   // by role, because the confirm dialog's accessible name also contains
@@ -34,10 +31,6 @@ test.describe("collection migration", () => {
   test("canceling the confirm puts the selection back on the asset's collection", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     await collectionSelect(page).selectOption({ label: "Parent Collection" });
     await expect(confirmModal(page)).toBeVisible();
 
@@ -50,10 +43,6 @@ test.describe("collection migration", () => {
   test("a failed migration save reverts the collection edit instead of leaving it pending", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
 
     // fail only the migration's save. 400 rather than 500, because a 500

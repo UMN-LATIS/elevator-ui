@@ -205,6 +205,85 @@ const locationAssetSeeds: WithMeta<Asset>[] = [
 
 export const LOCATION_ASSET_IDS = locationAssetSeeds.map((a) => a.assetId);
 
+// Eleven levels, one past the ten the view page will open inline, so the
+// eleventh has to render some other way.
+export const NESTED_RECORD_TITLES = [
+  "Cedar Creek Field Records, 1982-2004",
+  "Nitrogen Deposition Study",
+  "Field Season 1998",
+  "Upland Plots",
+  "Plot B-14",
+  "Quadrat 3",
+  "Sampling Event, 12 July 1998",
+  "Soil Core 7",
+  "A Horizon Sample",
+  "Thin Section 9-A",
+  "Micrograph Plate 4",
+];
+
+/** Levels are 1-based, matching the number each record's description shows. */
+export function nestedRecordIdForLevel(level: number): string {
+  return `nested_record_${level}`;
+}
+
+export function nestedRecordDescriptionForLevel(level: number): string {
+  return `Level ${level} of the Cedar Creek records.`;
+}
+
+/** One record per title, each holding the next level as its only child. */
+function createNestedRecordSeeds(): WithMeta<Asset>[] {
+  return NESTED_RECORD_TITLES.map((title, index) => {
+    const level = index + 1;
+    const childTitle = NESTED_RECORD_TITLES[level];
+
+    if (!childTitle) {
+      return {
+        ...baseAsset,
+        ...nestedRecordFields(title, level),
+        childrecords_1: [],
+        relatedAssetCache: [],
+      };
+    }
+
+    const childAssetId = nestedRecordIdForLevel(level + 1);
+    return {
+      ...baseAsset,
+      ...nestedRecordFields(title, level),
+      childrecords_1: [{ isPrimary: false, targetAssetId: childAssetId }],
+      relatedAssetCache: {
+        [childAssetId]: {
+          primaryHandler: null,
+          readyForDisplay: true,
+          relatedAssetTitle: [childTitle],
+        },
+      },
+    };
+  });
+}
+
+function nestedRecordFields(title: string, level: number) {
+  return {
+    title_1: [{ isPrimary: false, fieldContents: title }],
+    description_1: [
+      {
+        isPrimary: false,
+        fieldContents: nestedRecordDescriptionForLevel(level),
+      },
+    ],
+    upload_1: [],
+    checkbox_1: [],
+    assetId: nestedRecordIdForLevel(level),
+    firstFileHandlerId: null,
+    title: [title],
+    templateId: 105,
+    modified: {
+      date: "2026-05-01 09:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+  };
+}
+
 const assetSeeds: WithMeta<Asset>[] = [
   ...locationAssetSeeds,
   baseAsset,
@@ -673,6 +752,7 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  ...createNestedRecordSeeds(),
   ...generateMockAssets(),
 ];
 

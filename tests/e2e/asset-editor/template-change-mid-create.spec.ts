@@ -4,9 +4,13 @@ import {
   loginUser,
   refreshDatabase,
   getAssetCount,
-  SAVE_ROUTE,
-  type RecordedSave,
 } from "../../setup";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
+
+// A create sends an empty objectId, so a non-empty one names an asset that
+// already exists.
+type RecordedSave = { objectId: string };
 
 /**
  * Records every save and holds the first create open, so the test can confirm
@@ -55,10 +59,6 @@ test.describe("changing the template while a create is in flight", () => {
   });
 
   test("creates one asset, not two", async ({ page, request }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(45_000);
     const workerId = test.info().workerIndex.toString();
     const initialAssetCount = await getAssetCount({ request, workerId });

@@ -11,16 +11,16 @@
     @update:widgetContents="
       $emit(
         'update:widgetContents',
-        $event as Type.WithId<Type.TagListWidgetContent>[]
+        $event as Type.WithUuid<Type.TagListWidgetContent>[]
       )
     ">
     <template #fieldContents="{ item }">
       <TagsInput
         :modelValue="(item.tags as string[])"
-        :addOnBlur="true"
+        :addOnBlur="false"
         :addOnPaste="true"
         class="tags-input !py-0"
-        @update:modelValue="(tags) => handleUpdateTags(item.id, tags as string[])">
+        @update:modelValue="(tags) => handleUpdateTags(item.uuid, tags as string[])">
         <TagsInputItem
           v-for="tag in item.tags"
           :key="tag"
@@ -33,17 +33,30 @@
 
         <FieldAutoComplete
           v-if="widgetDef.attemptAutocomplete"
-          :id="`edit-tag-widget-autocomplete-${item.id}`"
-          v-model="tagInput"
+          :id="`edit-tag-widget-autocomplete-${item.uuid}`"
+          :modelValue="pendingTextOf(item)"
           :placeholder="`${widgetDef.label}...`"
           :fieldTitle="widgetDef.fieldTitle"
           :templateId="templateId"
           inputClass="!py-0 flex-1 min-w-24"
           :blurOnSelect="false"
-          @blur="handleTagUpdate(item.id, tagInput)"
-          @select="(selection) => handleTagUpdate(item.id, selection)"
-          @keydown="(event) => handleKeydown(item.id, event)" />
-        <TagsInputInput v-else :placeholder="`${widgetDef.label}...`" />
+          @update:modelValue="(text) => handlePendingTextInput(item.uuid, text)"
+          @blur="commitPendingTag(item.uuid)"
+          @select="(selection) => commitTag(item.uuid, selection)"
+          @keydown="(event) => handleKeydown(item.uuid, event)" />
+        <input
+          v-else
+          :value="pendingTextOf(item)"
+          :placeholder="`${widgetDef.label}...`"
+          class="flex-1 min-w-24 bg-transparent text-sm focus:outline-none"
+          @input="
+            handlePendingTextInput(
+              item.uuid,
+              ($event.target as HTMLInputElement).value
+            )
+          "
+          @blur="commitPendingTag(item.uuid)"
+          @keydown="(event) => handleKeydown(item.uuid, event)" />
       </TagsInput>
     </template>
   </EditWidgetLayout>
@@ -58,35 +71,47 @@ import {
   TagsInputItem,
   TagsInputItemText,
   TagsInputItemDelete,
-  TagsInputInput,
 } from "@/components/ui/tags-input";
 import FieldAutoComplete from "@/components/AutoCompleteInput/FieldAutoComplete.vue";
-import { computed, ref, nextTick } from "vue";
+import { computed } from "vue";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
 const props = defineProps<{
   widgetDef: Type.TagListWidgetDef;
-  widgetContents: Type.WithId<Type.TagListWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.TagListWidgetContent>[];
   isOpen: boolean;
 }>();
 
-const tagInput = ref("");
-
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 
 const templateId = computed(() => {
-  invariant(parentAssetEditor, "Parent asset editor is required");
-  return parentAssetEditor.templateId;
+  invariant(assetEditor, "Asset editor is required");
+  return assetEditor.templateId;
 });
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.TagListWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.TagListWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
+
+// the tag text being typed is stored on the item, so a save can add it to
+// the tags even when the input never lost focus
+const pendingTextOf = (item: Type.TagListWidgetContent): string =>
+  item.pendingText ?? "";
+
+const contentItemFor = (
+  itemUuid: string
+): Type.WithUuid<Type.TagListWidgetContent> => {
+  const contentItem = props.widgetContents.find(
+    (content) => content.uuid === itemUuid
+  );
+  invariant(contentItem, `no tag item with uuid ${itemUuid}`);
+  return contentItem;
+};
 
 const handleAdd = () =>
   emit(
@@ -94,91 +119,93 @@ const handleAdd = () =>
     ops.makeAddContentPayload(props.widgetContents, props.widgetDef)
   );
 
-const handleSetPrimary = (id: string) =>
+const handleSetPrimary = (uuid: string) =>
   emit(
     "update:widgetContents",
-    ops.makeSetPrimaryContentPayload(props.widgetContents, id)
+    ops.makeSetPrimaryContentPayload(props.widgetContents, uuid)
   );
 
-const handleDelete = (id: string) =>
+const handleDelete = (uuid: string) =>
   emit(
     "update:widgetContents",
-    ops.deleteWidgetContent(props.widgetContents, id)
+    ops.deleteWidgetContent(props.widgetContents, uuid)
   );
 
 const handleUpdateTags = (
-  itemId: string,
+  itemUuid: string,
   tags: Type.TagListWidgetContent["tags"]
 ) => {
   emit(
     "update:widgetContents",
-    ops.makeUpdateContentPayload(props.widgetContents, itemId, tags, "tags")
+    ops.makeUpdateContentPayload(props.widgetContents, itemUuid, tags, "tags")
   );
 };
 
-function handleTagUpdate(itemId: string, value: string) {
-  tagInput.value = value;
+const handlePendingTextInput = (itemUuid: string, text: string) => {
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      itemUuid,
+      text,
+      "pendingText"
+    )
+  );
+};
 
-  const trimmedValue = value.trim();
+function commitPendingTag(itemUuid: string) {
+  commitTag(itemUuid, pendingTextOf(contentItemFor(itemUuid)));
+}
 
-  // If the input is empty, no change is needed
-  if (!trimmedValue.length) return;
+function commitTag(itemUuid: string, tagText: string) {
+  const contentItem = contentItemFor(itemUuid);
+  const tag = tagText.trim();
+  const tags = contentItem.tags ?? [];
 
-  const existingTags =
-    props.widgetContents.find((content) => content.id === itemId)?.tags || [];
+  const shouldAddTag = tag !== "" && !tags.includes(tag);
+  const nextTags = shouldAddTag ? [...tags, tag] : tags;
+  const nextContents = props.widgetContents.map((content) =>
+    content.uuid === itemUuid
+      ? { ...content, tags: nextTags, pendingText: "" }
+      : content
+  );
+  emit("update:widgetContents", nextContents);
+}
 
-  // If the tag already exists, no change is needed
-  if (existingTags.includes(trimmedValue)) {
-    tagInput.value = ""; // Clear input if tag already exists
+function removeLastTag(itemUuid: string) {
+  const tags = contentItemFor(itemUuid).tags ?? [];
+  emit(
+    "update:widgetContents",
+    ops.makeUpdateContentPayload(
+      props.widgetContents,
+      itemUuid,
+      tags.slice(0, -1),
+      "tags"
+    )
+  );
+}
+
+function handleKeydown(itemUuid: string, event: KeyboardEvent) {
+  if (event.key === "," || event.key === "Enter") {
+    event.preventDefault();
+    commitPendingTag(itemUuid);
     return;
   }
 
-  emit(
-    "update:widgetContents",
-    ops.makeUpdateContentPayload(
-      props.widgetContents,
-      itemId,
-      [...existingTags, trimmedValue],
-      "tags"
-    )
-  );
-
-  // Clear the tag input after updating
-  nextTick(() => {
-    tagInput.value = "";
-  });
-}
-
-function removeLastTag(itemId: string) {
-  const item = props.widgetContents.find((content) => content.id === itemId);
-  const tags = item?.tags || [];
-
-  const updatedTags = tags.slice(0, -1); // Remove the last tag
-  emit(
-    "update:widgetContents",
-    ops.makeUpdateContentPayload(
-      props.widgetContents,
-      itemId,
-      updatedTags,
-      "tags"
-    )
-  );
-}
-
-async function handleKeydown(itemId: string, event: KeyboardEvent) {
-  const ADD_TAG_KEYS = [",", "Tab", "Enter"];
-
-  if (ADD_TAG_KEYS.includes(event.key)) {
+  // Tab commits a pending tag, and moves focus on as usual otherwise
+  if (event.key === "Tab" && pendingTextOf(contentItemFor(itemUuid)).trim()) {
     event.preventDefault();
-    await nextTick(); // make sure that tagInput is updated
-    handleTagUpdate(itemId, tagInput.value);
+    commitPendingTag(itemUuid);
     return;
   }
 
   // delete the previous tag on backspace if the input is empty
-  if (event.key === "Backspace" && tagInput.value === "") {
+  if (
+    event.key === "Backspace" &&
+    pendingTextOf(contentItemFor(itemUuid)) === ""
+  ) {
     event.preventDefault();
-    removeLastTag(itemId);
+    removeLastTag(itemUuid);
   }
 }
 </script>

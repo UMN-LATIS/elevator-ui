@@ -8,8 +8,7 @@
       :assetId="assetId"
       :isOpen="isOpen"
       @update:isOpen="$emit('update:isOpen', $event)"
-      @update:widgetContents="$emit('update:widgetContents', $event)"
-      @save="$emit('save')" />
+      @update:widgetContents="$emit('update:widgetContents', $event)" />
   </ErrorBoundary>
 </template>
 <script setup lang="ts">
@@ -39,7 +38,6 @@ defineProps<{
 defineEmits<{
   (e: "update:widgetContents", widgetContents: WidgetContent[]): void;
   (e: "update:isOpen", isOpen: boolean): void;
-  (e: "save"): void;
 }>();
 
 // map widgetTypeToComponent

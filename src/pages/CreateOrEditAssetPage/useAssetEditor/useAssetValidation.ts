@@ -1,17 +1,8 @@
 import * as T from "@/types";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { isDateWidgetContent } from "@/types/guards";
-import {
-  computed,
-  ComputedRef,
-  inject,
-  MaybeRefOrGetter,
-  provide,
-  toValue,
-  ref,
-  watch,
-} from "vue";
-import { useDebounceFn } from "@vueuse/core";
+import { isDateWidgetContent, isLocationWidgetContent } from "@/types/guards";
+import { isContentKeptByServer } from "./toStoredShape";
+import { computed, ComputedRef, inject, MaybeRefOrGetter, toValue } from "vue";
 import { ASSET_VALIDATION_PROVIDE_KEY } from "@/constants/constants";
 import invariant from "tiny-invariant";
 
@@ -21,118 +12,73 @@ interface WidgetValidation {
   isRequired: T.WidgetDef["required"];
   isEmpty: boolean;
   isValid: boolean;
-  status: "valid" | "invalid" | "empty";
-  errors: ReturnType<typeof createErrorsObject>;
+  errors: WidgetErrors;
 }
 
 interface WidgetContentWithDef {
-  content: T.WithId<T.WidgetContent>[];
+  content: T.WithUuid<T.WidgetContent>[];
   def: T.WidgetDef;
 }
 
-const createErrorsObject = () => {
+export type WidgetErrors = ReturnType<typeof createWidgetErrors>;
+
+const createWidgetErrors = () => {
   const errors = new Map<string, Map<string, string[]>>();
 
-  const getItemErrors = (itemId: string) => {
-    return errors.get(itemId) || new Map<string, string[]>();
-  };
-
-  const getItemFieldErrors = (itemId: string, fieldName: string) => {
-    const itemErrors = errors.get(itemId);
-    return itemErrors?.get(fieldName) || [];
-  };
-
-  const clearItemFieldErrors = (itemId: string, fieldName: string) => {
-    const itemErrors = errors.get(itemId);
-    if (itemErrors) {
-      itemErrors.delete(fieldName);
-    }
-  };
-
-  const clearItemErrors = (itemId: string) => {
-    errors.delete(itemId);
-  };
-
-  const updateItemFieldErrors = (
-    itemId: string,
-    fieldName: string,
-    fieldErrors: string[]
-  ) => {
-    if (!errors.has(itemId)) {
-      errors.set(itemId, new Map<string, string[]>());
-    }
-    errors.get(itemId)!.set(fieldName, fieldErrors);
-  };
-
-  const hasItemErrors = (itemId: string) => {
-    const itemErrors = errors.get(itemId);
-    if (!itemErrors) return false;
-
-    for (const fieldErrors of itemErrors.values()) {
-      if (fieldErrors.length > 0) {
-        return true;
-      }
-    }
-    return false;
-  };
+  const getItemFieldErrors = (itemId: string, fieldName: string): string[] =>
+    errors.get(itemId)?.get(fieldName) ?? [];
 
   const addItemFieldError = (
     itemId: string,
-    fieldname: string,
+    fieldName: string,
     error: string
-  ) => {
-    const itemFieldErrors = getItemFieldErrors(itemId, fieldname);
-    updateItemFieldErrors(itemId, fieldname, [...itemFieldErrors, error]);
+  ): void => {
+    const itemErrors = errors.get(itemId) ?? new Map<string, string[]>();
+    const fieldErrors = itemErrors.get(fieldName) ?? [];
+    itemErrors.set(fieldName, [...fieldErrors, error]);
+    errors.set(itemId, itemErrors);
   };
 
-  const hasItemFieldErrors = (itemId: string, fieldName: string) => {
-    const fieldErrors = getItemFieldErrors(itemId, fieldName);
-    return fieldErrors.length > 0;
+  const hasItemErrors = (itemId: string): boolean => {
+    const itemErrors = errors.get(itemId);
+    if (!itemErrors) return false;
+    return [...itemErrors.values()].some(
+      (fieldErrors) => fieldErrors.length > 0
+    );
   };
 
-  const clearAll = () => {
-    errors.clear();
-  };
-
-  return {
-    getItemErrors,
-    getItemFieldErrors,
-    updateItemFieldErrors,
-    addItemFieldError,
-    clearItemErrors,
-    clearItemFieldErrors,
-    hasItemErrors,
-    hasItemFieldErrors,
-    clearAll,
-  };
+  return { getItemFieldErrors, addItemFieldError, hasItemErrors };
 };
 
-// Validation functions
-function validateDateWidget({
-  content,
-  def: _def,
-}: WidgetContentWithDef): ReturnType<typeof createErrorsObject> {
-  const errors = createErrorsObject();
+function validateDateWidget(
+  content: T.WithUuid<T.WidgetContent>[]
+): WidgetErrors {
+  const errors = createWidgetErrors();
 
   content.forEach((contentItem) => {
     if (!isDateWidgetContent(contentItem)) {
       const error = "Not a date widget.";
-      errors.addItemFieldError(contentItem.id, "global", error);
+      errors.addItemFieldError(contentItem.uuid, "global", error);
       return;
     }
 
     const { start, end } = contentItem;
     const hasStartText = !!start.text?.trim();
-    const isValidStart = hasStartText && start.numeric !== null;
+    // != null: an unparsable date leaves numeric null or undefined
+    const isValidStart = hasStartText && start.numeric != null;
 
     if (hasStartText && !isValidStart) {
-      errors.addItemFieldError(contentItem.id, "start", "Invalid start date.");
+      errors.addItemFieldError(
+        contentItem.uuid,
+        "start",
+        "Invalid start date."
+      );
     }
 
     const hasEndText = !!end.text?.trim();
-    const isValidEnd = !hasEndText || end.numeric !== null;
+    const isValidEnd = !hasEndText || end.numeric != null;
     if (hasEndText && !isValidEnd) {
-      errors.addItemFieldError(contentItem.id, "end", "Invalid end date");
+      errors.addItemFieldError(contentItem.uuid, "end", "Invalid end date");
     }
 
     const isStartAfterEnd =
@@ -146,9 +92,23 @@ function validateDateWidget({
 
     if (isStartAfterEnd) {
       errors.addItemFieldError(
-        contentItem.id,
+        contentItem.uuid,
         "end",
         "End date must be after start date"
+      );
+    }
+
+    // the backend keeps a date row only for a label or a start, so an
+    // end-only row reaches the server and is thrown away
+    const isRowDropped = !isContentKeptByServer(
+      contentItem,
+      T.WIDGET_TYPES.DATE
+    );
+    if (hasEndText && isRowDropped) {
+      errors.addItemFieldError(
+        contentItem.uuid,
+        "start",
+        "Add a start date or a label, or this date is not saved."
       );
     }
   });
@@ -156,14 +116,48 @@ function validateDateWidget({
   return errors;
 }
 
-function fallbackValidator({
+/**
+ * An address the user typed is only stored alongside a label or coordinates,
+ * so warn before a save throws the row away.
+ */
+function validateLocationWidget({
+  content,
+  def,
+  getWidgetInstanceId,
+}: WidgetContentWithDef & {
+  getWidgetInstanceId: (id: number) => T.WidgetInstanceId;
+}): WidgetErrors {
+  const errors = validateRequiredWidget({ content, def, getWidgetInstanceId });
+
+  content.forEach((contentItem) => {
+    if (!isLocationWidgetContent(contentItem)) return;
+
+    const hasAddressText = !!contentItem.address?.trim();
+    const isRowDropped = !isContentKeptByServer(
+      contentItem,
+      T.WIDGET_TYPES.LOCATION
+    );
+
+    if (hasAddressText && isRowDropped) {
+      errors.addItemFieldError(
+        contentItem.uuid,
+        "address",
+        "Pick a point on the map or add a label, or this address is not saved."
+      );
+    }
+  });
+
+  return errors;
+}
+
+function validateRequiredWidget({
   content,
   def,
   getWidgetInstanceId,
 }: WidgetContentWithDef & {
   getWidgetInstanceId: (id: number) => T.WidgetInstanceId;
 }) {
-  const errors = createErrorsObject();
+  const errors = createWidgetErrors();
   const hasContent = hasWidgetContent(content, def.type);
   const id = getWidgetInstanceId(def.widgetId);
   if (!hasContent && def.required) {
@@ -181,29 +175,30 @@ function validateWidget({
 }) {
   switch (def.type) {
     case "date":
-      return validateDateWidget({ content, def });
+      return validateDateWidget(content);
+    case "location":
+      return validateLocationWidget({ content, def, getWidgetInstanceId });
     default:
-      return fallbackValidator({ content, def, getWidgetInstanceId });
+      return validateRequiredWidget({ content, def, getWidgetInstanceId });
   }
 }
 
-function isDateContentValid({ content, def }: WidgetContentWithDef) {
-  const errors = validateDateWidget({ content, def });
-
-  // Check if any content item has errors
-  for (const contentItem of content) {
-    if (errors.hasItemErrors(contentItem.id)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function isWidgetValid({ content, def }: WidgetContentWithDef): boolean {
+/**
+ * @param errors - what `validateWidget` already found for this widget, so a
+ * date widget is not validated a second time here.
+ */
+function isWidgetValid({
+  content,
+  def,
+  errors,
+}: WidgetContentWithDef & {
+  errors: WidgetErrors;
+}): boolean {
   switch (def.type) {
     case "date":
-      return isDateContentValid({ content, def });
+      return content.every(
+        (contentItem) => !errors.hasItemErrors(contentItem.uuid)
+      );
     case "checkbox":
       return true; // unchecked OR checked is valid
     default:
@@ -211,103 +206,55 @@ function isWidgetValid({ content, def }: WidgetContentWithDef): boolean {
   }
 }
 
-/**
- * Creates validation for a single widget
- */
 function createWidgetValidation(
   widgetData: WidgetContentWithDef,
   getWidgetInstanceId: (id: number) => T.WidgetInstanceId
 ): WidgetValidation {
   const { content, def } = widgetData;
   const errors = validateWidget({ content, def, getWidgetInstanceId });
-  const isValid = isWidgetValid({ content, def });
-  const isEmpty = !hasWidgetContent(content, def.type);
-  const status = isValid ? "valid" : isEmpty ? "empty" : "invalid";
 
   return {
     id: getWidgetInstanceId(def.widgetId),
     label: def.label,
     isRequired: def.required,
-    isEmpty,
-    isValid,
-    status,
+    isEmpty: !hasWidgetContent(content, def.type),
+    isValid: isWidgetValid({ content, def, errors }),
     errors,
   };
 }
 
-/**
- * Simple asset validation provider
- */
-export function useAssetValidationProvider(
-  assetRefOrGetter: MaybeRefOrGetter<T.Asset | T.UnsavedAsset | null>,
-  templateRefOrGetter: MaybeRefOrGetter<T.Template | null>,
-  getWidgetInstanceId: (widgetId: T.WidgetDef["widgetId"]) => T.WidgetInstanceId
-): {
+export interface AssetValidation {
   widgetValidations: ComputedRef<WidgetValidation[]>;
-  widgetIdsWithContent: ComputedRef<T.WidgetDef["widgetId"][]>;
-  isBlank: ComputedRef<boolean>;
   isAssetValid: ComputedRef<boolean>;
   missingRequiredFields: ComputedRef<string[]>;
   invalidFields: ComputedRef<string[]>;
-} {
+}
+
+/** Every widget's validation for one asset against one template. Pure. */
+export function validateAsset(
+  asset: T.Asset | T.UnsavedAsset | null,
+  template: T.Template | null,
+  getWidgetInstanceId: (widgetId: T.WidgetDef["widgetId"]) => T.WidgetInstanceId
+): WidgetValidation[] {
+  return (template?.widgetArray ?? []).map((def) => {
+    const content =
+      (asset?.[def.fieldTitle] as T.WithUuid<T.WidgetContent>[]) || [];
+    return createWidgetValidation({ content, def }, getWidgetInstanceId);
+  });
+}
+
+/** Validate one asset against its template, recomputing as either changes. */
+export function createAssetValidation(
+  assetRefOrGetter: MaybeRefOrGetter<T.Asset | T.UnsavedAsset | null>,
+  templateRefOrGetter: MaybeRefOrGetter<T.Template | null>,
+  getWidgetInstanceId: (widgetId: T.WidgetDef["widgetId"]) => T.WidgetInstanceId
+): AssetValidation {
   const asset = computed(() => toValue(assetRefOrGetter));
   const template = computed(() => toValue(templateRefOrGetter));
-  const widgetDefs = computed(() => template.value?.widgetArray ?? []);
 
-  // storing validation results as ref instead of
-  // computed so that we can debounce
-  const validationResults = ref<WidgetValidation[]>([]);
-
-  const computeValidations = () => {
-    const results: WidgetValidation[] = [];
-
-    widgetDefs.value.forEach((def) => {
-      const content =
-        (asset.value?.[def.fieldTitle] as T.WithId<T.WidgetContent>[]) || [];
-      const validation = createWidgetValidation(
-        { content, def },
-        getWidgetInstanceId
-      );
-      results.push(validation);
-    });
-
-    validationResults.value = results;
-  };
-
-  // Debounce validation computation to reduce excessive recalculation during rapid typing
-  const debouncedComputeValidations = useDebounceFn(computeValidations, 100);
-
-  // Watch for changes and trigger debounced validation
-  watch(
-    [asset, widgetDefs],
-    () => {
-      debouncedComputeValidations();
-    },
-    { deep: true }
+  const widgetValidations = computed(() =>
+    validateAsset(asset.value, template.value, getWidgetInstanceId)
   );
-
-  // Run initial validation immediately
-  computeValidations();
-
-  // Return computed that just returns the current results
-  const widgetValidations = computed(() => validationResults.value);
-
-  const widgetIdsWithContent = computed((): T.WidgetDef["widgetId"][] => {
-    if (!template.value || !asset.value) return [];
-
-    return template.value.widgetArray
-      .filter((widgetDef) => {
-        const widgetContents = (asset.value?.[widgetDef.fieldTitle] ??
-          []) as T.WithId<T.WidgetContent>[];
-        return hasWidgetContent(widgetContents, widgetDef.type);
-      })
-      .map((widgetDef) => widgetDef.widgetId);
-  });
-
-  const isBlank = computed((): boolean => {
-    if (!asset.value || !template.value) return true;
-    return widgetIdsWithContent.value.length === 0;
-  });
 
   const isAssetValid = computed(() => {
     return widgetValidations.value.every(
@@ -327,30 +274,19 @@ export function useAssetValidationProvider(
       .map((validation) => validation.label);
   });
 
-  provide(ASSET_VALIDATION_PROVIDE_KEY, {
-    widgetValidations,
-    widgetIdsWithContent,
-    isBlank,
-    isAssetValid,
-    missingRequiredFields,
-    invalidFields,
-  });
-
   return {
     widgetValidations,
-    widgetIdsWithContent,
-    isBlank,
     isAssetValid,
     missingRequiredFields,
     invalidFields,
   };
 }
 
-export function useAssetValidation() {
+export function useAssetValidation(): AssetValidation {
   const assetValidation = inject(ASSET_VALIDATION_PROVIDE_KEY);
   invariant(
     assetValidation,
-    "useAssetValidation must be used within a component (or parent) that calls useAssetValidationProvider"
+    "useAssetValidation must be called under a component that provides ASSET_VALIDATION_PROVIDE_KEY"
   );
   return assetValidation;
 }

@@ -96,17 +96,19 @@ export function hasSelectContent(contents: unknown[]): boolean {
 }
 
 /**
- * Checks if a TagListWidgetContent array has at least one tag
+ * Checks if a TagListWidgetContent array has at least one tag, counting
+ * text typed but not yet committed.
  */
 export function hasTagListContent(contents: unknown[]): boolean {
   if (!Array.isArray(contents)) return false;
 
-  return contents.some(
-    (content) =>
-      isTagListWidgetContent(content) &&
-      Array.isArray(content.tags) &&
-      content.tags.length > 0
-  );
+  return contents.some((content) => {
+    if (!isTagListWidgetContent(content)) return false;
+    const hasCommittedTag =
+      Array.isArray(content.tags) && content.tags.length > 0;
+    const hasPendingText = !!content.pendingText?.trim();
+    return hasCommittedTag || hasPendingText;
+  });
 }
 
 /**

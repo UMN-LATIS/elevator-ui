@@ -1,17 +1,17 @@
 <template>
   <DefaultLayout>
     <form
-      v-if="!assetId && !assetEditor.isInitialized"
+      v-if="!assetId && !assetEditor.hasAssetToEdit"
       class="flex flex-col gap-4 w-full max-w-sm mx-auto mt-12 rounded-md p-4 border border-outline-variant"
       @submit.prevent="handleInitNewAsset">
       <SelectGroup
         v-model="state.selectedTemplateId"
-        :options="assetEditor.templateOptions"
+        :options="templateOptions"
         label="Template"
         required />
       <SelectGroup
         v-model="state.selectedCollectionId"
-        :options="assetEditor.collectionOptions"
+        :options="collectionOptions"
         label="Collection"
         required />
 
@@ -22,7 +22,7 @@
         :disabled="!state.selectedCollectionId || !state.selectedTemplateId">
         Continue
         <SpinnerIcon
-          v-if="assetEditor.isTemplateLoading"
+          v-if="assetEditor.status === 'awaitingTemplate'"
           class="w-4 h-4 ml-2 animate-spin" />
       </Button>
     </form>
@@ -32,7 +32,16 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <div
-      v-else-if="!assetEditor.isInitialized"
+      v-else-if="assetEditor.loadError"
+      class="flex flex-col items-center gap-2 py-12 text-error">
+      <TriangleAlert class="w-8 h-8" />
+      <p>This asset could not be loaded.</p>
+      <p class="text-sm text-on-surface-variant">
+        {{ assetEditor.loadError.message }}
+      </p>
+    </div>
+    <div
+      v-else-if="!assetEditor.hasAssetToEdit"
       class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
       <span class="ml-2">Loading...</span>
@@ -40,18 +49,22 @@
     <Transition v-else name="fade">
       <EditAssetForm
         :selectedTemplateId="state.selectedTemplateId"
+        :selectedCollectionId="state.selectedCollectionId"
         :template="assetEditor.template!"
         :asset="assetEditor.localAsset!"
-        :savedAssetTitle="assetEditor.savedAssetTitle"
-        :localAssetTitle="assetEditor.localAssetTitle"
+        :savedAssetTitle="savedAssetTitle"
+        :localAssetTitle="localAssetTitle"
         :saveStatus="assetEditor.saveAssetIndicator"
-        :hasUnsavedChanges="assetEditor.hasAssetChanged"
+        :hasUnsavedChanges="assetEditor.hasUnsavedChanges"
         class="flex-1"
         @update:templateId="handleConfirmTemplateChange($event)"
         @migrateCollection="handleConfirmCollectionChange($event)"
-        @save="handleSaveAsset({ showToast: true })"
-        @autoSave="handleSaveAsset({ showToast: false })"
-        @update:asset="assetEditor.updateLocalAsset($event)" />
+        @save="handleSaveAsset({ shouldConfirmSave: true })"
+        @update:widgetContents="
+          assetEditor.updateWidgetContents($event.fieldTitle, $event.contents)
+        "
+        @update:readyForDisplay="assetEditor.updateReadyForDisplay($event)"
+        @update:availableAfter="assetEditor.updateAvailableAfter($event)" />
     </Transition>
     <Teleport to="body">
       <ConfirmModal
@@ -90,7 +103,9 @@
         @close="
           () => {
             state.isConfirmingMigrateCollection = false;
-            state.destCollectionId = null;
+            // the user declined, so clear the selection and let the
+            // sidebar fall back to the asset's current collection
+            state.selectedCollectionId = null;
           }
         ">
         <div class="flex flex-col gap-4">
@@ -108,28 +123,19 @@
       </ConfirmModal>
       <ConfirmModal
         type="warning"
-        :isOpen="isLeaveConfirmOpen"
-        title="Upload in progress"
+        :isOpen="!!leaveBlocker"
+        :title="leaveConfirmPrompt.title"
         confirmLabel="Leave"
         cancelLabel="Stay"
         @confirm="handleLeaveConfirm"
         @close="handleLeaveCancel">
-        Navigating away will cancel your upload. Are you sure you want to leave?
+        {{ leaveConfirmPrompt.body }}
       </ConfirmModal>
     </Teleport>
   </DefaultLayout>
 </template>
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onMounted,
-  provide,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from "vue";
+import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import EditAssetForm from "@/pages/CreateOrEditAssetPage/EditAssetForm/EditAssetForm.vue";
 import { RelatedAssetSaveMessage, TemplateComparison } from "@/types";
@@ -140,22 +146,30 @@ import {
   onBeforeRouteUpdate,
   useRoute,
   useRouter,
+  type RouteLocationNormalized,
 } from "vue-router";
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
-import { createAssetEditor } from "./useAssetEditor/useAssetEditor";
+import { TriangleAlert } from "lucide-vue-next";
+import { provideAssetEditor } from "./useAssetEditor/useAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
 import { ApiError } from "@/api/ApiError";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import type { DeletedAssetInfo } from "@/types";
 import invariant from "tiny-invariant";
 import { fetchTemplateComparison } from "@/api/fetchers";
 import { isEmpty } from "ramda";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { useToastStore } from "@/stores/toastStore";
 import { useUploadStore } from "@/stores/uploadStore";
-import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
+import { useCollections } from "@/composables/useCollections";
 import { usePageAssetIdProvider } from "@/composables/usePageAssetId";
+import {
+  toCollectionOptions,
+  toTemplateOptions,
+} from "./instanceSelectOptions";
+import { getAssetDisplayTitle } from "./useAssetEditor/localAsset";
 
 const props = withDefaults(
   defineProps<{
@@ -168,18 +182,65 @@ const props = withDefaults(
   }
 );
 
-// Use the asset editor composable
-const assetEditor = createAssetEditor();
-
-useAssetValidationProvider(
-  () => assetEditor.localAsset,
-  () => assetEditor.template,
-  assetEditor.getWidgetInstanceId
-);
+const assetEditor = provideAssetEditor({
+  role: "root",
+  handlers: {
+    onAssetCreated: handleAssetCreated,
+    onChildSaveFailed: handleChildSaveFailed,
+    onCreateDropped: handleCreateDropped,
+    onUploadSaveFailed: handleUploadSaveFailed,
+  },
+});
 
 const toastStore = useToastStore();
+
+function handleChildSaveFailed(error: unknown): void {
+  toastStore.addToast({
+    title: "Error",
+    message: `Failed to save inline asset: ${getErrorMessage(error)}`,
+    variant: "error",
+  });
+}
+
+let wasCreateDroppedDuringSave = false;
+
+function handleCreateDropped(): void {
+  wasCreateDroppedDuringSave = true;
+  toastStore.addToast({
+    title: "Error",
+    message:
+      "The asset was saved, but this editor had moved on, so nothing here links to it.",
+    variant: "error",
+  });
+}
+
+/** The save a completed upload asked for failed. */
+function handleUploadSaveFailed(error: unknown): void {
+  toastStore.addToast({
+    title: "Error",
+    message: `Failed to save asset: ${getErrorMessage(error)}`,
+    variant: "error",
+  });
+}
 const uploadStore = useUploadStore();
+const { instance } = useElevatorInstance();
+const { flatCollections } = useCollections();
 const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
+
+const templateOptions = computed(() =>
+  toTemplateOptions(instance.value?.templates ?? [])
+);
+const collectionOptions = computed(() =>
+  toCollectionOptions(flatCollections.value)
+);
+
+const localAssetTitle = computed(() =>
+  assetEditor.localAsset ? getAssetDisplayTitle(assetEditor.localAsset) : ""
+);
+const savedAssetTitle = computed(() => {
+  const savedAsset = assetEditor.savedAsset;
+  return savedAsset?.title?.[0] ?? savedAsset?.assetId ?? "";
+});
 
 function handleRestored() {
   deletedAssetInfo.value = null;
@@ -188,16 +249,35 @@ function handleRestored() {
   }
 }
 
-// --- Upload navigation guard ---
+/** What the user would lose by leaving, or null when nothing is at stake. */
+type LeaveBlocker = "activeUpload" | "unsavedEdits";
+const leaveBlocker = ref<LeaveBlocker | null>(null);
 
-const isLeaveConfirmOpen = ref(false);
-// Holds the resolve function for the pending onBeforeRouteLeave promise.
+const leaveConfirmCopy: Record<LeaveBlocker, { title: string; body: string }> =
+  {
+    activeUpload: {
+      title: "Upload in progress",
+      body: "Navigating away will cancel your upload. Are you sure you want to leave?",
+    },
+    unsavedEdits: {
+      title: "Unsaved changes",
+      body: "Your unsaved changes will be lost if you leave. Are you sure?",
+    },
+  };
+
+const leaveConfirmPrompt = computed(() =>
+  leaveBlocker.value
+    ? leaveConfirmCopy[leaveBlocker.value]
+    : { title: "", body: "" }
+);
+
 let resolveLeaveGuard: ((allow: boolean) => void) | null = null;
 
 // Trigger the browser's native "Leave site?" dialog when the user tries to
-// close the tab, reload, or navigate to an external URL while an upload is running.
+// close the tab, reload, or navigate to an external URL while an upload is
+// running or edits are unsaved.
 watchEffect((onCleanup) => {
-  if (!uploadStore.hasActiveUploads) return;
+  if (!uploadStore.hasActiveUploads && !assetEditor.hasUnsavedChanges) return;
   const handler = (e: BeforeUnloadEvent) => {
     e.preventDefault();
   };
@@ -209,25 +289,52 @@ watchEffect((onCleanup) => {
   onCleanup(() => window.removeEventListener("beforeunload", handler));
 });
 
-// Show our custom ConfirmModal for in-app (Vue Router) navigation.
-onBeforeRouteLeave(async () => {
-  if (!uploadStore.hasActiveUploads) return true;
-  isLeaveConfirmOpen.value = true;
+/**
+ * Show our custom ConfirmModal before in-app (Vue Router) navigation that
+ * would cancel an upload or drop unsaved edits.
+ */
+async function confirmLeavingWorkBehind(
+  to: RouteLocationNormalized
+): Promise<boolean> {
+  // the redirect onto the asset this editor just created reuses the
+  // component and carries every pending edit and upload with it, so
+  // nothing is being left behind
+  const isTargetTheAssetBeingEdited =
+    to.name === "editAsset" &&
+    to.params.assetId === assetEditor.localAsset?.assetId;
+  if (isTargetTheAssetBeingEdited) return true;
+
+  if (uploadStore.hasActiveUploads) {
+    return askBeforeLeaving("activeUpload");
+  }
+
+  if (assetEditor.hasUnsavedChanges) {
+    return askBeforeLeaving("unsavedEdits");
+  }
+  return true;
+}
+
+function askBeforeLeaving(blocker: LeaveBlocker): Promise<boolean> {
+  leaveBlocker.value = blocker;
   return new Promise<boolean>((resolve) => {
     resolveLeaveGuard = resolve;
   });
-});
+}
 
-function handleLeaveConfirm() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(true);
+onBeforeRouteLeave(confirmLeavingWorkBehind);
+
+function settleLeaveGuard(canLeave: boolean) {
+  leaveBlocker.value = null;
+  resolveLeaveGuard?.(canLeave);
   resolveLeaveGuard = null;
 }
 
+function handleLeaveConfirm() {
+  settleLeaveGuard(true);
+}
+
 function handleLeaveCancel() {
-  isLeaveConfirmOpen.value = false;
-  resolveLeaveGuard?.(false);
-  resolveLeaveGuard = null;
+  settleLeaveGuard(false);
 }
 
 watch(
@@ -263,7 +370,6 @@ const state = reactive({
 
   // confirm collection migration
   isConfirmingMigrateCollection: false,
-  destCollectionId: null as number | null,
 });
 
 // Sync selectedTemplateId with the current asset's templateId when editing
@@ -278,13 +384,15 @@ watch(
 );
 
 function isTemplateOption(templateId: number) {
-  return assetEditor.templateOptions.some((option) => option.id === templateId);
+  return templateOptions.value.some((option) => option.id === templateId);
 }
 
+const route = useRoute();
+const router = useRouter();
+
 onMounted(() => {
-  const params = new URLSearchParams(window.location.search);
-  const defaultTemplateId = Number(params.get("defaultTemplateId"));
-  const collectionId = Number(params.get("collectionId"));
+  const defaultTemplateId = Number(route.query.defaultTemplateId);
+  const collectionId = Number(route.query.collectionId);
 
   if (defaultTemplateId && isTemplateOption(defaultTemplateId)) {
     state.selectedTemplateId = defaultTemplateId;
@@ -292,79 +400,96 @@ onMounted(() => {
 
   if (
     collectionId &&
-    assetEditor.collectionOptions.some((c) => c.id === collectionId)
+    collectionOptions.value.some((c) => c.id === collectionId)
   ) {
     state.selectedCollectionId = collectionId;
   }
 
   // if only 1 template or collection, set it as the default
-  if (!state.selectedTemplateId && assetEditor.templateOptions.length === 1) {
-    state.selectedTemplateId = assetEditor.templateOptions[0].id;
+  if (!state.selectedTemplateId && templateOptions.value.length === 1) {
+    state.selectedTemplateId = templateOptions.value[0].id;
   }
 
-  if (assetEditor.collectionOptions.length === 1) {
-    state.selectedCollectionId = assetEditor.collectionOptions[0].id;
+  if (!state.selectedCollectionId && collectionOptions.value.length === 1) {
+    state.selectedCollectionId = collectionOptions.value[0].id;
   }
 });
 
-function handleInitNewAsset() {
+async function handleInitNewAsset() {
   invariant(
     state.selectedTemplateId && state.selectedCollectionId,
     "Template and collection must be selected to create a new asset"
   );
-  assetEditor.initNewAsset({
-    templateId: state.selectedTemplateId,
-    collectionId: state.selectedCollectionId,
+  try {
+    await assetEditor.initNewAsset({
+      templateId: state.selectedTemplateId,
+      collectionId: state.selectedCollectionId,
+    });
+  } catch (error) {
+    invariant(error instanceof Error);
+    console.error("Error starting new asset:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: `Could not load the template: ${error.message}`,
+      variant: "error",
+    });
+  }
+}
+
+const channelName = computed(() => route.query.channelName as string);
+
+function handleAssetCreated(assetId: string) {
+  // if we're creating a related asset, notify the parent
+  if (channelName.value) {
+    const channel = new BroadcastChannel(channelName.value);
+    const message: RelatedAssetSaveMessage = {
+      type: SAVE_RELATED_ASSET_TYPE,
+      payload: {
+        relatedAssetId: assetId,
+      },
+    };
+    channel.postMessage(message);
+    channel.close();
+  }
+
+  // redirect to the edit asset page (so that we don't keep recreating
+  // new assets on each save!)
+  router.replace({
+    name: "editAsset",
+    params: {
+      assetId,
+    },
+    state: {
+      preserveScroll: true,
+    },
   });
 }
 
-const route = useRoute();
-const router = useRouter();
-const channelName = computed(() => route.query.channelName as string);
-
-async function handleSaveAsset({ showToast }: { showToast: boolean }) {
+/**
+ * @param shouldConfirmSave - show a success toast. Auto-saves pass false, so
+ * only failures reach the user.
+ */
+async function handleSaveAsset({
+  shouldConfirmSave,
+}: {
+  shouldConfirmSave: boolean;
+}) {
   const isNewAsset = !props.assetId;
+  wasCreateDroppedDuringSave = false;
   try {
     await assetEditor.saveAsset();
-
-    invariant(
-      assetEditor.localAsset?.assetId,
-      "Local asset id must be defined after saving"
-    );
-    const savedAssetId = assetEditor.localAsset.assetId;
 
     // if this is an existing asset, we're done
     if (!isNewAsset) {
       return;
     }
 
-    // if we're creating a related asset, notify the parent
-    if (channelName.value) {
-      const channel = new BroadcastChannel(channelName.value);
-      const message: RelatedAssetSaveMessage = {
-        type: SAVE_RELATED_ASSET_TYPE,
-        payload: {
-          relatedAssetId: savedAssetId,
-        },
-      };
-      channel.postMessage(message);
-      channel.close();
+    // handleCreateDropped already raised its error toast, so stay quiet
+    if (wasCreateDroppedDuringSave) {
+      return;
     }
 
-    // redirect to the edit asset page (so that we don't keep recreating
-    // new assets on each save!)
-    await nextTick();
-    router.replace({
-      name: "editAsset",
-      params: {
-        assetId: savedAssetId,
-      },
-      state: {
-        preserveScroll: true,
-      },
-    });
-
-    if (showToast) {
+    if (shouldConfirmSave) {
       toastStore.addToast({
         title: "Saved",
         message: `Asset saved successfully.`,
@@ -376,13 +501,11 @@ async function handleSaveAsset({ showToast }: { showToast: boolean }) {
     invariant(error instanceof Error);
     console.error("Error saving asset:", error);
 
-    if (showToast) {
-      toastStore.addToast({
-        title: "Error",
-        message: `Failed to save asset: ${error.message}`,
-        variant: "error",
-      });
-    }
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to save asset: ${getErrorMessage(error)}`,
+      variant: "error",
+    });
   }
 }
 
@@ -401,8 +524,28 @@ async function migrateCollection() {
     state.selectedCollectionId,
     "Selected collection ID must be set to confirm migration"
   );
-  await assetEditor.updateCollection(state.selectedCollectionId);
-  await assetEditor.saveAsset();
+  const collectionIdBeforeMigration = assetEditor.localAsset?.collectionId;
+  assetEditor.updateCollection(state.selectedCollectionId);
+
+  try {
+    await assetEditor.saveAsset();
+  } catch (error) {
+    invariant(error instanceof Error);
+    console.error("Error migrating collection:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to move asset: ${error.message}`,
+      variant: "error",
+    });
+    // put the old collection back, so the failed migration is not resent
+    // by the next save
+    if (collectionIdBeforeMigration) {
+      assetEditor.updateCollection(collectionIdBeforeMigration);
+    }
+    state.selectedCollectionId = null;
+    return;
+  }
+
   toastStore.addToast({
     message: "Migration started. This may take a few minutes.",
   });
@@ -432,15 +575,21 @@ async function handleConfirmTemplateChange(templateId: number) {
     sourceTemplateId,
     "Source template ID must be defined to compare templates"
   );
-  const comparison = await fetchTemplateComparison(
-    sourceTemplateId,
-    templateId
-  );
-
-  // handle [] returned from API
-  state.templateComparison = isEmpty(comparison)
-    ? null
-    : (comparison as TemplateComparison);
+  try {
+    const comparison = await fetchTemplateComparison(
+      sourceTemplateId,
+      templateId
+    );
+    // handle [] returned from API
+    state.templateComparison = isEmpty(comparison)
+      ? null
+      : (comparison as TemplateComparison);
+  } catch (error) {
+    // the modal still warns about data loss in general, just without the
+    // list of affected fields
+    console.error("Error comparing templates:", error);
+    state.templateComparison = null;
+  }
 }
 
 async function updateTemplateId() {
@@ -449,34 +598,37 @@ async function updateTemplateId() {
     state.destTemplateId,
     "Destination template ID must be set to confirm template change"
   );
-  await assetEditor.migrateToTemplate(state.destTemplateId);
+  try {
+    await assetEditor.migrateToTemplate(state.destTemplateId);
+  } catch (error) {
+    invariant(error instanceof Error);
+    console.error("Error changing template:", error);
+    toastStore.addToast({
+      title: "Error",
+      message: `Failed to change template: ${error.message}`,
+      variant: "error",
+    });
+    // the migration failed, so put the dropdown back on the asset's template
+    state.selectedTemplateId = assetEditor.localAsset?.templateId ?? null;
+    return;
+  }
 
   // save and replace route
-  handleSaveAsset({ showToast: true });
+  handleSaveAsset({ shouldConfirmSave: true });
 }
-
-// provide the asset editor to child components
-// each asset editor instance gets its own instance
-// so that we can have multiple tabs editing different assets
-// without interference. Still, sometimes the child component
-// needs to access the parent asset editor instance to do
-// things like register an `onBeforeSave` callback
-// (e.g. with inline asset editing, we want to save the
-// inline asset before the parent saves)
-provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
 
 usePageAssetIdProvider(() => props.assetId ?? null);
 
-onBeforeRouteUpdate(async (to, _from, next) => {
-  if (to.fullPath !== "/assetManager/addAsset") {
-    // if not navigating to create asset, just proceed
-    return next();
+// moving between assets reuses this component, so route updates need the
+// same protection as route leaves
+onBeforeRouteUpdate(async (to) => {
+  const canProceed = await confirmLeavingWorkBehind(to);
+  if (!canProceed) return false;
+
+  if (to.fullPath === "/assetManager/addAsset") {
+    assetEditor.reset();
   }
-
-  // reset the asset state
-  assetEditor.reset();
-
-  next();
+  return true;
 });
 </script>
 <style scoped>
