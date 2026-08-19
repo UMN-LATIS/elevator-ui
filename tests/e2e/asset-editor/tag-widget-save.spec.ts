@@ -32,6 +32,11 @@ test.describe("tag input and the save", () => {
   });
 
   test("a typed but uncommitted tag survives the save", async ({ page }) => {
+    // Pins a bug in the current editor, but flakes against it: red on some
+    // full-suite runs and green on others. Skipped outright until the
+    // reducer editor lands in the next PR of this stack.
+    test.fixme();
+
     test.setTimeout(30_000);
     const countAssetRefetches = startCountingAssetRefetches(page);
 

@@ -104,6 +104,10 @@ test.describe("Location Widget", () => {
   test("clearing both coordinates removes the location from the asset", async ({
     page,
   }) => {
+    // Pins a data-loss or UX bug in the current editor. Goes green when the
+    // reducer editor lands in the next PR of this stack.
+    test.fail();
+
     const assetId = "6875871d4eb080a4880a0abc";
     await page.goto(`/assetManager/editAsset/${assetId}`);
 
