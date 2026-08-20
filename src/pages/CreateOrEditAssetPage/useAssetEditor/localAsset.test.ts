@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   clearUploadRegenerationFlags,
+  contentItemUuidsToRegenerate,
   diffEditableFields,
   toLocalAsset,
   makeNewLocalAsset,
@@ -309,9 +310,33 @@ describe("clearUploadRegenerationFlags", () => {
       upload_1: [{ uuid: "a", fileId: "f1", regenerate: "On" }],
     });
 
-    const cleared = clearUploadRegenerationFlags(asset, uploadTemplate);
+    const cleared = clearUploadRegenerationFlags(
+      asset,
+      uploadTemplate,
+      new Set(["a"])
+    );
 
     expect(cleared.upload_1).toEqual([{ uuid: "a", fileId: "f1" }]);
+  });
+
+  it("keeps a flag the save did not send", () => {
+    const asset = makeSavedAsset({
+      upload_1: [
+        { uuid: "a", fileId: "f1", regenerate: "On" },
+        { uuid: "b", fileId: "f2", regenerate: "On" },
+      ],
+    });
+
+    const cleared = clearUploadRegenerationFlags(
+      asset,
+      uploadTemplate,
+      new Set(["a"])
+    );
+
+    expect(cleared.upload_1).toEqual([
+      { uuid: "a", fileId: "f1" },
+      { uuid: "b", fileId: "f2", regenerate: "On" },
+    ]);
   });
 
   it("leaves non-upload widgets alone", () => {
@@ -320,9 +345,40 @@ describe("clearUploadRegenerationFlags", () => {
       title_1: [{ uuid: "a", fieldContents: "text" }],
     });
 
-    const cleared = clearUploadRegenerationFlags(asset, template);
+    const cleared = clearUploadRegenerationFlags(
+      asset,
+      template,
+      new Set(["a"])
+    );
 
     expect(cleared.title_1).toEqual([{ uuid: "a", fieldContents: "text" }]);
+  });
+});
+
+describe("contentItemUuidsToRegenerate", () => {
+  const uploadTemplate = makeTemplate(1, [
+    { fieldTitle: "upload_1", type: "upload" },
+  ]);
+
+  it("names only the content items carrying a flag", () => {
+    const asset = makeSavedAsset({
+      upload_1: [
+        { uuid: "a", fileId: "f1", regenerate: "On" },
+        { uuid: "b", fileId: "f2" },
+      ],
+    });
+
+    expect(contentItemUuidsToRegenerate(asset, uploadTemplate)).toEqual(
+      new Set(["a"])
+    );
+  });
+
+  it("is empty when the save carried no regeneration", () => {
+    const asset = makeSavedAsset({ upload_1: [{ uuid: "a", fileId: "f1" }] });
+
+    expect(contentItemUuidsToRegenerate(asset, uploadTemplate)).toEqual(
+      new Set()
+    );
   });
 });
 

@@ -23,6 +23,7 @@ import {
 } from "./types";
 import {
   clearUploadRegenerationFlags,
+  contentItemUuidsToRegenerate,
   diffEditableFields,
   makeNewLocalAsset,
   migrateAssetToTemplate,
@@ -409,20 +410,33 @@ function onSaveAccepted(
   const template = openAsset.template;
   if (!template || !openAsset.savedAsset) {
     // nothing to re-diff against, so just retire the client-only flags the
-    // save has now delivered
+    // save has now sent
     return stateWithOpenAsset(state, event.key, {
       ...openAsset,
       edits: template
-        ? clearUploadRegenerationFlags(openAsset.edits, template)
+        ? clearUploadRegenerationFlags(
+            openAsset.edits,
+            template,
+            contentItemUuidsToRegenerate(event.sentAsset, template)
+          )
         : openAsset.edits,
       saveState: "success",
     });
   }
 
+  const contentItemUuidsToClear = contentItemUuidsToRegenerate(
+    event.sentAsset,
+    template
+  );
+
   // typed as a stored asset because the sent document is now stored under
   // this asset's id. The read-back replaces it with the server's own copy.
   const sentDocument = {
-    ...clearUploadRegenerationFlags(event.sentAsset, template),
+    ...clearUploadRegenerationFlags(
+      event.sentAsset,
+      template,
+      contentItemUuidsToClear
+    ),
     assetId: openAsset.assetId,
   } as unknown as T.Asset;
 
@@ -434,9 +448,15 @@ function onSaveAccepted(
     createUuid: deps.createUuid,
   });
 
-  // the draft loses its regeneration flags the same way the sent document
-  // did, or they would read as edits made after the send
-  const latestDraft = clearUploadRegenerationFlags(assetOnScreen, template);
+  // the draft loses the flags on the same content items the sent document
+  // did, or they would read as edits made after the send. Content items
+  // outside that set keep their flags: the curator asked for those while
+  // the save was in flight, and the next save still has to send them.
+  const latestDraft = clearUploadRegenerationFlags(
+    assetOnScreen,
+    template,
+    contentItemUuidsToClear
+  );
 
   return stateWithOpenAsset(state, event.key, {
     ...openAsset,
@@ -462,8 +482,16 @@ function onAssetCreated(
   // typed as a stored asset even though `modified` is still null: that is
   // the one field the server assigns at store time, nothing reads it off a
   // saved asset, and the read-back replaces this document with the real one
+  const contentItemUuidsToClear = contentItemUuidsToRegenerate(
+    event.sentAsset,
+    openAsset.template
+  );
   const sentDocument = {
-    ...clearUploadRegenerationFlags(event.sentAsset, openAsset.template),
+    ...clearUploadRegenerationFlags(
+      event.sentAsset,
+      openAsset.template,
+      contentItemUuidsToClear
+    ),
     assetId: event.assetId,
   } as unknown as T.Asset;
   const savedAsset = toLocalAsset({
@@ -473,11 +501,14 @@ function onAssetCreated(
     createUuid: deps.createUuid,
   });
 
-  // the draft loses its regeneration flags the same way the sent document
-  // did, or they would read as edits made after the send
+  // the draft loses the flags on the same content items the sent document
+  // did, or they would read as edits made after the send. Content items
+  // outside that set keep their flags: the curator asked for those while
+  // the create was in flight, and the next save still has to send them.
   const latestDraft = clearUploadRegenerationFlags(
     openAsset.draft,
-    openAsset.template
+    openAsset.template,
+    contentItemUuidsToClear
   );
 
   let nextState = stateWithOpenAsset(state, event.key, {

@@ -3,13 +3,13 @@ import {
   Template,
   TextWidgetContent,
   UnsavedAsset,
-  UploadWidgetContent,
   WidgetContent,
   WidgetDef,
   WIDGET_TYPES,
   WithUuid,
 } from "@/types";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
+import { isWidgetContent } from "@/types/guards";
 import { isContentKeptByServer, toStoredShape } from "./toStoredShape";
 import { equals, omit } from "ramda";
 
@@ -96,31 +96,66 @@ export function wouldSaveChangeStoredAsset({
   );
 }
 
+function isContentItemWithUuid(
+  value: unknown
+): value is WithUuid<WidgetContent> {
+  return (
+    isWidgetContent(value) && "uuid" in value && typeof value.uuid === "string"
+  );
+}
+
 /**
- * A content's `regenerate` asks the next save to rebuild its derived files,
- * so once that save has happened the flag no longer applies. `regenerate` is
- * client-only and never comes back from the server, so leaving it set would
- * read as an unsaved change forever.
+ * The uuids of the upload content items in `asset` whose `regenerate` is set.
+ *
+ * A save clears flags by this set rather than by field, so that a flag the
+ * curator sets while the save is in flight survives that save. Clearing the
+ * whole field instead drops a regeneration request no save ever sent.
+ */
+export function contentItemUuidsToRegenerate(
+  asset: Asset | UnsavedAsset,
+  template: Template
+): Set<string> {
+  const uuids = new Set<string>();
+  uploadWidgetFieldTitles(template).forEach((fieldTitle) => {
+    const contents = asset[fieldTitle];
+    if (!Array.isArray(contents)) return;
+    contents.filter(isContentItemWithUuid).forEach((contentItem) => {
+      if (contentItem.regenerate) uuids.add(contentItem.uuid);
+    });
+  });
+  return uuids;
+}
+
+/**
+ * A content item's `regenerate` asks the next save to rebuild its derived
+ * files, so once a save has sent it the flag no longer applies. `regenerate`
+ * is client-only and never comes back from the server, so leaving it set on a
+ * sent content item would read as an unsaved change forever.
  *
  * Accepts a Partial so the editor's `edits` can be cleared the same way as a
  * whole document. Fields the partial does not hold are left alone.
  */
 export function clearUploadRegenerationFlags<
   T extends Asset | UnsavedAsset | Partial<Asset>
->(asset: T, template: Template): T {
+>(asset: T, template: Template, contentItemUuidsToClear: Set<string>): T {
   const cleared = { ...asset };
-  template.widgetArray
-    .filter((widgetDef) => widgetDef.type === WIDGET_TYPES.UPLOAD)
-    .forEach((widgetDef) => {
-      const contents = cleared[widgetDef.fieldTitle] as
-        | WithUuid<UploadWidgetContent>[]
-        | undefined;
-      if (!contents) return;
-      cleared[widgetDef.fieldTitle] = contents.map((item) =>
-        omit(["regenerate"], item)
-      );
-    });
+  uploadWidgetFieldTitles(template).forEach((fieldTitle) => {
+    const contents = cleared[fieldTitle];
+    if (!Array.isArray(contents)) return;
+    cleared[fieldTitle] = contents.map((contentItem) =>
+      isContentItemWithUuid(contentItem) &&
+      contentItemUuidsToClear.has(contentItem.uuid)
+        ? omit(["regenerate"], contentItem)
+        : contentItem
+    );
+  });
   return cleared;
+}
+
+function uploadWidgetFieldTitles(template: Template): string[] {
+  return template.widgetArray
+    .filter((widgetDef) => widgetDef.type === WIDGET_TYPES.UPLOAD)
+    .map((widgetDef) => widgetDef.fieldTitle);
 }
 
 /**
