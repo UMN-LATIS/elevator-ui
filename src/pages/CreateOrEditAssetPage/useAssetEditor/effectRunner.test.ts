@@ -53,6 +53,7 @@ const makeAsset = (assetId: string): T.Asset =>
 function makeHarness(handlers: Partial<EditorPageHandlers> = {}) {
   let state: EditorState = initialEditorState;
   const log: EditorEvent[] = [];
+  const invalidations: { queryKey: unknown[]; exact?: boolean }[] = [];
   let uuidCount = 0;
   const deps = { createUuid: () => `created-${++uuidCount}` };
   const dispatch = (event: EditorEvent) => {
@@ -64,6 +65,13 @@ function makeHarness(handlers: Partial<EditorPageHandlers> = {}) {
     // fetchAsset and fetchTemplate
     queryClient: {
       fetchQuery: (options: { queryFn: () => unknown }) => options.queryFn(),
+      invalidateQueries: (filters: {
+        queryKey: unknown[];
+        exact?: boolean;
+      }) => {
+        invalidations.push(filters);
+        return Promise.resolve();
+      },
     } as unknown as QueryClient,
     getState: () => state,
     dispatch,
@@ -81,6 +89,7 @@ function makeHarness(handlers: Partial<EditorPageHandlers> = {}) {
     dispatch,
     loggedTypes: () => log.map((event) => event.type),
     getState: () => state,
+    invalidations: () => invalidations,
   };
 }
 
@@ -242,6 +251,31 @@ describe("a create save", () => {
     if (openAsset.status === "editingExistingAsset") {
       expect(openAsset.assetId).toBe("new-id");
     }
+  });
+});
+
+describe("the listings a save makes stale", () => {
+  it("invalidates them without touching the asset the read-back refreshed", async () => {
+    const harness = makeHarness();
+    openExistingAsset(harness, "P", "A1");
+    harness.dispatch({
+      type: "widgetContentsEdited",
+      key: "P",
+      fieldTitle: "field_1",
+      contents: [{ uuid: "row-1", fieldContents: "edited" }],
+    });
+    mocked.updateAsset.mockResolvedValue({ objectId: "A1" });
+    mocked.fetchAsset.mockResolvedValue(makeAsset("A1"));
+
+    await harness.effectRunner.saveQueueFor("P").save();
+
+    // exact on the assets key, or the prefix would also match the
+    // ["assets", assetId] entry the read-back just refreshed
+    expect(harness.invalidations()).toEqual([
+      { queryKey: ["assets"], exact: true },
+      { queryKey: ["search"] },
+      { queryKey: ["relatedAssets"] },
+    ]);
   });
 });
 

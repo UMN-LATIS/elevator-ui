@@ -13,6 +13,11 @@ import invariant from "tiny-invariant";
 import { assetQuery } from "@/queries/useAssetQuery";
 import { templateQuery } from "@/queries/templateQueries";
 import {
+  ASSETS_QUERY_KEY,
+  RELATED_ASSETS_SEARCH_QUERY_ID,
+  SEARCH_QUERY_ID,
+} from "@/queries/queryKeys";
+import {
   Dispatch,
   EditSessionKey,
   EditorEffect,
@@ -166,6 +171,10 @@ export function createEffectRunner({
     assetId: string
   ): Promise<{ asset: T.Asset; template: T.Template }> {
     const asset = await queryClient.fetchQuery({
+      // staleTime 0 rather than the client's default, because opening an
+      // asset the user browsed a minute ago would otherwise edit the cached
+      // copy, and a save would write that back over whatever another tab,
+      // another curator, or a csv batch changed in between
       ...assetQuery(assetId),
       staleTime: 0,
     });
@@ -254,10 +263,32 @@ export function createEffectRunner({
         dispatch({ type: "saveAccepted", key, sentAsset: snapshot });
         await readBack(key, openAsset.assetId);
       }
+      invalidateAssetListings();
     } catch (error) {
       dispatch({ type: "saveFailed", key });
       throw error;
     }
+  }
+
+  /**
+   * Every listing that draws an asset's title or thumbnail is stale once a
+   * save lands.
+   *
+   * The saved asset's own entry is deliberately left alone: the read-back
+   * wrote the server's copy through to it, so invalidating it would mark
+   * data we just fetched stale and cost any active reader a second trip.
+   * That is why the all-assets listing is invalidated `exact`, since it
+   * sits at the same key the individual assets hang under.
+   */
+  function invalidateAssetListings(): void {
+    void queryClient.invalidateQueries({
+      queryKey: [ASSETS_QUERY_KEY],
+      exact: true,
+    });
+    void queryClient.invalidateQueries({ queryKey: [SEARCH_QUERY_ID] });
+    void queryClient.invalidateQueries({
+      queryKey: [RELATED_ASSETS_SEARCH_QUERY_ID],
+    });
   }
 
   async function readBack(key: EditSessionKey, assetId: string): Promise<void> {
