@@ -1,5 +1,11 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
+import {
+  setupWorkerHTTPHeader,
+  loginUser,
+  refreshDatabase,
+  startCountingAssetRefetches,
+  waitForSaveToLand,
+} from "../setup";
 import {
   NESTED_RECORD_TITLES,
   nestedRecordDescriptionForLevel,
@@ -63,6 +69,21 @@ async function saveAndReadAssetId(page: Page): Promise<string> {
   return assetId;
 }
 
+/**
+ * Saves an asset that already exists, and waits for the save to land.
+ *
+ * saveAndReadAssetId cannot cover this: it waits on the addAsset to editAsset
+ * URL change, which only happens on a create. Editing an existing asset leaves
+ * the URL alone, so navigating straight after the click aborts the save in
+ * flight.
+ */
+async function saveExistingAsset(page: Page): Promise<void> {
+  const countAssetRefetches = startCountingAssetRefetches(page);
+  const refetchesBeforeSave = countAssetRefetches();
+  await page.getByRole("button", { name: "Save" }).click();
+  await waitForSaveToLand(page, refetchesBeforeSave, countAssetRefetches);
+}
+
 function relatedAssetOnView(page: Page): Locator {
   return page.locator(".accordion-related-asset-widget-item");
 }
@@ -111,7 +132,7 @@ test.describe("related asset widget, editor to view page", () => {
     await page.getByRole("button", { name: "Clear" }).click();
     await expect(page.getByText("Select an asset...")).toBeVisible();
 
-    await page.getByRole("button", { name: "Save" }).click();
+    await saveExistingAsset(page);
     await page.goto(`/asset/viewAsset/${assetId}`);
 
     await expect(relatedAssetOnView(page)).toHaveCount(0);
@@ -120,11 +141,6 @@ test.describe("related asset widget, editor to view page", () => {
   test("two assets that link to each other stop nesting after one level", async ({
     page,
   }) => {
-    // Flakes against this branch's backend-faithful mock: the view page
-    // sometimes never lists the second cycle asset, which points at how
-    // the mock recomputes relatedAssetCache on save. Needs the mock and
-    // this spec reconciled in a later commit of this PR.
-    test.fixme();
     // three creates and an edit, each with its own save round trip
     test.setTimeout(60_000);
 
@@ -142,7 +158,7 @@ test.describe("related asset widget, editor to view page", () => {
     await page.goto(`/assetManager/editAsset/${firstAssetId}`);
     await expect(page.getByText("Select an asset...")).toBeVisible();
     await chooseRelatedAsset(page, SECOND_CYCLE_TITLE);
-    await page.getByRole("button", { name: "Save" }).click();
+    await saveExistingAsset(page);
 
     await page.goto(`/asset/viewAsset/${firstAssetId}`);
     const secondAssetOnView = relatedAssetOnView(page).filter({
