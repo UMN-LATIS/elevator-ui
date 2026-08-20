@@ -152,9 +152,15 @@ export function createEffectRunner({
   /**
    * The editor's saves replace the whole stored document, so a stale
    * starting point would overwrite whatever changed on the server since it
-   * was cached. The asset and its template always come from the server,
-   * not the cache, and the cache is written through for the rest of the
+   * was cached. The asset therefore always comes from the server rather
+   * than the cache, and the cache is written through for the rest of the
    * app.
+   *
+   * The template is the schema the document is read and written through,
+   * not part of the document a save replaces, so it takes the query
+   * client's ordinary staleness rules. It also cannot be asked for until
+   * the asset names its templateId, so forcing it fresh put a second
+   * serial round trip in front of every save.
    */
   async function fetchAssetAndTemplateFromServer(
     assetId: string
@@ -164,10 +170,9 @@ export function createEffectRunner({
       staleTime: 0,
     });
     invariant(asset, `asset ${assetId} came back empty`);
-    const template = await queryClient.fetchQuery({
-      ...templateQuery(asset.templateId),
-      staleTime: 0,
-    });
+    const template = await queryClient.fetchQuery(
+      templateQuery(asset.templateId)
+    );
     invariant(template, `template ${asset.templateId} came back empty`);
     return { asset, template };
   }
