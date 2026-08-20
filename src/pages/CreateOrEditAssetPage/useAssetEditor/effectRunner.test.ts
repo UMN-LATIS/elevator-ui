@@ -12,6 +12,7 @@ import * as fetchers from "@/api/fetchers";
 import { EditorEvent, EditorState, initialEditorState } from "./types";
 import { update } from "./update";
 import { createEffectRunner, EditorPageHandlers } from "./effectRunner";
+import { selectSaveState } from "./selectors";
 
 vi.mock("@/api/fetchers", () => ({
   fetchAsset: vi.fn(),
@@ -241,6 +242,28 @@ describe("a create save", () => {
     if (openAsset.status === "editingExistingAsset") {
       expect(openAsset.assetId).toBe("new-id");
     }
+  });
+});
+
+describe("a save with nothing to send", () => {
+  it("settles the asset instead of leaving it pending", async () => {
+    const harness = makeHarness();
+    // requested but not yet arrived, so the asset has no template and no
+    // saved document to build a save from
+    harness.dispatch({
+      type: "existingAssetRequested",
+      key: "P",
+      parentLink: null,
+      assetId: "A1",
+    });
+
+    await expect(harness.effectRunner.saveQueueFor("P").save()).rejects.toThrow(
+      /no template or no saved document/
+    );
+
+    expect(selectSaveState(harness.getState(), "P")).not.toBe("pending");
+    expect(mocked.updateAsset).not.toHaveBeenCalled();
+    expect(mocked.createAsset).not.toHaveBeenCalled();
   });
 });
 

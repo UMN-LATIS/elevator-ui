@@ -214,10 +214,22 @@ export function createEffectRunner({
 
     const state = getState();
     const openAsset = state.assets[key];
+    // the editor was torn down, or its asset went back to loading or gave
+    // up loading. None of those statuses carry a saveState, so nothing is
+    // left pending and there is nobody on screen to tell.
     if (!openAsset || !hasAssetDocument(openAsset)) return;
+
     const template = selectTemplate(state, key);
     const snapshot = selectLocalAsset(state, key);
-    if (!template || !snapshot) return;
+    if (!template || !snapshot) {
+      // saveStarted already moved this asset to pending and only a dispatch
+      // moves it back, so returning quietly would leave the spinner up and
+      // the Save button disabled for good.
+      dispatch({ type: "saveFailed", key });
+      throw new Error(
+        `asset ${key} had no template or no saved document to build a save from`
+      );
+    }
 
     try {
       if (openAsset.status === "editingNewAsset") {
