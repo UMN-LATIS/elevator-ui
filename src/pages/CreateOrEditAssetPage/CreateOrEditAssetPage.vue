@@ -32,6 +32,15 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <div
+      v-else-if="assetEditor.loadError"
+      class="flex flex-col items-center gap-2 py-12 text-error">
+      <TriangleAlert class="w-8 h-8" />
+      <p>This asset could not be loaded.</p>
+      <p class="text-sm text-on-surface-variant">
+        {{ assetEditor.loadError.message }}
+      </p>
+    </div>
+    <div
       v-else-if="!assetEditor.hasAssetToEdit"
       class="flex justify-center items-center py-12">
       <SpinnerIcon class="w-8 h-8 animate-spin" />
@@ -142,6 +151,7 @@ import {
 import { SAVE_RELATED_ASSET_TYPE } from "@/constants/constants";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
+import { TriangleAlert } from "lucide-vue-next";
 import { provideAssetEditor } from "./useAssetEditor/useAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
 import { ApiError } from "@/api/ApiError";
@@ -338,11 +348,15 @@ watch(
     try {
       await assetEditor.initExistingAsset(props.assetId);
     } catch (err) {
+      // 410 is a deleted asset, which has its own notice. Any other
+      // failure is already on the editor's state as loadError and renders
+      // in place, so rethrowing would hand the same error to the
+      // ErrorBoundary, which replaces the page instead of showing it.
       if (err instanceof ApiError && err.statusCode === 410) {
         deletedAssetInfo.value = err.data as DeletedAssetInfo;
-      } else {
-        throw err;
+        return;
       }
+      console.error("Error loading asset:", err);
     }
   },
   { immediate: true }

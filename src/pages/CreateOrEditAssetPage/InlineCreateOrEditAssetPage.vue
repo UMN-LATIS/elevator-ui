@@ -12,8 +12,11 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <Transition v-else name="fade">
+      <div v-if="assetEditor.loadError" class="p-4 text-sm text-error">
+        This related asset could not be loaded.
+      </div>
       <div
-        v-if="!assetEditor.localAsset || !assetEditor.template"
+        v-else-if="!assetEditor.localAsset || !assetEditor.template"
         class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
         <span class="ml-2">Loading...</span>
@@ -159,11 +162,15 @@ onMounted(async () => {
     try {
       await assetEditor.initExistingAsset(props.assetId);
     } catch (err) {
+      // 410 is a deleted asset, which has its own notice. Any other
+      // failure is already on the editor's state as loadError and renders
+      // in place, so rethrowing would hand the same error to the
+      // ErrorBoundary, which replaces the page instead of showing it.
       if (err instanceof ApiError && err.statusCode === 410) {
         deletedAssetInfo.value = err.data as DeletedAssetInfo;
         return;
       }
-      throw err;
+      console.error("Error loading related asset:", err);
     }
   } else {
     invariant(props.templateId && props.collectionId);
