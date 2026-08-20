@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
 
 test.describe("Location Widget", () => {
   test.beforeEach(async ({ page, request }) => {
@@ -19,7 +19,9 @@ test.describe("Location Widget", () => {
 
     await page.goto(`/assetManager/editAsset/${assetId}`);
 
-    await expect(page).toHaveURL(new RegExp(`/assetManager/editAsset/${assetId}`));
+    await expect(page).toHaveURL(
+      new RegExp(`/assetManager/editAsset/${assetId}`)
+    );
     await expect(page.getByLabel(/title/i).first()).toHaveValue(
       "Invalid Location Asset"
     );
@@ -52,7 +54,9 @@ test.describe("Location Widget", () => {
     await saveButton.click();
     await parentSave;
 
-    await expect(page).toHaveURL(new RegExp(`/assetManager/editAsset/${assetId}`));
+    await expect(page).toHaveURL(
+      new RegExp(`/assetManager/editAsset/${assetId}`)
+    );
     await page.reload();
 
     await expect(longitudeInput).toHaveValue("190");
@@ -73,16 +77,18 @@ test.describe("Location Widget", () => {
 
     await expect(page).toHaveURL(new RegExp(`/asset/viewAsset/${assetId}`));
     await expect(page.locator("body")).not.toBeEmpty();
-    await expect(page.getByText("Invalid Location Asset").first()).toBeVisible();
+    await expect(
+      page.getByText("Invalid Location Asset").first()
+    ).toBeVisible();
 
     // Invalid/out-of-range coordinates should render as hyphens in the location summary.
     await expect(page.getByText(/Lat\s*-/, { exact: false })).toBeVisible();
     await expect(page.getByText(/Lng\s*-/, { exact: false })).toBeVisible();
 
     // No valid coordinates means the map modal trigger is hidden.
-    await expect(page.getByRole("button", { name: "Show Location" })).toHaveCount(
-      0
-    );
+    await expect(
+      page.getByRole("button", { name: "Show Location" })
+    ).toHaveCount(0);
 
     // The ObjectViewer embeds the app in an iframe pointed at the instance's
     // absolute base URL. Under dev:mock the app runs on :5173 while the mock
@@ -93,5 +99,36 @@ test.describe("Location Widget", () => {
       (err) => !/network error/i.test(err.message)
     );
     expect(crashErrors).toHaveLength(0);
+  });
+
+  test("clearing both coordinates removes the location from the asset", async ({
+    page,
+  }) => {
+    // Pins a data-loss or UX bug in the current editor. Goes green when the
+    // reducer editor lands in the next PR of this stack.
+    test.fail();
+
+    const assetId = "6875871d4eb080a4880a0abc";
+    await page.goto(`/assetManager/editAsset/${assetId}`);
+
+    const longitudeInput = page.getByLabel("Longitude").first();
+    const latitudeInput = page.getByLabel("Latitude").first();
+    await expect(longitudeInput).toHaveValue("181");
+
+    await longitudeInput.fill("");
+    await latitudeInput.fill("");
+
+    const parentSave = page.waitForResponse(
+      (response) =>
+        response.url().includes("/assetManager/submission/true") &&
+        response.request().method() === "POST" &&
+        !!response.request().postData()?.includes(assetId)
+    );
+    await page.getByRole("button", { name: "Save" }).click();
+    await parentSave;
+    await page.reload();
+
+    await expect(longitudeInput).toHaveValue("");
+    await expect(latitudeInput).toHaveValue("");
   });
 });

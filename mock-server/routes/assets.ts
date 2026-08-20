@@ -1,7 +1,17 @@
 import { Hono } from "hono";
 import { parseFormData, delay, stripMeta } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
-import { Asset, TextWidgetContent, UploadWidgetContent } from "../../src/types";
+import type {
+  Asset,
+  PHPDateTime,
+  RelatedAssetCache,
+  RelatedAssetWidgetContent,
+  Template,
+  TextWidgetContent,
+  UploadWidgetContent,
+  WidgetContent,
+} from "../../src/types";
+import { saveableWidgetContents } from "../utils/widgetContentsKeptByServer";
 import type { DB } from "../db/index";
 import { isEmpty } from "ramda";
 
@@ -174,6 +184,65 @@ function updateFileAssetLinks(
   });
 }
 
+/**
+ * Summarizes every asset this one links to, keyed by target asset id.
+ *
+ * The frontend renders a related asset only when it finds that asset's entry
+ * here, so a target the db has no asset for is left out and reads as deleted.
+ *
+ * @returns [] when nothing is linked, the shape PHP gives an empty array.
+ */
+function buildRelatedAssetCache(
+  db: DB,
+  template: Template,
+  widgetFields: Record<string, WidgetContent[]>
+): RelatedAssetCache | never[] {
+  const cache: RelatedAssetCache = {};
+
+  for (const widgetDef of template.widgetArray) {
+    // the literal rather than src's WIDGET_TYPES: importing a value out of
+    // src/types drags its @/ aliases and a .vue import into the server
+    if (widgetDef.type !== "related asset") continue;
+
+    const contents = (widgetFields[widgetDef.fieldTitle] ??
+      []) as RelatedAssetWidgetContent[];
+
+    for (const { targetAssetId } of contents) {
+      if (!targetAssetId) continue;
+      const targetAsset = db.assets.get(targetAssetId);
+      if (!targetAsset) continue;
+
+      cache[targetAssetId] = {
+        primaryHandler: targetAsset.firstFileHandlerId ?? null,
+        readyForDisplay: !!targetAsset.readyForDisplay,
+        relatedAssetTitle: targetAsset.title ?? [],
+      };
+    }
+  }
+
+  return isEmpty(cache) ? [] : cache;
+}
+
+/** The current time in PHP's DateTime serialization shape. */
+function phpNow(): PHPDateTime {
+  return {
+    date: new Date().toISOString().replace("T", " ").replace("Z", "000"),
+    timezone_type: 3,
+    timezone: "UTC",
+  };
+}
+
+/** How PHP serializes a DateTime parsed from the payload's date string. */
+function toPhpDateTime(value: unknown): PHPDateTime | null {
+  if (!value || typeof value !== "string") return null;
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  return {
+    date: isDateOnly ? `${value} 00:00:00.000000` : value,
+    timezone_type: 3,
+    timezone: "UTC",
+  };
+}
+
 // POST /assetManager/submission/true (create/update asset)
 app.post("/submission/true", async (c) => {
   await delay(500);
@@ -203,40 +272,91 @@ app.post("/submission/true", async (c) => {
     );
   }
 
-  const titleWidgets = formData.title_1 as TextWidgetContent[];
+  const template = db.templates.get(formData.templateId);
+  if (!template) {
+    return c.json({ error: "template not found" }, 400);
+  }
+
+  // The real backend rebuilds the whole widget set from the payload, keyed by
+  // the template, and its hasContents() drops rows it reads as empty. An
+  // omitted, non-array, or all-empty field is absent from the document.
+  const widgetFields: Record<string, WidgetContent[]> = {};
+  for (const widgetDef of template.widgetArray) {
+    const sentContents = formData[widgetDef.fieldTitle];
+    if (!Array.isArray(sentContents)) continue;
+    const keptContents = saveableWidgetContents(
+      sentContents as WidgetContent[],
+      widgetDef.type
+    );
+    if (keptContents.length > 0) {
+      widgetFields[widgetDef.fieldTitle] = keptContents;
+    }
+  }
+
+  const titleWidgets = widgetFields.title_1 as TextWidgetContent[] | undefined;
   const titleWidget = titleWidgets?.[0];
 
   // Find the first file from upload widgets to set as firstFileHandlerId
-  const firstFileHandlerId = findFirstFileId(formData);
+  const firstFileHandlerId = findFirstFileId(widgetFields);
 
-  const asset: Omit<Asset, "createdBy"> = {
-    ...formData,
-    assetId: formData.objectId,
-    title: [titleWidget?.fieldContents || "(Untitled)"],
-    templateId: formData.templateId,
-    collectionId: formData.collectionId,
-    firstFileHandlerId,
-    modified: {
-      date: new Date().toISOString(),
-      timezone_type: 3,
-      timezone: "UTC",
-    },
-    modifiedBy: user.id,
-  };
-
-  const savedAsset = formData.objectId
-    ? db.assets.update(formData.objectId, asset)
-    : db.assets.create({
-        ...asset,
-        createdBy: user.id,
-      } as Asset);
-
-  if (!savedAsset) {
+  const existingAsset = formData.objectId
+    ? db.assets.get(formData.objectId)
+    : null;
+  // deliberate divergence: the real backend ignores the failed lookup and
+  // silently creates a brand-new asset. 404 instead, so a save carrying a
+  // stale id fails loudly in tests.
+  if (formData.objectId && !existingAsset) {
     return c.json({ error: "Asset not found" }, 404);
   }
 
+  // global values are rebuilt from the payload too: an absent key is null
+  const storedAsset = {
+    assetId: formData.objectId || "",
+    templateId: formData.templateId,
+    collectionId: formData.collectionId,
+    readyForDisplay: !!formData.readyForDisplay,
+    availableAfter: toPhpDateTime(formData.availableAfter),
+    // TODO: match the real getAssetTitle. It reads the template's first
+    // displayInPreview widget, not always title_1, keeps one string per
+    // content row, not always one, and is [] when that widget is empty.
+    // "(Untitled)" is a mock invention.
+    title: [titleWidget?.fieldContents || "(Untitled)"],
+    titleObject: existingAsset?.titleObject ?? null,
+    // the real backend recomputes this on every save, so a cache entry for a
+    // target the payload no longer links to goes away rather than lingering
+    relatedAssetCache: buildRelatedAssetCache(db, template, widgetFields),
+    firstFileHandlerId,
+    firstObjectId: existingAsset?.firstObjectId ?? null,
+    modified: phpNow(),
+    modifiedBy: user.id,
+    // every save force-undeletes, like Asset_model::save, which leaves
+    // deletedAt and deletedBy stale rather than clearing them
+    deleted: false,
+    deletedAt: existingAsset?.deletedAt ?? null,
+    deletedBy: existingAsset?.deletedBy ?? null,
+    ...widgetFields,
+  };
+
+  let savedAsset: Asset;
+  if (existingAsset) {
+    // full-document replace, not a merge: fields the payload omitted are
+    // gone, exactly as on the real backend
+    savedAsset = {
+      ...storedAsset,
+      assetId: existingAsset.assetId,
+      createdBy: existingAsset.createdBy,
+      _meta: existingAsset._meta,
+    } as Asset;
+    db.assets.set(existingAsset.assetId, savedAsset);
+  } else {
+    savedAsset = db.assets.create({
+      ...storedAsset,
+      createdBy: user.id,
+    } as Asset);
+  }
+
   // Update all files referenced in this asset to link back to the asset
-  updateFileAssetLinks(db, formData, savedAsset.assetId);
+  updateFileAssetLinks(db, widgetFields, savedAsset.assetId);
 
   if (firstFileHandlerId) {
     console.log(

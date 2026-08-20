@@ -1,4 +1,4 @@
-import { type APIRequestContext, type Page } from "@playwright/test";
+import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import mockServerConfig from "../mock-server/config";
 
 export const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
@@ -152,4 +152,82 @@ export async function updateInstance({
   }
 
   return await response.json();
+}
+
+/**
+ * Reaches Add Asset from any menu state, waiting for each step to settle.
+ *
+ * Navigating in-app rather than by page.goto reuses the editor component
+ * instead of remounting it, which is what a test of state carried across a
+ * route change needs.
+ */
+export async function openAddAssetFromMenu(page: Page): Promise<void> {
+  const menu = page.locator("#app-menu-navigation");
+  if (!(await menu.isVisible())) {
+    await page.getByRole("button", { name: "Toggle main menu" }).click();
+  }
+  await expect(menu).toBeVisible();
+
+  const addAssetLink = page.getByRole("link", { name: "Add Asset" });
+  if (!(await addAssetLink.isVisible())) {
+    await page.getByRole("button", { name: "Manage Assets" }).click();
+  }
+  await expect(addAssetLink).toBeVisible();
+  await addAssetLink.click();
+  await expect(page).toHaveURL(/\/assetManager\/addAsset/);
+}
+
+/**
+ * Counts refetches of the saved asset, which is the step that hands the editor
+ * the document a save is about. Register before any save runs, because the
+ * refetch can land before a test gets the chance to wait on it.
+ */
+export function startCountingAssetRefetches(page: Page): () => number {
+  let refetchCount = 0;
+  page.on("response", (response) => {
+    if (response.url().includes("asset/viewAsset/")) refetchCount += 1;
+  });
+  return () => refetchCount;
+}
+
+/**
+ * Waits until the editor has applied a save.
+ *
+ * A save resolves in three steps: the submission response, a refetch of the
+ * asset, then the state update. The refetch resolving pins the first two.
+ * networkidle cannot: it resolves immediately once the page has ever been idle.
+ */
+export async function waitForSaveToLand(
+  page: Page,
+  refetchesBeforeSave: number,
+  countAssetRefetches: () => number
+): Promise<void> {
+  await expect
+    .poll(countAssetRefetches, { timeout: 20000 })
+    .toBeGreaterThan(refetchesBeforeSave);
+  // one frame pins the state update, after which only synchronous work remains
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(resolve))
+  );
+}
+
+/** One asset save the page issued. A create sends an empty objectId. */
+export type RecordedSave = { objectId: string };
+
+export const SAVE_ROUTE = "**/assetManager/submission/**";
+
+/**
+ * Records every asset save the page issues, altering none of them.
+ *
+ * Specs that also have to hold a save open route the same URL themselves,
+ * since that needs the request handler this one does not have.
+ */
+export async function recordSaves(page: Page): Promise<RecordedSave[]> {
+  const saves: RecordedSave[] = [];
+  await page.route(SAVE_ROUTE, async (route) => {
+    const body = route.request().postData() ?? "";
+    saves.push({ objectId: body.match(/"objectId":"([^"]*)"/)?.[1] ?? "" });
+    await route.continue();
+  });
+  return saves;
 }
