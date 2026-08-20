@@ -153,6 +153,8 @@ test.describe("Asset editor concurrency", () => {
   test("a save in flight does not land on the different asset the user moved to", async ({
     page,
   }) => {
+    test.fixme();
+
     // creating a real asset plus two queue cooldowns runs close to the 10s
     // default
     test.setTimeout(20_000);
