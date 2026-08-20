@@ -246,7 +246,7 @@ export function createEffectRunner({
         await readBack(key, response.objectId);
       } else {
         await fetchers.updateAsset(toSaveableFormData(snapshot, template));
-        dispatch({ type: "saveAccepted", key });
+        dispatch({ type: "saveAccepted", key, sentAsset: snapshot });
         await readBack(key, openAsset.assetId);
       }
     } catch (error) {

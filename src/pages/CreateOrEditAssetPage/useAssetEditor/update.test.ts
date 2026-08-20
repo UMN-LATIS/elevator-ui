@@ -958,24 +958,34 @@ describe("update", () => {
   describe("a save the server accepted", () => {
     it("retires the regenerate requests the save carried", () => {
       const uploadTemplate = makeTemplate(1, [{ type: "upload" }]);
+      const savedAsset = makeSavedAsset({
+        field_1: [{ fileId: "file-1", uuid: "row-1" }],
+      });
+      // regenerate is client-only and never comes back from the server, so
+      // a save that carried it must not leave it reading as unsaved work
+      const edits = {
+        field_1: [{ fileId: "file-1", regenerate: true, uuid: "row-1" }],
+      };
 
       const state = reduce(
         rootState(
           editingExistingOpenAsset({
-            edits: {
-              field_1: [{ fileId: "file-1", regenerate: true, uuid: "row-1" }],
-            },
+            savedAsset,
+            edits,
             template: uploadTemplate,
           })
         ),
-        { type: "saveAccepted", key: ROOT_KEY }
+        {
+          type: "saveAccepted",
+          key: ROOT_KEY,
+          sentAsset: { ...savedAsset, ...edits },
+        }
       );
 
       const openAsset = selectOpenAsset(state, ROOT_KEY);
       assertStatus(openAsset, "editingExistingAsset");
-      expect(openAsset.edits.field_1).toEqual([
-        { fileId: "file-1", uuid: "row-1" },
-      ]);
+      expect(openAsset.edits.field_1).toBeUndefined();
+      expect(selectHasUnsavedEdits(state, ROOT_KEY)).toBe(false);
     });
 
     it("drops an acceptance for an asset that has closed", () => {
@@ -989,7 +999,11 @@ describe("update", () => {
         })
       );
 
-      const state = reduce(before, { type: "saveAccepted", key: UNKNOWN_KEY });
+      const state = reduce(before, {
+        type: "saveAccepted",
+        key: UNKNOWN_KEY,
+        sentAsset: makeSavedAsset(),
+      });
 
       expect(state).toBe(before);
     });
@@ -1022,11 +1036,72 @@ describe("update", () => {
       const state = reduce(rootState(editingExistingOpenAsset()), {
         type: "saveAccepted",
         key: ROOT_KEY,
+        sentAsset: makeSavedAsset(),
       });
 
       const openAsset = selectOpenAsset(state, ROOT_KEY);
       assertStatus(openAsset, "editingExistingAsset");
       expect(openAsset.saveState).toBe("success");
+    });
+
+    it("saveAccepted settles the edits it sent, without waiting for the read-back", () => {
+      // the read-back is two more round trips, so an update that stayed
+      // dirty until it landed left the leave guard nagging about work the
+      // server already has
+      const template = makeTemplate(1, [{}]);
+      const savedAsset = makeSavedAsset({
+        field_1: [{ fieldContents: "Title", isPrimary: false, uuid: "row-1" }],
+      });
+      const edits = {
+        field_1: [
+          { fieldContents: "Title edited", isPrimary: false, uuid: "row-1" },
+        ],
+      };
+
+      const state = reduce(
+        rootState(editingExistingOpenAsset({ savedAsset, edits, template })),
+        {
+          type: "saveAccepted",
+          key: ROOT_KEY,
+          sentAsset: { ...savedAsset, ...edits },
+        }
+      );
+
+      expect(selectHasUnsavedEdits(state, ROOT_KEY)).toBe(false);
+      // and the form still shows what was saved, rather than reverting to
+      // the document the read-back has not replaced yet
+      expect(selectLocalAsset(state, ROOT_KEY)?.field_1).toEqual(edits.field_1);
+    });
+
+    it("saveAccepted keeps an edit typed after the save was built", () => {
+      const template = makeTemplate(1, [{}]);
+      const savedAsset = makeSavedAsset({
+        field_1: [{ fieldContents: "Title", isPrimary: false, uuid: "row-1" }],
+      });
+      const sentAsset = {
+        ...savedAsset,
+        field_1: [
+          { fieldContents: "Title edited", isPrimary: false, uuid: "row-1" },
+        ],
+      };
+      // typed while the save was in flight, so it is not in what was sent
+      const edits = {
+        field_1: [
+          {
+            fieldContents: "Title edited twice",
+            isPrimary: false,
+            uuid: "row-1",
+          },
+        ],
+      };
+
+      const state = reduce(
+        rootState(editingExistingOpenAsset({ savedAsset, edits, template })),
+        { type: "saveAccepted", key: ROOT_KEY, sentAsset }
+      );
+
+      expect(selectHasUnsavedEdits(state, ROOT_KEY)).toBe(true);
+      expect(selectLocalAsset(state, ROOT_KEY)?.field_1).toEqual(edits.field_1);
     });
 
     it("saveStarted for an unknown key changes nothing", () => {

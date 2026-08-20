@@ -195,12 +195,18 @@ export type EditorEvent =
     }
   | {
       /**
-       * The server accepted an update save. The read-back arrives
-       * separately as assetAndTemplateArrived. This event only retires
-       * client-only state the save has now delivered.
+       * The server accepted an update save, so the document it sent is
+       * stored and stops being unsaved work. The read-back arrives
+       * separately as assetAndTemplateArrived and corrects whatever the
+       * server reshaped in storing it.
+       *
+       * Waiting for that read-back instead would leave the leave guard
+       * nagging about work the server already has, for as long as two
+       * round trips take.
        */
       type: "saveAccepted";
       key: EditSessionKey;
+      sentAsset: T.Asset | T.UnsavedAsset;
     }
   | { type: "saveStarted"; key: EditSessionKey }
   | { type: "saveFailed"; key: EditSessionKey }

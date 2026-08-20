@@ -192,7 +192,11 @@ const arbEvent: fc.Arbitrary<EditorEvent> = fc.oneof(
     assetId: arbAssetId,
     sentAsset: fc.constant(makeUnsavedAsset(1)),
   }),
-  fc.record({ type: fc.constant("saveAccepted" as const), key: arbKey }),
+  fc.record({
+    type: fc.constant("saveAccepted" as const),
+    key: arbKey,
+    sentAsset: fc.constant(makeUnsavedAsset(1)),
+  }),
   fc.record({ type: fc.constant("saveStarted" as const), key: arbKey }),
   fc.record({ type: fc.constant("saveFailed" as const), key: arbKey })
 );

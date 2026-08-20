@@ -172,21 +172,8 @@ export function update(
       };
     case "assetCreated":
       return onAssetCreated(state, event, deps);
-    case "saveAccepted": {
-      const openAsset = state.assets[event.key];
-      if (!openAsset || openAsset.status !== "editingExistingAsset") {
-        return { state };
-      }
-      return {
-        state: stateWithOpenAsset(state, event.key, {
-          ...openAsset,
-          edits: openAsset.template
-            ? clearUploadRegenerationFlags(openAsset.edits, openAsset.template)
-            : openAsset.edits,
-          saveState: "success",
-        }),
-      };
-    }
+    case "saveAccepted":
+      return { state: onSaveAccepted(state, event, deps) };
     case "saveStarted": {
       const openAsset = state.assets[event.key];
       if (!openAsset || !hasAssetDocument(openAsset)) return { state };
@@ -401,6 +388,62 @@ function stateWithFieldEdit(
     default:
       return assertNever(openAsset);
   }
+}
+
+/**
+ * Adopt the document the server just accepted as the stored one, the way
+ * onAssetCreated does for a create. Only edits typed after the save was
+ * built are still pending.
+ */
+function onSaveAccepted(
+  state: EditorState,
+  event: {
+    key: EditSessionKey;
+    sentAsset: T.Asset | T.UnsavedAsset;
+  },
+  deps: EditorDeps
+): EditorState {
+  const openAsset = state.assets[event.key];
+  if (!openAsset || openAsset.status !== "editingExistingAsset") return state;
+
+  const template = openAsset.template;
+  if (!template || !openAsset.savedAsset) {
+    // nothing to re-diff against, so just retire the client-only flags the
+    // save has now delivered
+    return stateWithOpenAsset(state, event.key, {
+      ...openAsset,
+      edits: template
+        ? clearUploadRegenerationFlags(openAsset.edits, template)
+        : openAsset.edits,
+      saveState: "success",
+    });
+  }
+
+  // typed as a stored asset because the sent document is now stored under
+  // this asset's id. The read-back replaces it with the server's own copy.
+  const sentDocument = {
+    ...clearUploadRegenerationFlags(event.sentAsset, template),
+    assetId: openAsset.assetId,
+  } as unknown as T.Asset;
+
+  const assetOnScreen = { ...openAsset.savedAsset, ...openAsset.edits };
+  const savedAsset = toLocalAsset({
+    template,
+    savedAsset: sentDocument,
+    previousAsset: assetOnScreen,
+    createUuid: deps.createUuid,
+  });
+
+  // the draft loses its regeneration flags the same way the sent document
+  // did, or they would read as edits made after the send
+  const latestDraft = clearUploadRegenerationFlags(assetOnScreen, template);
+
+  return stateWithOpenAsset(state, event.key, {
+    ...openAsset,
+    savedAsset,
+    edits: diffEditableFields({ draft: latestDraft, savedAsset, template }),
+    saveState: "success",
+  });
 }
 
 function onAssetCreated(
