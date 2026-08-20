@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { parseFormData, delay, stripMeta } from "../utils/index";
 import { MockServerContext, type AssetFormData } from "../types";
-import {
+import type {
   Asset,
   PHPDateTime,
   RelatedAssetCache,
