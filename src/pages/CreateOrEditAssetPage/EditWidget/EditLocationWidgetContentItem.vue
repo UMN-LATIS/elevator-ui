@@ -68,10 +68,6 @@
           {{ latError }}
         </p>
       </div>
-      <p v-if="isCoordinatePairHalfEmpty" class="col-span-2 text-error text-xs">
-        A point needs both a longitude and a latitude, so the saved location is
-        unchanged.
-      </p>
     </div>
     <div>
       <label
@@ -229,12 +225,6 @@ const latError = computed((): string => {
   return validateLatInput(state.latInput);
 });
 
-const isCoordinatePairHalfEmpty = computed((): boolean => {
-  const isLngEmpty = state.lngInput.trim() === "";
-  const isLatEmpty = state.latInput.trim() === "";
-  return isLngEmpty !== isLatEmpty;
-});
-
 const map = shallowRef<maplibregl.Map | null>(null);
 const marker = shallowRef<maplibregl.Marker | null>(null);
 
@@ -283,16 +273,17 @@ watch([() => state.lngInput, () => state.latInput], () => {
     return;
   }
 
-  // out-of-range values stay in the inputs with their error: the model
-  // only takes coordinates a save may store
-  if (lngError.value || latError.value) {
-    return;
-  }
-
+  // take the value even when it is out of range, so the save keeps what was
+  // typed, otherwise a half-typed "-92" would store -9
   emitCoordinateUpdate({
     lng,
     lat,
   });
+
+  // out-of-range input shows an error instead of moving the map
+  if (lngError.value || latError.value) {
+    return;
+  }
 
   // fly to the new coordinates
   invariant(map.value, "Map is not initialized");

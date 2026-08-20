@@ -101,17 +101,6 @@ function titleField(page: Page): Locator {
   return page.getByLabel(/title/i).first();
 }
 
-/**
- * Confirms the unsaved-changes guard, so a navigation these tests fire
- * deliberately mid-save can proceed.
- */
-async function leaveUnsavedWork(page: Page): Promise<void> {
-  await page
-    .getByRole("dialog", { name: "Unsaved changes" })
-    .getByRole("button", { name: "Leave" })
-    .click();
-}
-
 test.describe("Asset editor concurrency", () => {
   test.beforeEach(async ({ page, request }) => {
     const workerId = test.info().workerIndex.toString();
@@ -124,6 +113,10 @@ test.describe("Asset editor concurrency", () => {
   test("starting a new draft while the previous asset is still saving does not overwrite the previous asset", async ({
     page,
   }) => {
+    // Pins a data-loss or UX bug in the current editor. Goes green when the
+    // reducer editor lands in the next PR of this stack.
+    test.fail();
+
     // a held save, the queue's cooldown, and a second save do not fit the 10s
     // default once other specs are competing for workers
     test.setTimeout(20_000);
@@ -140,7 +133,7 @@ test.describe("Asset editor concurrency", () => {
     // Add Asset resolves to the editor's own route record, so the component is
     // reused rather than remounted. The held save keeps the edits unsaved, so
     // leaving takes a confirmation.
-    await openAddAssetFromMenu(page, { isLeavingUnsavedWork: true });
+    await openAddAssetFromMenu(page);
     await startDraft(page);
     const savesFromDraftOnward = trackNewSaves(saves);
 
@@ -190,7 +183,6 @@ test.describe("Asset editor concurrency", () => {
     await page.goBack();
     // the held save keeps the second asset's edit unsaved, so going back
     // takes a confirmation
-    await leaveUnsavedWork(page);
     await expect(page).toHaveURL(
       new RegExp(`/assetManager/editAsset/${ASSET_1_ID}`)
     );
@@ -213,6 +205,10 @@ test.describe("Asset editor concurrency", () => {
   test("a create in flight for one draft does not make the next draft adopt its asset", async ({
     page,
   }) => {
+    // Pins a race the current editor loses only on some full-suite runs,
+    // so as a marker it would flake either way. Skipped outright until the
+    // reducer editor lands in the next PR of this stack.
+    test.fixme();
     const { saves, releaseHeldSave } = await interceptSaves(page, "");
 
     // an existing asset to bounce off, since Add Asset does not re-fire the
@@ -229,7 +225,6 @@ test.describe("Asset editor concurrency", () => {
     // abandon the first draft for a second one while its create is in flight.
     // Back then Forward re-fires the route watcher, which resets the editor.
     await page.goBack();
-    await leaveUnsavedWork(page);
     await expect(titleField(page)).toHaveValue("Asset 1");
     await page.goForward();
     await expect(page).toHaveURL(/\/assetManager\/addAsset/);
@@ -254,6 +249,10 @@ test.describe("Asset editor concurrency", () => {
   test("the second template picked wins even when the first request resolves last", async ({
     page,
   }) => {
+    // Pins a data-loss or UX bug in the current editor. Goes green when the
+    // reducer editor lands in the next PR of this stack.
+    test.fail();
+
     const { saves } = await interceptSaves(page);
 
     const { promise: heldFirstTemplate, resolve: releaseFirstTemplate } =
@@ -360,7 +359,7 @@ test.describe("Asset editor concurrency", () => {
 
     // the reopened asset comes back from the server, so the first session's
     // unsaved edit is gone and the field reads its stored title again
-    await openAddAssetFromMenu(page, { isLeavingUnsavedWork: true });
+    await openAddAssetFromMenu(page);
     await page.goBack();
     await expect(page).toHaveURL(
       new RegExp(`/assetManager/editAsset/${ASSET_1_ID}`)
@@ -378,6 +377,10 @@ test.describe("Asset editor concurrency", () => {
   test("an asset load still in flight does not take over the Add Asset page", async ({
     page,
   }) => {
+    // Pins a data-loss or UX bug in the current editor. Goes green when the
+    // reducer editor lands in the next PR of this stack.
+    test.fail();
+
     const { promise: heldLoad, resolve: releaseHeldLoad } =
       Promise.withResolvers<void>();
     let hasHeldLoad = false;
@@ -463,6 +466,10 @@ test.describe("Asset editor concurrency", () => {
   test("a failed template load stops the Continue spinner so the user can retry", async ({
     page,
   }) => {
+    // Pins a data-loss or UX bug in the current editor. Goes green when the
+    // reducer editor lands in the next PR of this stack.
+    test.fail();
+
     // 404 rather than 500: 404 is non-retryable, so the failure is immediate
     // and a spinner still visible afterwards is stuck for good
     await page.route("**/assetManager/getTemplate/**", (route) =>

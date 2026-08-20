@@ -17,7 +17,7 @@
     <template #fieldContents="{ item }">
       <TagsInput
         :modelValue="(item.tags as string[])"
-        :addOnBlur="false"
+        :addOnBlur="true"
         :addOnPaste="true"
         class="tags-input !py-0"
         @update:modelValue="(tags) => handleUpdateTags(item.uuid, tags as string[])">

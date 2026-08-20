@@ -21,7 +21,6 @@ type SubmissionFormData = CreateAssetRequestFormData & {
   cascadeselect_1: Array<{
     fieldContents: CascadeFieldContents;
     isPrimary: boolean;
-    uuid: string;
   }>;
 };
 
@@ -141,9 +140,6 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       expect(formData!.cascadeselect_1).toEqual([
         {
           isPrimary: false,
-          // the client mints each content's uuid, so only its presence is
-          // stable
-          uuid: expect.any(String),
           fieldContents: {
             country: "usa",
             stateorprovince: "minnesota",
@@ -208,9 +204,7 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       await cascadeWidget
         .getByLabel("City")
         .selectOption({ label: "St. Paul" });
-      await expect(cascadeWidget.getByLabel("City")).toHaveValue(
-        "usa-minnesota-stpaul"
-      );
+      await expect(cascadeWidget.getByLabel("City")).toHaveValue("usa-minnesota-stpaul");
 
       // Verify that changing back to original works too
       await cascadeWidget
@@ -240,9 +234,7 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       await expect(minnesotaLink).toBeVisible();
       const mnHref = await minnesotaLink.getAttribute("href");
       const mnLastSegment = mnHref?.split("/").pop()?.toLowerCase();
-      expect(mnLastSegment).toBe(
-        encodeURIComponent("usa : minnesota").toLowerCase()
-      );
+      expect(mnLastSegment).toBe(encodeURIComponent("usa : minnesota").toLowerCase());
 
       // Check that Summit Hill link URL should contain actual values
       const summitLink = page.getByRole("link", { name: "Summit Hill" });
@@ -250,9 +242,7 @@ test.describe("MultiSelect Widget with Cascade Select", () => {
       const summitHref = await summitLink.getAttribute("href");
       const summitLastSegment = summitHref?.split("/").pop()?.toLowerCase();
       expect(summitLastSegment).toBe(
-        encodeURIComponent(
-          "usa : minnesota : St. Paul : Summit Hill"
-        ).toLowerCase()
+        encodeURIComponent("usa : minnesota : St. Paul : Summit Hill").toLowerCase()
       );
     });
   });

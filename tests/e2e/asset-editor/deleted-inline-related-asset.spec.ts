@@ -15,8 +15,7 @@ test.describe("Deleted Inline Related Asset", () => {
     await refreshDatabase({ request, workerId });
     await loginUser({ request, page, workerId, username: "curator" });
 
-    // Create a parent asset with an inline child, then delete the child.
-    // 1. Create the parent (uses Inline Parent Template, id 102)
+    // create a parent asset with an inline child, then delete the child
     await page.goto("/assetManager/addAsset");
     await page
       .getByLabel("Template")
@@ -24,49 +23,30 @@ test.describe("Deleted Inline Related Asset", () => {
     await page.getByLabel("Collection").selectOption({ index: 1 });
     await page.getByRole("button", { name: "Continue" }).click();
 
-    // Wait for inline child form to load
+    // the child's own editor finished initializing once it names its template
     await expect(
       page.locator(".inline-edit-asset-page h3", {
         hasText: "Inline Child Template",
       })
     ).toBeVisible();
 
-    // Fill parent title and child title
     const titleFields = page.getByLabel(/title/i);
     await titleFields.first().fill("Parent With Deleted Child");
     await titleFields.nth(1).fill("Child To Delete");
 
-    // Save
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
+    parentAssetId = page.url().split("/editAsset/")[1];
 
-    // Extract the parent and child asset IDs
-    const url = page.url();
-    parentAssetId = url.split("/editAsset/")[1];
-
-    // Find the child asset ID from the inline form's targetAssetId
-    childAssetId = await page
-      .locator(".inline-edit-asset-page")
-      .evaluate((el) => {
-        // The InlineCreateOrEditAssetPage renders EditWidgets that have assetId props
-        // We can find it from the URL of any link, or from the DOM data
-        const widgetEl = el.querySelector("[data-asset-id]");
-        return widgetEl?.getAttribute("data-asset-id") ?? "";
-      });
-
-    // If we couldn't find it from the DOM, get it from the API
-    if (!childAssetId) {
-      const resp = await request.get(
-        `${MOCK_SERVER_BASE}/defaultinstance/asset/viewAsset/${parentAssetId}/true`,
-        { headers: { "x-worker-id": workerId } }
-      );
-      const parentAsset = await resp.json();
-      childAssetId = parentAsset.inlinechild_1?.[0]?.targetAssetId;
-    }
-
+    // the saved parent names its child in the related asset widget's row
+    const resp = await request.get(
+      `${MOCK_SERVER_BASE}/defaultinstance/asset/viewAsset/${parentAssetId}/true`,
+      { headers: { "x-worker-id": workerId } }
+    );
+    const parentAsset = await resp.json();
+    childAssetId = parentAsset.inlinechild_1?.[0]?.targetAssetId;
     expect(childAssetId).toBeTruthy();
 
-    // Delete the child asset via API
     const deleteResp = await request.delete(
       `${MOCK_SERVER_BASE}/defaultinstance/assetManager/deleteAsset/${childAssetId}/true`,
       { headers: { "x-worker-id": workerId } }
@@ -79,10 +59,8 @@ test.describe("Deleted Inline Related Asset", () => {
   }) => {
     await page.goto(`/assetManager/editAsset/${parentAssetId}`);
 
-    // Should NOT show a "Widget Error" — that's the current broken behavior
+    // the regression this guards against rendered "Widget Error" instead
     await expect(page.getByText("Widget Error")).not.toBeVisible();
-
-    // Should show the deleted asset notice within the inline form area
     await expect(page.getByText("Asset Deleted")).toBeVisible();
   });
 });

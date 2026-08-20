@@ -160,14 +160,8 @@ export async function updateInstance({
  * Navigating in-app rather than by page.goto reuses the editor component
  * instead of remounting it, which is what a test of state carried across a
  * route change needs.
- *
- * @param isLeavingUnsavedWork - the caller expects the editor's
- * unsaved-changes guard to ask, and wants to leave anyway.
  */
-export async function openAddAssetFromMenu(
-  page: Page,
-  { isLeavingUnsavedWork = false }: { isLeavingUnsavedWork?: boolean } = {}
-): Promise<void> {
+export async function openAddAssetFromMenu(page: Page): Promise<void> {
   const menu = page.locator("#app-menu-navigation");
   if (!(await menu.isVisible())) {
     await page.getByRole("button", { name: "Toggle main menu" }).click();
@@ -180,12 +174,6 @@ export async function openAddAssetFromMenu(
   }
   await expect(addAssetLink).toBeVisible();
   await addAssetLink.click();
-  if (isLeavingUnsavedWork) {
-    await page
-      .getByRole("dialog", { name: "Unsaved changes" })
-      .getByRole("button", { name: "Leave" })
-      .click();
-  }
   await expect(page).toHaveURL(/\/assetManager\/addAsset/);
 }
 
