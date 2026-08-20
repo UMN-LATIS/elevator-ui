@@ -43,8 +43,16 @@ const props = withDefaults(
     getItemId?: (item: ItemType) => string | number;
   }>(),
   {
-    getItemId: (item: ItemType) =>
-      (item as Partial<HasId> | null)?.id as string | number,
+    // An item with no id would give every row the same key, so refuse it here.
+    getItemId: (item: ItemType) => {
+      const id = (item as Partial<HasId> | null)?.id;
+      if (typeof id !== "string" && typeof id !== "number") {
+        throw new Error(
+          `DragDropList: item has no usable \`id\` (got ${typeof id}). Give items an \`id\`, or pass getItemId.`
+        );
+      }
+      return id;
+    },
     showEmptyList: true,
     listClass: () => "drag-drop-list",
     listItemClass: () => "drag-drop-list-item",
