@@ -79,6 +79,4 @@ defineEmits<{
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
-
-// Note: textarea content cleaning now happens automatically before save in `toSaveableFormData()`in the asset editor.
 </script>
