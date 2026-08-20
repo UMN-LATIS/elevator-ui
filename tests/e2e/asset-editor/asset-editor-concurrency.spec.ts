@@ -113,10 +113,6 @@ test.describe("Asset editor concurrency", () => {
   test("starting a new draft while the previous asset is still saving does not overwrite the previous asset", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     // a held save, the queue's cooldown, and a second save do not fit the 10s
     // default once other specs are competing for workers
     test.setTimeout(20_000);
@@ -153,8 +149,6 @@ test.describe("Asset editor concurrency", () => {
   test("a save in flight does not land on the different asset the user moved to", async ({
     page,
   }) => {
-    test.fixme();
-
     // creating a real asset plus two queue cooldowns runs close to the 10s
     // default
     test.setTimeout(20_000);
@@ -205,10 +199,6 @@ test.describe("Asset editor concurrency", () => {
   test("a create in flight for one draft does not make the next draft adopt its asset", async ({
     page,
   }) => {
-    // Pins a race the current editor loses only on some full-suite runs,
-    // so as a marker it would flake either way. Skipped outright until the
-    // reducer editor lands in the next PR of this stack.
-    test.fixme();
     const { saves, releaseHeldSave } = await interceptSaves(page, "");
 
     // an existing asset to bounce off, since Add Asset does not re-fire the
@@ -249,10 +239,6 @@ test.describe("Asset editor concurrency", () => {
   test("the second template picked wins even when the first request resolves last", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     const { saves } = await interceptSaves(page);
 
     const { promise: heldFirstTemplate, resolve: releaseFirstTemplate } =
@@ -377,10 +363,6 @@ test.describe("Asset editor concurrency", () => {
   test("an asset load still in flight does not take over the Add Asset page", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     const { promise: heldLoad, resolve: releaseHeldLoad } =
       Promise.withResolvers<void>();
     let hasHeldLoad = false;
@@ -413,16 +395,7 @@ test.describe("Asset editor concurrency", () => {
     await expect(page.getByLabel(/title/i)).toHaveCount(0);
   });
 
-  // an abandoned draft's editor can outlive its page: its held create resolves,
-  // the create-response exception adopts the new asset into that editor, and a
-  // trailing save then writes to the adopted asset. A session key is minted
-  // per editor instance, so it cannot drop work from an instance that
-  // outlived its page.
-  //
-  // Skipped rather than marked test.fail: the race lands rarely enough that
-  // Playwright reports "expected to fail, but passed" and reddens CI on a good
-  // build. Kept for the reproduction recipe, which is the hard part.
-  test.skip("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
+  test("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
     page,
   }) => {
     test.setTimeout(20_000);
@@ -466,10 +439,6 @@ test.describe("Asset editor concurrency", () => {
   test("a failed template load stops the Continue spinner so the user can retry", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     // 404 rather than 500: 404 is non-retryable, so the failure is immediate
     // and a spinner still visible afterwards is stuck for good
     await page.route("**/assetManager/getTemplate/**", (route) =>

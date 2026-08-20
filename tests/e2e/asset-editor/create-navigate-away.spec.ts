@@ -17,10 +17,6 @@ test.describe("navigating away while a create is in flight", () => {
   test("the resolved save does not pull the user back into the editor", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     await page.goto("/assetManager/addAsset");
     // a template with no inline related asset, so exactly one editor saves
     await page.getByLabel("Template").selectOption({ label: "Some Fields" });

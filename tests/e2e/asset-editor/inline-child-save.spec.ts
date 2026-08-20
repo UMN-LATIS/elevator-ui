@@ -68,11 +68,6 @@ test.describe("inline child editors and the parent save", () => {
   test("a failed inline child save raises an error the user can see", async ({
     page,
   }) => {
-    // Pins a bug in the current editor, but flakes against it: the spec
-    // passes alone and fails in the full suite. Skipped outright until the
-    // reducer editor lands in the next PR of this stack.
-    test.fixme();
-
     await failFirstSave(page);
 
     await page.goto("/assetManager/addAsset");
@@ -92,10 +87,6 @@ test.describe("inline child editors and the parent save", () => {
   test("saving a new draft does not write to the previous asset's inline child", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     // two creates plus the save queue's cooldown run past the default timeout
     test.setTimeout(30_000);
 
@@ -131,10 +122,6 @@ test.describe("inline child editors and the parent save", () => {
   test("clearing an existing inline child's content still saves that child", async ({
     page,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
 
     const saves = await recordSaves(page);
@@ -177,10 +164,6 @@ test.describe("inline child editors and the parent save", () => {
     page,
     request,
   }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
 
     const workerId = test.info().workerIndex.toString();
