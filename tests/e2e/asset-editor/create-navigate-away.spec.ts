@@ -1,7 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
-
-const SAVE_ROUTE = "**/assetManager/submission/**";
+import {
+  setupWorkerHTTPHeader,
+  loginUser,
+  refreshDatabase,
+  SAVE_ROUTE,
+} from "../../setup";
 
 test.describe("navigating away while a create is in flight", () => {
   test.beforeEach(async ({ page, request }) => {

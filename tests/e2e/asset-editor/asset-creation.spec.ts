@@ -1,5 +1,13 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
+
+/** Opens the create form on the first template, with no fields filled in. */
+async function startBlankDraft(page: Page): Promise<void> {
+  await page.goto("/assetManager/addAsset");
+  await page.getByLabel("Template").selectOption({ index: 1 });
+  await page.getByLabel("Collection").selectOption({ index: 1 });
+  await page.getByRole("button", { name: "Continue" }).click();
+}
 
 test.describe("Asset Creation", () => {
   test.describe("With Curator Permissions", () => {
@@ -47,7 +55,9 @@ test.describe("Asset Creation", () => {
       await expect(continueButton).toBeEnabled({ timeout: 5000 });
       await continueButton.click();
 
-      await page.getByRole("heading", { name: "Create Asset" }).isVisible();
+      await expect(
+        page.getByRole("heading", { name: "Create Asset" })
+      ).toBeVisible();
 
       const titleField = page.getByLabel(/title/i).first();
       await titleField.fill("Test Asset Created via E2E");
@@ -58,24 +68,13 @@ test.describe("Asset Creation", () => {
 
       // a successful create moves the page to the new asset's edit URL
       await expect(page).toHaveURL(/\/assetManager\/editAsset\//);
-
-      const assetTitle = page.getByText("Test Asset Created via E2E");
-      await expect(assetTitle).toBeVisible();
+      await expect(page.getByText("Test Asset Created via E2E")).toBeVisible();
     });
 
     test("shows validation message for missing required fields", async ({
       page,
     }) => {
-      await page.goto("/assetManager/addAsset");
-
-      const templateSelect = page.getByLabel("Template");
-      await templateSelect.selectOption({ index: 1 });
-
-      const collectionSelect = page.getByLabel("Collection");
-      await collectionSelect.selectOption({ index: 1 });
-
-      const continueButton = page.getByRole("button", { name: "Continue" });
-      await continueButton.click();
+      await startBlankDraft(page);
 
       await expect(page.getByText("Missing required:")).toBeVisible();
       const validationText = page
@@ -90,24 +89,13 @@ test.describe("Asset Creation", () => {
     test("validation message disappears when required fields are filled", async ({
       page,
     }) => {
-      await page.goto("/assetManager/addAsset");
+      await startBlankDraft(page);
 
-      // Select template and collection
-      const templateSelect = page.getByLabel("Template");
-      await templateSelect.selectOption({ index: 1 });
-      const collectionSelect = page.getByLabel("Collection");
-      await collectionSelect.selectOption({ index: 1 });
-
-      const continueButton = page.getByRole("button", { name: "Continue" });
-      await continueButton.click();
-
-      // Initially should show validation message
       await expect(page.getByText("Missing required:")).toBeVisible();
       const saveButton = page.getByRole("button", { name: "Save" });
       await expect(saveButton).toBeDisabled();
 
-      const titleField = page.getByLabel(/title/i).first();
-      await titleField.fill("Test Asset Title");
+      await page.getByLabel(/title/i).first().fill("Test Asset Title");
 
       await expect(page.getByText("Missing required:")).not.toBeVisible();
       await expect(saveButton).toBeEnabled();
@@ -132,12 +120,9 @@ test.describe("Asset Creation", () => {
 
       const menu = page.locator("#app-menu-navigation");
       await expect(menu).not.toContainText("Manage Assets");
-
-      const addAssetLink = page.getByRole("link", { name: "Add Asset" });
-      await expect(addAssetLink).not.toBeVisible();
-
-      const closeButton = page.getByRole("button", { name: "Close menu" });
-      await closeButton.click();
+      await expect(
+        page.getByRole("link", { name: "Add Asset" })
+      ).not.toBeVisible();
     });
   });
 });

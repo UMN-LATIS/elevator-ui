@@ -1,8 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { Buffer } from "node:buffer";
-import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
-
-const SAVE_ROUTE = "**/assetManager/submission/**";
+import {
+  setupWorkerHTTPHeader,
+  loginUser,
+  refreshDatabase,
+  SAVE_ROUTE,
+} from "../../setup";
 
 test.describe("two uploads sharing a filename", () => {
   test.beforeEach(async ({ page, request }) => {
