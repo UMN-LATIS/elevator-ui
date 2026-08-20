@@ -3,11 +3,12 @@ import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContent
 import { parseDateString } from "@/helpers/parseDateString";
 
 /**
- * Re-reads `numeric` from `text` for both `start` and `end`.
+ * Re-reads `numeric` from `text` for both `start` and `end`, so that a date
+ * range is always two numbers this app produced from the text on screen.
  *
- * Parsing only the edited side leaves the other numeric as an older parse
- * produced it, and a stored numeric predating this app's UTC parsing can
- * then compare as start after end for a single day.
+ * Re-parsing only the edited side would leave the other numeric as whatever
+ * wrote it, which for a stored range can be an older parse of the same day.
+ * A range can then read as start after end without either date changing.
  */
 export function dateContentWithNumericsFromText<
   T extends Type.DateWidgetContent
