@@ -115,7 +115,7 @@ export function selectSaveState(
 
 /**
  * Whether this one open asset's own edits would change its stored asset.
- * Children are excluded, walk them with selectKeyAndDescendants.
+ * Children are excluded, use selectHasUnsavedEditsInTree for those.
  * Reads as clean while the asset and its template are still loading.
  */
 export function selectHasUnsavedEdits(
@@ -156,6 +156,21 @@ export function selectHasUnsavedEdits(
     default:
       return assertNever(openAsset);
   }
+}
+
+/**
+ * Whether the open asset or anything mounted under it has unsaved edits.
+ * The save walk and the unsaved-changes indicator both ask this, so a save
+ * cannot decide a subtree is clean while the indicator says otherwise.
+ */
+export function selectHasUnsavedEditsInTree(
+  state: EditorState,
+  key: EditSessionKey | null
+): boolean {
+  if (key === null) return false;
+  return selectKeyAndDescendants(state, key).some((descendantKey) =>
+    selectHasUnsavedEdits(state, descendantKey)
+  );
 }
 
 /**

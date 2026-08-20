@@ -22,7 +22,7 @@ import {
 } from "./types";
 import {
   selectChildKeys,
-  selectHasUnsavedEdits,
+  selectHasUnsavedEditsInTree,
   selectLocalAsset,
   selectTemplate,
 } from "./selectors";
@@ -195,8 +195,13 @@ export function createEffectRunner({
     // dirty children save first, each through its own queue. allSettled so
     // one child's failure cannot cost this asset's edits, and a child's
     // create commits its id into the state before the snapshot is taken.
+    //
+    // A child is worth saving when anything in its subtree is dirty, not
+    // just the child itself, so that a dirty grandchild under a clean child
+    // still reaches the server. Its own runSave applies the same rule, so
+    // the walk carries on down.
     const dirtyChildKeys = selectChildKeys(stateAtStart, key).filter(
-      (childKey) => selectHasUnsavedEdits(stateAtStart, childKey)
+      (childKey) => selectHasUnsavedEditsInTree(stateAtStart, childKey)
     );
     const childResults = await Promise.allSettled(
       dirtyChildKeys.map((childKey) => saveQueueFor(childKey).save())

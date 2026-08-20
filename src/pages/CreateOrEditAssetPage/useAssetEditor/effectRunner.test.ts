@@ -137,7 +137,8 @@ describe("fetchAssetAndTemplate", () => {
       parentLink: null,
       assetId: "A1",
     });
-    const assetAndTemplateSettlement = harness.effectRunner.whenAssetAndTemplateSettles("K1");
+    const assetAndTemplateSettlement =
+      harness.effectRunner.whenAssetAndTemplateSettles("K1");
     harness.effectRunner.runEffect({
       type: "fetchAssetAndTemplate",
       key: "K1",
@@ -153,7 +154,8 @@ describe("fetchAssetAndTemplate", () => {
     const notFound = new Error("410 gone");
     mocked.fetchAsset.mockRejectedValue(notFound);
 
-    const assetAndTemplateSettlement = harness.effectRunner.whenAssetAndTemplateSettles("K1");
+    const assetAndTemplateSettlement =
+      harness.effectRunner.whenAssetAndTemplateSettles("K1");
     harness.effectRunner.runEffect({
       type: "fetchAssetAndTemplate",
       key: "K1",
@@ -272,6 +274,44 @@ describe("a parent save with a dirty child", () => {
     const createCall = mocked.createAsset.mock.invocationCallOrder[0];
     const updateCall = mocked.updateAsset.mock.invocationCallOrder[0];
     expect(createCall).toBeLessThan(updateCall);
+  });
+
+  it("saves a dirty grandchild whose own parent is clean", async () => {
+    const harness = makeHarness();
+    openExistingAsset(harness, "P", "A1");
+    // an untouched draft reads as clean, so the walk has to look past it
+    openDraft(harness, "C", {
+      key: "P",
+      fieldTitle: "field_1",
+      itemUuid: "item-1",
+    });
+    openDraft(harness, "G", {
+      key: "C",
+      fieldTitle: "field_1",
+      itemUuid: "item-2",
+    });
+    harness.dispatch({
+      type: "widgetContentsEdited",
+      key: "G",
+      fieldTitle: "field_1",
+      contents: [{ uuid: "g-row", fieldContents: "grandchild text" }],
+    });
+    mocked.createAsset.mockImplementation(async () => ({
+      objectId: `created-${mocked.createAsset.mock.calls.length}`,
+    }));
+    mocked.updateAsset.mockResolvedValue({ objectId: "A1" });
+    mocked.fetchAsset.mockImplementation(async (assetId: string) =>
+      makeAsset(assetId)
+    );
+
+    await harness.effectRunner.saveQueueFor("P").save();
+
+    const sentFieldContents = mocked.createAsset.mock.calls.map(
+      ([formData]) =>
+        (formData as unknown as Record<string, { fieldContents: string }[]>)
+          .field_1?.[0]?.fieldContents
+    );
+    expect(sentFieldContents).toContain("grandchild text");
   });
 
   it("saves the parent anyway and reports a child that failed", async () => {

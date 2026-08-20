@@ -38,8 +38,7 @@ import {
 } from "./types";
 import { update } from "./update";
 import {
-  selectHasUnsavedEdits,
-  selectKeyAndDescendants,
+  selectHasUnsavedEditsInTree,
   selectLoadError,
   selectLocalAsset,
   selectOpenAsset,
@@ -174,12 +173,9 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
       selectSaveState(state(), currentKey.value)
     ),
     /** This editor's asset and every inline child mounted under it. */
-    hasUnsavedChanges: computed(() => {
-      if (!currentKey.value) return false;
-      return selectKeyAndDescendants(state(), currentKey.value).some((key) =>
-        selectHasUnsavedEdits(state(), key)
-      );
-    }),
+    hasUnsavedChanges: computed(() =>
+      selectHasUnsavedEditsInTree(state(), currentKey.value)
+    ),
 
     initNewAsset,
     initExistingAsset,
