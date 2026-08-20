@@ -1,14 +1,11 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import {
-  setupWorkerHTTPHeader,
-  loginUser,
-  refreshDatabase,
-  SAVE_ROUTE,
-} from "../../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
 
 // Asset 1 from the mock data, which lives in Default Collection (id 1)
 const ASSET_ID = "6875871d4eb080a4880a0f44";
 const DEFAULT_COLLECTION_ID = "1";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
 
 function collectionSelect(page: Page): Locator {
   // by role, because the confirm dialog's accessible name also contains

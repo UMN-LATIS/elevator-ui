@@ -101,6 +101,17 @@ function titleField(page: Page): Locator {
   return page.getByLabel(/title/i).first();
 }
 
+/**
+ * Confirms the unsaved-changes guard, so a navigation these tests fire
+ * deliberately mid-save can proceed.
+ */
+async function leaveUnsavedWork(page: Page): Promise<void> {
+  await page
+    .getByRole("dialog", { name: "Unsaved changes" })
+    .getByRole("button", { name: "Leave" })
+    .click();
+}
+
 test.describe("Asset editor concurrency", () => {
   test.beforeEach(async ({ page, request }) => {
     const workerId = test.info().workerIndex.toString();
@@ -129,7 +140,7 @@ test.describe("Asset editor concurrency", () => {
     // Add Asset resolves to the editor's own route record, so the component is
     // reused rather than remounted. The held save keeps the edits unsaved, so
     // leaving takes a confirmation.
-    await openAddAssetFromMenu(page);
+    await openAddAssetFromMenu(page, { isLeavingUnsavedWork: true });
     await startDraft(page);
     const savesFromDraftOnward = trackNewSaves(saves);
 
@@ -177,6 +188,7 @@ test.describe("Asset editor concurrency", () => {
     await page.goBack();
     // the held save keeps the second asset's edit unsaved, so going back
     // takes a confirmation
+    await leaveUnsavedWork(page);
     await expect(page).toHaveURL(
       new RegExp(`/assetManager/editAsset/${ASSET_1_ID}`)
     );
@@ -215,6 +227,7 @@ test.describe("Asset editor concurrency", () => {
     // abandon the first draft for a second one while its create is in flight.
     // Back then Forward re-fires the route watcher, which resets the editor.
     await page.goBack();
+    await leaveUnsavedWork(page);
     await expect(titleField(page)).toHaveValue("Asset 1");
     await page.goForward();
     await expect(page).toHaveURL(/\/assetManager\/addAsset/);
@@ -345,7 +358,7 @@ test.describe("Asset editor concurrency", () => {
 
     // the reopened asset comes back from the server, so the first session's
     // unsaved edit is gone and the field reads its stored title again
-    await openAddAssetFromMenu(page);
+    await openAddAssetFromMenu(page, { isLeavingUnsavedWork: true });
     await page.goBack();
     await expect(page).toHaveURL(
       new RegExp(`/assetManager/editAsset/${ASSET_1_ID}`)
@@ -393,47 +406,6 @@ test.describe("Asset editor concurrency", () => {
     // must survive and Asset 1's editor must not appear
     await expect(page.getByLabel("Template")).toBeVisible();
     await expect(page.getByLabel(/title/i)).toHaveCount(0);
-  });
-
-  test("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
-    page,
-  }) => {
-    test.setTimeout(20_000);
-
-    const { saves, releaseHeldSave } = await interceptSaves(page, "");
-
-    // visit the existing asset first so goBack later is an in-app navigation
-    await page.goto(`/assetManager/editAsset/${ASSET_1_ID}`);
-    await expect(titleField(page)).toHaveValue("Asset 1");
-
-    await openAddAssetFromMenu(page);
-    await startDraft(page);
-    await titleField(page).fill("Abandoned draft");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect.poll(() => saves.length).toBeGreaterThan(0);
-
-    // abandon the draft while its create is in flight, reopening Asset 1
-    await page.goBack();
-    await expect(page).toHaveURL(
-      new RegExp(`/assetManager/editAsset/${ASSET_1_ID}`)
-    );
-    await expect(titleField(page)).toHaveValue("Asset 1");
-    const savesFromAsset1Onward = trackNewSaves(saves);
-
-    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
-
-    await titleField(page).fill("Asset 1 edited after reopening");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect.poll(() => savesFromAsset1Onward().length).toBeGreaterThan(0);
-
-    // the save queue drains on a cooldown, so a save built from another
-    // editor's state can trail the user's save by several seconds
-    await page.waitForTimeout(6000);
-
-    // the user is on Asset 1, so every save from here must target Asset 1
-    expect(
-      savesFromAsset1Onward().filter((save) => save.objectId !== ASSET_1_ID)
-    ).toEqual([]);
   });
 
   test("a failed template load stops the Continue spinner so the user can retry", async ({

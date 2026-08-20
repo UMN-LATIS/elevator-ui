@@ -177,7 +177,7 @@ test.describe("inline child editors and the parent save", () => {
     // fill the child and walk away without saving it. The typed draft is
     // unsaved work the session tree can see, so leaving takes a confirmation.
     await childTitleField(page).fill("Child the user abandoned");
-    await openAddAssetFromMenu(page);
+    await openAddAssetFromMenu(page, { isLeavingUnsavedWork: true });
 
     await startInlineParentDraft(page);
     await parentTitleField(page).fill("Second parent");

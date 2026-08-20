@@ -16,7 +16,7 @@ const DEFAULT_UPLOAD_DELAY_MS = 8_000;
  */
 async function startUploadAndWaitUntilInFlight(
   page: Page,
-  delayMs = DEFAULT_UPLOAD_DELAY_MS,
+  delayMs = DEFAULT_UPLOAD_DELAY_MS
 ) {
   await page.route("**/s3/upload-part/**", async (route) => {
     await new Promise((r) => setTimeout(r, delayMs));
@@ -56,10 +56,18 @@ async function navigateHome(page: Page) {
 test.describe("Upload navigation guard", () => {
   test.beforeEach(async ({ page, request }) => {
     await page.route("**/arcgis.com/**", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: "{}" })
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}",
+      })
     );
     await page.route("**/basemaps-api.arcgis.com/**", (route) =>
-      route.fulfill({ status: 200, contentType: "application/json", body: "{}" })
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}",
+      })
     );
 
     const workerId = test.info().workerIndex.toString();
@@ -137,6 +145,12 @@ test.describe("Upload navigation guard", () => {
     const uploadCleanedUp = page.waitForResponse("**/completeSourceFile/**");
     await startUploadAndWaitUntilInFlight(page, 500);
     await uploadCleanedUp;
+
+    // the completed upload auto-saves. Let that save settle so the
+    // unsaved-changes guard has nothing to ask about either
+    await expect(page.getByText("No unsaved changes")).toBeVisible({
+      timeout: 15000,
+    });
 
     await navigateHome(page);
 

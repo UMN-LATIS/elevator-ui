@@ -4,9 +4,13 @@ import {
   loginUser,
   refreshDatabase,
   getAssetCount,
-  SAVE_ROUTE,
-  type RecordedSave,
 } from "../../setup";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
+
+// A create sends an empty objectId, so a non-empty one names an asset that
+// already exists.
+type RecordedSave = { objectId: string };
 
 /**
  * Records every save and holds the first create open, so the test can confirm

@@ -1,11 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { Buffer } from "node:buffer";
-import {
-  setupWorkerHTTPHeader,
-  loginUser,
-  refreshDatabase,
-  SAVE_ROUTE,
-} from "../../setup";
+import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../../setup";
+
+const SAVE_ROUTE = "**/assetManager/submission/**";
 
 test.describe("an upload whose auto-save fails", () => {
   test.beforeEach(async ({ page, request }) => {
