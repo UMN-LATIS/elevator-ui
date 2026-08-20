@@ -27,7 +27,7 @@
       <div class="col-span-3">
         <Tuple
           label="Source File"
-          class="flex items-center justify-between flex-wrap text-sm gap-2 -mt-2">
+          class="flex items-center justify-between flex-wrap text-sm gap-2">
           {{ fileMetaData?.sourcefile }}
           <Button
             v-if="fileMetaData?.sourcefile"
