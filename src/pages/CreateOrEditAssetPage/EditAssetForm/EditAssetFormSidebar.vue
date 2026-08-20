@@ -13,7 +13,7 @@
         View
       </Button>
       <Button
-        variant="primary"
+        :variant="hasUnsavedChanges ? 'primary' : 'primary-outline'"
         type="submit"
         :disabled="isSaveBlocked"
         @click="handleSave">
