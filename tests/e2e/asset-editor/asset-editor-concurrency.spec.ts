@@ -408,6 +408,50 @@ test.describe("Asset editor concurrency", () => {
     await expect(page.getByLabel(/title/i)).toHaveCount(0);
   });
 
+  test("abandoning a draft mid-create does not leave an editor writing to the created asset", async ({
+    page,
+  }) => {
+    test.setTimeout(20_000);
+
+    const { saves, releaseHeldSave } = await interceptSaves(page, "");
+
+    // visit the existing asset first so goBack later is an in-app navigation
+    await page.goto(`/assetManager/editAsset/${ASSET_1_ID}`);
+    await expect(titleField(page)).toHaveValue("Asset 1");
+
+    await openAddAssetFromMenu(page);
+    await startDraft(page);
+    await titleField(page).fill("Abandoned draft");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect.poll(() => saves.length).toBeGreaterThan(0);
+
+    // abandon the draft while its create is in flight, reopening Asset 1
+    await page.goBack();
+    // the held create keeps the draft's edits unsaved, so going back takes a
+    // confirmation
+    await leaveUnsavedWork(page);
+    await expect(page).toHaveURL(
+      new RegExp(`/assetManager/editAsset/${ASSET_1_ID}`)
+    );
+    await expect(titleField(page)).toHaveValue("Asset 1");
+    const savesFromAsset1Onward = trackNewSaves(saves);
+
+    await releaseHeldSaveAndWaitForEditor(page, releaseHeldSave);
+
+    await titleField(page).fill("Asset 1 edited after reopening");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect.poll(() => savesFromAsset1Onward().length).toBeGreaterThan(0);
+
+    // the save queue drains on a cooldown, so a save built from another
+    // editor's state can trail the user's save by several seconds
+    await page.waitForTimeout(6000);
+
+    // the user is on Asset 1, so every save from here must target Asset 1
+    expect(
+      savesFromAsset1Onward().filter((save) => save.objectId !== ASSET_1_ID)
+    ).toEqual([]);
+  });
+
   test("a failed template load stops the Continue spinner so the user can retry", async ({
     page,
   }) => {
