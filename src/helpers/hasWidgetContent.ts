@@ -37,8 +37,9 @@ export function hasCheckboxContent(contents: unknown[]): boolean {
 }
 
 /**
- * Checks if a DateWidgetContent array has at least one field with
- * text
+ * Checks if a DateWidgetContent array has at least one start or end date.
+ * The label is a caption for the date rather than content of its own, so a
+ * label with no date counts as empty.
  */
 export function hasDateContent(contents: unknown[]): boolean {
   if (!Array.isArray(contents)) return false;
@@ -46,11 +47,7 @@ export function hasDateContent(contents: unknown[]): boolean {
   return contents.some((content) => {
     if (!isDateWidgetContent(content)) return false;
 
-    return (
-      !!content.start.text?.trim() ||
-      !!content.end.text?.trim() ||
-      !!content.label
-    );
+    return !!content.start.text?.trim() || !!content.end.text?.trim();
   });
 }
 

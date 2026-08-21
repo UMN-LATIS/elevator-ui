@@ -310,9 +310,12 @@ export function useAssetValidationProvider(
   });
 
   const isAssetValid = computed(() => {
-    return widgetValidations.value.every(
-      (validation) => !validation.isRequired || validation.isValid
-    );
+    return widgetValidations.value.every((validation) => {
+      if (!validation.isRequired) return true;
+      // Required widgets need content, not just correct content, because a
+      // date widget with no dates at all reports as valid.
+      return validation.isValid && !validation.isEmpty;
+    });
   });
 
   const missingRequiredFields = computed(() => {
