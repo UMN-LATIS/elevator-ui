@@ -21,6 +21,7 @@ import {
   shallowRef,
   ShallowRef,
 } from "vue";
+import microdiff from "microdiff";
 import { useQueryClient } from "@tanstack/vue-query";
 import invariant from "tiny-invariant";
 import config from "@/config";
@@ -280,7 +281,8 @@ function logHasUnsavedChangesTransitions(
     const isUnsaved = selectHasUnsavedEditsInTree(after, key);
     if (wasUnsaved === isUnsaved) return;
     console.log(
-      `[asset-editor] hasUnsavedChanges ${wasUnsaved} → ${isUnsaved} (${event.type}, key ${key})`
+      `[asset-editor] hasUnsavedChanges ${wasUnsaved} → ${isUnsaved} (${event.type}, key ${key})`,
+      { event, before, after, diff: microdiff(before, after) }
     );
   });
 }
