@@ -413,4 +413,149 @@ describe("useAssetValidation", () => {
     expect(widgetValidations.value).toHaveLength(1);
     expect(widgetValidations.value[0].id).toBe(mockGetWidgetInstanceId(1));
   });
+  it("is not valid when a required date widget holds only a label", async () => {
+    const asset = ref(
+      createMockAsset({
+        date_field_1: [
+          {
+            id: "1",
+            label: "Date created",
+            start: { text: "", numeric: null },
+            end: { text: "", numeric: null },
+          },
+        ],
+      })
+    );
+
+    const template = ref(
+      createMockTemplate([
+        {
+          fieldTitle: "date_field_1",
+          type: "date",
+          label: "Date Field",
+          required: true,
+        },
+      ])
+    );
+
+    const { isAssetValid, missingRequiredFields } = useAssetValidationProvider(
+      asset,
+      template,
+      mockGetWidgetInstanceId
+    );
+
+    await nextTick();
+
+    expect(isAssetValid.value).toBe(false);
+    expect(missingRequiredFields.value).toEqual(["Date Field"]);
+  });
+
+  it("is valid when a required date widget holds a start date and no label", async () => {
+    const asset = ref(
+      createMockAsset({
+        date_field_1: [
+          {
+            id: "1",
+            label: "",
+            start: { text: "2024-01-01", numeric: "1704067200" },
+            end: { text: "", numeric: null },
+          },
+        ],
+      })
+    );
+
+    const template = ref(
+      createMockTemplate([
+        {
+          fieldTitle: "date_field_1",
+          type: "date",
+          label: "Date Field",
+          required: true,
+        },
+      ])
+    );
+
+    const { isAssetValid, missingRequiredFields } = useAssetValidationProvider(
+      asset,
+      template,
+      mockGetWidgetInstanceId
+    );
+
+    await nextTick();
+
+    expect(isAssetValid.value).toBe(true);
+    expect(missingRequiredFields.value).toEqual([]);
+  });
+
+  it("is not valid when a required date widget is untouched", async () => {
+    const asset = ref(
+      createMockAsset({
+        date_field_1: [
+          {
+            id: "1",
+            label: "",
+            start: { text: "", numeric: null },
+            end: { text: "", numeric: null },
+          },
+        ],
+      })
+    );
+
+    const template = ref(
+      createMockTemplate([
+        {
+          fieldTitle: "date_field_1",
+          type: "date",
+          label: "Date Field",
+          required: true,
+        },
+      ])
+    );
+
+    const { isAssetValid } = useAssetValidationProvider(
+      asset,
+      template,
+      mockGetWidgetInstanceId
+    );
+
+    await nextTick();
+
+    expect(isAssetValid.value).toBe(false);
+  });
+
+  it("stays valid when a date widget that holds only a label is not required", async () => {
+    const asset = ref(
+      createMockAsset({
+        date_field_1: [
+          {
+            id: "1",
+            label: "Date created",
+            start: { text: "", numeric: null },
+            end: { text: "", numeric: null },
+          },
+        ],
+      })
+    );
+
+    const template = ref(
+      createMockTemplate([
+        {
+          fieldTitle: "date_field_1",
+          type: "date",
+          label: "Date Field",
+          required: false,
+        },
+      ])
+    );
+
+    const { isAssetValid } = useAssetValidationProvider(
+      asset,
+      template,
+      mockGetWidgetInstanceId
+    );
+
+    await nextTick();
+
+    expect(isAssetValid.value).toBe(true);
+  });
 });
