@@ -242,7 +242,7 @@ export interface DateMoment {
   numeric: string | null; // unix timestamp, actually a string
 }
 export interface DateWidgetContent extends WidgetContent {
-  label: string;
+  label: string | null;
   start: DateMoment;
   end: DateMoment;
 }

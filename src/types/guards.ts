@@ -77,7 +77,7 @@ export function isDateWidgetContent(
   return (
     isWidgetContent(value) &&
     "label" in value &&
-    typeof (value as DateWidgetContent).label === "string" &&
+    (value.label === null || typeof value.label === "string") &&
     "start" in value &&
     isDateMoment((value as DateWidgetContent).start) &&
     "end" in value &&
