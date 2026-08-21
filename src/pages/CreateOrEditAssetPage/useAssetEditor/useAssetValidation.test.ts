@@ -1,51 +1,13 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { ref, nextTick } from "vue";
 import { useAssetValidationProvider } from "./useAssetValidation";
-import type { 
-  UnsavedAsset, 
-  Template, 
-  WidgetDef, 
-  PHPDateTime, 
+import type {
+  UnsavedAsset,
+  Template,
+  WidgetDef,
+  PHPDateTime,
   WidgetInstanceId,
-  TextWidgetContent,
-  DateWidgetContent
 } from "@/types";
-
-// Mock the hasWidgetContent function
-vi.mock("@/helpers/hasWidgetContent", () => ({
-  hasWidgetContent: vi.fn((content: unknown[], widgetType: string) => {
-    if (widgetType === "text") {
-      return content.some((item) => {
-        const textItem = item as TextWidgetContent;
-        return textItem.fieldContents && textItem.fieldContents.trim() !== "";
-      });
-    }
-    if (widgetType === "date") {
-      return content.some((item) => {
-        const dateItem = item as DateWidgetContent;
-        return (
-          (dateItem.start?.text && dateItem.start.text.trim() !== "") ||
-          (dateItem.end?.text && dateItem.end.text.trim() !== "") ||
-          (dateItem.label && dateItem.label.trim() !== "")
-        );
-      });
-    }
-    return content.length > 0;
-  }),
-}));
-
-// Mock the date widget content guard
-vi.mock("@/types/guards", () => ({
-  isDateWidgetContent: vi.fn((content: unknown) => {
-    return (
-      content &&
-      typeof content === "object" &&
-      content !== null &&
-      "start" in content &&
-      "end" in content
-    );
-  }),
-}));
 
 const createMockPHPDateTime = (): PHPDateTime => ({
   date: "2025-01-01 00:00:00.000000",
