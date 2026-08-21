@@ -107,6 +107,55 @@ describe("storedWidgetContents", () => {
   });
 });
 
+describe("storedWidgetContents for an upload", () => {
+  // both rows verbatim from a local dev round trip: the editor builds the
+  // first when an upload completes, the backend answers with the second
+  const rowTheEditorBuilt = {
+    isPrimary: false,
+    uuid: "a3765f11-3992-47bf-9011-85cf9e3ef427",
+    fileId: "6a887571274743bee50f0c81",
+    fileDescription: "",
+    fileType: "image/jpeg",
+    searchData: "",
+    loc: null,
+    sidecars: {},
+  };
+  const rowTheBackendReturned = {
+    loc: null,
+    uuid: "a3765f11-3992-47bf-9011-85cf9e3ef427",
+    fileId: "6a887571274743bee50f0c81",
+    fileType: "jpeg",
+    sidecars: [],
+    isPrimary: false,
+    searchData: null,
+    fileDescription: "",
+  };
+
+  it("reads a freshly uploaded row and the backend's answer as the same", () => {
+    expect(storedWidgetContents([rowTheEditorBuilt], "upload")).toEqual(
+      storedWidgetContents([rowTheBackendReturned], "upload")
+    );
+  });
+
+  it("still sees a description the user typed", () => {
+    expect(storedWidgetContents([rowTheEditorBuilt], "upload")).not.toEqual(
+      storedWidgetContents(
+        [{ ...rowTheBackendReturned, fileDescription: "a caption" }],
+        "upload"
+      )
+    );
+  });
+
+  it("still sees a sidecar the user set", () => {
+    expect(storedWidgetContents([rowTheEditorBuilt], "upload")).not.toEqual(
+      storedWidgetContents(
+        [{ ...rowTheBackendReturned, sidecars: { ppm: 300 } }],
+        "upload"
+      )
+    );
+  });
+});
+
 describe("cleanTextAreaHtml", () => {
   it("removes empty paragraphs and turns non-breaking spaces into plain spaces", () => {
     expect(cleanTextAreaHtml("<p>Hello&nbsp;there</p><p><br></p>")).toBe(

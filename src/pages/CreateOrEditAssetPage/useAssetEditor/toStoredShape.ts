@@ -16,7 +16,7 @@ import {
   WidgetType,
   WIDGET_TYPES,
 } from "@/types";
-import { omit } from "ramda";
+import { isEmpty, omit } from "ramda";
 
 /**
  * The asset as the server will store it. The backend rebuilds the whole
@@ -59,15 +59,46 @@ export function toStoredShape(
 
 /**
  * One widget's contents for comparison against a stored document: the wire
- * form with the uuids stripped, because a uuid is identity, not content.
+ * form with the uuids stripped, because a uuid is identity, not content,
+ * and with each row cut down to the fields the editor owns.
  */
 export function storedWidgetContents(
   contents: WidgetContent[],
   widgetType: WidgetType
 ): WidgetContent[] {
   return saveableWidgetContents(contents, widgetType).map((content) =>
-    omit(["uuid"], content)
+    omit(["uuid"], contentTheEditorOwns(content, widgetType))
   );
+}
+
+/**
+ * One content reduced to the fields the editor decides, for dirtiness only.
+ *
+ * An upload row is mostly the backend's to fill in. Upload_contents::getAsArray
+ * rebuilds fileType and searchData off the file handler, sets loc from
+ * coordinates it extracted, and merges label, start and end in when the file
+ * carries a creation date. A freshly uploaded row therefore comes back
+ * reshaped every time, and counting those fields leaves it unsaved for good:
+ * the editor sends "image/jpeg" and the server answers "jpeg", forever.
+ *
+ * Sends are unaffected. The payload still carries every field, which matters
+ * because loadContentFromArray decides an upload is an existing one by
+ * finding a non-empty fileType on it.
+ */
+function contentTheEditorOwns(
+  content: WidgetContent,
+  widgetType: WidgetType
+): WidgetContent {
+  if (widgetType !== WIDGET_TYPES.UPLOAD) return content;
+  const { fileId, fileDescription, isPrimary, sidecars } =
+    content as UploadWidgetContent;
+  return {
+    fileId,
+    fileDescription,
+    isPrimary,
+    // php hands an empty sidecar map back as [], the editor writes {}
+    sidecars: isEmpty(sidecars ?? {}) ? {} : sidecars,
+  };
 }
 
 /**
