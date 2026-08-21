@@ -23,6 +23,7 @@ import {
 } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import invariant from "tiny-invariant";
+import config from "@/config";
 import {
   ASSET_EDITOR_PROVIDE_KEY,
   ASSET_VALIDATION_PROVIDE_KEY,
@@ -259,6 +260,31 @@ export function useAssetEditor(): AssetEditor {
   return editor;
 }
 
+/**
+ * Every event passes through dispatch, so this is the one place that can
+ * catch every path to a stuck dirty flag, rather than instrumenting each
+ * selector's caller. Non-production only: this is a debugging aid, not
+ * something a curator's console should ever show.
+ */
+function logHasUnsavedChangesTransitions(
+  event: EditorEvent,
+  before: EditorState,
+  after: EditorState
+): void {
+  const keys = new Set([
+    ...Object.keys(before.assets),
+    ...Object.keys(after.assets),
+  ]) as Set<EditSessionKey>;
+  keys.forEach((key) => {
+    const wasUnsaved = selectHasUnsavedEditsInTree(before, key);
+    const isUnsaved = selectHasUnsavedEditsInTree(after, key);
+    if (wasUnsaved === isUnsaved) return;
+    console.log(
+      `[asset-editor] hasUnsavedChanges ${wasUnsaved} → ${isUnsaved} (${event.type}, key ${key})`
+    );
+  });
+}
+
 function createEditorContext(handlers: EditorPageHandlers): EditorContext {
   const queryClient = useQueryClient();
   const state = shallowRef<EditorState>(initialEditorState);
@@ -270,10 +296,14 @@ function createEditorContext(handlers: EditorPageHandlers): EditorContext {
   });
 
   function dispatch(event: EditorEvent): void {
-    const step = update(state.value, event, {
+    const previousState = state.value;
+    const step = update(previousState, event, {
       createUuid: () => crypto.randomUUID(),
     });
     state.value = step.state;
+    if (config.mode !== "production") {
+      logHasUnsavedChangesTransitions(event, previousState, step.state);
+    }
     // effects wait for a microtask so the state swap happens first, and so
     // an effect's own dispatches stack after this one instead of inside it
     step.effects?.forEach((effect) => {
