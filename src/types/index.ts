@@ -315,7 +315,7 @@ export interface MultiSelectWidgetContent extends WidgetContent {
 
 export interface DateComponent {
   text: string;
-  numeric: bigint;
+  numeric: string;
 }
 
 export interface DateAssetObject {
@@ -336,7 +336,7 @@ export interface DateResult {
   start?: DateComponent;
   end?: DateComponent;
   loc?: LocationObject;
-  label?: string;
+  label?: string | null;
   fileId?: string;
   fileType?: string;
   sidecars?: unknown;

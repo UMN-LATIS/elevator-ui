@@ -10,18 +10,16 @@ import {
   Template,
 } from "../../src/types";
 
-// Helper function to safely convert to bigint
-function safeBigInt(value: unknown): bigint {
-  if (typeof value === 'bigint') return value;
-  if (typeof value === 'number') return BigInt(value);
-  if (typeof value === 'string' && value !== '') {
-    try {
-      return BigInt(value);
-    } catch {
-      return BigInt(0);
-    }
+// Timestamps travel as strings, since JSON cannot carry a bigint.
+// Anything that isn't a whole number becomes "0".
+function toTimestampString(value: unknown): string {
+  if (typeof value === "number" || typeof value === "bigint") {
+    return value.toString();
   }
-  return BigInt(0);
+  if (typeof value !== "string") {
+    return "0";
+  }
+  return /^-?\d+$/.test(value) ? value : "0";
 }
 
 function extractDatesFromAsset(asset: Asset): DateResult[] {
@@ -34,12 +32,12 @@ function extractDatesFromAsset(asset: Asset): DateResult[] {
           dates.push({
             start: {
               text: dateWidget.start.text || "",
-              numeric: safeBigInt(dateWidget.start.numeric),
+              numeric: toTimestampString(dateWidget.start.numeric),
             },
             end: dateWidget.end
               ? {
                   text: dateWidget.end.text || "",
-                  numeric: safeBigInt(dateWidget.end.numeric),
+                  numeric: toTimestampString(dateWidget.end.numeric),
                 }
               : undefined,
             label: dateWidget.label,
