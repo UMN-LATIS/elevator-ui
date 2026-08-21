@@ -217,6 +217,38 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Required date whose label is null, as the real API returns it (#661)
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Null Date Label Asset" }],
+    upload_1: [],
+    date_1: [
+      {
+        isPrimary: false,
+        label: null,
+        start: {
+          text: "03/15/2026",
+          numeric: "1773532800",
+        },
+        end: {
+          text: "",
+          numeric: "",
+        },
+      },
+    ],
+    assetId: "null_date_label_asset_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Null Date Label Asset"],
+    templateId: 99, // Date Required
+    modified: {
+      date: "2026-08-21 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Auth-required asset for testing 401 / login-redirect flows
   {
     ...baseAsset,
