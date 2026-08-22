@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateAsset } from "./useAssetValidation";
+import { validateAsset } from "./validation";
 import type { Template, UnsavedAsset, WidgetInstanceId } from "@/types";
 
 const getWidgetInstanceId = (widgetId: number): WidgetInstanceId =>

@@ -34,19 +34,19 @@
           </span>
         </p>
         <div
-          v-if="missingRequiredFields.length > 0"
+          v-if="assetEditor.missingRequiredFields.length > 0"
           class="font-medium mb-1 text-error">
           Missing required:
           <span class="italic">
-            {{ missingRequiredFields.join(", ") }}
+            {{ assetEditor.missingRequiredFields.join(", ") }}
           </span>
         </div>
         <div
-          v-if="invalidFields.length > 0"
+          v-if="assetEditor.invalidFields.length > 0"
           class="font-medium mb-1 text-error">
           Invalid:
           <span class="italic">
-            {{ invalidFields.join(", ") }}
+            {{ assetEditor.invalidFields.join(", ") }}
           </span>
         </div>
         <p v-else-if="!hasUnsavedChanges" class="text-on-surface-variant">
@@ -128,7 +128,7 @@ import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import TableOfContents from "../TableOfContents/TableOfContents.vue";
 import { phpDateToIsoDate } from "@/helpers/phpDateToIsoDate";
 import invariant from "tiny-invariant";
-import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { useCollections } from "@/composables/useCollections";
 import {
@@ -211,15 +211,13 @@ const lastModified = computed(() => {
   return modifiedDate ? new Date(modifiedDate).toLocaleString() : null;
 });
 
-// Use validation system for form validation
-const { isAssetValid, missingRequiredFields, invalidFields } =
-  useAssetValidation();
+const assetEditor = useAssetEditor();
 
 const isSaveBlocked = computed(() => {
   const isSaving = displayStatus.value === "pending";
   // an asset marked Ready must be valid to save, a draft need not be
   const mustBeValidToSave = !!props.asset.readyForDisplay;
-  return isSaving || (mustBeValidToSave && !isAssetValid.value);
+  return isSaving || (mustBeValidToSave && !assetEditor.isAssetValid);
 });
 
 function handleUpdateAvailableAfter(value: string | number) {

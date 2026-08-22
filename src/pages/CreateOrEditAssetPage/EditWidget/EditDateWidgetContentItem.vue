@@ -70,7 +70,6 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import { unixTimestampToFormattedDate } from "@/helpers/parseDateString";
 import { dateContentWithNumericsFromText } from "./helpers/editWidgetOps";
 import { computed, ref } from "vue";
-import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
 
@@ -110,7 +109,6 @@ const handleUpdateLabel = (value: string) => {
   });
 };
 
-const { widgetValidations } = useAssetValidation();
 const assetEditor = useAssetEditor();
 
 // Get the proper widget instance ID
@@ -126,7 +124,7 @@ const widgetInstanceId = computed(() => {
 // Find validation for current widget using proper widget instance ID
 const widgetValidation = computed(() => {
   if (!widgetInstanceId.value) return null;
-  return widgetValidations.value.find((validation) => {
+  return assetEditor.widgetValidations.find((validation) => {
     return validation.id === widgetInstanceId.value;
   });
 });

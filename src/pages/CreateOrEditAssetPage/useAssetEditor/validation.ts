@@ -2,11 +2,8 @@ import * as T from "@/types";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { isDateWidgetContent, isLocationWidgetContent } from "@/types/guards";
 import { isContentKeptByServer } from "./toStoredShape";
-import { computed, ComputedRef, inject, MaybeRefOrGetter, toValue } from "vue";
-import { ASSET_VALIDATION_PROVIDE_KEY } from "@/constants/constants";
-import invariant from "tiny-invariant";
 
-interface WidgetValidation {
+export interface WidgetValidation {
   id: T.WidgetInstanceId;
   label: T.WidgetDef["label"];
   isRequired: T.WidgetDef["required"];
@@ -223,13 +220,6 @@ function createWidgetValidation(
   };
 }
 
-export interface AssetValidation {
-  widgetValidations: ComputedRef<WidgetValidation[]>;
-  isAssetValid: ComputedRef<boolean>;
-  missingRequiredFields: ComputedRef<string[]>;
-  invalidFields: ComputedRef<string[]>;
-}
-
 /** Every widget's validation for one asset against one template. Pure. */
 export function validateAsset(
   asset: T.Asset | T.UnsavedAsset | null,
@@ -243,50 +233,26 @@ export function validateAsset(
   });
 }
 
-/** Validate one asset against its template, recomputing as either changes. */
-export function createAssetValidation(
-  assetRefOrGetter: MaybeRefOrGetter<T.Asset | T.UnsavedAsset | null>,
-  templateRefOrGetter: MaybeRefOrGetter<T.Template | null>,
-  getWidgetInstanceId: (widgetId: T.WidgetDef["widgetId"]) => T.WidgetInstanceId
-): AssetValidation {
-  const asset = computed(() => toValue(assetRefOrGetter));
-  const template = computed(() => toValue(templateRefOrGetter));
-
-  const widgetValidations = computed(() =>
-    validateAsset(asset.value, template.value, getWidgetInstanceId)
+export function areRequiredWidgetsValid(
+  widgetValidations: WidgetValidation[]
+): boolean {
+  return widgetValidations.every(
+    (validation) => !validation.isRequired || validation.isValid
   );
-
-  const isAssetValid = computed(() => {
-    return widgetValidations.value.every(
-      (validation) => !validation.isRequired || validation.isValid
-    );
-  });
-
-  const missingRequiredFields = computed(() => {
-    return widgetValidations.value
-      .filter((validation) => validation.isRequired && validation.isEmpty)
-      .map((validation) => validation.label);
-  });
-
-  const invalidFields = computed(() => {
-    return widgetValidations.value
-      .filter((validation) => !validation.isEmpty && !validation.isValid)
-      .map((validation) => validation.label);
-  });
-
-  return {
-    widgetValidations,
-    isAssetValid,
-    missingRequiredFields,
-    invalidFields,
-  };
 }
 
-export function useAssetValidation(): AssetValidation {
-  const assetValidation = inject(ASSET_VALIDATION_PROVIDE_KEY);
-  invariant(
-    assetValidation,
-    "useAssetValidation must be called under a component that provides ASSET_VALIDATION_PROVIDE_KEY"
-  );
-  return assetValidation;
+export function missingRequiredFieldLabels(
+  widgetValidations: WidgetValidation[]
+): string[] {
+  return widgetValidations
+    .filter((validation) => validation.isRequired && validation.isEmpty)
+    .map((validation) => validation.label);
+}
+
+export function invalidFieldLabels(
+  widgetValidations: WidgetValidation[]
+): string[] {
+  return widgetValidations
+    .filter((validation) => !validation.isEmpty && !validation.isValid)
+    .map((validation) => validation.label);
 }

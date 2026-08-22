@@ -213,7 +213,6 @@ import CircleFilledCheckIcon from "@/icons/CircleFilledCheckIcon.vue";
 import { useFocusWithin } from "@vueuse/core";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import invariant from "tiny-invariant";
-import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import config from "@/config";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary.vue";
 import Link from "@/components/Link/Link.vue";
@@ -244,8 +243,6 @@ const { focused: isFocusedWithin } = useFocusWithin(editLayoutContentsRef);
 const assetEditor = useAssetEditor();
 const { instance } = useElevatorInstance();
 
-const assetValidation = useAssetValidation();
-
 const widgetInstanceId = computed(() => {
   invariant(
     assetEditor,
@@ -255,7 +252,7 @@ const widgetInstanceId = computed(() => {
 });
 
 const validation = computed(() => {
-  return assetValidation.widgetValidations.value.find(
+  return assetEditor.widgetValidations.find(
     (v) => v.id === widgetInstanceId.value
   );
 });

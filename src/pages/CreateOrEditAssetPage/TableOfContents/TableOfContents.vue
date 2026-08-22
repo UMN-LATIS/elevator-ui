@@ -52,7 +52,7 @@ import { CircleFilledCheckIcon } from "@/icons";
 import { CircleIcon, TriangleAlertIcon } from "lucide-vue-next";
 import { onMounted, onUnmounted, reactive, computed } from "vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
-import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 
 const props = withDefaults(
   defineProps<{
@@ -66,9 +66,9 @@ const props = withDefaults(
 );
 
 // Generate tocItems from validation data
-const { widgetValidations } = useAssetValidation();
+const assetEditor = useAssetEditor();
 const tocItems = computed(() => {
-  return widgetValidations.value.map((validation) => ({
+  return assetEditor.widgetValidations.map((validation) => ({
     id: validation.id,
     label: validation.label,
     isRequired: validation.isRequired,

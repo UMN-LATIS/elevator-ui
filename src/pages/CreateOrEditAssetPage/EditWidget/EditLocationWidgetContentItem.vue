@@ -132,7 +132,6 @@ import {
   Coordinates,
   WidgetDef,
 } from "@/types";
-import { useAssetValidation } from "../useAssetEditor/useAssetValidation";
 import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useTheming } from "@/helpers/useTheming";
 import {
@@ -152,14 +151,13 @@ const props = withDefaults(
   }
 );
 
-const { widgetValidations } = useAssetValidation();
 const assetEditor = useAssetEditor();
 
 const addressErrors = computed((): string[] => {
   const widgetInstanceId = assetEditor.getWidgetInstanceId(
     props.widgetDef.widgetId
   );
-  const validation = widgetValidations.value.find(
+  const validation = assetEditor.widgetValidations.find(
     (widgetValidation) => widgetValidation.id === widgetInstanceId
   );
   return (

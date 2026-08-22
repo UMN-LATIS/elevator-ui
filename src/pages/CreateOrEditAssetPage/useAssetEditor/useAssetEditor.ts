@@ -25,10 +25,7 @@ import microdiff from "microdiff";
 import { useQueryClient } from "@tanstack/vue-query";
 import invariant from "tiny-invariant";
 import config from "@/config";
-import {
-  ASSET_EDITOR_PROVIDE_KEY,
-  ASSET_VALIDATION_PROVIDE_KEY,
-} from "@/constants/constants";
+import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import {
   Dispatch,
   EditSessionKey,
@@ -55,7 +52,12 @@ import {
   EffectRunner,
   EditorPageHandlers,
 } from "./effectRunner";
-import { createAssetValidation } from "./useAssetValidation";
+import {
+  areRequiredWidgetsValid,
+  invalidFieldLabels,
+  missingRequiredFieldLabels,
+  validateAsset,
+} from "./validation";
 
 interface EditorContext {
   state: ShallowRef<EditorState>;
@@ -157,6 +159,14 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     return `${openedKey()}-${widgetId}`;
   }
 
+  const widgetValidations = computed(() =>
+    validateAsset(
+      selectLocalAsset(state(), currentKey.value),
+      selectTemplate(state(), currentKey.value),
+      getWidgetInstanceId
+    )
+  );
+
   const editor = reactive({
     editSessionKey: computed(() => currentKey.value),
     status: computed(() => selectStatus(state(), currentKey.value)),
@@ -178,6 +188,14 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     hasUnsavedChanges: computed(() =>
       selectHasUnsavedEditsInTree(state(), currentKey.value)
     ),
+    widgetValidations,
+    isAssetValid: computed(() =>
+      areRequiredWidgetsValid(widgetValidations.value)
+    ),
+    missingRequiredFields: computed(() =>
+      missingRequiredFieldLabels(widgetValidations.value)
+    ),
+    invalidFields: computed(() => invalidFieldLabels(widgetValidations.value)),
 
     initNewAsset,
     initExistingAsset,
@@ -240,14 +258,6 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
   });
 
   provide(ASSET_EDITOR_PROVIDE_KEY, editor);
-  provide(
-    ASSET_VALIDATION_PROVIDE_KEY,
-    createAssetValidation(
-      () => editor.localAsset,
-      () => editor.template,
-      getWidgetInstanceId
-    )
-  );
 
   return editor;
 }
