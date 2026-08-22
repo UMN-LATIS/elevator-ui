@@ -1,6 +1,6 @@
 <template>
   <section
-    :id="widgetInstanceId"
+    :id="sessionWidgetId"
     class="edit-widget-layout lg:grid lg:grid-cols-[14rem,1fr] xl:grid-cols-[20rem,1fr] lg:gap-4 items-start border-b border-outline-variant pt-3 pb-1"
     :class="{
       'max-h-10 overflow-hidden': !isOpen,
@@ -25,7 +25,7 @@
               (hasContents && !isWidgetValid),
           }"
           :aria-expanded="isOpen"
-          :aria-controls="`${widgetInstanceId}-content`"
+          :aria-controls="`${sessionWidgetId}-content`"
           @click.stop="toggleExpand">
           <ChevronDownIcon v-if="isOpen" class="!size-4" />
           <ChevronRightIcon v-else class="!size-4" />
@@ -63,7 +63,7 @@
     </div>
     <div
       ref="editLayoutContents"
-      :aria-labelledby="`${widgetInstanceId}-heading`"
+      :aria-labelledby="`${sessionWidgetId}-heading`"
       :class="{
         'opacity-50': !isOpen,
       }">
@@ -103,7 +103,7 @@
           </div>
         </template>
         <slot name="widgetContents">
-          <DragDropContainer :groupId="widgetInstanceId">
+          <DragDropContainer :groupId="sessionWidgetId">
             <DragDropList
               :modelValue="widgetContents"
               :getItemId="(item) => item.uuid"
@@ -243,17 +243,17 @@ const { focused: isFocusedWithin } = useFocusWithin(editLayoutContentsRef);
 const assetEditor = useAssetEditor();
 const { instance } = useElevatorInstance();
 
-const widgetInstanceId = computed(() => {
+const sessionWidgetId = computed(() => {
   invariant(
     assetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
-  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+  return assetEditor.getSessionWidgetId(props.widgetDef.widgetId);
 });
 
 const validation = computed(() => {
   return assetEditor.widgetValidations.find(
-    (v) => v.id === widgetInstanceId.value
+    (v) => v.id === sessionWidgetId.value
   );
 });
 

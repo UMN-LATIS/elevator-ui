@@ -2,9 +2,10 @@ import * as T from "@/types";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
 import { isDateWidgetContent, isLocationWidgetContent } from "@/types/guards";
 import { isContentKeptByServer } from "./toStoredShape";
+import { SessionWidgetId } from "./types";
 
 export interface WidgetValidation {
-  id: T.WidgetInstanceId;
+  id: SessionWidgetId;
   label: T.WidgetDef["label"];
   isRequired: T.WidgetDef["required"];
   isEmpty: boolean;
@@ -120,11 +121,11 @@ function validateDateWidget(
 function validateLocationWidget({
   content,
   def,
-  getWidgetInstanceId,
+  getSessionWidgetId,
 }: WidgetContentWithDef & {
-  getWidgetInstanceId: (id: number) => T.WidgetInstanceId;
+  getSessionWidgetId: (id: number) => SessionWidgetId;
 }): WidgetErrors {
-  const errors = validateRequiredWidget({ content, def, getWidgetInstanceId });
+  const errors = validateRequiredWidget({ content, def, getSessionWidgetId });
 
   content.forEach((contentItem) => {
     if (!isLocationWidgetContent(contentItem)) return;
@@ -150,13 +151,13 @@ function validateLocationWidget({
 function validateRequiredWidget({
   content,
   def,
-  getWidgetInstanceId,
+  getSessionWidgetId,
 }: WidgetContentWithDef & {
-  getWidgetInstanceId: (id: number) => T.WidgetInstanceId;
+  getSessionWidgetId: (id: number) => SessionWidgetId;
 }) {
   const errors = createWidgetErrors();
   const hasContent = hasWidgetContent(content, def.type);
-  const id = getWidgetInstanceId(def.widgetId);
+  const id = getSessionWidgetId(def.widgetId);
   if (!hasContent && def.required) {
     errors.addItemFieldError(id, "global", `${def.label} fields required.`);
   }
@@ -166,17 +167,17 @@ function validateRequiredWidget({
 function validateWidget({
   content,
   def,
-  getWidgetInstanceId,
+  getSessionWidgetId,
 }: WidgetContentWithDef & {
-  getWidgetInstanceId: (id: number) => T.WidgetInstanceId;
+  getSessionWidgetId: (id: number) => SessionWidgetId;
 }) {
   switch (def.type) {
     case "date":
       return validateDateWidget(content);
     case "location":
-      return validateLocationWidget({ content, def, getWidgetInstanceId });
+      return validateLocationWidget({ content, def, getSessionWidgetId });
     default:
-      return validateRequiredWidget({ content, def, getWidgetInstanceId });
+      return validateRequiredWidget({ content, def, getSessionWidgetId });
   }
 }
 
@@ -205,13 +206,13 @@ function isWidgetValid({
 
 function createWidgetValidation(
   widgetData: WidgetContentWithDef,
-  getWidgetInstanceId: (id: number) => T.WidgetInstanceId
+  getSessionWidgetId: (id: number) => SessionWidgetId
 ): WidgetValidation {
   const { content, def } = widgetData;
-  const errors = validateWidget({ content, def, getWidgetInstanceId });
+  const errors = validateWidget({ content, def, getSessionWidgetId });
 
   return {
-    id: getWidgetInstanceId(def.widgetId),
+    id: getSessionWidgetId(def.widgetId),
     label: def.label,
     isRequired: def.required,
     isEmpty: !hasWidgetContent(content, def.type),
@@ -224,12 +225,12 @@ function createWidgetValidation(
 export function validateAsset(
   asset: T.Asset | T.UnsavedAsset | null,
   template: T.Template | null,
-  getWidgetInstanceId: (widgetId: T.WidgetDef["widgetId"]) => T.WidgetInstanceId
+  getSessionWidgetId: (widgetId: T.WidgetDef["widgetId"]) => SessionWidgetId
 ): WidgetValidation[] {
   return (template?.widgetArray ?? []).map((def) => {
     const content =
       (asset?.[def.fieldTitle] as T.WithUuid<T.WidgetContent>[]) || [];
-    return createWidgetValidation({ content, def }, getWidgetInstanceId);
+    return createWidgetValidation({ content, def }, getSessionWidgetId);
   });
 }
 

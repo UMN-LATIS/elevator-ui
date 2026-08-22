@@ -111,21 +111,19 @@ const handleUpdateLabel = (value: string) => {
 
 const assetEditor = useAssetEditor();
 
-// Get the proper widget instance ID
-const widgetInstanceId = computed(() => {
+const sessionWidgetId = computed(() => {
   if (!props.widgetDef) return null;
   invariant(
     assetEditor,
     "Asset editor not found. Make sure this component is used within an AssetEditor context."
   );
-  return assetEditor.getWidgetInstanceId(props.widgetDef.widgetId);
+  return assetEditor.getSessionWidgetId(props.widgetDef.widgetId);
 });
 
-// Find validation for current widget using proper widget instance ID
 const widgetValidation = computed(() => {
-  if (!widgetInstanceId.value) return null;
+  if (!sessionWidgetId.value) return null;
   return assetEditor.widgetValidations.find((validation) => {
-    return validation.id === widgetInstanceId.value;
+    return validation.id === sessionWidgetId.value;
   });
 });
 

@@ -33,6 +33,7 @@ import {
   EditorState,
   ParentLink,
   SaveState,
+  SessionWidgetId,
   initialEditorState,
 } from "./types";
 import { update } from "./update";
@@ -153,9 +154,9 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     return templateSettlement;
   }
 
-  function getWidgetInstanceId(
+  function getSessionWidgetId(
     widgetId: T.WidgetDef["widgetId"]
-  ): T.WidgetInstanceId {
+  ): SessionWidgetId {
     return `${openedKey()}-${widgetId}`;
   }
 
@@ -163,7 +164,7 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     validateAsset(
       selectLocalAsset(state(), currentKey.value),
       selectTemplate(state(), currentKey.value),
-      getWidgetInstanceId
+      getSessionWidgetId
     )
   );
 
@@ -200,7 +201,7 @@ export function provideAssetEditor(options: ProvideAssetEditorOptions) {
     initNewAsset,
     initExistingAsset,
     migrateToTemplate,
-    getWidgetInstanceId,
+    getSessionWidgetId,
     saveAsset(): Promise<void> {
       return effectRunner.saveQueueFor(openedKey()).save();
     },

@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { validateAsset } from "./validation";
-import type { Template, UnsavedAsset, WidgetInstanceId } from "@/types";
+import type { Template, UnsavedAsset } from "@/types";
+import type { SessionWidgetId } from "./types";
 
-const getWidgetInstanceId = (widgetId: number): WidgetInstanceId =>
-  `editor-${widgetId}` as WidgetInstanceId;
+const getSessionWidgetId = (widgetId: number): SessionWidgetId =>
+  `editor-${widgetId}` as SessionWidgetId;
 
 const makeTemplate = (widgetArray: Record<string, unknown>[]): Template =>
   ({
@@ -44,10 +45,10 @@ describe("validateAsset", () => {
     });
 
     expect(
-      validateAsset(emptyAsset, template, getWidgetInstanceId)[0]
+      validateAsset(emptyAsset, template, getSessionWidgetId)[0]
     ).toMatchObject({ isEmpty: true, isValid: false });
     expect(
-      validateAsset(filledAsset, template, getWidgetInstanceId)[0]
+      validateAsset(filledAsset, template, getSessionWidgetId)[0]
     ).toMatchObject({ isEmpty: false, isValid: true });
   });
 
@@ -57,11 +58,11 @@ describe("validateAsset", () => {
       field_1: [{ uuid: "row-1", fieldContents: "", isPrimary: false }],
     });
 
-    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    const [validation] = validateAsset(asset, template, getSessionWidgetId);
     expect(validation.isRequired).toBe(true);
     expect(validation.isValid).toBe(false);
     expect(
-      validation.errors.getItemFieldErrors(getWidgetInstanceId(1), "global")
+      validation.errors.getItemFieldErrors(getSessionWidgetId(1), "global")
     ).toEqual(["Field 1 fields required."]);
   });
 
@@ -89,13 +90,13 @@ describe("validateAsset", () => {
     });
 
     expect(
-      validateAsset(inOrderAsset, template, getWidgetInstanceId)[0].isValid
+      validateAsset(inOrderAsset, template, getSessionWidgetId)[0].isValid
     ).toBe(true);
 
     const [reversedValidation] = validateAsset(
       reversedDatesAsset,
       template,
-      getWidgetInstanceId
+      getSessionWidgetId
     );
     expect(reversedValidation.isValid).toBe(false);
     expect(
@@ -116,7 +117,7 @@ describe("validateAsset", () => {
       ],
     });
 
-    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    const [validation] = validateAsset(asset, template, getSessionWidgetId);
     expect(validation.isValid).toBe(false);
     expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([
       "Invalid start date.",
@@ -136,7 +137,7 @@ describe("validateAsset", () => {
       ],
     });
 
-    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    const [validation] = validateAsset(asset, template, getSessionWidgetId);
     expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([
       "Add a start date or a label, or this date is not saved.",
     ]);
@@ -156,7 +157,7 @@ describe("validateAsset", () => {
       ],
     });
 
-    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    const [validation] = validateAsset(asset, template, getSessionWidgetId);
     expect(validation.errors.getItemFieldErrors("row-1", "start")).toEqual([]);
     expect(validation.isValid).toBe(true);
   });
@@ -174,7 +175,7 @@ describe("validateAsset", () => {
       ],
     });
 
-    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    const [validation] = validateAsset(asset, template, getSessionWidgetId);
     expect(validation.errors.getItemFieldErrors("row-1", "address")).toEqual([
       "Pick a point on the map or add a label, or this address is not saved.",
     ]);
@@ -193,7 +194,7 @@ describe("validateAsset", () => {
       ],
     });
 
-    const [validation] = validateAsset(asset, template, getWidgetInstanceId);
+    const [validation] = validateAsset(asset, template, getSessionWidgetId);
     expect(validation.errors.getItemFieldErrors("row-1", "address")).toEqual(
       []
     );
@@ -206,18 +207,18 @@ describe("validateAsset", () => {
     });
 
     expect(
-      validateAsset(asset, makeTemplate([{}, {}]), getWidgetInstanceId)
+      validateAsset(asset, makeTemplate([{}, {}]), getSessionWidgetId)
     ).toHaveLength(2);
 
     const [validation] = validateAsset(
       asset,
       makeTemplate([{}]),
-      getWidgetInstanceId
+      getSessionWidgetId
     );
-    expect(validation.id).toBe(getWidgetInstanceId(1));
+    expect(validation.id).toBe(getSessionWidgetId(1));
   });
 
   it("returns nothing without a template", () => {
-    expect(validateAsset(makeAsset(), null, getWidgetInstanceId)).toEqual([]);
+    expect(validateAsset(makeAsset(), null, getSessionWidgetId)).toEqual([]);
   });
 });

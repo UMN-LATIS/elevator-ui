@@ -1108,12 +1108,6 @@ export interface ApiAssetSubmissionResponse {
   success?: boolean;
 }
 
-// multiple inline editors on the same page may have the same widget id
-// so we need to make a unique id for this instance or we could wind up
-// with shared state between instances
-type AssetEditorId = string;
-export type WidgetInstanceId = `${AssetEditorId}-${WidgetDef["widgetId"]}`;
-
 export interface WidgetValidationState {
   isValid: boolean;
   errors: string[];

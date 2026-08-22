@@ -15,6 +15,13 @@ import * as T from "@/types";
 export type EditSessionKey = string;
 
 /**
+ * One widget as mounted in one edit session. Editors for the page asset and
+ * its inline related assets can share a template, so the session key keeps
+ * their widgets' DOM ids and page state from colliding.
+ */
+export type SessionWidgetId = `${EditSessionKey}-${T.WidgetDef["widgetId"]}`;
+
+/**
  * The place an inline child occupies in its parent's document: the related-asset
  * item whose targetAssetId the child's create fills in.
  */

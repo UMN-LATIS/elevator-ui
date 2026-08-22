@@ -154,11 +154,11 @@ const props = withDefaults(
 const assetEditor = useAssetEditor();
 
 const addressErrors = computed((): string[] => {
-  const widgetInstanceId = assetEditor.getWidgetInstanceId(
+  const sessionWidgetId = assetEditor.getSessionWidgetId(
     props.widgetDef.widgetId
   );
   const validation = assetEditor.widgetValidations.find(
-    (widgetValidation) => widgetValidation.id === widgetInstanceId
+    (widgetValidation) => widgetValidation.id === sessionWidgetId
   );
   return (
     validation?.errors.getItemFieldErrors(props.modelValue.uuid, "address") ??

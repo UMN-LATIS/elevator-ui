@@ -47,24 +47,24 @@
             v-for="{
               widgetDef,
               widgetContents,
-              widgetInstanceId,
-            } in widgetInstances"
-            :key="widgetInstanceId"
+              sessionWidgetId,
+            } in sessionWidgets"
+            :key="sessionWidgetId"
             :widgetDef="widgetDef"
             :widgetContents="widgetContents"
             :assetId="assetEditor.localAsset.assetId"
             :collectionId="assetEditor.localAsset.collectionId"
             :isOpen="
               openWidgets.has(
-                assetEditor.getWidgetInstanceId(widgetDef.widgetId)
+                assetEditor.getSessionWidgetId(widgetDef.widgetId)
               )
             "
             class="inline-related-asset-widget"
             @update:isOpen="
               (open) => {
                 open
-                  ? openWidgets.add(widgetInstanceId)
-                  : openWidgets.delete(widgetInstanceId);
+                  ? openWidgets.add(sessionWidgetId)
+                  : openWidgets.delete(sessionWidgetId);
               }
             "
             @update:widgetContents="
@@ -81,6 +81,7 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
+import type { SessionWidgetId } from "./useAssetEditor/types";
 import { computed, inject, onMounted, provide, reactive, ref } from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import {
@@ -184,11 +185,11 @@ onMounted(async () => {
   openRequiredOrFilledWidgets();
 });
 
-const openWidgets = reactive(new Set<T.WidgetInstanceId>());
+const openWidgets = reactive(new Set<SessionWidgetId>());
 
-const widgetInstances = computed(
+const sessionWidgets = computed(
   (): Array<{
-    widgetInstanceId: T.WidgetInstanceId;
+    sessionWidgetId: SessionWidgetId;
     widgetDef: T.WidgetDef;
     widgetContents: T.WidgetContent[];
   }> => {
@@ -206,7 +207,7 @@ const widgetInstances = computed(
         "Local asset must be defined after initialization"
       );
       return {
-        widgetInstanceId: assetEditor.getWidgetInstanceId(widgetDef.widgetId),
+        sessionWidgetId: assetEditor.getSessionWidgetId(widgetDef.widgetId),
         widgetDef,
         widgetContents: (assetEditor.localAsset[widgetDef.fieldTitle] ??
           []) as T.WidgetContent[],
@@ -215,22 +216,22 @@ const widgetInstances = computed(
   }
 );
 
-const allWidgetIds = computed(() =>
-  widgetInstances.value.map((w) => w.widgetInstanceId)
+const allSessionWidgetIds = computed(() =>
+  sessionWidgets.value.map((w) => w.sessionWidgetId)
 );
 
 function handleExpandAll() {
-  allWidgetIds.value.forEach((widgetId) => openWidgets.add(widgetId));
+  allSessionWidgetIds.value.forEach((id) => openWidgets.add(id));
 }
 
 function openRequiredOrFilledWidgets() {
-  widgetInstances.value.forEach(
-    ({ widgetDef, widgetContents, widgetInstanceId }) => {
+  sessionWidgets.value.forEach(
+    ({ widgetDef, widgetContents, sessionWidgetId }) => {
       if (
         widgetDef.required ||
         hasWidgetContent(widgetContents, widgetDef.type)
       ) {
-        return openWidgets.add(widgetInstanceId);
+        return openWidgets.add(sessionWidgetId);
       }
     }
   );
