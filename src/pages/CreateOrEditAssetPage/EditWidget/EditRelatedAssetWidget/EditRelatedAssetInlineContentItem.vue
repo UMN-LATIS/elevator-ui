@@ -7,51 +7,28 @@
     </div>
     <InlineCreateOrEditAssetPage
       v-else
-      :key="modelValue.id"
+      :key="modelValue.uuid"
       :templateId="templateId"
       :collectionId="props.collectionId"
       :assetId="modelValue.targetAssetId"
-      class="w-full h-full"
-      @update:assetId="
-        $emit('update:modelValue', {
-          ...modelValue,
-          targetAssetId: $event,
-        })
-      "
-      @update:relatedAssetDirty="handleUpdateRelatedAssetDirty" />
+      :fieldTitle="widgetDef.fieldTitle"
+      :itemUuid="modelValue.uuid"
+      class="w-full h-full" />
   </div>
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
 import { computed } from "vue";
-import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import InlineCreateOrEditAssetPage from "../../InlineCreateOrEditAssetPage.vue";
 
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
-  modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
+  modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>;
   widgetDef: Type.RelatedAssetWidgetDef;
   assetId: string | null; // need current assetId to prevent circular dependencies
-}>();
-
-defineEmits<{
-  (
-    e: "update:modelValue",
-    modelValue: Type.WithId<Type.RelatedAssetWidgetContent>
-  ): void;
 }>();
 
 const templateId = computed((): Type.Template["templateId"] | null => {
   return props.widgetDef.fieldData.defaultTemplate ?? null;
 });
-
-const parentAssetEditor = useAssetEditor();
-
-function handleUpdateRelatedAssetDirty(isDirty: boolean) {
-  // emit the dirty state to the parent component
-  parentAssetEditor?.updateModifiedInlineRelatedAsset(
-    props.modelValue.id,
-    isDirty
-  );
-}
 </script>

@@ -21,10 +21,6 @@ test.describe("an upload whose auto-save fails", () => {
   });
 
   test("tells the user the asset was not saved", async ({ page }) => {
-    // Pins a data-loss or UX bug in the current editor. Goes green when the
-    // reducer editor lands in the next PR of this stack.
-    test.fail();
-
     test.setTimeout(30_000);
 
     // 404 rather than 500, because vue-query retries 500s and the backoff

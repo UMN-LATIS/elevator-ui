@@ -1,6 +1,5 @@
 <template>
   <div
-    ref="containerRef"
     class="inline-edit-asset-page bg-surface px-4 pb-4 rounded-md border border-outline-variant">
     <div
       v-if="depthExceeded"
@@ -13,8 +12,11 @@
       :deletedAt="deletedAssetInfo.deletedAt"
       @restored="handleRestored" />
     <Transition v-else name="fade">
+      <div v-if="assetEditor.loadError" class="p-4 text-sm text-error">
+        This related asset could not be loaded.
+      </div>
       <div
-        v-if="!assetEditor.localAsset || !assetEditor.template"
+        v-else-if="!assetEditor.localAsset || !assetEditor.template"
         class="flex justify-center items-center py-12">
         <SpinnerIcon class="w-8 h-8 animate-spin" />
         <span class="ml-2">Loading...</span>
@@ -45,30 +47,29 @@
             v-for="{
               widgetDef,
               widgetContents,
-              widgetInstanceId,
-            } in widgetInstances"
-            :key="widgetInstanceId"
+              sessionWidgetId,
+            } in sessionWidgets"
+            :key="sessionWidgetId"
             :widgetDef="widgetDef"
             :widgetContents="widgetContents"
             :assetId="assetEditor.localAsset.assetId"
             :collectionId="assetEditor.localAsset.collectionId"
             :isOpen="
               openWidgets.has(
-                assetEditor.getWidgetInstanceId(widgetDef.widgetId)
+                assetEditor.getSessionWidgetId(widgetDef.widgetId)
               )
             "
             class="inline-related-asset-widget"
-            @save="handleSaveAsset"
             @update:isOpen="
               (open) => {
                 open
-                  ? openWidgets.add(widgetInstanceId)
-                  : openWidgets.delete(widgetInstanceId);
+                  ? openWidgets.add(sessionWidgetId)
+                  : openWidgets.delete(sessionWidgetId);
               }
             "
             @update:widgetContents="
               (updatedContents) =>
-                assetEditor.updateAssetField(
+                assetEditor.updateWidgetContents(
                   widgetDef.fieldTitle,
                   updatedContents
                 )
@@ -80,19 +81,11 @@
 </template>
 <script setup lang="ts">
 import * as T from "@/types";
-import {
-  computed,
-  inject,
-  onMounted,
-  provide,
-  reactive,
-  ref,
-  useTemplateRef,
-  watch,
-} from "vue";
+import type { SessionWidgetId } from "./useAssetEditor/types";
+import { computed, inject, onMounted, provide, reactive, ref } from "vue";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import {
-  createAssetEditor,
+  provideAssetEditor,
   useAssetEditor,
 } from "./useAssetEditor/useAssetEditor";
 import DeletedAssetNotice from "@/pages/AssetViewPage/DeletedAssetNotice.vue";
@@ -102,9 +95,7 @@ import invariant from "tiny-invariant";
 import EditWidget from "./EditWidget/EditWidget.vue";
 import Button from "@/components/Button/Button.vue";
 import { ChevronsDownUpIcon, ChevronsUpDownIcon } from "lucide-vue-next";
-import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import { hasWidgetContent } from "@/helpers/hasWidgetContent";
-import { useAssetValidationProvider } from "./useAssetEditor/useAssetValidation";
 
 // Depth tracking to prevent infinite recursion with self-referencing templates
 const INLINE_DEPTH_KEY = "inlineAssetEditorDepth";
@@ -118,6 +109,10 @@ const props = withDefaults(
     templateId?: number | null;
     collectionId?: number | null;
     assetId?: string | null;
+    /** the parent's related-asset field this inline asset lives in */
+    fieldTitle: string;
+    /** the parent's item whose targetAssetId this asset's create fills in */
+    itemUuid: string;
   }>(),
   {
     templateId: null,
@@ -126,26 +121,28 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (e: "update:assetId", assetId: T.Asset["assetId"]): void;
-  (e: "update:relatedAssetDirty", isDirty: boolean): void; // unsaved changes
-}>();
-
-// the parent asset component's editor - used to register the `onBeforeSave`
-// hook
+// inject only reads the ancestor chain, never a component's own provide,
+// so this is the parent surface's editor even though this component
+// provides its own on the same shared editor context
 const parentAssetEditor = useAssetEditor();
 
-// unique editor instance for this inline asset
-const assetEditor = createAssetEditor();
-
-// Provide this inline editor to child components
-provide(ASSET_EDITOR_PROVIDE_KEY, assetEditor);
-
-const { isBlank } = useAssetValidationProvider(
-  () => assetEditor.localAsset,
-  () => assetEditor.template,
-  assetEditor.getWidgetInstanceId
+// this surface's own editor on the page's shared state. The parent link
+// names the item this child is mounted under, so when the server creates
+// the child, the reducer stamps the new id onto that item in the same
+// transition. The parent's save walks the state's parent links, so no
+// registration is needed for it to see this child.
+invariant(
+  parentAssetEditor.editSessionKey,
+  "an inline related asset requires an open parent editor"
 );
+const assetEditor = provideAssetEditor({
+  role: "child",
+  parentLink: {
+    key: parentAssetEditor.editSessionKey,
+    fieldTitle: props.fieldTitle,
+    itemUuid: props.itemUuid,
+  },
+});
 
 const deletedAssetInfo = ref<DeletedAssetInfo | null>(null);
 
@@ -162,27 +159,19 @@ onMounted(async () => {
     return;
   }
 
-  invariant(parentAssetEditor);
-
-  // register a hook to save the current asset whenever the parent asset is saved
-  parentAssetEditor.onBeforeSave(async (): Promise<void> => {
-    // NOTE: unchecked checkbox widget are considered
-    // content, so the form will save if there are any
-    if (isBlank.value) {
-      return;
-    }
-    return handleSaveAsset();
-  });
-
   if (props.assetId) {
     try {
       await assetEditor.initExistingAsset(props.assetId);
     } catch (err) {
+      // 410 is a deleted asset, which has its own notice. Any other
+      // failure is already on the editor's state as loadError and renders
+      // in place, so rethrowing would hand the same error to the
+      // ErrorBoundary, which replaces the page instead of showing it.
       if (err instanceof ApiError && err.statusCode === 410) {
         deletedAssetInfo.value = err.data as DeletedAssetInfo;
         return;
       }
-      throw err;
+      console.error("Error loading related asset:", err);
     }
   } else {
     invariant(props.templateId && props.collectionId);
@@ -194,18 +183,17 @@ onMounted(async () => {
 
   // start expanded
   openRequiredOrFilledWidgets();
-  return;
 });
 
-const openWidgets = reactive(new Set<T.WidgetInstanceId>());
+const openWidgets = reactive(new Set<SessionWidgetId>());
 
-const widgetInstances = computed(
+const sessionWidgets = computed(
   (): Array<{
-    widgetInstanceId: T.WidgetInstanceId;
+    sessionWidgetId: SessionWidgetId;
     widgetDef: T.WidgetDef;
     widgetContents: T.WidgetContent[];
   }> => {
-    if (!assetEditor.isInitialized) {
+    if (!assetEditor.hasAssetToEdit) {
       return [];
     }
     invariant(
@@ -219,7 +207,7 @@ const widgetInstances = computed(
         "Local asset must be defined after initialization"
       );
       return {
-        widgetInstanceId: assetEditor.getWidgetInstanceId(widgetDef.widgetId),
+        sessionWidgetId: assetEditor.getSessionWidgetId(widgetDef.widgetId),
         widgetDef,
         widgetContents: (assetEditor.localAsset[widgetDef.fieldTitle] ??
           []) as T.WidgetContent[],
@@ -228,22 +216,22 @@ const widgetInstances = computed(
   }
 );
 
-const allWidgetIds = computed(() =>
-  widgetInstances.value.map((w) => w.widgetInstanceId)
+const allSessionWidgetIds = computed(() =>
+  sessionWidgets.value.map((w) => w.sessionWidgetId)
 );
 
 function handleExpandAll() {
-  allWidgetIds.value.forEach((widgetId) => openWidgets.add(widgetId));
+  allSessionWidgetIds.value.forEach((id) => openWidgets.add(id));
 }
 
 function openRequiredOrFilledWidgets() {
-  widgetInstances.value.forEach(
-    ({ widgetDef, widgetContents, widgetInstanceId }) => {
+  sessionWidgets.value.forEach(
+    ({ widgetDef, widgetContents, sessionWidgetId }) => {
       if (
         widgetDef.required ||
         hasWidgetContent(widgetContents, widgetDef.type)
       ) {
-        return openWidgets.add(widgetInstanceId);
+        return openWidgets.add(sessionWidgetId);
       }
     }
   );
@@ -252,36 +240,6 @@ function openRequiredOrFilledWidgets() {
 function handleCollapseAll() {
   openWidgets.clear();
 }
-
-async function handleSaveAsset() {
-  const isExistingAsset = props.assetId;
-  await assetEditor.saveAsset();
-
-  invariant(
-    assetEditor.localAsset?.assetId,
-    "Local asset id must be defined after saving"
-  );
-
-  // reset the dirty state now that we've saved
-  emit("update:relatedAssetDirty", false);
-
-  // if this is an existing asset, we're done
-  if (isExistingAsset) return;
-
-  // redirect to the edit asset page
-  const savedAssetId = assetEditor.localAsset.assetId;
-  emit("update:assetId", savedAssetId);
-}
-
-const containerRef = useTemplateRef<HTMLDivElement>("containerRef");
-
-watch(
-  () => assetEditor.hasAssetChanged,
-  (hasChanged) => {
-    // emit the dirty state to the parent component
-    emit("update:relatedAssetDirty", hasChanged);
-  }
-);
 </script>
 <style>
 .inline-edit-asset-page {

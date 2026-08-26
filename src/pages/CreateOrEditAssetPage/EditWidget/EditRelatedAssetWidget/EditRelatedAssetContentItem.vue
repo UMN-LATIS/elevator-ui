@@ -119,8 +119,7 @@
 </template>
 <script setup lang="ts">
 import * as Type from "@/types";
-import { useSearchAssetsQuery } from "@/queries/useSearchAssetsQuery";
-import { computed, inject, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { cn } from "@/lib/utils";
 import {
   Combobox,
@@ -153,16 +152,18 @@ import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
 import { useSearchRelatedAssetsQuery } from "@/queries/useSearchRelatedAssetsQuery";
 
 const props = defineProps<{
-  modelValue: Type.WithId<Type.RelatedAssetWidgetContent>;
+  modelValue: Type.WithUuid<Type.RelatedAssetWidgetContent>;
   assetId: string | null; // need current assetId to prevent circular dependencies
   widgetDef: Type.RelatedAssetWidgetDef;
-  widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]; // need all widget content to prevent multiple lines to the same asset within the widget
+  // need all widget content to prevent multiple lines to the same asset
+  // within the widget
+  widgetContents: Type.WithUuid<Type.RelatedAssetWidgetContent>[];
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:modelValue",
-    widgetContentItem: Type.WithId<Type.RelatedAssetWidgetContent>
+    widgetContentItem: Type.WithUuid<Type.RelatedAssetWidgetContent>
   ): void;
 }>();
 
@@ -190,14 +191,16 @@ const isLoading = computed(() => {
 
 const targetAssetId = computed(() => props.modelValue.targetAssetId);
 
-const channelName = computed(() => `relatedAssetWidget-${props.modelValue.id}`);
+const channelName = computed(
+  () => `relatedAssetWidget-${props.modelValue.uuid}`
+);
 
-const parentAssetEditor = useAssetEditor();
+const assetEditor = useAssetEditor();
 
 const createNewAssetUrl = computed(() => {
   const params = new URLSearchParams({
     channelName: channelName.value,
-    collectionId: String(parentAssetEditor?.collectionId),
+    collectionId: String(assetEditor?.collectionId),
   });
 
   if (props.widgetDef.fieldData.defaultTemplate) {

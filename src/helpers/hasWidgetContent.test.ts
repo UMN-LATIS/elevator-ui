@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { hasUploadContent, hasDateContent } from "./hasWidgetContent";
+import {
+  hasUploadContent,
+  hasDateContent,
+  hasTagListContent,
+} from "./hasWidgetContent";
 
 describe("hasUploadContent", () => {
   // Reproduces #554. A CSV-imported file can carry fileDescription: null
@@ -29,6 +33,36 @@ describe("hasUploadContent", () => {
     ];
 
     expect(hasUploadContent(contents)).toBe(false);
+  });
+});
+
+describe("hasTagListContent", () => {
+  // A typed but uncommitted tag is real content: clicking Save must not
+  // read the widget as empty and drop it.
+  it("counts a typed but uncommitted tag as content", () => {
+    const contents = [{ tags: [], pendingText: "history", isPrimary: false }];
+
+    expect(hasTagListContent(contents)).toBe(true);
+  });
+
+  it("does not count whitespace-only pending text as content", () => {
+    const contents = [{ tags: [], pendingText: "   ", isPrimary: false }];
+
+    expect(hasTagListContent(contents)).toBe(false);
+  });
+
+  it("counts a committed tag as content with no pending text", () => {
+    const contents = [
+      { tags: ["history"], pendingText: "", isPrimary: false },
+    ];
+
+    expect(hasTagListContent(contents)).toBe(true);
+  });
+
+  it("is empty with no tags and no pending text", () => {
+    const contents = [{ tags: [], pendingText: "", isPrimary: false }];
+
+    expect(hasTagListContent(contents)).toBe(false);
   });
 });
 

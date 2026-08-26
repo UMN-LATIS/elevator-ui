@@ -27,15 +27,15 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.CheckboxWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.CheckboxWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <div class="flex gap-2">
         <input
-          :id="`${item.id}-checkbox`"
+          :id="`${item.uuid}-checkbox`"
           type="checkbox"
-          :checked="(item as Type.WithId<Type.CheckboxWidgetContent>).fieldContents"
+          :checked="(item as Type.WithUuid<Type.CheckboxWidgetContent>).fieldContents"
           class="rounded-sm border-outline-variant checked:border-outline-variant focus:ring-2 focus:ring-primary"
           @change="
             (event) =>
@@ -43,12 +43,12 @@
               'update:widgetContents',
               ops.makeUpdateContentPayload(
                 widgetContents,
-                item.id,
+                item.uuid,
                 (event.target as HTMLInputElement).checked
               )
             )
           " />
-        <Label :for="`${item.id}-checkbox`">
+        <Label :for="`${item.uuid}-checkbox`">
           {{ widgetDef.label }}
         </Label>
       </div>
@@ -63,14 +63,14 @@ import { Label } from "@/components/ui/label";
 
 defineProps<{
   widgetDef: Type.TextWidgetDef;
-  widgetContents: Type.WithId<Type.CheckboxWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.CheckboxWidgetContent>[];
   isOpen: boolean;
 }>();
 
 defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.CheckboxWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.CheckboxWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
