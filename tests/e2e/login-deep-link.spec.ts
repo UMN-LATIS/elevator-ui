@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { setupWorkerHTTPHeader, refreshDatabase } from "../setup";
+import { setupWorkerHTTPHeader, refreshDatabase, loginUser } from "../setup";
 
 const PROTECTED_ASSET_ID = "protected_asset_001";
 
@@ -57,5 +57,32 @@ test.describe("Login deep link — protected asset", () => {
       new RegExp(`asset/viewAsset/${PROTECTED_ASSET_ID}`)
     );
     await expect(page.getByText("Protected Asset")).toBeVisible();
+  });
+
+  test("missing collection data does not block asset metadata", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+    await loginUser({ request, page, workerId, username: "curator" });
+
+    await page.route("**/home/getInstanceNav", async (route) => {
+      const response = await route.fetch();
+      const instanceNav = await response.json();
+
+      await route.fulfill({
+        response,
+        json: { ...instanceNav, collections: [] },
+      });
+    });
+
+    await page.goto("/asset/viewAsset/6875871d4eb080a4880a0f44");
+
+    await expect(page.getByText("Asset 1")).toBeVisible();
+    await expect(
+      page.locator(".asset-metadata").getByRole("heading", {
+        name: "Sign In Required",
+      })
+    ).not.toBeVisible();
   });
 });

@@ -1,7 +1,6 @@
 <template>
   <div class="asset-metadata flex flex-col gap-[var(--app-panel-body-items-gap)]">
-    <SignInRequiredNotice v-if="requiresAuth" />
-    <template v-else-if="assetId && asset && template">
+    <template v-if="assetId && asset && template">
       <CollectionTuple v-if="showCollectionTop" :collectionId="asset.collectionId" label="Collection" />
 
       <Tuple v-if="showTemplateTop" label="Template">
@@ -26,8 +25,6 @@ import WidgetList from "@/components/WidgetList/WidgetList.vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
 import CollectionTuple from "./CollectionTuple.vue";
 import MoreLikeThis from "@/components/MoreLikeThis/MoreLikeThis.vue";
-import SignInRequiredNotice from "@/pages/HomePage/SignInRequiredNotice.vue";
-import { useInstanceStore } from "@/stores/instanceStore";
 import { useAsset } from "@/helpers/useAsset";
 import api from "@/api";
 import { SearchResultMatch } from "@/types";
@@ -41,13 +38,6 @@ const props = defineProps<{
 const assetIdRef = computed(() => props.assetId);
 const parentAssetIdRef = computed(() => props.parentAssetId ?? null);
 const { asset, template } = useAsset(assetIdRef, parentAssetIdRef);
-const instanceStore = useInstanceStore();
-
-const requiresAuth = computed(
-  () =>
-    !!asset.value?.collectionId &&
-    !instanceStore.collectionIndex[asset.value.collectionId]
-);
 
 const moreLikeThisItems = ref<SearchResultMatch[]>([]);
 
