@@ -1,11 +1,7 @@
 <template>
   <Tuple v-if="collectionPath?.length" :label="label">
-    <template
-      v-for="(collection, index) in collectionPath"
-      :key="collection.id">
-      <Link
-        :to="`/collections/${collection.id}`"
-        :class="{ 'mr-1': index < collectionPath.length - 1 }">
+    <template v-for="(collection, index) in collectionPath" :key="collection.id">
+      <Link :to="`/collections/${collection.id}`" :class="{ 'mr-1': index < collectionPath.length - 1 }">
         {{ collection.title }}
       </Link>
       <span v-if="index < collectionPath.length - 1" class="mr-1">/</span>
@@ -34,17 +30,16 @@ const collectionPath = computed(() => {
 
   const collection = instanceStore.collectionIndex[props.collectionId];
 
-  if (!collection) {
-    throw new Error(
-      `Collection ${props.collectionId} not found in instanceStore`
-    );
-  }
+  if (!collection) return null;
 
   // construct a path to this collection
   const path = [collection];
   let child = collection;
   while (child.parentId) {
-    child = instanceStore.collectionIndex[child.parentId];
+    const parent = instanceStore.collectionIndex[child.parentId];
+    if (!parent) return null;
+
+    child = parent;
     path.unshift(child);
   }
 
