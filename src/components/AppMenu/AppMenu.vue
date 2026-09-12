@@ -32,7 +32,7 @@
           class="app-menu__edit-nav-section" />
 
         <AdminNavSection
-          v-if="currentUser?.isAdmin"
+          v-if="currentUser?.isAdmin || currentUser?.canEditTemplates"
           :currentUser="currentUser"
           :instance="instance"
           class="app-menu__admin-nav-section" />

@@ -589,6 +589,7 @@ export interface ApiInstanceNavResponse {
   userIsloggedIn: boolean;
   userIsAdmin: boolean;
   userIsSuperAdmin: boolean;
+  userCanEditTemplates: boolean;
   userCanManageAssets: boolean;
   userCanCreateDrawers: boolean;
   userCanSearchAndBrowse: boolean;
@@ -771,6 +772,7 @@ export interface User {
   isSuperAdmin: boolean;
   canManageAssets: boolean;
   canManageDrawers: boolean;
+  canEditTemplates: boolean;
 }
 
 export interface NavItem {

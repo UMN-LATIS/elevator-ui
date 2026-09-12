@@ -333,7 +333,7 @@ const router = createRouter({
       component: () => import("@/pages/AllTemplatesPage/AllTemplatesPage.vue"),
       meta: {
         requiresAuth: true,
-        canAccess: (user: User) => user.isAdmin,
+        canAccess: (user: User) => user.isAdmin || user.canEditTemplates,
       },
     },
     {
@@ -344,7 +344,7 @@ const router = createRouter({
       props: (route) => ({ templateId: parseIntFromParam(route.params.id) }),
       meta: {
         requiresAuth: true,
-        canAccess: (user: User) => user.isAdmin,
+        canAccess: (user: User) => user.isAdmin || user.canEditTemplates,
       },
     },
     {
@@ -355,7 +355,7 @@ const router = createRouter({
       props: { templateId: null },
       meta: {
         requiresAuth: true,
-        canAccess: (user: User) => user.isAdmin,
+        canAccess: (user: User) => user.isAdmin || user.canEditTemplates,
       },
     },
     {
