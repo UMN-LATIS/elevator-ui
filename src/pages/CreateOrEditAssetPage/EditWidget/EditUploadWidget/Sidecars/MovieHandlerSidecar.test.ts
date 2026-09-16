@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import MovieHandlerSidecar from "./MovieHandlerSidecar.vue";
-import type { UploadWidgetDef, WithId, UploadWidgetContent } from "@/types";
+import type { UploadWidgetDef, WithUuid, UploadWidgetContent } from "@/types";
 
-const defaultSidecars: WithId<UploadWidgetContent["sidecars"]> = {
-  id: "test-id",
+const defaultSidecars: WithUuid<UploadWidgetContent["sidecars"]> = {
+  uuid: "test-id",
   captions: "",
   chapters: "",
   language: null,
@@ -31,7 +31,7 @@ const defaultWidgetDef: UploadWidgetDef = {
 };
 
 function mountSidecar(
-  sidecars: Partial<WithId<UploadWidgetContent["sidecars"]>> = {}
+  sidecars: Partial<WithUuid<UploadWidgetContent["sidecars"]>> = {}
 ) {
   return mount(MovieHandlerSidecar, {
     props: {

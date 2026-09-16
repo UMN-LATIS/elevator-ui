@@ -6,20 +6,20 @@
     :isOpen="isOpen"
     @update:isOpen="$emit('update:isOpen', $event)"
     @setPrimary="
-      (id) =>
+      (uuid) =>
         $emit(
           'update:widgetContents',
-          ops.makeSetPrimaryContentPayload(widgetContents, id)
+          ops.makeSetPrimaryContentPayload(widgetContents, uuid)
         )
     "
     @delete="
-      (id) => {
-        handleDeleteContent(id);
+      (uuid) => {
+        handleDeleteContent(uuid);
       }
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.UploadWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.UploadWidgetContent>[]);
       }
     ">
     <template #moreWidgetActions>
@@ -45,14 +45,10 @@
       <EditUploadWidgetItem
         :item="item"
         :widgetDef="widgetDef"
-        :isShowingDetails="isShowingDetails.has(item.id)"
+        :isShowingDetails="isShowingDetails.has(item.uuid)"
         class="upload-widget-item"
         @update:item="handleUpdateItem"
-        @toggle:details="
-          isShowingDetails.has(item.id)
-            ? isShowingDetails.delete(item.id)
-            : isShowingDetails.add(item.id)
-        " />
+        @toggle:details="toggleDetails(item.uuid)" />
     </template>
     <template #footer>
       <FileUploader
@@ -64,12 +60,15 @@
   </EditWidgetLayout>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref, defineAsyncComponent } from "vue";
+import { computed, ref, defineAsyncComponent } from "vue";
 import * as Type from "@/types";
 import EditWidgetLayout from "../EditWidgetLayout.vue";
 import * as ops from "../helpers/editWidgetOps";
 import { createDefaultWidgetContent } from "@/helpers/createDefaultWidgetContents";
 import api from "@/api";
+import { useAssetEditor } from "../../useAssetEditor/useAssetEditor";
+import { useToastStore } from "@/stores/toastStore";
+import { getErrorMessage } from "@/api/getErrorMessage";
 import EditUploadWidgetItem from "./EditUploadWidgetItem.vue";
 import DropDown from "@/components/DropDown/DropDown.vue";
 import DropDownItem from "@/components/DropDown/DropDownItem.vue";
@@ -84,26 +83,45 @@ const FileUploader = defineAsyncComponent(() => import("./FileUploader.vue"));
 const props = defineProps<{
   collectionId: number;
   widgetDef: Type.UploadWidgetDef;
-  widgetContents: Type.WithId<Type.UploadWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.UploadWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.UploadWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.UploadWidgetContent>[]
   );
   (e: "update:isOpen", isOpen: boolean): void;
-  (e: "save"): void;
 }>();
 
 const isShowingDetails = ref<Set<string>>(new Set());
+
+function toggleDetails(uuid: string): void {
+  if (isShowingDetails.value.has(uuid)) {
+    isShowingDetails.value.delete(uuid);
+    return;
+  }
+  isShowingDetails.value.add(uuid);
+}
 const hasContents = computed(() => {
   return props.widgetContents.length > 0;
 });
 
-async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
-  const uploadedItem: Type.WithId<Type.UploadWidgetContent> = {
+const assetEditor = useAssetEditor();
+const toastStore = useToastStore();
+
+/**
+ * Props update one render behind, so two uploads finishing together would
+ * both read the old array and the second would drop the first.
+ */
+function contentsInState(): Type.WithUuid<Type.UploadWidgetContent>[] {
+  return (assetEditor.localAsset?.[props.widgetDef.fieldTitle] ??
+    []) as Type.WithUuid<Type.UploadWidgetContent>[];
+}
+
+function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
+  const uploadedItem: Type.WithUuid<Type.UploadWidgetContent> = {
     ...createDefaultWidgetContent(props.widgetDef),
     fileId: fileRecord.fileObjectId,
     fileDescription: "",
@@ -113,18 +131,13 @@ async function handleCompleteUpload(fileRecord: Type.FileUploadRecord) {
     searchData: "", // Initialize searchData as an empty string
   };
 
-  emit("update:widgetContents", [
-    ...props.widgetContents,
+  assetEditor.recordCompletedUpload(props.widgetDef.fieldTitle, [
+    ...contentsInState(),
     uploadedItem,
-  ] as Type.WithId<Type.UploadWidgetContent>[]);
-
-  // Wait for Vue to flush the state update into localAsset before saving,
-  // so the new file is included in the save payload.
-  await nextTick();
-  emit("save");
+  ]);
 }
 
-async function handleDeleteContent(id: string) {
+async function handleDeleteContent(uuid: string) {
   if (
     !confirm(
       "Delete this upload object? This action cannot be undone and will delete the source media and any derivatives."
@@ -133,29 +146,49 @@ async function handleDeleteContent(id: string) {
     return;
   }
 
-  const item = props.widgetContents.find((item) => item.id === id);
+  const item = contentsInState().find((item) => item.uuid === uuid);
 
   if (!item) {
     throw new Error(
-      `No upload item found with id: ${id}. Cannot delete non-existent item.`
+      `No upload item found with uuid: ${uuid}. Cannot delete non-existent item.`
     );
   }
 
-  // Call the API to delete the file object
-  await api.deleteFileObject(item.fileId);
-
-  emit(
-    "update:widgetContents",
-    ops.deleteWidgetContent(props.widgetContents, id)
+  // save the removal before deleting the file, so a failed save never
+  // leaves the asset pointing at destroyed media
+  assetEditor.updateWidgetContents(
+    props.widgetDef.fieldTitle,
+    ops.deleteWidgetContent(contentsInState(), uuid)
   );
+  try {
+    await assetEditor.saveAsset();
+  } catch (cause) {
+    toastStore.addToast({
+      title: "Error",
+      message: `The file was not deleted because the asset could not be saved: ${getErrorMessage(
+        cause
+      )}`,
+      variant: "error",
+    });
+    return;
+  }
 
-  await nextTick();
-  emit("save");
+  try {
+    await api.deleteFileObject(item.fileId);
+  } catch (cause) {
+    console.error("Error deleting file object:", cause);
+    toastStore.addToast({
+      title: "Error",
+      message:
+        "The file was removed from the asset but could not be deleted from storage.",
+      variant: "error",
+    });
+  }
 }
 
-function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
-  const updatedContents = props.widgetContents.map((existingItem) => {
-    if (existingItem.id === item.id) {
+function handleUpdateItem(item: Type.WithUuid<Type.UploadWidgetContent>) {
+  const updatedContents = contentsInState().map((existingItem) => {
+    if (existingItem.uuid === item.uuid) {
       return { ...existingItem, ...item };
     }
     return existingItem;
@@ -165,26 +198,26 @@ function handleUpdateItem(item: Type.WithId<Type.UploadWidgetContent>) {
 
 const isRegeneratingAllDerivatives = computed(() => {
   return props.widgetContents.every(
-    (item: Type.WithId<Type.UploadWidgetContent>) => item.regenerate === "On"
+    (item: Type.WithUuid<Type.UploadWidgetContent>) => item.regenerate === "On"
   );
 });
 
 function handleRegenerateAllDerivatives() {
-  const updatedContents = props.widgetContents.map(
-    (item: Type.WithId<Type.UploadWidgetContent>) => ({
-      ...item,
-      // regenerate is not true/false, but "On" or undefined
-      regenerate: isRegeneratingAllDerivatives.value
-        ? undefined
-        : ("On" as const),
-    })
+  const items = contentsInState();
+  const isEveryItemRegenerating = items.every(
+    (item) => item.regenerate === "On"
   );
+  const updatedContents = items.map((item) => ({
+    ...item,
+    // regenerate is not true/false, but "On" or undefined
+    regenerate: isEveryItemRegenerating ? undefined : ("On" as const),
+  }));
 
   emit("update:widgetContents", updatedContents);
 
   // also open all details views
-  const allIds = props.widgetContents.map((item) => item.id);
-  isShowingDetails.value = new Set(allIds);
+  const allUuids = items.map((item) => item.uuid);
+  isShowingDetails.value = new Set(allUuids);
 }
 </script>
 <style scoped></style>

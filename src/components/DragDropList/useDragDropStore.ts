@@ -25,7 +25,7 @@ export function useDragDropStore(groupId: string | number) {
     groupLookup.set(groupId, initialGroup);
   }
 
-  function setList(listId: string | number, items: HasId[] = []) {
+  function setList(listId: string | number, items: unknown[] = []) {
     const group = groupLookup.get(groupId);
     invariant(group, `group with id ${groupId} not found`);
     group.listLookup.set(listId, { id: listId, items });
@@ -41,18 +41,6 @@ export function useDragDropStore(groupId: string | number) {
     const group = groupLookup.get(groupId);
     invariant(group, `group with id ${groupId} not found`);
     return group.listLookup.get(listId);
-  }
-
-  function getListItem(
-    listId: DragDropList["id"],
-    itemId: string | number
-  ): HasId | null {
-    const group = groupLookup.get(groupId);
-    invariant(group, `group with id ${groupId} not found`);
-    return (
-      group.listLookup.get(listId)?.items.find((item) => item.id === itemId) ??
-      null
-    );
   }
 
   function moveItem(
@@ -100,8 +88,10 @@ export function useDragDropStore(groupId: string | number) {
       return;
     }
 
-    // remove item from source list
-    const [item] = fromList.items.splice(sourceIndex, 1);
+    // Leave the caller's array untouched, so a drag does not edit the
+    // parent's data in place.
+    const item = fromList.items[sourceIndex];
+    fromList.items = fromList.items.filter((_, index) => index !== sourceIndex);
 
     // then reorder the target list using the closest edge of the target
     toList.items = dnd.reorderWithEdge({
@@ -142,7 +132,6 @@ export function useDragDropStore(groupId: string | number) {
     setList,
     removeList,
     getList,
-    getListItem,
     moveItem,
     getSourceData,
     setSourceData,

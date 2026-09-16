@@ -22,13 +22,13 @@ import ZipObjHandlerSidecar from "./Sidecars/ZipObjHandlerSidecar.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 
 const props = defineProps<{
-  item: Type.WithId<Type.UploadWidgetContent>;
+  item: Type.WithUuid<Type.UploadWidgetContent>;
   widgetDef: Type.UploadWidgetDef;
   fileMetaData?: FileMetaData;
 }>();
 
 defineEmits<{
-  (e: "update:item", item: Type.WithId<Type.UploadWidgetContent>): void;
+  (e: "update:item", item: Type.WithUuid<Type.UploadWidgetContent>): void;
 }>();
 
 const fileHandlerName = computed(

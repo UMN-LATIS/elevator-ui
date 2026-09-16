@@ -19,7 +19,7 @@ describe("createSaveQueue", () => {
         new Promise<void>((res, rej) => {
           resolves.push(res);
           rejects.push(rej);
-        }),
+        })
     );
     return { fn, resolves, rejects };
   }
@@ -67,8 +67,8 @@ describe("createSaveQueue", () => {
     });
   });
 
-  describe("coalescing", () => {
-    it("coalesces saves requested while one is in flight into a single additional call", async () => {
+  describe("merging", () => {
+    it("merges saves requested while one is in flight into a single additional call", async () => {
       const { fn, resolves } = makeControllableSaveFn();
       const { save } = createSaveQueue(fn, 0);
 
@@ -88,7 +88,7 @@ describe("createSaveQueue", () => {
 
       await expect(p1).resolves.toBeUndefined();
 
-      // p2/p3/p4 were coalesced — only one additional saveFn call
+      // p2/p3/p4 were merged into a single additional saveFn call
       resolves[1]();
       await flushMicrotasks();
       await vi.advanceTimersByTimeAsync(0);
@@ -155,8 +155,12 @@ describe("createSaveQueue", () => {
       const error = new Error("save failed");
       const { fn, resolves, rejects } = makeControllableSaveFn();
       // First invocation succeeds, second fails
-      fn.mockImplementationOnce(() => new Promise<void>((r) => resolves.push(r)));
-      fn.mockImplementationOnce(() => new Promise<void>((_, rej) => rejects.push(rej)));
+      fn.mockImplementationOnce(
+        () => new Promise<void>((r) => resolves.push(r))
+      );
+      fn.mockImplementationOnce(
+        () => new Promise<void>((_, rej) => rejects.push(rej))
+      );
 
       const { save } = createSaveQueue(fn, 100);
 

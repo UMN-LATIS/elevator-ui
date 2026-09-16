@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { toSaveableFormData } from "./toSaveableFormData";
-import type { Asset, Template, UploadWidgetDef, UploadWidgetContent } from "@/types";
+import type {
+  Asset,
+  Template,
+  UploadWidgetDef,
+  UploadWidgetContent,
+} from "@/types";
 
 const uploadWidget: UploadWidgetDef = {
   widgetId: 1,
@@ -45,12 +50,14 @@ function makeAsset(uploadEntries: unknown[]): Asset {
   } as unknown as Asset;
 }
 
-describe("toSaveableFormData — prepWidgetsForSave sanitisation", () => {
+describe("toSaveableFormData sanitisation", () => {
   it("preserves real upload entries", () => {
     const asset = makeAsset([realEntry]);
     const result = toSaveableFormData(asset, template);
     expect(result.upload_1).toHaveLength(1);
-    expect((result.upload_1 as unknown as UploadWidgetContent[])[0].fileId).toBe("abc123");
+    expect(
+      (result.upload_1 as unknown as UploadWidgetContent[])[0].fileId
+    ).toBe("abc123");
   });
 
   it("strips empty {} entries before save", () => {
@@ -63,7 +70,7 @@ describe("toSaveableFormData — prepWidgetsForSave sanitisation", () => {
 
   it("strips empty [] entries before save", () => {
     // The backend stores widget entries as JSON arrays. An empty upload slot
-    // can be serialised as `[]` rather than `{}` — both should be stripped.
+    // can be serialised as `[]` rather than `{}`, and both should be stripped.
     const asset = makeAsset([realEntry, [], [], []]);
     const result = toSaveableFormData(asset, template);
     expect(result.upload_1).toHaveLength(1);
@@ -84,7 +91,10 @@ describe("toSaveableFormData — prepWidgetsForSave sanitisation", () => {
   it("omits the field entirely when the widget value is not an array", () => {
     // The backend could theoretically return a non-array for a widget field.
     // We skip the field rather than crashing.
-    const asset = { ...makeAsset([]), upload_1: "unexpected" } as unknown as Asset;
+    const asset = {
+      ...makeAsset([]),
+      upload_1: "unexpected",
+    } as unknown as Asset;
     const result = toSaveableFormData(asset, template);
     expect(result).not.toHaveProperty("upload_1");
   });

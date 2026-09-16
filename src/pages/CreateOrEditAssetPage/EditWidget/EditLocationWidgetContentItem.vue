@@ -41,7 +41,9 @@
           label="Longitude"
           placeholder="Enter longitude"
           :aria-invalid="lngError ? 'true' : undefined"
-          :aria-describedby="lngError ? `${id}-longitude-error` : undefined" />
+          :aria-describedby="lngError ? `${id}-longitude-error` : undefined"
+          @focus="isCoordinateInputFocused.lng = true"
+          @blur="handleCoordinateInputBlur('lng')" />
         <p
           v-if="lngError"
           :id="`${id}-longitude-error`"
@@ -56,7 +58,9 @@
           label="Latitude"
           placeholder="Enter latitude"
           :aria-invalid="latError ? 'true' : undefined"
-          :aria-describedby="latError ? `${id}-latitude-error` : undefined" />
+          :aria-describedby="latError ? `${id}-latitude-error` : undefined"
+          @focus="isCoordinateInputFocused.lat = true"
+          @blur="handleCoordinateInputBlur('lat')" />
         <p
           v-if="latError"
           :id="`${id}-latitude-error`"
@@ -76,6 +80,10 @@
         :initialValue="props.modelValue.address ?? ''"
         :apiKey="config.arcgis.apiKey"
         placeholder="Search for an address"
+        :aria-invalid="addressErrors.length ? 'true' : undefined"
+        :aria-describedby="
+          addressErrors.length ? `${id}-address-error` : undefined
+        "
         @select="
           (geocoderResult) =>
             $emit('update:modelValue', {
@@ -90,6 +98,13 @@
               },
             })
         " />
+      <p
+        v-for="error in addressErrors"
+        :id="`${id}-address-error`"
+        :key="error"
+        class="text-error text-xs">
+        {{ error }}
+      </p>
     </div>
   </div>
 </template>
@@ -110,7 +125,14 @@ import config from "@/config";
 import invariant from "tiny-invariant";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import ArcGisGeocoder from "./ArcGISGeocoder.vue";
-import { LocationWidgetContent, WithId, LngLat, Coordinates } from "@/types";
+import {
+  LocationWidgetContent,
+  WithUuid,
+  LngLat,
+  Coordinates,
+  WidgetDef,
+} from "@/types";
+import { useAssetEditor } from "../useAssetEditor/useAssetEditor";
 import { useTheming } from "@/helpers/useTheming";
 import {
   toLngLat,
@@ -120,7 +142,8 @@ import {
 
 const props = withDefaults(
   defineProps<{
-    modelValue: WithId<LocationWidgetContent>;
+    modelValue: WithUuid<LocationWidgetContent>;
+    widgetDef: WidgetDef;
     initialZoom?: number;
   }>(),
   {
@@ -128,7 +151,22 @@ const props = withDefaults(
   }
 );
 
-const id = computed(() => props.modelValue.id || useId());
+const assetEditor = useAssetEditor();
+
+const addressErrors = computed((): string[] => {
+  const sessionWidgetId = assetEditor.getSessionWidgetId(
+    props.widgetDef.widgetId
+  );
+  const validation = assetEditor.widgetValidations.find(
+    (widgetValidation) => widgetValidation.id === sessionWidgetId
+  );
+  return (
+    validation?.errors.getItemFieldErrors(props.modelValue.uuid, "address") ??
+    []
+  );
+});
+
+const id = computed(() => props.modelValue.uuid || useId());
 
 const { effectiveTheme } = useTheming();
 
@@ -139,7 +177,10 @@ const roundFloat = (value: number, decimalPlaces: number): number =>
   Number(value.toFixed(decimalPlaces));
 
 const emit = defineEmits<{
-  (e: "update:modelValue", widgetContent: WithId<LocationWidgetContent>): void;
+  (
+    e: "update:modelValue",
+    widgetContent: WithUuid<LocationWidgetContent>
+  ): void;
 }>();
 
 const mapContainerRef = useTemplateRef<HTMLElement>("mapContainer");
@@ -188,6 +229,7 @@ const marker = shallowRef<maplibregl.Marker | null>(null);
 function emitCoordinateUpdate(lngLat: LngLat | null) {
   const loc = lngLat
     ? {
+        type: "Point",
         ...props.modelValue.loc,
         coordinates: [
           roundFloat(lngLat.lng, 6),
@@ -202,8 +244,24 @@ function emitCoordinateUpdate(lngLat: LngLat | null) {
   });
 }
 
+// a field the user is typing in is never overwritten from the model, so
+// "-92." is not rewritten to "-92" mid-keystroke
+const isCoordinateInputFocused = reactive({ lng: false, lat: false });
+
+function handleCoordinateInputBlur(coordinate: "lng" | "lat") {
+  // do not re-read the model here: after clearing one box, that would put
+  // the old coordinate straight back
+  isCoordinateInputFocused[coordinate] = false;
+}
+
 // update modelValue when input fields change
 watch([() => state.lngInput, () => state.latInput], () => {
+  // clearing both inputs removes the location from the asset
+  if (state.lngInput.trim() === "" && state.latInput.trim() === "") {
+    if (props.modelValue.loc) emitCoordinateUpdate(null);
+    return;
+  }
+
   const lng = parseFloat(state.lngInput);
   const lat = parseFloat(state.latInput);
 
@@ -213,9 +271,8 @@ watch([() => state.lngInput, () => state.latInput], () => {
     return;
   }
 
-  // Update the modelValue with the new coordinates (even if they are
-  // out of range. If we don't do this, we may save -9 when the user types
-  // -92.
+  // take the value even when it is out of range, so the save keeps what was
+  // typed, otherwise a half-typed "-92" would store -9
   emitCoordinateUpdate({
     lng,
     lat,
@@ -241,9 +298,12 @@ watch(
 
     const coordinates = props.modelValue.loc?.coordinates ?? null;
 
-    // sync local inputs, even out-of-range values, so the user can fix them
-    state.lngInput = coordinates?.[0]?.toString() ?? "";
-    state.latInput = coordinates?.[1]?.toString() ?? "";
+    if (!isCoordinateInputFocused.lng) {
+      state.lngInput = coordinates?.[0]?.toString() ?? "";
+    }
+    if (!isCoordinateInputFocused.lat) {
+      state.latInput = coordinates?.[1]?.toString() ?? "";
+    }
 
     // absent, malformed, or out-of-range coordinates get no marker
     const center = toLngLat(coordinates);

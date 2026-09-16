@@ -1,11 +1,14 @@
-import { WIDGET_TYPES, WidgetContent, WidgetDef, WithId } from "@/types";
+import { WIDGET_TYPES, WidgetContent, WidgetDef, WithUuid } from "@/types";
 
 export function createDefaultWidgetContent(
-  widgetProps: WidgetDef
-): WithId<WidgetContent> {
+  widgetProps: WidgetDef,
+  // the editor's reducer injects its own uuid source to stay deterministic,
+  // component callers take the default
+  createUuid: () => string = () => crypto.randomUUID()
+): WithUuid<WidgetContent> {
   const base = {
     isPrimary: false,
-    id: crypto.randomUUID(),
+    uuid: createUuid(),
   };
 
   switch (widgetProps.type) {

@@ -2,7 +2,7 @@
   <div
     class="tuple"
     :class="{
-      'w-full': variant === 'stacked',
+      'w-full flex flex-col gap-1': variant === 'stacked',
       'inline-flex items-baseline gap-2': variant === 'inline',
     }">
     <div class="tuple__label flex justify-between items-center text-on-surface">

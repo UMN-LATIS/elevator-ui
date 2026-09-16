@@ -27,7 +27,7 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.RelatedAssetWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.RelatedAssetWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
@@ -36,14 +36,14 @@
         :collectionId="collectionId"
         :widgetDef="widgetDef"
         :assetId="assetId"
-        :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
+        :modelValue="(item as Type.WithUuid<Type.RelatedAssetWidgetContent>)"
         @update:modelValue="handleUpdate" />
       <EditRelatedAssetWidgetContentItem
         v-else
         :widgetDef="widgetDef"
         :widgetContents="widgetContents"
         :assetId="assetId"
-        :modelValue="(item as Type.WithId<Type.RelatedAssetWidgetContent>)"
+        :modelValue="(item as Type.WithUuid<Type.RelatedAssetWidgetContent>)"
         @update:modelValue="handleUpdate" />
     </template>
   </EditWidgetLayout>
@@ -58,7 +58,7 @@ import * as ops from "../helpers/editWidgetOps";
 const props = defineProps<{
   collectionId: Type.AssetCollection["id"];
   widgetDef: Type.RelatedAssetWidgetDef;
-  widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.RelatedAssetWidgetContent>[];
   assetId: string | null; // current assetId. could be null for new assets
   isOpen: boolean;
 }>();
@@ -66,14 +66,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.RelatedAssetWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.RelatedAssetWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const handleUpdate = (updatedItem) => {
   const updatedContents = props.widgetContents.map((item) =>
-    item.id === updatedItem.id ? updatedItem : item
+    item.uuid === updatedItem.uuid ? updatedItem : item
   );
 
   emit("update:widgetContents", updatedContents);

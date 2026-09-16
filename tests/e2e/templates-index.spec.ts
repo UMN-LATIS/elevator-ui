@@ -9,6 +9,7 @@ const TEMPLATE_NAMES_INSERTION_ORDER = [
   "Inline Child Template",
   "Collapsed Related Parent Template",
   "Thumbnail Related Parent Template",
+  "Nested Record",
   "Inline Parent Template",
   "Multiple Upload Widgets",
   "All Fields with Autocomplete",

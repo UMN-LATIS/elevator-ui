@@ -6,7 +6,7 @@
       getDataId({
         groupId,
         listId: props.listId,
-        itemId: props.item.id,
+        itemId: props.itemId,
       })
     ">
     <DragHandle
@@ -22,7 +22,7 @@
     <DropIndicator v-if="closestEdge" :closestEdgeOfTarget="closestEdge" />
   </li>
 </template>
-<script setup lang="ts" generic="ItemType extends HasId">
+<script setup lang="ts">
 import type { CSSClass, HasId } from "./dndTypes";
 import DragHandle from "./DragHandle.vue";
 import {
@@ -46,7 +46,7 @@ import { focusItem } from "./utils/focusItem";
 import { announceMove } from "./utils/announceMove";
 
 const props = defineProps<{
-  item: ItemType;
+  itemId: string | number;
   index: number;
   listId: string | number;
   nextListId?: string;
@@ -94,7 +94,7 @@ function setupDraggable(): dnd.CleanupFn {
     getInitialData: () => {
       // data returned here will be available on the `source` object
       return makeDragData({
-        sourceId: props.item.id,
+        sourceId: props.itemId,
         sourceIndex: props.index,
         groupId,
         listId: props.listId,
@@ -105,7 +105,7 @@ function setupDraggable(): dnd.CleanupFn {
       // store the source index for later use
       dragDropStore.setSourceData(
         makeDragData({
-          sourceId: props.item.id,
+          sourceId: props.itemId,
           sourceIndex: props.index,
           groupId,
           listId: props.listId,
@@ -113,7 +113,7 @@ function setupDraggable(): dnd.CleanupFn {
       );
 
       // announce that item has been picked up
-      dnd.announce(`Item ${props.item.id} picked up`);
+      dnd.announce(`Item ${props.itemId} picked up`);
     },
     onDrop: () => {
       isDragging.value = false;
@@ -142,7 +142,7 @@ function setupDroppable(): dnd.CleanupFn {
       invariant(groupId, "groupId is not defined");
 
       const data = makeDropData({
-        targetId: props.item.id,
+        targetId: props.itemId,
         targetIndex: props.index,
         groupId,
         listId: props.listId,
@@ -169,11 +169,11 @@ function setupDroppable(): dnd.CleanupFn {
       invariant(groupId);
 
       // announce that item is over the target
-      dnd.announce(`Item ${source.data.sourceId} over ${props.item.id}`);
+      dnd.announce(`Item ${source.data.sourceId} over ${props.itemId}`);
       // store the target index for later use
       dragDropStore.setTargetData(
         makeDropData({
-          targetId: props.item.id,
+          targetId: props.itemId,
           targetIndex: props.index,
           groupId,
           listId: props.listId,
@@ -232,18 +232,18 @@ function moveToIndex(targetIndex: number) {
     focusItem({
       groupId,
       listId: props.listId,
-      itemId: props.item.id,
+      itemId: props.itemId,
     });
 
     flashItem({
       groupId,
       listId: props.listId,
-      itemId: props.item.id,
+      itemId: props.itemId,
     });
 
     // announce the move
     announceMove({
-      itemId: props.item.id,
+      itemId: props.itemId,
       sourceIndex: props.index,
       targetIndex,
       sourceListId: props.listId,
@@ -289,18 +289,18 @@ function moveList(targetListId: HasId["id"]) {
     focusItem({
       groupId,
       listId: targetListId,
-      itemId: props.item.id,
+      itemId: props.itemId,
     });
 
     flashItem({
       groupId,
       listId: targetListId,
-      itemId: props.item.id,
+      itemId: props.itemId,
     });
 
     // announce the move
     announceMove({
-      itemId: props.item.id,
+      itemId: props.itemId,
       sourceIndex: props.index,
       targetIndex: 0,
       sourceListId: props.listId,

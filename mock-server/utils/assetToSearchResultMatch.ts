@@ -30,7 +30,7 @@ function extractDatesFromAsset(asset: Asset): DateResult[] {
                   numeric: Number(dateWidget.end.numeric) as unknown as bigint,
                 }
               : undefined,
-            label: dateWidget.label,
+            label: dateWidget.label ?? undefined,
             isPrimary: dateWidget.isPrimary,
             dateAsset: [
               {

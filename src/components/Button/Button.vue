@@ -10,6 +10,8 @@
         {
           'bg-primary text-on-primary hover:bg-[--btn-primary-hover]':
             variant === 'primary',
+          'bg-transparent border-2 border-solid border-primary text-primary hover:text-on-primary-container hover:bg-primary-container':
+            variant === 'primary-outline',
           'bg-secondary-container text-on-secondary-container hover:bg-[--btn-secondary-hover] border border-secondary-container hover:border-[--btn-secondary-hover]':
             variant === 'secondary',
           'text-primary hover:text-on-primary-container hover:bg-primary-container text-xs uppercase font-medium px-2 py-1':
@@ -37,7 +39,12 @@ const props = withDefaults(
   defineProps<{
     href?: string;
     to?: RouteLocationRaw;
-    variant?: "primary" | "secondary" | "tertiary" | "danger";
+    variant?:
+      | "primary"
+      | "primary-outline"
+      | "secondary"
+      | "tertiary"
+      | "danger";
     type?: "button" | "submit" | "reset";
   }>(),
   {

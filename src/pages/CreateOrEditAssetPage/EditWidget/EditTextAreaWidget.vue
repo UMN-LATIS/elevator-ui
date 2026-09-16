@@ -26,17 +26,17 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.TextWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.TextWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <div>
-        <label :for="`${item.id}-input`" class="sr-only">
+        <label :for="`${item.uuid}-input`" class="sr-only">
           {{ widgetDef.label }}
         </label>
         <TextEditor
-          :id="`${item.id}-input`"
-          :modelValue="(item as Type.WithId<Type.TextAreaWidgetContent>).fieldContents ?? ''"
+          :id="`${item.uuid}-input`"
+          :modelValue="(item as Type.WithUuid<Type.TextAreaWidgetContent>).fieldContents ?? ''"
           :placeholder="widgetDef.label"
           class="bg-surface-container border border-outline-variant rounded-lg"
           :contentEditableAttrs="{
@@ -47,7 +47,7 @@
             (html) =>
               $emit(
                 'update:widgetContents',
-                ops.makeUpdateContentPayload(widgetContents, item.id, html)
+                ops.makeUpdateContentPayload(widgetContents, item.uuid, html)
               )
           " />
       </div>
@@ -68,17 +68,15 @@ const TextEditor = defineAsyncComponent(
 
 defineProps<{
   widgetDef: Type.TextWidgetDef;
-  widgetContents: Type.WithId<Type.TextWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.TextWidgetContent>[];
   isOpen: boolean;
 }>();
 
 defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.TextWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.TextWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
-
-// Note: textarea content cleaning now happens automatically before save in `toSaveableFormData()`in the asset editor.
 </script>

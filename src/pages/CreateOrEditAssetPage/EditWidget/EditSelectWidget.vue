@@ -27,14 +27,14 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.SelectWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.SelectWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <div>
         <SelectGroup
-          :id="`${item.id}-select`"
-          :modelValue="(item as Type.WithId<Type.SelectWidgetContent>).fieldContents ?? ''"
+          :id="`${item.uuid}-select`"
+          :modelValue="(item as Type.WithUuid<Type.SelectWidgetContent>).fieldContents ?? ''"
           :label="widgetDef.label"
           :options="selectOptions"
           :showLabel="false"
@@ -42,7 +42,7 @@
             (value) =>
               $emit(
                 'update:widgetContents',
-                ops.makeUpdateContentPayload(widgetContents, item.id, value)
+                ops.makeUpdateContentPayload(widgetContents, item.uuid, value)
               )
           " />
       </div>
@@ -58,14 +58,14 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 
 const props = defineProps<{
   widgetDef: Type.SelectWidgetDef;
-  widgetContents: Type.WithId<Type.SelectWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.SelectWidgetContent>[];
   isOpen: boolean;
 }>();
 
 defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.SelectWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.SelectWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();

@@ -7,8 +7,8 @@
     <ol v-else :class="listClass">
       <DragDropListItem
         v-for="(item, index) in items"
-        :key="item.id"
-        :item="item"
+        :key="getItemId(item)"
+        :itemId="getItemId(item)"
         :listId="listId"
         :nextListId="nextListId"
         :prevListId="prevListId"
@@ -21,11 +21,11 @@
     <slot name="footer" />
   </div>
 </template>
-<script setup lang="ts" generic="ItemType extends HasId">
+<script setup lang="ts" generic="ItemType">
 import type { CSSClass, HasId } from "./dndTypes";
 import DragDropListItem from "./DragDropListItem.vue";
 import { useDragDropStore } from "./useDragDropStore";
-import { watch, inject, computed } from "vue";
+import { watch, inject, computed, onUnmounted } from "vue";
 import { GROUP_ID_PROVIDE_KEY } from "./constants";
 import EmptyList from "./EmptyList.vue";
 
@@ -39,8 +39,20 @@ const props = withDefaults(
     listClass?: CSSClass;
     listItemClass?: CSSClass;
     showEmptyList?: boolean;
+    /** Defaults to reading `item.id`. */
+    getItemId?: (item: ItemType) => string | number;
   }>(),
   {
+    // An item with no id would give every row the same key, so refuse it here.
+    getItemId: (item: ItemType) => {
+      const id = (item as Partial<HasId> | null)?.id;
+      if (typeof id !== "string" && typeof id !== "number") {
+        throw new Error(
+          `DragDropList: item has no usable \`id\` (got ${typeof id}). Give items an \`id\`, or pass getItemId.`
+        );
+      }
+      return id;
+    },
     showEmptyList: true,
     listClass: () => "drag-drop-list",
     listItemClass: () => "drag-drop-list-item",
@@ -74,9 +86,15 @@ watch(
   { immediate: true }
 );
 
-// watch for changes in the store and emit the new items
+// Only emit moves that started here. setList stores the modelValue array by
+// reference, so getting that same array back means the parent sent it.
 watch(items, (newItems) => {
+  if (newItems === props.modelValue) return;
   emit("update:modelValue", newItems);
+});
+
+onUnmounted(() => {
+  dragDropStore.removeList(props.listId);
 });
 </script>
 <style scoped>

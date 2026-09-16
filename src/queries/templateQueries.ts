@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import {
+  queryOptions,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import {
@@ -15,21 +20,13 @@ import type {
   FieldType,
 } from "@/types";
 
-export function useTemplateQuery(
-  templateId: MaybeRefOrGetter<string | number | null>,
-  options = {}
-) {
-  return useQuery({
+export function templateQuery(templateId: MaybeRefOrGetter<number | null>) {
+  return queryOptions({
     queryKey: [TEMPLATES_QUERY_KEY, templateId],
-    enabled: () => !!toValue(templateId),
-    placeholderData: () => null,
     queryFn: async () => {
       const id = toValue(templateId);
-      const idInt = Number.parseInt(id as string);
-      return id ? await fetchers.fetchTemplate(idInt) : null;
+      return id === null ? null : await fetchers.fetchTemplate(id);
     },
-    refetchOnWindowFocus: false,
-    ...options,
   });
 }
 

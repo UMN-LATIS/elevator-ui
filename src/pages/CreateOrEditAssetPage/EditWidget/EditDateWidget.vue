@@ -27,12 +27,12 @@
     "
     @update:widgetContents="
       (widgetContents) => {
-        $emit('update:widgetContents', widgetContents as Type.WithId<Type.DateWidgetContent>[]);
+        $emit('update:widgetContents', widgetContents as Type.WithUuid<Type.DateWidgetContent>[]);
       }
     ">
     <template #fieldContents="{ item }">
       <EditDateWidgetContentItem
-        :modelValue="(item as Type.WithId<Type.DateWidgetContent>)"
+        :modelValue="(item as Type.WithUuid<Type.DateWidgetContent>)"
         :widgetDef="widgetDef"
         @update:modelValue="handleItemUpdate" />
     </template>
@@ -46,23 +46,25 @@ import EditDateWidgetContentItem from "./EditDateWidgetContentItem.vue";
 
 const props = defineProps<{
   widgetDef: Type.DateWidgetDef;
-  widgetContents: Type.WithId<Type.DateWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.DateWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.DateWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.DateWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
-function handleItemUpdate(updatedItem: Type.WithId<Type.DateWidgetContent>) {
-  const index = props.widgetContents.findIndex((i) => i.id === updatedItem.id);
+function handleItemUpdate(updatedItem: Type.WithUuid<Type.DateWidgetContent>) {
+  const index = props.widgetContents.findIndex(
+    (content) => content.uuid === updatedItem.uuid
+  );
   if (index === -1) {
     throw Error(
-      `Cannot update date widget: item with id "${updatedItem.id}" not found`
+      `Cannot update date widget: item with uuid "${updatedItem.uuid}" not found`
     );
   }
 

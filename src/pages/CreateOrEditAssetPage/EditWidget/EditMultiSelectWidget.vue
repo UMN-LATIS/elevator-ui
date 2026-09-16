@@ -10,16 +10,16 @@
     @delete="handleDelete"
     @update:widgetContents="
       updateWidgetContents(
-        $event as Type.WithId<Type.MultiSelectWidgetContent>[]
+        $event as Type.WithUuid<Type.MultiSelectWidgetContent>[]
       )
     ">
     <template #fieldContents="{ item }">
       <SimpleCascadeSelect
-        :id="`${item.id}-select`"
+        :id="`${item.uuid}-select`"
         :modelValue="item.fieldContents"
         :options="widgetDef.fieldData"
         :showLabel="false"
-        @update:modelValue="handleUpdateFieldContents(item.id, $event)" />
+        @update:modelValue="handleUpdateFieldContents(item.uuid, $event)" />
     </template>
   </EditWidgetLayout>
 </template>
@@ -32,20 +32,20 @@ import SimpleCascadeSelect from "@/components/CascadeSelect/SimpleCascadeSelect.
 
 const props = defineProps<{
   widgetDef: Type.MultiSelectWidgetDef;
-  widgetContents: Type.WithId<Type.MultiSelectWidgetContent>[];
+  widgetContents: Type.WithUuid<Type.MultiSelectWidgetContent>[];
   isOpen: boolean;
 }>();
 
 const emit = defineEmits<{
   (
     e: "update:widgetContents",
-    widgetContents: Type.WithId<Type.MultiSelectWidgetContent>[]
+    widgetContents: Type.WithUuid<Type.MultiSelectWidgetContent>[]
   ): void;
   (e: "update:isOpen", isOpen: boolean): void;
 }>();
 
 const updateWidgetContents = (
-  contents: Type.WithId<Type.MultiSelectWidgetContent>[]
+  contents: Type.WithUuid<Type.MultiSelectWidgetContent>[]
 ) => emit("update:widgetContents", contents);
 
 const handleAdd = () =>
@@ -66,7 +66,7 @@ const handleUpdateFieldContents = (
   updatedFieldContents: Type.MultiSelectWidgetContent["fieldContents"]
 ) => {
   const updated = props.widgetContents.map((contentItem) => {
-    if (contentItem.id !== itemId) return contentItem;
+    if (contentItem.uuid !== itemId) return contentItem;
 
     return {
       ...contentItem,

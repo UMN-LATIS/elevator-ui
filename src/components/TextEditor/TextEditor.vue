@@ -6,6 +6,7 @@
       ref="editor"
       :modelValue="modelValue"
       :options="options"
+      isSemanticHtmlModel
       class="rounded-sm focus-within:ring-2 focus-within:ring-offset-1 focus-within:ring-primary"
       data-cy="text-block-input"
       @update:modelValue="handleUpdate" />
@@ -51,7 +52,6 @@ const editor = ref<InstanceType<typeof QuillyEditor>>();
 const isImageDialogOpen = ref(false);
 let quill: Quill | null = null;
 
-// Handle update event with semantic HTML conversion
 function handleUpdate(quillHTML: string) {
   if (!quill) {
     return;
