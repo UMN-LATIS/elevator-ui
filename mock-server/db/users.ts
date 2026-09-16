@@ -42,6 +42,20 @@ const userSeeds: MockUser[] = [
       canSearchAndBrowse: true,
     },
   },
+  {
+    id: 4,
+    displayName: "Template Editor",
+    username: "templateeditor",
+    password: "templateeditor",
+    isInstanceAdmin: false,
+    isSuperAdmin: false,
+    permissions: {
+      canManageAssets: false,
+      canCreateDrawers: false,
+      canSearchAndBrowse: true,
+      canEditTemplates: true,
+    },
+  },
 ];
 
 function createUsersTable() {

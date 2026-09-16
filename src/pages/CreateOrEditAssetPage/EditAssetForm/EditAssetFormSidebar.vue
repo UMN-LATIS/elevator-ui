@@ -94,7 +94,7 @@
           required
           @update:modelValue="handleUpdateTemplateId($event)" />
         <Link
-          v-if="isInstanceAdmin && displayTemplateId"
+          v-if="canEditTemplates && displayTemplateId"
           :to="{ name: 'templatesEdit', params: { id: displayTemplateId } }"
           aria-label="View template"
           class="text-xs top-0 right-0 absolute inline-flex">
@@ -159,7 +159,9 @@ const emit = defineEmits<{
 
 const { currentUser } = useCurrentUser();
 
-const isInstanceAdmin = computed(() => currentUser.value?.isAdmin ?? false);
+const canEditTemplates = computed(
+  () => currentUser.value?.canEditTemplates ?? false
+);
 
 // Hold success/error visible for a few seconds after a save, then reset to idle.
 // This is pure UI state — the raw mutation status resets only on the next save.

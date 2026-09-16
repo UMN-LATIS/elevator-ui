@@ -18,6 +18,7 @@ export interface MockUser {
     canManageAssets?: boolean;
     canCreateDrawers?: boolean;
     canSearchAndBrowse?: boolean;
+    canEditTemplates?: boolean;
   };
 }
 

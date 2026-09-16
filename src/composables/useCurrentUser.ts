@@ -16,6 +16,7 @@ function selectCurrentUser(
     isSuperAdmin: instanceNav.userIsSuperAdmin,
     canManageAssets: instanceNav.userCanManageAssets,
     canManageDrawers: instanceNav.userCanCreateDrawers,
+    canEditTemplates: instanceNav.userCanEditTemplates,
   };
 }
 
