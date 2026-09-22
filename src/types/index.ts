@@ -772,7 +772,7 @@ export interface ApiGetMultiSelectFieldInfoResponse
 
 export interface ApiGetTagListFieldInfoResponse
   extends ApiGetFieldInfoResponse {
-  values?: string[]; // absent when the backend declines to enumerate the tags
+  values?: string[]; // absent when the field has no tags, or 1000+ distinct ones
 }
 
 export interface SearchableSpecificField extends RawSortableField {

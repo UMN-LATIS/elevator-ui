@@ -78,11 +78,12 @@ test.describe("Advanced search tag list filters", () => {
 
     await addKeywordsFilterRow(page);
 
-    const keywordsDropdown = page.locator(".filter-row__value select");
-    await expect(keywordsDropdown).toBeVisible();
-    await expect(keywordsDropdown.locator("option")).toHaveText([
+    const keywordsSelect = page.locator(".filter-row__value select");
+    await expect(keywordsSelect).toBeVisible();
+    await expect(keywordsSelect.locator("option")).toHaveText([
       "canoe",
       "mask",
     ]);
+    await expect(keywordsSelect).toHaveValue("canoe");
   });
 });

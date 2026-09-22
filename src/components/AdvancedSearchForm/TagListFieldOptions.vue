@@ -1,16 +1,16 @@
 <template>
   <select
-    v-if="values && values.length > 0"
-    :value="selectedValue"
+    v-if="renderMode === 'select'"
+    :value="filter.value"
     class="rounded-md w-full border-neutral-200"
-    @change="handleSelectChange">
-    <option v-for="value in values" :key="value" :value="value">
+    @change="onSelectChange">
+    <option v-for="value in tagValues" :key="value" :value="value">
       {{ value === "" ? "-" : value }}
     </option>
   </select>
 
   <InputGroup
-    v-else-if="values"
+    v-else-if="renderMode === 'text'"
     :id="filter.id"
     class="text-sm"
     inputClass="!bg-white !border !border-neutral-200 placeholder:capitalize"
@@ -18,7 +18,7 @@
     :modelValue="filter.value"
     :labelHidden="true"
     :placeholder="field.label"
-    @update:modelValue="handleTextChange" />
+    @update:modelValue="onTextChange" />
 </template>
 <script setup lang="ts">
 import api from "@/api";
@@ -36,47 +36,53 @@ const searchStore = useSearchStore();
 const instanceStore = useInstanceStore();
 
 const field = computed((): SearchableTagListField => {
-  const field = instanceStore.getSearchableField<SearchableTagListField>(
+  const tagListField = instanceStore.getSearchableField<SearchableTagListField>(
     props.filter.fieldId
   );
 
-  if (!field) {
+  if (!tagListField) {
     throw new Error(
       `Could not find searchable field with id ${props.filter.fieldId}`
     );
   }
-  return field;
+  return tagListField;
 });
 
-const values = ref<string[] | null>(null);
-const selectedValue = ref<string>(props.filter.value);
+const tagValues = ref<string[] | null>(null);
 
-function handleSelectChange(event: Event) {
+const renderMode = computed((): "loading" | "text" | "select" => {
+  if (tagValues.value === null) return "loading";
+  if (tagValues.value.length === 0) return "text";
+  return "select";
+});
+
+function onSelectChange(event: Event) {
   const target = event.target as HTMLSelectElement;
   searchStore.updateSearchableFieldFilterValue(props.filter.id, target.value);
 }
 
-function handleTextChange(value: string) {
+function onTextChange(value: string) {
   searchStore.updateSearchableFieldFilterValue(props.filter.id, value);
 }
 
 watch(
   field,
   async () => {
-    values.value = null;
-    const loadedValues = await api.getSearchableTagListFieldValues(field.value);
-    values.value = loadedValues;
+    tagValues.value = null;
+    const loadedTagValues = await api.getSearchableTagListFieldValues(
+      field.value
+    );
+    tagValues.value = loadedTagValues;
 
-    const isTextInput = loadedValues.length === 0;
-    if (isTextInput || loadedValues.includes(props.filter.value)) {
+    const isCurrentValueOffered = loadedTagValues.includes(props.filter.value);
+    if (renderMode.value === "text" || isCurrentValueOffered) {
       return;
     }
 
     searchStore.updateSearchableFieldFilterValue(
       props.filter.id,
-      loadedValues[0]
+      loadedTagValues[0]
     );
-    selectedValue.value = loadedValues[0];
   },
   { immediate: true }
 );
