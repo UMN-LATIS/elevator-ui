@@ -21,11 +21,11 @@
     @update:modelValue="onTextChange" />
 </template>
 <script setup lang="ts">
-import api from "@/api";
 import { SearchableSpecificFieldFilter, SearchableTagListField } from "@/types";
-import { ref, watch, computed } from "vue";
+import { watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
 import { useInstanceStore } from "@/stores/instanceStore";
+import { useSearchableTagListFieldValuesQuery } from "@/queries/useSearchableTagListFieldValuesQuery";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 
 const props = defineProps<{
@@ -48,11 +48,17 @@ const field = computed((): SearchableTagListField => {
   return tagListField;
 });
 
-const tagValues = ref<string[] | null>(null);
+const {
+  data: loadedTagValues,
+  isPending,
+  isError,
+} = useSearchableTagListFieldValuesQuery(field);
+
+const tagValues = computed(() => loadedTagValues.value ?? []);
 
 const renderMode = computed((): "loading" | "text" | "select" => {
-  if (tagValues.value === null) return "loading";
-  if (tagValues.value.length === 0) return "text";
+  if (isPending.value) return "loading";
+  if (isError.value || tagValues.value.length === 0) return "text";
   return "select";
 });
 
@@ -66,22 +72,16 @@ function onTextChange(value: string) {
 }
 
 watch(
-  field,
-  async () => {
-    tagValues.value = null;
-    const loadedTagValues = await api.getSearchableTagListFieldValues(
-      field.value
-    );
-    tagValues.value = loadedTagValues;
-
-    const isCurrentValueOffered = loadedTagValues.includes(props.filter.value);
-    if (renderMode.value === "text" || isCurrentValueOffered) {
+  tagValues,
+  (offeredValues) => {
+    const isCurrentValueOffered = offeredValues.includes(props.filter.value);
+    if (renderMode.value !== "select" || isCurrentValueOffered) {
       return;
     }
 
     searchStore.updateSearchableFieldFilterValue(
       props.filter.id,
-      loadedTagValues[0]
+      offeredValues[0]
     );
   },
   { immediate: true }
