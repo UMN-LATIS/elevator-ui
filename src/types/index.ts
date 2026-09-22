@@ -770,6 +770,11 @@ export interface ApiGetMultiSelectFieldInfoResponse
   rawContent: CascaderSelectOptions; // recursive tree of options
 }
 
+export interface ApiGetTagListFieldInfoResponse
+  extends ApiGetFieldInfoResponse {
+  values?: string[]; // absent when the backend declines to enumerate the tags
+}
+
 export interface SearchableSpecificField extends RawSortableField {
   id: string;
 }
@@ -784,6 +789,10 @@ export interface SearchableCheckboxField extends SearchableSpecificField {
 
 export interface SearchableMultiSelectField extends SearchableSpecificField {
   type: "multiselect";
+}
+
+export interface SearchableTagListField extends SearchableSpecificField {
+  type: "tag list";
 }
 
 export interface SearchableSpecificFieldFilter {
