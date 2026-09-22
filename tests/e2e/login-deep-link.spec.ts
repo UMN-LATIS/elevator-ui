@@ -84,5 +84,9 @@ test.describe("Login deep link — protected asset", () => {
         name: "Sign In Required",
       })
     ).not.toBeVisible();
+
+    // the embed iframe fetches getInstanceNav too; a handler
+    // still running when the page closes fails the test
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 });

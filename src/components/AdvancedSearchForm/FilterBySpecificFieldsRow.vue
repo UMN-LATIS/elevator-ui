@@ -30,7 +30,12 @@
       @update:modelValue="handleFilterValueChange" />
 
     <SelectFieldOptions
-      v-if="['select', 'tag list'].includes(currentField.type)"
+      v-if="currentField.type === 'select'"
+      class="w-full text-sm"
+      :filter="filter" />
+
+    <TagListFieldOptions
+      v-if="currentField.type === 'tag list'"
       class="w-full text-sm"
       :filter="filter" />
 
@@ -66,6 +71,7 @@ import { useInstanceStore } from "@/stores/instanceStore";
 import { useSearchStore } from "@/stores/searchStore";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectFieldOptions from "./SelectFieldOptions.vue";
+import TagListFieldOptions from "./TagListFieldOptions.vue";
 import CheckboxFieldOptions from "./CheckboxFieldOptions.vue";
 import MultiSelectFieldOptions from "./MultiSelectFieldOptions.vue";
 import type {
