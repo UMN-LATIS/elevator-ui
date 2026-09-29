@@ -44,6 +44,11 @@ app.get("/getInstanceNav", async (c) => {
     userDisplayName: user?.displayName ?? null,
     userIsAdmin: user?.isInstanceAdmin ?? false,
     userIsSuperAdmin: user?.isSuperAdmin ?? false,
+    userCanEditTemplates:
+      user?.isInstanceAdmin ||
+      user?.isSuperAdmin ||
+      user?.permissions.canEditTemplates ||
+      false,
     userCanCreateDrawers: user?.permissions.canCreateDrawers ?? false,
     userCanSearchAndBrowse: user?.permissions.canSearchAndBrowse ?? false,
     userIsloggedIn: true,

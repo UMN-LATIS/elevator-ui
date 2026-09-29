@@ -18,6 +18,7 @@ export const PERMISSION_LEVELS: PermissionLevel[] = [
   { id: 6, level: 30, name: "createdrawers", label: "Create/Edit Drawers" },
   { id: 7, level: 40, name: "originals", label: "Download Originals" },
   { id: 8, level: 50, name: "addassets", label: "Add Assets to Instance" },
+  { id: 11, level: 57, name: "edittemplates", label: "Edit Templates" },
   { id: 9, level: 60, name: "admin", label: "Administer Instance" },
 ];
 

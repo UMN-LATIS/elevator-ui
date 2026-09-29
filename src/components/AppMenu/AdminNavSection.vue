@@ -1,21 +1,27 @@
 <template>
   <AppMenuGroup label="Admin">
-    <AppMenuItem :to="`/instances/edit/${instance.id}`">
-      Instance Settings
+    <template v-if="currentUser.isAdmin">
+      <AppMenuItem :to="`/instances/edit/${instance.id}`">
+        Instance Settings
+      </AppMenuItem>
+      <AppMenuItem to="/admin/permissions">Instance Permissions</AppMenuItem>
+      <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
+      <AppMenuItem :href="`${BASE_URL}/reports`">Reports</AppMenuItem>
+    </template>
+    <AppMenuItem v-if="currentUser.canEditTemplates" to="/templates">
+      Edit Templates
     </AppMenuItem>
-    <AppMenuItem to="/admin/permissions">Instance Permissions</AppMenuItem>
-    <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/reports`">Reports</AppMenuItem>
-    <AppMenuItem to="/templates">Edit Templates</AppMenuItem>
-    <AppMenuItem to="/admin/collections">Edit Collections</AppMenuItem>
-    <AppMenuItem :href="`${BASE_URL}/assetManager/importFromCSV`">
-      Import from CSV
-    </AppMenuItem>
-    <AppMenuItem :href="exportToCSVUrl">Export to CSV</AppMenuItem>
-    <template v-if="currentUser.isSuperAdmin">
-      <Divider />
-      <AppMenuItem :href="`${BASE_URL}/admin`">Super Admin 🦸‍♀️</AppMenuItem>
-      <AppMenuItem :href="`${BASE_URL}/admin/logs`">Logs</AppMenuItem>
+    <template v-if="currentUser.isAdmin">
+      <AppMenuItem to="/admin/collections">Edit Collections</AppMenuItem>
+      <AppMenuItem :href="`${BASE_URL}/assetManager/importFromCSV`">
+        Import from CSV
+      </AppMenuItem>
+      <AppMenuItem :href="exportToCSVUrl">Export to CSV</AppMenuItem>
+      <template v-if="currentUser.isSuperAdmin">
+        <Divider />
+        <AppMenuItem :href="`${BASE_URL}/admin`">Super Admin 🦸‍♀️</AppMenuItem>
+        <AppMenuItem :href="`${BASE_URL}/admin/logs`">Logs</AppMenuItem>
+      </template>
     </template>
   </AppMenuGroup>
 </template>

@@ -8,11 +8,20 @@ import type {
 } from "../../src/types";
 import { FIELD_TYPE_IDS, type AdminTemplateSeed } from "../db/templates";
 import type { createTemplatesTable } from "../db/templates";
+import type { MockUser } from "../types";
 
 // Mock instance ID used for fieldTitle generation — mirrors real backend behavior.
 const MOCK_INSTANCE_ID = 1;
 
 const app = new Hono<MockServerContext>({ strict: false });
+
+// mirrors User_model::canEditTemplates() — instance admins, super admins,
+// and users with the dedicated PERM_EDIT_TEMPLATES permission
+function isTemplateEditor(user: MockUser | undefined): boolean {
+  return Boolean(
+    user?.isInstanceAdmin || user?.isSuperAdmin || user?.permissions.canEditTemplates
+  );
+}
 
 /** Map a stored template seed to the AdminTemplate response shape. */
 function toAdminTemplateResponse(template: AdminTemplateSeed): AdminTemplate {
@@ -212,8 +221,7 @@ app.get("/", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isTemplateEditor(user)) return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
 
@@ -233,8 +241,7 @@ app.get("/", (c) => {
 app.get("/getTemplate/:id", (c) => {
   const user = c.get("user");
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isTemplateEditor(user)) return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const id = Number(c.req.param("id"));
@@ -302,8 +309,7 @@ function parseWidgetsFromFormData(formData: FormData) {
 app.post("/update", async (c) => {
   const user = c.get("user");
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isTemplateEditor(user)) return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const formData = await c.req.formData();
@@ -423,8 +429,7 @@ app.delete("/delete/:templateId", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isTemplateEditor(user)) return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const templateId = Number(c.req.param("templateId"));
@@ -443,8 +448,7 @@ app.get("/copy/:templateId", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isTemplateEditor(user)) return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const templateId = Number(c.req.param("templateId"));
@@ -477,8 +481,7 @@ app.get("/forceRecache/:templateId", (c) => {
   const user = c.get("user");
 
   if (!user) return c.json({ error: "Unauthorized" }, 401);
-  if (!user.isInstanceAdmin && !user.isSuperAdmin)
-    return c.json({ error: "Forbidden" }, 403);
+  if (!isTemplateEditor(user)) return c.json({ error: "Forbidden" }, 403);
 
   const db = c.get("db");
   const templateId = Number(c.req.param("templateId"));
