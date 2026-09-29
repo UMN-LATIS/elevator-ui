@@ -10,6 +10,18 @@ import {
   Template,
 } from "../../src/types";
 
+// Timestamps travel as strings, since JSON cannot carry a bigint.
+// Anything that isn't a whole number becomes "0".
+function toTimestampString(value: unknown): string {
+  if (typeof value === "number" || typeof value === "bigint") {
+    return value.toString();
+  }
+  if (typeof value !== "string") {
+    return "0";
+  }
+  return /^-?\d+$/.test(value) ? value : "0";
+}
+
 function extractDatesFromAsset(asset: Asset): DateResult[] {
   const dates: DateResult[] = [];
   Object.keys(asset).forEach((key) => {
@@ -20,14 +32,12 @@ function extractDatesFromAsset(asset: Asset): DateResult[] {
           dates.push({
             start: {
               text: dateWidget.start.text || "",
-              // Use Number instead of BigInt so the value can be JSON-serialized.
-              // The real backend returns numeric timestamps as numbers over the wire.
-              numeric: Number(dateWidget.start.numeric) as unknown as bigint,
+              numeric: toTimestampString(dateWidget.start.numeric),
             },
             end: dateWidget.end
               ? {
                   text: dateWidget.end.text || "",
-                  numeric: Number(dateWidget.end.numeric) as unknown as bigint,
+                  numeric: toTimestampString(dateWidget.end.numeric),
                 }
               : undefined,
             label: dateWidget.label ?? undefined,

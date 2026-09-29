@@ -10,10 +10,12 @@ import {
   ApiGetSelectFieldInfoResponse,
   ApiGetCheckboxFieldInfoResponse,
   ApiGetMultiSelectFieldInfoResponse,
+  ApiGetTagListFieldInfoResponse,
   SearchableSpecificField,
   SearchableSelectField,
   SearchableCheckboxField,
   SearchableMultiSelectField,
+  SearchableTagListField,
   TreeNode,
   Drawer,
   ApiGetDrawerResponse,
@@ -299,6 +301,16 @@ async function getSearchableMultiSelectFieldValues(
   return data?.rawContent ?? {};
 }
 
+async function getSearchableTagListFieldValues(
+  field: SearchableTagListField
+): Promise<string[]> {
+  const data = await getSearchableFieldInfo<ApiGetTagListFieldInfoResponse>(
+    field
+  );
+
+  return data?.values ?? [];
+}
+
 async function getDrawers({
   refresh = false,
 }: {
@@ -475,6 +487,7 @@ const api = {
   getSearchableSelectFieldValues,
   getSearchableCheckboxFieldValues,
   getSearchableMultiSelectFieldValues,
+  getSearchableTagListFieldValues,
   getDrawers,
   getDrawer,
   createDrawer,

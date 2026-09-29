@@ -323,7 +323,7 @@ export interface MultiSelectWidgetContent extends WidgetContent {
 
 export interface DateComponent {
   text: string;
-  numeric: bigint;
+  numeric: string;
 }
 
 export interface DateAssetObject {
@@ -344,7 +344,7 @@ export interface DateResult {
   start?: DateComponent;
   end?: DateComponent;
   loc?: LocationObject;
-  label?: string;
+  label?: string | null;
   fileId?: string;
   fileType?: string;
   sidecars?: unknown;
@@ -868,6 +868,11 @@ export interface ApiGetMultiSelectFieldInfoResponse
   rawContent: CascaderSelectOptions; // recursive tree of options
 }
 
+export interface ApiGetTagListFieldInfoResponse
+  extends ApiGetFieldInfoResponse {
+  values?: string[]; // absent when the field has no tags, or 1000+ distinct ones
+}
+
 export interface SearchableSpecificField extends RawSortableField {
   id: string;
 }
@@ -882,6 +887,10 @@ export interface SearchableCheckboxField extends SearchableSpecificField {
 
 export interface SearchableMultiSelectField extends SearchableSpecificField {
   type: "multiselect";
+}
+
+export interface SearchableTagListField extends SearchableSpecificField {
+  type: "tag list";
 }
 
 export interface SearchableSpecificFieldFilter {
