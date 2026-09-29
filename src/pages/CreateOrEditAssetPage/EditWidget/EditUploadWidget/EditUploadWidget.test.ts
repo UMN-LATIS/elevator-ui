@@ -6,6 +6,15 @@ import * as T from "@/types";
 import { ASSET_EDITOR_PROVIDE_KEY } from "@/constants/constants";
 import EditUploadWidget from "./EditUploadWidget.vue";
 
+// keep FileUploader mocked, so the lazy import never loads
+// @umn-cla/uppy-aws-s3. Node rejects that package's
+// `assert { type: "json" }` import. When the rejection
+// happens after teardown, Vitest fails the whole run.
+vi.mock("./FileUploader.vue", () => ({
+  __esModule: true,
+  default: defineComponent({ render: () => null }),
+}));
+
 /**
  * Props lag the state by a render, so an item the state gained in this
  * flush (a just-completed upload) is missing from `props.widgetContents`
@@ -107,7 +116,6 @@ function mountWidget(options: {
         EditUploadWidgetItem: EditUploadWidgetItemStub,
         DropDown: PassThroughStub,
         DropDownItem: PassThroughStub,
-        FileUploader: true,
         VerticalDotsIcon: true,
         CircleFilledCheckIcon: true,
         Circle: true,

@@ -615,6 +615,13 @@ const templateSeeds: AdminTemplateSeed[] = [
     showTemplate: false,
     showCollectionPosition: 1,
     showTemplatePosition: 1,
+    createdAt: "2024-01-01T00:00:00+00:00",
+    modifiedAt: "2024-01-01T00:00:00+00:00",
+    includeInSearch: true,
+    indexForSearching: true,
+    isHidden: false,
+    recursiveIndexDepth: 1,
+    templateColor: 0,
     widgetArray: [
       {
         widgetId: 1999,
