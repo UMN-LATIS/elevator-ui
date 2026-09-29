@@ -24,7 +24,7 @@
 import { SearchableSpecificFieldFilter, SearchableTagListField } from "@/types";
 import { watch, computed } from "vue";
 import { useSearchStore } from "@/stores/searchStore";
-import { useInstanceStore } from "@/stores/instanceStore";
+import { useSearchableFields } from "@/composables/useSearchableFields";
 import { useSearchableTagListFieldValuesQuery } from "@/queries/useSearchableTagListFieldValuesQuery";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 
@@ -33,10 +33,10 @@ const props = defineProps<{
 }>();
 
 const searchStore = useSearchStore();
-const instanceStore = useInstanceStore();
+const { getSearchableField } = useSearchableFields();
 
 const field = computed((): SearchableTagListField => {
-  const tagListField = instanceStore.getSearchableField<SearchableTagListField>(
+  const tagListField = getSearchableField<SearchableTagListField>(
     props.filter.fieldId
   );
 
