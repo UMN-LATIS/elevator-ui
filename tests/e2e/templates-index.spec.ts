@@ -5,6 +5,7 @@ import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 const TEMPLATE_NAMES_INSERTION_ORDER = [
   "Broken Template (for testing)",
   "Some Fields",
+  "Date Required",
   "All Fields Test",
   "Inline Child Template",
   "Collapsed Related Parent Template",
