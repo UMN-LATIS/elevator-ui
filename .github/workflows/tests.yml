@@ -29,9 +29,14 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Start mock server with frontend
+      - name: Build frontend for mock server
+        run: yarn build:test
+        env:
+          NODE_ENV: test
+
+      - name: Start mock server
         run: |
-          yarn mock:serve:test &
+          (cd mock-server && npm run serve:watch) &
           # Wait for server to be ready
           timeout 30 bash -c 'until curl http://localhost:3001/health > /dev/null 2>&1; do sleep 1; done'
         env:
