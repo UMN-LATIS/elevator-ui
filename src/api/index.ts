@@ -58,14 +58,20 @@ export function clearCache() {
   cache = createCache();
 }
 
+function toAssetCacheKey(assetId: string, parentAssetId: string): string {
+  const parentGrantingAccess = parentAssetId === assetId ? '' : parentAssetId;
+  return `${assetId}/${parentGrantingAccess}`;
+}
+
 // parentAssetId is needed to properly resolve permissions for related assets
 async function getAsset(assetId: string, parentAssetId = ''): Promise<Asset | null> {
   if (!assetId) return null;
 
   // load asset and cache it in the store
+  const cacheKey = toAssetCacheKey(assetId, parentAssetId);
   const asset =
-    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId, parentAssetId));
-  cache.assets.set(assetId, asset);
+    cache.assets.get(cacheKey) || (await fetchers.fetchAsset(assetId, parentAssetId));
+  cache.assets.set(cacheKey, asset);
 
   return asset;
 }
@@ -79,9 +85,10 @@ async function getAssetWithTemplate(
   }
 
   // load asset and cache it in the store
+  const cacheKey = toAssetCacheKey(assetId, parentAssetId);
   const asset =
-    cache.assets.get(assetId) || (await fetchers.fetchAsset(assetId, parentAssetId));
-  cache.assets.set(assetId, asset);
+    cache.assets.get(cacheKey) || (await fetchers.fetchAsset(assetId, parentAssetId));
+  cache.assets.set(cacheKey, asset);
 
   if (!asset) return { asset: null, template: null };
 
