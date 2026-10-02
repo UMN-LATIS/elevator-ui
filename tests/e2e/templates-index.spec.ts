@@ -14,6 +14,7 @@ const TEMPLATE_NAMES_INSERTION_ORDER = [
   "Inline Parent Template",
   "Multiple Upload Widgets",
   "All Fields with Autocomplete",
+  "Related Asset Links",
 ];
 
 const TEMPLATE_NAMES_SORTED = [...TEMPLATE_NAMES_INSERTION_ORDER].sort((a, b) =>
