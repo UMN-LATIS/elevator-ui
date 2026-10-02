@@ -7,18 +7,25 @@ import { isEmpty } from "ramda";
 
 const app = new Hono<MockServerContext>();
 
-// GET /asset/viewAsset/:assetId/true
-app.get("/viewAsset/:assetId/true", async (c) => {
+// GET /asset/viewAsset/:assetId/true/:parentAssetId?
+// parentAssetId grants access to auth-required assets when the parent is public
+app.get("/viewAsset/:assetId/true/:parentAssetId?", async (c) => {
   await delay(200);
   const db = c.get("db");
   const assetId = c.req.param("assetId");
+  const parentAssetId = c.req.param("parentAssetId");
   const asset = db.assets.get(assetId);
   if (!asset) {
     return c.json({ error: "Asset not found" }, 404);
   }
 
   if (asset._meta?.visibility === "authenticated" && !c.get("user")) {
-    return c.json({ error: "Unauthorized" }, 401);
+    // Allow access if the parent asset is public
+    const parentAsset = parentAssetId ? db.assets.get(parentAssetId) : null;
+    const parentIsPublic = parentAsset?._meta?.visibility !== "authenticated";
+    if (!parentAsset || !parentIsPublic) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
   }
 
   if (asset.deleted === true) {

@@ -62,7 +62,7 @@ const generateMockAssets = (count = 100): WithMeta<Asset>[] => {
     const fileType = fileTypes[i % fileTypes.length];
     const title = `Asset ${i}`;
 
-    const assetId =`asset_${crypto.randomUUID()}`;
+    const assetId = `asset_${crypto.randomUUID()}`;
     const fileId = `file_${crypto.randomUUID()}`;
     const handlerId = `handler_${crypto.randomUUID()}`;
 
@@ -169,9 +169,9 @@ const assetSeeds: WithMeta<Asset>[] = [
           country: "usa",
           stateorprovince: "minnesota",
           city: "St. Paul",
-          neighborhood: "Summit Hill"
-        }
-      }
+          neighborhood: "Summit Hill",
+        },
+      },
     ],
     assetId: "687969fd9c90c709c1021d01",
     firstFileHandlerId: "handler_cascade_test",
@@ -264,6 +264,66 @@ const assetSeeds: WithMeta<Asset>[] = [
       timezone_type: 3,
       timezone: "UTC",
     },
+    _meta: { visibility: "authenticated" },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Parent With Piece Links" }],
+    linkedpieces_1: [
+      { isPrimary: false, targetAssetId: "related_links_protected_piece_001" },
+      { isPrimary: false, targetAssetId: "related_links_public_piece_001" },
+    ],
+    nestedpieces_1: [
+      { isPrimary: false, targetAssetId: "related_links_nested_piece_001" },
+    ],
+    relatedAssetCache: {
+      related_links_protected_piece_001: {
+        relatedAssetTitle: ["Protected Piece"],
+        primaryHandler: null,
+        readyForDisplay: true,
+      },
+      related_links_public_piece_001: {
+        relatedAssetTitle: ["Public Piece"],
+        primaryHandler: null,
+        readyForDisplay: true,
+      },
+      related_links_nested_piece_001: {
+        relatedAssetTitle: ["Nested Protected Piece"],
+        primaryHandler: null,
+        readyForDisplay: true,
+      },
+    },
+    assetId: "related_links_parent_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Parent With Piece Links"],
+    templateId: 200,
+    _meta: { visibility: "public" },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Protected Piece" }],
+    assetId: "related_links_protected_piece_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Protected Piece"],
+    _meta: { visibility: "authenticated" },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Public Piece" }],
+    assetId: "related_links_public_piece_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Public Piece"],
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Nested Protected Piece" }],
+    assetId: "related_links_nested_piece_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Nested Protected Piece"],
     _meta: { visibility: "authenticated" },
   },
   ...generateMockAssets(),
