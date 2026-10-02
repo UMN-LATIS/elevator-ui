@@ -1,0 +1,40 @@
+name: Release From Elevator Tag
+
+on:
+  push:
+    tags: ["20[0-9][0-9].*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout with full history and tags
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Write release notes linking to the Elevator release
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          previous_tag=$(git tag --list '[0-9]*' --sort=version:refname | awk -v tag="$TAG" '$0 == tag { print previous; exit } { previous = $0 }')
+          {
+            echo "Shipped in [Elevator $TAG](https://github.com/UMN-LATIS/elevator/releases/tag/$TAG)."
+            echo
+            echo "Changes since $previous_tag: https://github.com/$GITHUB_REPOSITORY/compare/$previous_tag...$TAG"
+          } > release-notes.md
+
+      - name: Create GitHub release for the existing tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --verify-tag \
+            --title "$TAG" \
+            --notes-file release-notes.md \
+            --latest
