@@ -43,11 +43,7 @@ export const useAssetStore = defineStore("asset2", {
       assetId: string | null,
       objectId?: string | null
     ): Promise<Asset | null> {
-      const parentAssetId = this.activeAssetId || "";
-      const { asset, template } = await api.getAssetWithTemplate(
-        assetId,
-        parentAssetId
-      );
+      const { asset, template } = await api.getAssetWithTemplate(assetId);
 
       if (!asset || !assetId) {
         this.activeAssetId = null;

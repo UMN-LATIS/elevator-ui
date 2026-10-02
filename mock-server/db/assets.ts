@@ -785,6 +785,66 @@ const assetSeeds: WithMeta<Asset>[] = [
     modifiedBy: 1,
   },
   ...createNestedRecordSeeds(),
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Parent With Piece Links" }],
+    linkedpieces_1: [
+      { isPrimary: false, targetAssetId: "related_links_protected_piece_001" },
+      { isPrimary: false, targetAssetId: "related_links_public_piece_001" },
+    ],
+    nestedpieces_1: [
+      { isPrimary: false, targetAssetId: "related_links_nested_piece_001" },
+    ],
+    relatedAssetCache: {
+      related_links_protected_piece_001: {
+        relatedAssetTitle: ["Protected Piece"],
+        primaryHandler: null,
+        readyForDisplay: true,
+      },
+      related_links_public_piece_001: {
+        relatedAssetTitle: ["Public Piece"],
+        primaryHandler: null,
+        readyForDisplay: true,
+      },
+      related_links_nested_piece_001: {
+        relatedAssetTitle: ["Nested Protected Piece"],
+        primaryHandler: null,
+        readyForDisplay: true,
+      },
+    },
+    assetId: "related_links_parent_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Parent With Piece Links"],
+    templateId: 200,
+    _meta: { visibility: "public" },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Protected Piece" }],
+    assetId: "related_links_protected_piece_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Protected Piece"],
+    _meta: { visibility: "authenticated" },
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Public Piece" }],
+    assetId: "related_links_public_piece_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Public Piece"],
+  },
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Nested Protected Piece" }],
+    assetId: "related_links_nested_piece_001",
+    firstFileHandlerId: null,
+    firstObjectId: null,
+    title: ["Nested Protected Piece"],
+    _meta: { visibility: "authenticated" },
+  },
   ...generateMockAssets(),
 ];
 
