@@ -11,13 +11,9 @@
         </TableHead>
       </TableHeader>
       <TableBody>
-        <template v-if="isLoading">
-          <TableRow v-for="row in 3" :key="`skeleton-${row}`">
-            <TableCell v-for="(_, index) in 2" :key="index">
-              <Skeleton height="1rem" width="70%" />
-            </TableCell>
-          </TableRow>
-        </template>
+        <TableLoading v-if="isLoading" :colspan="2">
+          Loading entries…
+        </TableLoading>
         <template v-else>
           <GroupEntriesTableRow
             v-for="entry in entries"
@@ -42,14 +38,12 @@
 import type { PermissionsGroup, PermissionsGroupEntry } from "@/types";
 import {
   Table,
-  TableHeader,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableEmpty,
   TableBody,
+  TableEmpty,
+  TableHead,
+  TableHeader,
+  TableLoading,
 } from "@/components/ui/table";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import GroupEntriesTableRow from "./GroupEntriesTableRow.vue";
 
 withDefaults(

@@ -35,13 +35,16 @@
     </PopoverAnchor>
 
     <PopoverPortal>
+      <!-- below z-50 the list renders under FormDialog -->
       <PopoverContent
         :id="`${id}-listbox`"
-        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-surface-bright p-0 text-on-surface shadow-md z-10 max-w-sm"
+        class="w-[var(--reka-popover-trigger-width)] max-h-96 overflow-y-auto rounded-md border bg-surface-bright p-0 text-on-surface shadow-md z-50 max-w-sm"
         role="listbox"
         :aria-labelledby="id"
         align="start"
-        :sideOffset="4">
+        :sideOffset="4"
+        @openAutoFocus.prevent
+        @closeAutoFocus.prevent>
         <div
           v-if="needsMoreChars"
           class="p-4 text-sm text-on-surface-variant text-center">
@@ -214,6 +217,9 @@ function handleKeydownEnter(event: KeyboardEvent) {
 }
 
 function handleKeydownEsc(event: KeyboardEvent) {
+  // without this return, preventDefault stops Escape
+  // from closing a dialog around this input
+  if (!isOpen.value) return;
   event.preventDefault();
   isOpen.value = false;
   highlightedIndex.value = -1;

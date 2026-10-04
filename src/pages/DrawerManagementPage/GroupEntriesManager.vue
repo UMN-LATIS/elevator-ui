@@ -21,15 +21,15 @@ import type { PermissionsGroup } from "@/types";
 import { drawerGroupEntriesQuery } from "./drawerGroupQueries";
 import GroupEntriesTable from "./GroupEntriesTable.vue";
 import AddGroupEntryRow from "./AddGroupEntryRow.vue";
-import AddRowButton from "../AdminPermissionsPage/AddRowButton.vue";
+import { AddRowButton } from "@/components/DataTable";
 import { tryFocus } from "@/helpers/tryFocus";
 
-const props = defineProps<{ group: PermissionsGroup; isOpen: boolean }>();
+const props = defineProps<{ group: PermissionsGroup }>();
 
 const isAddingEntry = ref(false);
 
 const { data: groupEntries, isPending: isLoadingEntries } = useQuery(
-  drawerGroupEntriesQuery(() => props.group.id, { enabled: () => props.isOpen })
+  drawerGroupEntriesQuery(() => props.group.id)
 );
 
 const sortedEntries = computed(() => {

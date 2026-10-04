@@ -77,36 +77,29 @@ test.describe("Adding a permission for a new group from a long table", () => {
 
   test("scrolls the new group's member input into view", async ({ page }) => {
     await page.goto("/admin/permissions");
+    const permissionsTable = page.getByRole("table").first();
     await expect(
-      page.getByRole("row", { name: /Filler Group 12/ })
+      permissionsTable.getByRole("row", { name: /Filler Group 12/ })
     ).toBeVisible();
 
-    const addPermissionForm = page.locator("[data-add-permission-form]");
-    const tableAddButton = page
-      .locator("tbody")
-      .getByRole("button", { name: "Add Permission" });
+    await page.getByRole("button", { name: "Create Permission" }).click();
 
-    // Start from the bottom of the table, where a user who scrolled through
-    // their permissions would be.
-    await tableAddButton.scrollIntoViewIfNeeded();
-    await tableAddButton.click();
-
-    await addPermissionForm
-      .locator(".add-permission__group-input")
-      .fill(NEW_GROUP_LABEL);
+    const dialog = page.getByRole("dialog", { name: "Create Permission" });
+    await dialog.locator(".add-permission__group-input").fill(NEW_GROUP_LABEL);
     await page.getByText(`Create group "${NEW_GROUP_LABEL}"`).click();
-    await addPermissionForm.getByLabel("Group Type").selectOption("User");
-    await addPermissionForm.getByLabel("Permission").click();
+    await dialog.getByLabel("Group Type").selectOption("User");
+    await dialog.getByLabel("Permission").click();
     await page.getByRole("option", { name: "Search and Browse" }).click();
-    await addPermissionForm.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: "Create" }).click();
 
     const memberInput = page.locator("[data-group-add-member-form] input");
     await expect(memberInput).toBeVisible();
 
-    // The member list mounts on skeleton rows and drops them once the
-    // (empty) list arrives, so the input has to still be on screen after
-    // that shift, not only before it.
-    await expect(page.locator(".skeleton")).toHaveCount(0);
+    // The member list first renders a loading row and
+    // removes it once the (empty) list arrives, so the
+    // input has to still be on screen after the loading
+    // row is gone, not only before it.
+    await expect(page.getByText("Loading members…")).toHaveCount(0);
 
     await expect(memberInput).toBeFocused();
     await expect(memberInput).toBeInViewport({ ratio: 1 });

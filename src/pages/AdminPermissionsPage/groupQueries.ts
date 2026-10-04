@@ -29,27 +29,17 @@ export function groupsQuery() {
   });
 }
 
-// Pass `enabled` so a group's members load only when its row is expanded.
-export function groupMembersQuery(
-  groupId: MaybeRefOrGetter<number>,
-  options?: { enabled?: MaybeRefOrGetter<boolean> }
-) {
+export function groupMembersQuery(groupId: MaybeRefOrGetter<number>) {
   return queryOptions({
     queryKey: computed(() => makeQueryKeyFor.groupMembers(toValue(groupId))),
     queryFn: () => fetchers.fetchGroupMembers(toValue(groupId)),
-    enabled: computed(() => toValue(options?.enabled) ?? true),
   });
 }
 
-// Same lazy-on-expand shape as members.
-export function groupEntriesQuery(
-  groupId: MaybeRefOrGetter<number>,
-  options?: { enabled?: MaybeRefOrGetter<boolean> }
-) {
+export function groupEntriesQuery(groupId: MaybeRefOrGetter<number>) {
   return queryOptions({
     queryKey: computed(() => makeQueryKeyFor.groupEntries(toValue(groupId))),
     queryFn: () => fetchers.fetchGroupEntries(toValue(groupId)),
-    enabled: computed(() => toValue(options?.enabled) ?? true),
   });
 }
 

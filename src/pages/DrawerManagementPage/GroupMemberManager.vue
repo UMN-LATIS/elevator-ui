@@ -1,18 +1,20 @@
 <template>
   <div>
     <GroupMembersTable
-      :columns="columns"
-      :data="memberList"
+      v-slot="{ columnCount }"
+      :members="memberList"
       :isLoading="isLoadingMembers"
+      :removingUserId="removingUserId"
       :showEmptyMessage="!isAddingMember"
-      class="mb-2">
+      class="mb-2"
+      @remove="remove">
       <AddGroupMemberRow
         v-model:open="isAddingMember"
         :group="group"
-        :colspan="columns.length" />
+        :colspan="columnCount" />
       <AddRowButton
         v-if="!isAddingMember"
-        :colspan="columns.length"
+        :colspan="columnCount"
         label="Add Member"
         :data-group-add-member="group.id"
         @click="openAddMemberForm" />
@@ -39,8 +41,7 @@ import { computed, ref } from "vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import GroupMembersTable from "../AdminPermissionsPage/GroupMembersTable.vue";
 import AddGroupMemberRow from "./AddGroupMemberRow.vue";
-import AddRowButton from "../AdminPermissionsPage/AddRowButton.vue";
-import { createGroupMemberColumns } from "../AdminPermissionsPage/GroupMembersTableColumns";
+import { AddRowButton } from "@/components/DataTable";
 import { useQuery } from "@tanstack/vue-query";
 import {
   drawerGroupMembersQuery,
@@ -52,7 +53,6 @@ import type { GroupMember, PermissionsGroup } from "@/types";
 
 const props = defineProps<{
   group: PermissionsGroup;
-  isOpen: boolean;
 }>();
 
 const toastStore = useToastStore();
@@ -60,7 +60,7 @@ const toastStore = useToastStore();
 // isPending is true only before the first data arrives. Refetches after
 // add/remove keep the old list on screen, so no skeleton flash.
 const { data: members, isPending: isLoadingMembers } = useQuery(
-  drawerGroupMembersQuery(() => props.group.id, { enabled: () => props.isOpen })
+  drawerGroupMembersQuery(() => props.group.id)
 );
 const memberList = computed(() => members.value ?? []);
 
@@ -119,6 +119,4 @@ function confirmRemove() {
   // drops it, and a failure surfaces as an error toast.
   memberToRemove.value = null;
 }
-
-const columns = createGroupMemberColumns(remove, removingUserId);
 </script>

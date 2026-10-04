@@ -1,202 +1,111 @@
 <template>
   <div>
-    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-      <div
-        aria-label="Permission filters"
-        :class="[
-          'flex flex-wrap items-center gap-x-2 gap-y-2 rounded-md',
-          {
-            'bg-primary-muted px-2 py-1': collectionFilterId !== null,
-          },
-        ]">
-        <FilterIcon
-          v-if="collectionFilterId !== null"
-          class="h-4 w-4 text-on-surface-variant"
-          :class="{ 'text-primary': collectionFilterId !== null }" />
-        <SelectGroup
-          v-model="collectionFilterValue"
-          label="Collection"
-          :showLabel="false"
-          :disabled="isLoading"
-          :selectClass="{
-            'border-primary bg-transparent text-on-surface':
-              collectionFilterId !== null,
-          }"
-          :options="collectionFilterOptions" />
-        <Button
-          v-if="hasActiveFilters"
-          variant="tertiary"
-          class="whitespace-nowrap"
-          @click="clearFilters">
-          Reset
+    <DataTable
+      ref="table"
+      class="[&_table]:min-w-[52rem]"
+      :itemName="{ singular: 'permission', plural: 'permissions' }"
+      :rows="rowsInCollectionFilter"
+      :columns="permissionColumns"
+      :status="tableStatus"
+      :isFiltered="collectionFilterId !== null"
+      :canExpand="(row) => isManageableGroup(row.group)"
+      :rowName="(row) => row.groupLabel"
+      :isRowDeleting="isPermissionRowDeleting">
+      <template #toolbarStart>
+        <div
+          aria-label="Permission filters"
+          :class="[
+            'flex min-w-0 items-center gap-2 rounded-md',
+            {
+              'bg-primary-muted px-2 py-1': collectionFilterId !== null,
+            },
+          ]">
+          <FilterIcon
+            v-if="collectionFilterId !== null"
+            class="h-4 w-4 shrink-0 text-primary" />
+          <SelectGroup
+            v-model="collectionFilterValue"
+            class="min-w-0"
+            label="Collection"
+            :showLabel="false"
+            :disabled="isLoading"
+            :selectClass="{
+              'border-primary bg-transparent text-on-surface':
+                collectionFilterId !== null,
+            }"
+            :options="collectionFilterOptions" />
+          <Button
+            v-if="collectionFilterId !== null"
+            variant="tertiary"
+            class="whitespace-nowrap"
+            @click="collectionFilterId = null">
+            Reset
+          </Button>
+        </div>
+      </template>
+      <template #toolbarEnd>
+        <Button variant="primary" @click="openAddPermission()">
+          Create Permission
         </Button>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <InputGroup
-          :modelValue="searchText"
-          label="Search Permissions"
-          placeholder="Search permissions"
-          :labelHidden="true"
-          class="max-w-sm"
-          type="search"
-          :disabled="isLoading"
-          @update:modelValue="searchPermissions"></InputGroup>
-        <Button
-          variant="primary"
-          class="whitespace-nowrap"
-          @click="openAddPermission()">
-          Add Permission
-        </Button>
-      </div>
-    </div>
+      </template>
+      <template #cell-scope="{ row }">
+        <Chip
+          class="border border-outline-variant"
+          :class="
+            row.scope === 'instance'
+              ? 'bg-secondary-container text-on-secondary-container'
+              : 'bg-tertiary-container text-on-tertiary-container'
+          ">
+          {{ row.scope === "instance" ? "Instance" : "Collection" }}
+        </Chip>
+      </template>
+      <template #cell-collection="{ row }">
+        <RouterLink
+          v-if="row.collectionId !== null"
+          :to="`/collections/browseCollection/${row.collectionId}`"
+          class="text-sm font-medium text-primary underline-offset-2 hover:underline">
+          {{ row.collectionLabel }}
+        </RouterLink>
+        <div v-else class="text-sm text-on-surface font-medium italic">*</div>
+      </template>
+      <template #cell-group="{ row }">
+        <GroupNameWithSummary
+          :name="row.groupLabel"
+          :summary="toGroupSummary(row.group, row.typeLabel)" />
+      </template>
+      <template #cell-permission="{ row }">
+        <span
+          v-if="row.permissionLevelNumber === 0"
+          class="text-sm text-on-surface-muted">
+          {{ row.permissionLabel }}
+        </span>
+        <PermissionChip
+          v-else
+          :levelNumber="row.permissionLevelNumber"
+          :label="row.permissionLabel" />
+      </template>
+      <template #cell-actions="{ row }">
+        <div class="flex justify-end">
+          <KebabMenu
+            :label="`More options for ${row.groupLabel}`"
+            :items="permissionMenuItems(row)" />
+        </div>
+      </template>
+      <template #detail="{ row }">
+        <GroupMemberManager
+          v-if="row.group.type === GROUP_TYPES.USER"
+          :group="row.group"
+          class="bg-surface-container" />
+        <GroupEntriesManager
+          v-else
+          :group="row.group"
+          class="bg-surface-container" />
+      </template>
+    </DataTable>
 
-    <div class="mt-4 border border-outline-variant rounded-md overflow-x-auto">
-      <Table class="w-full min-w-[44rem] table-fixed">
-        <TableHeader>
-          <template
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id">
-            <TableRow class="hover:bg-transparent">
-              <TableHead
-                v-for="header in headerGroup.headers"
-                :key="header.id"
-                class="bg-surface-container-low"
-                :class="[
-                  header.column.columnDef.meta?.widthClass,
-                  {
-                    'cursor-pointer select-none': header.column.getCanSort(),
-                  },
-                ]"
-                @click="header.column.getToggleSortingHandler()?.($event)">
-                <div class="flex items-center gap-2">
-                  <FlexRender
-                    v-if="!header.isPlaceholder"
-                    :render="header.column.columnDef.header"
-                    :props="header.getContext()" />
-                  <template v-if="header.column.getCanSort()">
-                    <ArrowUpDown
-                      v-if="!header.column.getIsSorted()"
-                      class="h-4 w-4 text-on-surface-muted" />
-                    <ArrowUp
-                      v-else-if="header.column.getIsSorted() === 'asc'"
-                      class="h-4 w-4 text-primary" />
-                    <ArrowDown v-else class="h-4 w-4 text-primary" />
-                  </template>
-                </div>
-              </TableHead>
-            </TableRow>
-          </template>
-        </TableHeader>
-        <TableBody>
-          <template v-if="isLoading">
-            <TableRow
-              v-for="row in SKELETON_ROW_COUNT"
-              :key="`skeleton-${row}`">
-              <TableCell v-for="(_, index) in permissionColumns" :key="index">
-                <Skeleton height="1rem" width="70%" />
-              </TableCell>
-            </TableRow>
-          </template>
-          <template v-else-if="isSuccess">
-            <template v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableRow
-                :data-permission-row="row.original.key"
-                tabindex="-1"
-                :aria-current="
-                  isCurrentRow(row.original.key) ? 'true' : undefined
-                "
-                :class="{
-                  'border-b-transparent': row.getIsExpanded(),
-                  'permission-row--current': isCurrentRow(row.original.key),
-                  'opacity-50 pointer-events-none':
-                    row.original.key === deletingKey ||
-                    row.original.group.id === deletingGroupId,
-                }">
-                <TableCell
-                  v-for="cell in row.getVisibleCells()"
-                  :key="cell.id"
-                  :class="{ 'align-top': editingKey === row.original.key }">
-                  <FlexRender
-                    :render="cell.column.columnDef.cell"
-                    :props="cell.getContext()" />
-                </TableCell>
-              </TableRow>
-              <TableRow
-                v-if="row.getIsExpanded()"
-                :class="{
-                  'permission-row--current': isCurrentRow(row.original.key),
-                }">
-                <TableCell
-                  :colspan="row.getVisibleCells().length"
-                  class="px-4 pb-4 pl-12">
-                  <GroupMemberManager
-                    v-if="row.original.group.type === GROUP_TYPES.USER"
-                    :group="row.original.group"
-                    :isOpen="row.getIsExpanded()"
-                    class="bg-surface-container" />
-                  <GroupEntriesManager
-                    v-else
-                    :group="row.original.group"
-                    :isOpen="row.getIsExpanded()"
-                    class="bg-surface-container" />
-                </TableCell>
-              </TableRow>
-            </template>
-            <TableRow v-if="!table.getRowModel().rows.length">
-              <TableCell
-                :colspan="permissionColumns.length"
-                class="h-16 text-center text-sm text-on-surface-variant">
-                {{ emptyMessage }}
-              </TableCell>
-            </TableRow>
-          </template>
-          <template v-else>
-            <!-- query subscribers refetch on mount, so none belong here -->
-            <TableRow>
-              <TableCell
-                :colspan="permissionColumns.length"
-                class="h-16 text-center text-sm text-error">
-                Could not load permissions.
-              </TableCell>
-            </TableRow>
-          </template>
-
-          <!--
-            AddPermissionRow subscribes to the same queries the branches
-            key on, and mounting a subscriber to a query with no data
-            refetches it. Keeping AddPermissionRow outside the branches
-            means no predicate here can trigger that, whatever the
-            predicate says.
-          -->
-          <AddPermissionRow
-            v-model:open="isAddingPermission"
-            :prefillGroup="prefillGroup"
-            :prefillCollectionId="collectionFilterId"
-            :colspan="permissionColumns.length"
-            @created="revealSavedPermission" />
-          <!-- AddRowButton fetches nothing, so gating it is safe -->
-          <AddRowButton
-            v-if="isSuccess && !isAddingPermission"
-            :colspan="permissionColumns.length"
-            label="Add Permission"
-            @click="openAddPermission()" />
-        </TableBody>
-      </Table>
-    </div>
-
-    <section
-      v-if="
-        isSuccess && unassignedGroupRows.length && collectionFilterId === null
-      "
-      class="mt-8">
-      <h2 class="text-base font-medium text-on-surface">Unassigned Groups</h2>
-      <p class="mt-1 text-sm text-on-surface-variant">
-        Groups that hold no permissions yet.
-      </p>
-      <UnassignedGroupsTable
-        class="mt-4"
-        :rows="unassignedGroupRows"
-        :searchText="searchText"
+    <section v-if="isSuccess" class="mt-12">
+      <GroupsTable
+        :rows="groupRows"
         :deletingGroupId="deletingGroupId"
         @addPermission="openAddPermission"
         @deleteGroup="askToDeleteGroup" />
@@ -206,6 +115,16 @@
       Global groups (All, Authenticated Users) apply to everyone and have no
       members to manage.
     </p>
+
+    <AddPermissionDialog
+      v-model:open="isAddingPermission"
+      :prefillGroup="prefillGroup"
+      :prefillCollectionId="collectionFilterId"
+      @created="revealSavedPermission" />
+
+    <EditPermissionDialog
+      v-model:open="isEditingPermission"
+      :row="permissionToEdit" />
 
     <ConfirmModal
       :isOpen="Boolean(rowPendingRemove)"
@@ -244,35 +163,21 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type {
-  ColumnDef,
-  ExpandedState,
-  SortingState,
-} from "@tanstack/vue-table";
+import type { QueryStatus } from "@tanstack/vue-query";
 import {
-  FlexRender,
-  functionalUpdate,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from "@tanstack/vue-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
+  CircleMinusIcon,
+  FilterIcon,
+  PencilIcon,
+  TrashIcon,
+} from "lucide-vue-next";
+import { DataTable } from "@/components/DataTable";
 import Button from "@/components/Button/Button.vue";
+import Chip from "@/components/Chip/Chip.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
+import type { KebabMenuItem } from "@/components/KebabMenu/KebabMenu.vue";
+import PermissionChip from "@/components/PermissionChip/PermissionChip.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
-import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
-import { tryFocus } from "@/helpers/tryFocus";
 import {
   flattenCollections,
   normalizeAssetCollections,
@@ -280,36 +185,37 @@ import {
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { useToastStore } from "@/stores/toastStore";
-import AddPermissionRow from "./AddPermissionRow.vue";
-import type { CreatedPermission } from "./AddPermissionRow.vue";
-import AddRowButton from "./AddRowButton.vue";
+import AddPermissionDialog from "./AddPermissionDialog.vue";
+import type { CreatedPermission } from "./AddPermissionDialog.vue";
+import EditPermissionDialog from "./EditPermissionDialog.vue";
 import GroupEntriesManager from "./GroupEntriesManager.vue";
 import GroupMemberManager from "./GroupMemberManager.vue";
-import UnassignedGroupsTable from "./UnassignedGroupsTable.vue";
+import GroupsTable from "./GroupsTable.vue";
+import { openGroupAddRow } from "./openGroupAddRow";
 import {
   buildPermissionsPageRows,
-  permissionRowKey,
+  permissionRowId,
 } from "./buildPermissionsPageRows";
 import type { PermissionRow } from "./buildPermissionsPageRows";
-import { createPermissionColumns } from "./PermissionsTableColumns";
 import { useCollectionFilter } from "./useCollectionFilter";
-import type { SavingRow } from "./PermissionsTableColumns";
 import {
   collectionGrantsQuery,
   instanceGrantsQuery,
   useDeleteRuleMutation,
-  useSaveRuleMutation,
 } from "./ruleQueries";
 import {
   groupsQuery,
   groupTypesQuery,
   useDeleteGroupMutation,
-  useUpdateGroupMutation,
 } from "./groupQueries";
+import GroupNameWithSummary from "../DrawerManagementPage/GroupNameWithSummary.vue";
+import { toGroupSummary } from "../DrawerManagementPage/toGroupSummary";
 import { GROUP_TYPES, isManageableGroup } from "@/types";
-import type { PermissionsGroup } from "@/types";
-
-const SKELETON_ROW_COUNT = 3;
+import type {
+  DataTableColumn,
+  DataTableHandle,
+  PermissionsGroup,
+} from "@/types";
 
 const toastStore = useToastStore();
 
@@ -350,6 +256,11 @@ const isLoading = computed(() =>
 const isSuccess = computed(() =>
   tableQueries.every((query) => query.isSuccess.value)
 );
+
+const tableStatus = computed((): QueryStatus => {
+  if (isLoading.value) return "pending";
+  return isSuccess.value ? "success" : "error";
+});
 
 const flatCollections = computed(() =>
   flattenCollections(
@@ -399,19 +310,9 @@ const pageRows = computed(() =>
 );
 
 const permissionRows = computed(() => pageRows.value.permissionRows);
-const unassignedGroupRows = computed(() => pageRows.value.unassignedGroupRows);
+const groupRows = computed(() => pageRows.value.groupRows);
 
-const hasActiveFilters = computed(
-  (): boolean => collectionFilterId.value !== null || searchText.value !== ""
-);
-
-function clearFilters(): void {
-  searchText.value = "";
-  currentRowKey.value = null;
-  collectionFilterId.value = null;
-}
-
-const visiblePermissionRows = computed((): PermissionRow[] => {
+const rowsInCollectionFilter = computed((): PermissionRow[] => {
   const collectionId = collectionFilterId.value;
   if (collectionId === null) return permissionRows.value;
   return permissionRows.value.filter(
@@ -419,129 +320,37 @@ const visiblePermissionRows = computed((): PermissionRow[] => {
   );
 });
 
-const emptyMessage = computed((): string => {
-  // the table renders this only when no row is visible, so rows that
-  // exist are rows the search hid
-  if (visiblePermissionRows.value.length > 0) {
-    return "No permissions match your search.";
-  }
-  if (collectionFilterId.value !== null) {
-    return "No permissions for this collection yet. Add one to get started.";
-  }
-  return "No permissions yet. Add one to get started.";
-});
+function isHiddenByCollectionFilter(rowId: string): boolean {
+  const isListedIn = (rows: PermissionRow[]) =>
+    rows.some((row) => row.id === rowId);
+  return (
+    isListedIn(permissionRows.value) &&
+    !isListedIn(rowsInCollectionFilter.value)
+  );
+}
 
-// the inline add form, seeded with a group when a row's Add Permission
-// action opened it
+const table = ref<DataTableHandle | null>(null);
+
 const isAddingPermission = ref(false);
 const prefillGroup = ref<PermissionsGroup | null>(null);
 
 function openAddPermission(group: PermissionsGroup | null = null): void {
   prefillGroup.value = group;
   isAddingPermission.value = true;
-
-  // focus the form's first field after next render
-  tryFocus("[data-add-permission-form] select").catch((error) =>
-    console.warn("Could not focus the add permission form", error)
-  );
 }
 
-// only one row edits at a time, so one set of drafts covers the table
-const editingKey = ref<string | null>(null);
-const draftLabel = ref("");
-const draftLevelId = ref<number | null>(null);
-const saveRule = useSaveRuleMutation();
-const updateGroup = useUpdateGroupMutation();
-const deleteRule = useDeleteRuleMutation();
+const isEditingPermission = ref(false);
+const permissionToEdit = ref<PermissionRow | null>(null);
 
-const permissionOptions = computed(() =>
-  buildPermissionOptions(permissionLevels.value ?? [])
-);
-
-function toLevelLabel(levelId: number | null): string {
-  const option = permissionOptions.value.find(
-    (candidate) => candidate.id === levelId
-  );
-  return option?.label ?? "";
+function openEditPermission(row: PermissionRow): void {
+  permissionToEdit.value = row;
+  isEditingPermission.value = true;
 }
-
-function startEdit(row: PermissionRow) {
-  editingKey.value = row.key;
-  draftLabel.value = row.group.label;
-  draftLevelId.value = row.permissionLevelId;
-}
-
-function cancelEdit() {
-  editingKey.value = null;
-  draftLabel.value = "";
-  draftLevelId.value = null;
-}
-
-// What a group is called and what it can reach are separate resources,
-// so one Save can send one request, the other, or both.
-function saveEdit(row: PermissionRow) {
-  const label = draftLabel.value.trim();
-  const levelId = draftLevelId.value;
-  cancelEdit();
-
-  // levelLabel drives the pending chip, so it stays empty unless the
-  // level is what changed.
-  const isLevelChanged = levelId !== null && levelId !== row.permissionLevelId;
-
-  submittedRow.value = {
-    key: row.key,
-    groupLabel: label || row.groupLabel,
-    levelLabel: isLevelChanged ? toLevelLabel(levelId) : "",
-  };
-
-  saveGroupName(row, label);
-  if (levelId !== null) {
-    saveLevel(row, levelId);
-  }
-}
-
-function saveGroupName(row: PermissionRow, label: string) {
-  if (!label) return;
-  if (label === row.group.label) return;
-
-  // a group's type is fixed at creation, so the update resends it as is
-  updateGroup.mutate({
-    id: row.group.id,
-    payload: { label, type: row.group.type },
-  });
-}
-
-function saveLevel(row: PermissionRow, levelId: number) {
-  if (levelId === row.permissionLevelId) return;
-
-  saveRule.mutate({
-    kind: "update",
-    grantId: row.grantId,
-    rule: {
-      collectionId: row.collectionId,
-      groupId: row.group.id,
-      permissionLevelId: levelId,
-    },
-  });
-}
-
-// What the row that was saved submitted, which its cells show while the
-// lists still hold the values it replaced.
-const submittedRow = ref<SavingRow | null>(null);
-
-// One Save can fire a group request and a level request, and either can
-// be the one still running.
-const isSaveInFlight = computed(
-  (): boolean => updateGroup.isPending.value || saveRule.isPending.value
-);
-
-const savingRow = computed((): SavingRow | null =>
-  isSaveInFlight.value ? submittedRow.value : null
-);
 
 // the permission awaiting removal confirmation, doubling as the modal's
 // open state
 const rowPendingRemove = ref<PermissionRow | null>(null);
+const deleteRule = useDeleteRuleMutation();
 
 function askToRemovePermission(row: PermissionRow) {
   rowPendingRemove.value = row;
@@ -568,10 +377,10 @@ function confirmRemovePermission() {
 
 // The row being removed grays out until the refetch drops it. isPending
 // holds through the refetch because onSettled returns its promise.
-const deletingKey = computed((): string | null => {
+const deletingRowId = computed((): string | null => {
   const vars = deleteRule.variables.value;
   if (!deleteRule.isPending.value || !vars) return null;
-  return permissionRowKey(vars.scope, vars.grantId);
+  return permissionRowId(vars.scope, vars.grantId);
 });
 
 // the group awaiting delete confirmation, doubling as the modal's open state
@@ -609,134 +418,73 @@ const deletingGroupId = computed((): number | null => {
   return deleteGroup.variables.value ?? null;
 });
 
-const permissionColumns = createPermissionColumns({
-  editingKey,
-  draftLabel,
-  draftLevelId,
-  savingRow,
-  permissionOptions,
-  onEdit: startEdit,
-  onCancel: cancelEdit,
-  onSave: saveEdit,
-  onRemovePermission: askToRemovePermission,
-  onDeleteGroup: (row) => askToDeleteGroup(row.group),
-});
-
-// The rows arrive ordered by the builder (instance-wide first, then by
-// collection), so the table sorts by nothing until a header says
-// otherwise.
-const sorting = ref<SortingState>([]);
-
-// One search box filters both tables across every text column.
-const searchText = ref("");
-
-// keys of the currently expanded rows, so each group fetches its members
-// or entries only when a detail panel is open
-const expanded = ref<ExpandedState>({});
-
-// the row the user just saved. Sorting, searching, or expanding means
-// the user has moved on, so those handlers clear it.
-const currentRowKey = ref<string | null>(null);
-
-// Typing in the search box means the user moved on from the row they
-// just saved. revealSavedPermission writes searchText directly, since it
-// clears the box to show that row rather than to leave it.
-function searchPermissions(text: string): void {
-  searchText.value = text;
-  currentRowKey.value = null;
+function isPermissionRowDeleting(row: PermissionRow): boolean {
+  return (
+    row.id === deletingRowId.value || row.group.id === deletingGroupId.value
+  );
 }
 
-function isCurrentRow(key: string): boolean {
-  return key === currentRowKey.value;
+function permissionMenuItems(row: PermissionRow): KebabMenuItem[] {
+  return [
+    {
+      label: "Edit Group",
+      icon: PencilIcon,
+      onSelect: () => openEditPermission(row),
+    },
+    {
+      label: "Remove Permission",
+      icon: CircleMinusIcon,
+      onSelect: () => askToRemovePermission(row),
+    },
+    {
+      label: "Delete Group",
+      icon: TrashIcon,
+      variant: "danger",
+      onSelect: () => askToDeleteGroup(row.group),
+    },
+  ];
 }
 
-const table = useVueTable({
-  get data() {
-    return visiblePermissionRows.value;
+const permissionColumns: DataTableColumn<PermissionRow>[] = [
+  {
+    id: "scope",
+    label: "Scope",
+    width: "md",
+    sortValue: (row) => row.scope,
+    searchValue: (row) => row.scope,
   },
-  columns: permissionColumns as ColumnDef<PermissionRow, unknown>[],
-  getRowId: (row) => row.key,
-  getRowCanExpand: (row) => isManageableGroup(row.original.group),
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  globalFilterFn: "includesString",
-  onSortingChange: (updater) => {
-    currentRowKey.value = null;
-    sorting.value = functionalUpdate(updater, sorting.value);
+  {
+    id: "collection",
+    label: "Collection",
+    width: "lg",
+    sortValue: (row) => (row.collectionId === null ? "*" : row.collectionLabel),
+    searchValue: (row) => row.collectionLabel,
   },
-  onExpandedChange: (updater) => {
-    currentRowKey.value = null;
-    expanded.value = functionalUpdate(updater, expanded.value);
+  {
+    id: "group",
+    label: "Group",
+    sortValue: (row) => row.groupLabel,
+    searchValue: (row) => [row.groupLabel, row.typeLabel],
   },
-  state: {
-    get sorting() {
-      return sorting.value;
-    },
-    get expanded() {
-      return expanded.value;
-    },
-    get globalFilter() {
-      return searchText.value;
-    },
+  {
+    id: "permission",
+    label: "Permission",
+    width: "lg",
+    sortValue: (row) => row.permissionLabel,
+    searchValue: (row) => row.permissionLabel,
   },
-});
+  { id: "actions", label: "Actions", isLabelHidden: true, width: "sm" },
+];
 
-// `expanded` is either true, meaning every row, or a per-row map, so
-// opening one row has to preserve whichever it currently holds.
-function expandRow(key: string): void {
-  const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-  expanded.value = { ...currentlyExpanded, [key]: true };
-}
-
-// A new group holds nobody and reaches nothing, so its row opens on the
-// members it needs. An existing group's new permission just gets shown.
 async function revealSavedPermission({
   group,
-  rowKey,
+  rowId,
   isNewGroup,
 }: CreatedPermission): Promise<void> {
-  // an active search could hide the row, so clear the search
-  searchText.value = "";
-  currentRowKey.value = rowKey;
+  if (isHiddenByCollectionFilter(rowId)) collectionFilterId.value = null;
 
-  if (!isNewGroup || !isManageableGroup(group)) {
-    await focusRevealedRow(`[data-permission-row="${rowKey}"]`);
-    return;
-  }
-
-  expandRow(rowKey);
-  const addControlSelector =
-    group.type === GROUP_TYPES.USER
-      ? `[data-group-add-member="${group.id}"]`
-      : `[data-group-entry-add-button="${group.id}"]`;
-
-  const addControl = await focusRevealedRow(addControlSelector);
-  // clicking the add control opens its form, which then moves focus into
-  // the field the user came here to fill
-  addControl?.click();
-}
-
-async function focusRevealedRow(selector: string): Promise<HTMLElement | null> {
-  try {
-    return await tryFocus(selector);
-  } catch (error) {
-    console.warn("Could not focus the saved permission's row", error);
-    return null;
-  }
+  const shouldExpandNewGroup = isNewGroup && isManageableGroup(group);
+  await table.value?.reveal(rowId, { expand: shouldExpandNewGroup });
+  if (shouldExpandNewGroup) await openGroupAddRow(group);
 }
 </script>
-<style scoped>
-.permission-row--current {
-  animation: current-row-flash 0.5s ease-out;
-}
-
-@keyframes current-row-flash {
-  from {
-    background-color: var(--primary-muted);
-  }
-  to {
-    background-color: transparent;
-  }
-}
-</style>

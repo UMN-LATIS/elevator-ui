@@ -111,12 +111,10 @@
                   <GroupMemberManager
                     v-if="row.original.group.type === GROUP_TYPES.USER"
                     :group="row.original.group"
-                    :isOpen="row.getIsExpanded()"
                     class="bg-surface-container" />
                   <GroupEntriesManager
                     v-else
                     :group="row.original.group"
-                    :isOpen="row.getIsExpanded()"
                     class="bg-surface-container" />
                 </TableCell>
               </TableRow>
@@ -210,7 +208,7 @@ import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
 import { tryFocus } from "@/helpers/tryFocus";
 import AddGroupRow from "./AddGroupRow.vue";
-import AddRowButton from "../AdminPermissionsPage/AddRowButton.vue";
+import { AddRowButton } from "@/components/DataTable";
 import GroupEntriesManager from "./GroupEntriesManager.vue";
 import GroupMemberManager from "./GroupMemberManager.vue";
 import { createGroupAccessColumns } from "./GroupAccessTableColumns";
