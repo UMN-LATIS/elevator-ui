@@ -1,139 +1,128 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <InputGroup
-      v-model="globalFilter"
-      label="Search table"
-      type="text"
-      placeholder="Filter templates..."
-      :labelHidden="true"
-      class="max-w-sm" />
-    <div class="border border-outline-variant rounded-md">
-      <Table class="table-fixed w-full">
-        <TableHeader>
-          <TableRow
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id">
-            <TableHead
-              v-for="header in headerGroup.headers"
-              :key="header.id"
-              class="bg-surface-container-lowest"
-              :class="[
-                header.column.columnDef.meta?.widthClass,
-                {
-                  'cursor-pointer select-none': header.column.getCanSort(),
-                },
-              ]"
-              @click="header.column.getToggleSortingHandler()?.($event)">
-              <div class="flex items-center gap-2">
-                <FlexRender
-                  v-if="!header.isPlaceholder"
-                  :render="header.column.columnDef.header"
-                  :props="header.getContext()" />
-                <template v-if="header.column.getCanSort()">
-                  <ArrowUpDown
-                    v-if="!header.column.getIsSorted()"
-                    class="h-4 w-4 text-muted-foreground/50" />
-                  <ArrowUp
-                    v-else-if="header.column.getIsSorted() === 'asc'"
-                    class="h-4 w-4" />
-                  <ArrowDown v-else class="h-4 w-4" />
-                </template>
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <template v-if="table.getRowModel().rows?.length">
-            <TableRow
-              v-for="row in table.getRowModel().rows"
-              :key="row.id"
-              :data-state="row.getIsSelected() ? 'selected' : undefined">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()" />
-              </TableCell>
-            </TableRow>
-          </template>
-          <template v-else>
-            <TableRow>
-              <TableCell :colspan="columns.length" class="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          </template>
-        </TableBody>
-      </Table>
-    </div>
-  </div>
+  <DataTable
+    :itemName="{ singular: 'template', plural: 'templates' }"
+    :rows="templates"
+    :columns="columns"
+    :status="status">
+    <template #toolbarEnd>
+      <Button variant="primary" to="/templates/edit">Create Template</Button>
+    </template>
+    <template #cell-id="{ row: template }">
+      <div class="text-sm">{{ template.id }}</div>
+    </template>
+    <template #cell-name="{ row: template }">
+      <Link
+        class="text-sm"
+        :to="{ name: 'templatesEdit', params: { id: template.id } }">
+        {{ template.name }}
+      </Link>
+    </template>
+    <template #cell-createdAt="{ row: template }">
+      <div class="text-sm">{{ toDateLabel(template.createdAt) }}</div>
+    </template>
+    <template #cell-modifiedAt="{ row: template }">
+      <div class="text-sm">{{ toDateLabel(template.modifiedAt) }}</div>
+    </template>
+    <template #cell-actions="{ row: template }">
+      <div class="flex items-center justify-end">
+        <KebabMenu
+          :label="`Actions for ${template.name}`"
+          :items="templateMenuItems(template)" />
+      </div>
+    </template>
+  </DataTable>
 </template>
 
-<script setup lang="ts" generic="TData">
-import { computed, ref } from "vue";
-import type {
-  ColumnDef,
-  SortingState,
-  VisibilityState,
-} from "@tanstack/vue-table";
+<script setup lang="ts">
+import { computed } from "vue";
 import { useMediaQuery } from "@vueuse/core";
+import type { QueryStatus } from "@tanstack/vue-query";
 import {
-  FlexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from "@tanstack/vue-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+  CopyPlusIcon,
+  PencilIcon,
+  RefreshCcwDotIcon,
+  Trash2,
+} from "lucide-vue-next";
+import Button from "@/components/Button/Button.vue";
+import { DataTable } from "@/components/DataTable";
+import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
+import type { KebabMenuItem } from "@/components/KebabMenu/KebabMenu.vue";
+import Link from "@/components/Link/Link.vue";
+import type { DataTableColumn, TemplateSummary } from "@/types";
 
-const props = defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ColumnDef<TData, any>[];
-  data: TData[];
+defineProps<{
+  templates: TemplateSummary[];
+  status: QueryStatus;
+}>();
+
+const emit = defineEmits<{
+  edit: [template: TemplateSummary];
+  duplicate: [template: TemplateSummary];
+  reindex: [template: TemplateSummary];
+  delete: [template: TemplateSummary];
 }>();
 
 const isMdScreen = useMediaQuery("(min-width: 768px)");
 
-const columnVisibility = computed<VisibilityState>(() => ({
-  createdAt: isMdScreen.value,
-  modifiedAt: isMdScreen.value,
-}));
+const columns = computed((): DataTableColumn<TemplateSummary>[] => [
+  {
+    id: "id",
+    label: "ID",
+    width: "sm",
+    sortValue: (template) => template.id,
+    searchValue: (template) => template.id,
+  },
+  {
+    id: "name",
+    label: "Name",
+    defaultSort: "asc",
+    sortValue: (template) => template.name,
+    searchValue: (template) => template.name,
+  },
+  {
+    id: "createdAt",
+    label: "Created",
+    width: "md",
+    isHidden: !isMdScreen.value,
+    sortValue: (template) => template.createdAt,
+  },
+  {
+    id: "modifiedAt",
+    label: "Modified",
+    width: "md",
+    isHidden: !isMdScreen.value,
+    sortValue: (template) => template.modifiedAt,
+  },
+  { id: "actions", label: "Actions", isLabelHidden: true, width: "sm" },
+]);
 
-const sorting = ref<SortingState>([{ id: "name", desc: false }]);
-const globalFilter = ref("");
+function toDateLabel(value: string | undefined): string {
+  return value ? new Date(value).toLocaleDateString() : "—";
+}
 
-const table = useVueTable({
-  get data() {
-    return props.data;
-  },
-  get columns() {
-    return props.columns;
-  },
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  onSortingChange: (updater) => {
-    sorting.value =
-      typeof updater === "function" ? updater(sorting.value) : updater;
-  },
-  state: {
-    get sorting() {
-      return sorting.value;
+function templateMenuItems(template: TemplateSummary): KebabMenuItem[] {
+  return [
+    {
+      label: "Edit",
+      icon: PencilIcon,
+      onSelect: () => emit("edit", template),
     },
-    get globalFilter() {
-      return globalFilter.value;
+    {
+      label: "Duplicate",
+      icon: CopyPlusIcon,
+      onSelect: () => emit("duplicate", template),
     },
-    get columnVisibility() {
-      return columnVisibility.value;
+    {
+      label: "Reindex",
+      icon: RefreshCcwDotIcon,
+      onSelect: () => emit("reindex", template),
     },
-  },
-});
+    {
+      label: "Delete",
+      icon: Trash2,
+      variant: "danger",
+      onSelect: () => emit("delete", template),
+    },
+  ];
+}
 </script>
