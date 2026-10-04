@@ -10,103 +10,43 @@
         </template>
       </PageHeader>
 
-      <div class="flex justify-end items-center gap-2 flex-wrap">
-        <InputGroup
-          v-model="searchText"
-          label="Search Collections"
-          placeholder="Search collections"
-          :labelHidden="true"
-          class="max-w-sm"
-          type="search"
-          :disabled="isLoading">
-          <template #prepend>
-            <FilterIcon class="size-4 text-on-surface-variant" />
-          </template>
-        </InputGroup>
-        <Button
-          variant="primary"
-          class="whitespace-nowrap"
-          :to="{ name: 'adminCollectionsCreate' }">
-          Create Collection
-        </Button>
-      </div>
-
-      <div class="mt-4 border border-outline-variant rounded-md">
-        <Table class="w-full table-fixed">
-          <TableHeader>
-            <template
-              v-for="headerGroup in table.getHeaderGroups()"
-              :key="headerGroup.id">
-              <TableRow class="hover:bg-transparent">
-                <TableHead
-                  v-for="header in headerGroup.headers"
-                  :key="header.id"
-                  class="bg-surface-container-low"
-                  :class="[
-                    header.column.columnDef.meta?.widthClass,
-                    {
-                      'cursor-pointer select-none': header.column.getCanSort(),
-                    },
-                  ]"
-                  @click="header.column.getToggleSortingHandler()?.($event)">
-                  <div class="flex items-center gap-2">
-                    <FlexRender
-                      v-if="!header.isPlaceholder"
-                      :render="header.column.columnDef.header"
-                      :props="header.getContext()" />
-                    <template v-if="header.column.getCanSort()">
-                      <ArrowUpDown
-                        v-if="!header.column.getIsSorted()"
-                        class="h-4 w-4 text-on-surface-muted" />
-                      <ArrowUp
-                        v-else-if="header.column.getIsSorted() === 'asc'"
-                        class="h-4 w-4 text-primary" />
-                      <ArrowDown v-else class="h-4 w-4 text-primary" />
-                    </template>
-                  </div>
-                </TableHead>
-              </TableRow>
-            </template>
-          </TableHeader>
-          <TableBody>
-            <template v-if="isLoading">
-              <TableRow
-                v-for="row in SKELETON_ROW_COUNT"
-                :key="`skeleton-${row}`">
-                <TableCell v-for="(_, index) in collectionColumns" :key="index">
-                  <Skeleton height="1rem" width="70%" />
-                </TableCell>
-              </TableRow>
-            </template>
-            <template v-else>
-              <TableRow
-                v-for="row in table.getRowModel().rows"
-                :key="row.id"
-                :class="{
-                  'opacity-50 pointer-events-none':
-                    row.original.id === deletingId,
-                }">
-                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                  <FlexRender
-                    :render="cell.column.columnDef.cell"
-                    :props="cell.getContext()" />
-                </TableCell>
-              </TableRow>
-              <TableRow v-if="!table.getRowModel().rows?.length">
-                <TableCell
-                  :colspan="collectionColumns.length"
-                  class="h-16 text-center text-sm text-on-surface-variant">
-                  {{
-                    collectionRows.length
-                      ? "No collections match your filters."
-                      : "No collections yet."
-                  }}
-                </TableCell>
-              </TableRow>
-            </template>
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        :itemName="{ singular: 'collection', plural: 'collections' }"
+        :rows="collectionRows"
+        :columns="collectionColumns"
+        :status="status"
+        :isRowDeleting="(row) => row.id === deletingId">
+        <template #toolbarEnd>
+          <Button variant="primary" :to="{ name: 'adminCollectionsCreate' }">
+            Create Collection
+          </Button>
+        </template>
+        <template #cell-title="{ row }">
+          <RouterLink
+            :to="`/collections/browseCollection/${row.id}`"
+            class="text-sm font-medium text-primary underline-offset-2 hover:underline">
+            {{ row.title }}
+          </RouterLink>
+        </template>
+        <template #cell-parent="{ row }">
+          <div class="text-sm text-on-surface-variant">
+            {{ row.parentTitle }}
+          </div>
+        </template>
+        <template #cell-showInBrowse="{ row }">
+          <CheckIcon
+            v-if="row.showInBrowse"
+            class="size-4 text-primary"
+            aria-label="Shown in browse" />
+        </template>
+        <template #cell-actions="{ row }">
+          <div class="flex justify-end">
+            <KebabMenu
+              :label="`Actions for ${row.title}`"
+              :items="collectionMenuItems(row)" />
+          </div>
+        </template>
+      </DataTable>
 
       <ConfirmModal
         :isOpen="Boolean(collectionPendingDelete)"
@@ -132,31 +72,15 @@
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuery } from "@tanstack/vue-query";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
-import {
-  FlexRender,
-  functionalUpdate,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from "@tanstack/vue-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
+import { CheckIcon, LockIcon, PencilIcon, TrashIcon } from "lucide-vue-next";
+import { DataTable } from "@/components/DataTable";
+import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
+import type { KebabMenuItem } from "@/components/KebabMenu/KebabMenu.vue";
 import AdminLayout from "@/layouts/AdminLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
 import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useToastStore } from "@/stores/toastStore";
 import {
   adminCollectionsQuery,
@@ -164,14 +88,12 @@ import {
 } from "../../queries/adminCollectionQueries";
 import { buildCollectionRows } from "./buildCollectionRows";
 import type { CollectionRow } from "./buildCollectionRows";
-import { createCollectionColumns } from "./CollectionsTableColumns";
-
-const SKELETON_ROW_COUNT = 3;
+import type { DataTableColumn } from "@/types";
 
 const router = useRouter();
 const toastStore = useToastStore();
 
-const { data: collections, isLoading } = useQuery(adminCollectionsQuery());
+const { data: collections, status } = useQuery(adminCollectionsQuery());
 
 const collectionRows = computed(() =>
   buildCollectionRows(collections.value ?? [])
@@ -225,36 +147,48 @@ function confirmDelete() {
   collectionPendingDelete.value = null;
 }
 
-const collectionColumns = createCollectionColumns({
-  onEdit: openEdit,
-  onDelete: askToDeleteCollection,
-  onPermissions: openCollectionPermissions,
-});
-
-const sorting = ref<SortingState>([{ id: "title", desc: false }]);
-
-const searchText = ref("");
-
-const table = useVueTable({
-  get data() {
-    return collectionRows.value;
-  },
-  columns: collectionColumns as ColumnDef<CollectionRow, unknown>[],
-  getRowId: (row) => String(row.id),
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  globalFilterFn: "includesString",
-  onSortingChange: (updater) => {
-    sorting.value = functionalUpdate(updater, sorting.value);
-  },
-  state: {
-    get sorting() {
-      return sorting.value;
+function collectionMenuItems(collection: CollectionRow): KebabMenuItem[] {
+  return [
+    {
+      label: "Edit",
+      icon: PencilIcon,
+      onSelect: () => openEdit(collection),
     },
-    get globalFilter() {
-      return searchText.value;
+    {
+      label: "Permissions",
+      icon: LockIcon,
+      onSelect: () => openCollectionPermissions(collection),
     },
+    {
+      label: "Delete",
+      icon: TrashIcon,
+      variant: "danger",
+      onSelect: () => askToDeleteCollection(collection),
+    },
+  ];
+}
+
+const collectionColumns: DataTableColumn<CollectionRow>[] = [
+  {
+    id: "title",
+    label: "Collection",
+    defaultSort: "asc",
+    sortValue: (row) => row.title,
+    searchValue: (row) => row.title,
   },
-});
+  {
+    id: "parent",
+    label: "Parent",
+    width: "lg",
+    sortValue: (row) => row.parentTitle,
+    searchValue: (row) => row.parentTitle,
+  },
+  {
+    id: "showInBrowse",
+    label: "In Browse",
+    width: "md",
+    sortValue: (row) => row.showInBrowse,
+  },
+  { id: "actions", label: "Actions", isLabelHidden: true, width: "sm" },
+];
 </script>

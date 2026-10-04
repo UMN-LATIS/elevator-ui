@@ -1,22 +1,11 @@
 <template>
   <AdminLayout class="all-custom-pages-page">
     <PageContent class="max-w-screen-lg">
-      <PageHeader title="Custom Pages">
-        <template #actions>
-          <Button variant="primary" :to="{ name: 'createCustomPage' }">
-            Create Page
-          </Button>
-        </template>
-      </PageHeader>
-      <Skeleton v-if="isPending" height="10rem" />
-      <Notification
-        v-else-if="isError"
-        type="danger"
-        title="Error Loading Custom Pages">
-        An error occurred while loading custom pages.
-      </Notification>
-      <p v-else-if="!customPages?.length" class="text-lg">No pages found.</p>
-      <CustomPagesTable v-else :columns="columns" :data="customPages" />
+      <PageHeader title="Custom Pages" />
+      <CustomPagesTable
+        :pages="customPages ?? []"
+        :status="status"
+        @delete="handleDelete" />
     </PageContent>
   </AdminLayout>
 </template>
@@ -27,13 +16,9 @@ import PageHeader from "@/components/PageHeader/PageHeader.vue";
 import { useAllCustomPagesQuery } from "@/queries/customPageQueries";
 import { useDeleteCustomPageMutation } from "@/queries/customPageQueries";
 import { useToastStore } from "@/stores/toastStore";
-import { createColumns } from "./CustomPagesTableColumns";
 import CustomPagesTable from "./CustomPagesTable.vue";
-import Notification from "@/components/Notification/Notification.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
-import Button from "@/components/Button/Button.vue";
 
-const { data: customPages, isPending, isError } = useAllCustomPagesQuery();
+const { data: customPages, status } = useAllCustomPagesQuery();
 
 const deleteMutation = useDeleteCustomPageMutation();
 const toastStore = useToastStore();
@@ -61,7 +46,5 @@ const handleDelete = async (pageId: number) => {
     });
   }
 };
-
-const columns = createColumns(handleDelete);
 </script>
 <style scoped></style>

@@ -112,7 +112,11 @@ describe("AllUserAssetsPage", () => {
           DefaultLayout: { template: "<slot />" },
           RouterLink: { template: "<a><slot /></a>" },
           Tabs: { template: "<div><slot /></div>" },
-          Tab: { name: "Tab", template: "<div><slot /></div>", props: ["id", "label"] },
+          Tab: {
+            name: "Tab",
+            template: "<div><slot /></div>",
+            props: ["id", "label"],
+          },
         },
       },
     });
@@ -121,7 +125,7 @@ describe("AllUserAssetsPage", () => {
   it("does not show 'No assets found.' while the fetch is in flight", () => {
     const wrapper = mount({ isFetching: true, data: [] });
     expect(wrapper.text()).not.toContain("No assets found.");
-    expect(wrapper.text()).not.toContain("No results.");
+    expect(wrapper.text()).not.toContain("No assets match your search.");
   });
 
   it("shows 'No assets found.' when fetch completes with no results", () => {
@@ -130,9 +134,14 @@ describe("AllUserAssetsPage", () => {
   });
 
   it("shows the table when fetch completes with results", () => {
-    const wrapper = mount({ isFetching: false, data: [{ id: "1", title: "My Asset" }] });
+    const wrapper = mount({
+      isFetching: false,
+      data: [{ id: "1", title: "My Asset" }],
+    });
     expect(wrapper.text()).not.toContain("No assets found.");
-    expect(wrapper.findComponent({ name: "UserAssetsTable" }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: "UserAssetsTable" }).exists()).toBe(
+      true
+    );
   });
 
   describe("Trash tab", () => {
@@ -163,9 +172,10 @@ describe("AllUserAssetsPage", () => {
         data: [{ objectId: "a1", title: "Active Asset" }],
         deletedAssets: mockDeletedAssets,
       });
-      const tables = wrapper.findAllComponents({ name: "UserAssetsTable" });
-      expect(tables).toHaveLength(2);
-      expect(tables[1].props("data")).toEqual(mockDeletedAssets);
+      const deletedTable = wrapper.findComponent({
+        name: "DeletedAssetsTable",
+      });
+      expect(deletedTable.props("assets")).toEqual(mockDeletedAssets);
     });
 
     it("shows empty state when trash has no deleted assets", () => {
@@ -173,5 +183,4 @@ describe("AllUserAssetsPage", () => {
       expect(wrapper.text()).toContain("No deleted assets.");
     });
   });
-
 });

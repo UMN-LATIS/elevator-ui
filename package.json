@@ -60,7 +60,6 @@
     "@headlessui/vue": "^1.7.23",
     "@knight-lab/timelinejs": "^3.9.8",
     "@tanstack/vue-query": "^5.83.0",
-    "@tanstack/vue-table": "^8.21.3",
     "@turf/circle": "^6.5.0",
     "@umn-cla/uppy-aws-s3": "^0.1.1",
     "@umn-latis/quill-better-image-module": "^0.2.4",
