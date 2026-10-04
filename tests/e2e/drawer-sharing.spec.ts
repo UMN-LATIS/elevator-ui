@@ -6,10 +6,9 @@ import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 // a grant on the drawer) and "Library Staff" (Unit type, one entry, no
 // grant).
 const DRAWER_MANAGEMENT_URL = "/drawers/1/manage";
-const ART_HISTORY_GROUP_ID = 201;
 
 function groupRow(page: Page, label: string) {
-  return page.locator("tr[data-group-row]", { hasText: label });
+  return page.locator("tr[data-row-id]", { hasText: label });
 }
 
 function openRowMenu(page: Page, label: string) {
@@ -20,7 +19,7 @@ function openRowMenu(page: Page, label: string) {
 
 function expandGroup(page: Page, label: string) {
   return page
-    .getByRole("button", { name: `Toggle members of ${label}` })
+    .getByRole("button", { name: `Toggle details for ${label}` })
     .click();
 }
 
@@ -57,13 +56,14 @@ test.describe("Drawer sharing", () => {
   test("creates a group with an access level", async ({ page }) => {
     await page.getByRole("button", { name: "Create Group" }).click();
 
-    await page.getByLabel("Group Name").fill("Spring Seminar");
-    await page
+    const dialog = page.getByRole("dialog", { name: "Create Group" });
+    await dialog.getByLabel("Group Name").fill("Spring Seminar");
+    await dialog
       .getByLabel("Group Type")
       .selectOption({ label: "Specific People" });
-    await page.getByRole("combobox", { name: "Permission" }).click();
+    await dialog.getByRole("combobox", { name: "Permission" }).click();
     await page.getByRole("option", { name: "Search and Browse" }).click();
-    await page.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: "Create" }).click();
 
     await expect(
       page.getByText('Group "Spring Seminar" created.')
@@ -77,14 +77,11 @@ test.describe("Drawer sharing", () => {
     await openRowMenu(page, "Art History Students");
     await page.getByRole("menuitem", { name: "Edit Group" }).click();
 
-    // while editing, the row shows inputs instead of the group's name
-    const editingRow = page.locator(
-      `tr[data-group-row="${ART_HISTORY_GROUP_ID}"]`
-    );
-    await editingRow.getByLabel("Group name").fill("Art History Alumni");
-    await editingRow.getByRole("combobox", { name: "Permission" }).click();
+    const dialog = page.getByRole("dialog", { name: "Edit Group" });
+    await dialog.getByLabel("Group Name").fill("Art History Alumni");
+    await dialog.getByRole("combobox", { name: "Permission" }).click();
     await page.getByRole("option", { name: "Download Originals" }).click();
-    await editingRow.getByRole("button", { name: "Save" }).click();
+    await dialog.getByRole("button", { name: "Save" }).click();
 
     await expect(
       page.getByText(
