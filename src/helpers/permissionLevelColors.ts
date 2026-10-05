@@ -46,6 +46,7 @@ const colorByLevel: Record<number, PermissionLevelColor> = {
   [PERM.ORIGINALS]: YELLOW,
   // admin
   [PERM.ADDASSETS]: ORANGE,
+  [PERM.EDIT_TEMPLATES]: ORANGE,
   [PERM.ADMIN]: RED,
 };
 

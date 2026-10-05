@@ -65,6 +65,7 @@ export const PERM = {
   CREATEDRAWERS: 30,
   ORIGINALS: 40,
   ADDASSETS: 50,
+  EDIT_TEMPLATES: 57,
   ADMIN: 60,
 } as const;
 

@@ -11,6 +11,11 @@ describe("permissionDotClass", () => {
     expect(permissionDotClass(PERM.ADMIN)).toBe("bg-red-500");
   });
 
+  it("colors edit templates and add assets orange", () => {
+    expect(permissionDotClass(PERM.ADDASSETS)).toBe("bg-orange-500");
+    expect(permissionDotClass(PERM.EDIT_TEMPLATES)).toBe("bg-orange-500");
+  });
+
   it("grays out the no-permissions tier", () => {
     expect(permissionDotClass(PERM.NOPERM)).toBe("bg-gray-500");
   });
