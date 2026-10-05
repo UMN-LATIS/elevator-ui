@@ -1,22 +1,14 @@
 <template>
   <AdminLayout class="all-templates-page">
     <PageContent class="max-w-screen-lg">
-      <PageHeader title="Templates">
-        <template #actions>
-          <Button variant="primary" to="/templates/edit">
-            Create Template
-          </Button>
-        </template>
-      </PageHeader>
-      <Skeleton v-if="isPending" height="10rem" />
-      <Notification
-        v-else-if="isError"
-        type="danger"
-        title="Error Loading Templates">
-        An error occurred while loading templates.
-      </Notification>
-      <p v-else-if="!templates?.length" class="text-lg">No templates found.</p>
-      <TemplatesTable v-else :columns="columns" :data="templates" />
+      <PageHeader title="Templates" />
+      <TemplatesTable
+        :templates="templates ?? []"
+        :status="status"
+        @edit="openEdit"
+        @duplicate="askToDuplicateTemplate"
+        @reindex="askToReindexTemplate"
+        @delete="askToDeleteTemplate" />
 
       <ConfirmModal
         :isOpen="Boolean(templatePendingDuplicate)"
@@ -68,11 +60,7 @@ import AdminLayout from "@/layouts/AdminLayout.vue";
 import PageContent from "@/components/PageContent/PageContent.vue";
 import PageHeader from "@/components/PageHeader/PageHeader.vue";
 import { useToastStore } from "@/stores/toastStore";
-import { createColumns } from "./TemplatesTableColumns";
 import TemplatesTable from "./TemplatesTable.vue";
-import Notification from "@/components/Notification/Notification.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
-import Button from "@/components/Button/Button.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import {
   useAllTemplatesQuery,
@@ -82,7 +70,7 @@ import {
 } from "@/queries/templateQueries";
 import type { TemplateSummary } from "@/types";
 
-const { data: templates, isPending, isError } = useAllTemplatesQuery();
+const { data: templates, status } = useAllTemplatesQuery();
 
 const router = useRouter();
 const toastStore = useToastStore();
@@ -174,12 +162,5 @@ const confirmDelete = (): void => {
   });
   templatePendingDelete.value = null;
 };
-
-const columns = createColumns({
-  onEdit: openEdit,
-  onDuplicate: askToDuplicateTemplate,
-  onReindex: askToReindexTemplate,
-  onDelete: askToDeleteTemplate,
-});
 </script>
 <style scoped></style>
