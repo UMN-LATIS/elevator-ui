@@ -10,6 +10,7 @@ import { CascaderSelectOptions } from "@/components/CascadeSelect/CascadeSelect.
 
 export * from "./TimelineJSTypes";
 export * from "./PermissionsTypes";
+export * from "./DataTableTypes";
 
 export interface AppConfig {
   instance: {
