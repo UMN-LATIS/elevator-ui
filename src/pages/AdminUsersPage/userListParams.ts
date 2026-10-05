@@ -1,0 +1,63 @@
+import { computed } from "vue";
+import {
+  useRoute,
+  useRouter,
+  type LocationQuery,
+  type LocationQueryRaw,
+} from "vue-router";
+import type { AdminUserListParams, AdminUserType } from "@/types";
+
+const ADMIN_USER_TYPES: readonly AdminUserType[] = ["Local", "Remote"];
+
+function singleValueOf(value: LocationQuery[string]): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+export function parseUserType(value: string | null): AdminUserType | null {
+  return ADMIN_USER_TYPES.find((userType) => userType === value) ?? null;
+}
+
+export function parseIsSuperAdmin(value: string | null): boolean | null {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+}
+
+function parsePage(value: string | null): number {
+  const page = Number(value);
+  return Number.isInteger(page) && page > 0 ? page : 1;
+}
+
+export function parseUserListParams(query: LocationQuery): AdminUserListParams {
+  return {
+    search: singleValueOf(query.search) ?? "",
+    userType: parseUserType(singleValueOf(query.userType)),
+    isSuperAdmin: parseIsSuperAdmin(singleValueOf(query.isSuperAdmin)),
+    page: parsePage(singleValueOf(query.page)),
+  };
+}
+
+export function toUserListQuery(params: AdminUserListParams): LocationQueryRaw {
+  return {
+    search: params.search || undefined,
+    userType: params.userType ?? undefined,
+    isSuperAdmin:
+      params.isSuperAdmin === null ? undefined : String(params.isSuperAdmin),
+    page: params.page > 1 ? String(params.page) : undefined,
+  };
+}
+
+export function useUserListParams() {
+  const route = useRoute();
+  const router = useRouter();
+
+  const params = computed(() => parseUserListParams(route.query));
+
+  function setParams(changes: Partial<AdminUserListParams>): void {
+    router.replace({
+      query: toUserListQuery({ ...params.value, page: 1, ...changes }),
+    });
+  }
+
+  return { params, setParams };
+}
