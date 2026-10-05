@@ -61,6 +61,8 @@ import {
   type CreateDrawerGrantPayload,
   type UpdateDrawerGrantPayload,
   type AdminCollectionSummary,
+  type AdminUserListParams,
+  type AdminUserListResponse,
   type AdminCollectionDetail,
 } from "@/types";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
@@ -1690,6 +1692,26 @@ export async function fetchAdminCollections(): Promise<
   );
 
   return res.data.collections;
+}
+
+export async function fetchAdminUsers(
+  params: AdminUserListParams,
+  options?: { signal?: AbortSignal }
+): Promise<AdminUserListResponse> {
+  const res = await axios.get<AdminUserListResponse>(
+    `${BASE_URL}/adminUsers/users`,
+    {
+      params: {
+        search: params.search || undefined,
+        userType: params.userType,
+        isSuperAdmin: params.isSuperAdmin,
+        page: params.page,
+      },
+      signal: options?.signal,
+    }
+  );
+
+  return res.data;
 }
 
 // Children of a deleted collection move to the top level (the API

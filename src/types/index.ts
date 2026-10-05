@@ -765,6 +765,36 @@ export interface AdminCollectionDetail extends AdminCollectionSummary {
   s3Secret: string | null;
 }
 
+export interface AdminUser {
+  id: number;
+  username: string;
+  displayName: string | null;
+  email: string | null;
+  emplid: string | null;
+  userType: AdminUserType;
+  isSuperAdmin: boolean;
+  hasExpiry: boolean;
+  expires: string | null;
+  createdAt: string | null;
+  instance: { id: number; name: string } | null;
+}
+
+export type AdminUserType = "Local" | "Remote";
+
+export interface AdminUserListResponse {
+  users: AdminUser[];
+  page: number;
+  perPage: number;
+  total: number;
+}
+
+export interface AdminUserListParams {
+  search: string;
+  userType: AdminUserType | null;
+  isSuperAdmin: boolean | null;
+  page: number;
+}
+
 export interface Page {
   title: string;
   id: number;
