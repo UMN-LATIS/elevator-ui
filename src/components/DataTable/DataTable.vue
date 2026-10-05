@@ -64,9 +64,10 @@
               :data-row-id="row.id"
               tabindex="-1"
               :aria-current="isJustSaved(row) ? 'true' : undefined"
+              :inert="isRowDeleting(row)"
               :class="{
                 'border-b-transparent': isExpanded(row),
-                'opacity-50 pointer-events-none': isRowDeleting(row),
+                'opacity-50': isRowDeleting(row),
                 'data-table-row--just-saved': isJustSaved(row),
               }"
               @animationend.self="clearJustSaved">
@@ -90,6 +91,7 @@
             <Transition name="data-table-detail">
               <TableRow
                 v-if="isExpanded(row)"
+                :inert="isRowDeleting(row)"
                 :class="{ 'data-table-row--just-saved': isJustSaved(row) }">
                 <TableCell :colspan="columnCount" class="p-0">
                   <div class="data-table-detail__height grid">
