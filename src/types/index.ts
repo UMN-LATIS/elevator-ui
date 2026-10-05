@@ -1030,7 +1030,7 @@ export interface CreateAssetRequestFormData extends UpdateAssetRequestFormData {
   objectId: ""; // must be blank for creating a new asset
 }
 export interface AssetSummary {
-  objectId: Asset["objectId"];
+  objectId: string;
   title: string;
   readyForDisplay: boolean;
   templateId: number;

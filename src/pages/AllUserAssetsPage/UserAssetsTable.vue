@@ -1,144 +1,109 @@
 <template>
-  <div>
-    <InputGroup
-      v-model="globalFilter"
-      label="Filter assets"
-      labelHidden
-      placeholder="Filter by title or ID..."
-      class="mb-3">
-      <template #prepend>
-        <SearchIcon class="w-4 h-4 text-on-surface-variant" />
-      </template>
-    </InputGroup>
-    <div class="border border-outline-variant rounded-md">
-      <Table>
-        <TableHeader class="bg-surface-container-lowest">
-          <TableRow
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id">
-            <TableHead
-              v-for="header in headerGroup.headers"
-              :key="header.id"
-              :class="
-                header.column.getCanSort() ? 'cursor-pointer select-none' : ''
-              "
-              @click="header.column.getToggleSortingHandler()?.($event)">
-              <div class="flex items-center gap-1">
-                <FlexRender
-                  v-if="!header.isPlaceholder"
-                  :render="header.column.columnDef.header"
-                  :props="header.getContext()" />
-                <ArrowUpDown
-                  v-if="
-                    header.column.getCanSort() && !header.column.getIsSorted()
-                  "
-                  class="w-3.5 h-3.5 opacity-30" />
-                <ArrowUp
-                  v-else-if="header.column.getIsSorted() === 'asc'"
-                  class="w-3.5 h-3.5" />
-                <ArrowDown
-                  v-else-if="header.column.getIsSorted() === 'desc'"
-                  class="w-3.5 h-3.5" />
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TransitionGroup
-          tag="tbody"
-          :name="globalFilter ? undefined : 'table-row'"
-          class="[&_tr:last-child]:border-0">
-          <TableRow
-            v-for="row in table.getRowModel().rows"
-            :key="row.id"
-            :data-state="row.getIsSelected() ? 'selected' : undefined">
-            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-              <FlexRender
-                :render="cell.column.columnDef.cell"
-                :props="cell.getContext()" />
-            </TableCell>
-          </TableRow>
-          <TableRow
-            v-if="!table.getRowModel().rows?.length"
-            key="empty-state">
-            <TableCell :colspan="columns.length" class="h-24 text-center">
-              No results.
-            </TableCell>
-          </TableRow>
-        </TransitionGroup>
-      </Table>
-    </div>
-  </div>
+  <DataTable :itemName="ITEM_NAME" :rows="assetRows" :columns="columns">
+    <template #cell-readyForDisplay="{ row: asset }">
+      <div class="flex items-center justify-center">
+        <CircleCheck
+          v-if="asset.readyForDisplay"
+          class="text-green-500"
+          :size="16"
+          :strokeWidth="2" />
+      </div>
+    </template>
+    <template #cell-objectId="{ row: asset }">
+      <TooltipProvider :delayDuration="300">
+        <Tooltip>
+          <TooltipTrigger>
+            <RouterLink :to="`/assetManager/editAsset/${asset.objectId}`">
+              &hellip;{{ asset.objectId.slice(-8) }}
+            </RouterLink>
+          </TooltipTrigger>
+          <TooltipContent>{{ asset.objectId }}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </template>
+    <template #cell-title="{ row: asset }">
+      {{ asset.title }}
+    </template>
+    <template #cell-modifiedDate="{ row: asset }">
+      {{ new Date(asset.modifiedDate.date).toLocaleString() }}
+    </template>
+    <template #cell-actions="{ row: asset }">
+      <div class="flex gap-2">
+        <RouterLink :to="`/assetManager/editAsset/${asset.objectId}`" asChild>
+          <Button variant="tertiary">
+            <PencilIcon class="size-4" />
+            <span class="sr-only">Edit</span>
+          </Button>
+        </RouterLink>
+        <Button
+          variant="tertiary"
+          class="hover:!bg-red-50 !text-red-400 hover:!text-red-500"
+          @click="emit('delete', asset.objectId)">
+          <TrashIcon class="size-4" />
+          <span class="sr-only">Delete</span>
+        </Button>
+      </div>
+    </template>
+  </DataTable>
 </template>
-<script setup lang="ts" generic="TData">
-import { ref } from "vue";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
-import {
-  Table,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
+<script setup lang="ts">
+import { computed } from "vue";
+import { CircleCheck, PencilIcon, TrashIcon } from "lucide-vue-next";
+import { DataTable } from "@/components/DataTable";
 import {
-  FlexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
-  useVueTable,
-} from "@tanstack/vue-table";
-import { SearchIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-vue-next";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Button from "@/components/Button/Button.vue";
+import type { AssetSummary, DataTableColumn } from "@/types";
+
+type AssetRow = AssetSummary & { id: string };
+
+const ITEM_NAME = { singular: "asset", plural: "assets" };
 
 const props = defineProps<{
-  columns: ColumnDef<TData, any>[];
-  data: TData[];
-  defaultSort?: { id: string; desc: boolean };
+  assets: AssetSummary[];
 }>();
 
-const sorting = ref<SortingState>(
-  props.defaultSort ? [props.defaultSort] : []
-);
-const globalFilter = ref("");
+const emit = defineEmits<{
+  delete: [objectId: string];
+}>();
 
-const table = useVueTable({
-  get data() {
-    return props.data;
+const assetRows = computed((): AssetRow[] =>
+  props.assets.map((asset) => ({ ...asset, id: asset.objectId }))
+);
+
+const columns: DataTableColumn<AssetRow>[] = [
+  {
+    id: "readyForDisplay",
+    label: "Ready",
+    width: "sm",
+    align: "center",
+    sortValue: (asset) => asset.readyForDisplay,
   },
-  get columns() {
-    return props.columns;
+  {
+    id: "objectId",
+    label: "ID",
+    width: "md",
+    sortValue: (asset) => asset.objectId,
+    searchValue: (asset) => asset.objectId,
   },
-  state: {
-    get sorting() {
-      return sorting.value;
-    },
-    get globalFilter() {
-      return globalFilter.value;
-    },
+  {
+    id: "title",
+    label: "Title",
+    sortValue: (asset) => asset.title,
+    searchValue: (asset) => asset.title,
   },
-  onSortingChange: (updater) => {
-    sorting.value =
-      typeof updater === "function" ? updater(sorting.value) : updater;
+  {
+    id: "modifiedDate",
+    label: "Modified At",
+    defaultSort: "desc",
+    width: "lg",
+    sortValue: (asset) => asset.modifiedDate.date,
   },
-  onGlobalFilterChange: (updater) => {
-    globalFilter.value =
-      typeof updater === "function" ? updater(globalFilter.value) : updater;
-  },
-  getRowId: (row) => (row as Record<string, unknown>).objectId as string,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-});
+  { id: "actions", label: "Actions", width: "sm" },
+];
 </script>
-<style scoped>
-.table-row-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.table-row-leave-to {
-  opacity: 0;
-  transform: translateX(-1rem);
-}
-.table-row-move {
-  transition: transform 0.3s ease;
-}
-</style>

@@ -14,20 +14,17 @@
           </p>
           <UserAssetsTable
             v-else-if="allUserAssets.length"
-            :columns="columns"
-            :data="allUserAssets"
-            :defaultSort="{ id: 'modifiedDate_date', desc: true }"
-            @deleteAsset="handleDeleteAsset" />
+            :assets="allUserAssets"
+            @delete="handleDeleteAsset" />
         </Tab>
         <Tab id="trash" :label="`Trash (${deletedAssets.length})`">
           <p v-if="!isDeletedFetching && !deletedAssets.length" class="text-lg">
             No deleted assets.
           </p>
-          <UserAssetsTable
+          <DeletedAssetsTable
             v-else-if="deletedAssets.length"
-            :columns="trashColumns"
-            :data="deletedAssets"
-            :defaultSort="{ id: 'deletedAt', desc: true }" />
+            :assets="deletedAssets"
+            @restore="handleRestore" />
         </Tab>
       </Tabs>
     </div>
@@ -62,9 +59,8 @@ import { useDeletedUserAssets } from "@/queries/useDeletedUserAssets";
 import Button from "@/components/Button/Button.vue";
 import Tabs from "@/components/Tabs/Tabs.vue";
 import Tab from "@/components/Tabs/Tab.vue";
-import { createColumns } from "./UserAssetsTableColumns";
-import { createDeletedColumns } from "./DeletedAssetsTableColumns";
 import UserAssetsTable from "./UserAssetsTable.vue";
+import DeletedAssetsTable from "./DeletedAssetsTable.vue";
 import { useDeleteAssetMutation } from "@/queries/useDeleteAssetMutation";
 import { useRestoreAssetMutation } from "@/queries/useRestoreAssetMutation";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
@@ -143,8 +139,5 @@ const confirmRestore = () => {
     pendingRestoreId.value = null;
   }
 };
-
-const columns = createColumns({ onDelete: handleDeleteAsset });
-const trashColumns = createDeletedColumns({ onRestore: handleRestore });
 </script>
 <style scoped></style>
