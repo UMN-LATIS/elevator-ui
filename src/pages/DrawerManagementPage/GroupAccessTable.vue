@@ -1,164 +1,73 @@
 <template>
   <div>
-    <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-      <p class="flex-1 text-sm">
-        Share a drawer by assigning permissions to an existing drawer group or
-        creating a new one.
-      </p>
-      <div class="flex flex-wrap items-center gap-2">
-        <InputGroup
-          :modelValue="searchText"
-          label="Search Groups"
-          placeholder="Search groups"
-          :labelHidden="true"
-          class="max-w-sm"
-          type="search"
-          :disabled="isLoading"
-          @update:modelValue="searchGroups">
-          <template #prepend>
-            <FilterIcon class="size-4 text-on-surface-variant" />
-          </template>
-        </InputGroup>
-        <Button
-          variant="primary"
-          class="whitespace-nowrap"
-          @click="openAddGroupForm">
+    <p class="mb-4 text-sm">
+      Share a drawer by assigning permissions to an existing drawer group or
+      creating a new one.
+    </p>
+
+    <DataTable
+      ref="table"
+      :itemName="{ singular: 'group', plural: 'groups' }"
+      :rows="groupRows"
+      :columns="groupAccessColumns"
+      :status="tableStatus"
+      :canExpand="(row) => canOpenGroup(row.group)"
+      :rowName="(row) => row.groupLabel"
+      :isRowDeleting="(row) => row.id === deletingGroupId">
+      <template #toolbarEnd>
+        <Button variant="primary" @click="isCreatingGroup = true">
           Create Group
         </Button>
-      </div>
-    </div>
+      </template>
+      <template #cell-group="{ row }">
+        <GroupNameWithSummary
+          :name="row.groupLabel"
+          :summary="toGroupSummary(row.group, row.typeLabel)"
+          :ownerName="otherOwnerNameOf(row)" />
+      </template>
+      <template #cell-permission="{ row }">
+        <PermissionChip
+          v-if="row.id === removingPermissionsRowId"
+          :label="noAccessLabel"
+          isPending />
+        <span
+          v-else-if="row.permissionLevelNumber === 0"
+          class="text-sm text-on-surface-muted">
+          {{ row.permissionLabel }}
+        </span>
+        <PermissionChip
+          v-else
+          :levelNumber="row.permissionLevelNumber"
+          :label="row.permissionLabel" />
+      </template>
+      <template #cell-actions="{ row }">
+        <div class="flex justify-end">
+          <KebabMenu
+            :label="`More options for ${row.groupLabel}`"
+            :items="groupMenuItems(row)" />
+        </div>
+      </template>
+      <template #detail="{ row }">
+        <GroupMemberManager
+          v-if="row.group.type === GROUP_TYPES.USER"
+          :group="row.group"
+          class="bg-surface-container" />
+        <GroupEntriesManager
+          v-else
+          :group="row.group"
+          class="bg-surface-container" />
+      </template>
+    </DataTable>
 
-    <div class="mt-4 border border-outline-variant rounded-md">
-      <Table class="w-full table-fixed">
-        <TableHeader>
-          <template
-            v-for="headerGroup in table.getHeaderGroups()"
-            :key="headerGroup.id">
-            <TableRow class="hover:bg-transparent">
-              <TableHead
-                v-for="header in headerGroup.headers"
-                :key="header.id"
-                class="bg-surface-container-low"
-                :class="[
-                  header.column.columnDef.meta?.widthClass,
-                  {
-                    'cursor-pointer select-none': header.column.getCanSort(),
-                  },
-                ]"
-                @click="header.column.getToggleSortingHandler()?.($event)">
-                <div class="flex items-center gap-2">
-                  <FlexRender
-                    v-if="!header.isPlaceholder"
-                    :render="header.column.columnDef.header"
-                    :props="header.getContext()" />
-                  <template v-if="header.column.getCanSort()">
-                    <ArrowUpDown
-                      v-if="!header.column.getIsSorted()"
-                      class="h-4 w-4 text-on-surface-muted" />
-                    <ArrowUp
-                      v-else-if="header.column.getIsSorted() === 'asc'"
-                      class="h-4 w-4 text-primary" />
-                    <ArrowDown v-else class="h-4 w-4 text-primary" />
-                  </template>
-                </div>
-              </TableHead>
-            </TableRow>
-          </template>
-        </TableHeader>
-        <TableBody>
-          <template v-if="isLoading">
-            <TableRow
-              v-for="row in SKELETON_ROW_COUNT"
-              :key="`skeleton-${row}`">
-              <TableCell v-for="(_, index) in groupAccessColumns" :key="index">
-                <Skeleton height="1rem" width="70%" />
-              </TableCell>
-            </TableRow>
-          </template>
-          <template v-else-if="isSuccess">
-            <template v-for="row in table.getRowModel().rows" :key="row.id">
-              <TableRow
-                :data-group-row="row.original.id"
-                tabindex="-1"
-                :aria-current="
-                  isCurrentGroup(row.original.id) ? 'true' : undefined
-                "
-                :class="{
-                  'border-b-transparent': row.getIsExpanded(),
-                  'group-row--current': isCurrentGroup(row.original.id),
-                  'bg-surface-container-low': !hasAccess(row.original),
-                  'opacity-50 pointer-events-none':
-                    row.original.id === deletingGroupId,
-                }">
-                <TableCell
-                  v-for="cell in row.getVisibleCells()"
-                  :key="cell.id"
-                  :class="{ 'align-top': editingRowId === row.original.id }">
-                  <FlexRender
-                    :render="cell.column.columnDef.cell"
-                    :props="cell.getContext()" />
-                </TableCell>
-              </TableRow>
-              <TableRow
-                v-if="row.getIsExpanded()"
-                :class="{
-                  'group-row--current': isCurrentGroup(row.original.id),
-                  'bg-surface-container-low': !hasAccess(row.original),
-                }">
-                <TableCell
-                  :colspan="row.getVisibleCells().length"
-                  class="px-4 pb-4 pl-12">
-                  <GroupMemberManager
-                    v-if="row.original.group.type === GROUP_TYPES.USER"
-                    :group="row.original.group"
-                    class="bg-surface-container" />
-                  <GroupEntriesManager
-                    v-else
-                    :group="row.original.group"
-                    class="bg-surface-container" />
-                </TableCell>
-              </TableRow>
-            </template>
-            <TableRow v-if="!table.getRowModel().rows.length">
-              <TableCell
-                :colspan="groupAccessColumns.length"
-                class="h-16 text-center text-sm text-on-surface-variant">
-                {{ emptyMessage }}
-              </TableCell>
-            </TableRow>
-          </template>
-          <template v-else>
-            <!-- query subscribers refetch on mount, so none belong here -->
-            <TableRow>
-              <TableCell
-                :colspan="groupAccessColumns.length"
-                class="h-16 text-center text-sm text-error">
-                Could not load groups.
-              </TableCell>
-            </TableRow>
-          </template>
+    <CreateDrawerGroupDialog
+      v-model:open="isCreatingGroup"
+      :drawerId="drawerId"
+      @created="revealNewGroup" />
 
-          <!--
-            AddGroupRow subscribes to the same queries the branches key
-            on, and mounting a subscriber to a query with no data
-            refetches it. Keeping AddGroupRow outside the branches means
-            no predicate here can trigger that, whatever the predicate
-            says.
-          -->
-          <AddGroupRow
-            v-model:open="isAddingGroup"
-            :drawerId="drawerId"
-            :colspan="groupAccessColumns.length"
-            @created="revealNewGroup" />
-          <!-- AddRowButton fetches nothing, so gating it is safe -->
-          <AddRowButton
-            v-if="isSuccess && !isAddingGroup"
-            :colspan="groupAccessColumns.length"
-            label="New Group"
-            @click="openAddGroupForm" />
-        </TableBody>
-      </Table>
-    </div>
+    <EditGroupAccessDialog
+      v-model:open="isEditingGroup"
+      :drawerId="drawerId"
+      :row="groupToEdit" />
 
     <ConfirmModal
       :isOpen="Boolean(groupPendingDelete)"
@@ -179,45 +88,23 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import type {
-  ColumnDef,
-  ExpandedState,
-  SortingState,
-} from "@tanstack/vue-table";
-import {
-  FlexRender,
-  functionalUpdate,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from "@tanstack/vue-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown, FilterIcon } from "lucide-vue-next";
-import Button from "@/components/Button/Button.vue";
+import type { QueryStatus } from "@tanstack/vue-query";
+import { CircleMinusIcon, PencilIcon, TrashIcon } from "lucide-vue-next";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
-import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
-import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
-import { tryFocus } from "@/helpers/tryFocus";
-import AddGroupRow from "./AddGroupRow.vue";
-import { AddRowButton } from "@/components/DataTable";
+import KebabMenu from "@/components/KebabMenu/KebabMenu.vue";
+import type { KebabMenuItem } from "@/components/KebabMenu/KebabMenu.vue";
+import PermissionChip from "@/components/PermissionChip/PermissionChip.vue";
+import Button from "@/components/Button/Button.vue";
+import { DataTable } from "@/components/DataTable";
+import CreateDrawerGroupDialog from "./CreateDrawerGroupDialog.vue";
+import EditGroupAccessDialog from "./EditGroupAccessDialog.vue";
+import GroupNameWithSummary from "./GroupNameWithSummary.vue";
 import GroupEntriesManager from "./GroupEntriesManager.vue";
 import GroupMemberManager from "./GroupMemberManager.vue";
-import { createGroupAccessColumns } from "./GroupAccessTableColumns";
-import type { SavingRow } from "./GroupAccessTableColumns";
 import { buildGroupAccessRows } from "./buildGroupAccessRows";
 import type { GroupAccessRow } from "./buildGroupAccessRows";
 import {
   drawerGrantsQuery,
-  useCreateDrawerGrantMutation,
   useDeleteDrawerGrantMutation,
   useUpdateDrawerGrantMutation,
 } from "./drawerGrantQueries";
@@ -225,14 +112,19 @@ import {
   drawerGroupsQuery,
   drawerGroupTypesQuery,
   useDeleteDrawerGroupMutation,
-  useRenameDrawerGroupMutation,
 } from "./drawerGroupQueries";
+import { toGroupSummary } from "./toGroupSummary";
+import { toNoAccessLevelId } from "./toNoAccessLevelId";
+import { openGroupAddRow } from "../AdminPermissionsPage/openGroupAddRow";
 import { permissionLevelsQuery } from "@/queries/permissionLevelsQuery";
 import { useToastStore } from "@/stores/toastStore";
-import { GROUP_TYPES, PERM, isManageableGroup } from "@/types";
-import type { DrawerGrantGroup, PermissionsGroup } from "@/types";
-
-const SKELETON_ROW_COUNT = 3;
+import { GROUP_TYPES, isManageableGroup } from "@/types";
+import type {
+  DataTableColumn,
+  DataTableHandle,
+  DrawerGrantGroup,
+  PermissionsGroup,
+} from "@/types";
 
 const props = defineProps<{ drawerId: number }>();
 
@@ -270,6 +162,11 @@ const isSuccess = computed(() =>
   tableQueries.every((query) => query.isSuccess.value)
 );
 
+const tableStatus = computed((): QueryStatus => {
+  if (isLoading.value) return "pending";
+  return isSuccess.value ? "success" : "error";
+});
+
 const groupRows = computed(() =>
   buildGroupAccessRows({
     grants: grants.value ?? [],
@@ -280,13 +177,6 @@ const groupRows = computed(() =>
   })
 );
 
-const emptyMessage = computed((): string => {
-  // the table renders this only when no row is visible, so groups that
-  // exist are groups the search hid
-  if (groupRows.value.length > 0) return "No groups match your search.";
-  return "No groups yet. Create one to share this drawer.";
-});
-
 // A group holds members or entries to manage, and the API answers for
 // those only when the caller owns the group.
 // TODO: drop the ownedByCurrentUser check once the API scopes group
@@ -295,161 +185,36 @@ function canOpenGroup(group: DrawerGrantGroup): boolean {
   return isManageableGroup(group) && group.ownedByCurrentUser;
 }
 
-const isAddingGroup = ref(false);
-
-function openAddGroupForm() {
-  isAddingGroup.value = true;
-
-  // focus the form's first field after next render
-  tryFocus(".add-group__name-input").catch((error) =>
-    console.warn("Could not focus the new group's name", error)
-  );
+function otherOwnerNameOf(row: GroupAccessRow): string | null {
+  if (row.group.ownedByCurrentUser) return null;
+  return row.group.ownerName || null;
 }
 
-// only one row edits at a time, so one set of drafts covers the table
-const editingRowId = ref<number | null>(null);
-const draftLabel = ref("");
-const draftLevelId = ref<number | null>(null);
-const createGrant = useCreateDrawerGrantMutation();
-const updateGrant = useUpdateDrawerGrantMutation();
-const deleteGrant = useDeleteDrawerGrantMutation();
-const renameGroup = useRenameDrawerGroupMutation();
+const table = ref<DataTableHandle | null>(null);
+const isCreatingGroup = ref(false);
+const isEditingGroup = ref(false);
+const groupToEdit = ref<GroupAccessRow | null>(null);
 
-const permissionOptions = computed(() => {
-  const allLevels = permissionLevels.value ?? [];
-  return buildPermissionOptions(
-    allLevels.filter((l) => l.level <= PERM.ORIGINALS)
-  );
+function openEditGroup(row: GroupAccessRow): void {
+  groupToEdit.value = row;
+  isEditingGroup.value = true;
+}
+
+const deleteGrant = useDeleteDrawerGrantMutation();
+const updateGrant = useUpdateDrawerGrantMutation();
+const permissionsRemovalRowId = ref<number | null>(null);
+
+const removingPermissionsRowId = computed((): number | null => {
+  const isRemovingPermissions =
+    deleteGrant.isPending.value || updateGrant.isPending.value;
+  return isRemovingPermissions ? permissionsRemovalRowId.value : null;
 });
 
-// Level 0 is what "no access" submits, since a rule granting nothing and
-// no rule at all resolve the same.
-function toNoAccessLevelId(): number | null {
-  const noAccessLevel = (permissionLevels.value ?? []).find(
-    (level) => level.level === PERM.NOPERM
-  );
-  return noAccessLevel?.id ?? null;
-}
-
-// The level a row sits at, which for a group holding no rule is level 0
-// rather than nothing: the editor opens on where the group stands.
-function toEditableLevelId(row: GroupAccessRow): number | null {
-  return row.permissionLevelId ?? toNoAccessLevelId();
-}
-
-function startEdit(row: GroupAccessRow) {
-  editingRowId.value = row.id;
-  draftLabel.value = row.group.label;
-  draftLevelId.value = toEditableLevelId(row);
-}
-
-function cancelEdit() {
-  editingRowId.value = null;
-  draftLabel.value = "";
-  draftLevelId.value = null;
-}
-
-// What a group is called and what it can reach are separate resources,
-// so one Save can send one request, the other, or both.
-function saveEdit(row: GroupAccessRow) {
-  const label = draftLabel.value.trim();
-  const levelId = draftLevelId.value;
-  cancelEdit();
-
-  submittedRow.value = {
-    id: row.id,
-    // someone else's group keeps the name it has, since only its access
-    // was up for editing
-    groupLabel: row.group.ownedByCurrentUser && label ? label : row.groupLabel,
-    levelLabel: toLevelLabel(levelId),
-  };
-
-  saveGroupName(row, label);
-  if (levelId !== null) {
-    saveAccess(row, levelId);
-  }
-}
-
-function saveGroupName(row: GroupAccessRow, label: string) {
-  // renaming reaches the caller's own groups only
-  if (!row.group.ownedByCurrentUser) return;
-  if (!label) return;
-  if (label === row.group.label) return;
-
-  renameGroup.mutate(
-    { id: row.id, label },
-    {
-      onSuccess: () =>
-        toastStore.success(`Group "${row.group.label}" renamed to "${label}".`),
-      onError: (error) =>
-        toastStore.error(
-          `Failed to rename group "${row.group.label}": ${error.message}`,
-          { title: "Rename Group Failed" }
-        ),
-    }
-  );
-}
-
-// Level 0 is a level like any other here: the legacy editor writes rules
-// that hold it, so the editor sets one rather than reading it as an
-// instruction to delete the rule. Remove Permissions is what deletes.
-function saveAccess(row: GroupAccessRow, levelId: number) {
-  if (levelId === toEditableLevelId(row)) return;
-
-  const accessToasts = {
-    onSuccess: () =>
-      toastStore.success(
-        `"${row.groupLabel}" access set to ${toLevelLabel(levelId)}.`
-      ),
-    onError: (error: Error) =>
-      toastStore.error(
-        `Failed to set access for "${row.groupLabel}": ${error.message}`,
-        { title: "Save Access Failed" }
-      ),
-  };
-
-  if (row.grantId === null) {
-    createGrant.mutate(
-      {
-        drawerId: props.drawerId,
-        drawerGroupId: row.id,
-        permissionLevelId: levelId,
-      },
-      accessToasts
-    );
-    return;
-  }
-
-  updateGrant.mutate(
-    { grantId: row.grantId, permissionLevelId: levelId },
-    accessToasts
-  );
-}
-
-// What the row that was saved submitted, which its cells show while the
-// lists still hold the values it replaced.
-const submittedRow = ref<SavingRow | null>(null);
-
-// One Save can fire a group request and an access request, and either
-// can be the one still running.
-const isSaveInFlight = computed(
-  (): boolean =>
-    renameGroup.isPending.value ||
-    createGrant.isPending.value ||
-    updateGrant.isPending.value ||
-    deleteGrant.isPending.value
-);
-
-const savingRow = computed((): SavingRow | null =>
-  isSaveInFlight.value ? submittedRow.value : null
-);
-
-function toLevelLabel(levelId: number | null): string {
-  const option = permissionOptions.value.find(
-    (candidate) => candidate.id === levelId
-  );
-  return option?.label ?? "";
-}
+const noAccessLabel = computed((): string => {
+  const levels = permissionLevels.value ?? [];
+  const noAccessLevelId = toNoAccessLevelId(levels);
+  return levels.find((level) => level.id === noAccessLevelId)?.label ?? "";
+});
 
 /**
  * Take the group's rule off this drawer, which also drops the group's
@@ -462,7 +227,7 @@ function toLevelLabel(levelId: number | null): string {
 function removePermissions(row: GroupAccessRow) {
   if (row.grantId === null) return;
 
-  const noAccessLevelId = toNoAccessLevelId();
+  const noAccessLevelId = toNoAccessLevelId(permissionLevels.value ?? []);
 
   const removalToasts = {
     onSuccess: () =>
@@ -474,14 +239,8 @@ function removePermissions(row: GroupAccessRow) {
       ),
   };
 
-  const removal: SavingRow = {
-    id: row.id,
-    groupLabel: row.groupLabel,
-    levelLabel: toLevelLabel(noAccessLevelId),
-  };
-
   if (row.group.ownedByCurrentUser) {
-    submittedRow.value = removal;
+    permissionsRemovalRowId.value = row.id;
     deleteGrant.mutate(row.grantId, removalToasts);
     return;
   }
@@ -496,7 +255,7 @@ function removePermissions(row: GroupAccessRow) {
     return;
   }
 
-  submittedRow.value = removal;
+  permissionsRemovalRowId.value = row.id;
   updateGrant.mutate(
     { grantId: row.grantId, permissionLevelId: noAccessLevelId },
     removalToasts
@@ -532,140 +291,52 @@ const deletingGroupId = computed((): number | null => {
   return deleteGroup.variables.value ?? null;
 });
 
-const groupAccessColumns = createGroupAccessColumns({
-  editingRowId,
-  draftLabel,
-  draftLevelId,
-  savingRow,
-  permissionOptions,
-  onEdit: startEdit,
-  onCancel: cancelEdit,
-  onSave: saveEdit,
-  onRemovePermissions: removePermissions,
-  onDeleteGroup: askToDeleteGroup,
-});
-
-// The rows arrive with the groups that reach this drawer first, so the
-// table sorts by nothing until a header says otherwise.
-const sorting = ref<SortingState>([]);
-
-// One search box filters across every text column.
-const searchText = ref("");
-
-// ids of the currently expanded rows, so each group fetches its members
-// or entries only when its detail panel is open
-const expanded = ref<ExpandedState>({});
-
-// the group the user just created. Sorting, searching, or expanding means
-// the user has moved on, so those handlers clear it.
-const currentGroupId = ref<number | null>(null);
-
-// Typing in the search box means the user moved on from the group they
-// just created. revealNewGroup writes searchText directly, since it
-// clears the box to show that group rather than to leave it.
-function searchGroups(text: string): void {
-  searchText.value = text;
-  currentGroupId.value = null;
-}
-
-function isCurrentGroup(groupId: number): boolean {
-  return groupId === currentGroupId.value;
-}
-
-// A group that reaches nothing on this drawer is background to the ones
-// that do, so its row sits back rather than reading as an equal.
-function hasAccess(row: GroupAccessRow): boolean {
-  return row.permissionLevelNumber > 0;
-}
-
-const table = useVueTable({
-  get data() {
-    return groupRows.value;
-  },
-  columns: groupAccessColumns as ColumnDef<GroupAccessRow, unknown>[],
-  getRowId: (row) => String(row.id),
-  getRowCanExpand: (row) => canOpenGroup(row.original.group),
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  globalFilterFn: "includesString",
-  onSortingChange: (updater) => {
-    currentGroupId.value = null;
-    sorting.value = functionalUpdate(updater, sorting.value);
-  },
-  onExpandedChange: (updater) => {
-    currentGroupId.value = null;
-    expanded.value = functionalUpdate(updater, expanded.value);
-  },
-  state: {
-    get sorting() {
-      return sorting.value;
+function groupMenuItems(row: GroupAccessRow): KebabMenuItem[] {
+  const menuItems: KebabMenuItem[] = [
+    {
+      label: "Edit Group",
+      icon: PencilIcon,
+      onSelect: () => openEditGroup(row),
     },
-    get expanded() {
-      return expanded.value;
-    },
-    get globalFilter() {
-      return searchText.value;
-    },
-  },
-});
-
-// `expanded` is either true, meaning every row, or a per-row map, so
-// opening one row has to preserve whichever it currently holds.
-function expandGroupRow(groupId: number): void {
-  const currentlyExpanded = expanded.value === true ? {} : expanded.value;
-  expanded.value = { ...currentlyExpanded, [String(groupId)]: true };
+  ];
+  if (row.grantId !== null) {
+    menuItems.push({
+      label: "Remove Permissions",
+      icon: CircleMinusIcon,
+      onSelect: () => removePermissions(row),
+    });
+  }
+  if (row.group.ownedByCurrentUser) {
+    menuItems.push({
+      label: "Delete Group",
+      icon: TrashIcon,
+      variant: "danger",
+      onSelect: () => askToDeleteGroup(row),
+    });
+  }
+  return menuItems;
 }
 
-// A new group holds nobody and reaches nothing, so its row opens on the
-// members it needs before its permission is worth setting.
+const groupAccessColumns: DataTableColumn<GroupAccessRow>[] = [
+  {
+    id: "group",
+    label: "Group",
+    sortValue: (row) => row.groupLabel,
+    searchValue: (row) => [row.groupLabel, row.typeLabel],
+  },
+  {
+    id: "permission",
+    label: "Permission",
+    width: "lg",
+    sortValue: (row) => row.permissionLabel,
+    searchValue: (row) => row.permissionLabel,
+  },
+  { id: "actions", label: "Actions", isLabelHidden: true, width: "sm" },
+];
+
 async function revealNewGroup(group: PermissionsGroup): Promise<void> {
-  // an active search could hide the new row, so clear the search
-  searchText.value = "";
-  currentGroupId.value = group.id;
-
-  // A global group type reaches its people by rule and holds nobody, so
-  // its row has nothing to open and the row itself takes focus.
-  if (!isManageableGroup(group)) {
-    await focusNewGroup(group, `[data-group-row="${group.id}"]`);
-    return;
-  }
-
-  expandGroupRow(group.id);
-  const addRowSelector =
-    group.type === GROUP_TYPES.USER
-      ? `[data-group-add-member="${group.id}"]`
-      : `[data-group-entry-add-button="${group.id}"]`;
-
-  const addRow = await focusNewGroup(group, addRowSelector);
-  // clicking the add row opens its form, which then moves focus into the
-  // field the user came here to fill
-  addRow?.click();
-}
-
-async function focusNewGroup(
-  group: PermissionsGroup,
-  selector: string
-): Promise<HTMLElement | null> {
-  try {
-    return await tryFocus(selector);
-  } catch (error) {
-    console.warn(`Could not focus new ${group.type} group`, error);
-    return null;
-  }
+  const isManageable = isManageableGroup(group);
+  await table.value?.reveal(group.id, { expand: isManageable });
+  if (isManageable) await openGroupAddRow(group);
 }
 </script>
-<style scoped>
-.group-row--current {
-  animation: current-group-flash 0.5s ease-out;
-}
-
-@keyframes current-group-flash {
-  from {
-    background-color: var(--primary-muted);
-  }
-  to {
-    background-color: transparent;
-  }
-}
-</style>
