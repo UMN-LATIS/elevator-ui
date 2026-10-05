@@ -1,5 +1,5 @@
 <template>
-  <TableRow class="hover:bg-transparent">
+  <TableRow>
     <TableCell :colspan="colspan" class="p-0">
       <Button
         type="button"

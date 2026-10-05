@@ -2,55 +2,69 @@
   <div class="border border-outline-variant rounded-md">
     <Table class="w-full">
       <TableHeader>
-        <TableRow
-          v-for="headerGroup in table.getHeaderGroups()"
-          :key="headerGroup.id">
-          <TableHead
-            v-for="header in headerGroup.headers"
-            :key="header.id"
-            :class="[
-              'border-b border-outline-variant',
-              {
-                'cursor-pointer select-none': header.column.getCanSort(),
-              },
-            ]"
-            @click="header.column.getToggleSortingHandler()?.($event)">
-            <div class="flex items-center gap-2">
-              <FlexRender
-                v-if="!header.isPlaceholder"
-                :render="header.column.columnDef.header"
-                :props="header.getContext()" />
-              <template v-if="header.column.getCanSort()">
-                <ArrowUpDown
-                  v-if="!header.column.getIsSorted()"
-                  class="h-4 w-4 text-on-surface-muted" />
-                <ArrowUp
-                  v-else-if="header.column.getIsSorted() === 'asc'"
-                  class="h-4 w-4 text-primary" />
-                <ArrowDown v-else class="h-4 w-4 text-primary" />
-              </template>
-            </div>
-          </TableHead>
+        <TableRow>
+          <DataTableHead
+            v-for="column in columns"
+            :key="column.id"
+            v-model:sort="sort"
+            :column="column"
+            class="border-b border-outline-variant" />
         </TableRow>
       </TableHeader>
       <TableBody>
-        <template v-if="isLoading">
-          <TableRow v-for="row in SKELETON_ROW_COUNT" :key="`skeleton-${row}`">
-            <TableCell v-for="(_, index) in columns" :key="index">
-              <Skeleton height="1rem" width="70%" />
-            </TableCell>
-          </TableRow>
-        </template>
+        <TableLoading v-if="isLoading" :colspan="columns.length">
+          Loading members…
+        </TableLoading>
         <template v-else>
-          <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
-            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-              <FlexRender
-                :render="cell.column.columnDef.cell"
-                :props="cell.getContext()" />
+          <TableRow v-for="member in sortedMembers" :key="member.userId">
+            <TableCell>
+              <div
+                v-if="member.userId === removingUserId"
+                class="text-sm text-on-surface-variant">
+                <s>{{ member.name }}</s>
+                (removing…)
+              </div>
+              <div v-else class="text-sm text-on-surface font-medium">
+                {{ member.name }}
+              </div>
+            </TableCell>
+            <TableCell>
+              <div class="text-sm text-on-surface-variant">
+                {{ member.email || "—" }}
+              </div>
+            </TableCell>
+            <TableCell>
+              <div class="text-sm text-on-surface-variant">
+                {{ member.username || "—" }}
+              </div>
+            </TableCell>
+            <TableCell>
+              <div class="text-sm text-on-surface-variant">
+                {{ member.userType }}
+              </div>
+            </TableCell>
+            <TableCell>
+              <div class="text-sm text-on-surface-variant">
+                {{
+                  member.createdAt
+                    ? new Date(member.createdAt).toLocaleDateString()
+                    : "—"
+                }}
+              </div>
+            </TableCell>
+            <TableCell>
+              <div class="flex justify-end">
+                <IconButton
+                  title="Remove"
+                  :showTooltip="false"
+                  class="enabled:hover:bg-error-container enabled:hover:text-on-error-container"
+                  @click="emit('remove', member)">
+                  <TrashIcon class="size-4" />
+                </IconButton>
+              </div>
             </TableCell>
           </TableRow>
-          <TableRow
-            v-if="!table.getRowModel().rows?.length && showEmptyMessage">
+          <TableRow v-if="!members.length && showEmptyMessage">
             <TableCell
               :colspan="columns.length"
               class="h-16 text-center text-sm text-on-surface-variant">
@@ -63,67 +77,67 @@
           it renders regardless of whether the table is loading or empty.
           This permits `tryFocus` to find the add button immediately after
           creating a new group. -->
-        <slot />
+        <slot :columnCount="columns.length" />
       </TableBody>
     </Table>
   </div>
 </template>
 
-<script setup lang="ts" generic="TData">
-import { ref } from "vue";
-import type { ColumnDef, SortingState } from "@tanstack/vue-table";
-import {
-  FlexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from "@tanstack/vue-table";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { TrashIcon } from "lucide-vue-next";
+import { DataTableHead, sortRows } from "@/components/DataTable";
 import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
+  TableLoading,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
-import Skeleton from "@/components/Skeleton/Skeleton.vue";
-
-// Placeholder rows shown while the member list loads.
-const SKELETON_ROW_COUNT = 3;
+import IconButton from "@/components/IconButton/IconButton.vue";
+import type { DataTableColumn, GroupMember, TableSort } from "@/types";
 
 const props = withDefaults(
   defineProps<{
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    columns: ColumnDef<TData, any>[];
-    data: TData[];
+    members: GroupMember[];
     isLoading?: boolean;
+    removingUserId?: number | null;
     // pass false while a slotted row (add form, in-flight member) occupies
     // the body, so "No members yet." doesn't show beside it
     showEmptyMessage?: boolean;
   }>(),
-  { showEmptyMessage: true }
+  { isLoading: false, removingUserId: null, showEmptyMessage: true }
 );
 
-const sorting = ref<SortingState>([{ id: "name", desc: false }]);
+const emit = defineEmits<{
+  remove: [member: GroupMember];
+}>();
 
-const table = useVueTable({
-  get data() {
-    return props.data;
+defineSlots<{
+  default?: (props: { columnCount: number }) => unknown;
+}>();
+
+const columns: DataTableColumn<GroupMember>[] = [
+  { id: "name", label: "Name", sortValue: (member) => member.name },
+  { id: "email", label: "Email", sortValue: (member) => member.email },
+  {
+    id: "username",
+    label: "Username",
+    sortValue: (member) => member.username,
   },
-  get columns() {
-    return props.columns;
+  { id: "userType", label: "Type", sortValue: (member) => member.userType },
+  {
+    id: "createdAt",
+    label: "Created",
+    sortValue: (member) => member.createdAt,
   },
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  onSortingChange: (updater) => {
-    sorting.value =
-      typeof updater === "function" ? updater(sorting.value) : updater;
-  },
-  state: {
-    get sorting() {
-      return sorting.value;
-    },
-  },
-});
+  { id: "actions", label: "Actions", isLabelHidden: true },
+];
+
+const sort = ref<TableSort | null>({ columnId: "name", direction: "asc" });
+
+const sortedMembers = computed((): GroupMember[] =>
+  sortRows(props.members, columns, sort.value)
+);
 </script>

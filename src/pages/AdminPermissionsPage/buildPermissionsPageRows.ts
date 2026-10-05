@@ -9,15 +9,15 @@ import type { RuleScope } from "./ruleQueries";
 
 export const ALL_COLLECTIONS_LABEL = "All Collections";
 
-// Grant ids repeat across the two scopes, so row keys carry both. Callers
-// matching an in-flight mutation to its row build keys with this too.
-export function permissionRowKey(scope: RuleScope, grantId: number): string {
+// Grant ids repeat across the two scopes, so a row
+// id combines the scope and the grant id.
+export function permissionRowId(scope: RuleScope, grantId: number): string {
   return `${scope}-${grantId}`;
 }
 
 // One row of the permissions table: a grant joined with its group.
 export interface PermissionRow {
-  key: string;
+  id: string;
   scope: RuleScope;
   grantId: number;
   // null means the instance scope: every collection
@@ -32,16 +32,17 @@ export interface PermissionRow {
   permissionLevelNumber: number;
 }
 
-// One row of the unassigned groups table: a group holding no grants.
-export interface UnassignedGroupRow {
+export interface GroupRow {
+  id: number;
   group: PermissionsGroup;
   groupLabel: string;
   typeLabel: string;
+  permissionCount: number;
 }
 
 export interface PermissionsPageRows {
   permissionRows: PermissionRow[];
-  unassignedGroupRows: UnassignedGroupRow[];
+  groupRows: GroupRow[];
 }
 
 interface BuildPermissionsPageRowsInput {
@@ -54,10 +55,6 @@ interface BuildPermissionsPageRowsInput {
 }
 
 /**
- * Merge both grant resources and the group list into display-ready rows:
- * one permission row per grant, and one unassigned row per grant-less
- * group. Every group lands in exactly one of the two lists.
- *
  * Orphaned grants (a null group or level, or a group the groups list no
  * longer holds) are inert in the backend's permission resolution, so they
  * are dropped rather than rendered broken.
@@ -80,7 +77,7 @@ export function buildPermissionsPageRows({
     typeLabelByType.get(group.type) ?? group.type;
 
   const permissionRows: PermissionRow[] = [];
-  const grantedGroupIds = new Set<number>();
+  const permissionCountByGroupId = new Map<number, number>();
 
   const pushPermissionRow = (
     scope: RuleScope,
@@ -94,9 +91,12 @@ export function buildPermissionsPageRows({
     const level = levelById.get(grant.permissionLevelId);
     if (!group || !level) return;
 
-    grantedGroupIds.add(group.id);
+    permissionCountByGroupId.set(
+      group.id,
+      (permissionCountByGroupId.get(group.id) ?? 0) + 1
+    );
     permissionRows.push({
-      key: permissionRowKey(scope, grant.id),
+      id: permissionRowId(scope, grant.id),
       scope,
       grantId: grant.id,
       collectionId,
@@ -125,19 +125,17 @@ export function buildPermissionsPageRows({
     );
   }
 
-  // A group holding no grants, which needs a row to stay visible and
-  // grantable without hunting for it elsewhere.
-  const unassignedGroupRows: UnassignedGroupRow[] = groups
-    .filter((group) => !grantedGroupIds.has(group.id))
-    .map((group) => ({
-      group,
-      groupLabel: group.label || group.type,
-      typeLabel: toTypeLabel(group),
-    }));
+  const groupRows: GroupRow[] = groups.map((group) => ({
+    id: group.id,
+    group,
+    groupLabel: group.label || group.type,
+    typeLabel: toTypeLabel(group),
+    permissionCount: permissionCountByGroupId.get(group.id) ?? 0,
+  }));
 
   return {
     permissionRows: permissionRows.sort(byCollectionThenGroup),
-    unassignedGroupRows: unassignedGroupRows.sort(byGroupLabel),
+    groupRows: groupRows.sort(byGroupLabel),
   };
 }
 

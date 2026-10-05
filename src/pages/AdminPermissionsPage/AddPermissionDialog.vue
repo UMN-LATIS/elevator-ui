@@ -1,112 +1,96 @@
 <template>
-  <TableRow v-if="isPending || isOpen" class="hover:bg-transparent">
-    <TableCell :colspan="colspan" class="p-2 text-sm">
-      <p v-if="isPending">{{ pendingLabel }} (saving…)</p>
-      <form
-        v-else
-        class="flex flex-wrap items-end gap-2"
-        data-add-permission-form
-        @submit.prevent="handleSave">
-        <SelectGroup
-          v-model="draft.scope"
-          label="Scope"
-          class="w-36"
-          :options="scopeOptions" />
-        <SelectGroup
-          v-if="draft.scope === 'collection'"
-          v-model="draft.collectionId"
-          label="Collection"
-          placeholder="Select a collection…"
-          class="w-56"
-          :options="collectionOptions" />
-        <div class="min-w-48 flex-1">
-          <label for="add-permission-group" class="block text-xs font-medium">
-            Group
-          </label>
-          <AutoCompleteInput
-            id="add-permission-group"
-            :modelValue="draft.groupText"
-            :items="groupOptions"
-            :minChars="0"
-            :blurOnSelect="false"
-            placeholder="Find or create a group…"
-            inputClass="w-full bg-surface border-outline-variant add-permission__group-input"
-            @update:modelValue="handleGroupTextInput"
-            @select="handleSelectGroup">
-            <template #option="{ item }">
-              <template v-if="item.kind === 'existing'">
-                <div>
-                  <span class="block truncate font-medium">
-                    {{ toDisplayLabel(item.group) }}
-                  </span>
-                  <span class="block truncate text-xs">
-                    {{ toTypeLabel(item.group) }}
-                  </span>
-                </div>
-              </template>
-              <template v-else>
-                <div
-                  class="border border-current rounded-md size-8 flex items-center justify-center">
-                  <PlusIcon class="size-4" />
-                </div>
-                <span class="truncate font-medium">
-                  Create group "{{ item.label }}"
-                </span>
-              </template>
-            </template>
-          </AutoCompleteInput>
-        </div>
-        <SelectGroup
-          v-if="isNewGroup"
-          v-model="draft.newGroupType"
-          label="Group Type"
-          placeholder="Select a type…"
-          class="w-44"
-          :options="typeOptions" />
-        <PermissionSelect
-          v-model="draft.permissionLevelId"
-          label="Permission"
-          placeholder="Select a permission…"
-          class="w-44"
-          :options="permissionOptions" />
-        <Button
-          type="submit"
-          variant="secondary"
-          class="py-2 border border-secondary-container"
-          :disabled="!canSubmit">
-          <CheckIcon class="size-4" />
-          Save
-        </Button>
-        <Button type="button" variant="tertiary" class="py-2" @click="close">
-          <XIcon class="size-4" />
-          Cancel
-        </Button>
-        <p
-          v-if="grantBeingOverwritten"
-          role="alert"
-          class="flex w-full items-center gap-2 rounded-md bg-warning-container px-3 py-2 text-sm text-on-warning-container">
-          <TriangleAlertIcon class="size-4 shrink-0" />
-          <span>
-            This group already has
-            <b>{{ levelLabelToReplace ?? "a permission" }}</b>
-            {{
-              draft.scope === "instance"
-                ? "on the instance"
-                : "on this collection"
-            }}. Saving will replace it.
-          </span>
-        </p>
-      </form>
-    </TableCell>
-  </TableRow>
+  <FormDialog
+    v-model:open="isOpen"
+    title="Create Permission"
+    submitLabel="Create"
+    :isSubmitting="isSaving"
+    :isSubmitDisabled="!canSubmit"
+    @submit="handleSave">
+    <div class="flex flex-col gap-1">
+      <label
+        for="add-permission-group"
+        class="text-xs uppercase font-medium text-on-surface">
+        Group
+      </label>
+      <AutoCompleteInput
+        id="add-permission-group"
+        :modelValue="draft.groupText"
+        :items="groupOptions"
+        :minChars="0"
+        :blurOnSelect="false"
+        :isItemDisabled="(item) => item.kind === 'createGroupPrompt'"
+        placeholder="Find or create…"
+        inputClass="h-auto w-full bg-surface border-outline-variant add-permission__group-input"
+        @update:modelValue="handleGroupTextInput"
+        @select="handleSelectGroup">
+        <template #option="{ item }">
+          <template v-if="item.kind === 'existing'">
+            <div>
+              <span class="block truncate font-medium">
+                {{ toDisplayLabel(item.group) }}
+              </span>
+              <span class="block truncate text-xs">
+                {{ toTypeLabel(item.group) }}
+              </span>
+            </div>
+          </template>
+          <template v-else>
+            <div
+              class="border border-current rounded-md size-8 flex items-center justify-center">
+              <PlusIcon class="size-4" />
+            </div>
+            <span v-if="item.kind === 'create'" class="truncate font-medium">
+              Create group "{{ item.label }}"
+            </span>
+            <div v-else>
+              <span class="block truncate font-medium">Create group</span>
+              <span class="block truncate text-xs">
+                Type a name for the new group
+              </span>
+            </div>
+          </template>
+        </template>
+      </AutoCompleteInput>
+    </div>
+    <SelectGroup
+      v-if="isNewGroup"
+      v-model="draft.newGroupType"
+      label="Group Type"
+      placeholder="Select a type…"
+      :options="typeOptions" />
+    <PermissionSelect
+      v-model="draft.permissionLevelId"
+      label="Permission"
+      placeholder="Select a permission…"
+      :options="permissionOptions" />
+    <SelectGroup v-model="draft.scope" label="Scope" :options="scopeOptions" />
+    <SelectGroup
+      v-if="draft.scope === 'collection'"
+      v-model="draft.collectionId"
+      label="Collection"
+      placeholder="Select a collection…"
+      :options="collectionOptions" />
+    <p
+      v-if="grantBeingOverwritten"
+      role="alert"
+      class="flex w-full items-center gap-2 rounded-md bg-warning-container px-3 py-2 text-sm text-on-warning-container">
+      <TriangleAlertIcon class="size-4 shrink-0" />
+      <span>
+        This group already has
+        <b>{{ levelLabelToReplace ?? "a permission" }}</b>
+        {{
+          draft.scope === "instance" ? "on the instance" : "on this collection"
+        }}. Saving will replace it.
+      </span>
+    </p>
+  </FormDialog>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { CheckIcon, PlusIcon, TriangleAlertIcon, XIcon } from "lucide-vue-next";
-import { TableRow, TableCell } from "@/components/ui/table";
-import Button from "@/components/Button/Button.vue";
+import { PlusIcon, TriangleAlertIcon } from "lucide-vue-next";
+import FormDialog from "@/components/FormDialog/FormDialog.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import PermissionSelect from "@/components/PermissionSelect/PermissionSelect.vue";
 import { buildPermissionOptions } from "@/components/PermissionSelect/buildPermissionOptions";
@@ -128,18 +112,17 @@ import {
   useSaveRuleMutation,
 } from "./ruleQueries";
 import type { RuleScope } from "./ruleQueries";
-import { permissionRowKey } from "./buildPermissionsPageRows";
+import { permissionRowId } from "./buildPermissionsPageRows";
 import type { GroupTypeValues, PermissionsGroup, SelectOption } from "@/types";
 
 // What the parent needs to reveal the saved permission's row.
 export interface CreatedPermission {
   group: PermissionsGroup;
-  rowKey: string;
+  rowId: string;
   isNewGroup: boolean;
 }
 
 const props = defineProps<{
-  colspan: number;
   // group to prefill from a row's "Add Permission" action, null for a
   // blank form
   prefillGroup: PermissionsGroup | null;
@@ -152,9 +135,6 @@ const emit = defineEmits<{
   created: [permission: CreatedPermission];
 }>();
 
-// The in-flight "(saving…)" row renders here from the mutations, so the
-// parent toggles `open` instead of v-if. Unmounting would drop that row
-// while the save is still settling.
 const isOpen = defineModel<boolean>("open", { required: true });
 
 const scopeOptions: SelectOption<string>[] = [
@@ -172,7 +152,7 @@ const { data: collectionGrants } = useQuery(collectionGrantsQuery());
 const createGroup = useCreateGroupMutation();
 const saveRule = useSaveRuleMutation();
 
-const isPending = computed(
+const isSaving = computed(
   (): boolean => createGroup.isPending.value || saveRule.isPending.value
 );
 
@@ -267,11 +247,10 @@ const isNewGroup = computed(
   (): boolean => draft.value.groupText.trim() !== "" && !resolvedGroup.value
 );
 
-// A row in the group dropdown: an existing group to pick, or the pinned
-// action that creates a group from whatever was typed.
 type GroupOption =
   | { kind: "existing"; group: PermissionsGroup }
-  | { kind: "create"; label: string };
+  | { kind: "create"; label: string }
+  | { kind: "createGroupPrompt" };
 
 const groupOptions = computed((): GroupOption[] => {
   const text = draft.value.groupText.trim().toLowerCase();
@@ -279,9 +258,11 @@ const groupOptions = computed((): GroupOption[] => {
     .filter((group) => toDisplayLabel(group).toLowerCase().includes(text))
     .map((group) => ({ kind: "existing" as const, group }));
 
-  if (isNewGroup.value) {
-    rows.push({ kind: "create", label: draft.value.groupText.trim() });
-  }
+  rows.push(
+    isNewGroup.value
+      ? { kind: "create", label: draft.value.groupText.trim() }
+      : { kind: "createGroupPrompt" }
+  );
   return rows;
 });
 
@@ -378,15 +359,6 @@ const levelLabelToReplace = computed((): string | null => {
   return level?.label ?? null;
 });
 
-// Show what was submitted, not the live input the user may keep editing.
-const pendingLabel = computed((): string => {
-  return createdGroup.value?.label ?? draft.value.groupText.trim();
-});
-
-function close(): void {
-  isOpen.value = false;
-}
-
 async function handleSave(): Promise<void> {
   const { scope, collectionId, newGroupType, permissionLevelId } = draft.value;
   const groupText = draft.value.groupText.trim();
@@ -433,12 +405,12 @@ async function handleSave(): Promise<void> {
     isOpen.value = false;
     emit("created", {
       group,
-      rowKey: permissionRowKey(scope, grant.id),
+      rowId: permissionRowId(scope, grant.id),
       isNewGroup: isNewlyCreated,
     });
   } catch {
-    // each failed mutation toasted from its own onError, this only keeps
-    // the form up to try again
+    // each failed mutation toasted from its own onError.
+    // This catch only keeps the dialog open to try again.
   }
 }
 </script>

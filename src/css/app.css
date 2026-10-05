@@ -64,8 +64,15 @@ body {
   }
 
   input::placeholder,
-  textarea::placeholder {
+  textarea::placeholder,
+  select:has(> option:disabled:checked) {
     color: var(--on-surface-variant);
+  }
+
+  /* deleting this grays every option too, since
+     options inherit the select's color */
+  select:has(> option:disabled:checked) > option:enabled {
+    color: var(--on-surface);
   }
 
   [type="checkbox"],

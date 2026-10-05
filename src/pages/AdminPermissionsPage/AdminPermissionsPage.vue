@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <PageContent class="max-w-screen-lg">
+    <PageContent class="max-w-screen-xl">
       <PageHeader
         :title="pageTitle"
         :eyebrow="pageEyebrow"

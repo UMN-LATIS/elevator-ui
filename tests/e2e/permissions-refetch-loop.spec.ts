@@ -72,14 +72,10 @@ test.describe("Permissions page against a failing grants endpoint", () => {
       page.getByRole("heading", { name: "Permissions" })
     ).toBeVisible();
     // a seeded permission row proves the success branch rendered
+    const permissionsTable = page.getByRole("table").first();
     await expect(
-      page.getByRole("row", { name: /Instance Reviewers/ })
+      permissionsTable.getByRole("row", { name: /Instance Reviewers/ })
     ).toBeVisible();
-    // The toolbar has an Add Permission button of its own, so scope to
-    // the table: its add button renders only when every query succeeded.
-    await expect(
-      page.locator("tbody").getByRole("button", { name: "Add Permission" })
-    ).toBeVisible();
-    await expect(page.locator("[data-add-permission-form]")).toHaveCount(0);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 });

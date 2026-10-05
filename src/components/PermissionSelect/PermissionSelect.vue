@@ -1,11 +1,6 @@
 <template>
   <div class="flex flex-col gap-1">
-    <label
-      :id="labelId"
-      :class="[
-        'text-xs uppercase font-medium text-on-surface',
-        { 'sr-only': !showLabel },
-      ]">
+    <label :id="labelId" class="text-xs uppercase font-medium text-on-surface">
       {{ label }}
     </label>
     <SelectRoot :modelValue="modelValue" @update:modelValue="handleSelect">
@@ -20,9 +15,6 @@
             ]" />
           <span class="flex-1 truncate text-on-surface">
             {{ selectedOption.label }}
-          </span>
-          <span class="shrink-0 tabular-nums text-on-surface-variant">
-            {{ selectedOption.level }}
           </span>
         </template>
         <span v-else class="flex-1 truncate text-on-surface-variant">
@@ -52,9 +44,6 @@
               <SelectItemText class="flex-1 truncate">
                 {{ opt.label }}
               </SelectItemText>
-              <span class="shrink-0 tabular-nums text-on-surface-variant">
-                {{ opt.level }}
-              </span>
               <SelectItemIndicator class="shrink-0">
                 <CheckIcon class="w-4 h-4 text-primary" />
               </SelectItemIndicator>
@@ -90,11 +79,8 @@ const props = withDefaults(
     options: PermissionSelectOption[];
     label: string;
     placeholder?: string;
-    // hide the label visually (kept for screen readers) when the column
-    // header already names the field, as in the inline table editor
-    showLabel?: boolean;
   }>(),
-  { showLabel: true, placeholder: "" }
+  { placeholder: "" }
 );
 
 const emit = defineEmits<{ "update:modelValue": [value: number] }>();
