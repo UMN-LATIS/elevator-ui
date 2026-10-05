@@ -195,6 +195,33 @@ describe("DataTable", () => {
     });
   });
 
+  it("makes a deleting row and its detail inert, so the keyboard cannot reach them", async () => {
+    const table = mountTable({
+      props: {
+        canExpand: () => true,
+        rowName: (fruit: Fruit) => fruit.name,
+        isRowDeleting: (fruit: Fruit) => fruit.name === "Banana",
+      },
+      slots: {
+        detail: `<template #detail="{ row }">Detail of {{ row.name }}</template>`,
+      },
+    });
+    await table
+      .get('button[aria-label="Toggle details for Banana"]')
+      .trigger("click");
+
+    const bananaRows = table
+      .findAll("tbody tr")
+      .filter((row) => row.text().includes("Banana"));
+    expect(bananaRows).toHaveLength(2);
+    for (const row of bananaRows) {
+      expect(row.attributes()).toHaveProperty("inert");
+    }
+    expect(table.get('[data-row-id="2"]').attributes()).not.toHaveProperty(
+      "inert"
+    );
+  });
+
   describe("toolbar", () => {
     it("renders the toolbarEnd slot beside the search box", () => {
       const table = mountTable({

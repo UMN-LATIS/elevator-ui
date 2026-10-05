@@ -193,10 +193,15 @@ function otherOwnerNameOf(row: GroupAccessRow): string | null {
 const table = ref<DataTableHandle | null>(null);
 const isCreatingGroup = ref(false);
 const isEditingGroup = ref(false);
-const groupToEdit = ref<GroupAccessRow | null>(null);
+const groupToEditId = ref<number | null>(null);
+
+const groupToEdit = computed(
+  (): GroupAccessRow | null =>
+    groupRows.value.find((row) => row.id === groupToEditId.value) ?? null
+);
 
 function openEditGroup(row: GroupAccessRow): void {
-  groupToEdit.value = row;
+  groupToEditId.value = row.id;
   isEditingGroup.value = true;
 }
 

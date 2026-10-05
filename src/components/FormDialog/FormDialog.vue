@@ -1,5 +1,5 @@
 <template>
-  <DialogRoot v-model:open="isOpen">
+  <DialogRoot :open="isOpen" @update:open="setOpenUnlessSubmitting">
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-40 bg-scrim" />
       <DialogContent
@@ -18,12 +18,15 @@
           </div>
           <div class="mt-6 flex justify-end gap-2">
             <DialogClose asChild>
-              <Button type="button" variant="tertiary">Cancel</Button>
+              <Button type="button" variant="tertiary" :disabled="isSubmitting">
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"
               variant="primary"
               :disabled="isSubmitDisabled || isSubmitting">
+              <SpinnerIcon v-if="isSubmitting" aria-hidden="true" />
               {{ isSubmitting ? "Saving…" : submitLabel }}
             </Button>
           </div>
@@ -45,8 +48,9 @@ import {
   DialogTitle,
 } from "reka-ui";
 import Button from "@/components/Button/Button.vue";
+import { SpinnerIcon } from "@/icons";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     description?: string;
@@ -67,6 +71,13 @@ const emit = defineEmits<{
 }>();
 
 const form = useTemplateRef<HTMLFormElement>("form");
+
+// Closing mid-save lets that save's completion close
+// the reopened dialog and discard its new draft.
+function setOpenUnlessSubmitting(open: boolean): void {
+  if (props.isSubmitting) return;
+  isOpen.value = open;
+}
 
 watch(isOpen, async (open) => {
   if (!open) return;

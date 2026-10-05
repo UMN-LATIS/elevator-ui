@@ -96,6 +96,51 @@ test.describe("Drawer sharing", () => {
     );
   });
 
+  test("retries only the rename when the access half of an edit saved", async ({
+    page,
+  }) => {
+    let shouldRefuseRename = true;
+    await page.route("**/drawerPermissions/groups/*", (route) =>
+      route.request().method() === "PUT" && shouldRefuseRename
+        ? route.fulfill({ status: 422, json: { error: "Rename refused" } })
+        : route.fallback()
+    );
+    let grantCreateCount = 0;
+    page.on("request", (request) => {
+      if (
+        request.method() === "POST" &&
+        request.url().endsWith("/drawerPermissions/grants")
+      ) {
+        grantCreateCount += 1;
+      }
+    });
+
+    await openRowMenu(page, "Library Staff");
+    await page.getByRole("menuitem", { name: "Edit Group" }).click();
+    const dialog = page.getByRole("dialog", { name: "Edit Group" });
+    await dialog.getByLabel("Group Name").fill("Library Team");
+    await dialog.getByRole("combobox", { name: "Permission" }).click();
+    await page.getByRole("option", { name: "Search and Browse" }).click();
+    await dialog.getByRole("button", { name: "Save" }).click();
+
+    await expect(
+      page.getByText('"Library Staff" access set to Search and Browse.')
+    ).toBeVisible();
+    await expect(
+      page.getByText(/Failed to rename group "Library Staff"/)
+    ).toBeVisible();
+    await expect(dialog).toBeVisible();
+
+    shouldRefuseRename = false;
+    await dialog.getByRole("button", { name: "Save" }).click();
+
+    await expect(
+      page.getByText('Group "Library Staff" renamed to "Library Team".')
+    ).toBeVisible();
+    await expect(dialog).not.toBeVisible();
+    expect(grantCreateCount).toBe(1);
+  });
+
   test("removes a group's permissions", async ({ page }) => {
     await openRowMenu(page, "Art History Students");
     await page.getByRole("menuitem", { name: "Remove Permissions" }).click();
