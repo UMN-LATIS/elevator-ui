@@ -7,9 +7,8 @@
       :is="is || ($attrs.disabled ? 'div' : Link)"
       class="block w-full text-left px-4 py-2 text-sm !no-underline"
       :class="{
-        'bg-surface-container-high': active,
-        'text-on-surface': active || current,
-        'text-on-surface-variant': !active && !current,
+        'bg-primary-container text-on-primary-container': active,
+        'text-on-surface': !active,
         'font-bold border-l-2 border-primary': current,
       }"
       :href="href"
