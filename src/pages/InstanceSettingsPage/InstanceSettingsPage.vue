@@ -232,15 +232,14 @@
           <FormSubSection
             v-if="!!form.interfaceVersion"
             :isOpen="form.enableTheming">
+            <SelectGroup
+              v-model="form.defaultTheme"
+              :options="themeOptions"
+              label="Default Theme" />
             <ToggleGroup
               v-model="form.enableTheming"
               label="Enable Theme Selection" />
             <template #details>
-              <SelectGroup
-                v-if="form.enableTheming"
-                v-model="form.defaultTheme"
-                :options="themeOptions"
-                label="Default Theme" />
               <div v-if="form.enableTheming" class="space-y-2">
                 <div class="flex items-center justify-between">
                   <label class="block text-xs font-medium uppercase">
@@ -445,13 +444,11 @@ function useClassicInterface() {
   window.location.href = `${config.instance.base.url}/instances/forceOldInterface`;
 }
 
-// Theme options for the select
-const themeOptions = computed(
-  (): SelectOption<string>[] =>
-    settingsData.value?.availableThemes?.map((theme) => ({
-      id: theme,
-      label: prettyThemeName(theme),
-    })) ?? []
+const themeOptions = computed((): SelectOption<string>[] =>
+  ALL_THEMES.toSorted().map((theme) => ({
+    id: theme,
+    label: prettyThemeName(theme),
+  }))
 );
 
 // Custom header display options
