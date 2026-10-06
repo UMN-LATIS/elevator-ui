@@ -35,7 +35,7 @@
               v-for="opt in options"
               :key="opt.id"
               :value="opt.id"
-              class="flex items-center gap-2 px-3 py-2 text-sm cursor-default select-none text-on-surface-variant data-[highlighted]:bg-surface-container-high data-[highlighted]:text-on-surface data-[state=checked]:font-medium data-[state=checked]:text-on-surface focus:outline-none">
+              class="flex items-center gap-2 px-3 py-2 text-sm cursor-default select-none text-on-surface data-[highlighted]:bg-primary-container data-[highlighted]:text-on-primary-container data-[state=checked]:font-medium focus:outline-none">
               <i
                 :class="[
                   'size-2 shrink-0 rounded-full',
