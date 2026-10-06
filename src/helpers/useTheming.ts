@@ -1,5 +1,6 @@
 import { watch, computed, ref } from "vue";
 import { useStorage } from "@vueuse/core";
+import { uniq } from "ramda";
 import { useInstanceNavQuery } from "@/queries/useInstanceNavQuery";
 import { ALL_THEMES } from "@/config";
 
@@ -98,20 +99,23 @@ function applyTheme(theme: string) {
 
 export function useTheming() {
   const { data: instanceData } = useInstanceNavQuery();
-  const availableThemes = computed(() => {
-    const allThemes: readonly string[] = ALL_THEMES;
-    const validThemes = (instanceData.value?.theming?.availableThemes ?? [])
-      .filter((theme) => allThemes.includes(theme))
-      .toSorted();
-
-    return validThemes.length > 0 ? validThemes : ["dark", "light"];
-  });
   const defaultTheme = computed(
     () => instanceData.value?.theming?.defaultTheme || "light"
   );
   const isEnabled = computed(
     () => instanceData.value?.theming?.enabled ?? true
   );
+  const availableThemes = computed(() => {
+    if (!isEnabled.value) return [defaultTheme.value];
+
+    const allThemes: readonly string[] = ALL_THEMES;
+    const checkedThemes = (
+      instanceData.value?.theming?.availableThemes ?? []
+    ).filter((theme) => allThemes.includes(theme));
+    const themes = checkedThemes.length > 0 ? checkedThemes : ["dark", "light"];
+
+    return uniq([...themes, defaultTheme.value]).toSorted();
+  });
 
   const activeTheme = useStorage<string | null>(
     `theme-${window.location.hostname}`,
@@ -128,7 +132,9 @@ export function useTheming() {
     [activeTheme, previewTheme, instanceData],
     () => {
       if (!instanceData.value) return;
-      activeTheme.value = activeTheme.value || defaultTheme.value;
+      if (!availableThemes.value.includes(activeTheme.value ?? "")) {
+        activeTheme.value = defaultTheme.value;
+      }
       applyTheme(effectiveTheme.value ?? defaultTheme.value);
     },
     { immediate: true }
