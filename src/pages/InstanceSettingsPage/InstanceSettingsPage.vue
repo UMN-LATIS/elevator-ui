@@ -232,15 +232,14 @@
           <FormSubSection
             v-if="!!form.interfaceVersion"
             :isOpen="form.enableTheming">
+            <SelectGroup
+              v-model="form.defaultTheme"
+              :options="themeOptions"
+              label="Default Theme" />
             <ToggleGroup
               v-model="form.enableTheming"
               label="Enable Theme Selection" />
             <template #details>
-              <SelectGroup
-                v-if="form.enableTheming"
-                v-model="form.defaultTheme"
-                :options="themeOptions"
-                label="Default Theme" />
               <div v-if="form.enableTheming" class="space-y-2">
                 <div class="flex items-center justify-between">
                   <label class="block text-xs font-medium uppercase">
@@ -404,10 +403,14 @@ const form = ref<InstanceSettings>(
 
 // getInstance returns a partial settings object, so fill gaps with defaults.
 // toggles need a real boolean, and edit-tracking compares against this shape.
-const savedSettings = computed<InstanceSettings>(() => ({
-  ...getDefaultInstanceSettings(props.instanceId),
-  ...(settingsData.value ?? {}),
-}));
+const savedSettings = computed<InstanceSettings>(() => {
+  const defaults = getDefaultInstanceSettings(props.instanceId);
+  return {
+    ...defaults,
+    ...(settingsData.value ?? {}),
+    defaultTheme: settingsData.value?.defaultTheme || defaults.defaultTheme,
+  };
+});
 
 // Sync form with fetched data
 watch(
@@ -445,13 +448,11 @@ function useClassicInterface() {
   window.location.href = `${config.instance.base.url}/instances/forceOldInterface`;
 }
 
-// Theme options for the select
-const themeOptions = computed(
-  (): SelectOption<string>[] =>
-    settingsData.value?.availableThemes?.map((theme) => ({
-      id: theme,
-      label: prettyThemeName(theme),
-    })) ?? []
+const themeOptions = computed((): SelectOption<string>[] =>
+  allThemes.value.toSorted().map((theme) => ({
+    id: theme,
+    label: prettyThemeName(theme),
+  }))
 );
 
 // Custom header display options

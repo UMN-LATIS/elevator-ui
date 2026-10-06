@@ -1,5 +1,10 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
+import {
+  setupWorkerHTTPHeader,
+  loginUser,
+  refreshDatabase,
+  updateInstance,
+} from "../setup";
 
 const WHITE = "rgb(255, 255, 255)";
 
@@ -112,6 +117,11 @@ test.describe("Dark theme form controls", () => {
     // Six theme activations, each a reload plus a lazy CSS fetch.
     test.setTimeout(60_000);
     const workerId = test.info().workerIndex.toString();
+    await updateInstance({
+      request,
+      workerId,
+      updates: { availableThemes: DARK_THEMES },
+    });
     await loginUser({ request, page, workerId });
     await page.goto("/");
 
