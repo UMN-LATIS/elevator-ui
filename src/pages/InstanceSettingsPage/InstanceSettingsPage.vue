@@ -403,10 +403,14 @@ const form = ref<InstanceSettings>(
 
 // getInstance returns a partial settings object, so fill gaps with defaults.
 // toggles need a real boolean, and edit-tracking compares against this shape.
-const savedSettings = computed<InstanceSettings>(() => ({
-  ...getDefaultInstanceSettings(props.instanceId),
-  ...(settingsData.value ?? {}),
-}));
+const savedSettings = computed<InstanceSettings>(() => {
+  const defaults = getDefaultInstanceSettings(props.instanceId);
+  return {
+    ...defaults,
+    ...(settingsData.value ?? {}),
+    defaultTheme: settingsData.value?.defaultTheme || defaults.defaultTheme,
+  };
+});
 
 // Sync form with fetched data
 watch(
@@ -445,7 +449,7 @@ function useClassicInterface() {
 }
 
 const themeOptions = computed((): SelectOption<string>[] =>
-  ALL_THEMES.toSorted().map((theme) => ({
+  allThemes.value.toSorted().map((theme) => ({
     id: theme,
     label: prettyThemeName(theme),
   }))

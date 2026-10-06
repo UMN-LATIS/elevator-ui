@@ -112,9 +112,10 @@ export function useTheming() {
     const checkedThemes = (
       instanceData.value?.theming?.availableThemes ?? []
     ).filter((theme) => allThemes.includes(theme));
-    const themes = checkedThemes.length > 0 ? checkedThemes : ["dark", "light"];
+    const offeredThemes =
+      checkedThemes.length > 0 ? checkedThemes : ["dark", "light"];
 
-    return uniq([...themes, defaultTheme.value]).toSorted();
+    return uniq([...offeredThemes, defaultTheme.value]).toSorted();
   });
 
   const activeTheme = useStorage<string | null>(
