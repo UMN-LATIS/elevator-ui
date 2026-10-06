@@ -1004,7 +1004,7 @@ export async function updateInstanceSettings(
 interface CustomPageApiResponse {
   id: number;
   title: string;
-  body: string;
+  body: string | null;
   includeInHeader: boolean;
   parentId: number | null;
   parentTitle: string | null;
@@ -1012,18 +1012,28 @@ interface CustomPageApiResponse {
   modifiedAt?: string;
 }
 
-export async function fetchAllCustomPages() {
+export interface CustomPage extends Omit<CustomPageApiResponse, "body"> {
+  body: string;
+}
+
+function toCustomPage(page: CustomPageApiResponse): CustomPage {
+  return { ...page, body: page.body ?? "" };
+}
+
+export async function fetchAllCustomPages(): Promise<CustomPage[]> {
   const res = await axios.get<CustomPageApiResponse[]>(
     `${BASE_URL}/instances/customPages/true`
   );
-  return res.data;
+  return res.data.map(toCustomPage);
 }
 
-export async function fetchCustomPageForEditing(pageId: number) {
+export async function fetchCustomPageForEditing(
+  pageId: number
+): Promise<CustomPage> {
   const res = await axios.get<CustomPageApiResponse>(
     `${BASE_URL}/instances/getPage/${pageId}`
   );
-  return res.data;
+  return toCustomPage(res.data);
 }
 
 export async function saveCustomPage(
