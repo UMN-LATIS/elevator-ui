@@ -5,6 +5,10 @@
         Instance Settings
       </AppMenuItem>
       <AppMenuItem to="/admin/permissions">Instance Permissions</AppMenuItem>
+      <AppMenuItem
+        :href="`${BASE_URL}/permissions/edit/instance/${instance.id}`">
+        Instance Permissions (Classic)
+      </AppMenuItem>
       <AppMenuItem to="/instances/customPages">Instance Pages</AppMenuItem>
       <AppMenuItem :href="`${BASE_URL}/reports`">Reports</AppMenuItem>
     </template>
@@ -13,6 +17,9 @@
     </AppMenuItem>
     <template v-if="currentUser.isAdmin">
       <AppMenuItem to="/admin/collections">Edit Collections</AppMenuItem>
+      <AppMenuItem :href="`${BASE_URL}/collectionManager`">
+        Edit Collections (Classic)
+      </AppMenuItem>
       <AppMenuItem :href="`${BASE_URL}/assetManager/importFromCSV`">
         Import from CSV
       </AppMenuItem>
