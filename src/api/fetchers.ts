@@ -1012,28 +1012,18 @@ interface CustomPageApiResponse {
   modifiedAt?: string;
 }
 
-export interface CustomPage extends Omit<CustomPageApiResponse, "body"> {
-  body: string;
-}
-
-function toCustomPage(page: CustomPageApiResponse): CustomPage {
-  return { ...page, body: page.body ?? "" };
-}
-
-export async function fetchAllCustomPages(): Promise<CustomPage[]> {
+export async function fetchAllCustomPages() {
   const res = await axios.get<CustomPageApiResponse[]>(
     `${BASE_URL}/instances/customPages/true`
   );
-  return res.data.map(toCustomPage);
+  return res.data.map((page) => ({ ...page, body: page.body ?? "" }));
 }
 
-export async function fetchCustomPageForEditing(
-  pageId: number
-): Promise<CustomPage> {
+export async function fetchCustomPageForEditing(pageId: number) {
   const res = await axios.get<CustomPageApiResponse>(
     `${BASE_URL}/instances/getPage/${pageId}`
   );
-  return toCustomPage(res.data);
+  return { ...res.data, body: res.data.body ?? "" };
 }
 
 export async function saveCustomPage(
