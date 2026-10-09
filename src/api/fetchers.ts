@@ -1706,6 +1706,7 @@ export async function fetchAdminUsers(
         userType: params.userType,
         isSuperAdmin: params.isSuperAdmin,
         page: params.page,
+        perPage: params.perPage,
       },
       signal: options?.signal,
     }

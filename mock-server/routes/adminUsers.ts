@@ -5,7 +5,8 @@ import type { AdminUser } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
-const PER_PAGE = 100;
+const PER_PAGE_OPTIONS = [25, 50, 100];
+const DEFAULT_PER_PAGE = 100;
 
 function toAdminUser(user: MockUser): AdminUser {
   return {
@@ -26,6 +27,11 @@ function toAdminUser(user: MockUser): AdminUser {
 function parsePage(rawPage: string | undefined): number {
   const page = Number(rawPage);
   return Number.isInteger(page) && page > 0 ? page : 1;
+}
+
+function parsePerPage(rawPerPage: string | undefined): number {
+  const perPage = Number(rawPerPage);
+  return PER_PAGE_OPTIONS.includes(perPage) ? perPage : DEFAULT_PER_PAGE;
 }
 
 app.use("*", async (c, next) => {
@@ -83,12 +89,13 @@ app.get("/users", async (c) => {
     .sort((left, right) => right.id - left.id);
 
   const page = parsePage(c.req.query("page"));
-  const firstIndex = (page - 1) * PER_PAGE;
+  const perPage = parsePerPage(c.req.query("perPage"));
+  const firstIndex = (page - 1) * perPage;
 
   return c.json({
-    users: matchingUsers.slice(firstIndex, firstIndex + PER_PAGE),
+    users: matchingUsers.slice(firstIndex, firstIndex + perPage),
     page,
-    perPage: PER_PAGE,
+    perPage,
     total: matchingUsers.length,
   });
 });

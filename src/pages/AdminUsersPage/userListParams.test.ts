@@ -8,6 +8,7 @@ const DEFAULTS: AdminUserListParams = {
   userType: null,
   isSuperAdmin: null,
   page: 1,
+  perPage: 100,
 };
 
 describe("fromUserListQuery", () => {
@@ -18,12 +19,14 @@ describe("fromUserListQuery", () => {
         userType: "Remote",
         isSuperAdmin: "false",
         page: "3",
+        perPage: "25",
       })
     ).toEqual({
       search: "smith",
       userType: "Remote",
       isSuperAdmin: false,
       page: 3,
+      perPage: 25,
     });
   });
 
@@ -34,6 +37,7 @@ describe("fromUserListQuery", () => {
     ["a zero page", { page: "0" }],
     ["a fractional page", { page: "1.5" }],
     ["a non-numeric page", { page: "abc" }],
+    ["a page size the API does not offer", { perPage: "30" }],
     ["repeated keys", { search: ["a", "b"], userType: ["Local", "Remote"] }],
   ])("falls back to defaults for %s", (_case, query) => {
     expect(fromUserListQuery(query)).toEqual(DEFAULTS);
@@ -47,6 +51,7 @@ describe("toUserListQuery", () => {
       userType: undefined,
       isSuperAdmin: undefined,
       page: undefined,
+      perPage: undefined,
     });
   });
 
@@ -62,6 +67,7 @@ describe("toUserListQuery", () => {
       userType: "Local",
       isSuperAdmin: true,
       page: 2,
+      perPage: 50,
     };
 
     expect(fromUserListQuery(toUserListQuery(params) as LocationQuery)).toEqual(

@@ -183,6 +183,21 @@ test.describe("Admin users page", () => {
     await expect(page.getByRole("button", { name: "Page 1" })).toHaveCount(0);
   });
 
+  test("a page size change returns to page 1", async ({ page }) => {
+    await page.goto("/admin/users?page=2");
+    await expect(page.getByText("Showing 101–119 of 119 users")).toBeVisible();
+
+    await page
+      .getByLabel("Rows per page")
+      .selectOption({ label: "25 per page" });
+
+    await expect(page).toHaveURL(/perPage=25/);
+    await expect(page).not.toHaveURL(/[?&]page=/);
+    await expect(page.getByText("Showing 1–25 of 119 users")).toBeVisible();
+    await expect(userRows(page)).toHaveCount(25);
+    await expect(page.getByRole("button", { name: "Page 5" })).toBeVisible();
+  });
+
   test("a page number past the end jumps to the last page", async ({
     page,
   }) => {

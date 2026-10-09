@@ -125,7 +125,9 @@
       v-if="pagination"
       :pagination="pagination"
       :itemName="itemName"
-      @update:page="emit('update:page', $event)" />
+      :perPageOptions="perPageOptions"
+      @update:page="emit('update:page', $event)"
+      @update:perPage="emit('update:perPage', $event)" />
   </div>
 </template>
 
@@ -166,6 +168,7 @@ const props = withDefaults(
     rowName?: (row: TRow) => string;
     isRowDeleting?: (row: TRow) => boolean;
     pagination?: TablePagination;
+    perPageOptions?: readonly number[];
   }>(),
   {
     status: "success",
@@ -174,11 +177,13 @@ const props = withDefaults(
     rowName: undefined,
     isRowDeleting: () => false,
     pagination: undefined,
+    perPageOptions: undefined,
   }
 );
 
 const emit = defineEmits<{
   "update:page": [page: number];
+  "update:perPage": [perPage: number];
 }>();
 
 const slots = defineSlots<{

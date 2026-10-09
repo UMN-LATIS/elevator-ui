@@ -793,6 +793,7 @@ export interface AdminUserListParams {
   userType: AdminUserType | null;
   isSuperAdmin: boolean | null;
   page: number;
+  perPage: number;
 }
 
 export interface Page {

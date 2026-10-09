@@ -263,6 +263,27 @@ describe("DataTable", () => {
 
       expect(table.emitted("update:page")).toEqual([[2]]);
     });
+
+    it("offers no page sizes without perPageOptions", () => {
+      const table = mountTable({
+        props: { pagination: { page: 1, perPage: 3, total: 8 } },
+      });
+
+      expect(table.find("select").exists()).toBe(false);
+    });
+
+    it("asks for the chosen page size", async () => {
+      const table = mountTable({
+        props: {
+          pagination: { page: 1, perPage: 3, total: 8 },
+          perPageOptions: [3, 6],
+        },
+      });
+
+      await table.get("select").setValue("6");
+
+      expect(table.emitted("update:perPage")).toEqual([[6]]);
+    });
   });
 
   describe("reveal", () => {

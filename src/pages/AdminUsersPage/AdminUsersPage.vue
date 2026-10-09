@@ -10,7 +10,9 @@
         :status="status"
         :isFiltered="isFiltered"
         :pagination="pagination"
-        @update:page="(page) => setParams({ page })">
+        :perPageOptions="PER_PAGE_OPTIONS"
+        @update:page="(page) => setParams({ page })"
+        @update:perPage="(perPage) => setParams({ perPage })">
         <template #toolbarEnd>
           <InputGroup
             v-model="searchInput"
@@ -89,6 +91,7 @@ import config from "@/config";
 import { useAdminUsersQuery } from "@/queries/adminUserQueries";
 import { expiryLabelOf } from "./expiryLabelOf";
 import {
+  PER_PAGE_OPTIONS,
   parseIsSuperAdmin,
   parseUserType,
   useUserListParams,
@@ -162,8 +165,8 @@ function createdDateOf(user: AdminUser): string | null {
 
 const pagination = computed((): TablePagination | undefined => {
   if (!data.value) return undefined;
-  const { perPage, total } = data.value;
-  return { page: params.value.page, perPage, total };
+  const { page, perPage } = params.value;
+  return { page, perPage, total: data.value.total };
 });
 
 watch(
