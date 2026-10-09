@@ -15,6 +15,7 @@ import {
   useFieldTypesQuery,
 } from "@/queries/templateQueries";
 import { addTempId, stripTempId, type WithTempId } from "@/lib/tempId";
+import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import type {
   AdminTemplate,
   AdminWidgetDef,
@@ -109,7 +110,8 @@ export function newWidget(
   textTypeId: number
 ): WithTempId<AdminWidgetPayload> {
   return addTempId<AdminWidgetPayload>({
-    // No widgetId or fieldTitle — server assigns both for new widgets.
+    // No widgetId (the server assigns one) or fieldTitle
+    // (setWidgetLabel derives it from the label).
     fieldTypeId: textTypeId,
     label: "",
     tooltip: "",
@@ -126,6 +128,27 @@ export function newWidget(
     clickToSearchType: 0,
     fieldData: "",
   });
+}
+
+function fieldTitleFromLabel(label: string, instanceId: number): string {
+  const slug = label.replace(/[^a-z0-9_]/gi, "").toLowerCase() || "field";
+  return `${slug}_${instanceId}`;
+}
+
+export function relabelWidget<TWidget extends AdminWidgetPayload>(
+  widget: TWidget,
+  label: string,
+  instanceId: number | null
+): TWidget {
+  const relabeled = { ...widget, label };
+  if (widget.widgetId !== undefined || instanceId === null) {
+    return relabeled;
+  }
+  const isFieldTitleEditedByHand =
+    widget.fieldTitle !== undefined &&
+    widget.fieldTitle !== fieldTitleFromLabel(widget.label, instanceId);
+  if (isFieldTitleEditedByHand) return relabeled;
+  return { ...relabeled, fieldTitle: fieldTitleFromLabel(label, instanceId) };
 }
 
 export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
@@ -154,6 +177,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
   );
 
   const { data: fieldTypes } = useFieldTypesQuery();
+  const { instance } = useElevatorInstance();
   const createMutation = useCreateTemplateMutation();
   const updateMutation = useUpdateTemplateMutation();
 
@@ -219,6 +243,14 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     form.widgetArray.splice(index, 1);
   }
 
+  function setWidgetLabel(index: number, label: string) {
+    const widget = form.widgetArray[index];
+    Object.assign(
+      widget,
+      relabelWidget(widget, label, instance.value?.id ?? null)
+    );
+  }
+
   return {
     templateId: computed(() => toValue(templateId)),
     form,
@@ -233,6 +265,7 @@ export function useTemplateEditor(templateId: MaybeRefOrGetter<number | null>) {
     save,
     addWidget,
     removeWidget,
+    setWidgetLabel,
   };
 }
 

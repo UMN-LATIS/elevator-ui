@@ -83,6 +83,27 @@ test.describe("Template Editor", () => {
       await page.reload();
       await expect(page.getByLabel("Label")).toHaveValue("My Custom Field");
     });
+
+    test("keeps a field title typed before the label, with the instance number", async ({
+      page,
+    }) => {
+      await page.goto("/templates/edit");
+      await page.getByLabel("Name").fill("Template With Custom Title");
+      await page.getByRole("button", { name: "+ Add field" }).click();
+      await page.getByRole("button", { name: "Edit field title" }).click();
+      await page.getByRole("textbox", { name: "Field Title" }).fill("headline");
+      await page.getByRole("button", { name: "Save field title" }).click();
+      await page.getByLabel("Label").fill("My Field");
+
+      const saveRequest = page.waitForRequest((r) =>
+        r.url().includes("/templates/update")
+      );
+      await page.getByRole("button", { name: "Save" }).click();
+
+      const request = await saveRequest;
+      const body = new URLSearchParams(request.postData() ?? "");
+      expect(body.get("widget[0][fieldTitle]")).toBe("headline_1");
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -153,7 +174,8 @@ test.describe("Template Editor", () => {
       );
       await page.getByRole("button", { name: "Save" }).click();
 
-      const body = new URLSearchParams((await saveRequest).postData() ?? "");
+      const request = await saveRequest;
+      const body = new URLSearchParams(request.postData() ?? "");
       expect(body.get("widget[0][fieldTitle]")).toBe("renamed_1");
     });
   });
