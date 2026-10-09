@@ -110,6 +110,7 @@ const USER_TYPE_OPTIONS: SelectOption[] = [
   { id: ALL_OPTION_ID, label: "All types" },
   { id: "Local", label: "Local" },
   { id: "Remote", label: "Remote" },
+  { id: "Remote-Guest", label: "Remote-Guest" },
 ];
 
 const SUPER_ADMIN_OPTIONS: SelectOption[] = [

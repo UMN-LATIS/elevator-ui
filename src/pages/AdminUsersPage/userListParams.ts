@@ -7,7 +7,11 @@ import {
 } from "vue-router";
 import type { AdminUserListParams, AdminUserType } from "@/types";
 
-const ADMIN_USER_TYPES: readonly AdminUserType[] = ["Local", "Remote"];
+const ADMIN_USER_TYPES: readonly AdminUserType[] = [
+  "Local",
+  "Remote",
+  "Remote-Guest",
+];
 
 export const PER_PAGE_OPTIONS: readonly number[] = [25, 50, 100];
 const DEFAULT_PER_PAGE = 25;

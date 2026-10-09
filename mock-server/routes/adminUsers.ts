@@ -54,8 +54,11 @@ app.get("/users", async (c) => {
   const rawIsSuperAdmin = c.req.query("isSuperAdmin");
 
   const errors: Record<string, string[]> = {};
-  if (userType !== undefined && userType !== "Local" && userType !== "Remote") {
-    errors.userType = ["Must be Local or Remote."];
+  const isKnownUserType =
+    userType === undefined ||
+    ["Local", "Remote", "Remote-Guest"].includes(userType);
+  if (!isKnownUserType) {
+    errors.userType = ["Must be Local, Remote, or Remote-Guest."];
   }
   if (
     rawIsSuperAdmin !== undefined &&

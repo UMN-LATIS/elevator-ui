@@ -779,7 +779,7 @@ export interface AdminUser {
   instance: { id: number; name: string } | null;
 }
 
-export type AdminUserType = "Local" | "Remote";
+export type AdminUserType = "Local" | "Remote" | "Remote-Guest";
 
 export interface AdminUserListResponse {
   users: AdminUser[];

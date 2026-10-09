@@ -13,9 +13,7 @@ export interface MockUser {
   isSuperAdmin: boolean;
   email?: string;
   emplid?: string;
-  // Remote marks a user provisioned from the directory rather than
-  // created locally
-  userType?: "Local" | "Remote";
+  userType?: AdminUser["userType"];
   hasExpiry?: boolean;
   expires?: string;
   createdAt?: string;

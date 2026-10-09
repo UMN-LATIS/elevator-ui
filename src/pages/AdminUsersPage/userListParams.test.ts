@@ -30,6 +30,12 @@ describe("fromUserListQuery", () => {
     });
   });
 
+  it("reads Remote-Guest as a user type", () => {
+    expect(fromUserListQuery({ userType: "Remote-Guest" }).userType).toBe(
+      "Remote-Guest"
+    );
+  });
+
   it.each<[string, LocationQuery]>([
     ["no query", {}],
     ["empty filters", { userType: "", isSuperAdmin: "" }],
