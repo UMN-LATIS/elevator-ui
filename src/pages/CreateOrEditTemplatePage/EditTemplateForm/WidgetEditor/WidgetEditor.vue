@@ -8,12 +8,13 @@
         :options="fieldTypeOptions"
         @update:modelValue="handleTypeChange" />
       <InputGroup
-        v-model="widget.label"
+        :modelValue="widget.label"
         class="order-3 col-span-2 md:col-span-1 md:order-2"
         label="Label"
         :labelHidden="true"
         placeholder="Field label"
-        required />
+        required
+        @update:modelValue="editor.setWidgetLabel(index, $event)" />
       <button
         type="button"
         class="order-2 md:order-3 shrink-0 text-error hover:text-on-error-container p-1 rounded"
@@ -120,10 +121,13 @@
               :for="`field-title-${widget._tempId}`"
               class="inline-block whitespace-nowrap text-sm">
               Field Title
+              <span v-if="instanceSuffix" class="sr-only">
+                (ends in fixed {{ instanceSuffix }})
+              </span>
             </label>
             <LockedInput
               :id="`field-title-${widget._tempId}`"
-              :modelValue="widget.fieldTitle ?? ''"
+              :modelValue="fieldTitleName"
               class="max-w-[260px]"
               inputClass="font-mono text-right"
               editLabel="Edit field title"
@@ -136,6 +140,11 @@
               autocomplete="off"
               :validate="validateFieldTitleUnique"
               @update:modelValue="onFieldTitleCommit">
+              <template #append>
+                <span class="font-mono text-xs text-on-surface-variant">
+                  {{ instanceSuffix }}
+                </span>
+              </template>
               <template #help>
                 <div class="text-right">
                   <WarningIcon class="inline-block !size-3" />
@@ -160,6 +169,7 @@ import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import LockedInput from "@/components/LockedInput/LockedInput.vue";
 import FieldTypeSelect from "./FieldTypeSelect.vue";
+import { splitFieldTitle } from "./splitFieldTitle";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { ChevronRightIcon, WarningIcon } from "@/icons";
 import {
@@ -194,23 +204,26 @@ const showConfirm = ref(false);
 
 const { instance } = useElevatorInstance();
 
-// Mirror the legacy editor behavior: derive fieldTitle from label for new widgets.
-// Existing widgets (widgetId set) already have a locked fieldTitle — never overwrite it.
-watch(
-  () => widget.value.label,
-  (label) => {
-    if (widget.value.widgetId !== undefined) return;
-    const instanceId = instance.value?.id;
-    if (!instanceId) return;
-    const slug = label.replace(/[^a-z0-9_]/gi, "").toLowerCase() || "field";
-    widget.value.fieldTitle = slug + "_" + instanceId;
-  }
+const fieldTitleName = computed(
+  () => splitFieldTitle(widget.value.fieldTitle ?? "").name
 );
 
-function validateFieldTitleUnique(value: string): string {
+// splitFieldTitle finds no suffix in a new widget's unset
+// fieldTitle, so a title typed before the label would save
+// without the instance suffix.
+const instanceSuffix = computed(() => {
+  if (widget.value.widgetId !== undefined) {
+    return splitFieldTitle(widget.value.fieldTitle ?? "").instanceSuffix;
+  }
+  const instanceId = instance.value?.id ?? null;
+  return instanceId === null ? "" : `_${instanceId}`;
+});
+
+function validateFieldTitleUnique(name: string): string {
   invariant(editor, "Editor is required for field title validation");
+  const fieldTitle = name + instanceSuffix.value;
   const conflict = editor.form.widgetArray.some(
-    (w, i) => i !== props.index && w.fieldTitle === value
+    (w, i) => i !== props.index && w.fieldTitle === fieldTitle
   );
   return conflict ? "Another field already uses this title." : "";
 }
@@ -220,8 +233,8 @@ const showOptions = computed({
   set: (val: boolean) => expansion?.setExpanded(widget.value._tempId, val),
 });
 
-function onFieldTitleCommit(value: string) {
-  widget.value.fieldTitle = value;
+function onFieldTitleCommit(name: string) {
+  widget.value.fieldTitle = name + instanceSuffix.value;
 }
 
 const showTooltip = ref(!!widget.value.tooltip);

@@ -35,9 +35,19 @@ vi.mock("@/queries/templateQueries", () => ({
   }),
 }));
 
+vi.mock("@/queries/useInstanceNavQuery", () => ({
+  useInstanceNavQuery: () => ({
+    data: ref(undefined),
+    isLoading: ref(false),
+    isError: ref(false),
+    isSuccess: ref(false),
+  }),
+}));
+
 // Import after mock registration so the mock is in place.
 import {
   newWidget,
+  relabelWidget,
   useTemplateEditor,
   isFieldDataTextInvalid,
   formatFieldDataText,
@@ -115,9 +125,46 @@ describe("newWidget", () => {
     expect(w.directSearch).toBe(false);
   });
 
-  it("leaves widgetId and fieldTitle undefined so the server assigns them", () => {
+  it("leaves widgetId and fieldTitle undefined", () => {
     const w = newWidget(1, 1);
     expect(w.widgetId).toBeUndefined();
+    expect(w.fieldTitle).toBeUndefined();
+  });
+});
+
+describe("relabelWidget", () => {
+  const INSTANCE_ID = 7;
+
+  it("derives a new widget's fieldTitle from its first label", () => {
+    const w = relabelWidget(newWidget(1, 1), "My Field", INSTANCE_ID);
+    expect(w).toMatchObject({ label: "My Field", fieldTitle: "myfield_7" });
+  });
+
+  it("keeps a derived fieldTitle following the label", () => {
+    const named = relabelWidget(newWidget(1, 1), "Titel", INSTANCE_ID);
+    const renamed = relabelWidget(named, "Title", INSTANCE_ID);
+    expect(renamed.fieldTitle).toBe("title_7");
+  });
+
+  it("keeps a fieldTitle the admin edited by hand", () => {
+    const named = relabelWidget(newWidget(1, 1), "Titel", INSTANCE_ID);
+    const edited = { ...named, fieldTitle: "headline_7" };
+    const renamed = relabelWidget(edited, "Title", INSTANCE_ID);
+    expect(renamed).toMatchObject({ label: "Title", fieldTitle: "headline_7" });
+  });
+
+  it("never changes an existing widget's fieldTitle", () => {
+    const existing = { ...newWidget(1, 1), widgetId: 3, fieldTitle: "a_1" };
+    const renamed = relabelWidget(existing, "Something Else", INSTANCE_ID);
+    expect(renamed).toMatchObject({
+      label: "Something Else",
+      fieldTitle: "a_1",
+    });
+  });
+
+  it("only sets the label while the instance id is unknown", () => {
+    const w = relabelWidget(newWidget(1, 1), "My Field", null);
+    expect(w.label).toBe("My Field");
     expect(w.fieldTitle).toBeUndefined();
   });
 });

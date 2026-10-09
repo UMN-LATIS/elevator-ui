@@ -20,13 +20,14 @@
         :class="
           cn(
             'w-full bg-transparent p-0 text-xs text-on-surface-variant border-none focus:ring-0',
-            isEditing && 'pr-2 text-on-surface',
+            isEditing && 'text-on-surface',
             inputClass
           )
         "
         @input="refreshValidity"
         @keydown.enter.prevent="commitOrToggle"
         @keydown.escape.prevent="cancel" />
+      <slot name="append" />
       <IconButton v-if="isEditing" title="Cancel changes" @click="cancel">
         <Undo2Icon class="w-3 h-3" />
       </IconButton>
