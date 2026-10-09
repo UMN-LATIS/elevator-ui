@@ -4,7 +4,7 @@
       <DialogOverlay class="fixed inset-0 z-40 bg-scrim" />
       <DialogContent
         v-bind="description ? {} : { 'aria-describedby': undefined }"
-        class="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg bg-surface-container-high p-6 text-on-surface shadow-lg focus:outline-none"
+        class="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg bg-surface p-6 text-on-surface shadow-lg focus:outline-none"
         @openAutoFocus.prevent>
         <form ref="form" @submit.prevent="emit('submit')">
           <DialogTitle class="m-0 text-xl font-bold">{{ title }}</DialogTitle>

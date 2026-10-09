@@ -20,7 +20,7 @@
         :blurOnSelect="false"
         :isItemDisabled="(item) => item.kind === 'createGroupPrompt'"
         placeholder="Find or create…"
-        inputClass="h-auto w-full bg-surface border-outline-variant add-permission__group-input"
+        inputClass="h-auto w-full border-outline-variant add-permission__group-input"
         @update:modelValue="handleGroupTextInput"
         @select="handleSelectGroup">
         <template #option="{ item }">
