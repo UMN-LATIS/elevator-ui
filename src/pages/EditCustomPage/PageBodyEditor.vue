@@ -64,6 +64,7 @@
       :label="label"
       labelHidden
       enableImageInsert
+      enableHeadings
       :enableHtmlEditButton="false"
       @userInput="reportVisualEdit" />
   </div>

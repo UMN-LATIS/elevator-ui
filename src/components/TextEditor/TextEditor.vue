@@ -34,10 +34,12 @@ const props = withDefaults(
     id?: string;
     enableImageInsert?: boolean;
     enableHtmlEditButton?: boolean;
+    enableHeadings?: boolean;
   }>(),
   {
     id: "",
     enableImageInsert: false,
+    enableHeadings: false,
     enableHtmlEditButton: true,
   }
 );
@@ -78,6 +80,7 @@ const options = computed(() => ({
       : {}),
     toolbar: [
       [
+        ...(props.enableHeadings ? [{ header: 2 }, { header: 3 }] : []),
         "bold",
         "italic",
         { list: "ordered" },

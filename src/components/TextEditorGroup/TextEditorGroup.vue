@@ -24,6 +24,7 @@
       :modelValue="modelValue"
       :enableImageInsert="enableImageInsert"
       :enableHtmlEditButton="enableHtmlEditButton"
+      :enableHeadings="enableHeadings"
       @update:modelValue="$emit('update:modelValue', $event)"
       @userInput="$emit('userInput')" />
   </div>
@@ -48,12 +49,14 @@ withDefaults(
     labelHidden?: boolean;
     enableImageInsert?: boolean;
     enableHtmlEditButton?: boolean;
+    enableHeadings?: boolean;
   }>(),
   {
     labelClass: "",
     labelHidden: false,
     enableImageInsert: false,
     enableHtmlEditButton: true,
+    enableHeadings: false,
   }
 );
 
