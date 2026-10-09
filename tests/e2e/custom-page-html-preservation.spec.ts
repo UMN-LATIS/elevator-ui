@@ -204,6 +204,25 @@ test.describe("Custom page HTML preservation (#623)", () => {
     expect(storedBody).not.toContain("&nbsp;");
   });
 
+  test("text typed in the visual editor survives a trip through custom html", async ({
+    page,
+  }) => {
+    await page.goto("/instances/editPage/2");
+    const editor = page.locator(".ql-editor");
+    await expect(editor).toBeVisible();
+
+    await editor.click();
+    await editor.pressSequentially(" Closed on holidays.");
+
+    await customHtmlSwitch(page).click();
+    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+      /Closed on holidays\./
+    );
+    await customHtmlSwitch(page).click();
+
+    await expect(editor).toContainText("Closed on holidays.");
+  });
+
   test("script tags are removed on save without disturbing other markup", async ({
     page,
     request,
