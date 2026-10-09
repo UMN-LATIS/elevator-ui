@@ -5,8 +5,7 @@ import type { AdminUser } from "../../src/types";
 
 const app = new Hono<MockServerContext>();
 
-const PER_PAGE_CHOICES = [25, 50, 100];
-const DEFAULT_PER_PAGE = 100;
+const PER_PAGE = 100;
 
 function toAdminUser(user: MockUser): AdminUser {
   return {
@@ -24,14 +23,9 @@ function toAdminUser(user: MockUser): AdminUser {
   };
 }
 
-function toPage(rawPage: string | undefined): number {
+function parsePage(rawPage: string | undefined): number {
   const page = Number(rawPage);
   return Number.isInteger(page) && page > 0 ? page : 1;
-}
-
-function toPerPage(rawPerPage: string | undefined): number {
-  const perPage = Number(rawPerPage);
-  return PER_PAGE_CHOICES.includes(perPage) ? perPage : DEFAULT_PER_PAGE;
 }
 
 app.use("*", async (c, next) => {
@@ -51,16 +45,16 @@ app.get("/users", async (c) => {
   const db = c.get("db");
   const search = (c.req.query("search") ?? "").trim().toLowerCase();
   const userType = c.req.query("userType");
-  const isSuperAdmin = c.req.query("isSuperAdmin");
+  const rawIsSuperAdmin = c.req.query("isSuperAdmin");
 
   const errors: Record<string, string[]> = {};
   if (userType !== undefined && userType !== "Local" && userType !== "Remote") {
     errors.userType = ["Must be Local or Remote."];
   }
   if (
-    isSuperAdmin !== undefined &&
-    isSuperAdmin !== "true" &&
-    isSuperAdmin !== "false"
+    rawIsSuperAdmin !== undefined &&
+    rawIsSuperAdmin !== "true" &&
+    rawIsSuperAdmin !== "false"
   ) {
     errors.isSuperAdmin = ["Must be true or false."];
   }
@@ -73,25 +67,28 @@ app.get("/users", async (c) => {
       field?.toLowerCase().includes(search)
     );
 
+  const matchesUserType = (user: AdminUser): boolean =>
+    userType === undefined || user.userType === userType;
+
+  const matchesSuperAdminFilter = (user: AdminUser): boolean =>
+    rawIsSuperAdmin === undefined ||
+    user.isSuperAdmin === (rawIsSuperAdmin === "true");
+
   const matchingUsers = db.users
     .getAll()
     .map(toAdminUser)
     .filter((user) => search === "" || matchesSearch(user))
-    .filter((user) => userType === undefined || user.userType === userType)
-    .filter(
-      (user) =>
-        isSuperAdmin === undefined || String(user.isSuperAdmin) === isSuperAdmin
-    )
+    .filter(matchesUserType)
+    .filter(matchesSuperAdminFilter)
     .sort((left, right) => right.id - left.id);
 
-  const page = toPage(c.req.query("page"));
-  const perPage = toPerPage(c.req.query("perPage"));
-  const firstIndex = (page - 1) * perPage;
+  const page = parsePage(c.req.query("page"));
+  const firstIndex = (page - 1) * PER_PAGE;
 
   return c.json({
-    users: matchingUsers.slice(firstIndex, firstIndex + perPage),
+    users: matchingUsers.slice(firstIndex, firstIndex + PER_PAGE),
     page,
-    perPage,
+    perPage: PER_PAGE,
     total: matchingUsers.length,
   });
 });

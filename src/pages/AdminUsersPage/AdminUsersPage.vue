@@ -24,23 +24,17 @@
             </template>
           </InputGroup>
           <SelectGroup
-            :modelValue="params.userType ?? ALL"
+            :modelValue="userTypeChoice"
             label="User type"
             :showLabel="false"
             :options="USER_TYPE_OPTIONS"
-            @update:modelValue="
-              (choice) => setParams({ userType: parseUserType(choice) })
-            " />
+            @update:modelValue="filterByUserType" />
           <SelectGroup
-            :modelValue="
-              params.isSuperAdmin === null ? ALL : String(params.isSuperAdmin)
-            "
+            :modelValue="superAdminChoice"
             label="Super admin status"
             :showLabel="false"
             :options="SUPER_ADMIN_OPTIONS"
-            @update:modelValue="
-              (choice) => setParams({ isSuperAdmin: parseIsSuperAdmin(choice) })
-            " />
+            @update:modelValue="filterBySuperAdmin" />
         </template>
         <template #cell-user="{ row }">
           <a
@@ -74,9 +68,7 @@
           <span class="text-sm">{{ expiryLabelOf(row, now) }}</span>
         </template>
         <template #cell-createdAt="{ row }">
-          <span class="text-sm">
-            {{ row.createdAt && new Date(row.createdAt).toLocaleDateString() }}
-          </span>
+          <span class="text-sm">{{ createdDateOf(row) }}</span>
         </template>
       </DataTable>
     </PageContent>
@@ -109,16 +101,16 @@ import type {
 } from "@/types";
 
 const BASE_URL = config.instance.base.url;
-const ALL = "all";
+const ALL_OPTION_ID = "all";
 
 const USER_TYPE_OPTIONS: SelectOption[] = [
-  { id: ALL, label: "All types" },
+  { id: ALL_OPTION_ID, label: "All types" },
   { id: "Local", label: "Local" },
   { id: "Remote", label: "Remote" },
 ];
 
 const SUPER_ADMIN_OPTIONS: SelectOption[] = [
-  { id: ALL, label: "All users" },
+  { id: ALL_OPTION_ID, label: "All users" },
   { id: "true", label: "Super admins" },
   { id: "false", label: "Not super admins" },
 ];
@@ -146,17 +138,44 @@ const isFiltered = computed(
     params.value.isSuperAdmin !== null
 );
 
-const pagination = computed((): TablePagination | undefined => {
-  if (!data.value) return undefined;
-  const { page, perPage, total } = data.value;
-  return { page, perPage, total };
+const userTypeChoice = computed(
+  (): string => params.value.userType ?? ALL_OPTION_ID
+);
+
+const superAdminChoice = computed((): string => {
+  if (params.value.isSuperAdmin === null) return ALL_OPTION_ID;
+  return String(params.value.isSuperAdmin);
 });
 
-watch(data, (response) => {
-  const isPastLastPage = response?.users.length === 0 && response.total > 0;
-  if (!isPastLastPage) return;
-  setParams({ page: Math.ceil(response.total / response.perPage) });
+function filterByUserType(choice: string | null): void {
+  setParams({ userType: parseUserType(choice) });
+}
+
+function filterBySuperAdmin(choice: string | null): void {
+  setParams({ isSuperAdmin: parseIsSuperAdmin(choice) });
+}
+
+function createdDateOf(user: AdminUser): string | null {
+  if (!user.createdAt) return null;
+  return new Date(user.createdAt).toLocaleDateString();
+}
+
+const pagination = computed((): TablePagination | undefined => {
+  if (!data.value) return undefined;
+  const { perPage, total } = data.value;
+  return { page: params.value.page, perPage, total };
 });
+
+watch(
+  data,
+  (response) => {
+    if (!response) return;
+    const isPastLastPage = response.users.length === 0 && response.total > 0;
+    if (!isPastLastPage) return;
+    setParams({ page: Math.ceil(response.total / response.perPage) });
+  },
+  { immediate: true }
+);
 
 const searchInput = ref(params.value.search);
 

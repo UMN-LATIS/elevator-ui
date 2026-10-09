@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LocationQuery } from "vue-router";
-import { parseUserListParams, toUserListQuery } from "./userListParams";
+import { fromUserListQuery, toUserListQuery } from "./userListParams";
 import type { AdminUserListParams } from "@/types";
 
 const DEFAULTS: AdminUserListParams = {
@@ -10,10 +10,10 @@ const DEFAULTS: AdminUserListParams = {
   page: 1,
 };
 
-describe("parseUserListParams", () => {
+describe("fromUserListQuery", () => {
   it("reads valid values", () => {
     expect(
-      parseUserListParams({
+      fromUserListQuery({
         search: "smith",
         userType: "Remote",
         isSuperAdmin: "false",
@@ -36,7 +36,7 @@ describe("parseUserListParams", () => {
     ["a non-numeric page", { page: "abc" }],
     ["repeated keys", { search: ["a", "b"], userType: ["Local", "Remote"] }],
   ])("falls back to defaults for %s", (_case, query) => {
-    expect(parseUserListParams(query)).toEqual(DEFAULTS);
+    expect(fromUserListQuery(query)).toEqual(DEFAULTS);
   });
 });
 
@@ -50,7 +50,13 @@ describe("toUserListQuery", () => {
     });
   });
 
-  it("round-trips through parseUserListParams", () => {
+  it("leaves out a whitespace-only search", () => {
+    expect(
+      toUserListQuery({ ...DEFAULTS, search: "   " }).search
+    ).toBeUndefined();
+  });
+
+  it("round-trips through fromUserListQuery", () => {
     const params: AdminUserListParams = {
       search: "pat ",
       userType: "Local",
@@ -58,8 +64,8 @@ describe("toUserListQuery", () => {
       page: 2,
     };
 
-    expect(
-      parseUserListParams(toUserListQuery(params) as LocationQuery)
-    ).toEqual(params);
+    expect(fromUserListQuery(toUserListQuery(params) as LocationQuery)).toEqual(
+      params
+    );
   });
 });

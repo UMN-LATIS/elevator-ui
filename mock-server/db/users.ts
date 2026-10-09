@@ -126,21 +126,21 @@ const userSeeds: MockUser[] = [
     createdAt: "2025-02-11T14:45:00-06:00",
     permissions: { canSearchAndBrowse: true },
   },
-  ...Array.from({ length: 110 }, (_, index) => makeSsoUser(index + 1)),
+  ...Array.from({ length: 110 }, (_, index) => makeRemoteUser(index + 1)),
 ];
 
-function makeSsoUser(number: number): MockUser {
-  const paddedNumber = String(number).padStart(3, "0");
+function makeRemoteUser(sequenceNumber: number): MockUser {
+  const paddedNumber = String(sequenceNumber).padStart(3, "0");
   return {
-    id: 100 + number,
-    displayName: `SSO User ${paddedNumber}`,
-    username: `sso${paddedNumber}`,
-    password: `sso${paddedNumber}`,
+    id: 100 + sequenceNumber,
+    displayName: `Remote User ${paddedNumber}`,
+    username: `remote${paddedNumber}`,
+    password: `remote${paddedNumber}`,
     isInstanceAdmin: false,
     isSuperAdmin: false,
-    email: `sso${paddedNumber}@umn.edu`,
+    email: `remote${paddedNumber}@umn.edu`,
     userType: "Remote",
-    createdAt: new Date(Date.UTC(2025, 0, number)).toISOString(),
+    createdAt: new Date(Date.UTC(2025, 0, sequenceNumber)).toISOString(),
     permissions: { canSearchAndBrowse: true },
   };
 }

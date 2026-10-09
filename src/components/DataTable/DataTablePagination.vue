@@ -3,7 +3,10 @@
     v-if="pagination.total > 0"
     class="flex flex-wrap items-center justify-between gap-4 px-1 py-3">
     <p class="text-sm text-on-surface-variant">
-      Showing {{ firstShown }}–{{ lastShown }} of
+      Showing {{ firstRowNumber.toLocaleString() }}–{{
+        lastRowNumber.toLocaleString()
+      }}
+      of
       {{ pagination.total.toLocaleString() }}
       {{ pagination.total === 1 ? itemName.singular : itemName.plural }}
     </p>
@@ -76,14 +79,14 @@ const pageShownInPager = computed((): number =>
   Math.min(props.pagination.page, pageCount.value)
 );
 
-const firstShown = computed((): string =>
-  ((props.pagination.page - 1) * props.pagination.perPage + 1).toLocaleString()
+const firstRowNumber = computed(
+  (): number => (pageShownInPager.value - 1) * props.pagination.perPage + 1
 );
 
-const lastShown = computed((): string =>
+const lastRowNumber = computed((): number =>
   Math.min(
-    props.pagination.page * props.pagination.perPage,
+    pageShownInPager.value * props.pagination.perPage,
     props.pagination.total
-  ).toLocaleString()
+  )
 );
 </script>

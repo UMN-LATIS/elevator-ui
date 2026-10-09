@@ -28,7 +28,7 @@ function parsePage(value: string | null): number {
   return Number.isInteger(page) && page > 0 ? page : 1;
 }
 
-export function parseUserListParams(query: LocationQuery): AdminUserListParams {
+export function fromUserListQuery(query: LocationQuery): AdminUserListParams {
   return {
     search: singleValueOf(query.search) ?? "",
     userType: parseUserType(singleValueOf(query.userType)),
@@ -39,7 +39,7 @@ export function parseUserListParams(query: LocationQuery): AdminUserListParams {
 
 export function toUserListQuery(params: AdminUserListParams): LocationQueryRaw {
   return {
-    search: params.search || undefined,
+    search: params.search.trim() === "" ? undefined : params.search,
     userType: params.userType ?? undefined,
     isSuperAdmin:
       params.isSuperAdmin === null ? undefined : String(params.isSuperAdmin),
@@ -51,7 +51,7 @@ export function useUserListParams() {
   const route = useRoute();
   const router = useRouter();
 
-  const params = computed(() => parseUserListParams(route.query));
+  const params = computed(() => fromUserListQuery(route.query));
 
   function setParams(changes: Partial<AdminUserListParams>): void {
     router.replace({

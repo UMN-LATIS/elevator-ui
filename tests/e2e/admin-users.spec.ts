@@ -55,10 +55,18 @@ test.describe("Admin users page access", () => {
       adminSidebar(page).getByRole("link", { name: "Users", exact: true })
     ).toHaveCount(0);
 
+    const userListRequests: string[] = [];
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname.endsWith("/adminUsers/users")) {
+        userListRequests.push(request.url());
+      }
+    });
+
     await page.goto("/admin/users");
     await expect(
       page.getByRole("heading", { name: "Forbidden" })
     ).toBeVisible();
+    expect(userListRequests).toEqual([]);
   });
 });
 
@@ -108,7 +116,7 @@ test.describe("Admin users page", () => {
     });
 
     await page.goto("/admin/users");
-    await expect(rowFor(page, "SSO User 110")).toBeVisible();
+    await expect(rowFor(page, "Remote User 110")).toBeVisible();
 
     await page
       .getByLabel("Search users")
@@ -152,7 +160,7 @@ test.describe("Admin users page", () => {
       .selectOption({ label: "All users" });
 
     await expect(page).toHaveURL(/\/admin\/users$/);
-    await expect(rowFor(page, "SSO User 110")).toBeVisible();
+    await expect(rowFor(page, "Remote User 110")).toBeVisible();
     expect(statuses.every((status) => status === 200)).toBe(true);
   });
 
@@ -214,7 +222,7 @@ test.describe("Admin users page", () => {
 
     await expect(page).toHaveURL(/\/admin\/users$/);
     await expect(page.getByLabel("Search users")).toHaveValue("");
-    await expect(rowFor(page, "SSO User 110")).toBeVisible();
+    await expect(rowFor(page, "Remote User 110")).toBeVisible();
   });
 
   test("shows the loading, empty, and error states", async ({ page }) => {
