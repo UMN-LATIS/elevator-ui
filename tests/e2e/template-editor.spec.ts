@@ -41,7 +41,9 @@ test.describe("Template Editor", () => {
       ).toBeVisible();
     });
 
-    test("created template appears in the templates index", async ({ page }) => {
+    test("created template appears in the templates index", async ({
+      page,
+    }) => {
       await page.goto("/templates/edit");
       await page.getByLabel("Name").fill("Brand New Template");
       await page.getByRole("button", { name: "Save" }).click();
@@ -133,6 +135,27 @@ test.describe("Template Editor", () => {
         page.getByRole("button", { name: "Remove field" })
       ).toHaveCount(countBefore - 1);
     });
+
+    test("keeps the instance number when a field title is renamed", async ({
+      page,
+    }) => {
+      await page.goto(`/templates/edit/${SOME_FIELDS_ID}`);
+      await page
+        .getByRole("button", { name: "Options", exact: true })
+        .first()
+        .click();
+      await page.getByRole("button", { name: "Edit field title" }).click();
+      await page.getByRole("textbox", { name: "Field Title" }).fill("renamed");
+      await page.getByRole("button", { name: "Save field title" }).click();
+
+      const saveRequest = page.waitForRequest((r) =>
+        r.url().includes("/templates/update")
+      );
+      await page.getByRole("button", { name: "Save" }).click();
+
+      const body = new URLSearchParams((await saveRequest).postData() ?? "");
+      expect(body.get("widget[0][fieldTitle]")).toBe("renamed_1");
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -204,9 +227,7 @@ test.describe("Template Editor", () => {
       await page.goto(`/templates/edit/${SOME_FIELDS_ID}`);
       // "Some Fields" seed has modifiedAt: "2024-03-20T14:30:00+00:00"
       // We just need to confirm some date-like text is rendered.
-      await expect(
-        page.locator("[data-testid='last-modified']")
-      ).toBeVisible();
+      await expect(page.locator("[data-testid='last-modified']")).toBeVisible();
     });
   });
 
