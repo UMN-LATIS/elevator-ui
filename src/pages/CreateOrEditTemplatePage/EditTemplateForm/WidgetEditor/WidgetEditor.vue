@@ -123,7 +123,7 @@
             </label>
             <LockedInput
               :id="`field-title-${widget._tempId}`"
-              :modelValue="widget.fieldTitle ?? ''"
+              :modelValue="fieldTitleName"
               class="max-w-[260px]"
               inputClass="font-mono text-right"
               editLabel="Edit field title"
@@ -136,6 +136,11 @@
               autocomplete="off"
               :validate="validateFieldTitleUnique"
               @update:modelValue="onFieldTitleCommit">
+              <template #append>
+                <span class="font-mono text-xs text-on-surface-variant">
+                  {{ fieldTitleSuffix }}
+                </span>
+              </template>
               <template #help>
                 <div class="text-right">
                   <WarningIcon class="inline-block !size-3" />
@@ -160,6 +165,7 @@ import SegmentedControl from "@/components/SegmentedControl/SegmentedControl.vue
 import TextAreaGroup from "@/components/TextAreaGroup/TextAreaGroup.vue";
 import LockedInput from "@/components/LockedInput/LockedInput.vue";
 import FieldTypeSelect from "./FieldTypeSelect.vue";
+import { splitFieldTitle } from "./splitFieldTitle";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { ChevronRightIcon, WarningIcon } from "@/icons";
 import {
@@ -207,10 +213,24 @@ watch(
   }
 );
 
-function validateFieldTitleUnique(value: string): string {
+const fieldTitleName = computed(
+  () => splitFieldTitle(widget.value.fieldTitle ?? "").name
+);
+
+// Don't split a new widget's fieldTitle: it is unset until
+// a label is typed, so the save drops the _<id> (#683).
+const fieldTitleSuffix = computed(() => {
+  if (widget.value.widgetId !== undefined) {
+    return splitFieldTitle(widget.value.fieldTitle ?? "").instanceSuffix;
+  }
+  return instance.value ? `_${instance.value.id}` : "";
+});
+
+function validateFieldTitleUnique(name: string): string {
   invariant(editor, "Editor is required for field title validation");
+  const fieldTitle = name + fieldTitleSuffix.value;
   const conflict = editor.form.widgetArray.some(
-    (w, i) => i !== props.index && w.fieldTitle === value
+    (w, i) => i !== props.index && w.fieldTitle === fieldTitle
   );
   return conflict ? "Another field already uses this title." : "";
 }
@@ -220,8 +240,8 @@ const showOptions = computed({
   set: (val: boolean) => expansion?.setExpanded(widget.value._tempId, val),
 });
 
-function onFieldTitleCommit(value: string) {
-  widget.value.fieldTitle = value;
+function onFieldTitleCommit(name: string) {
+  widget.value.fieldTitle = name + fieldTitleSuffix.value;
 }
 
 const showTooltip = ref(!!widget.value.tooltip);
