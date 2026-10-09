@@ -369,6 +369,15 @@ const router = createRouter({
       },
     },
     {
+      name: "adminUsers",
+      path: "/admin/users",
+      component: () => import("@/pages/AdminUsersPage/AdminUsersPage.vue"),
+      meta: {
+        requiresAuth: true,
+        canAccess: (user: User) => user.isSuperAdmin,
+      },
+    },
+    {
       name: "adminCollections",
       path: "/admin/collections",
       component: () =>

@@ -244,6 +244,48 @@ describe("DataTable", () => {
     });
   });
 
+  describe("pagination", () => {
+    it("renders no pager without a pagination prop", () => {
+      const table = mountTable();
+
+      expect(table.find('[aria-label="Next Page"]').exists()).toBe(false);
+      expect(table.text()).not.toContain("Showing");
+    });
+
+    it("shows the range and asks for the next page", async () => {
+      const table = mountTable({
+        props: { pagination: { page: 1, perPage: 3, total: 8 } },
+      });
+
+      expect(table.text()).toContain("Showing 1–3 of 8 fruits");
+
+      await table.get('[aria-label="Next Page"]').trigger("click");
+
+      expect(table.emitted("update:page")).toEqual([[2]]);
+    });
+
+    it("offers no page sizes without perPageOptions", () => {
+      const table = mountTable({
+        props: { pagination: { page: 1, perPage: 3, total: 8 } },
+      });
+
+      expect(table.find("select").exists()).toBe(false);
+    });
+
+    it("asks for the chosen page size", async () => {
+      const table = mountTable({
+        props: {
+          pagination: { page: 1, perPage: 3, total: 8 },
+          perPageOptions: [3, 6],
+        },
+      });
+
+      await table.get("select").setValue("6");
+
+      expect(table.emitted("update:perPage")).toEqual([[6]]);
+    });
+  });
+
   describe("reveal", () => {
     it("clears the search, expands, and marks the row until its flash ends", async () => {
       const table = mountTable({
