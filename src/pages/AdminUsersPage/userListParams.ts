@@ -10,7 +10,7 @@ import type { AdminUserListParams, AdminUserType } from "@/types";
 const ADMIN_USER_TYPES: readonly AdminUserType[] = ["Local", "Remote"];
 
 export const PER_PAGE_OPTIONS: readonly number[] = [25, 50, 100];
-const DEFAULT_PER_PAGE = 100;
+const DEFAULT_PER_PAGE = 25;
 
 function singleValueOf(value: LocationQuery[string]): string | null {
   return typeof value === "string" ? value : null;

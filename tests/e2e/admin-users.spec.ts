@@ -168,11 +168,11 @@ test.describe("Admin users page", () => {
     page,
   }) => {
     await page.goto("/admin/users");
-    await expect(page.getByText("Showing 1–100 of 119 users")).toBeVisible();
+    await expect(page.getByText("Showing 1–25 of 119 users")).toBeVisible();
 
-    await page.getByRole("button", { name: "Page 2" }).click();
+    await page.getByRole("button", { name: "Page 5" }).click();
 
-    await expect(page).toHaveURL(/page=2/);
+    await expect(page).toHaveURL(/page=5/);
     await expect(page.getByText("Showing 101–119 of 119 users")).toBeVisible();
     await expect(rowFor(page, "Admin User")).toBeVisible();
 
@@ -185,17 +185,17 @@ test.describe("Admin users page", () => {
 
   test("a page size change returns to page 1", async ({ page }) => {
     await page.goto("/admin/users?page=2");
-    await expect(page.getByText("Showing 101–119 of 119 users")).toBeVisible();
+    await expect(page.getByText("Showing 26–50 of 119 users")).toBeVisible();
 
     await page
       .getByLabel("Rows per page")
-      .selectOption({ label: "25 per page" });
+      .selectOption({ label: "100 per page" });
 
-    await expect(page).toHaveURL(/perPage=25/);
+    await expect(page).toHaveURL(/perPage=100/);
     await expect(page).not.toHaveURL(/[?&]page=/);
-    await expect(page.getByText("Showing 1–25 of 119 users")).toBeVisible();
-    await expect(userRows(page)).toHaveCount(25);
-    await expect(page.getByRole("button", { name: "Page 5" })).toBeVisible();
+    await expect(page.getByText("Showing 1–100 of 119 users")).toBeVisible();
+    await expect(userRows(page)).toHaveCount(100);
+    await expect(page.getByRole("button", { name: "Page 2" })).toBeVisible();
   });
 
   test("a page number past the end jumps to the last page", async ({
@@ -203,7 +203,7 @@ test.describe("Admin users page", () => {
   }) => {
     await page.goto("/admin/users?page=40");
 
-    await expect(page).toHaveURL(/page=2/);
+    await expect(page).toHaveURL(/page=5/);
     await expect(page.getByText("Showing 101–119 of 119 users")).toBeVisible();
   });
 

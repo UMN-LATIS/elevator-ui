@@ -8,7 +8,7 @@ const DEFAULTS: AdminUserListParams = {
   userType: null,
   isSuperAdmin: null,
   page: 1,
-  perPage: 100,
+  perPage: 25,
 };
 
 describe("fromUserListQuery", () => {
@@ -19,14 +19,14 @@ describe("fromUserListQuery", () => {
         userType: "Remote",
         isSuperAdmin: "false",
         page: "3",
-        perPage: "25",
+        perPage: "100",
       })
     ).toEqual({
       search: "smith",
       userType: "Remote",
       isSuperAdmin: false,
       page: 3,
-      perPage: 25,
+      perPage: 100,
     });
   });
 

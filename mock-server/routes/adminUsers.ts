@@ -6,7 +6,7 @@ import type { AdminUser } from "../../src/types";
 const app = new Hono<MockServerContext>();
 
 const PER_PAGE_OPTIONS = [25, 50, 100];
-const DEFAULT_PER_PAGE = 100;
+const DEFAULT_PER_PAGE = 25;
 
 function toAdminUser(user: MockUser): AdminUser {
   return {
