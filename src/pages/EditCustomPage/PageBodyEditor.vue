@@ -114,14 +114,19 @@ const simplification = computed(() =>
 const quillSeedHtml = ref(props.html);
 let htmlLastReported = props.html;
 
-watch([() => props.markupStyle.name, () => props.html], ([styleName]) => {
-  // reseed for a body that came from anywhere but this editor: a switch
-  // into simple formatting, an undo, a page that finished loading late
-  if (styleName !== "simpleFormatting") return;
-  if (props.html === htmlLastReported) return;
+watch(
+  [() => props.markupStyle.name, () => props.html],
+  ([styleName], [previousStyleName]) => {
+    // reseed for a body that came from anywhere but this editor: a switch
+    // into simple formatting, an undo, a page that finished loading late
+    if (styleName !== "simpleFormatting") return;
+    const isSwitchingIntoSimpleFormatting = previousStyleName !== styleName;
+    if (!isSwitchingIntoSimpleFormatting && props.html === htmlLastReported)
+      return;
 
-  quillSeedHtml.value = props.html;
-});
+    quillSeedHtml.value = props.html;
+  }
+);
 
 function reportSourceEdit(event: Event): void {
   emit("update:html", (event.target as HTMLTextAreaElement).value);
