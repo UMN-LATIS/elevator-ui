@@ -1,5 +1,6 @@
 import type {
   AdminCollectionDetail,
+  AdminUser,
   PermissionsGroupEntry,
 } from "../src/types";
 
@@ -11,9 +12,14 @@ export interface MockUser {
   isInstanceAdmin: boolean;
   isSuperAdmin: boolean;
   email?: string;
+  emplid?: string;
   // Remote marks a user provisioned from the directory rather than
   // created locally
   userType?: "Local" | "Remote";
+  hasExpiry?: boolean;
+  expires?: string;
+  createdAt?: string;
+  instance?: AdminUser["instance"];
   permissions: {
     canManageAssets?: boolean;
     canCreateDrawers?: boolean;
