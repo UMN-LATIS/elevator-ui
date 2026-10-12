@@ -26,6 +26,7 @@
       <AppMenuItem :href="exportToCSVUrl">Export to CSV</AppMenuItem>
       <template v-if="currentUser.isSuperAdmin">
         <Divider />
+        <AppMenuItem to="/admin/users">Users</AppMenuItem>
         <AppMenuItem :href="`${BASE_URL}/admin`">Super Admin 🦸‍♀️</AppMenuItem>
         <AppMenuItem :href="`${BASE_URL}/admin/logs`">Logs</AppMenuItem>
       </template>

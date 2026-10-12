@@ -121,6 +121,13 @@
         </TableBody>
       </Table>
     </div>
+    <DataTablePagination
+      v-if="pagination"
+      :pagination="pagination"
+      :itemName="itemName"
+      :perPageOptions="perPageOptions"
+      @update:page="emit('update:page', $event)"
+      @update:perPage="emit('update:perPage', $event)" />
   </div>
 </template>
 
@@ -140,11 +147,13 @@ import {
 import { tryFocus } from "@/helpers/tryFocus";
 import ChevronRightIcon from "@/icons/ChevronRightIcon.vue";
 import DataTableHead from "./DataTableHead.vue";
+import DataTablePagination from "./DataTablePagination.vue";
 import { defaultSortOf, searchRows, sortRows } from "./tableRows";
 import type {
   DataTableColumn,
   ItemName,
   SearchableValue,
+  TablePagination,
   TableSort,
 } from "@/types";
 
@@ -158,6 +167,8 @@ const props = withDefaults(
     canExpand?: (row: TRow) => boolean;
     rowName?: (row: TRow) => string;
     isRowDeleting?: (row: TRow) => boolean;
+    pagination?: TablePagination;
+    perPageOptions?: readonly number[];
   }>(),
   {
     status: "success",
@@ -165,8 +176,15 @@ const props = withDefaults(
     canExpand: () => false,
     rowName: undefined,
     isRowDeleting: () => false,
+    pagination: undefined,
+    perPageOptions: undefined,
   }
 );
+
+const emit = defineEmits<{
+  "update:page": [page: number];
+  "update:perPage": [perPage: number];
+}>();
 
 const slots = defineSlots<{
   [cellSlot: `cell-${string}`]: (props: { row: TRow }) => unknown;

@@ -42,7 +42,7 @@ app.get("/getInstanceNav", async (c) => {
     // user fields
     userId: user?.id ?? null,
     userDisplayName: user?.displayName ?? null,
-    userIsAdmin: user?.isInstanceAdmin ?? false,
+    userIsAdmin: Boolean(user?.isInstanceAdmin || user?.isSuperAdmin),
     userIsSuperAdmin: user?.isSuperAdmin ?? false,
     userCanEditTemplates:
       user?.isInstanceAdmin ||

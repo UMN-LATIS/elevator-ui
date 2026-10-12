@@ -28,6 +28,13 @@ export interface TableSort {
   direction: SortDirection;
 }
 
+/** `page` starts at 1. */
+export interface TablePagination {
+  page: number;
+  perPage: number;
+  total: number;
+}
+
 export interface DataTableHandle {
   reveal: (
     rowId: string | number,

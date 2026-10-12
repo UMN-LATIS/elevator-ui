@@ -57,6 +57,11 @@
           </SidebarNavItem>
         </li>
         <li v-if="currentUser?.isSuperAdmin">
+          <SidebarNavItem :to="{ name: 'adminUsers' }" :icon="UsersIcon">
+            Users
+          </SidebarNavItem>
+        </li>
+        <li v-if="currentUser?.isSuperAdmin">
           <SidebarNavItem :href="`${BASE_URL}/admin`" :icon="ShieldIcon">
             Super Admin
           </SidebarNavItem>
@@ -83,6 +88,7 @@ import {
   Settings as SettingsIcon,
   ScrollText as ScrollTextIcon,
   Shield as ShieldIcon,
+  Users as UsersIcon,
 } from "lucide-vue-next";
 import SidebarNavItem from "./SidebarNavItem.vue";
 import { useCurrentUser } from "@/composables/useCurrentUser";

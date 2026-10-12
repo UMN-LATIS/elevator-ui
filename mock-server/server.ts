@@ -9,6 +9,7 @@ import { db, getOrCreateWorkerDb } from "./db/index";
 
 import adminCollectionsRoutes from "./routes/adminCollections";
 import adminPermissionsRoutes from "./routes/adminPermissions";
+import adminUsersRoutes from "./routes/adminUsers";
 import assetRoutes from "./routes/assets";
 import collectionRoutes from "./routes/collections";
 import searchRoutes from "./routes/search";
@@ -94,6 +95,7 @@ app.route("/defaultinstance/drawers", drawerRoutes);
 app.route("/defaultinstance/drawerPermissions", drawerPermissionsRoutes);
 app.route("/defaultinstance/adminCollections", adminCollectionsRoutes);
 app.route("/defaultinstance/adminPermissions", adminPermissionsRoutes);
+app.route("/defaultinstance/adminUsers", adminUsersRoutes);
 app.route("/defaultinstance/permissions", permissionsRoutes);
 app.route("/defaultinstance/loginManager", authRoutes);
 app.route("/defaultinstance/fileManager", fileRoutes);
