@@ -166,8 +166,8 @@ function createdDateOf(user: AdminUser): string | null {
 
 const pagination = computed((): TablePagination | undefined => {
   if (!data.value) return undefined;
-  const { page, perPage } = params.value;
-  return { page, perPage, total: data.value.total };
+  const { page, perPage, total } = data.value;
+  return { page, perPage, total };
 });
 
 watch(
