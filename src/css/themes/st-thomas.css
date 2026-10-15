@@ -78,17 +78,10 @@
   --inverse-on-surface: oklch(95% 0.005 260);
   --inverse-primary: oklch(75% 0.12 310);
 
+  --app-header: var(--primary);
+  --on-app-header: var(--on-primary);
+
   /* Theme-specific styles */
-  .app-header {
-    background-color: var(--primary);
-    color: var(--on-primary);
-  }
-
-
-  & :is(.app-header__logo-link, .app-header__wordmark,.app-logo-mark) {
-    color: var(--on-primary);
-  }
-
   /* Override font family */
   & body {
     font-family: Lato, "Helvetica Neue", sans-serif;

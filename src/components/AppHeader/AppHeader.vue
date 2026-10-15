@@ -1,6 +1,9 @@
 <template>
+  <!-- Swapping [background:…] for a bg-* utility writes background-color,
+       which can't hold the gradients barbie, hotrod, and vaporwave set,
+       so those headers turn transparent. -->
   <header
-    class="app-header flex flex-col bg-surface-container-high text-on-surface border-0 border-b border-outline-variant">
+    class="app-header flex flex-col [background:var(--app-header)] [color:var(--on-app-header)] border-0 border-b border-outline-variant">
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
         <Link

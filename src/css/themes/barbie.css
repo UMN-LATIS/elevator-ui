@@ -82,9 +82,10 @@
   --font-display: "Pacifico", cursive;
   --font-body: "Nunito", sans-serif;
 
+  --app-header: linear-gradient(135deg, oklch(58% 0.25 340), oklch(62% 0.22 355));
+  --on-app-header: oklch(98% 0.01 340);
+
   .app-header {
-    background: linear-gradient(135deg, oklch(58% 0.25 340), oklch(62% 0.22 355));
-    color: oklch(98% 0.01 340);
     border-bottom: 3px solid oklch(75% 0.15 340);
   }
 

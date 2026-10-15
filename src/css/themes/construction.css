@@ -85,9 +85,10 @@
   --font-display: "Oswald", sans-serif;
   --font-body: "Barlow", sans-serif;
 
+  --app-header: oklch(12% 0.01 80);
+  --on-app-header: oklch(88% 0.18 95);
+
   .app-header {
-    background: oklch(12% 0.01 80);
-    color: oklch(88% 0.18 95);
     border-bottom: 4px solid oklch(72% 0.2 55);
   }
 

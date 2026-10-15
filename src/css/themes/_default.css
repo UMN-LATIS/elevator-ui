@@ -151,6 +151,9 @@
     75% 0.15 250
   ); /* interactive elements on inverse surfaces */
 
+  --app-header: var(--surface);
+  --on-app-header: var(--on-surface);
+
   /* ============================================
    * UTILITY
    * ============================================ */
@@ -161,11 +164,4 @@
   --font-display: "Work Sans", sans-serif;
   --font-body: "Work Sans", sans-serif;
   --font-code: "Fira Sans", monospace;
-}
-
-[data-theme="light"] {
-  .app-header {
-    background: var(--surface);
-    color: var(--on-surface);
-  }
 }

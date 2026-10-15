@@ -77,20 +77,16 @@
   --font-display: "Arial Black", sans-serif;
   --font-body: monospace;
 
+  --app-header: var(--primary);
+  --on-app-header: var(--on-primary);
+
   .app-header {
-    background: var(--primary);
-    color: var(--on-primary);
     border-bottom: 6px solid var(--primary);
 
     & .app-header__logo-link {
       font-family: var(--font-display);
       font-size: 1.5rem;
       text-transform: uppercase;
-      color: var(--on-primary);
-
-      & .text-on-surface {
-        color: inherit;
-      }
     }
   }
 }
