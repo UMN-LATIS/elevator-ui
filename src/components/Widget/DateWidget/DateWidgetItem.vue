@@ -1,21 +1,18 @@
 <template>
-  <ClickToSearchLink :widget="widget" :linkText="dateString">
-    <template v-if="dateContent.label">
-      <Tuple :label="dateContent.label" variant="inline">
-        {{ dateString }}
-      </Tuple>
-    </template>
-    <template v-else>
+  <div class="flex flex-col">
+    <ClickToSearchLink :widget="widget" :linkText="dateString">
       {{ dateString }}
-    </template>
-  </ClickToSearchLink>
+    </ClickToSearchLink>
+    <span v-if="dateContent.label" class="text-sm">
+      {{ dateContent.label }}
+    </span>
+  </div>
 </template>
 
 <script setup lang="ts">
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 import { computed } from "vue";
 import { DateWidgetDef, DateWidgetContent } from "@/types";
-import Tuple from "@/components/Tuple/Tuple.vue";
 
 interface Props {
   dateContent: DateWidgetContent;
