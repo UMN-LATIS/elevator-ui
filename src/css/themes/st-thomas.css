@@ -81,7 +81,6 @@
   --app-header: var(--primary);
   --on-app-header: var(--on-primary);
 
-  /* Theme-specific styles */
   /* Override font family */
   & body {
     font-family: Lato, "Helvetica Neue", sans-serif;
