@@ -10,7 +10,7 @@ function dateEntry(page: Page, date: string) {
   return page.locator("li").filter({ hasText: date });
 }
 
-async function renderedLinesOf(entry: Locator, text: string) {
+async function layoutOf(entry: Locator, text: string) {
   return entry.evaluate((element, text) => {
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
     let node: Text | null = null;
@@ -40,8 +40,14 @@ async function renderedLinesOf(entry: Locator, text: string) {
         lines.push({ top, text: node.data[i] });
       }
     }
+    const whole = document.createRange();
+    whole.setStart(node, start);
+    whole.setEnd(node, start + text.length);
+    const box = whole.getBoundingClientRect();
     return {
       lines: lines.map((line) => line.text.trim()),
+      top: box.top,
+      bottom: box.bottom,
       textTransform: getComputedStyle(parent).textTransform,
     };
   }, text);
@@ -55,13 +61,13 @@ test.describe("Date widget entry with a label", () => {
     await page.goto(`/asset/viewAsset/${ASSET_ID}`);
   });
 
-  test("shows the date first, then the label in normal case", async ({
-    page,
-  }) => {
+  test("shows the date above its label, in normal case", async ({ page }) => {
     const entry = dateEntry(page, "1904-08-11");
+    await expect(entry).toBeVisible();
 
-    await expect(entry).toHaveText(`1904-08-11 ${SHORT_LABEL}`);
-    const label = await renderedLinesOf(entry, SHORT_LABEL);
+    const date = await layoutOf(entry, "1904-08-11");
+    const label = await layoutOf(entry, SHORT_LABEL);
+    expect(date.bottom).toBeLessThanOrEqual(label.top);
     expect(label.textTransform).toBe("none");
   });
 
@@ -69,7 +75,7 @@ test.describe("Date widget entry with a label", () => {
     const entry = dateEntry(page, "1904-08-11");
     await expect(entry).toBeVisible();
 
-    const date = await renderedLinesOf(entry, "1904-08-11");
+    const date = await layoutOf(entry, "1904-08-11");
     expect(date.lines).toEqual(["1904-08-11"]);
   });
 
@@ -79,10 +85,10 @@ test.describe("Date widget entry with a label", () => {
     const entry = dateEntry(page, "1904-10-02");
     await expect(entry).toBeVisible();
 
-    const date = await renderedLinesOf(entry, "1904-10-02");
+    const date = await layoutOf(entry, "1904-10-02");
     expect(date.lines).toEqual(["1904-10-02"]);
 
-    const label = await renderedLinesOf(entry, LONG_LABEL);
+    const label = await layoutOf(entry, LONG_LABEL);
     expect(label.lines.length).toBeGreaterThanOrEqual(3);
     expect(label.lines.join(" ")).toBe(LONG_LABEL);
   });

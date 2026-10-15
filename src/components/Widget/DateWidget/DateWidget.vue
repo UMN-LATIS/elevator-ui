@@ -1,5 +1,5 @@
 <template>
-  <ul>
+  <ul class="flex flex-col gap-2">
     <li v-for="(content, key) in contents" :key="key">
       <DateWidgetItem :dateContent="content" :widget="widget"></DateWidgetItem>
     </li>

@@ -1,13 +1,12 @@
 <template>
-  <ClickToSearchLink :widget="widget" :linkText="dateString">
-    <span class="whitespace-nowrap">{{ dateString }}</span>
-  </ClickToSearchLink>
-  <template v-if="dateContent.label">
-    <!-- Deleting this space runs the date into the label, because Vue drops
-      whitespace that spans a newline; date-widget-label.spec.ts then fails -->
-    {{ " " }}
-    <span class="text-sm">{{ dateContent.label }}</span>
-  </template>
+  <div class="flex flex-col">
+    <ClickToSearchLink :widget="widget" :linkText="dateString">
+      <span class="whitespace-nowrap">{{ dateString }}</span>
+    </ClickToSearchLink>
+    <span v-if="dateContent.label" class="text-sm">
+      {{ dateContent.label }}
+    </span>
+  </div>
 </template>
 
 <script setup lang="ts">
