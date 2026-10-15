@@ -467,6 +467,44 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
+  // Without firstFileHandlerId the view page drops its sidebar, and
+  // date-widget-label.spec.ts stops covering the narrow layout from #694.
+  {
+    ...baseAsset,
+    title_1: [{ isPrimary: false, fieldContents: "Labeled Date Asset" }],
+    date_1: [
+      {
+        isPrimary: false,
+        label: "Battle of Ohamakari (Waterberg)",
+        start: { text: "1904-08-11", numeric: "-2063577600" },
+        end: { text: "", numeric: null },
+      },
+      {
+        isPrimary: false,
+        label:
+          "Proclamation issued by the commander of the colonial forces ordering the expulsion of the Ovaherero people from the territory and refusing their surrender",
+        start: { text: "1904-10-02", numeric: "-2059084800" },
+        end: { text: "", numeric: null },
+      },
+      {
+        isPrimary: false,
+        label: "",
+        start: { text: "1907-03-31", numeric: "-1980460800" },
+        end: { text: "", numeric: null },
+      },
+    ],
+    assetId: "labeled_date_asset_001",
+    firstFileHandlerId: "handler_labeled_date_001",
+    title: ["Labeled Date Asset"],
+    templateId: 99,
+    modified: {
+      date: "2026-10-15 12:00:00.000000",
+      timezone_type: 3,
+      timezone: "UTC",
+    },
+    collectionId: 1,
+    modifiedBy: 1,
+  },
   // Auth-required asset for testing 401 / login-redirect flows
   {
     ...baseAsset,
