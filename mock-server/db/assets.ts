@@ -467,9 +467,9 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
-  // Without firstFileHandlerId the view page renders
-  // MetaDataOnlyView, so date-widget-label.spec.ts
-  // no longer tests the sidebar layout from #694.
+  // Without firstFileHandlerId the page renders the wider
+  // MetaDataOnlyView, the long label fits on two lines,
+  // and the wrap test in date-widget-label.spec.ts fails.
   {
     ...baseAsset,
     title_1: [{ isPrimary: false, fieldContents: "Labeled Date Asset" }],
@@ -497,7 +497,7 @@ const assetSeeds: WithMeta<Asset>[] = [
     assetId: "labeled_date_asset_001",
     firstFileHandlerId: "handler_labeled_date_001",
     title: ["Labeled Date Asset"],
-    templateId: 99,
+    templateId: 3,
     modified: {
       date: "2026-10-15 12:00:00.000000",
       timezone_type: 3,

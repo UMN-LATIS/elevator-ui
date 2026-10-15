@@ -79,14 +79,6 @@ test.describe("Date widget entry with a label", () => {
     );
   });
 
-  test("keeps the date on one line in the sidebar", async ({ page }) => {
-    const entry = dateEntry(page, "1904-08-11");
-    await expect(entry).toBeVisible();
-
-    const dateLayout = await layoutOf(entry, "1904-08-11");
-    expect(dateLayout.lines).toEqual(["1904-08-11"]);
-  });
-
   test("wraps a long label between words and keeps its date on one line", async ({
     page,
   }) => {

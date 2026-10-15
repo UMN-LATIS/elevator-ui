@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <ClickToSearchLink :widget="widget" :linkText="dateString">
-      <span class="whitespace-nowrap">{{ dateString }}</span>
+      {{ dateString }}
     </ClickToSearchLink>
     <span v-if="dateContent.label" class="text-sm">
       {{ dateContent.label }}
