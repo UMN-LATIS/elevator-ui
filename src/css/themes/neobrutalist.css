@@ -88,8 +88,8 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-body: "Inter", sans-serif;
 
-  --app-header: oklch(85% 0.16 85);
-  --on-app-header: oklch(8% 0 0);
+  --app-header-container: oklch(85% 0.16 85);
+  --on-app-header-container: oklch(8% 0 0);
 
   /* ===========================================
    * NEOBRUTALIST HARD SHADOW UTILITY

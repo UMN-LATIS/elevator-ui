@@ -72,8 +72,8 @@
   --scrim: oklch(0% 0 0 / 0.5); /* modal overlays (use with alpha) */
   --shadow: oklch(0% 0 0 / 0.5); /* elevation shadows (use with alpha) */
 
-  --app-header: var(--primary);
-  --on-app-header: var(--on-primary);
+  --app-header-container: var(--primary);
+  --on-app-header-container: var(--on-primary);
 
   .app-header {
     border-bottom: 2px solid var(--outline-variant);

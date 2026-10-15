@@ -83,8 +83,8 @@
   --font-display: "Share Tech Mono", monospace;
   --font-body: "Source Code Pro", monospace;
 
-  --app-header: oklch(8% 0.02 145);
-  --on-app-header: oklch(78% 0.22 145);
+  --app-header-container: oklch(8% 0.02 145);
+  --on-app-header-container: oklch(78% 0.22 145);
 
   .app-header {
     border-bottom: 1px solid oklch(40% 0.15 145);

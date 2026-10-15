@@ -92,8 +92,8 @@
   --font-display: "Red Hat Display", sans-serif;
   --font-body: "Red Hat Text", sans-serif;
 
-  --app-header: var(--badger-red);
-  --on-app-header: white;
+  --app-header-container: var(--badger-red);
+  --on-app-header-container: white;
 
   .app-header {
     border-bottom: 3px solid var(--badger-dark);

@@ -80,7 +80,7 @@
   --font-display: "Press Start 2P", monospace;
   --font-body: "VT323", monospace;
 
-  --app-header: var(--surface-container-high);
+  --app-header-container: var(--surface-container-high);
 
   & body {
     font-family: "VT323", monospace;

@@ -87,8 +87,8 @@
   --font-display: "Orbitron", sans-serif;
   --font-body: "Exo 2", sans-serif;
 
-  --app-header: oklch(6% 0.02 240);
-  --on-app-header: oklch(82% 0.14 195);
+  --app-header-container: oklch(6% 0.02 240);
+  --on-app-header-container: oklch(82% 0.14 195);
 
   .app-header {
     border-bottom: 1px solid oklch(60% 0.12 195 / 0.6);

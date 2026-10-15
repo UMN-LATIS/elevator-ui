@@ -1,6 +1,6 @@
 <template>
   <header
-    class="app-header flex flex-col [background:var(--app-header)] [color:var(--on-app-header)] border-0 border-b border-outline-variant">
+    class="app-header flex flex-col [background:var(--app-header-container)] [color:var(--on-app-header-container)] border-0 border-b border-outline-variant">
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
         <Link

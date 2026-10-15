@@ -151,8 +151,8 @@
     75% 0.15 250
   ); /* interactive elements on inverse surfaces */
 
-  --app-header: var(--surface);
-  --on-app-header: var(--on-surface);
+  --app-header-container: var(--surface);
+  --on-app-header-container: var(--on-surface);
 
   /* ============================================
    * UTILITY

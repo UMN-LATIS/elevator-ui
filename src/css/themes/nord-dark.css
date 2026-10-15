@@ -86,8 +86,8 @@
   --font-body: "DM Sans", sans-serif;
   --font-code: "JetBrains Mono", monospace;
 
-  --app-header: oklch(22% 0.02 245);
-  --on-app-header: oklch(92% 0.01 240);
+  --app-header-container: oklch(22% 0.02 245);
+  --on-app-header-container: oklch(92% 0.01 240);
 
   .app-header {
     border-bottom: 1px solid oklch(35% 0.02 240);

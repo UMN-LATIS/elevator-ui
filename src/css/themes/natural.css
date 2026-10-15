@@ -82,8 +82,8 @@
   --font-display: "Fraunces Variable", serif;
   --font-body: "Outfit", sans-serif;
 
-  --app-header: oklch(30% 0.06 155);
-  --on-app-header: oklch(93% 0.02 85);
+  --app-header-container: oklch(30% 0.06 155);
+  --on-app-header-container: oklch(93% 0.02 85);
 
   .app-header {
     border-bottom: 2px solid oklch(40% 0.05 130);

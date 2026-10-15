@@ -82,8 +82,8 @@
   --font-display: "Russo One", sans-serif;
   --font-body: "Chakra Petch", sans-serif;
 
-  --app-header: linear-gradient(135deg, oklch(10% 0.01 30), oklch(18% 0.06 35));
-  --on-app-header: oklch(72% 0.2 50);
+  --app-header-container: linear-gradient(135deg, oklch(10% 0.01 30), oklch(18% 0.06 35));
+  --on-app-header-container: oklch(72% 0.2 50);
 
   .app-header {
     border-bottom: 3px solid oklch(52% 0.22 25);
