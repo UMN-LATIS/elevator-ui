@@ -92,19 +92,15 @@
   --font-display: "Red Hat Display", sans-serif;
   --font-body: "Red Hat Text", sans-serif;
 
+  --app-header-container: var(--badger-red);
+  --on-app-header-container: white;
+
   .app-header {
-    background: var(--badger-red);
-    color: white;
     border-bottom: 3px solid var(--badger-dark);
 
     & .app-header__logo-link {
       font-family: var(--font-display);
       font-size: 1.5rem;
-      color: var(--on-primary);
-
-      & .text-on-surface {
-        color: inherit;
-      }
     }
   }
 

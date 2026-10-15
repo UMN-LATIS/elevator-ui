@@ -1,5 +1,5 @@
 <template>
-  <div class="app-logo-mark flex gap-2 items-center text-on-surface">
+  <div class="app-logo-mark flex gap-2 items-center">
     <img
       v-if="instance?.logoImg"
       :src="instance.logoImg.src"

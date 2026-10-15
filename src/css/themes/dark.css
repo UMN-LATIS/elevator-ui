@@ -99,6 +99,8 @@
    * ============================================ */
   --scrim: oklch(0% 0 0 / 0.7);
   --shadow: oklch(0% 0 0 / 0.8);
+
+  --app-header-container: var(--surface-container-high);
 }
 
 /* Attribution control - all states */

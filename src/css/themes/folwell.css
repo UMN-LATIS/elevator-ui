@@ -155,9 +155,10 @@
   --font-body: "Work Sans", sans-serif;
   --font-code: "Fira Sans", monospace;
 
+  --app-header-container: var(--gold-light);
+
   .app-header {
     border-top: 0.25rem solid var(--gold-dark);
-    background: var(--gold-light);
     border-bottom: 2px solid var(--outline-variant);
   }
 

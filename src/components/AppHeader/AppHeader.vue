@@ -1,9 +1,11 @@
 <template>
   <header
-    class="app-header flex flex-col bg-surface-container-high text-on-surface border-0 border-b border-outline-variant">
+    class="app-header flex flex-col [background:var(--app-header-container)] [color:var(--on-app-header-container)] border-0 border-b border-outline-variant">
     <div class="flex justify-between items-center md:gap-8 px-4 py-2">
       <div class="flex gap-2 items-center">
-        <Link to="/" class="app-header__logo-link hover:no-underline mr-4">
+        <Link
+          to="/"
+          class="app-header__logo-link text-inherit hover:no-underline mr-4">
           <AppLogoMark />
         </Link>
       </div>

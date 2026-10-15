@@ -83,9 +83,10 @@
   --font-display: "Megrim", cursive;
   --font-body: "Quicksand", sans-serif;
 
+  --app-header-container: linear-gradient(135deg, oklch(30% 0.15 340), oklch(25% 0.12 280));
+  --on-app-header-container: var(--on-surface);
+
   .app-header {
-    background: linear-gradient(135deg, oklch(30% 0.15 340), oklch(25% 0.12 280));
-    color: var(--on-surface);
     border-bottom: 2px solid oklch(60% 0.2 340 / 0.4);
   }
 
