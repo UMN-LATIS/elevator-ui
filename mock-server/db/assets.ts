@@ -467,8 +467,9 @@ const assetSeeds: WithMeta<Asset>[] = [
     collectionId: 1,
     modifiedBy: 1,
   },
-  // Without firstFileHandlerId the view page drops its sidebar, and
-  // date-widget-label.spec.ts stops covering the narrow layout from #694.
+  // Without firstFileHandlerId the view page renders
+  // MetaDataOnlyView, so date-widget-label.spec.ts
+  // no longer tests the sidebar layout from #694.
   {
     ...baseAsset,
     title_1: [{ isPrimary: false, fieldContents: "Labeled Date Asset" }],
