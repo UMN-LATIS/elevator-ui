@@ -1,21 +1,19 @@
 <template>
   <ClickToSearchLink :widget="widget" :linkText="dateString">
-    <template v-if="dateContent.label">
-      <Tuple :label="dateContent.label" variant="inline">
-        {{ dateString }}
-      </Tuple>
-    </template>
-    <template v-else>
-      {{ dateString }}
-    </template>
+    <span class="whitespace-nowrap">{{ dateString }}</span>
   </ClickToSearchLink>
+  <template v-if="dateContent.label">
+    <!-- Deleting this space runs the date into the label, because Vue drops
+      whitespace that spans a newline; date-widget-label.spec.ts then fails -->
+    {{ " " }}
+    <span class="text-sm">{{ dateContent.label }}</span>
+  </template>
 </template>
 
 <script setup lang="ts">
 import ClickToSearchLink from "@/components/ClickToSearchLink/ClickToSearchLink.vue";
 import { computed } from "vue";
 import { DateWidgetDef, DateWidgetContent } from "@/types";
-import Tuple from "@/components/Tuple/Tuple.vue";
 
 interface Props {
   dateContent: DateWidgetContent;
