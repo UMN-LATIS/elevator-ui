@@ -162,17 +162,21 @@ const {
   addTags: ["style"],
 });
 
+// Watching `pageData` itself reloads on every refetch,
+// replacing unsaved edits ("a background refetch keeps
+// the admin's unsaved edits" fails).
 watch(
-  pageData,
-  (newData) => {
-    if (newData) {
-      form.value = {
-        title: newData.title,
-        parent: newData.parentId,
-        includeInHeader: newData.includeInHeader,
-      };
-      loadStoredBody(newData.body);
-    }
+  () => pageData.value?.id,
+  () => {
+    const loadedPage = pageData.value;
+    if (!loadedPage) return;
+
+    form.value = {
+      title: loadedPage.title,
+      parent: loadedPage.parentId,
+      includeInHeader: loadedPage.includeInHeader,
+    };
+    loadStoredBody(loadedPage.body);
   },
   { immediate: true }
 );
