@@ -14,7 +14,7 @@
     <Transition name="fade">
       <div v-if="isFileMetaDataReady">
         <Tuple label="Description" class="mb-6">
-          <SanitizedHTML v-if="fileDescription" :html="fileDescription" />
+          <InstanceHTML v-if="fileDescription" :html="fileDescription" />
           <template v-else>-</template>
         </Tuple>
 
@@ -72,7 +72,7 @@ import Modal from "../Modal/Modal.vue";
 import { FileMetaData } from "@/types/FileMetaDataTypes";
 import api from "@/api";
 import Tuple from "../Tuple/Tuple.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import config from "@/config";
 import InfoIcon from "@/icons/InfoIcon.vue";
 import {

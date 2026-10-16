@@ -64,7 +64,7 @@
             :alt="isDescriptionVisible ? '' : descriptionText(content)"
             :fileType="content.fileType"
             class="thumbnail-related-asset-widget__image max-w-full" />
-          <SanitizedHTML
+          <InstanceHTML
             v-if="isDescriptionVisible && content.fileDescription"
             class="whitespace-nowrap text-xs mt-1 truncate overflow-hidden w-full text-center"
             :html="content.fileDescription" />
@@ -85,7 +85,7 @@ import {
   restoreOriginalFile,
 } from "@/api/fetchers";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import Tuple from "@/components/Tuple/Tuple.vue";
