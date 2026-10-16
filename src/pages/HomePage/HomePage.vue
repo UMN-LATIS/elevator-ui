@@ -26,7 +26,6 @@
             v-if="homePageContent.content"
             :html="homePageContent.content"
             class="prose"
-            resolveLinks
             :class="{
               'mx-auto': !featuredAssetId,
             }" />
@@ -42,7 +41,7 @@
         class="featured-asset-block col-span-1 p-4 lg:p-8">
         <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
         <div class="mb-4">
-          <SanitizedHTML :html="featuredAssetText" resolveLinks />
+          <SanitizedHTML :html="featuredAssetText" />
         </div>
         <FeaturedAssetCard :assetId="featuredAssetId" />
       </aside>

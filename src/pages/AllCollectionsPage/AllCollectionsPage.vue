@@ -14,8 +14,7 @@
       <SanitizedHTML
         v-if="collectionPageContent?.content"
         class="mb-8"
-        :html="collectionPageContent.content"
-        resolveLinks />
+        :html="collectionPageContent.content" />
       <div ref="collectionGrid" class="grid">
         <CollectionItem
           v-for="collection in browsableCollections"

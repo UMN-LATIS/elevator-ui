@@ -2,10 +2,7 @@
   <footer
     v-if="customFooterText"
     class="app-footer bg-surface-container border-t border-outline">
-    <SanitizedHTML
-      :html="customFooterText"
-      :addTags="['style', 'link']"
-      resolveLinks />
+    <SanitizedHTML :html="customFooterText" :addTags="['style', 'link']" />
   </footer>
 </template>
 <script setup lang="ts">

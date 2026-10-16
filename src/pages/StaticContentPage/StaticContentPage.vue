@@ -25,8 +25,7 @@
         <SanitizedHTML
           :html="page.content ?? ''"
           class="w-full prose mx-auto"
-          :addTags="['style']"
-          resolveLinks />
+          :addTags="['style']" />
       </article>
     </div>
     <template #footer>

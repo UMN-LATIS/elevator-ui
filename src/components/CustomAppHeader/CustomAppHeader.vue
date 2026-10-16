@@ -1,9 +1,6 @@
 <template>
   <div class="custom-app-header bg-surface-container">
-    <SanitizedHTML
-      :html="customHeaderText"
-      :addTags="['style', 'link']"
-      resolveLinks />
+    <SanitizedHTML :html="customHeaderText" :addTags="['style', 'link']" />
   </div>
 </template>
 <script setup lang="ts">
