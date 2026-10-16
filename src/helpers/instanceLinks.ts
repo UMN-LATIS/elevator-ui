@@ -4,6 +4,8 @@ export function withInstanceHrefs(
   html: string,
   toHref: (appPath: string) => string
 ): string {
+  if (!html.includes(INSTANCE_HREF_PREFIX)) return html;
+
   const template = document.createElement("template");
   template.innerHTML = html;
 

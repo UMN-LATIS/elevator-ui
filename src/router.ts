@@ -244,7 +244,10 @@ const router = createRouter({
     },
     {
       name: "searchResultsMapEmbed",
-      path: "/search/:embedType/:searchId",
+      // a bare :embedType also matches server pages like
+      // /search/querySearch/<term>, so in-app links to them render this
+      // embed page instead of loading the server page
+      path: "/search/:embedType(map|timeline|gallery)/:searchId",
       component: () =>
         import("@/pages/SearchResultsEmbedPage/SearchResultsEmbedPage.vue"),
       props: true,

@@ -1,6 +1,8 @@
 <template>
   <SanitizedHTML
     :html="htmlWithInstanceHrefs"
+    :removeInlineStyles="removeInlineStyles"
+    :addTags="addTags"
     @click="routeInstanceLinkClick" />
 </template>
 <script setup lang="ts">
@@ -14,12 +16,16 @@ import {
 
 const props = defineProps<{
   html: string;
+  removeInlineStyles?: boolean;
+  addTags?: string[];
 }>();
 
 const router = useRouter();
 
 const htmlWithInstanceHrefs = computed(() =>
-  withInstanceHrefs(props.html, (appPath) => router.resolve(appPath).href)
+  withInstanceHrefs(props.html, (appPath) =>
+    router.options.history.createHref(appPath)
+  )
 );
 
 function routeInstanceLinkClick(event: MouseEvent) {
