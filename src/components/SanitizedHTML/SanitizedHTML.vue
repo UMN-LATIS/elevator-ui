@@ -6,8 +6,13 @@
     v-html="sanitizedHtml" />
 </template>
 <script setup lang="ts">
+import DOMPurify from "dompurify";
 import { computed, ref } from "vue";
-import { useInstanceLinks } from "@/composables/useInstanceLinks";
+import { useRouter } from "vue-router";
+import {
+  clickedInstanceLinkPath,
+  withInstanceHrefs,
+} from "@/helpers/instanceLinks";
 
 const props = withDefaults(
   defineProps<{
@@ -32,10 +37,25 @@ const sanitizeConfig = computed(() => ({
   FORCE_BODY: props.addTags?.includes("style"),
 }));
 
-const { sanitizeWithInstanceHrefs, routeInstanceLinkClick } =
-  useInstanceLinks();
+const router = useRouter();
 
 const sanitizedHtml = computed(() => {
-  return sanitizeWithInstanceHrefs(props.html, sanitizeConfig.value);
+  return withInstanceHrefs(
+    DOMPurify.sanitize(props.html, sanitizeConfig.value),
+    (appPath) => router.resolve(appPath).href
+  );
 });
+
+function routeInstanceLinkClick(event: MouseEvent) {
+  const appPath = clickedInstanceLinkPath(event);
+  if (!appPath) return;
+
+  const route = router.resolve(appPath);
+  // routing a catchall match shows the app's 404 for pages the server
+  // still renders itself
+  if (route.name === "catchall") return;
+
+  event.preventDefault();
+  router.push(route);
+}
 </script>
