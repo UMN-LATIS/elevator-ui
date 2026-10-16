@@ -17,6 +17,8 @@ const SEED_BODY =
 
 const PAGE_ID = 5;
 
+const PAST_THE_FIVE_MINUTE_STALE_TIME = "06:00";
+
 function customHtmlSwitch(page: Page): Locator {
   return page.getByRole("switch", { name: "Custom HTML" });
 }
@@ -53,12 +55,12 @@ test.describe("Custom page HTML preservation (#623)", () => {
   }) => {
     await page.goto(`/instances/editPage/${PAGE_ID}`);
 
-    const textarea = page.getByTestId("page-body-source-textarea");
+    const textarea = page.getByTestId("html-body-source-textarea");
     await expect(textarea).toBeVisible();
     await expect(textarea).toHaveValue(SEED_BODY);
     await expect(customHtmlSwitch(page)).toBeChecked();
 
-    const warning = page.getByTestId("page-markup-warning");
+    const warning = page.getByTestId("markup-warning");
     await expect(warning).toBeVisible();
     await warning.hover();
     const tip = page.locator("[role=tooltip]");
@@ -74,7 +76,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
     const workerId = test.info().workerIndex.toString();
 
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    await expect(page.getByTestId("page-body-source-textarea")).toBeVisible();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeVisible();
 
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await page.waitForURL("**/instances/customPages");
@@ -92,7 +94,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
       '<section id="new-section" class="fancy"><h2 id="anchor">Edited</h2><p data-x="1">Body</p></section>';
 
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    const textarea = page.getByTestId("page-body-source-textarea");
+    const textarea = page.getByTestId("html-body-source-textarea");
     await expect(textarea).toBeVisible();
     await textarea.fill(editedBody);
 
@@ -108,7 +110,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
 
     // reopening shows the saved markup, still in source mode
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
       storedBody
     );
   });
@@ -119,16 +121,16 @@ test.describe("Custom page HTML preservation (#623)", () => {
     // page 2 is plain prose, so it opens in the visual editor with no warning
     await page.goto("/instances/editPage/2");
     await expect(customHtmlSwitch(page)).not.toBeChecked();
-    await expect(page.getByTestId("page-markup-warning")).toBeHidden();
+    await expect(page.getByTestId("markup-warning")).toBeHidden();
 
     await customHtmlSwitch(page).click();
-    const textarea = page.getByTestId("page-body-source-textarea");
+    const textarea = page.getByTestId("html-body-source-textarea");
     await expect(textarea).toBeVisible();
-    await expect(page.getByTestId("page-markup-warning")).toBeHidden();
+    await expect(page.getByTestId("markup-warning")).toBeHidden();
 
     await textarea.fill('<div id="added">Now unsupported</div>');
 
-    const warning = page.getByTestId("page-markup-warning");
+    const warning = page.getByTestId("markup-warning");
     await expect(warning).toBeVisible();
     await warning.hover();
     await expect(page.locator("[role=tooltip]")).toContainText("<div>");
@@ -138,21 +140,21 @@ test.describe("Custom page HTML preservation (#623)", () => {
     page,
   }) => {
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    await expect(page.getByTestId("page-body-source-textarea")).toBeVisible();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeVisible();
 
     await customHtmlSwitch(page).click();
 
-    await expect(page.getByTestId("page-markup-diff-before")).toContainText(
+    await expect(page.getByTestId("markup-diff-before")).toContainText(
       'class="wrapper"'
     );
-    const after = page.getByTestId("page-markup-diff-after");
+    const after = page.getByTestId("markup-diff-after");
     await expect(after).toContainText("Hours");
     await expect(after).not.toContainText("<div");
 
     // cancelling leaves the body and the switch as they were
     await page.getByRole("button", { name: "Keep Custom HTML" }).click();
     await expect(customHtmlSwitch(page)).toBeChecked();
-    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
       SEED_BODY
     );
   });
@@ -161,21 +163,21 @@ test.describe("Custom page HTML preservation (#623)", () => {
     page,
   }) => {
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    await expect(page.getByTestId("page-body-source-textarea")).toBeVisible();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeVisible();
 
     await customHtmlSwitch(page).click();
     await page.getByRole("button", { name: "Turn off Custom HTML" }).click();
 
-    const report = page.getByTestId("page-markup-loss-report");
+    const report = page.getByTestId("markup-loss-report");
     await expect(report).toBeVisible();
     await expect(report).toContainText("<div>");
     await expect(report).toContainText("<iframe>");
-    await expect(page.getByTestId("page-body-source-textarea")).toBeHidden();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeHidden();
 
-    await page.getByTestId("page-markup-undo").click();
+    await page.getByTestId("markup-undo").click();
 
     await expect(customHtmlSwitch(page)).toBeChecked();
-    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
       SEED_BODY
     );
     await expect(report).toBeHidden();
@@ -215,12 +217,83 @@ test.describe("Custom page HTML preservation (#623)", () => {
     await editor.pressSequentially(" Closed on holidays.");
 
     await customHtmlSwitch(page).click();
-    await expect(page.getByTestId("page-body-source-textarea")).toHaveValue(
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
       /Closed on holidays\./
     );
     await customHtmlSwitch(page).click();
 
     await expect(editor).toContainText("Closed on holidays.");
+  });
+
+  test("a background refetch keeps the admin's unsaved edits", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+    const unsavedBody = '<p id="unsaved">Still typing</p>';
+
+    await page.clock.install();
+    await page.goto(`/instances/editPage/${PAGE_ID}`);
+    const textarea = page.getByTestId("html-body-source-textarea");
+    await expect(textarea).toBeVisible();
+    await textarea.fill(unsavedBody);
+
+    const savedElsewhere = await request.post(
+      `${MOCK_SERVER_BASE}/defaultinstance/instances/savePage/true`,
+      {
+        headers: { "x-worker-id": workerId },
+        multipart: {
+          pageId: String(PAGE_ID),
+          title: "Legacy Rich Page",
+          body: '<p id="saved-elsewhere">From another tab</p>',
+        },
+      }
+    );
+    expect(savedElsewhere.ok()).toBe(true);
+
+    await page.clock.fastForward(PAST_THE_FIVE_MINUTE_STALE_TIME);
+    const refetch = page.waitForResponse((response) =>
+      response.url().includes(`/instances/getPage/${PAGE_ID}`)
+    );
+    await page.context().setOffline(true);
+    await page.context().setOffline(false);
+    await refetch;
+
+    await expect(textarea).toHaveValue(unsavedBody);
+  });
+
+  test("reopening a page saved elsewhere shows the saved body, not the cached one", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+    const bodySavedElsewhere = '<p id="saved-elsewhere">From another tab</p>';
+
+    await page.goto("/instances/customPages");
+    await page.locator(`a[href$="/instances/editPage/${PAGE_ID}"]`).click();
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
+      SEED_BODY
+    );
+    await page.goBack();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeHidden();
+
+    const savedElsewhere = await request.post(
+      `${MOCK_SERVER_BASE}/defaultinstance/instances/savePage/true`,
+      {
+        headers: { "x-worker-id": workerId },
+        multipart: {
+          pageId: String(PAGE_ID),
+          title: "Legacy Rich Page",
+          body: bodySavedElsewhere,
+        },
+      }
+    );
+    expect(savedElsewhere.ok()).toBe(true);
+
+    await page.goForward();
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
+      bodySavedElsewhere
+    );
   });
 
   test("script tags are removed on save without disturbing other markup", async ({
@@ -230,7 +303,7 @@ test.describe("Custom page HTML preservation (#623)", () => {
     const workerId = test.info().workerIndex.toString();
 
     await page.goto(`/instances/editPage/${PAGE_ID}`);
-    const textarea = page.getByTestId("page-body-source-textarea");
+    const textarea = page.getByTestId("html-body-source-textarea");
     await expect(textarea).toBeVisible();
     await textarea.fill('<p id="keep">Hi</p><script>alert(1)</script>');
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-2" data-testid="page-markup-style">
+  <div class="flex items-center gap-2" data-testid="markup-style">
     <Tooltip
       v-if="isCustomHtml && markupLostBySimplifying.length"
       class="max-w-sm"
@@ -8,9 +8,9 @@
       )}`">
       <button
         type="button"
-        aria-label="This page uses HTML the toolbar cannot produce"
+        :aria-label="`This ${contentNoun} uses HTML the toolbar cannot produce`"
         class="inline-flex items-center rounded-full text-warning hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
-        data-testid="page-markup-warning">
+        data-testid="markup-warning">
         <TriangleAlertIcon class="size-4" />
       </button>
     </Tooltip>
@@ -31,8 +31,9 @@
       @close="isConfirmingSimpleFormatting = false"
       @confirm="emit('chooseMarkupStyle', 'simpleFormatting')">
       <p>
-        The toolbar cannot produce every tag and attribute on this page. Turning
-        Custom HTML off rewrites the body, removing:
+        The toolbar cannot produce every tag and attribute on this
+        {{ contentNoun }}. Turning Custom HTML off rewrites the
+        {{ contentNoun }}, removing:
       </p>
       <p class="font-mono mt-1">{{ toMarkupList(markupLostBySimplifying) }}</p>
 
@@ -41,7 +42,7 @@
           <p class="text-xs font-medium uppercase mb-1">Now</p>
           <pre
             class="h-64 overflow-auto rounded border border-outline-variant bg-surface p-2 text-xs whitespace-pre-wrap break-all"
-            data-testid="page-markup-diff-before"
+            data-testid="markup-diff-before"
             >{{ html }}</pre
           >
         </div>
@@ -49,7 +50,7 @@
           <p class="text-xs font-medium uppercase mb-1">After</p>
           <pre
             class="h-64 overflow-auto rounded border border-outline-variant bg-surface p-2 text-xs whitespace-pre-wrap break-all"
-            data-testid="page-markup-diff-after"
+            data-testid="markup-diff-after"
             >{{ htmlAfterSimplifying }}</pre
           >
         </div>
@@ -66,12 +67,13 @@ import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { toQuillSimplifiedHtml } from "./toQuillSimplifiedHtml";
 import { toMarkupList } from "./markupLostByQuill";
-import type { BodyMarkupStyleName } from "./usePageBodyEditor";
+import type { BodyMarkupStyleName } from "./useHtmlBodyEditor";
 
 const props = defineProps<{
   isCustomHtml: boolean;
   html: string;
   markupLostBySimplifying: string[];
+  contentNoun: string;
 }>();
 
 const emit = defineEmits<{

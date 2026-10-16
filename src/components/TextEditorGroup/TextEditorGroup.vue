@@ -3,6 +3,7 @@
     <div class="flex justify-between items-baseline">
       <slot :id="`text-editor-${id}`" name="label">
         <label
+          :id="labelId"
           :for="`text-editor-${id}`"
           :class="
             cn(
@@ -21,6 +22,7 @@
     <TextEditor
       :id="`text-editor-${id}`"
       ref="editorRef"
+      :labelId="labelId"
       :modelValue="modelValue"
       :enableImageInsert="enableImageInsert"
       :enableHtmlEditButton="enableHtmlEditButton"
@@ -45,7 +47,7 @@ withDefaults(
     modelValue: string;
     labelClass?: CSSClass;
     // for callers that show their own label, keeping this one for
-    // screen readers because it carries the editor's for attribute
+    // screen readers because the editor's aria-labelledby points at it
     labelHidden?: boolean;
     enableImageInsert?: boolean;
     enableHtmlEditButton?: boolean;
@@ -66,6 +68,7 @@ defineEmits<{
 }>();
 
 const id = useId();
+const labelId = `text-editor-${id}-label`;
 const editorRef = ref<InstanceType<typeof TextEditor>>();
 
 function getSemanticHtml(): string {

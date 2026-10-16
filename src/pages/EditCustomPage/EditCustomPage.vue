@@ -22,11 +22,13 @@
             label="Title"
             required
             placeholder="Page title" />
-          <PageBodyEditor
+          <HtmlBodyEditor
             :html="bodyHtml"
             :markupStyle="markupStyle"
             :markupLostBySimplifying="markupLostBySimplifying"
             label="Body"
+            contentNoun="page"
+            :addTags="addTags"
             @update:html="editBody"
             @chooseMarkupStyle="chooseMarkupStyle"
             @undoSimplifying="undoSimplifying" />
@@ -83,9 +85,8 @@ import { ref, watch, computed, toRef } from "vue";
 import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import PageBodyEditor from "./PageBodyEditor.vue";
-import { usePageBodyEditor } from "./usePageBodyEditor";
-import { toSaveablePageBody } from "./toSaveablePageBody";
+import HtmlBodyEditor from "@/components/HtmlBodyEditor/HtmlBodyEditor.vue";
+import { useHtmlBodyEditor } from "@/components/HtmlBodyEditor/useHtmlBodyEditor";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
@@ -117,6 +118,10 @@ const {
   isError,
 } = useCustomPageEditQuery(pageIdRef, {
   enabled: computed(() => !isNewPage.value),
+  // Raising gcTime loads a cached body into the form, and
+  // saving writes it over a newer stored body ("reopening
+  // a page saved elsewhere" fails).
+  gcTime: 0,
 });
 
 const { data: allPages, isLoading: isLoadingPages } = useAllCustomPagesQuery();
@@ -147,25 +152,35 @@ const form = ref<FormState>(getDefaultForm());
 // editor rewrites, so every way it can change is named in one place.
 const {
   html: bodyHtml,
+  addTags,
   markupStyle,
   markupLostBySimplifying,
   loadStoredBody,
   editBody,
   chooseMarkupStyle,
   undoSimplifying,
-} = usePageBodyEditor();
+  htmlToSave,
+} = useHtmlBodyEditor({
+  // StaticContentPage renders bodies with <style> allowed,
+  // so leaving it out drops page styles on save.
+  addTags: ["style"],
+});
 
+// Watching `pageData` itself reloads on every refetch,
+// replacing unsaved edits ("a background refetch keeps
+// the admin's unsaved edits" fails).
 watch(
-  pageData,
-  (newData) => {
-    if (newData) {
-      form.value = {
-        title: newData.title,
-        parent: newData.parentId,
-        includeInHeader: newData.includeInHeader,
-      };
-      loadStoredBody(newData.body);
-    }
+  () => pageData.value?.id,
+  () => {
+    const loadedPage = pageData.value;
+    if (!loadedPage) return;
+
+    form.value = {
+      title: loadedPage.title,
+      parent: loadedPage.parentId,
+      includeInHeader: loadedPage.includeInHeader,
+    };
+    loadStoredBody(loadedPage.body);
   },
   { immediate: true }
 );
@@ -196,20 +211,12 @@ async function handleSave() {
     return;
   }
 
-  // A body the admin never changed goes back exactly as it arrived, so
-  // opening a page and pressing Save cannot alter what is stored.
-  const storedBody = pageData.value?.body;
-  const bodyToSave =
-    bodyHtml.value === storedBody
-      ? storedBody
-      : toSaveablePageBody(bodyHtml.value);
-
   try {
     await saveMutation.mutateAsync(
       {
         id: props.pageId ?? undefined,
         title: form.value.title,
-        body: bodyToSave,
+        body: htmlToSave(),
         parent: form.value.parent,
         includeInHeader: form.value.includeInHeader,
       },

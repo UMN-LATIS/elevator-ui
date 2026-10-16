@@ -32,12 +32,14 @@ const props = withDefaults(
   defineProps<{
     modelValue: string;
     id?: string;
+    labelId?: string;
     enableImageInsert?: boolean;
     enableHtmlEditButton?: boolean;
     enableHeadings?: boolean;
   }>(),
   {
     id: "",
+    labelId: "",
     enableImageInsert: false,
     enableHeadings: false,
     enableHtmlEditButton: true,
@@ -142,6 +144,14 @@ onMounted(() => {
   }
 
   quill = editor.value.initialize(Quill);
+
+  // Quill's editable is a plain div: a <label for> can't
+  // name it, and without a role browsers drop the name.
+  if (props.labelId) {
+    quill.root.setAttribute("role", "textbox");
+    quill.root.setAttribute("aria-multiline", "true");
+    quill.root.setAttribute("aria-labelledby", props.labelId);
+  }
 
   quill.on(Quill.events.TEXT_CHANGE, (_delta, _oldContents, source) => {
     if (source === Quill.sources.USER) {

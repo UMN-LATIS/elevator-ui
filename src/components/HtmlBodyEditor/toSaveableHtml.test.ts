@@ -1,43 +1,45 @@
 import { describe, it, expect } from "vitest";
-import { toSaveablePageBody } from "./toSaveablePageBody";
+import { toSaveableHtml } from "./toSaveableHtml";
+
+const toSaveablePageHtml = (html: string) => toSaveableHtml(html, ["style"]);
 
 // Issue #623: the page save path strips ids, classes, wrapper elements
 // and embeds. Only instance admins author pages, so saving should remove
 // what can execute and keep everything else.
 
-describe("toSaveablePageBody", () => {
+describe("toSaveableHtml", () => {
   describe("keeps admin-authored attributes", () => {
     it("keeps id", () => {
-      const result = toSaveablePageBody('<h2 id="hours">Hours</h2>');
+      const result = toSaveablePageHtml('<h2 id="hours">Hours</h2>');
       expect(result).toContain('id="hours"');
     });
 
     it("keeps class", () => {
-      const result = toSaveablePageBody('<p class="lead">Hi</p>');
+      const result = toSaveablePageHtml('<p class="lead">Hi</p>');
       expect(result).toContain('class="lead"');
     });
 
     it("keeps data attributes", () => {
-      const result = toSaveablePageBody('<p data-track="hero">Hi</p>');
+      const result = toSaveablePageHtml('<p data-track="hero">Hi</p>');
       expect(result).toContain('data-track="hero"');
     });
 
     it("keeps colspan on table cells", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<table><tbody><tr><td colspan="2">x</td></tr></tbody></table>'
       );
       expect(result).toContain('colspan="2"');
     });
 
     it("keeps inline styles", () => {
-      const result = toSaveablePageBody('<p style="color: red">Red</p>');
+      const result = toSaveablePageHtml('<p style="color: red">Red</p>');
       expect(result).toContain("color: red");
     });
   });
 
   describe("keeps admin-authored elements", () => {
     it("keeps wrapping divs", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<div class="wrapper"><p>Inside</p></div>'
       );
       expect(result).toContain("<div");
@@ -45,7 +47,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("keeps section and figure", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         "<section><figure><img src='a.jpg'><figcaption>cap</figcaption></figure></section>"
       );
       expect(result).toContain("<section");
@@ -54,7 +56,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("keeps details and summary", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         "<details><summary>More</summary><p>Hidden</p></details>"
       );
       expect(result).toContain("<details");
@@ -62,7 +64,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("keeps iframe embeds", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<iframe src="https://www.youtube.com/embed/abc" width="560"></iframe>'
       );
       expect(result).toContain("<iframe");
@@ -70,7 +72,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("keeps style blocks", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         "<style>.callout{color:maroon}</style><p>Hi</p>"
       );
       expect(result).toContain("<style");
@@ -78,7 +80,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("keeps inline svg", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<svg viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"></circle></svg>'
       );
       expect(result).toContain("<svg");
@@ -88,7 +90,7 @@ describe("toSaveablePageBody", () => {
 
   describe("removes what can execute", () => {
     it("removes script tags without leaking their text into the page", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<p id="a">Hi</p><script>alert(1)</script>'
       );
       expect(result).not.toContain("<script");
@@ -97,7 +99,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("removes event handler attributes, keeping the element", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<img src="a.jpg" onerror="alert(1)" id="pic">'
       );
       expect(result).not.toContain("onerror");
@@ -106,7 +108,7 @@ describe("toSaveablePageBody", () => {
     });
 
     it("removes javascript: urls, keeping the link", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<a href="javascript:alert(1)" id="l">x</a>'
       );
       expect(result).not.toContain("javascript:");
@@ -116,7 +118,7 @@ describe("toSaveablePageBody", () => {
 
   describe("removes editor chrome", () => {
     it("scrubs cursor styles left by the image resize module", () => {
-      const result = toSaveablePageBody(
+      const result = toSaveablePageHtml(
         '<p><img src="a.jpg" style="width: 300px; cursor: nwse-resize;"></p>'
       );
       expect(result).not.toContain("cursor");
@@ -128,7 +130,7 @@ describe("toSaveablePageBody", () => {
     const authored =
       '<div class="wrap" id="hero"><h2 id="intro">Hi</h2>' +
       '<iframe src="https://example.com/embed"></iframe></div>';
-    const once = toSaveablePageBody(authored);
-    expect(toSaveablePageBody(once)).toBe(once);
+    const once = toSaveablePageHtml(authored);
+    expect(toSaveablePageHtml(once)).toBe(once);
   });
 });

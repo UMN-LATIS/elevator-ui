@@ -11,24 +11,25 @@
       <span v-else aria-hidden="true" class="text-xs font-medium uppercase">
         {{ label }}
       </span>
-      <PageMarkupStyleSwitch
+      <MarkupStyleSwitch
         :isCustomHtml="isCustomHtml"
         :html="html"
         :markupLostBySimplifying="markupLostBySimplifying"
+        :contentNoun="contentNoun"
         @chooseMarkupStyle="emit('chooseMarkupStyle', $event)" />
     </div>
 
     <p
       v-if="simplification"
       class="flex items-center gap-2 flex-wrap text-sm text-on-surface-variant bg-surface-container rounded-md px-3 py-2 mb-3"
-      data-testid="page-markup-loss-report">
+      data-testid="markup-loss-report">
       Removed:
       <span class="font-mono">
         {{ toMarkupList(simplification.markupRemoved) }}
       </span>
       <Button
         variant="tertiary"
-        data-testid="page-markup-undo"
+        data-testid="markup-undo"
         @click="emit('undoSimplifying')">
         Undo
       </Button>
@@ -40,19 +41,19 @@
         :value="html"
         rows="14"
         class="w-full font-mono text-sm bg-surface-container border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary focus:outline-none"
-        data-testid="page-body-source-textarea"
+        data-testid="html-body-source-textarea"
         spellcheck="false"
         @input="reportSourceEdit" />
 
       <div
         class="border border-outline-variant rounded-lg p-3"
-        data-testid="page-body-preview">
+        data-testid="html-body-preview">
         <p class="text-xs font-medium text-on-surface-variant uppercase mb-2">
           Preview
         </p>
         <SanitizedHTML
           :html="html"
-          :addTags="['style']"
+          :addTags="addTags"
           class="prose prose-neutral max-w-none" />
       </div>
     </div>
@@ -75,10 +76,10 @@ import { computed, ref, useId, watch } from "vue";
 import TextEditorGroup from "@/components/TextEditorGroup/TextEditorGroup.vue";
 import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
 import Button from "@/components/Button/Button.vue";
-import PageMarkupStyleSwitch from "./PageMarkupStyleSwitch.vue";
+import MarkupStyleSwitch from "./MarkupStyleSwitch.vue";
 import { fromQuillHtml } from "./fromQuillHtml";
 import { toMarkupList } from "./markupLostByQuill";
-import type { BodyMarkupStyle, BodyMarkupStyleName } from "./usePageBodyEditor";
+import type { BodyMarkupStyle, BodyMarkupStyleName } from "./useHtmlBodyEditor";
 
 const props = withDefaults(
   defineProps<{
@@ -86,6 +87,8 @@ const props = withDefaults(
     markupStyle: BodyMarkupStyle;
     markupLostBySimplifying: string[];
     label?: string;
+    contentNoun: string;
+    addTags: string[];
   }>(),
   {
     label: "Body",
@@ -98,7 +101,7 @@ const emit = defineEmits<{
   (event: "undoSimplifying"): void;
 }>();
 
-const sourceFieldId = `page-body-source-${useId()}`;
+const sourceFieldId = `html-body-source-${useId()}`;
 const richEditorRef = ref<InstanceType<typeof TextEditorGroup>>();
 
 const isCustomHtml = computed(() => props.markupStyle.name === "customHtml");

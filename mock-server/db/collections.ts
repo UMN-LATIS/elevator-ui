@@ -21,6 +21,9 @@ function makeCollectionSeed(seed: CollectionSeed): MockCollection {
   };
 }
 
+export const SECOND_COLLECTION_DESCRIPTION =
+  '<div class="hero" id="intro"><figure class="hero__media"><img src="https://example.com/hero.jpg" alt=""></figure><h2 class="hero__title">Second Collection</h2><p data-track="intro">Testimony gathered for the second collection.</p></div>';
+
 const collectionSeeds: MockCollection[] = [
   makeCollectionSeed({
     id: 1,
@@ -34,6 +37,7 @@ const collectionSeeds: MockCollection[] = [
   makeCollectionSeed({
     id: 2,
     title: "Second Collection",
+    description: SECOND_COLLECTION_DESCRIPTION,
     parentId: null,
     showInBrowse: true,
     canView: true,
