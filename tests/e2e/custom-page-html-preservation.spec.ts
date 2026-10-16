@@ -17,6 +17,8 @@ const SEED_BODY =
 
 const PAGE_ID = 5;
 
+const PAST_THE_FIVE_MINUTE_STALE_TIME = "06:00";
+
 function customHtmlSwitch(page: Page): Locator {
   return page.getByRole("switch", { name: "Custom HTML" });
 }
@@ -221,6 +223,43 @@ test.describe("Custom page HTML preservation (#623)", () => {
     await customHtmlSwitch(page).click();
 
     await expect(editor).toContainText("Closed on holidays.");
+  });
+
+  test("a background refetch keeps the admin's unsaved edits", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+    const unsavedBody = '<p id="unsaved">Still typing</p>';
+
+    await page.clock.install();
+    await page.goto(`/instances/editPage/${PAGE_ID}`);
+    const textarea = page.getByTestId("html-body-source-textarea");
+    await expect(textarea).toBeVisible();
+    await textarea.fill(unsavedBody);
+
+    const savedElsewhere = await request.post(
+      `${MOCK_SERVER_BASE}/defaultinstance/instances/savePage/true`,
+      {
+        headers: { "x-worker-id": workerId },
+        multipart: {
+          pageId: String(PAGE_ID),
+          title: "Legacy Rich Page",
+          body: '<p id="saved-elsewhere">From another tab</p>',
+        },
+      }
+    );
+    expect(savedElsewhere.ok()).toBe(true);
+
+    await page.clock.fastForward(PAST_THE_FIVE_MINUTE_STALE_TIME);
+    const refetch = page.waitForResponse((response) =>
+      response.url().includes(`/instances/getPage/${PAGE_ID}`)
+    );
+    await page.context().setOffline(true);
+    await page.context().setOffline(false);
+    await refetch;
+
+    await expect(textarea).toHaveValue(unsavedBody);
   });
 
   test("script tags are removed on save without disturbing other markup", async ({
