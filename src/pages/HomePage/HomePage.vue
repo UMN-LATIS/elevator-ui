@@ -42,7 +42,7 @@
         class="featured-asset-block col-span-1 p-4 lg:p-8">
         <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
         <div class="mb-4">
-          <SanitizedHTML :html="featuredAssetText" />
+          <SanitizedHTML :html="featuredAssetText" resolveLinks />
         </div>
         <FeaturedAssetCard :assetId="featuredAssetId" />
       </aside>
