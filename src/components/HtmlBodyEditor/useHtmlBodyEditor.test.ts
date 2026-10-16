@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { usePageBodyEditor } from "./usePageBodyEditor";
+import { useHtmlBodyEditor } from "./useHtmlBodyEditor";
 
 const LEGACY_BODY =
   '<div class="wrapper" id="hero"><h2 id="hours">Hours</h2><p>Open 9 to 5</p></div>';
 const PROSE_BODY = "<h2>Hours</h2><p>Open 9 to 5</p>";
 
-describe("usePageBodyEditor", () => {
+describe("useHtmlBodyEditor", () => {
   it("opens a body quill would damage in custom html, unchanged", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(LEGACY_BODY);
 
     expect(editor.markupStyle.value.name).toBe("customHtml");
@@ -17,7 +17,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("opens a body quill can hold in simple formatting", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(PROSE_BODY);
 
     expect(editor.markupStyle.value.name).toBe("simpleFormatting");
@@ -26,7 +26,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("records what simple formatting removed, and the body it removed it from", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(LEGACY_BODY);
     editor.chooseMarkupStyle("simpleFormatting");
 
@@ -41,7 +41,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("puts the whole body back when the switch is undone", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(LEGACY_BODY);
     editor.chooseMarkupStyle("simpleFormatting");
     editor.undoSimplifying();
@@ -51,7 +51,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("stops offering the undo once the admin edits the simplified body", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(LEGACY_BODY);
     editor.chooseMarkupStyle("simpleFormatting");
     editor.editBody("<p>Rewritten</p>");
@@ -65,7 +65,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("offers no undo when the switch removed nothing", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(PROSE_BODY);
     editor.chooseMarkupStyle("customHtml");
     editor.chooseMarkupStyle("simpleFormatting");
@@ -76,7 +76,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("leaves the body alone when moving to custom html", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(PROSE_BODY);
     editor.chooseMarkupStyle("customHtml");
 
@@ -85,7 +85,7 @@ describe("usePageBodyEditor", () => {
   });
 
   it("keeps the stored body byte-identical until the admin edits it", () => {
-    const editor = usePageBodyEditor();
+    const editor = useHtmlBodyEditor();
     editor.loadStoredBody(LEGACY_BODY);
 
     expect(editor.html.value).toBe(LEGACY_BODY);

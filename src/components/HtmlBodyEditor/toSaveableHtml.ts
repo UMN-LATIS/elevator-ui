@@ -20,12 +20,13 @@ function removeCursorStyles(html: string): string {
 }
 
 /**
- * Sanitizes a custom page body for saving: removes what can execute
- * (script tags, on* handlers, javascript: URLs) and keeps every other
- * tag and attribute. Only instance admins author pages, so the touch
- * stays light and matches what SanitizedHTML enforces at render.
+ * Sanitizes an admin-authored HTML body for saving: removes what can
+ * execute (script tags, on* handlers, javascript: URLs) and keeps every
+ * other tag and attribute. Only instance admins author these bodies, so
+ * the touch stays light and matches what SanitizedHTML enforces at
+ * render.
  */
-export function toSaveablePageBody(html: string): string {
+export function toSaveableHtml(html: string): string {
   const sanitized = DOMPurify.sanitize(html, {
     ADD_TAGS: ["iframe", "style"],
     ADD_ATTR: ["target"],

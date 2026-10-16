@@ -22,7 +22,7 @@
             label="Title"
             required
             placeholder="Page title" />
-          <PageBodyEditor
+          <HtmlBodyEditor
             :html="bodyHtml"
             :markupStyle="markupStyle"
             :markupLostBySimplifying="markupLostBySimplifying"
@@ -83,9 +83,9 @@ import { ref, watch, computed, toRef } from "vue";
 import { useRouter } from "vue-router";
 import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
-import PageBodyEditor from "./PageBodyEditor.vue";
-import { usePageBodyEditor } from "./usePageBodyEditor";
-import { toSaveablePageBody } from "./toSaveablePageBody";
+import HtmlBodyEditor from "@/components/HtmlBodyEditor/HtmlBodyEditor.vue";
+import { useHtmlBodyEditor } from "@/components/HtmlBodyEditor/useHtmlBodyEditor";
+import { toSaveableHtml } from "@/components/HtmlBodyEditor/toSaveableHtml";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
@@ -153,7 +153,7 @@ const {
   editBody,
   chooseMarkupStyle,
   undoSimplifying,
-} = usePageBodyEditor();
+} = useHtmlBodyEditor();
 
 watch(
   pageData,
@@ -200,9 +200,7 @@ async function handleSave() {
   // opening a page and pressing Save cannot alter what is stored.
   const storedBody = pageData.value?.body;
   const bodyToSave =
-    bodyHtml.value === storedBody
-      ? storedBody
-      : toSaveablePageBody(bodyHtml.value);
+    bodyHtml.value === storedBody ? storedBody : toSaveableHtml(bodyHtml.value);
 
   try {
     await saveMutation.mutateAsync(

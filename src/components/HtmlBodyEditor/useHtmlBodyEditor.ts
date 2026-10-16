@@ -15,7 +15,7 @@ export type BodyMarkupStyle =
 
 export type BodyMarkupStyleName = BodyMarkupStyle["name"];
 
-export interface PageBodyEditor {
+export interface HtmlBodyEditor {
   html: Ref<string>;
   markupStyle: Ref<BodyMarkupStyle>;
   markupLostBySimplifying: Ref<string[]>;
@@ -26,12 +26,12 @@ export interface PageBodyEditor {
 }
 
 /**
- * Holds the one copy of a custom page body, along with the markup style
- * the admin writes it in. Every way the body can change is a function
- * here and nothing else writes to it, so opening a page and saving it
- * cannot alter what is stored.
+ * Holds the one copy of an HTML body, along with the markup style the
+ * admin writes it in. Every way the body can change is a function here
+ * and nothing else writes to it, so opening a form and saving it cannot
+ * alter what is stored.
  */
-export function usePageBodyEditor(): PageBodyEditor {
+export function useHtmlBodyEditor(): HtmlBodyEditor {
   const html = ref("");
   const markupStyle = ref<BodyMarkupStyle>({
     name: "simpleFormatting",

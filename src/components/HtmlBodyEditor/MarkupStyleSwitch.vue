@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-2" data-testid="page-markup-style">
+  <div class="flex items-center gap-2" data-testid="markup-style">
     <Tooltip
       v-if="isCustomHtml && markupLostBySimplifying.length"
       class="max-w-sm"
@@ -10,7 +10,7 @@
         type="button"
         aria-label="This page uses HTML the toolbar cannot produce"
         class="inline-flex items-center rounded-full text-warning hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
-        data-testid="page-markup-warning">
+        data-testid="markup-warning">
         <TriangleAlertIcon class="size-4" />
       </button>
     </Tooltip>
@@ -41,7 +41,7 @@
           <p class="text-xs font-medium uppercase mb-1">Now</p>
           <pre
             class="h-64 overflow-auto rounded border border-outline-variant bg-surface p-2 text-xs whitespace-pre-wrap break-all"
-            data-testid="page-markup-diff-before"
+            data-testid="markup-diff-before"
             >{{ html }}</pre
           >
         </div>
@@ -49,7 +49,7 @@
           <p class="text-xs font-medium uppercase mb-1">After</p>
           <pre
             class="h-64 overflow-auto rounded border border-outline-variant bg-surface p-2 text-xs whitespace-pre-wrap break-all"
-            data-testid="page-markup-diff-after"
+            data-testid="markup-diff-after"
             >{{ htmlAfterSimplifying }}</pre
           >
         </div>
@@ -66,7 +66,7 @@ import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import ConfirmModal from "@/components/ConfirmModal/ConfirmModal.vue";
 import { toQuillSimplifiedHtml } from "./toQuillSimplifiedHtml";
 import { toMarkupList } from "./markupLostByQuill";
-import type { BodyMarkupStyleName } from "./usePageBodyEditor";
+import type { BodyMarkupStyleName } from "./useHtmlBodyEditor";
 
 const props = defineProps<{
   isCustomHtml: boolean;
