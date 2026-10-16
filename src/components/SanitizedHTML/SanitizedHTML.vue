@@ -1,11 +1,11 @@
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -->
-  <div ref="containerRef" @click="routeLinkClick" v-html="sanitizedHtml" />
+  <div ref="containerRef" v-html="sanitizedHtml" />
 </template>
 <script setup lang="ts">
 import DOMPurify from "dompurify";
 import { computed, ref } from "vue";
-import { useInstanceLinks } from "@/composables/useInstanceLinks";
+import { useRewriteInstanceHrefs } from "@/composables/useRewriteInstanceHrefs";
 
 const props = withDefaults(
   defineProps<{
@@ -36,7 +36,7 @@ const sanitizedHtml = computed(() => {
   return DOMPurify.sanitize(props.html, sanitizeConfig.value);
 });
 
-const routeLinkClick = props.resolveLinks
-  ? useInstanceLinks(containerRef, () => sanitizedHtml.value).routeLinkClick
-  : undefined;
+if (props.resolveLinks) {
+  useRewriteInstanceHrefs(containerRef, () => sanitizedHtml.value);
+}
 </script>
