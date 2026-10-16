@@ -44,8 +44,8 @@
           :markupStyle="markupStyle"
           :markupLostBySimplifying="markupLostBySimplifying"
           label="Description"
-          subject="description"
-          :previewAddTags="[]"
+          contentNoun="description"
+          :addTags="addTags"
           @update:html="editBody"
           @chooseMarkupStyle="chooseMarkupStyle"
           @undoSimplifying="undoSimplifying" />
@@ -138,7 +138,6 @@ import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import HtmlBodyEditor from "@/components/HtmlBodyEditor/HtmlBodyEditor.vue";
 import { useHtmlBodyEditor } from "@/components/HtmlBodyEditor/useHtmlBodyEditor";
-import { toSaveableHtml } from "@/components/HtmlBodyEditor/toSaveableHtml";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import EyeOffIcon from "@/icons/EyeOffIcon.vue";
@@ -163,13 +162,20 @@ const isExistingCollection = computed(() => props.collectionId !== null);
 
 const {
   html: descriptionHtml,
+  addTags,
   markupStyle,
   markupLostBySimplifying,
   loadStoredBody,
   editBody,
   chooseMarkupStyle,
   undoSimplifying,
-} = useHtmlBodyEditor();
+  htmlToSave,
+} = useHtmlBodyEditor({
+  // BrowseCollectionHeader renders descriptions without
+  // <style>, so allowing it here saves styles the
+  // collection page never shows.
+  addTags: [],
+});
 
 // the full collection list feeds the parent select
 const { data: collections } = useQuery(adminCollectionsQuery());
@@ -185,13 +191,16 @@ const {
   }))
 );
 
-function makeEmptyCollectionForm(): SaveCollectionPayload {
+// useHtmlBodyEditor holds the live description, so a copy
+// here would go stale while the admin edits.
+type CollectionForm = Omit<SaveCollectionPayload, "description">;
+
+function makeEmptyCollectionForm(): CollectionForm {
   return {
     title: "",
     parentId: null,
     // legacy parity: new collections default to browseable
     showInBrowse: true,
-    description: "",
     previewImageId: "",
     bucket: "",
     bucketRegion: "",
@@ -200,16 +209,13 @@ function makeEmptyCollectionForm(): SaveCollectionPayload {
   };
 }
 
-const form = ref<SaveCollectionPayload>(makeEmptyCollectionForm());
+const form = ref<CollectionForm>(makeEmptyCollectionForm());
 
-function toSaveCollectionPayload(
-  detail: AdminCollectionDetail
-): SaveCollectionPayload {
+function toCollectionForm(detail: AdminCollectionDetail): CollectionForm {
   return {
     title: detail.title,
     parentId: detail.parentId,
     showInBrowse: detail.showInBrowse,
-    description: detail.description ?? "",
     previewImageId: detail.previewImageId ?? "",
     bucket: detail.bucket ?? "",
     bucketRegion: detail.bucketRegion ?? "",
@@ -242,8 +248,8 @@ watch(
       return;
     }
     hasHydratedForm.value = true;
-    form.value = toSaveCollectionPayload(detail);
-    loadStoredBody(form.value.description);
+    form.value = toCollectionForm(detail);
+    loadStoredBody(detail.description ?? "");
   },
   // immediate: a cached detail can already be present on mount
   { immediate: true }
@@ -301,15 +307,7 @@ const isSaving = computed(
 function handleSave() {
   const goToCollectionsIndex = () => router.push({ name: "adminCollections" });
 
-  // Sanitizing re-serializes the HTML, so running an untouched description
-  // through it would rewrite stored markup on a save that only changed,
-  // say, the title.
-  const storedDescription = collectionDetail.value?.description ?? "";
-  const description =
-    descriptionHtml.value === storedDescription
-      ? storedDescription
-      : toSaveableHtml(descriptionHtml.value);
-  const collection = { ...form.value, description };
+  const collection = { ...form.value, description: htmlToSave() };
 
   if (props.collectionId === null) {
     createCollectionMutation.mutate(collection, {

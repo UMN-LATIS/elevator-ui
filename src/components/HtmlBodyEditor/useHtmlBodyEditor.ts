@@ -2,6 +2,7 @@ import { ref, type Ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { markupLostByQuill } from "./markupLostByQuill";
 import { toQuillSimplifiedHtml } from "./toQuillSimplifiedHtml";
+import { toSaveableHtml } from "./toSaveableHtml";
 
 /** What simple formatting took out, and the body it took it out of. */
 export interface Simplification {
@@ -15,24 +16,25 @@ export type BodyMarkupStyle =
 
 export type BodyMarkupStyleName = BodyMarkupStyle["name"];
 
-export interface HtmlBodyEditor {
+export interface HtmlBodyEditorModel {
   html: Ref<string>;
+  addTags: string[];
   markupStyle: Ref<BodyMarkupStyle>;
   markupLostBySimplifying: Ref<string[]>;
   loadStoredBody: (storedHtml: string) => void;
   editBody: (nextHtml: string) => void;
   chooseMarkupStyle: (name: BodyMarkupStyleName) => void;
   undoSimplifying: () => void;
+  htmlToSave: () => string;
 }
 
-/**
- * Holds the one copy of an HTML body, along with the markup style the
- * admin writes it in. Every way the body can change is a function here
- * and nothing else writes to it, so opening a form and saving it cannot
- * alter what is stored.
- */
-export function useHtmlBodyEditor(): HtmlBodyEditor {
+export function useHtmlBodyEditor({
+  addTags,
+}: {
+  addTags: string[];
+}): HtmlBodyEditorModel {
   const html = ref("");
+  let storedHtml = "";
   const markupStyle = ref<BodyMarkupStyle>({
     name: "simpleFormatting",
     simplification: null,
@@ -53,7 +55,8 @@ export function useHtmlBodyEditor(): HtmlBodyEditor {
     400
   );
 
-  function loadStoredBody(storedHtml: string): void {
+  function loadStoredBody(nextStoredHtml: string): void {
+    storedHtml = nextStoredHtml;
     html.value = storedHtml;
     markupStyle.value = markupLostByQuill(storedHtml).length
       ? { name: "customHtml" }
@@ -110,13 +113,26 @@ export function useHtmlBodyEditor(): HtmlBodyEditor {
     refreshMarkupLostBySimplifying();
   }
 
+  /** The stored body, byte for byte, until the admin edits it. */
+  function htmlToSave(): string {
+    // Sanitizing re-serializes the markup, so sending an
+    // unedited body through it would rewrite stored HTML
+    // on a save that only changed another field.
+    const isUnedited = html.value === storedHtml;
+    if (isUnedited) return storedHtml;
+
+    return toSaveableHtml(html.value, addTags);
+  }
+
   return {
     html,
+    addTags,
     markupStyle,
     markupLostBySimplifying,
     loadStoredBody,
     editBody,
     chooseMarkupStyle,
     undoSimplifying,
+    htmlToSave,
   };
 }

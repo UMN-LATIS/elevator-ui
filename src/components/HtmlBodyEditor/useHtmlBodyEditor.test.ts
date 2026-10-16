@@ -7,7 +7,7 @@ const PROSE_BODY = "<h2>Hours</h2><p>Open 9 to 5</p>";
 
 describe("useHtmlBodyEditor", () => {
   it("opens a body quill would damage in custom html, unchanged", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(LEGACY_BODY);
 
     expect(editor.markupStyle.value.name).toBe("customHtml");
@@ -17,7 +17,7 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("opens a body quill can hold in simple formatting", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(PROSE_BODY);
 
     expect(editor.markupStyle.value.name).toBe("simpleFormatting");
@@ -26,7 +26,7 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("records what simple formatting removed, and the body it removed it from", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(LEGACY_BODY);
     editor.chooseMarkupStyle("simpleFormatting");
 
@@ -41,7 +41,7 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("puts the whole body back when the switch is undone", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(LEGACY_BODY);
     editor.chooseMarkupStyle("simpleFormatting");
     editor.undoSimplifying();
@@ -51,7 +51,7 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("stops offering the undo once the admin edits the simplified body", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(LEGACY_BODY);
     editor.chooseMarkupStyle("simpleFormatting");
     editor.editBody("<p>Rewritten</p>");
@@ -65,7 +65,7 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("offers no undo when the switch removed nothing", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(PROSE_BODY);
     editor.chooseMarkupStyle("customHtml");
     editor.chooseMarkupStyle("simpleFormatting");
@@ -76,7 +76,7 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("leaves the body alone when moving to custom html", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(PROSE_BODY);
     editor.chooseMarkupStyle("customHtml");
 
@@ -85,12 +85,36 @@ describe("useHtmlBodyEditor", () => {
   });
 
   it("keeps the stored body byte-identical until the admin edits it", () => {
-    const editor = useHtmlBodyEditor();
+    const editor = useHtmlBodyEditor({ addTags: [] });
     editor.loadStoredBody(LEGACY_BODY);
 
     expect(editor.html.value).toBe(LEGACY_BODY);
 
     editor.editBody(`${LEGACY_BODY}<p>More</p>`);
     expect(editor.html.value).toBe(`${LEGACY_BODY}<p>More</p>`);
+  });
+
+  it("saves an unedited body byte for byte, even one sanitizing would reformat", () => {
+    const unclosedBody = "<p class=lead>Open 9 to 5";
+    const editor = useHtmlBodyEditor({ addTags: [] });
+    editor.loadStoredBody(unclosedBody);
+
+    expect(editor.htmlToSave()).toBe(unclosedBody);
+  });
+
+  it("sanitizes an edited body before saving", () => {
+    const editor = useHtmlBodyEditor({ addTags: [] });
+    editor.loadStoredBody(PROSE_BODY);
+    editor.editBody('<p class="lead">Hi</p><script>x()</script>');
+
+    expect(editor.htmlToSave()).toBe('<p class="lead">Hi</p>');
+  });
+
+  it("compares against the body loaded last", () => {
+    const editor = useHtmlBodyEditor({ addTags: [] });
+    editor.loadStoredBody(PROSE_BODY);
+    editor.loadStoredBody(LEGACY_BODY);
+
+    expect(editor.htmlToSave()).toBe(LEGACY_BODY);
   });
 });

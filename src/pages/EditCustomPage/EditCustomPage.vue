@@ -27,7 +27,8 @@
             :markupStyle="markupStyle"
             :markupLostBySimplifying="markupLostBySimplifying"
             label="Body"
-            subject="page"
+            contentNoun="page"
+            :addTags="addTags"
             @update:html="editBody"
             @chooseMarkupStyle="chooseMarkupStyle"
             @undoSimplifying="undoSimplifying" />
@@ -86,7 +87,6 @@ import FormPageLayout from "@/layouts/FormPageLayout.vue";
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import HtmlBodyEditor from "@/components/HtmlBodyEditor/HtmlBodyEditor.vue";
 import { useHtmlBodyEditor } from "@/components/HtmlBodyEditor/useHtmlBodyEditor";
-import { toSaveableHtml } from "@/components/HtmlBodyEditor/toSaveableHtml";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
 import Button from "@/components/Button/Button.vue";
@@ -148,13 +148,19 @@ const form = ref<FormState>(getDefaultForm());
 // editor rewrites, so every way it can change is named in one place.
 const {
   html: bodyHtml,
+  addTags,
   markupStyle,
   markupLostBySimplifying,
   loadStoredBody,
   editBody,
   chooseMarkupStyle,
   undoSimplifying,
-} = useHtmlBodyEditor();
+  htmlToSave,
+} = useHtmlBodyEditor({
+  // StaticContentPage renders bodies with <style> allowed,
+  // so leaving it out drops page styles on save.
+  addTags: ["style"],
+});
 
 watch(
   pageData,
@@ -197,18 +203,12 @@ async function handleSave() {
     return;
   }
 
-  // A body the admin never changed goes back exactly as it arrived, so
-  // opening a page and pressing Save cannot alter what is stored.
-  const storedBody = pageData.value?.body;
-  const bodyToSave =
-    bodyHtml.value === storedBody ? storedBody : toSaveableHtml(bodyHtml.value);
-
   try {
     await saveMutation.mutateAsync(
       {
         id: props.pageId ?? undefined,
         title: form.value.title,
-        body: bodyToSave,
+        body: htmlToSave(),
         parent: form.value.parent,
         includeInHeader: form.value.includeInHeader,
       },
