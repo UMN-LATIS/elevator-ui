@@ -8,7 +8,7 @@
       )}`">
       <button
         type="button"
-        aria-label="This page uses HTML the toolbar cannot produce"
+        :aria-label="`This ${subject} uses HTML the toolbar cannot produce`"
         class="inline-flex items-center rounded-full text-warning hover:text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
         data-testid="markup-warning">
         <TriangleAlertIcon class="size-4" />
@@ -31,8 +31,9 @@
       @close="isConfirmingSimpleFormatting = false"
       @confirm="emit('chooseMarkupStyle', 'simpleFormatting')">
       <p>
-        The toolbar cannot produce every tag and attribute on this page. Turning
-        Custom HTML off rewrites the body, removing:
+        The toolbar cannot produce every tag and attribute on this
+        {{ subject }}. Turning Custom HTML off rewrites the {{ subject }},
+        removing:
       </p>
       <p class="font-mono mt-1">{{ toMarkupList(markupLostBySimplifying) }}</p>
 
@@ -72,6 +73,7 @@ const props = defineProps<{
   isCustomHtml: boolean;
   html: string;
   markupLostBySimplifying: string[];
+  subject: string;
 }>();
 
 const emit = defineEmits<{

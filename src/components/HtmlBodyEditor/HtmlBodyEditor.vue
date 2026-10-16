@@ -15,6 +15,7 @@
         :isCustomHtml="isCustomHtml"
         :html="html"
         :markupLostBySimplifying="markupLostBySimplifying"
+        :subject="subject"
         @chooseMarkupStyle="emit('chooseMarkupStyle', $event)" />
     </div>
 
@@ -52,7 +53,7 @@
         </p>
         <SanitizedHTML
           :html="html"
-          :addTags="['style']"
+          :addTags="previewAddTags"
           class="prose prose-neutral max-w-none" />
       </div>
     </div>
@@ -86,9 +87,12 @@ const props = withDefaults(
     markupStyle: BodyMarkupStyle;
     markupLostBySimplifying: string[];
     label?: string;
+    subject: string;
+    previewAddTags?: string[];
   }>(),
   {
     label: "Body",
+    previewAddTags: () => ["style"],
   }
 );
 

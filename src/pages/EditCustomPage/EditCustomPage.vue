@@ -27,6 +27,7 @@
             :markupStyle="markupStyle"
             :markupLostBySimplifying="markupLostBySimplifying"
             label="Body"
+            subject="page"
             @update:html="editBody"
             @chooseMarkupStyle="chooseMarkupStyle"
             @undoSimplifying="undoSimplifying" />

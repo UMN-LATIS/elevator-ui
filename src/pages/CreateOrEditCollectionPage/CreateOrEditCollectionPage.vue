@@ -39,14 +39,16 @@
           v-model="form.showInBrowse"
           label="Show on Browse Collections Page" />
 
-        <div class="flex flex-col gap-1">
-          <!-- span, not label: TextEditor renders no focusable control
-               to associate a label with -->
-          <span class="text-xs uppercase font-medium text-on-surface">
-            Description
-          </span>
-          <TextEditor v-model="form.description" />
-        </div>
+        <HtmlBodyEditor
+          :html="descriptionHtml"
+          :markupStyle="markupStyle"
+          :markupLostBySimplifying="markupLostBySimplifying"
+          label="Description"
+          subject="description"
+          :previewAddTags="[]"
+          @update:html="editBody"
+          @chooseMarkupStyle="chooseMarkupStyle"
+          @undoSimplifying="undoSimplifying" />
 
         <InputGroup
           v-model="form.previewImageId"
@@ -134,7 +136,9 @@ import {
 import InputGroup from "@/components/InputGroup/InputGroup.vue";
 import SelectGroup from "@/components/SelectGroup/SelectGroup.vue";
 import ToggleGroup from "@/components/ToggleGroup/ToggleGroup.vue";
-import TextEditor from "@/components/TextEditor/TextEditor.vue";
+import HtmlBodyEditor from "@/components/HtmlBodyEditor/HtmlBodyEditor.vue";
+import { useHtmlBodyEditor } from "@/components/HtmlBodyEditor/useHtmlBodyEditor";
+import { toSaveableHtml } from "@/components/HtmlBodyEditor/toSaveableHtml";
 import SpinnerIcon from "@/icons/SpinnerIcon.vue";
 import EyeIcon from "@/icons/EyeIcon.vue";
 import EyeOffIcon from "@/icons/EyeOffIcon.vue";
@@ -156,6 +160,16 @@ const props = defineProps<{
 const router = useRouter();
 
 const isExistingCollection = computed(() => props.collectionId !== null);
+
+const {
+  html: descriptionHtml,
+  markupStyle,
+  markupLostBySimplifying,
+  loadStoredBody,
+  editBody,
+  chooseMarkupStyle,
+  undoSimplifying,
+} = useHtmlBodyEditor();
 
 // the full collection list feeds the parent select
 const { data: collections } = useQuery(adminCollectionsQuery());
@@ -213,6 +227,7 @@ watch(
   () => {
     hasHydratedForm.value = false;
     form.value = makeEmptyCollectionForm();
+    loadStoredBody("");
     // never carry one collection's revealed secret to the next
     isS3SecretRevealed.value = false;
   }
@@ -228,6 +243,7 @@ watch(
     }
     hasHydratedForm.value = true;
     form.value = toSaveCollectionPayload(detail);
+    loadStoredBody(form.value.description);
   },
   // immediate: a cached detail can already be present on mount
   { immediate: true }
@@ -285,16 +301,25 @@ const isSaving = computed(
 function handleSave() {
   const goToCollectionsIndex = () => router.push({ name: "adminCollections" });
 
+  // Sanitizing re-serializes the HTML, so running an untouched description
+  // through it would rewrite stored markup on a save that only changed,
+  // say, the title.
+  const storedDescription = collectionDetail.value?.description ?? "";
+  const description =
+    descriptionHtml.value === storedDescription
+      ? storedDescription
+      : toSaveableHtml(descriptionHtml.value);
+  const collection = { ...form.value, description };
+
   if (props.collectionId === null) {
-    createCollectionMutation.mutate(
-      { ...form.value },
-      { onSuccess: goToCollectionsIndex }
-    );
+    createCollectionMutation.mutate(collection, {
+      onSuccess: goToCollectionsIndex,
+    });
     return;
   }
 
   updateCollectionMutation.mutate(
-    { collectionId: props.collectionId, collection: { ...form.value } },
+    { collectionId: props.collectionId, collection },
     { onSuccess: goToCollectionsIndex }
   );
 }
