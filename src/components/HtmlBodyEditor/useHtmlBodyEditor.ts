@@ -58,10 +58,11 @@ export function useHtmlBodyEditor({
   function loadStoredBody(nextStoredHtml: string): void {
     storedHtml = nextStoredHtml;
     html.value = storedHtml;
-    markupStyle.value = markupLostByQuill(storedHtml).length
+    const markupLost = markupLostByQuill(storedHtml);
+    markupStyle.value = markupLost.length
       ? { name: "customHtml" }
       : { name: "simpleFormatting", simplification: null };
-    refreshMarkupLostBySimplifying();
+    markupLostBySimplifying.value = markupLost;
   }
 
   function editBody(nextHtml: string): void {
