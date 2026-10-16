@@ -102,6 +102,41 @@ test.describe("Collection description HTML preservation", () => {
     );
   });
 
+  test("reopening a collection saved elsewhere shows the saved description, not the cached one", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+    const descriptionSavedElsewhere =
+      '<p id="saved-elsewhere">From another tab</p>';
+
+    await page.goto(`/admin/collections/edit/${COLLECTION_ID}`);
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
+      SECOND_COLLECTION_DESCRIPTION
+    );
+    await page.getByRole("link", { name: "Cancel" }).click();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeHidden();
+
+    const savedElsewhere = await request.put(
+      `${MOCK_SERVER_BASE}/defaultinstance/adminCollections/collections/${COLLECTION_ID}`,
+      {
+        headers: { "x-worker-id": workerId },
+        form: {
+          title: "Second Collection",
+          parentId: "0",
+          showInBrowse: "true",
+          description: descriptionSavedElsewhere,
+        },
+      }
+    );
+    expect(savedElsewhere.ok()).toBe(true);
+
+    await page.goBack();
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
+      descriptionSavedElsewhere
+    );
+  });
+
   test("a leading style block is saved the way the collection page renders it", async ({
     page,
     request,

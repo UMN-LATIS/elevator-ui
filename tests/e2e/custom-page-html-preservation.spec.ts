@@ -262,6 +262,40 @@ test.describe("Custom page HTML preservation (#623)", () => {
     await expect(textarea).toHaveValue(unsavedBody);
   });
 
+  test("reopening a page saved elsewhere shows the saved body, not the cached one", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+    const bodySavedElsewhere = '<p id="saved-elsewhere">From another tab</p>';
+
+    await page.goto("/instances/customPages");
+    await page.locator(`a[href$="/instances/editPage/${PAGE_ID}"]`).click();
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
+      SEED_BODY
+    );
+    await page.goBack();
+    await expect(page.getByTestId("html-body-source-textarea")).toBeHidden();
+
+    const savedElsewhere = await request.post(
+      `${MOCK_SERVER_BASE}/defaultinstance/instances/savePage/true`,
+      {
+        headers: { "x-worker-id": workerId },
+        multipart: {
+          pageId: String(PAGE_ID),
+          title: "Legacy Rich Page",
+          body: bodySavedElsewhere,
+        },
+      }
+    );
+    expect(savedElsewhere.ok()).toBe(true);
+
+    await page.goForward();
+    await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
+      bodySavedElsewhere
+    );
+  });
+
   test("script tags are removed on save without disturbing other markup", async ({
     page,
     request,

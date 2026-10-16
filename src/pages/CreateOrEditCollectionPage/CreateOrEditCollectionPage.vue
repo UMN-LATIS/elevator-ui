@@ -188,6 +188,10 @@ const {
   computed(() => ({
     ...adminCollectionQuery(props.collectionId ?? 0),
     enabled: props.collectionId !== null,
+    // Raising gcTime loads a cached description into the
+    // form, and saving writes it over a newer stored one
+    // ("reopening a collection saved elsewhere" fails).
+    gcTime: 0,
   }))
 );
 

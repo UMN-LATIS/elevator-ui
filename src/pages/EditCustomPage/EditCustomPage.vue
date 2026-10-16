@@ -118,6 +118,10 @@ const {
   isError,
 } = useCustomPageEditQuery(pageIdRef, {
   enabled: computed(() => !isNewPage.value),
+  // Raising gcTime loads a cached body into the form, and
+  // saving writes it over a newer stored body ("reopening
+  // a page saved elsewhere" fails).
+  gcTime: 0,
 });
 
 const { data: allPages, isLoading: isLoadingPages } = useAllCustomPagesQuery();
