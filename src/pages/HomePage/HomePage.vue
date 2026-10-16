@@ -22,7 +22,7 @@
           Edit Page
         </Button>
         <Transition v-if="homePageContent" name="fade">
-          <SanitizedHTML
+          <InstanceHTML
             v-if="homePageContent.content"
             :html="homePageContent.content"
             class="prose"
@@ -41,7 +41,7 @@
         class="featured-asset-block col-span-1 p-4 lg:p-8">
         <h2 class="text-sm font-bold uppercase mb-2">Featured</h2>
         <div class="mb-4">
-          <SanitizedHTML :html="featuredAssetText" />
+          <InstanceHTML :html="featuredAssetText" />
         </div>
         <FeaturedAssetCard :assetId="featuredAssetId" />
       </aside>
@@ -62,7 +62,7 @@
 </template>
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import { computed, nextTick, onUnmounted, watch } from "vue";
 import { ShowCustomHeaderMode } from "@/types";
 import FeaturedAssetCard from "@/components/FeaturedAssetCard/FeaturedAssetCard.vue";

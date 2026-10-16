@@ -18,7 +18,7 @@
         class="thumbnail-related-asset-widget__image max-w-full" />
       <ThumbnailGeneric v-else :isActive="isActiveObject" />
 
-      <SanitizedHTML
+      <InstanceHTML
         v-if="isTitleVisible"
         class="whitespace-nowrap text-xs mt-1 truncate overflow-hidden w-full text-center"
         :html="title" />
@@ -30,7 +30,7 @@ import { computed } from "vue";
 import { getTinyURL } from "@/helpers/displayUtils";
 import ThumbnailImage from "@/components/ThumbnailImage/ThumbnailImage.vue";
 import ThumbnailGeneric from "@/components/ThumbnailGeneric/ThumbnailGeneric.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import Tooltip from "@/components/Tooltip/Tooltip.vue";
 import { useElevatorInstance } from "@/composables/useElevatorInstance";
 import { RelatedAssetCacheItem } from "@/types";

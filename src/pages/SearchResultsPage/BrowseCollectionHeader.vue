@@ -42,7 +42,7 @@
         </Button>
       </div>
 
-      <SanitizedHTML
+      <InstanceHTML
         v-if="collection?.description"
         :html="collection.description"
         class="prose max-w-screen-lg mt-2" />
@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import Button from "@/components/Button/Button.vue";
 import Link from "@/components/Link/Link.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import Skeleton from "@/components/Skeleton/Skeleton.vue";
 import { useCollectionById } from "@/composables/useCollectionById";
 import { useCurrentUser } from "@/composables/useCurrentUser";

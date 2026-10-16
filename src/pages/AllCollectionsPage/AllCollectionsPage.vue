@@ -11,7 +11,7 @@
           <Button to="/admin/collections">Manage Collections</Button>
         </div>
       </div>
-      <SanitizedHTML
+      <InstanceHTML
         v-if="collectionPageContent?.content"
         class="mb-8"
         :html="collectionPageContent.content" />
@@ -40,7 +40,7 @@ import { useNavPages } from "@/composables/useNavPages";
 import { useCustomPageViewQuery } from "@/queries/customPageQueries";
 import { useResizeObserver } from "@vueuse/core";
 import { ShowCustomHeaderMode } from "@/types";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import Button from "@/components/Button/Button.vue";
 
 const { browsableCollections } = useCollections();

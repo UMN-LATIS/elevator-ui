@@ -50,7 +50,7 @@
         <p class="text-xs font-medium text-on-surface-variant uppercase mb-2">
           Preview
         </p>
-        <SanitizedHTML
+        <InstanceHTML
           :html="html"
           :addTags="['style']"
           class="prose prose-neutral max-w-none" />
@@ -73,7 +73,7 @@
 <script setup lang="ts">
 import { computed, ref, useId, watch } from "vue";
 import TextEditorGroup from "@/components/TextEditorGroup/TextEditorGroup.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import Button from "@/components/Button/Button.vue";
 import PageMarkupStyleSwitch from "./PageMarkupStyleSwitch.vue";
 import { fromQuillHtml } from "./fromQuillHtml";

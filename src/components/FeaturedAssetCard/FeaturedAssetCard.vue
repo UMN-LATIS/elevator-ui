@@ -19,7 +19,7 @@
         <div class="flex-1 p-4 flex justify-between items-center">
           <h1
             class="search-result-card__title font-bold leading-tight group-hover:text-primary text-center text-on-surface">
-            <SanitizedHTML :html="title" />
+            <InstanceHTML :html="title" />
           </h1>
           <ArrowForwardIcon class="group-hover:text-primary" />
         </div>
@@ -37,7 +37,7 @@ import {
 } from "@/helpers/displayUtils";
 import { computed, ref, watch } from "vue";
 import Link from "@/components/Link/Link.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import LazyLoadImage from "@/components/LazyLoadImage/LazyLoadImage.vue";
 import { DocumentIcon, ArrowForwardIcon } from "@/icons";
 import api from "@/api";

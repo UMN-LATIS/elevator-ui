@@ -22,7 +22,7 @@
           </Button>
         </header>
 
-        <SanitizedHTML
+        <InstanceHTML
           :html="page.content ?? ''"
           class="w-full prose mx-auto"
           :addTags="['style']" />
@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import CustomAppHeader from "@/components/CustomAppHeader/CustomAppHeader.vue";
-import SanitizedHTML from "@/components/SanitizedHTML/SanitizedHTML.vue";
+import InstanceHTML from "@/components/InstanceHTML/InstanceHTML.vue";
 import AppFooter from "@/components/AppFooter/AppFooter.vue";
 import { computed, nextTick, onUnmounted, watch } from "vue";
 import { ShowCustomHeaderMode } from "@/types";
