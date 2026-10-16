@@ -34,6 +34,10 @@ const collectionSeeds: MockCollection[] = [
   makeCollectionSeed({
     id: 2,
     title: "Second Collection",
+    // markup quill cannot represent, kept on one line so e2e tests can
+    // assert the stored description is byte-identical after a save
+    description:
+      '<div class="hero" id="intro"><figure class="hero__media"><img src="https://example.com/hero.jpg" alt=""></figure><h2 class="hero__title">Second Collection</h2><p data-track="intro">Testimony gathered for the second collection.</p></div>',
     parentId: null,
     showInBrowse: true,
     canView: true,
