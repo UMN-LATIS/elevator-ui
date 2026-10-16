@@ -6,13 +6,9 @@ import {
 } from "@playwright/test";
 import { setupWorkerHTTPHeader, loginUser, refreshDatabase } from "../setup";
 import mockServerConfig from "../../mock-server/config";
+import { SECOND_COLLECTION_DESCRIPTION } from "../../mock-server/db/collections";
 
 const MOCK_SERVER_BASE = `${mockServerConfig.ORIGIN}:${mockServerConfig.PORT}`;
-
-// Seeded on collection 2 in mock-server/db/collections.ts. Kept in sync by
-// hand so the unedited-save test can assert byte-identity.
-const SEED_DESCRIPTION =
-  '<div class="hero" id="intro"><figure class="hero__media"><img src="https://example.com/hero.jpg" alt=""></figure><h2 class="hero__title">Second Collection</h2><p data-track="intro">Testimony gathered for the second collection.</p></div>';
 
 const COLLECTION_ID = 2;
 
@@ -23,7 +19,6 @@ async function fetchStoredDescription({
   request: APIRequestContext;
   workerId: string;
 }): Promise<string> {
-  // the endpoint the collection page reads its description from
   const response = await request.get(
     `${MOCK_SERVER_BASE}/defaultinstance/collections/collectionHeader/${COLLECTION_ID}/true`,
     { headers: { "x-worker-id": workerId } }
@@ -52,7 +47,7 @@ test.describe("Collection description HTML preservation", () => {
     await page.goto(`/admin/collections/edit/${COLLECTION_ID}`);
 
     const textarea = page.getByTestId("html-body-source-textarea");
-    await expect(textarea).toHaveValue(SEED_DESCRIPTION);
+    await expect(textarea).toHaveValue(SECOND_COLLECTION_DESCRIPTION);
     await expect(
       page.getByRole("switch", { name: "Custom HTML" })
     ).toBeChecked();
@@ -75,7 +70,7 @@ test.describe("Collection description HTML preservation", () => {
     await saveCollection(page);
 
     expect(await fetchStoredDescription({ request, workerId })).toBe(
-      SEED_DESCRIPTION
+      SECOND_COLLECTION_DESCRIPTION
     );
   });
 
@@ -101,10 +96,28 @@ test.describe("Collection description HTML preservation", () => {
     expect(storedDescription).toContain('<figure class="intro__media">');
     expect(storedDescription).toContain('data-track="edited"');
 
-    // reopening shows the saved markup, still in source mode
     await page.goto(`/admin/collections/edit/${COLLECTION_ID}`);
     await expect(page.getByTestId("html-body-source-textarea")).toHaveValue(
       storedDescription
+    );
+  });
+
+  test("a leading style block is saved the way the collection page renders it", async ({
+    page,
+    request,
+  }) => {
+    const workerId = test.info().workerIndex.toString();
+
+    await page.goto(`/admin/collections/edit/${COLLECTION_ID}`);
+    const textarea = page.getByTestId("html-body-source-textarea");
+    await expect(textarea).toBeVisible();
+    await textarea.fill(
+      '<style>.lead{color:red}</style><p class="lead">Styled</p>'
+    );
+    await saveCollection(page);
+
+    expect(await fetchStoredDescription({ request, workerId })).toBe(
+      '<p class="lead">Styled</p>'
     );
   });
 });
