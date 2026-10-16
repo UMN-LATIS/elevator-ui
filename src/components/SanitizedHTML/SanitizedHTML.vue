@@ -1,20 +1,23 @@
 <template>
   <!-- eslint-disable-next-line vue/no-v-html -->
-  <div ref="containerRef" v-html="sanitizedHtml" />
+  <div ref="containerRef" @click="routeLinkClick" v-html="sanitizedHtml" />
 </template>
 <script setup lang="ts">
 import DOMPurify from "dompurify";
 import { computed, ref } from "vue";
+import { useInstanceLinks } from "@/composables/useInstanceLinks";
 
 const props = withDefaults(
   defineProps<{
     html: string;
     removeInlineStyles?: boolean;
     addTags?: string[];
+    resolveLinks?: boolean;
   }>(),
   {
     removeInlineStyles: false,
     addTags: () => [],
+    resolveLinks: false,
   }
 );
 
@@ -32,4 +35,8 @@ const sanitizeConfig = computed(() => ({
 const sanitizedHtml = computed(() => {
   return DOMPurify.sanitize(props.html, sanitizeConfig.value);
 });
+
+const routeLinkClick = props.resolveLinks
+  ? useInstanceLinks(containerRef, () => sanitizedHtml.value).routeLinkClick
+  : undefined;
 </script>

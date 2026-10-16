@@ -45,7 +45,8 @@
       <SanitizedHTML
         v-if="collection?.description"
         :html="collection.description"
-        class="prose max-w-screen-lg mt-2" />
+        class="prose max-w-screen-lg mt-2"
+        resolveLinks />
       <template v-if="!collection">
         <Skeleton class="!w-1/2 !h-12 !my-8" />
       </template>

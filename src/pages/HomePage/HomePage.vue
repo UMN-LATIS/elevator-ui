@@ -26,6 +26,7 @@
             v-if="homePageContent.content"
             :html="homePageContent.content"
             class="prose"
+            resolveLinks
             :class="{
               'mx-auto': !featuredAssetId,
             }" />
