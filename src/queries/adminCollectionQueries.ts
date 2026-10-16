@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/vue-query";
 import * as fetchers from "@/api/fetchers";
 import type { SaveCollectionPayload } from "@/api/fetchers";
 import { makeQueryKeysFor } from "@/helpers/makeQueryKeysFor";
+import { collectionDescriptionKey } from "./useCollectionDescriptionQuery";
 import { useToastStore } from "@/stores/toastStore";
 
 export const adminCollectionKeys = makeQueryKeysFor("adminCollections");
@@ -56,6 +57,9 @@ export function useUpdateCollectionMutation() {
         queryClient.invalidateQueries({ queryKey: adminCollectionKeys.list() }),
         queryClient.invalidateQueries({
           queryKey: adminCollectionKeys.item(input.collectionId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: collectionDescriptionKey(input.collectionId),
         }),
       ]),
   });
